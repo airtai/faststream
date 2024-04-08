@@ -1,5 +1,6 @@
 from copy import deepcopy
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -9,52 +10,55 @@ from typing import (
     Union,
 )
 
-from aio_pika import IncomingMessage, RobustQueue
-from fast_depends.dependencies import Depends
 from typing_extensions import override
 
-from faststream.broker.message import StreamMessage
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.types import BrokerMiddleware, CustomDecoder, CustomParser
 from faststream.exceptions import SetupError
 from faststream.rabbit.parser import AioPikaParser
-from faststream.rabbit.publisher.producer import AioPikaFastProducer
-from faststream.rabbit.schemas import (
-    BaseRMQInformation,
-    RabbitExchange,
-    RabbitQueue,
-    ReplyConfig,
-)
-from faststream.rabbit.utils import RabbitDeclarer
-from faststream.types import AnyDict, LoggerProto
+from faststream.rabbit.schemas import BaseRMQInformation
+
+if TYPE_CHECKING:
+    from aio_pika import IncomingMessage, RobustQueue
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import BrokerMiddleware, CustomCallable
+    from faststream.rabbit.publisher.producer import AioPikaFastProducer
+    from faststream.rabbit.schemas import (
+        RabbitExchange,
+        RabbitQueue,
+        ReplyConfig,
+    )
+    from faststream.rabbit.utils import RabbitDeclarer
+    from faststream.types import AnyDict, LoggerProto
 
 
 class LogicSubscriber(
-    SubscriberUsecase[IncomingMessage],
+    SubscriberUsecase["IncomingMessage"],
     BaseRMQInformation,
 ):
     """A class to handle logic for RabbitMQ message consumption."""
 
     app_id: Optional[str]
-    declarer: Optional[RabbitDeclarer]
+    declarer: Optional["RabbitDeclarer"]
 
     _consumer_tag: Optional[str]
-    _queue_obj: Optional[RobustQueue]
-    _producer: Optional[AioPikaFastProducer]
+    _queue_obj: Optional["RobustQueue"]
+    _producer: Optional["AioPikaFastProducer"]
 
     def __init__(
         self,
         *,
-        queue: RabbitQueue,
-        exchange: Optional[RabbitExchange],
-        consume_args: Optional[AnyDict],
-        reply_config: Optional[ReplyConfig],
+        queue: "RabbitQueue",
+        exchange: Optional["RabbitExchange"],
+        consume_args: Optional["AnyDict"],
+        reply_config: Optional["ReplyConfig"],
         # Subscriber args
         no_ack: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[IncomingMessage]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -94,15 +98,15 @@ class LogicSubscriber(
         *,
         app_id: Optional[str],
         virtual_host: str,
-        declarer: RabbitDeclarer,
+        declarer: "RabbitDeclarer",
         # basic args
         logger: Optional["LoggerProto"],
         producer: Optional["AioPikaFastProducer"],
         graceful_timeout: Optional[float],
         extra_context: Optional["AnyDict"],
         # broker options
-        broker_parser: Optional["CustomParser[IncomingMessage]"],
-        broker_decoder: Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
         # dependant args
         apply_types: bool,
         is_validate: bool,
@@ -164,8 +168,8 @@ class LogicSubscriber(
 
     def _make_response_publisher(
         self,
-        message: StreamMessage[Any],
-    ) -> Sequence[FakePublisher]:
+        message: "StreamMessage[Any]",
+    ) -> Sequence["FakePublisher"]:
         if not message.reply_to or self._producer is None:
             return ()
 
@@ -185,8 +189,8 @@ class LogicSubscriber(
 
     @staticmethod
     def get_routing_hash(
-        queue: RabbitQueue,
-        exchange: Optional[RabbitExchange] = None,
+        queue: "RabbitQueue",
+        exchange: Optional["RabbitExchange"] = None,
     ) -> int:
         """Calculate the routing hash for a RabbitMQ queue and exchange."""
         return hash(queue) + hash(exchange or "")
@@ -194,8 +198,8 @@ class LogicSubscriber(
     @staticmethod
     def build_log_context(
         message: Optional["StreamMessage[Any]"],
-        queue: RabbitQueue,
-        exchange: Optional[RabbitExchange] = None,
+        queue: "RabbitQueue",
+        exchange: Optional["RabbitExchange"] = None,
     ) -> Dict[str, str]:
         return {
             "queue": queue.name,

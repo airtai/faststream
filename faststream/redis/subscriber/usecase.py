@@ -10,37 +10,26 @@ from typing import (
     Dict,
     Iterable,
     List,
-    Mapping,
     Optional,
     Sequence,
     Tuple,
-    TypeVar,
 )
 
 import anyio
-from fast_depends.dependencies import Depends
 from redis.asyncio.client import PubSub as RPubSub
 from redis.asyncio.client import Redis
 from redis.exceptions import ResponseError
-from typing_extensions import override
+from typing_extensions import TypeAlias, override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.types import (
-    AsyncDecoder,
-    AsyncParser,
-    BrokerMiddleware,
-    CustomDecoder,
-    CustomParser,
-)
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,
     DefaultListMessage,
     DefaultStreamMessage,
-    ListMessage,
     PubSubMessage,
-    StreamMessage,
+    UnifyRedisDict,
 )
 from faststream.redis.parser import (
     RedisBatchListParser,
@@ -52,15 +41,23 @@ from faststream.redis.parser import (
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 if TYPE_CHECKING:
+    from fast_depends.dependencies import Depends
+
     from faststream.broker.message import StreamMessage as BrokerStreamMessage
     from faststream.broker.publisher.proto import ProducerProto
+    from faststream.broker.types import (
+        AsyncCallable,
+        BrokerMiddleware,
+        CustomCallable,
+    )
     from faststream.types import AnyDict, LoggerProto
 
 
-MsgType = TypeVar("MsgType", bound=Mapping[str, Any])
+TopicName: TypeAlias = bytes
+Offset: TypeAlias = bytes
 
 
-class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
+class LogicSubscriber(ABC, SubscriberUsecase[UnifyRedisDict]):
     """A class to represent a Redis handler."""
 
     _client: Optional["Redis[bytes]"]
@@ -68,14 +65,14 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     def __init__(
         self,
         *,
-        default_parser: "AsyncParser[MsgType]",
-        default_decoder: "AsyncDecoder[BrokerStreamMessage[MsgType]]",
+        default_parser: "AsyncCallable",
+        default_decoder: "AsyncCallable",
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
-        # AsyncAPI MsgType
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
@@ -108,8 +105,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         graceful_timeout: Optional[float],
         extra_context: Optional["AnyDict"],
         # broker options
-        broker_parser: Optional["CustomParser[MsgType]"],
-        broker_decoder: Optional["CustomDecoder[BrokerStreamMessage[MsgType]]"],
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
         # dependant args
         apply_types: bool,
         is_validate: bool,
@@ -130,7 +127,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         )
 
     def _make_response_publisher(
-        self, message: "BrokerStreamMessage[MsgType]"
+        self, message: "BrokerStreamMessage[UnifyRedisDict]"
     ) -> Sequence[FakePublisher]:
         if not message.reply_to or self._producer is None:
             return ()
@@ -199,19 +196,19 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         }
 
 
-class ChannelSubscriber(LogicSubscriber[PubSubMessage]):
+class ChannelSubscriber(LogicSubscriber):
     subscription: Optional[RPubSub]
 
     def __init__(
         self,
         *,
-        channel: PubSub,
+        channel: "PubSub",
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[PubSubMessage]],
-        # AsyncAPI MsgType
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
@@ -279,7 +276,7 @@ class ChannelSubscriber(LogicSubscriber[PubSubMessage]):
                 channel=raw_msg["channel"].decode(),
                 pattern=raw_msg["pattern"],
             )
-            await self.consume(msg)
+            await self.consume(msg)  # type: ignore[arg-type]
 
     def add_prefix(self, prefix: str) -> None:
         new_ch = deepcopy(self.channel)
@@ -287,22 +284,19 @@ class ChannelSubscriber(LogicSubscriber[PubSubMessage]):
         self.channel = new_ch
 
 
-ListMsgType = TypeVar("ListMsgType", bound=ListMessage)
-
-
-class _ListHandlerMixin(LogicSubscriber[ListMsgType]):
+class _ListHandlerMixin(LogicSubscriber):
     def __init__(
         self,
         *,
         list: ListSub,
-        default_parser: "AsyncParser[ListMsgType]",
-        default_decoder: "AsyncDecoder[BrokerStreamMessage[ListMsgType]]",
+        default_parser: "AsyncCallable",
+        default_decoder: "AsyncCallable",
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[ListMsgType]],
-        # AsyncAPI MsgType
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
@@ -340,7 +334,7 @@ class _ListHandlerMixin(LogicSubscriber[ListMsgType]):
         self,
         client: "Redis[bytes]",
         *,
-        start_signal: anyio.Event,
+        start_signal: "anyio.Event",
     ) -> None:
         start_signal.set()
         await super()._consume(client, start_signal=start_signal)
@@ -356,7 +350,7 @@ class _ListHandlerMixin(LogicSubscriber[ListMsgType]):
         self.list_sub = new_list
 
 
-class ListSubscriber(_ListHandlerMixin[DefaultListMessage]):
+class ListSubscriber(_ListHandlerMixin):
     def __init__(
         self,
         *,
@@ -364,9 +358,9 @@ class ListSubscriber(_ListHandlerMixin[DefaultListMessage]):
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[DefaultListMessage]],
-        # AsyncAPI MsgType
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
@@ -396,13 +390,13 @@ class ListSubscriber(_ListHandlerMixin[DefaultListMessage]):
                 channel=self.list_sub.name,
             )
 
-            await self.consume(message)
+            await self.consume(message)  # type: ignore[arg-type]
 
         else:
             await anyio.sleep(self.list_sub.polling_interval)
 
 
-class BatchListSubscriber(_ListHandlerMixin[BatchListMessage]):
+class BatchListSubscriber(_ListHandlerMixin):
     def __init__(
         self,
         *,
@@ -410,9 +404,9 @@ class BatchListSubscriber(_ListHandlerMixin[BatchListMessage]):
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[BatchListMessage]],
-        # AsyncAPI MsgType
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
@@ -445,28 +439,25 @@ class BatchListSubscriber(_ListHandlerMixin[BatchListMessage]):
                 data=raw_msgs,
             )
 
-            await self.consume(msg)
+            await self.consume(msg)  # type: ignore[arg-type]
 
         else:
             await anyio.sleep(self.list_sub.polling_interval)
 
 
-StreamMsgType = TypeVar("StreamMsgType", bound=StreamMessage)
-
-
-class _StreamHandlerMixin(LogicSubscriber[StreamMsgType]):
+class _StreamHandlerMixin(LogicSubscriber):
     def __init__(
         self,
         *,
         stream: StreamSub,
-        default_parser: "AsyncParser[StreamMsgType]",
-        default_decoder: "AsyncDecoder[BrokerStreamMessage[StreamMsgType]]",
+        default_parser: "AsyncCallable",
+        default_decoder: "AsyncCallable",
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[StreamMsgType]],
-        # AsyncAPI MsgType
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
@@ -512,6 +503,25 @@ class _StreamHandlerMixin(LogicSubscriber[StreamMsgType]):
 
         stream = self.stream_sub
 
+        read: Callable[
+            [str],
+            Awaitable[
+                Tuple[
+                    Tuple[
+                        TopicName,
+                        Tuple[
+                            Tuple[
+                                Offset,
+                                Dict[bytes, bytes],
+                            ],
+                            ...,
+                        ],
+                    ],
+                    ...,
+                ],
+            ],
+        ]
+
         if stream.group and stream.consumer:
             try:
                 await client.xgroup_create(
@@ -524,7 +534,23 @@ class _StreamHandlerMixin(LogicSubscriber[StreamMsgType]):
                 if "already exists" not in str(e):
                     raise e
 
-            def read(_):
+            def read(
+                _: str,
+            ) -> Awaitable[
+                Tuple[
+                    Tuple[
+                        TopicName,
+                        Tuple[
+                            Tuple[
+                                Offset,
+                                Dict[bytes, bytes],
+                            ],
+                            ...,
+                        ],
+                    ],
+                    ...,
+                ],
+            ]:
                 return client.xreadgroup(
                     groupname=stream.group,
                     consumername=stream.consumer,
@@ -536,7 +562,23 @@ class _StreamHandlerMixin(LogicSubscriber[StreamMsgType]):
 
         else:
 
-            def read(last_id):
+            def read(
+                last_id: str,
+            ) -> Awaitable[
+                Tuple[
+                    Tuple[
+                        TopicName,
+                        Tuple[
+                            Tuple[
+                                Offset,
+                                Dict[bytes, bytes],
+                            ],
+                            ...,
+                        ],
+                    ],
+                    ...,
+                ],
+            ]:
                 return client.xread(
                     {stream.name: last_id},
                     block=stream.polling_interval,
@@ -551,7 +593,7 @@ class _StreamHandlerMixin(LogicSubscriber[StreamMsgType]):
         self.stream_sub = new_stream
 
 
-class StreamSubscriber(_StreamHandlerMixin[DefaultStreamMessage]):
+class StreamSubscriber(_StreamHandlerMixin):
     def __init__(
         self,
         *,
@@ -559,9 +601,9 @@ class StreamSubscriber(_StreamHandlerMixin[DefaultStreamMessage]):
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[DefaultStreamMessage]],
-        # AsyncAPI MsgType
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
@@ -586,7 +628,19 @@ class StreamSubscriber(_StreamHandlerMixin[DefaultStreamMessage]):
         read: Callable[
             [str],
             Awaitable[
-                Tuple[Tuple[bytes, Tuple[Tuple[bytes, Dict[bytes, bytes]], ...]], ...],
+                Tuple[
+                    Tuple[
+                        TopicName,
+                        Tuple[
+                            Tuple[
+                                Offset,
+                                Dict[bytes, bytes],
+                            ],
+                            ...,
+                        ],
+                    ],
+                    ...,
+                ],
             ],
         ],
     ) -> None:
@@ -602,10 +656,10 @@ class StreamSubscriber(_StreamHandlerMixin[DefaultStreamMessage]):
                         data=raw_msg,
                     )
 
-                    await self.consume(msg)
+                    await self.consume(msg)  # type: ignore[arg-type]
 
 
-class BatchStreamSubscriber(_StreamHandlerMixin[BatchStreamMessage]):
+class BatchStreamSubscriber(_StreamHandlerMixin):
     def __init__(
         self,
         *,
@@ -613,9 +667,9 @@ class BatchStreamSubscriber(_StreamHandlerMixin[BatchStreamMessage]):
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[BatchStreamMessage]],
-        # AsyncAPI MsgType
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
@@ -661,4 +715,4 @@ class BatchStreamSubscriber(_StreamHandlerMixin[BatchStreamMessage]):
                     message_ids=ids,
                 )
 
-                await self.consume(msg)
+                await self.consume(msg)  # type: ignore[arg-type]

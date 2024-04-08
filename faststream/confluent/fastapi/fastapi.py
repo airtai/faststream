@@ -14,10 +14,10 @@ from typing import (
     Type,
     Union,
     cast,
+    overload,
 )
 
 from confluent_kafka import Message
-from fastapi import params
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
@@ -27,29 +27,35 @@ from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.message import StreamMessage
-from faststream.broker.types import (
-    BrokerMiddleware,
-    CustomDecoder,
-    CustomParser,
-    Filter,
-    PublisherMiddleware,
-    SubscriberMiddleware,
-)
 from faststream.broker.utils import default_filter
 from faststream.confluent.broker.broker import KafkaBroker as KB
-from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
-from faststream.confluent.subscriber.asyncapi import AsyncAPISubscriber
 
 if TYPE_CHECKING:
     from enum import Enum
 
+    from fastapi import params
     from fastapi.types import IncEx
     from starlette.types import ASGIApp, Lifespan
 
     from faststream.asyncapi import schema as asyncapi
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomCallable,
+        Filter,
+        PublisherMiddleware,
+        SubscriberMiddleware,
+    )
+    from faststream.confluent.message import KafkaMessage
+    from faststream.confluent.publisher.asyncapi import (
+        AsyncAPIBatchPublisher,
+        AsyncAPIDefaultPublisher,
+    )
+    from faststream.confluent.subscriber.asyncapi import (
+        AsyncAPIBatchSubscriber,
+        AsyncAPIDefaultSubscriber,
+    )
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict
+    from faststream.types import AnyDict, LoggerProto
 
 
 class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
@@ -74,23 +80,18 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             ),
         ] = 15.0,
         decoder: Annotated[
-            Optional[
-                Union[
-                    CustomDecoder[StreamMessage[Message]],
-                    CustomDecoder[StreamMessage[Tuple[Message, ...]]],
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional[Union[CustomParser[Message], CustomParser[Tuple[Message, ...]]]],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
             Iterable[
                 Union[
-                    BrokerMiddleware[Message],
-                    BrokerMiddleware[Tuple[Message, ...]],
+                    "BrokerMiddleware[Message]",
+                    "BrokerMiddleware[Tuple[Message, ...]]",
                 ]
             ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
@@ -124,7 +125,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[
@@ -404,65 +405,296 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             generate_unique_id_function=generate_unique_id_function,
         )
 
-    @override
-    def subscriber(  # type: ignore[override]
+    @overload  # type: ignore[override]
+    def subscriber(
         self,
-        *topics: str,
-        group_id: Optional[str] = None,
-        key_deserializer: Optional[Callable[[bytes], Any]] = None,
-        value_deserializer: Optional[Callable[[bytes], Any]] = None,
-        fetch_max_wait_ms: int = 500,
-        fetch_max_bytes: int = 52428800,
-        fetch_min_bytes: int = 1,
-        max_partition_fetch_bytes: int = 1 * 1024 * 1024,
-        auto_offset_reset: Literal[
-            "latest",
-            "earliest",
-            "none",
+        *topics: Annotated[
+            str,
+            Doc("Kafka topics to consume messages from."),
+        ],
+        group_id: Annotated[
+            Optional[str],
+            Doc("""
+            Name of the consumer group to join for dynamic
+            partition assignment (if enabled), and to use for fetching and
+            committing offsets. If `None`, auto-partition assignment (via
+            group coordinator) and offset commits are disabled.
+            """),
+        ] = None,
+        key_deserializer: Annotated[
+            Optional[Callable[[bytes], Any]],
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "key and returns a deserialized one."
+            ),
+        ] = None,
+        value_deserializer: Annotated[
+            Optional[Callable[[bytes], Any]],
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "value and returns a deserialized value."
+            ),
+        ] = None,
+        fetch_max_wait_ms: Annotated[
+            int,
+            Doc("""
+            The maximum amount of time in milliseconds
+            the server will block before answering the fetch request if
+            there isn't sufficient data to immediately satisfy the
+            requirement given by `fetch_min_bytes`.
+            """),
+        ] = 500,
+        fetch_max_bytes: Annotated[
+            int,
+            Doc("""
+            The maximum amount of data the server should
+            return for a fetch request. This is not an absolute maximum, if
+            the first message in the first non-empty partition of the fetch
+            is larger than this value, the message will still be returned
+            to ensure that the consumer can make progress. NOTE: consumer
+            performs fetches to multiple brokers in parallel so memory
+            usage will depend on the number of brokers containing
+            partitions for the topic.
+            """),
+        ] = 50 * 1024 * 1024,
+        fetch_min_bytes: Annotated[
+            int,
+            Doc("""
+            Minimum amount of data the server should
+            return for a fetch request, otherwise wait up to
+            `fetch_max_wait_ms` for more data to accumulate.
+            """),
+        ] = 1,
+        max_partition_fetch_bytes: Annotated[
+            int,
+            Doc("""
+            The maximum amount of data
+            per-partition the server will return. The maximum total memory
+            used for a request ``= #partitions * max_partition_fetch_bytes``.
+            This size must be at least as large as the maximum message size
+            the server allows or else it is possible for the producer to
+            send messages larger than the consumer can fetch. If that
+            happens, the consumer can get stuck trying to fetch a large
+            message on a certain partition.
+            """),
+        ] = 1 * 1024 * 1024,
+        auto_offset_reset: Annotated[
+            Literal["latest", "earliest", "none"],
+            Doc("""
+            A policy for resetting offsets on `OffsetOutOfRangeError` errors:
+
+            * `earliest` will move to the oldest available message
+            * `latest` will move to the most recent
+            * `none` will raise an exception so you can handle this case
+            """),
         ] = "latest",
-        auto_commit: bool = True,
-        auto_commit_interval_ms: int = 5000,
-        check_crcs: bool = True,
-        partition_assignment_strategy: Sequence[str] = ("roundrobin",),
-        max_poll_interval_ms: int = 300000,
-        rebalance_timeout_ms: Optional[int] = None,
-        session_timeout_ms: int = 10000,
-        heartbeat_interval_ms: int = 3000,
-        consumer_timeout_ms: int = 200,
-        max_poll_records: Optional[int] = None,
-        exclude_internal_topics: bool = True,
-        isolation_level: Literal[
-            "read_uncommitted",
-            "read_committed",
+        auto_commit: Annotated[
+            bool,
+            Doc("""
+            If `True` the consumer's offset will be
+            periodically committed in the background.
+            """),
+        ] = True,
+        auto_commit_interval_ms: Annotated[
+            int,
+            Doc("""
+            Milliseconds between automatic
+            offset commits, if `auto_commit` is `True`."""),
+        ] = 5 * 1000,
+        check_crcs: Annotated[
+            bool,
+            Doc("""
+            Automatically check the CRC32 of the records
+            consumed. This ensures no on-the-wire or on-disk corruption to
+            the messages occurred. This check adds some overhead, so it may
+            be disabled in cases seeking extreme performance.
+            """),
+        ] = True,
+        partition_assignment_strategy: Annotated[
+            Sequence[str],
+            Doc("""
+            List of objects to use to
+            distribute partition ownership amongst consumer instances when
+            group management is used. This preference is implicit in the order
+            of the strategies in the list. When assignment strategy changes:
+            to support a change to the assignment strategy, new versions must
+            enable support both for the old assignment strategy and the new
+            one. The coordinator will choose the old assignment strategy until
+            all members have been updated. Then it will choose the new
+            strategy.
+            """),
+        ] = ("roundrobin",),
+        max_poll_interval_ms: Annotated[
+            int,
+            Doc("""
+            Maximum allowed time between calls to
+            consume messages in batches. If this interval
+            is exceeded the consumer is considered failed and the group will
+            rebalance in order to reassign the partitions to another consumer
+            group member. If API methods block waiting for messages, that time
+            does not count against this timeout.
+            """),
+        ] = 5 * 60 * 1000,
+        rebalance_timeout_ms: Annotated[
+            Optional[int],
+            Doc("""
+            The maximum time server will wait for this
+            consumer to rejoin the group in a case of rebalance. In Java client
+            this behaviour is bound to `max.poll.interval.ms` configuration,
+            but as ``aiokafka`` will rejoin the group in the background, we
+            decouple this setting to allow finer tuning by users that use
+            `ConsumerRebalanceListener` to delay rebalacing. Defaults
+            to ``session_timeout_ms``
+            """),
+        ] = None,
+        session_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Client group session and failure detection
+            timeout. The consumer sends periodic heartbeats
+            (`heartbeat.interval.ms`) to indicate its liveness to the broker.
+            If no hearts are received by the broker for a group member within
+            the session timeout, the broker will remove the consumer from the
+            group and trigger a rebalance. The allowed range is configured with
+            the **broker** configuration properties
+            `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
+            """),
+        ] = 10 * 1000,
+        heartbeat_interval_ms: Annotated[
+            int,
+            Doc("""
+            The expected time in milliseconds
+            between heartbeats to the consumer coordinator when using
+            Kafka's group management feature. Heartbeats are used to ensure
+            that the consumer's session stays active and to facilitate
+            rebalancing when new consumers join or leave the group. The
+            value must be set lower than `session_timeout_ms`, but typically
+            should be set no higher than 1/3 of that value. It can be
+            adjusted even lower to control the expected time for normal
+            rebalances.
+            """),
+        ] = 3 * 1000,
+        consumer_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Maximum wait timeout for background fetching
+            routine. Mostly defines how fast the system will see rebalance and
+            request new data for new partitions.
+            """),
+        ] = 200,
+        max_poll_records: Annotated[
+            Optional[int],
+            Doc("""
+            The maximum number of records returned in a
+            single call by batch consumer. Has no limit by default.
+            """),
+        ] = None,
+        exclude_internal_topics: Annotated[
+            bool,
+            Doc("""
+            Whether records from internal topics
+            (such as offsets) should be exposed to the consumer. If set to True
+            the only way to receive records from an internal topic is
+            subscribing to it.
+            """),
+        ] = True,
+        isolation_level: Annotated[
+            Literal["read_uncommitted", "read_committed"],
+            Doc("""
+            Controls how to read messages written
+            transactionally.
+
+            * `read_committed`, batch consumer will only return
+            transactional messages which have been committed.
+
+            * `read_uncommitted` (the default), batch consumer will
+            return all messages, even transactional messages which have been
+            aborted.
+
+            Non-transactional messages will be returned unconditionally in
+            either mode.
+
+            Messages will always be returned in offset order. Hence, in
+            `read_committed` mode, batch consumer will only return
+            messages up to the last stable offset (LSO), which is the one less
+            than the offset of the first open transaction. In particular any
+            messages appearing after messages belonging to ongoing transactions
+            will be withheld until the relevant transaction has been completed.
+            As a result, `read_committed` consumers will not be able to read up
+            to the high watermark when there are in flight transactions.
+            Further, when in `read_committed` the seek_to_end method will
+            return the LSO. See method docs below.
+            """),
         ] = "read_uncommitted",
-        # broker arguments
-        dependencies: Iterable[params.Depends] = (),
-        parser: Optional[
-            Union[
-                CustomParser[Message],
-                CustomParser[Tuple[Message, ...]],
-            ]
+        batch: Annotated[
+            Literal[False],
+            Doc("Whether to consume messages in batches or not."),
+        ] = False,
+        batch_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Milliseconds spent waiting if
+            data is not available in the buffer. If 0, returns immediately
+            with any records that are available currently in the buffer,
+            else returns empty.
+            """),
+        ] = 200,
+        max_records: Annotated[
+            Optional[int],
+            Doc("Number of messages to consume as one batch."),
         ] = None,
-        decoder: Optional[
-            Union[
-                CustomDecoder[StreamMessage[Message]],
-                CustomDecoder[StreamMessage[Tuple[Message, ...]]],
-            ]
+        # broker args
+        dependencies: Annotated[
+            Iterable["params.Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
+        parser: Annotated[
+            Optional["CustomCallable"],
+            Doc("Parser to map original **Message** object to FastStream one."),
         ] = None,
-        middlewares: Iterable[SubscriberMiddleware] = (),
-        filter: Union[
-            Filter[StreamMessage[Message]],
-            Filter[StreamMessage[Tuple[Message, ...]]],
+        decoder: Annotated[
+            Optional["CustomCallable"],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["SubscriberMiddleware"],
+            Doc("Subscriber middlewares to wrap incoming message processing."),
+        ] = (),
+        filter: Annotated[
+            "Filter[KafkaMessage]",
+            Doc(
+                "Overload subscriber to consume various messages from the same source."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. "
+                "Please, create `subscriber` object and use it explicitly instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = default_filter,
-        batch: bool = False,
-        max_records: Optional[int] = None,
-        batch_timeout_ms: int = 200,
-        no_ack: bool = False,
-        retry: bool = False,
-        # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        include_in_schema: bool = True,
+        retry: Annotated[
+            bool,
+            Doc("Whether to `nack` message at processing exception."),
+        ] = False,
+        no_ack: Annotated[
+            bool,
+            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc(
+                "AsyncAPI subscriber object description. "
+                "Uses decorated docstring as default."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
         # FastAPI args
         response_model: Annotated[
             Any,
@@ -586,72 +818,1355 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
                 """
             ),
         ] = False,
-    ) -> AsyncAPISubscriber[Union[Message, Tuple[Message, ...]]]:
-        return cast(
-            AsyncAPISubscriber[Union[Message, Tuple[Message, ...]]],
-            super().subscriber(
-                topics[0],  # path
-                *topics,
-                group_id=group_id,
-                key_deserializer=key_deserializer,
-                value_deserializer=value_deserializer,
-                fetch_max_wait_ms=fetch_max_wait_ms,
-                fetch_max_bytes=fetch_max_bytes,
-                fetch_min_bytes=fetch_min_bytes,
-                max_partition_fetch_bytes=max_partition_fetch_bytes,
-                auto_offset_reset=auto_offset_reset,
-                auto_commit=auto_commit,
-                auto_commit_interval_ms=auto_commit_interval_ms,
-                check_crcs=check_crcs,
-                partition_assignment_strategy=partition_assignment_strategy,
-                max_poll_interval_ms=max_poll_interval_ms,
-                rebalance_timeout_ms=rebalance_timeout_ms,
-                session_timeout_ms=session_timeout_ms,
-                heartbeat_interval_ms=heartbeat_interval_ms,
-                consumer_timeout_ms=consumer_timeout_ms,
-                max_poll_records=max_poll_records,
-                exclude_internal_topics=exclude_internal_topics,
-                isolation_level=isolation_level,
-                batch=batch,
-                max_records=max_records,
-                batch_timeout_ms=batch_timeout_ms,
-                # broker args
-                dependencies=dependencies,
-                parser=parser,
-                decoder=decoder,
-                middlewares=middlewares,
-                filter=filter,
-                retry=retry,
-                no_ack=no_ack,
-                title=title,
-                description=description,
-                include_in_schema=include_in_schema,
-                # FastAPI args
-                response_model=response_model,
-                response_model_include=response_model_include,
-                response_model_exclude=response_model_exclude,
-                response_model_by_alias=response_model_by_alias,
-                response_model_exclude_unset=response_model_exclude_unset,
-                response_model_exclude_defaults=response_model_exclude_defaults,
-                response_model_exclude_none=response_model_exclude_none,
+    ) -> "AsyncAPIDefaultSubscriber": ...
+
+    @overload
+    def subscriber(
+        self,
+        *topics: Annotated[
+            str,
+            Doc("Kafka topics to consume messages from."),
+        ],
+        group_id: Annotated[
+            Optional[str],
+            Doc("""
+            Name of the consumer group to join for dynamic
+            partition assignment (if enabled), and to use for fetching and
+            committing offsets. If `None`, auto-partition assignment (via
+            group coordinator) and offset commits are disabled.
+            """),
+        ] = None,
+        key_deserializer: Annotated[
+            Optional[Callable[[bytes], Any]],
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "key and returns a deserialized one."
             ),
-        )
+        ] = None,
+        value_deserializer: Annotated[
+            Optional[Callable[[bytes], Any]],
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "value and returns a deserialized value."
+            ),
+        ] = None,
+        fetch_max_wait_ms: Annotated[
+            int,
+            Doc("""
+            The maximum amount of time in milliseconds
+            the server will block before answering the fetch request if
+            there isn't sufficient data to immediately satisfy the
+            requirement given by `fetch_min_bytes`.
+            """),
+        ] = 500,
+        fetch_max_bytes: Annotated[
+            int,
+            Doc("""
+            The maximum amount of data the server should
+            return for a fetch request. This is not an absolute maximum, if
+            the first message in the first non-empty partition of the fetch
+            is larger than this value, the message will still be returned
+            to ensure that the consumer can make progress. NOTE: consumer
+            performs fetches to multiple brokers in parallel so memory
+            usage will depend on the number of brokers containing
+            partitions for the topic.
+            """),
+        ] = 50 * 1024 * 1024,
+        fetch_min_bytes: Annotated[
+            int,
+            Doc("""
+            Minimum amount of data the server should
+            return for a fetch request, otherwise wait up to
+            `fetch_max_wait_ms` for more data to accumulate.
+            """),
+        ] = 1,
+        max_partition_fetch_bytes: Annotated[
+            int,
+            Doc("""
+            The maximum amount of data
+            per-partition the server will return. The maximum total memory
+            used for a request ``= #partitions * max_partition_fetch_bytes``.
+            This size must be at least as large as the maximum message size
+            the server allows or else it is possible for the producer to
+            send messages larger than the consumer can fetch. If that
+            happens, the consumer can get stuck trying to fetch a large
+            message on a certain partition.
+            """),
+        ] = 1 * 1024 * 1024,
+        auto_offset_reset: Annotated[
+            Literal["latest", "earliest", "none"],
+            Doc("""
+            A policy for resetting offsets on `OffsetOutOfRangeError` errors:
+
+            * `earliest` will move to the oldest available message
+            * `latest` will move to the most recent
+            * `none` will raise an exception so you can handle this case
+            """),
+        ] = "latest",
+        auto_commit: Annotated[
+            bool,
+            Doc("""
+            If `True` the consumer's offset will be
+            periodically committed in the background.
+            """),
+        ] = True,
+        auto_commit_interval_ms: Annotated[
+            int,
+            Doc("""
+            Milliseconds between automatic
+            offset commits, if `auto_commit` is `True`."""),
+        ] = 5 * 1000,
+        check_crcs: Annotated[
+            bool,
+            Doc("""
+            Automatically check the CRC32 of the records
+            consumed. This ensures no on-the-wire or on-disk corruption to
+            the messages occurred. This check adds some overhead, so it may
+            be disabled in cases seeking extreme performance.
+            """),
+        ] = True,
+        partition_assignment_strategy: Annotated[
+            Sequence[str],
+            Doc("""
+            List of objects to use to
+            distribute partition ownership amongst consumer instances when
+            group management is used. This preference is implicit in the order
+            of the strategies in the list. When assignment strategy changes:
+            to support a change to the assignment strategy, new versions must
+            enable support both for the old assignment strategy and the new
+            one. The coordinator will choose the old assignment strategy until
+            all members have been updated. Then it will choose the new
+            strategy.
+            """),
+        ] = ("roundrobin",),
+        max_poll_interval_ms: Annotated[
+            int,
+            Doc("""
+            Maximum allowed time between calls to
+            consume messages in batches. If this interval
+            is exceeded the consumer is considered failed and the group will
+            rebalance in order to reassign the partitions to another consumer
+            group member. If API methods block waiting for messages, that time
+            does not count against this timeout.
+            """),
+        ] = 5 * 60 * 1000,
+        rebalance_timeout_ms: Annotated[
+            Optional[int],
+            Doc("""
+            The maximum time server will wait for this
+            consumer to rejoin the group in a case of rebalance. In Java client
+            this behaviour is bound to `max.poll.interval.ms` configuration,
+            but as ``aiokafka`` will rejoin the group in the background, we
+            decouple this setting to allow finer tuning by users that use
+            `ConsumerRebalanceListener` to delay rebalacing. Defaults
+            to ``session_timeout_ms``
+            """),
+        ] = None,
+        session_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Client group session and failure detection
+            timeout. The consumer sends periodic heartbeats
+            (`heartbeat.interval.ms`) to indicate its liveness to the broker.
+            If no hearts are received by the broker for a group member within
+            the session timeout, the broker will remove the consumer from the
+            group and trigger a rebalance. The allowed range is configured with
+            the **broker** configuration properties
+            `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
+            """),
+        ] = 10 * 1000,
+        heartbeat_interval_ms: Annotated[
+            int,
+            Doc("""
+            The expected time in milliseconds
+            between heartbeats to the consumer coordinator when using
+            Kafka's group management feature. Heartbeats are used to ensure
+            that the consumer's session stays active and to facilitate
+            rebalancing when new consumers join or leave the group. The
+            value must be set lower than `session_timeout_ms`, but typically
+            should be set no higher than 1/3 of that value. It can be
+            adjusted even lower to control the expected time for normal
+            rebalances.
+            """),
+        ] = 3 * 1000,
+        consumer_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Maximum wait timeout for background fetching
+            routine. Mostly defines how fast the system will see rebalance and
+            request new data for new partitions.
+            """),
+        ] = 200,
+        max_poll_records: Annotated[
+            Optional[int],
+            Doc("""
+            The maximum number of records returned in a
+            single call by batch consumer. Has no limit by default.
+            """),
+        ] = None,
+        exclude_internal_topics: Annotated[
+            bool,
+            Doc("""
+            Whether records from internal topics
+            (such as offsets) should be exposed to the consumer. If set to True
+            the only way to receive records from an internal topic is
+            subscribing to it.
+            """),
+        ] = True,
+        isolation_level: Annotated[
+            Literal["read_uncommitted", "read_committed"],
+            Doc("""
+            Controls how to read messages written
+            transactionally.
+
+            * `read_committed`, batch consumer will only return
+            transactional messages which have been committed.
+
+            * `read_uncommitted` (the default), batch consumer will
+            return all messages, even transactional messages which have been
+            aborted.
+
+            Non-transactional messages will be returned unconditionally in
+            either mode.
+
+            Messages will always be returned in offset order. Hence, in
+            `read_committed` mode, batch consumer will only return
+            messages up to the last stable offset (LSO), which is the one less
+            than the offset of the first open transaction. In particular any
+            messages appearing after messages belonging to ongoing transactions
+            will be withheld until the relevant transaction has been completed.
+            As a result, `read_committed` consumers will not be able to read up
+            to the high watermark when there are in flight transactions.
+            Further, when in `read_committed` the seek_to_end method will
+            return the LSO. See method docs below.
+            """),
+        ] = "read_uncommitted",
+        batch: Annotated[
+            Literal[True],
+            Doc("Whether to consume messages in batches or not."),
+        ],
+        batch_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Milliseconds spent waiting if
+            data is not available in the buffer. If 0, returns immediately
+            with any records that are available currently in the buffer,
+            else returns empty.
+            """),
+        ] = 200,
+        max_records: Annotated[
+            Optional[int],
+            Doc("Number of messages to consume as one batch."),
+        ] = None,
+        # broker args
+        dependencies: Annotated[
+            Iterable["params.Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
+        parser: Annotated[
+            Optional["CustomCallable"],
+            Doc("Parser to map original **Message** object to FastStream one."),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomCallable"],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["SubscriberMiddleware"],
+            Doc("Subscriber middlewares to wrap incoming message processing."),
+        ] = (),
+        filter: Annotated[
+            "Filter[KafkaMessage]",
+            Doc(
+                "Overload subscriber to consume various messages from the same source."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. "
+                "Please, create `subscriber` object and use it explicitly instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = default_filter,
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc(
+                "AsyncAPI subscriber object description. "
+                "Uses decorated docstring as default."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+        # FastAPI args
+        response_model: Annotated[
+            Any,
+            Doc(
+                """
+                The type to use for the response.
+
+                It could be any valid Pydantic *field* type. So, it doesn't have to
+                be a Pydantic model, it could be other things, like a `list`, `dict`,
+                etc.
+
+                It will be used for:
+
+                * Documentation: the generated OpenAPI (and the UI at `/docs`) will
+                    show it as the response (JSON Schema).
+                * Serialization: you could return an arbitrary object and the
+                    `response_model` would be used to serialize that object into the
+                    corresponding JSON.
+                * Filtering: the JSON sent to the client will only contain the data
+                    (fields) defined in the `response_model`. If you returned an object
+                    that contains an attribute `password` but the `response_model` does
+                    not include that field, the JSON sent to the client would not have
+                    that `password`.
+                * Validation: whatever you return will be serialized with the
+                    `response_model`, converting any data as necessary to generate the
+                    corresponding JSON. But if the data in the object returned is not
+                    valid, that would mean a violation of the contract with the client,
+                    so it's an error from the API developer. So, FastAPI will raise an
+                    error and return a 500 error code (Internal Server Error).
+
+                Read more about it in the
+                [FastAPI docs for Response Model](https://fastapi.tiangolo.com/tutorial/response-model/).
+                """
+            ),
+        ] = Default(None),
+        response_model_include: Annotated[
+            Optional["IncEx"],
+            Doc(
+                """
+                Configuration passed to Pydantic to include only certain fields in the
+                response data.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
+                """
+            ),
+        ] = None,
+        response_model_exclude: Annotated[
+            Optional["IncEx"],
+            Doc(
+                """
+                Configuration passed to Pydantic to exclude certain fields in the
+                response data.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
+                """
+            ),
+        ] = None,
+        response_model_by_alias: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response model
+                should be serialized by alias when an alias is used.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
+                """
+            ),
+        ] = True,
+        response_model_exclude_unset: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response data
+                should have all the fields, including the ones that were not set and
+                have their default values. This is different from
+                `response_model_exclude_defaults` in that if the fields are set,
+                they will be included in the response, even if the value is the same
+                as the default.
+
+                When `True`, default values are omitted from the response.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).
+                """
+            ),
+        ] = False,
+        response_model_exclude_defaults: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response data
+                should have all the fields, including the ones that have the same value
+                as the default. This is different from `response_model_exclude_unset`
+                in that if the fields are set but contain the same default values,
+                they will be excluded from the response.
+
+                When `True`, default values are omitted from the response.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).
+                """
+            ),
+        ] = False,
+        response_model_exclude_none: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response data should
+                exclude fields set to `None`.
+
+                This is much simpler (less smart) than `response_model_exclude_unset`
+                and `response_model_exclude_defaults`. You probably want to use one of
+                those two instead of this one, as those allow returning `None` values
+                when it makes sense.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_exclude_none).
+                """
+            ),
+        ] = False,
+    ) -> "AsyncAPIBatchSubscriber": ...
+
+    @overload
+    def subscriber(
+        self,
+        *topics: Annotated[
+            str,
+            Doc("Kafka topics to consume messages from."),
+        ],
+        group_id: Annotated[
+            Optional[str],
+            Doc("""
+            Name of the consumer group to join for dynamic
+            partition assignment (if enabled), and to use for fetching and
+            committing offsets. If `None`, auto-partition assignment (via
+            group coordinator) and offset commits are disabled.
+            """),
+        ] = None,
+        key_deserializer: Annotated[
+            Optional[Callable[[bytes], Any]],
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "key and returns a deserialized one."
+            ),
+        ] = None,
+        value_deserializer: Annotated[
+            Optional[Callable[[bytes], Any]],
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "value and returns a deserialized value."
+            ),
+        ] = None,
+        fetch_max_wait_ms: Annotated[
+            int,
+            Doc("""
+            The maximum amount of time in milliseconds
+            the server will block before answering the fetch request if
+            there isn't sufficient data to immediately satisfy the
+            requirement given by `fetch_min_bytes`.
+            """),
+        ] = 500,
+        fetch_max_bytes: Annotated[
+            int,
+            Doc("""
+            The maximum amount of data the server should
+            return for a fetch request. This is not an absolute maximum, if
+            the first message in the first non-empty partition of the fetch
+            is larger than this value, the message will still be returned
+            to ensure that the consumer can make progress. NOTE: consumer
+            performs fetches to multiple brokers in parallel so memory
+            usage will depend on the number of brokers containing
+            partitions for the topic.
+            """),
+        ] = 50 * 1024 * 1024,
+        fetch_min_bytes: Annotated[
+            int,
+            Doc("""
+            Minimum amount of data the server should
+            return for a fetch request, otherwise wait up to
+            `fetch_max_wait_ms` for more data to accumulate.
+            """),
+        ] = 1,
+        max_partition_fetch_bytes: Annotated[
+            int,
+            Doc("""
+            The maximum amount of data
+            per-partition the server will return. The maximum total memory
+            used for a request ``= #partitions * max_partition_fetch_bytes``.
+            This size must be at least as large as the maximum message size
+            the server allows or else it is possible for the producer to
+            send messages larger than the consumer can fetch. If that
+            happens, the consumer can get stuck trying to fetch a large
+            message on a certain partition.
+            """),
+        ] = 1 * 1024 * 1024,
+        auto_offset_reset: Annotated[
+            Literal["latest", "earliest", "none"],
+            Doc("""
+            A policy for resetting offsets on `OffsetOutOfRangeError` errors:
+
+            * `earliest` will move to the oldest available message
+            * `latest` will move to the most recent
+            * `none` will raise an exception so you can handle this case
+            """),
+        ] = "latest",
+        auto_commit: Annotated[
+            bool,
+            Doc("""
+            If `True` the consumer's offset will be
+            periodically committed in the background.
+            """),
+        ] = True,
+        auto_commit_interval_ms: Annotated[
+            int,
+            Doc("""
+            Milliseconds between automatic
+            offset commits, if `auto_commit` is `True`."""),
+        ] = 5 * 1000,
+        check_crcs: Annotated[
+            bool,
+            Doc("""
+            Automatically check the CRC32 of the records
+            consumed. This ensures no on-the-wire or on-disk corruption to
+            the messages occurred. This check adds some overhead, so it may
+            be disabled in cases seeking extreme performance.
+            """),
+        ] = True,
+        partition_assignment_strategy: Annotated[
+            Sequence[str],
+            Doc("""
+            List of objects to use to
+            distribute partition ownership amongst consumer instances when
+            group management is used. This preference is implicit in the order
+            of the strategies in the list. When assignment strategy changes:
+            to support a change to the assignment strategy, new versions must
+            enable support both for the old assignment strategy and the new
+            one. The coordinator will choose the old assignment strategy until
+            all members have been updated. Then it will choose the new
+            strategy.
+            """),
+        ] = ("roundrobin",),
+        max_poll_interval_ms: Annotated[
+            int,
+            Doc("""
+            Maximum allowed time between calls to
+            consume messages in batches. If this interval
+            is exceeded the consumer is considered failed and the group will
+            rebalance in order to reassign the partitions to another consumer
+            group member. If API methods block waiting for messages, that time
+            does not count against this timeout.
+            """),
+        ] = 5 * 60 * 1000,
+        rebalance_timeout_ms: Annotated[
+            Optional[int],
+            Doc("""
+            The maximum time server will wait for this
+            consumer to rejoin the group in a case of rebalance. In Java client
+            this behaviour is bound to `max.poll.interval.ms` configuration,
+            but as ``aiokafka`` will rejoin the group in the background, we
+            decouple this setting to allow finer tuning by users that use
+            `ConsumerRebalanceListener` to delay rebalacing. Defaults
+            to ``session_timeout_ms``
+            """),
+        ] = None,
+        session_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Client group session and failure detection
+            timeout. The consumer sends periodic heartbeats
+            (`heartbeat.interval.ms`) to indicate its liveness to the broker.
+            If no hearts are received by the broker for a group member within
+            the session timeout, the broker will remove the consumer from the
+            group and trigger a rebalance. The allowed range is configured with
+            the **broker** configuration properties
+            `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
+            """),
+        ] = 10 * 1000,
+        heartbeat_interval_ms: Annotated[
+            int,
+            Doc("""
+            The expected time in milliseconds
+            between heartbeats to the consumer coordinator when using
+            Kafka's group management feature. Heartbeats are used to ensure
+            that the consumer's session stays active and to facilitate
+            rebalancing when new consumers join or leave the group. The
+            value must be set lower than `session_timeout_ms`, but typically
+            should be set no higher than 1/3 of that value. It can be
+            adjusted even lower to control the expected time for normal
+            rebalances.
+            """),
+        ] = 3 * 1000,
+        consumer_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Maximum wait timeout for background fetching
+            routine. Mostly defines how fast the system will see rebalance and
+            request new data for new partitions.
+            """),
+        ] = 200,
+        max_poll_records: Annotated[
+            Optional[int],
+            Doc("""
+            The maximum number of records returned in a
+            single call by batch consumer. Has no limit by default.
+            """),
+        ] = None,
+        exclude_internal_topics: Annotated[
+            bool,
+            Doc("""
+            Whether records from internal topics
+            (such as offsets) should be exposed to the consumer. If set to True
+            the only way to receive records from an internal topic is
+            subscribing to it.
+            """),
+        ] = True,
+        isolation_level: Annotated[
+            Literal["read_uncommitted", "read_committed"],
+            Doc("""
+            Controls how to read messages written
+            transactionally.
+
+            * `read_committed`, batch consumer will only return
+            transactional messages which have been committed.
+
+            * `read_uncommitted` (the default), batch consumer will
+            return all messages, even transactional messages which have been
+            aborted.
+
+            Non-transactional messages will be returned unconditionally in
+            either mode.
+
+            Messages will always be returned in offset order. Hence, in
+            `read_committed` mode, batch consumer will only return
+            messages up to the last stable offset (LSO), which is the one less
+            than the offset of the first open transaction. In particular any
+            messages appearing after messages belonging to ongoing transactions
+            will be withheld until the relevant transaction has been completed.
+            As a result, `read_committed` consumers will not be able to read up
+            to the high watermark when there are in flight transactions.
+            Further, when in `read_committed` the seek_to_end method will
+            return the LSO. See method docs below.
+            """),
+        ] = "read_uncommitted",
+        batch: Annotated[
+            bool,
+            Doc("Whether to consume messages in batches or not."),
+        ] = False,
+        batch_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Milliseconds spent waiting if
+            data is not available in the buffer. If 0, returns immediately
+            with any records that are available currently in the buffer,
+            else returns empty.
+            """),
+        ] = 200,
+        max_records: Annotated[
+            Optional[int],
+            Doc("Number of messages to consume as one batch."),
+        ] = None,
+        # broker args
+        dependencies: Annotated[
+            Iterable["params.Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
+        parser: Annotated[
+            Optional["CustomCallable"],
+            Doc("Parser to map original **Message** object to FastStream one."),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomCallable"],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["SubscriberMiddleware"],
+            Doc("Subscriber middlewares to wrap incoming message processing."),
+        ] = (),
+        filter: Annotated[
+            "Filter[KafkaMessage]",
+            Doc(
+                "Overload subscriber to consume various messages from the same source."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. "
+                "Please, create `subscriber` object and use it explicitly instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = default_filter,
+        retry: Annotated[
+            bool,
+            Doc("Whether to `nack` message at processing exception."),
+        ] = False,
+        no_ack: Annotated[
+            bool,
+            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc(
+                "AsyncAPI subscriber object description. "
+                "Uses decorated docstring as default."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+        # FastAPI args
+        response_model: Annotated[
+            Any,
+            Doc(
+                """
+                The type to use for the response.
+
+                It could be any valid Pydantic *field* type. So, it doesn't have to
+                be a Pydantic model, it could be other things, like a `list`, `dict`,
+                etc.
+
+                It will be used for:
+
+                * Documentation: the generated OpenAPI (and the UI at `/docs`) will
+                    show it as the response (JSON Schema).
+                * Serialization: you could return an arbitrary object and the
+                    `response_model` would be used to serialize that object into the
+                    corresponding JSON.
+                * Filtering: the JSON sent to the client will only contain the data
+                    (fields) defined in the `response_model`. If you returned an object
+                    that contains an attribute `password` but the `response_model` does
+                    not include that field, the JSON sent to the client would not have
+                    that `password`.
+                * Validation: whatever you return will be serialized with the
+                    `response_model`, converting any data as necessary to generate the
+                    corresponding JSON. But if the data in the object returned is not
+                    valid, that would mean a violation of the contract with the client,
+                    so it's an error from the API developer. So, FastAPI will raise an
+                    error and return a 500 error code (Internal Server Error).
+
+                Read more about it in the
+                [FastAPI docs for Response Model](https://fastapi.tiangolo.com/tutorial/response-model/).
+                """
+            ),
+        ] = Default(None),
+        response_model_include: Annotated[
+            Optional["IncEx"],
+            Doc(
+                """
+                Configuration passed to Pydantic to include only certain fields in the
+                response data.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
+                """
+            ),
+        ] = None,
+        response_model_exclude: Annotated[
+            Optional["IncEx"],
+            Doc(
+                """
+                Configuration passed to Pydantic to exclude certain fields in the
+                response data.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
+                """
+            ),
+        ] = None,
+        response_model_by_alias: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response model
+                should be serialized by alias when an alias is used.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
+                """
+            ),
+        ] = True,
+        response_model_exclude_unset: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response data
+                should have all the fields, including the ones that were not set and
+                have their default values. This is different from
+                `response_model_exclude_defaults` in that if the fields are set,
+                they will be included in the response, even if the value is the same
+                as the default.
+
+                When `True`, default values are omitted from the response.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).
+                """
+            ),
+        ] = False,
+        response_model_exclude_defaults: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response data
+                should have all the fields, including the ones that have the same value
+                as the default. This is different from `response_model_exclude_unset`
+                in that if the fields are set but contain the same default values,
+                they will be excluded from the response.
+
+                When `True`, default values are omitted from the response.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).
+                """
+            ),
+        ] = False,
+        response_model_exclude_none: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response data should
+                exclude fields set to `None`.
+
+                This is much simpler (less smart) than `response_model_exclude_unset`
+                and `response_model_exclude_defaults`. You probably want to use one of
+                those two instead of this one, as those allow returning `None` values
+                when it makes sense.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_exclude_none).
+                """
+            ),
+        ] = False,
+    ) -> Union[
+        "AsyncAPIBatchSubscriber",
+        "AsyncAPIDefaultSubscriber",
+    ]: ...
 
     @override
-    def publisher(  # type: ignore[override]
+    def subscriber(
         self,
-        topic: str,
-        key: Optional[bytes] = None,
-        partition: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
-        reply_to: str = "",
-        batch: bool = False,
+        *topics: Annotated[
+            str,
+            Doc("Kafka topics to consume messages from."),
+        ],
+        group_id: Annotated[
+            Optional[str],
+            Doc("""
+            Name of the consumer group to join for dynamic
+            partition assignment (if enabled), and to use for fetching and
+            committing offsets. If `None`, auto-partition assignment (via
+            group coordinator) and offset commits are disabled.
+            """),
+        ] = None,
+        key_deserializer: Annotated[
+            Optional[Callable[[bytes], Any]],
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "key and returns a deserialized one."
+            ),
+        ] = None,
+        value_deserializer: Annotated[
+            Optional[Callable[[bytes], Any]],
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "value and returns a deserialized value."
+            ),
+        ] = None,
+        fetch_max_wait_ms: Annotated[
+            int,
+            Doc("""
+            The maximum amount of time in milliseconds
+            the server will block before answering the fetch request if
+            there isn't sufficient data to immediately satisfy the
+            requirement given by `fetch_min_bytes`.
+            """),
+        ] = 500,
+        fetch_max_bytes: Annotated[
+            int,
+            Doc("""
+            The maximum amount of data the server should
+            return for a fetch request. This is not an absolute maximum, if
+            the first message in the first non-empty partition of the fetch
+            is larger than this value, the message will still be returned
+            to ensure that the consumer can make progress. NOTE: consumer
+            performs fetches to multiple brokers in parallel so memory
+            usage will depend on the number of brokers containing
+            partitions for the topic.
+            """),
+        ] = 50 * 1024 * 1024,
+        fetch_min_bytes: Annotated[
+            int,
+            Doc("""
+            Minimum amount of data the server should
+            return for a fetch request, otherwise wait up to
+            `fetch_max_wait_ms` for more data to accumulate.
+            """),
+        ] = 1,
+        max_partition_fetch_bytes: Annotated[
+            int,
+            Doc("""
+            The maximum amount of data
+            per-partition the server will return. The maximum total memory
+            used for a request ``= #partitions * max_partition_fetch_bytes``.
+            This size must be at least as large as the maximum message size
+            the server allows or else it is possible for the producer to
+            send messages larger than the consumer can fetch. If that
+            happens, the consumer can get stuck trying to fetch a large
+            message on a certain partition.
+            """),
+        ] = 1 * 1024 * 1024,
+        auto_offset_reset: Annotated[
+            Literal["latest", "earliest", "none"],
+            Doc("""
+            A policy for resetting offsets on `OffsetOutOfRangeError` errors:
+
+            * `earliest` will move to the oldest available message
+            * `latest` will move to the most recent
+            * `none` will raise an exception so you can handle this case
+            """),
+        ] = "latest",
+        auto_commit: Annotated[
+            bool,
+            Doc("""
+            If `True` the consumer's offset will be
+            periodically committed in the background.
+            """),
+        ] = True,
+        auto_commit_interval_ms: Annotated[
+            int,
+            Doc("""
+            Milliseconds between automatic
+            offset commits, if `auto_commit` is `True`."""),
+        ] = 5 * 1000,
+        check_crcs: Annotated[
+            bool,
+            Doc("""
+            Automatically check the CRC32 of the records
+            consumed. This ensures no on-the-wire or on-disk corruption to
+            the messages occurred. This check adds some overhead, so it may
+            be disabled in cases seeking extreme performance.
+            """),
+        ] = True,
+        partition_assignment_strategy: Annotated[
+            Sequence[str],
+            Doc("""
+            List of objects to use to
+            distribute partition ownership amongst consumer instances when
+            group management is used. This preference is implicit in the order
+            of the strategies in the list. When assignment strategy changes:
+            to support a change to the assignment strategy, new versions must
+            enable support both for the old assignment strategy and the new
+            one. The coordinator will choose the old assignment strategy until
+            all members have been updated. Then it will choose the new
+            strategy.
+            """),
+        ] = ("roundrobin",),
+        max_poll_interval_ms: Annotated[
+            int,
+            Doc("""
+            Maximum allowed time between calls to
+            consume messages in batches. If this interval
+            is exceeded the consumer is considered failed and the group will
+            rebalance in order to reassign the partitions to another consumer
+            group member. If API methods block waiting for messages, that time
+            does not count against this timeout.
+            """),
+        ] = 5 * 60 * 1000,
+        rebalance_timeout_ms: Annotated[
+            Optional[int],
+            Doc("""
+            The maximum time server will wait for this
+            consumer to rejoin the group in a case of rebalance. In Java client
+            this behaviour is bound to `max.poll.interval.ms` configuration,
+            but as ``aiokafka`` will rejoin the group in the background, we
+            decouple this setting to allow finer tuning by users that use
+            `ConsumerRebalanceListener` to delay rebalacing. Defaults
+            to ``session_timeout_ms``
+            """),
+        ] = None,
+        session_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Client group session and failure detection
+            timeout. The consumer sends periodic heartbeats
+            (`heartbeat.interval.ms`) to indicate its liveness to the broker.
+            If no hearts are received by the broker for a group member within
+            the session timeout, the broker will remove the consumer from the
+            group and trigger a rebalance. The allowed range is configured with
+            the **broker** configuration properties
+            `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
+            """),
+        ] = 10 * 1000,
+        heartbeat_interval_ms: Annotated[
+            int,
+            Doc("""
+            The expected time in milliseconds
+            between heartbeats to the consumer coordinator when using
+            Kafka's group management feature. Heartbeats are used to ensure
+            that the consumer's session stays active and to facilitate
+            rebalancing when new consumers join or leave the group. The
+            value must be set lower than `session_timeout_ms`, but typically
+            should be set no higher than 1/3 of that value. It can be
+            adjusted even lower to control the expected time for normal
+            rebalances.
+            """),
+        ] = 3 * 1000,
+        consumer_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Maximum wait timeout for background fetching
+            routine. Mostly defines how fast the system will see rebalance and
+            request new data for new partitions.
+            """),
+        ] = 200,
+        max_poll_records: Annotated[
+            Optional[int],
+            Doc("""
+            The maximum number of records returned in a
+            single call by batch consumer. Has no limit by default.
+            """),
+        ] = None,
+        exclude_internal_topics: Annotated[
+            bool,
+            Doc("""
+            Whether records from internal topics
+            (such as offsets) should be exposed to the consumer. If set to True
+            the only way to receive records from an internal topic is
+            subscribing to it.
+            """),
+        ] = True,
+        isolation_level: Annotated[
+            Literal["read_uncommitted", "read_committed"],
+            Doc("""
+            Controls how to read messages written
+            transactionally.
+
+            * `read_committed`, batch consumer will only return
+            transactional messages which have been committed.
+
+            * `read_uncommitted` (the default), batch consumer will
+            return all messages, even transactional messages which have been
+            aborted.
+
+            Non-transactional messages will be returned unconditionally in
+            either mode.
+
+            Messages will always be returned in offset order. Hence, in
+            `read_committed` mode, batch consumer will only return
+            messages up to the last stable offset (LSO), which is the one less
+            than the offset of the first open transaction. In particular any
+            messages appearing after messages belonging to ongoing transactions
+            will be withheld until the relevant transaction has been completed.
+            As a result, `read_committed` consumers will not be able to read up
+            to the high watermark when there are in flight transactions.
+            Further, when in `read_committed` the seek_to_end method will
+            return the LSO. See method docs below.
+            """),
+        ] = "read_uncommitted",
+        batch: Annotated[
+            bool,
+            Doc("Whether to consume messages in batches or not."),
+        ] = False,
+        batch_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Milliseconds spent waiting if
+            data is not available in the buffer. If 0, returns immediately
+            with any records that are available currently in the buffer,
+            else returns empty.
+            """),
+        ] = 200,
+        max_records: Annotated[
+            Optional[int],
+            Doc("Number of messages to consume as one batch."),
+        ] = None,
+        # broker args
+        dependencies: Annotated[
+            Iterable["params.Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
+        parser: Annotated[
+            Optional["CustomCallable"],
+            Doc("Parser to map original **Message** object to FastStream one."),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomCallable"],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["SubscriberMiddleware"],
+            Doc("Subscriber middlewares to wrap incoming message processing."),
+        ] = (),
+        filter: Annotated[
+            "Filter[KafkaMessage]",
+            Doc(
+                "Overload subscriber to consume various messages from the same source."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. "
+                "Please, create `subscriber` object and use it explicitly instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = default_filter,
+        retry: Annotated[
+            bool,
+            Doc("Whether to `nack` message at processing exception."),
+        ] = False,
+        no_ack: Annotated[
+            bool,
+            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc(
+                "AsyncAPI subscriber object description. "
+                "Uses decorated docstring as default."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+        # FastAPI args
+        response_model: Annotated[
+            Any,
+            Doc(
+                """
+                The type to use for the response.
+
+                It could be any valid Pydantic *field* type. So, it doesn't have to
+                be a Pydantic model, it could be other things, like a `list`, `dict`,
+                etc.
+
+                It will be used for:
+
+                * Documentation: the generated OpenAPI (and the UI at `/docs`) will
+                    show it as the response (JSON Schema).
+                * Serialization: you could return an arbitrary object and the
+                    `response_model` would be used to serialize that object into the
+                    corresponding JSON.
+                * Filtering: the JSON sent to the client will only contain the data
+                    (fields) defined in the `response_model`. If you returned an object
+                    that contains an attribute `password` but the `response_model` does
+                    not include that field, the JSON sent to the client would not have
+                    that `password`.
+                * Validation: whatever you return will be serialized with the
+                    `response_model`, converting any data as necessary to generate the
+                    corresponding JSON. But if the data in the object returned is not
+                    valid, that would mean a violation of the contract with the client,
+                    so it's an error from the API developer. So, FastAPI will raise an
+                    error and return a 500 error code (Internal Server Error).
+
+                Read more about it in the
+                [FastAPI docs for Response Model](https://fastapi.tiangolo.com/tutorial/response-model/).
+                """
+            ),
+        ] = Default(None),
+        response_model_include: Annotated[
+            Optional["IncEx"],
+            Doc(
+                """
+                Configuration passed to Pydantic to include only certain fields in the
+                response data.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
+                """
+            ),
+        ] = None,
+        response_model_exclude: Annotated[
+            Optional["IncEx"],
+            Doc(
+                """
+                Configuration passed to Pydantic to exclude certain fields in the
+                response data.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
+                """
+            ),
+        ] = None,
+        response_model_by_alias: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response model
+                should be serialized by alias when an alias is used.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
+                """
+            ),
+        ] = True,
+        response_model_exclude_unset: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response data
+                should have all the fields, including the ones that were not set and
+                have their default values. This is different from
+                `response_model_exclude_defaults` in that if the fields are set,
+                they will be included in the response, even if the value is the same
+                as the default.
+
+                When `True`, default values are omitted from the response.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).
+                """
+            ),
+        ] = False,
+        response_model_exclude_defaults: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response data
+                should have all the fields, including the ones that have the same value
+                as the default. This is different from `response_model_exclude_unset`
+                in that if the fields are set but contain the same default values,
+                they will be excluded from the response.
+
+                When `True`, default values are omitted from the response.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).
+                """
+            ),
+        ] = False,
+        response_model_exclude_none: Annotated[
+            bool,
+            Doc(
+                """
+                Configuration passed to Pydantic to define if the response data should
+                exclude fields set to `None`.
+
+                This is much simpler (less smart) than `response_model_exclude_unset`
+                and `response_model_exclude_defaults`. You probably want to use one of
+                those two instead of this one, as those allow returning `None` values
+                when it makes sense.
+
+                Read more about it in the
+                [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_exclude_none).
+                """
+            ),
+        ] = False,
+    ) -> Union[
+        "AsyncAPIBatchSubscriber",
+        "AsyncAPIDefaultSubscriber",
+    ]:
+        subscriber = super().subscriber(
+            topics[0],  # path
+            *topics,
+            group_id=group_id,
+            key_deserializer=key_deserializer,
+            value_deserializer=value_deserializer,
+            fetch_max_wait_ms=fetch_max_wait_ms,
+            fetch_max_bytes=fetch_max_bytes,
+            fetch_min_bytes=fetch_min_bytes,
+            max_partition_fetch_bytes=max_partition_fetch_bytes,
+            auto_offset_reset=auto_offset_reset,
+            auto_commit=auto_commit,
+            auto_commit_interval_ms=auto_commit_interval_ms,
+            check_crcs=check_crcs,
+            partition_assignment_strategy=partition_assignment_strategy,
+            max_poll_interval_ms=max_poll_interval_ms,
+            rebalance_timeout_ms=rebalance_timeout_ms,
+            session_timeout_ms=session_timeout_ms,
+            heartbeat_interval_ms=heartbeat_interval_ms,
+            consumer_timeout_ms=consumer_timeout_ms,
+            max_poll_records=max_poll_records,
+            exclude_internal_topics=exclude_internal_topics,
+            isolation_level=isolation_level,
+            batch=batch,
+            max_records=max_records,
+            batch_timeout_ms=batch_timeout_ms,
+            # broker args
+            dependencies=dependencies,
+            parser=parser,
+            decoder=decoder,
+            middlewares=middlewares,
+            filter=filter,
+            retry=retry,
+            no_ack=no_ack,
+            title=title,
+            description=description,
+            include_in_schema=include_in_schema,
+            # FastAPI args
+            response_model=response_model,
+            response_model_include=response_model_include,
+            response_model_exclude=response_model_exclude,
+            response_model_by_alias=response_model_by_alias,
+            response_model_exclude_unset=response_model_exclude_unset,
+            response_model_exclude_defaults=response_model_exclude_defaults,
+            response_model_exclude_none=response_model_exclude_none,
+        )
+
+        if batch:
+            return cast("AsyncAPIBatchSubscriber", subscriber)
+        else:
+            return cast("AsyncAPIDefaultSubscriber", subscriber)
+
+    @overload  # type: ignore[override]
+    def publisher(
+        self,
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
+        *,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc(
+                """
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """
+            ),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc(
+                """
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """
+            ),
+        ] = None,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
+                "Can be overridden by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Topic name to send response."),
+        ] = "",
+        batch: Annotated[
+            Literal[False],
+            Doc("Whether to send messages in batches or not."),
+        ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable[PublisherMiddleware],
+            Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
-        # AsyncAPI information
+        # AsyncAPI args
         title: Annotated[
             Optional[str],
             Doc("AsyncAPI publisher object title."),
@@ -671,7 +2186,235 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIPublisher:
+    ) -> "AsyncAPIDefaultPublisher": ...
+
+    @overload
+    def publisher(
+        self,
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
+        *,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc(
+                """
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """
+            ),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc(
+                """
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """
+            ),
+        ] = None,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
+                "Can be overridden by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Topic name to send response."),
+        ] = "",
+        batch: Annotated[
+            Literal[True],
+            Doc("Whether to send messages in batches or not."),
+        ],
+        # basic args
+        middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> "AsyncAPIBatchPublisher": ...
+
+    @overload
+    def publisher(
+        self,
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
+        *,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc(
+                """
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """
+            ),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc(
+                """
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """
+            ),
+        ] = None,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
+                "Can be overridden by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Topic name to send response."),
+        ] = "",
+        batch: Annotated[
+            bool,
+            Doc("Whether to send messages in batches or not."),
+        ] = False,
+        # basic args
+        middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> Union[
+        "AsyncAPIBatchPublisher",
+        "AsyncAPIDefaultPublisher",
+    ]: ...
+
+    @override
+    def publisher(
+        self,
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
+        *,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc(
+                """
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """
+            ),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc(
+                """
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """
+            ),
+        ] = None,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
+                "Can be overridden by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Topic name to send response."),
+        ] = "",
+        batch: Annotated[
+            bool,
+            Doc("Whether to send messages in batches or not."),
+        ] = False,
+        # basic args
+        middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> Union[
+        "AsyncAPIBatchPublisher",
+        "AsyncAPIDefaultPublisher",
+    ]:
         return self.broker.publisher(
             topic=topic,
             key=key,

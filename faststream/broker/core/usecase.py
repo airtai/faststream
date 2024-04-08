@@ -9,6 +9,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Sequence,
     Type,
     Union,
     cast,
@@ -20,15 +21,12 @@ from faststream._compat import is_test_env
 from faststream.broker.core.logging import LoggingBroker
 from faststream.broker.middlewares.logging import CriticalLogMiddleware
 from faststream.broker.proto import SetupAble
-from faststream.broker.publisher.proto import ProducerProto, PublisherProto
 from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
+    AsyncCustomCallable,
     BrokerMiddleware,
     ConnectionType,
-    CustomDecoder,
-    CustomParser,
+    CustomCallable,
     MsgType,
 )
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -42,7 +40,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.asyncapi.schema import Tag, TagDict
-    from faststream.broker.message import StreamMessage
+    from faststream.broker.publisher.proto import ProducerProto, PublisherProto
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, LoggerProto
 
@@ -54,19 +52,19 @@ class BrokerUsecase(
 ):
     """A class representing a broker async use case."""
 
-    url: Union[str, Iterable[str], None]
+    url: Union[str, Sequence[str]]
     _connection: Optional[ConnectionType]
-    _producer: Optional[ProducerProto]
+    _producer: Optional["ProducerProto"]
 
     def __init__(
         self,
         *,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[MsgType]]"],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ],
         parser: Annotated[
-            Optional["CustomParser[MsgType]"],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ],
         dependencies: Annotated[
@@ -131,7 +129,7 @@ class BrokerUsecase(
             Doc("AsyncAPI server tags."),
         ],
         asyncapi_url: Annotated[
-            Union[str, List[str], None],
+            Union[str, List[str]],
             Doc("AsyncAPI hardcoded server addresses."),
         ],
         security: Annotated[
@@ -146,11 +144,11 @@ class BrokerUsecase(
             middlewares=middlewares,
             dependencies=dependencies,
             decoder=cast(
-                Optional["AsyncCustomDecoder[StreamMessage[MsgType]]"],
+                Optional["AsyncCustomCallable"],
                 to_async(decoder) if decoder else None,
             ),
             parser=cast(
-                Optional["AsyncCustomParser[MsgType]"],
+                Optional["AsyncCustomCallable"],
                 to_async(parser) if parser else None,
             ),
             # Broker is a root router
@@ -244,7 +242,7 @@ class BrokerUsecase(
 
     def setup_publisher(
         self,
-        publisher: PublisherProto[MsgType],
+        publisher: "PublisherProto[MsgType]",
         **kwargs: Any,
     ) -> None:
         """Setup the Publisher to prepare it to starting."""
@@ -262,7 +260,7 @@ class BrokerUsecase(
     def _publisher_setup_extra(self) -> "AnyDict":
         return {}
 
-    def publisher(self, *args: Any, **kwargs: Any) -> PublisherProto[MsgType]:
+    def publisher(self, *args: Any, **kwargs: Any) -> "PublisherProto[MsgType]":
         pub = super().publisher(*args, **kwargs)
         if self.running:
             self.setup_publisher(pub)
@@ -325,7 +323,7 @@ class BrokerUsecase(
         self,
         msg: Any,
         *,
-        producer: Optional[ProducerProto],
+        producer: Optional["ProducerProto"],
         **kwargs: Any,
     ) -> Optional[Any]:
         """Publish message directly."""

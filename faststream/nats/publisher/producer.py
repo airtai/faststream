@@ -11,7 +11,6 @@ from faststream.broker.publisher.proto import ProducerProto
 from faststream.broker.utils import resolve_custom_func
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.nats.parser import NatsParser
-from faststream.types import SendableMessage
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
@@ -19,27 +18,25 @@ if TYPE_CHECKING:
     from nats.aio.msg import Msg
     from nats.js import JetStreamContext
 
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
-        AsyncDecoder,
-        AsyncParser,
-        CustomDecoder,
-        CustomParser,
+        AsyncCallable,
+        CustomCallable,
     )
+    from faststream.types import SendableMessage
 
 
 class NatsFastProducer(ProducerProto):
     """A class to represent a NATS producer."""
 
-    _decoder: "AsyncDecoder[StreamMessage[Msg]]"
-    _parser: "AsyncParser[Msg]"
+    _decoder: "AsyncCallable"
+    _parser: "AsyncCallable"
 
     def __init__(
         self,
         *,
         connection: "Client",
-        parser: Optional["CustomParser[Msg]"],
-        decoder: Optional["CustomDecoder[StreamMessage[Msg]]"],
+        parser: Optional["CustomCallable"],
+        decoder: Optional["CustomCallable"],
     ) -> None:
         self._connection = connection
         self._parser = resolve_custom_func(parser, NatsParser.parse_message)
@@ -48,7 +45,7 @@ class NatsFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         subject: str,
         *,
         correlation_id: str,
@@ -107,15 +104,15 @@ class NatsFastProducer(ProducerProto):
 class NatsJSFastProducer(ProducerProto):
     """A class to represent a NATS JetStream producer."""
 
-    _decoder: "AsyncDecoder[StreamMessage[Msg]]"
-    _parser: "AsyncParser[Msg]"
+    _decoder: "AsyncCallable"
+    _parser: "AsyncCallable"
 
     def __init__(
         self,
         *,
         connection: "JetStreamContext",
-        parser: Optional["CustomParser[Msg]"],
-        decoder: Optional["CustomDecoder[StreamMessage[Msg]]"],
+        parser: Optional["CustomCallable"],
+        decoder: Optional["CustomCallable"],
     ) -> None:
         self._connection = connection
         self._parser = resolve_custom_func(parser, NatsParser.parse_message)

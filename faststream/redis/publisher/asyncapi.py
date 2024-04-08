@@ -1,4 +1,4 @@
-from typing import Any, Dict, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 from typing_extensions import TypeAlias, override
 
@@ -11,9 +11,7 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import redis
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
 from faststream.exceptions import SetupError
-from faststream.redis.message import BaseMessage
 from faststream.redis.publisher.usecase import (
     ChannelPublisher,
     ListBatchPublisher,
@@ -23,7 +21,11 @@ from faststream.redis.publisher.usecase import (
 )
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import RedisAsyncAPIProtocol, validate_options
-from faststream.types import AnyDict
+
+if TYPE_CHECKING:
+    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream.redis.message import UnifyRedisDict
+    from faststream.types import AnyDict
 
 PublisherType: TypeAlias = Union[
     "AsyncAPIChannelPublisher",
@@ -61,13 +63,13 @@ class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
     @staticmethod
     def create(  # type: ignore[override]
         *,
-        channel: Union[PubSub, str, None],
-        list: Union[ListSub, str, None],
-        stream: Union[StreamSub, str, None],
-        headers: Optional[AnyDict],
+        channel: Union["PubSub", str, None],
+        list: Union["ListSub", str, None],
+        stream: Union["StreamSub", str, None],
+        headers: Optional["AnyDict"],
         reply_to: str,
-        broker_middlewares: Iterable[BrokerMiddleware[BaseMessage]],
-        middlewares: Iterable[PublisherMiddleware],
+        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -145,7 +147,7 @@ class AsyncAPIChannelPublisher(ChannelPublisher, AsyncAPIPublisher):
         return f"{self.channel.name}:Publisher"
 
     @property
-    def channel_binding(self) -> redis.ChannelBinding:
+    def channel_binding(self) -> "redis.ChannelBinding":
         return redis.ChannelBinding(
             channel=self.channel.name,
             method="publish",
@@ -159,7 +161,7 @@ class _ListPublisherMixin(AsyncAPIPublisher):
         return f"{self.list.name}:Publisher"
 
     @property
-    def channel_binding(self) -> redis.ChannelBinding:
+    def channel_binding(self) -> "redis.ChannelBinding":
         return redis.ChannelBinding(
             channel=self.list.name,
             method="rpush",
@@ -179,7 +181,7 @@ class AsyncAPIStreamPublisher(StreamPublisher, AsyncAPIPublisher):
         return f"{self.stream.name}:Publisher"
 
     @property
-    def channel_binding(self) -> redis.ChannelBinding:
+    def channel_binding(self) -> "redis.ChannelBinding":
         return redis.ChannelBinding(
             channel=self.stream.name,
             method="xadd",

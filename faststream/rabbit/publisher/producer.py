@@ -1,4 +1,3 @@
-from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -21,17 +20,16 @@ from faststream.rabbit.schemas import RABBIT_REPLY, RabbitExchange
 from faststream.utils.functions import fake_context, timeout_scope
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     import aiormq
     from aio_pika import IncomingMessage, RobustChannel, RobustQueue
     from aio_pika.abc import DateType, HeadersType, TimeoutType
     from anyio.streams.memory import MemoryObjectReceiveStream
 
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
-        AsyncDecoder,
-        AsyncParser,
-        CustomDecoder,
-        CustomParser,
+        AsyncCallable,
+        CustomCallable,
     )
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.rabbit.utils import RabbitDeclarer
@@ -41,16 +39,16 @@ if TYPE_CHECKING:
 class AioPikaFastProducer(ProducerProto):
     """A class for fast producing messages using aio-pika."""
 
-    _decoder: "AsyncDecoder[StreamMessage[IncomingMessage]]"
-    _parser: "AsyncParser[IncomingMessage]"
+    _decoder: "AsyncCallable"
+    _parser: "AsyncCallable"
 
     def __init__(
         self,
         *,
         channel: "RobustChannel",
         declarer: "RabbitDeclarer",
-        parser: Optional["CustomParser[IncomingMessage]"],
-        decoder: Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
+        parser: Optional["CustomCallable"],
+        decoder: Optional["CustomCallable"],
     ) -> None:
         self._channel = channel
         self.declarer = declarer
@@ -224,7 +222,7 @@ class _RPCCallback:
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exc_tb: Optional[TracebackType] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         self.lock.release()
         await self.queue.cancel(self.consumer_tag)

@@ -1,8 +1,9 @@
-from typing import Any, Protocol, Tuple, Union
-
-from confluent_kafka import Message
+from typing import TYPE_CHECKING, Any, Protocol, Tuple, Union
 
 from faststream.broker.message import StreamMessage
+
+if TYPE_CHECKING:
+    from confluent_kafka import Message
 
 
 class ConsumerProtocol(Protocol):
@@ -24,8 +25,8 @@ FAKE_CONSUMER = FakeConsumer()
 class KafkaMessage(
     StreamMessage[
         Union[
-            Message,
-            Tuple[Message, ...],
+            "Message",
+            Tuple["Message", ...],
         ]
     ]
 ):

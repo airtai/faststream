@@ -1,10 +1,12 @@
 from contextlib import AsyncExitStack
 from itertools import chain
-from typing import Any, Awaitable, Callable, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
 
 from faststream.broker.publisher.proto import BasePublisherProto
-from faststream.broker.types import PublisherMiddleware
-from faststream.types import AnyDict, SendableMessage
+
+if TYPE_CHECKING:
+    from faststream.broker.types import PublisherMiddleware
+    from faststream.types import AnyDict, SendableMessage
 
 
 class FakePublisher(BasePublisherProto):
@@ -12,10 +14,10 @@ class FakePublisher(BasePublisherProto):
 
     def __init__(
         self,
-        method: Callable[..., Awaitable[SendableMessage]],
+        method: Callable[..., Awaitable["SendableMessage"]],
         *,
-        publish_kwargs: AnyDict,
-        middlewares: Iterable[PublisherMiddleware] = (),
+        publish_kwargs: "AnyDict",
+        middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
         """Initialize an object."""
         self.method = method
@@ -24,10 +26,10 @@ class FakePublisher(BasePublisherProto):
 
     async def publish(
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         *,
         correlation_id: Optional[str] = None,
-        _extra_middlewares: Iterable[PublisherMiddleware] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,
     ) -> Any:
         """Publish a message."""

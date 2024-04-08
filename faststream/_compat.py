@@ -74,14 +74,6 @@ except ImportError:
 
 JsonSchemaValue = Mapping[str, Any]
 
-PValidationError: Optional[Type[Exception]]
-try:
-    from pydantic import ValidationError
-
-    PValidationError = ValidationError
-except ImportError:
-    PValidationError = None
-
 if PYDANTIC_V2:
     if PYDANTIC_VERSION >= "2.4.0":
         from pydantic.annotated_handlers import (

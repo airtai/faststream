@@ -1,8 +1,9 @@
-from typing import Any, Protocol, Tuple, Union
-
-from aiokafka import ConsumerRecord
+from typing import TYPE_CHECKING, Any, Protocol, Tuple, Union
 
 from faststream.broker.message import StreamMessage
+
+if TYPE_CHECKING:
+    from aiokafka import ConsumerRecord
 
 
 class ConsumerProtocol(Protocol):
@@ -24,8 +25,8 @@ FAKE_CONSUMER = FakeConsumer()
 class KafkaMessage(
     StreamMessage[
         Union[
-            ConsumerRecord,
-            Tuple[ConsumerRecord, ...],
+            "ConsumerRecord",
+            Tuple["ConsumerRecord", ...],
         ]
     ]
 ):

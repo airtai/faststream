@@ -1,5 +1,5 @@
 import warnings
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from faststream.security import (
     BaseSecurity,
@@ -8,10 +8,12 @@ from faststream.security import (
     SASLScram512,
     ssl_not_set_error_msg,
 )
-from faststream.types import AnyDict
+
+if TYPE_CHECKING:
+    from faststream.types import AnyDict
 
 
-def parse_security(security: Optional[BaseSecurity]) -> AnyDict:
+def parse_security(security: Optional[BaseSecurity]) -> "AnyDict":
     if security is None:
         return {}
     elif type(security) == BaseSecurity:
@@ -26,14 +28,14 @@ def parse_security(security: Optional[BaseSecurity]) -> AnyDict:
         raise NotImplementedError(f"KafkaBroker does not support `{type(security)}`.")
 
 
-def _parse_base_security(security: BaseSecurity) -> AnyDict:
+def _parse_base_security(security: BaseSecurity) -> "AnyDict":
     return {
         "security_protocol": "SSL" if security.use_ssl else "PLAINTEXT",
         "ssl_context": security.ssl_context,
     }
 
 
-def _parse_sasl_plaintext(security: SASLPlaintext) -> AnyDict:
+def _parse_sasl_plaintext(security: SASLPlaintext) -> "AnyDict":
     if security.ssl_context is None:
         warnings.warn(
             message=ssl_not_set_error_msg,
@@ -50,7 +52,7 @@ def _parse_sasl_plaintext(security: SASLPlaintext) -> AnyDict:
     }
 
 
-def _parse_sasl_scram256(security: SASLScram256) -> AnyDict:
+def _parse_sasl_scram256(security: SASLScram256) -> "AnyDict":
     return {
         "security_protocol": "SASL_SSL" if security.use_ssl else "SASL_PLAINTEXT",
         "ssl_context": security.ssl_context,
@@ -60,7 +62,7 @@ def _parse_sasl_scram256(security: SASLScram256) -> AnyDict:
     }
 
 
-def _parse_sasl_scram512(security: SASLScram512) -> AnyDict:
+def _parse_sasl_scram512(security: SASLScram512) -> "AnyDict":
     return {
         "security_protocol": "SASL_SSL" if security.use_ssl else "SASL_PLAINTEXT",
         "ssl_context": security.ssl_context,

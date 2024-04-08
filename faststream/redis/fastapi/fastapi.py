@@ -31,6 +31,7 @@ from faststream.__about__ import SERVICE_NAME
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.redis.broker.broker import RedisBroker as RB
+from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
@@ -45,21 +46,19 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp, Lifespan
 
     from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
-    from faststream.redis.message import BaseMessage
+    from faststream.redis.message import UnifyRedisMessage
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict
+    from faststream.types import AnyDict, LoggerProto
 
 
-class RedisRouter(StreamRouter["BaseMessage"]):
+class RedisRouter(StreamRouter[UnifyRedisDict]):
     """A class to represent a Redis router."""
 
     broker_class = RB
@@ -97,15 +96,15 @@ class RedisRouter(StreamRouter["BaseMessage"]):
             ),
         ] = 15.0,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[BaseMessage]]"],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional["CustomParser[BaseMessage]"],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[BaseMessage]"],
+            Iterable["BrokerMiddleware[UnifyRedisDict]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -137,7 +136,7 @@ class RedisRouter(StreamRouter["BaseMessage"]):
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[
@@ -457,13 +456,13 @@ class RedisRouter(StreamRouter["BaseMessage"]):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[BaseMessage]"],
+            Optional["CustomCallable"],
             Doc(
                 "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[BaseMessage]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -471,7 +470,7 @@ class RedisRouter(StreamRouter["BaseMessage"]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[BaseMessage]]",
+            "Filter[UnifyRedisMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),

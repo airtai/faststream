@@ -2,17 +2,32 @@ import warnings
 from abc import abstractmethod
 from contextlib import asynccontextmanager
 from functools import partial
-from types import MethodType, TracebackType
-from typing import Any, AsyncGenerator, Generic, Optional, Type, TypeVar
+from types import MethodType
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncGenerator,
+    Generic,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+)
 from unittest.mock import AsyncMock, MagicMock
 
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.middlewares.logging import CriticalLogMiddleware
-from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.testing.app import TestApp
 from faststream.utils.ast import is_contains_context_name
 from faststream.utils.functions import timeout_scope
+
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from faststream.broker.subscriber.proto import SubscriberProto
+    from faststream.broker.types import BrokerMiddleware
+
 
 Broker = TypeVar("Broker", bound=BrokerUsecase[Any, Any])
 
@@ -74,8 +89,8 @@ class TestBroker(Generic[Broker]):
     async def __aexit__(self, *args: Any) -> None:
         await self._ctx.__aexit__(*args)
 
-        middlewares = (
-            CriticalLogMiddleware(
+        middlewares: Tuple["BrokerMiddleware[Any]", ...] = (
+            CriticalLogMiddleware(  # type: ignore[arg-type]
                 logger=self.broker.logger,
                 log_level=self.broker._msg_log_level,
             ),
@@ -118,14 +133,14 @@ class TestBroker(Generic[Broker]):
         patch_broker_calls(broker)
 
         for key, p in broker._publishers.items():
-            if p._fake_handler:
+            if getattr(p, "_fake_handler", None):
                 continue
 
             handler = broker._subscribers.get(key)
 
             if handler is not None:
                 mock = MagicMock()
-                p.set_test(mock=mock, with_fake=False)
+                p.set_test(mock=mock, with_fake=False)  # type: ignore[attr-defined]
                 for h in handler.calls:
                     h.handler.set_test()
                     assert h.handler.mock  # nosec B101
@@ -135,7 +150,7 @@ class TestBroker(Generic[Broker]):
                 f = cls.create_publisher_fake_subscriber(broker, p)
                 f.set_test()
                 assert f.mock  # nosec B101
-                p.set_test(mock=f.mock, with_fake=True)
+                p.set_test(mock=f.mock, with_fake=True)  # type: ignore[attr-defined]
 
         for handler in broker._subscribers.values():
             handler.running = True
@@ -146,11 +161,11 @@ class TestBroker(Generic[Broker]):
         broker: Broker,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exc_tb: Optional[TracebackType] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         for p in broker._publishers.values():
-            if p._fake_handler:
-                p.reset_test()
+            if getattr(p, "_fake_handler", None):
+                p.reset_test()  # type: ignore[attr-defined]
                 cls.remove_publisher_fake_subscriber(broker, p)
 
         for h in broker._subscribers.values():
@@ -176,7 +191,7 @@ class TestBroker(Generic[Broker]):
         raise NotImplementedError()
 
 
-def patch_broker_calls(broker: BrokerUsecase[Any, Any]) -> None:
+def patch_broker_calls(broker: "BrokerUsecase[Any, Any]") -> None:
     """Patch broker calls."""
     broker._abc_start()
 
@@ -186,7 +201,7 @@ def patch_broker_calls(broker: BrokerUsecase[Any, Any]) -> None:
 
 
 async def call_handler(
-    handler: SubscriberProto[Any],
+    handler: "SubscriberProto[Any]",
     message: Any,
     rpc: bool = False,
     rpc_timeout: Optional[float] = 30.0,

@@ -2,7 +2,7 @@ import json
 import sys
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Sequence
+from typing import Optional, Sequence
 
 import typer
 
@@ -12,10 +12,6 @@ from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.schema import Schema
 from faststream.asyncapi.site import serve_app
 from faststream.cli.utils.imports import import_from_string
-from faststream.log import logger as default_logger
-
-if TYPE_CHECKING:
-    from logging import Logger
 
 docs_app = typer.Typer(pretty_exceptions_short=True)
 
@@ -143,12 +139,9 @@ def _parse_and_serve(
     host: str = "localhost",
     port: int = 8000,
 ) -> None:
-    logger: Optional["Logger"] = None
-
     if ":" in app:
         _, app_obj = import_from_string(app)
         raw_schema = get_app_schema(app_obj)
-        logger = app_obj.logger
 
     else:
         schema_filepath = Path.cwd() / app
@@ -175,4 +168,4 @@ def _parse_and_serve(
 
         raw_schema = model_parse(Schema, data)
 
-    serve_app(raw_schema, host, port, logger=logger or default_logger)
+    serve_app(raw_schema, host, port)

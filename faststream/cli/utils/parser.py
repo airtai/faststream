@@ -1,22 +1,16 @@
 from functools import reduce
-from typing import Dict, List, Tuple
+from typing import TYPE_CHECKING, Dict, List, Tuple
 
-from faststream.types import SettingField
+if TYPE_CHECKING:
+    from faststream.types import SettingField
 
 
-def parse_cli_args(*args: str) -> Tuple[str, Dict[str, SettingField]]:
-    """Parses command line arguments.
-
-    Args:
-        *args: Command line arguments as strings.
-
-    Returns:
-        A tuple containing the application name and a dictionary of additional keyword arguments.
-    """
-    extra_kwargs: Dict[str, SettingField] = {}
+def parse_cli_args(*args: str) -> Tuple[str, Dict[str, "SettingField"]]:
+    """Parses command line arguments."""
+    extra_kwargs: Dict[str, "SettingField"] = {}
 
     k: str = ""
-    v: SettingField
+    v: "SettingField"
 
     field_args: List[str] = []
     app = ""

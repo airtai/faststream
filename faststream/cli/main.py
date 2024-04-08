@@ -2,7 +2,7 @@ import logging
 import sys
 import warnings
 from contextlib import suppress
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import anyio
 import typer
@@ -11,13 +11,15 @@ from typer.core import TyperOption
 
 from faststream import FastStream
 from faststream.__about__ import INSTALL_WATCHFILES, __version__
-from faststream.broker.core.usecase import BrokerUsecase
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
 from faststream.cli.utils.parser import parse_cli_args
 from faststream.exceptions import SetupError, ValidationError
-from faststream.types import AnyDict, SettingField
+
+if TYPE_CHECKING:
+    from faststream.broker.core.usecase import BrokerUsecase
+    from faststream.types import AnyDict, SettingField
 
 cli = typer.Typer(pretty_exceptions_short=True)
 cli.add_typer(docs_app, name="docs", help="AsyncAPI schema commands")
@@ -29,12 +31,8 @@ def version_callback(version: bool) -> None:
         import platform
 
         typer.echo(
-            "Running FastStream {} with {} {} on {}".format(
-                __version__,
-                platform.python_implementation(),
-                platform.python_version(),
-                platform.system(),
-            )
+            f"Running FastStream {__version__} with {platform.python_implementation()} "
+            f"{platform.python_version()} on {platform.system()}"
         )
 
         raise typer.Exit()
@@ -152,7 +150,7 @@ def run(
 def _run(
     # NOTE: we should pass `str` due FastStream is not picklable
     app: str,
-    extra_options: Dict[str, SettingField],
+    extra_options: Dict[str, "SettingField"],
     log_level: int = logging.INFO,
     app_level: int = logging.INFO,
 ) -> None:
@@ -233,7 +231,7 @@ def publish(
         sys.exit(1)
 
 
-async def publish_message(broker: BrokerUsecase[Any, Any], extra: AnyDict) -> Any:
+async def publish_message(broker: "BrokerUsecase[Any, Any]", extra: "AnyDict") -> Any:
     try:
         async with broker:
             return await broker.publish(**extra)  # type: ignore[union-attr]

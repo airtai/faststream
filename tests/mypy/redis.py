@@ -5,7 +5,7 @@ from faststream.redis import RedisMessage as Message
 from faststream.redis import RedisRoute as Route
 from faststream.redis import RedisRouter as StreamRouter
 from faststream.redis.fastapi import RedisRouter as FastAPIRouter
-from faststream.redis.message import MsgType as Msg
+from faststream.redis.message import RedisMessage as Msg
 from faststream.types import DecodedMessage
 
 

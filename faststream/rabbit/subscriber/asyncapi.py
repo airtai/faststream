@@ -1,7 +1,5 @@
-from typing import Dict, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Dict, Iterable, Optional, Union
 
-from aio_pika import IncomingMessage
-from fast_depends.dependencies import Depends
 from typing_extensions import override
 
 from faststream.asyncapi.schema import (
@@ -14,11 +12,16 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import amqp
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.types import BrokerMiddleware
 from faststream.rabbit.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.rabbit.utils import is_routing_exchange
-from faststream.types import AnyDict
+
+if TYPE_CHECKING:
+    from aio_pika import IncomingMessage
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.types import BrokerMiddleware
+    from faststream.types import AnyDict
 
 
 class AsyncAPISubscriber(LogicSubscriber):
@@ -87,14 +90,14 @@ class AsyncAPISubscriber(LogicSubscriber):
         cls,
         *,
         queue: RabbitQueue,
-        exchange: Optional[RabbitExchange],
-        consume_args: Optional[AnyDict],
-        reply_config: Optional[ReplyConfig],
+        exchange: Optional["RabbitExchange"],
+        consume_args: Optional["AnyDict"],
+        reply_config: Optional["ReplyConfig"],
         # Subscriber args
         no_ack: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[IncomingMessage]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],

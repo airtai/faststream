@@ -6,23 +6,20 @@ from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRout
 from faststream.broker.utils import default_filter
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.message import BaseMessage
-from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.types import SendableMessage
 
 if TYPE_CHECKING:
-    from aio_pika.message import IncomingMessage
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
-    from faststream.types import AnyDict
+    from faststream.redis.message import UnifyRedisMessage
+    from faststream.redis.schemas import ListSub, PubSub, StreamSub
+    from faststream.types import AnyDict, SendableMessage
 
 
 class RedisPublisher(ArgsContainer):
@@ -34,16 +31,16 @@ class RedisPublisher(ArgsContainer):
     def __init__(
         self,
         channel: Annotated[
-            Union[PubSub, str, None],
+            Union["PubSub", str, None],
             Doc("Redis PubSub object name to send message."),
         ] = None,
         *,
         list: Annotated[
-            Union[ListSub, str, None],
+            Union["ListSub", str, None],
             Doc("Redis List object name to send message."),
         ] = None,
         stream: Annotated[
-            Union[StreamSub, str, None],
+            Union["StreamSub", str, None],
             Doc("Redis Stream object name to send message."),
         ] = None,
         headers: Annotated[
@@ -102,27 +99,27 @@ class RedisRoute(SubscriberRoute):
     def __init__(
         self,
         call: Annotated[
-            Callable[..., SendableMessage],
+            Callable[..., "SendableMessage"],
             Doc(
                 "Message handler function "
                 "to wrap the same with `@broker.subscriber(...)` way."
             ),
         ],
         channel: Annotated[
-            Union[PubSub, str, None],
+            Union["PubSub", str, None],
             Doc("Redis PubSub object name to send message."),
         ] = None,
         *,
         publishers: Annotated[
-            Iterable[RedisPublisher],
+            Iterable["RedisPublisher"],
             Doc("Redis publishers to broadcast the handler result."),
         ] = (),
         list: Annotated[
-            Union[ListSub, str, None],
+            Union["ListSub", str, None],
             Doc("Redis List object name to send message."),
         ] = None,
         stream: Annotated[
-            Union[StreamSub, str, None],
+            Union["StreamSub", str, None],
             Doc("Redis Stream object name to send message."),
         ] = None,
         # broker arguments
@@ -131,13 +128,13 @@ class RedisRoute(SubscriberRoute):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[BaseMessage]"],
+            Optional["CustomCallable"],
             Doc(
                 "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[BaseMessage]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -145,7 +142,7 @@ class RedisRoute(SubscriberRoute):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[BaseMessage]]",
+            "Filter[UnifyRedisMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -223,15 +220,15 @@ class RedisRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[IncomingMessage]"],
+            Iterable["BrokerMiddleware[BaseMessage]"],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[IncomingMessage]"],
+            Optional["CustomCallable"],
             Doc("Parser to map original **IncomingMessage** Msg to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[

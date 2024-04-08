@@ -2,40 +2,42 @@ import asyncio
 import inspect
 from contextlib import suppress
 from functools import partial
-from types import TracebackType
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncContextManager,
     Callable,
     Optional,
     Type,
     Union,
-    overload,
+    cast,
 )
 
 import anyio
 from typing_extensions import Self
 
 from faststream.broker.acknowledgement_watcher import WatcherContext, get_watcher
-from faststream.broker.message import StreamMessage
-from faststream.broker.types import (
-    AsyncDecoder,
-    AsyncParser,
-    CustomDecoder,
-    CustomParser,
-    MsgType,
-)
-from faststream.types import LoggerProto
 from faststream.utils.functions import fake_context, to_async
 
+if TYPE_CHECKING:
+    from types import TracebackType
 
-async def default_filter(msg: StreamMessage[Any]) -> bool:
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        AsyncCallable,
+        CustomCallable,
+        SyncCallable,
+    )
+    from faststream.types import LoggerProto
+
+
+async def default_filter(msg: "StreamMessage[Any]") -> bool:
     """A function to filter stream messages."""
     return not msg.processed
 
 
 def get_watcher_context(
-    logger: Optional[LoggerProto],
+    logger: Optional["LoggerProto"],
     no_ack: bool,
     retry: Union[bool, int],
     **extra_options: Any,
@@ -68,7 +70,7 @@ class MultiLock:
         self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_tb: Optional["TracebackType"],
     ) -> None:
         """Exit the context."""
         self.release()
@@ -103,33 +105,10 @@ class MultiLock:
                 await self.queue.join()
 
 
-@overload
 def resolve_custom_func(
-    custom_func: Optional[CustomParser[MsgType]],
-    default_func: AsyncParser[MsgType],
-) -> AsyncParser[MsgType]: ...
-
-
-@overload
-def resolve_custom_func(
-    custom_func: Optional[CustomDecoder[StreamMessage[MsgType]]],
-    default_func: AsyncDecoder[StreamMessage[MsgType]],
-) -> AsyncDecoder[StreamMessage[MsgType]]: ...
-
-
-def resolve_custom_func(
-    custom_func: Union[
-        Optional[CustomDecoder[StreamMessage[MsgType]]],
-        Optional[CustomParser[MsgType]],
-    ],
-    default_func: Union[
-        AsyncDecoder[StreamMessage[MsgType]],
-        AsyncParser[MsgType],
-    ],
-) -> Union[
-    AsyncDecoder[StreamMessage[MsgType]],
-    AsyncParser[MsgType],
-]:
+    custom_func: Optional["CustomCallable"],
+    default_func: "AsyncCallable",
+) -> "AsyncCallable":
     """Resolve a custom parser/decoder with default one."""
     if custom_func is None:
         return default_func
@@ -137,7 +116,7 @@ def resolve_custom_func(
     original_params = inspect.signature(custom_func).parameters
 
     if len(original_params) == 1:
-        return to_async(custom_func)
+        return to_async(cast(Union["SyncCallable", "AsyncCallable"], custom_func))
 
     else:
         name = tuple(original_params.items())[1][0]

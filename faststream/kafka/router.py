@@ -1,4 +1,5 @@
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -10,25 +11,27 @@ from typing import (
     Union,
 )
 
-from aiokafka import ConsumerRecord
-from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
-from fast_depends.dependencies import Depends
 from typing_extensions import Annotated, Doc, deprecated
 
-from faststream.broker.message import StreamMessage
 from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
-from faststream.broker.types import (
-    BrokerMiddleware,
-    CustomDecoder,
-    CustomParser,
-    Filter,
-    PublisherMiddleware,
-    SubscriberMiddleware,
-)
 from faststream.broker.utils import default_filter
 from faststream.kafka.broker.registrator import KafkaRegistrator
-from faststream.types import SendableMessage
+
+if TYPE_CHECKING:
+    from aiokafka import ConsumerRecord
+    from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomCallable,
+        Filter,
+        PublisherMiddleware,
+        SubscriberMiddleware,
+    )
+    from faststream.kafka.message import KafkaMessage
+    from faststream.types import SendableMessage
 
 
 class KafkaPublisher(ArgsContainer):
@@ -81,7 +84,7 @@ class KafkaPublisher(ArgsContainer):
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable[PublisherMiddleware],
+            Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -128,7 +131,7 @@ class KafkaRoute(SubscriberRoute):
     def __init__(
         self,
         call: Annotated[
-            Callable[..., SendableMessage],
+            Callable[..., "SendableMessage"],
             Doc(
                 "Message handler function "
                 "to wrap the same with `@broker.subscriber(...)` way."
@@ -245,7 +248,7 @@ class KafkaRoute(SubscriberRoute):
             """),
         ] = True,
         partition_assignment_strategy: Annotated[
-            Sequence[AbstractPartitionAssignor],
+            Sequence["AbstractPartitionAssignor"],
             Doc("""
             List of objects to use to
             distribute partition ownership amongst consumer instances when
@@ -375,36 +378,23 @@ class KafkaRoute(SubscriberRoute):
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable[Depends],
+            Iterable["Depends"],
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional[
-                Union[
-                    CustomParser[ConsumerRecord],
-                    CustomParser[Tuple[ConsumerRecord, ...]],
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Parser to map original **ConsumerRecord** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[
-                Union[
-                    CustomDecoder[StreamMessage[ConsumerRecord]],
-                    CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]],
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable[SubscriberMiddleware],
+            Iterable["SubscriberMiddleware"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            Union[
-                Filter[StreamMessage[ConsumerRecord]],
-                Filter[StreamMessage[Tuple[ConsumerRecord, ...]]],
-            ],
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -485,8 +475,8 @@ class KafkaRoute(SubscriberRoute):
 class KafkaRouter(
     BrokerRouter[
         Union[
-            ConsumerRecord,
-            Tuple[ConsumerRecord, ...],
+            "ConsumerRecord",
+            Tuple["ConsumerRecord", ...],
         ]
     ],
     KafkaRegistrator,
@@ -505,7 +495,7 @@ class KafkaRouter(
         ] = (),
         *,
         dependencies: Annotated[
-            Iterable[Depends],
+            Iterable["Depends"],
             Doc(
                 "Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers."
             ),
@@ -513,28 +503,18 @@ class KafkaRouter(
         middlewares: Annotated[
             Iterable[
                 Union[
-                    BrokerMiddleware[ConsumerRecord],
-                    BrokerMiddleware[Tuple[ConsumerRecord, ...]],
+                    "BrokerMiddleware[ConsumerRecord]",
+                    "BrokerMiddleware[Tuple[ConsumerRecord, ...]]",
                 ]
             ],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[
-            Optional[
-                Union[
-                    CustomParser[ConsumerRecord],
-                    CustomParser[Tuple[ConsumerRecord, ...]],
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Parser to map original **ConsumerRecord** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[
-                Union[
-                    CustomDecoder[StreamMessage[ConsumerRecord]],
-                    CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]],
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[

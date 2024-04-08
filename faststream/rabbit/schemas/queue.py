@@ -3,11 +3,12 @@ from typing import TYPE_CHECKING, Optional
 from typing_extensions import Annotated, Doc
 
 from faststream.broker.schemas import NameRequired
-from faststream.types import AnyDict
 from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
     from aio_pika.abc import TimeoutType
+
+    from faststream.types import AnyDict
 
 
 class RabbitQueue(NameRequired):
@@ -73,7 +74,7 @@ class RabbitQueue(NameRequired):
             Doc("The queue will be deleted after connection closed."),
         ] = False,
         arguments: Annotated[
-            Optional[AnyDict],
+            Optional["AnyDict"],
             Doc(
                 "Queue declarationg arguments. "
                 "You can find information about them in the official RabbitMQ documentation: https://www.rabbitmq.com/docs/queues#optional-arguments"
@@ -88,7 +89,7 @@ class RabbitQueue(NameRequired):
             Doc("Whether to declare queue object as restorable."),
         ] = True,
         bind_arguments: Annotated[
-            Optional[AnyDict],
+            Optional["AnyDict"],
             Doc("Queue-exchange binding options."),
         ] = None,
         routing_key: Annotated[

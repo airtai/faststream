@@ -1,24 +1,26 @@
 from abc import abstractmethod
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional
 
-from fast_depends.dependencies import Depends
 from typing_extensions import Self, override
 
 from faststream.asyncapi.proto import AsyncAPIProto
-from faststream.broker.message import StreamMessage
 from faststream.broker.proto import EndpointProto
-from faststream.broker.publisher.proto import BasePublisherProto, ProducerProto
-from faststream.broker.subscriber.call_item import HandlerItem
-from faststream.broker.types import (
-    BrokerMiddleware,
-    CustomDecoder,
-    CustomParser,
-    Filter,
-    MsgType,
-    SubscriberMiddleware,
-)
+from faststream.broker.types import MsgType
 from faststream.broker.wrapper.proto import WrapperProto
-from faststream.types import AnyDict, LoggerProto
+
+if TYPE_CHECKING:
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.publisher.proto import BasePublisherProto, ProducerProto
+    from faststream.broker.subscriber.call_item import HandlerItem
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomCallable,
+        Filter,
+        SubscriberMiddleware,
+    )
+    from faststream.types import AnyDict, LoggerProto
 
 
 class SubscriberProto(
@@ -26,12 +28,12 @@ class SubscriberProto(
     EndpointProto,
     WrapperProto[MsgType],
 ):
-    calls: List[HandlerItem[MsgType]]
+    calls: List["HandlerItem[MsgType]"]
     running: bool
 
-    _broker_dependecies: Iterable[Depends]
-    _broker_middlewares: Iterable[BrokerMiddleware[MsgType]]
-    _producer: Optional[ProducerProto]
+    _broker_dependecies: Iterable["Depends"]
+    _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
+    _producer: Optional["ProducerProto"]
 
     @staticmethod
     @abstractmethod
@@ -42,7 +44,7 @@ class SubscriberProto(
     @abstractmethod
     def get_log_context(
         self,
-        msg: Optional[StreamMessage[MsgType]],
+        msg: Optional["StreamMessage[MsgType]"],
         /,
     ) -> Dict[str, str]: ...
 
@@ -51,12 +53,12 @@ class SubscriberProto(
     def setup(  # type: ignore[override]
         self,
         *,
-        logger: Optional[LoggerProto],
+        logger: Optional["LoggerProto"],
         graceful_timeout: Optional[float],
-        broker_parser: Optional[CustomParser[MsgType]],
-        broker_decoder: Optional[CustomDecoder[StreamMessage[MsgType]]],
-        producer: Optional[ProducerProto],
-        extra_context: AnyDict,
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        producer: Optional["ProducerProto"],
+        extra_context: "AnyDict",
         # FastDepends options
         apply_types: bool,
         is_validate: bool,
@@ -66,8 +68,8 @@ class SubscriberProto(
     @abstractmethod
     def _make_response_publisher(
         self,
-        message: StreamMessage[MsgType],
-    ) -> Iterable[BasePublisherProto]: ...
+        message: "StreamMessage[MsgType]",
+    ) -> Iterable["BasePublisherProto"]: ...
 
     @property
     @abstractmethod
@@ -86,9 +88,9 @@ class SubscriberProto(
     def add_call(
         self,
         *,
-        filter_: "Filter[StreamMessage[MsgType]]",
-        parser_: "CustomParser[MsgType]",
-        decoder_: "CustomDecoder[StreamMessage[MsgType]]",
+        filter_: "Filter[Any]",
+        parser_: "CustomCallable",
+        decoder_: "CustomCallable",
         middlewares_: Iterable["SubscriberMiddleware"],
         dependencies_: Iterable["Depends"],
     ) -> Self: ...

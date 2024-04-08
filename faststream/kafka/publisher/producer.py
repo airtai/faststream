@@ -1,29 +1,32 @@
-from typing import Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
-from aiokafka import AIOKafkaProducer
 from typing_extensions import override
 
 from faststream.broker.message import encode_message
 from faststream.broker.publisher.proto import ProducerProto
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.types import SendableMessage
+
+if TYPE_CHECKING:
+    from aiokafka import AIOKafkaProducer
+
+    from faststream.types import SendableMessage
 
 
 class AioKafkaFastProducer(ProducerProto):
     """A class to represent Kafka producer."""
 
-    _producer: Optional[AIOKafkaProducer]
+    _producer: Optional["AIOKafkaProducer"]
 
     def __init__(
         self,
-        producer: AIOKafkaProducer,
+        producer: "AIOKafkaProducer",
     ) -> None:
         self._producer = producer
 
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         topic: str,
         *,
         correlation_id: str,
@@ -65,7 +68,7 @@ class AioKafkaFastProducer(ProducerProto):
 
     async def publish_batch(
         self,
-        *msgs: SendableMessage,
+        *msgs: "SendableMessage",
         correlation_id: str,
         topic: str,
         partition: Optional[int] = None,

@@ -1,6 +1,15 @@
-from typing import Any, Dict, Iterable, Literal, Optional, Tuple, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterable,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+    overload,
+)
 
-from confluent_kafka import Message as ConfluentMsg
 from typing_extensions import override
 
 from faststream.asyncapi.schema import (
@@ -12,7 +21,7 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+from faststream.broker.types import MsgType
 from faststream.confluent.publisher.usecase import (
     BatchPublisher,
     DefaultPublisher,
@@ -20,8 +29,13 @@ from faststream.confluent.publisher.usecase import (
 )
 from faststream.exceptions import SetupError
 
+if TYPE_CHECKING:
+    from confluent_kafka import Message as ConfluentMsg
 
-class AsyncAPIPublisher(LogicPublisher):
+    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+
+
+class AsyncAPIPublisher(LogicPublisher[MsgType]):
     """A class representing a publisher."""
 
     def get_name(self) -> str:
@@ -57,8 +71,8 @@ class AsyncAPIPublisher(LogicPublisher):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[Tuple[ConfluentMsg, ...]]],
-        middlewares: Iterable[PublisherMiddleware],
+        broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -77,8 +91,8 @@ class AsyncAPIPublisher(LogicPublisher):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[ConfluentMsg]],
-        middlewares: Iterable[PublisherMiddleware],
+        broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -98,9 +112,9 @@ class AsyncAPIPublisher(LogicPublisher):
         reply_to: str,
         # Publisher args
         broker_middlewares: Iterable[
-            BrokerMiddleware[Union[Tuple[ConfluentMsg, ...], ConfluentMsg]]
+            "BrokerMiddleware[Union[Tuple[ConfluentMsg, ...], ConfluentMsg]]"
         ],
-        middlewares: Iterable[PublisherMiddleware],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -123,9 +137,9 @@ class AsyncAPIPublisher(LogicPublisher):
         reply_to: str,
         # Publisher args
         broker_middlewares: Iterable[
-            BrokerMiddleware[Union[Tuple[ConfluentMsg, ...], ConfluentMsg]]
+            "BrokerMiddleware[Union[Tuple[ConfluentMsg, ...], ConfluentMsg]]"
         ],
-        middlewares: Iterable[PublisherMiddleware],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -168,9 +182,15 @@ class AsyncAPIPublisher(LogicPublisher):
             )
 
 
-class AsyncAPIBatchPublisher(BatchPublisher, AsyncAPIPublisher):
+class AsyncAPIBatchPublisher(
+    BatchPublisher,
+    AsyncAPIPublisher[Tuple["ConfluentMsg", ...]],
+):
     pass
 
 
-class AsyncAPIDefaultPublisher(DefaultPublisher, AsyncAPIPublisher):
+class AsyncAPIDefaultPublisher(
+    DefaultPublisher,
+    AsyncAPIPublisher["ConfluentMsg"],
+):
     pass

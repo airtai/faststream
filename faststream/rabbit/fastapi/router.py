@@ -45,18 +45,17 @@ if TYPE_CHECKING:
     from yarl import URL
 
     from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
+    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.schemas.reply import ReplyConfig
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict
+    from faststream.types import AnyDict, LoggerProto
 
 
 class RabbitRouter(StreamRouter["IncomingMessage"]):
@@ -117,11 +116,11 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             ),
         ] = 15.0,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional["CustomParser[IncomingMessage]"],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
@@ -157,7 +156,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[
@@ -474,13 +473,13 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[IncomingMessage]"],
+            Optional["CustomCallable"],
             Doc(
                 "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -488,7 +487,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[IncomingMessage]]",
+            "Filter[RabbitMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),

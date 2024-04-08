@@ -8,33 +8,31 @@ from typing import (
     Optional,
 )
 
-from fast_depends.dependencies import Depends
-
-from faststream.broker.publisher.proto import PublisherProto
-from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.types import MsgType
 
 if TYPE_CHECKING:
-    from faststream.broker.message import StreamMessage
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.publisher.proto import PublisherProto
+    from faststream.broker.subscriber.proto import SubscriberProto
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
     )
 
 
 class ABCBroker(Generic[MsgType]):
-    _subscribers: Mapping[int, SubscriberProto[MsgType]]
-    _publishers: Mapping[int, PublisherProto[MsgType]]
+    _subscribers: Mapping[int, "SubscriberProto[MsgType]"]
+    _publishers: Mapping[int, "PublisherProto[MsgType]"]
 
     def __init__(
         self,
         *,
         prefix: str,
-        dependencies: Iterable[Depends],
+        dependencies: Iterable["Depends"],
         middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        parser: Optional["CustomParser[MsgType]"],
-        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"],
+        parser: Optional["CustomCallable"],
+        decoder: Optional["CustomCallable"],
         include_in_schema: Optional[bool],
     ) -> None:
         self.prefix = prefix
@@ -51,8 +49,8 @@ class ABCBroker(Generic[MsgType]):
     @abstractmethod
     def subscriber(
         self,
-        subscriber: SubscriberProto[MsgType],
-    ) -> SubscriberProto[MsgType]:
+        subscriber: "SubscriberProto[MsgType]",
+    ) -> "SubscriberProto[MsgType]":
         subscriber.add_prefix(self.prefix)
         key = hash(subscriber)
         subscriber = self._subscribers.get(key, subscriber)
@@ -60,7 +58,10 @@ class ABCBroker(Generic[MsgType]):
         return subscriber
 
     @abstractmethod
-    def publisher(self, publisher: PublisherProto[MsgType]) -> PublisherProto[MsgType]:
+    def publisher(
+        self,
+        publisher: "PublisherProto[MsgType]",
+    ) -> "PublisherProto[MsgType]":
         publisher.add_prefix(self.prefix)
         key = hash(publisher)
         publisher = self._publishers.get(key, publisher)

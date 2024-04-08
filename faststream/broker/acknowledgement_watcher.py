@@ -1,7 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
 from collections import Counter
-from types import TracebackType
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 from typing import Counter as CounterType
 
@@ -14,6 +13,8 @@ from faststream.exceptions import (
 )
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import MsgType
     from faststream.types import LoggerProto
@@ -137,7 +138,7 @@ class WatcherContext:
         self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_tb: Optional["TracebackType"],
     ) -> bool:
         """Exit the asynchronous context manager."""
         if not exc_type:

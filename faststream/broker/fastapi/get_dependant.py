@@ -1,15 +1,17 @@
-from typing import Any, Callable, Iterable, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
 
-from fastapi import params
-from fastapi.dependencies.models import Dependant
 from fastapi.dependencies.utils import get_dependant, get_parameterless_sub_dependant
 
 from faststream._compat import PYDANTIC_V2
 
+if TYPE_CHECKING:
+    from fastapi import params
+    from fastapi.dependencies.models import Dependant
+
 
 def get_fastapi_dependant(
     orig_call: Callable[..., Any],
-    dependencies: Iterable[params.Depends],
+    dependencies: Iterable["params.Depends"],
     path_name: str = "",
 ) -> Any:
     """Generate FastStream-Compatible FastAPI Dependant object."""
@@ -26,7 +28,7 @@ def get_fastapi_dependant(
 
 def get_fastapi_native_dependant(
     orig_call: Callable[..., Any],
-    dependencies: Iterable[params.Depends],
+    dependencies: Iterable["params.Depends"],
     path_name: str = "",
 ) -> Any:
     """Generate native FastAPI Dependant."""
@@ -44,7 +46,7 @@ def get_fastapi_native_dependant(
     return dependent
 
 
-def _patch_fastapi_dependent(dependant: Dependant) -> Dependant:
+def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
     """Patch FastAPI by adding fields for AsyncAPI schema generation."""
     from pydantic import Field, create_model  # FastAPI always has pydantic
 

@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from faststream._compat import DEF_KEY, HAS_FASTAPI
-from faststream.app import FastStream
 from faststream.asyncapi.schema import (
     Channel,
     Components,
@@ -14,11 +13,15 @@ from faststream.asyncapi.schema import (
 from faststream.constants import ContentTypes
 
 if TYPE_CHECKING:
+    from faststream.app import FastStream
+    from faststream.broker.core.usecase import BrokerUsecase
+    from faststream.broker.types import ConnectionType, MsgType
+
     if HAS_FASTAPI:
         from faststream.broker.fastapi.router import StreamRouter
 
 
-def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
+def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
@@ -81,7 +84,9 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
     return schema
 
 
-def get_broker_server(broker) -> Dict[str, Server]:
+def get_broker_server(
+    broker: "BrokerUsecase[MsgType, ConnectionType]",
+) -> Dict[str, Server]:
     """Get the broker server for an application."""
     servers = {}
 
@@ -120,7 +125,9 @@ def get_broker_server(broker) -> Dict[str, Server]:
     return servers
 
 
-def get_broker_channels(broker) -> Dict[str, Channel]:
+def get_broker_channels(
+    broker: "BrokerUsecase[MsgType, ConnectionType]",
+) -> Dict[str, Channel]:
     """Get the broker channels for an application."""
     channels = {}
 

@@ -2,6 +2,7 @@ import asyncio
 from abc import ABC, abstractmethod
 from itertools import chain
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -12,26 +13,27 @@ from typing import (
 )
 
 import anyio
-from aiokafka import AIOKafkaConsumer, ConsumerRecord
 from aiokafka.errors import ConsumerStoppedError, KafkaError
-from fast_depends.dependencies import Depends
 from typing_extensions import override
 
-from faststream.broker.message import StreamMessage
 from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.publisher.proto import ProducerProto
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import (
-    AsyncDecoder,
-    AsyncParser,
+    AsyncCallable,
     BrokerMiddleware,
-    CustomDecoder,
-    CustomParser,
+    CustomCallable,
     MsgType,
 )
 from faststream.kafka.parser import AioKafkaParser
-from faststream.kafka.schemas.params import ConsumerConnectionParams
-from faststream.types import AnyDict, LoggerProto
+
+if TYPE_CHECKING:
+    from aiokafka import AIOKafkaConsumer, ConsumerRecord
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.publisher.proto import ProducerProto
+    from faststream.kafka.schemas.params import ConsumerConnectionParams
+    from faststream.types import AnyDict, LoggerProto
 
 
 class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
@@ -40,7 +42,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     topics: Sequence[str]
     group_id: Optional[str]
 
-    consumer: Optional[AIOKafkaConsumer]
+    consumer: Optional["AIOKafkaConsumer"]
     task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
     batch: bool
@@ -50,15 +52,15 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         *topics: str,
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., AIOKafkaConsumer],
+        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
-        default_parser: AsyncParser[MsgType],
-        default_decoder: AsyncDecoder[StreamMessage[MsgType]],
+        default_parser: "AsyncCallable",
+        default_decoder: "AsyncCallable",
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -87,22 +89,22 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         # Setup it later
         self.client_id = ""
-        self.__connection_args: ConsumerConnectionParams = {}
+        self.__connection_args: "ConsumerConnectionParams" = {}
 
     @override
     def setup(  # type: ignore[override]
         self,
         *,
         client_id: Optional[str],
-        connection_args: ConsumerConnectionParams,
+        connection_args: "ConsumerConnectionParams",
         # basic args
-        logger: Optional[LoggerProto],
-        producer: Optional[ProducerProto],
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
         graceful_timeout: Optional[float],
-        extra_context: Optional[AnyDict],
+        extra_context: Optional["AnyDict"],
         # broker options
-        broker_parser: Optional["CustomParser[MsgType]"],
-        broker_decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"],
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
         # dependant args
         apply_types: bool,
         is_validate: bool,
@@ -150,7 +152,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.task = None
 
     def _make_response_publisher(
-        self, message: "StreamMessage[Any]"
+        self,
+        message: "StreamMessage[Any]",
     ) -> Sequence[FakePublisher]:
         if not message.reply_to or self._producer is None:
             return ()
@@ -193,7 +196,10 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
                     await self.consume(msg)
 
     @staticmethod
-    def get_routing_hash(topics: Iterable[str], group_id: Optional[str] = None) -> int:
+    def get_routing_hash(
+        topics: Iterable[str],
+        group_id: Optional[str] = None,
+    ) -> int:
         return hash("".join((*topics, group_id or "")))
 
     def __hash__(self) -> int:
@@ -232,19 +238,19 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.topics = tuple("".join((prefix, t)) for t in self.topics)
 
 
-class DefaultSubscriber(LogicSubscriber[ConsumerRecord]):
+class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
     def __init__(
         self,
         *topics: str,
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., AIOKafkaConsumer],
+        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[ConsumerRecord]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -269,12 +275,12 @@ class DefaultSubscriber(LogicSubscriber[ConsumerRecord]):
             include_in_schema=include_in_schema,
         )
 
-    async def get_msg(self) -> ConsumerRecord:
+    async def get_msg(self) -> "ConsumerRecord":
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
         return await self.consumer.getone()
 
 
-class BatchSubscriber(LogicSubscriber[Tuple[ConsumerRecord, ...]]):
+class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
     def __init__(
         self,
         *topics: str,
@@ -282,14 +288,14 @@ class BatchSubscriber(LogicSubscriber[Tuple[ConsumerRecord, ...]]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., AIOKafkaConsumer],
+        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable[
-            BrokerMiddleware[Sequence[Tuple[ConsumerRecord, ...]]]
+            "BrokerMiddleware[Sequence[Tuple[ConsumerRecord, ...]]]"
         ],
         # AsyncAPI args
         title_: Optional[str],
@@ -318,7 +324,7 @@ class BatchSubscriber(LogicSubscriber[Tuple[ConsumerRecord, ...]]):
             include_in_schema=include_in_schema,
         )
 
-    async def get_msg(self) -> Tuple[ConsumerRecord, ...]:
+    async def get_msg(self) -> Tuple["ConsumerRecord", ...]:
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
 
         messages = await self.consumer.getmany(

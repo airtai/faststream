@@ -4,7 +4,6 @@ from nats.js import api
 from typing_extensions import Annotated, Doc, deprecated
 
 from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
-from faststream.broker.types import PublisherMiddleware
 from faststream.broker.utils import default_filter
 from faststream.nats.broker.registrator import NatsRegistrator
 
@@ -12,14 +11,14 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
     from nats.aio.msg import Msg
 
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         Filter,
+        PublisherMiddleware,
         SubscriberMiddleware,
     )
+    from faststream.nats.message import NatsBatchMessage, NatsMessage
     from faststream.nats.schemas import JStream, PullSub
     from faststream.types import SendableMessage
 
@@ -63,7 +62,7 @@ class NatsPublisher(ArgsContainer):
         ] = None,
         # basic args
         middlewares: Annotated[
-            Iterable[PublisherMiddleware],
+            Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information
@@ -215,11 +214,11 @@ class NatsRoute(SubscriberRoute):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[Msg]"],
+            Optional["CustomCallable"],
             Doc("Parser to map original **nats-py** Msg to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[Msg]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -227,7 +226,10 @@ class NatsRoute(SubscriberRoute):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[Msg]]",
+            Union[
+                "Filter[NatsMessage]",
+                "Filter[NatsBatchMessage]",
+            ],
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -327,11 +329,11 @@ class NatsRouter(
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[Msg]"],
+            Optional["CustomCallable"],
             Doc("Parser to map original **IncomingMessage** Msg to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[Msg]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[

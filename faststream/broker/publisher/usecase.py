@@ -1,6 +1,7 @@
 from abc import ABC
 from inspect import unwrap
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Iterable,
@@ -17,16 +18,17 @@ from typing_extensions import Annotated, Doc, override
 from faststream.asyncapi.abc import AsyncAPIOperation
 from faststream.asyncapi.message import get_response_schema
 from faststream.asyncapi.utils import to_camelcase
-from faststream.broker.publisher.proto import ProducerProto, PublisherProto
-from faststream.broker.types import (
-    BrokerMiddleware,
-    MsgType,
-    P_HandlerParams,
-    PublisherMiddleware,
-    T_HandlerReturn,
-)
+from faststream.broker.publisher.proto import PublisherProto
+from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
 from faststream.broker.wrapper.call import HandlerCallWrapper
-from faststream.types import AnyDict
+
+if TYPE_CHECKING:
+    from faststream.broker.publisher.proto import ProducerProto
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        PublisherMiddleware,
+    )
+    from faststream.types import AnyDict
 
 
 class PublisherUsecase(
@@ -43,11 +45,11 @@ class PublisherUsecase(
         self,
         *,
         broker_middlewares: Annotated[
-            Iterable[BrokerMiddleware[MsgType]],
+            Iterable["BrokerMiddleware[MsgType]"],
             Doc("Top-level middlewares to use in direct `.publish` call."),
         ],
         middlewares: Annotated[
-            Iterable[PublisherMiddleware],
+            Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares."),
         ],
         # AsyncAPI args
@@ -89,7 +91,7 @@ class PublisherUsecase(
     def setup(  # type: ignore[override]
         self,
         *,
-        producer: Optional[ProducerProto],
+        producer: Optional["ProducerProto"],
     ) -> None:
         self._producer = producer
 
@@ -128,8 +130,8 @@ class PublisherUsecase(
         self.calls.append(handler_call._original_call)
         return handler_call
 
-    def get_payloads(self) -> List[Tuple[AnyDict, str]]:
-        payloads: List[Tuple[AnyDict, str]] = []
+    def get_payloads(self) -> List[Tuple["AnyDict", str]]:
+        payloads: List[Tuple["AnyDict", str]] = []
 
         if self.schema_:
             params = {"response__": (self.schema_, ...)}

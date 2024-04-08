@@ -1,14 +1,15 @@
 from typing import TYPE_CHECKING, Any, Optional, Tuple
 
-from aiokafka import ConsumerRecord
-
-from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
+from faststream.broker.message import decode_message, gen_cor_id
 from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
-from faststream.types import DecodedMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
+    from aiokafka import ConsumerRecord
+
+    from faststream.broker.message import StreamMessage
     from faststream.kafka.subscriber.usecase import LogicSubscriber
+    from faststream.types import DecodedMessage
 
 
 class AioKafkaParser:
@@ -16,8 +17,8 @@ class AioKafkaParser:
 
     @staticmethod
     async def parse_message(
-        message: ConsumerRecord,
-    ) -> StreamMessage[ConsumerRecord]:
+        message: "ConsumerRecord",
+    ) -> "StreamMessage[ConsumerRecord]":
         """Parses a Kafka message."""
         headers = {i: j.decode() for i, j in message.headers}
         handler: Optional["LogicSubscriber[Any]"] = context.get_local("handler_")
@@ -35,8 +36,8 @@ class AioKafkaParser:
 
     @staticmethod
     async def parse_message_batch(
-        message: Tuple[ConsumerRecord, ...],
-    ) -> StreamMessage[Tuple[ConsumerRecord, ...]]:
+        message: Tuple["ConsumerRecord", ...],
+    ) -> "StreamMessage[Tuple[ConsumerRecord, ...]]":
         """Parses a batch of messages from a Kafka consumer."""
         first = message[0]
         last = message[-1]
@@ -55,13 +56,14 @@ class AioKafkaParser:
         )
 
     @staticmethod
-    async def decode_message(msg: StreamMessage[ConsumerRecord]) -> DecodedMessage:
+    async def decode_message(msg: "StreamMessage[ConsumerRecord]") -> "DecodedMessage":
         """Decodes a message."""
         return decode_message(msg)
 
     @classmethod
     async def decode_message_batch(
-        cls, msg: StreamMessage[Tuple[ConsumerRecord, ...]]
-    ) -> DecodedMessage:
+        cls,
+        msg: "StreamMessage[Tuple[ConsumerRecord, ...]]",
+    ) -> "DecodedMessage":
         """Decode a batch of messages."""
         return [decode_message(await cls.parse_message(m)) for m in msg.raw_message]

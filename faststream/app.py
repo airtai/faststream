@@ -15,11 +15,9 @@ from typing import (
 import anyio
 from typing_extensions import ParamSpec
 
-from faststream._compat import PValidationError
 from faststream.cli.supervisors.utils import set_exit
 from faststream.exceptions import ValidationError
 from faststream.log.logging import logger
-from faststream.types import AnyDict, AsyncFunc, Lifespan, LoggerProto, SettingField
 from faststream.utils import apply_types, context
 from faststream.utils.functions import drop_response_type, fake_context, to_async
 
@@ -39,33 +37,40 @@ if TYPE_CHECKING:
         TagDict,
     )
     from faststream.broker.core.usecase import BrokerUsecase
-    from faststream.types import AnyHttpUrl
+    from faststream.types import (
+        AnyDict,
+        AnyHttpUrl,
+        AsyncFunc,
+        Lifespan,
+        LoggerProto,
+        SettingField,
+    )
 
 
 class FastStream:
     """A class representing a FastStream application."""
 
-    _on_startup_calling: List[AsyncFunc]
-    _after_startup_calling: List[AsyncFunc]
-    _on_shutdown_calling: List[AsyncFunc]
-    _after_shutdown_calling: List[AsyncFunc]
+    _on_startup_calling: List["AsyncFunc"]
+    _after_startup_calling: List["AsyncFunc"]
+    _on_shutdown_calling: List["AsyncFunc"]
+    _after_shutdown_calling: List["AsyncFunc"]
 
     def __init__(
         self,
         broker: Optional["BrokerUsecase[Any, Any]"] = None,
-        logger: Optional[LoggerProto] = logger,
-        lifespan: Optional[Lifespan] = None,
+        logger: Optional["LoggerProto"] = logger,
+        lifespan: Optional["Lifespan"] = None,
         # AsyncAPI args,
         title: str = "FastStream",
         version: str = "0.1.0",
         description: str = "",
         terms_of_service: Optional["AnyHttpUrl"] = None,
-        license: Optional[Union["License", "LicenseDict", AnyDict]] = None,
-        contact: Optional[Union["Contact", "ContactDict", AnyDict]] = None,
+        license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
+        contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
         identifier: Optional[str] = None,
-        tags: Optional[Sequence[Union["Tag", "TagDict", AnyDict]]] = None,
+        tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]] = None,
         external_docs: Optional[
-            Union["ExternalDocs", "ExternalDocsDict", AnyDict]
+            Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,
     ) -> None:
         context.set_global("app", self)
@@ -146,7 +151,7 @@ class FastStream:
     async def run(
         self,
         log_level: int = logging.INFO,
-        run_extra_options: Optional[Dict[str, SettingField]] = None,
+        run_extra_options: Optional[Dict[str, "SettingField"]] = None,
         sleep_time: float = 0.1,
     ) -> None:
         """Run FastStream Application."""
@@ -168,22 +173,24 @@ class FastStream:
 
     async def start(
         self,
-        **run_extra_options: SettingField,
+        **run_extra_options: "SettingField",
     ) -> None:
         """Executes startup hooks and start broker."""
         for func in self._on_startup_calling:
             call = func(**run_extra_options)
 
-            if PValidationError is not None:
-                try:
-                    await call
-                except PValidationError as e:
-                    raise ValidationError(
-                        fields=[x["loc"][0] for x in e.errors()]
-                    ) from e
+            try:
+                from pydantic import ValidationError as PValidation
+
+            except ImportError:
+                await call
 
             else:
-                await call
+                try:
+                    await call
+                except PValidation as e:
+                    fields = [str(x["loc"][0]) for x in e.errors()]
+                    raise ValidationError(fields=fields) from e
 
         if self.broker is not None:
             await self.broker.start()
@@ -205,7 +212,7 @@ class FastStream:
     async def _startup(
         self,
         log_level: int = logging.INFO,
-        run_extra_options: Optional[Dict[str, SettingField]] = None,
+        run_extra_options: Optional[Dict[str, "SettingField"]] = None,
     ) -> None:
         self._log(log_level, "FastStream app starting...")
         await self.start(**(run_extra_options or {}))

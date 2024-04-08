@@ -2,8 +2,8 @@ import json
 from abc import abstractmethod
 from contextlib import asynccontextmanager
 from enum import Enum
-from types import TracebackType
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncIterator,
     Awaitable,
@@ -22,38 +22,42 @@ from typing import (
 )
 from weakref import WeakSet
 
-from fastapi import APIRouter, FastAPI, params
 from fastapi.background import BackgroundTasks
 from fastapi.datastructures import Default
 from fastapi.responses import HTMLResponse
-from fastapi.routing import APIRoute
-from fastapi.types import IncEx
+from fastapi.routing import APIRoute, APIRouter
 from fastapi.utils import generate_unique_id
-from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute, _DefaultLifespan
-from starlette.types import ASGIApp, AppType, Lifespan
 
-from faststream.asyncapi import schema as asyncapi
-from faststream.asyncapi.schema import Schema
 from faststream.asyncapi.site import get_asyncapi_html
-from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi.get_dependant import get_fastapi_dependant
 from faststream.broker.fastapi.route import StreamRoute
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.publisher.proto import PublisherProto
-from faststream.broker.schemas import NameRequired
 from faststream.broker.types import (
-    BrokerMiddleware,
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper.call import HandlerCallWrapper
-from faststream.broker.wrapper.proto import WrapperProto
-from faststream.types import AnyDict
 from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
+
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from fastapi import FastAPI, params
+    from fastapi.types import IncEx
+    from starlette import routing
+    from starlette.types import ASGIApp, AppType, Lifespan
+
+    from faststream.asyncapi import schema as asyncapi
+    from faststream.asyncapi.schema import Schema
+    from faststream.broker.core.usecase import BrokerUsecase
+    from faststream.broker.publisher.proto import PublisherProto
+    from faststream.broker.schemas import NameRequired
+    from faststream.broker.types import BrokerMiddleware
+    from faststream.broker.wrapper.call import HandlerCallWrapper
+    from faststream.types import AnyDict
 
 
 class _BackgroundMiddleware(BaseMiddleware):
@@ -61,10 +65,10 @@ class _BackgroundMiddleware(BaseMiddleware):
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exc_tb: Optional[TracebackType] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
         if not exc_type and (
-            background := cast(
+            background := cast(  # type: ignore[redundant-cast]
                 Optional[BackgroundTasks],
                 getattr(context.get_local("message"), "background", None),
             )
@@ -74,48 +78,53 @@ class _BackgroundMiddleware(BaseMiddleware):
         return await super().after_processed(exc_type, exc_val, exc_tb)
 
 
-class StreamRouter(APIRouter, Generic[MsgType]):
+class StreamRouter(
+    APIRouter,  # type: ignore[misc]
+    Generic[MsgType],
+):
     """A class to route streams."""
 
-    broker_class: Type[BrokerUsecase[MsgType, Any]]
-    broker: BrokerUsecase[MsgType, Any]
+    broker_class: Type["BrokerUsecase[MsgType, Any]"]
+    broker: "BrokerUsecase[MsgType, Any]"
     docs_router: Optional[APIRouter]
     _after_startup_hooks: List[Callable[[Any], Awaitable[Optional[Mapping[str, Any]]]]]
     _on_shutdown_hooks: List[Callable[[Any], Awaitable[None]]]
-    schema: Optional[Schema]
+    schema: Optional["Schema"]
 
     title: str
     description: str
     version: str
-    license: Optional[AnyDict]
-    contact: Optional[AnyDict]
+    license: Optional["AnyDict"]
+    contact: Optional["AnyDict"]
 
     def __init__(
         self,
         *connection_args: Any,
-        middlewares: Iterable[BrokerMiddleware[MsgType]] = (),
+        middlewares: Iterable["BrokerMiddleware[MsgType]"] = (),
         prefix: str = "",
         tags: Optional[List[Union[str, Enum]]] = None,
-        dependencies: Optional[Sequence[params.Depends]] = None,
-        default_response_class: Type[Response] = Default(JSONResponse),
-        responses: Optional[Dict[Union[int, str], AnyDict]] = None,
-        callbacks: Optional[List[routing.BaseRoute]] = None,
-        routes: Optional[List[routing.BaseRoute]] = None,
+        dependencies: Optional[Sequence["params.Depends"]] = None,
+        default_response_class: Type["Response"] = Default(JSONResponse),
+        responses: Optional[Dict[Union[int, str], "AnyDict"]] = None,
+        callbacks: Optional[List["routing.BaseRoute"]] = None,
+        routes: Optional[List["routing.BaseRoute"]] = None,
         redirect_slashes: bool = True,
-        default: Optional[ASGIApp] = None,
+        default: Optional["ASGIApp"] = None,
         dependency_overrides_provider: Optional[Any] = None,
-        route_class: Type[APIRoute] = APIRoute,
+        route_class: Type["APIRoute"] = APIRoute,
         on_startup: Optional[Sequence[Callable[[], Any]]] = None,
         on_shutdown: Optional[Sequence[Callable[[], Any]]] = None,
         deprecated: Optional[bool] = None,
         include_in_schema: bool = True,
         setup_state: bool = True,
-        lifespan: Optional[Lifespan[Any]] = None,
-        generate_unique_id_function: Callable[[APIRoute], str] = Default(
+        lifespan: Optional["Lifespan[Any]"] = None,
+        generate_unique_id_function: Callable[["APIRoute"], str] = Default(
             generate_unique_id
         ),
         # AsyncAPI information
-        asyncapi_tags: Optional[Iterable[Union[asyncapi.Tag, asyncapi.TagDict]]] = None,
+        asyncapi_tags: Optional[
+            Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]
+        ] = None,
         schema_url: Optional[str] = "/asyncapi",
         **connection_kwars: Any,
     ) -> None:
@@ -193,19 +202,19 @@ class StreamRouter(APIRouter, Generic[MsgType]):
 
     def _add_api_mq_route(
         self,
-        path: Union[NameRequired, str],
-        *extra: Union[NameRequired, str],
+        path: Union["NameRequired", str],
+        *extra: Union["NameRequired", str],
         endpoint: Callable[P_HandlerParams, T_HandlerReturn],
-        dependencies: Iterable[params.Depends],
+        dependencies: Iterable["params.Depends"],
         response_model: Any,
-        response_model_include: Optional[IncEx],
-        response_model_exclude: Optional[IncEx],
+        response_model_include: Optional["IncEx"],
+        response_model_exclude: Optional["IncEx"],
         response_model_by_alias: bool,
         response_model_exclude_unset: bool,
         response_model_exclude_defaults: bool,
         response_model_exclude_none: bool,
         **broker_kwargs: Any,
-    ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
+    ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
         """Add an API message queue route."""
         route = StreamRoute[MsgType, P_HandlerParams, T_HandlerReturn](
             path,
@@ -228,23 +237,26 @@ class StreamRouter(APIRouter, Generic[MsgType]):
 
     def subscriber(
         self,
-        path: Union[str, NameRequired],
-        *extra: Union[NameRequired, str],
-        dependencies: Iterable[params.Depends],
+        path: Union[str, "NameRequired"],
+        *extra: Union["NameRequired", str],
+        dependencies: Iterable["params.Depends"],
         response_model: Any,
-        response_model_include: Optional[IncEx],
-        response_model_exclude: Optional[IncEx],
+        response_model_include: Optional["IncEx"],
+        response_model_exclude: Optional["IncEx"],
         response_model_by_alias: bool,
         response_model_exclude_unset: bool,
         response_model_exclude_defaults: bool,
         response_model_exclude_none: bool,
         **broker_kwargs: Any,
-    ) -> WrapperProto[MsgType]:
+    ) -> Callable[
+        [Callable[P_HandlerParams, T_HandlerReturn]],
+        "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+    ]:
         """A function decorator for subscribing to a message queue."""
 
         def decorator(
             func: Callable[P_HandlerParams, T_HandlerReturn],
-        ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
+        ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
             """A decorator function."""
             return self._add_api_mq_route(
                 path,
@@ -263,12 +275,14 @@ class StreamRouter(APIRouter, Generic[MsgType]):
 
         return decorator
 
-    def _wrap_lifespan(self, lifespan: Optional[Lifespan[Any]] = None) -> Lifespan[Any]:
+    def _wrap_lifespan(
+        self, lifespan: Optional["Lifespan[Any]"] = None
+    ) -> "Lifespan[Any]":
         lifespan_context = lifespan if lifespan is not None else _DefaultLifespan(self)
 
         @asynccontextmanager
         async def start_broker_lifespan(
-            app: FastAPI,
+            app: "FastAPI",
         ) -> AsyncIterator[Mapping[str, Any]]:
             """Starts the lifespan of a broker."""
             if not len(self.weak_dependencies_provider):
@@ -292,7 +306,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
 
             async with lifespan_context(app) as maybe_context:
                 if maybe_context is None:
-                    context: AnyDict = {}
+                    context: "AnyDict" = {}
                 else:
                     context = dict(maybe_context)
 
@@ -322,40 +336,40 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     @overload
     def after_startup(
         self,
-        func: Callable[[AppType], Mapping[str, Any]],
-    ) -> Callable[[AppType], Mapping[str, Any]]: ...
+        func: Callable[["AppType"], Mapping[str, Any]],
+    ) -> Callable[["AppType"], Mapping[str, Any]]: ...
 
     @overload
     def after_startup(
         self,
-        func: Callable[[AppType], Awaitable[Mapping[str, Any]]],
-    ) -> Callable[[AppType], Awaitable[Mapping[str, Any]]]: ...
+        func: Callable[["AppType"], Awaitable[Mapping[str, Any]]],
+    ) -> Callable[["AppType"], Awaitable[Mapping[str, Any]]]: ...
 
     @overload
     def after_startup(
         self,
-        func: Callable[[AppType], None],
-    ) -> Callable[[AppType], None]: ...
+        func: Callable[["AppType"], None],
+    ) -> Callable[["AppType"], None]: ...
 
     @overload
     def after_startup(
         self,
-        func: Callable[[AppType], Awaitable[None]],
-    ) -> Callable[[AppType], Awaitable[None]]: ...
+        func: Callable[["AppType"], Awaitable[None]],
+    ) -> Callable[["AppType"], Awaitable[None]]: ...
 
     def after_startup(
         self,
         func: Union[
-            Callable[[AppType], Mapping[str, Any]],
-            Callable[[AppType], Awaitable[Mapping[str, Any]]],
-            Callable[[AppType], None],
-            Callable[[AppType], Awaitable[None]],
+            Callable[["AppType"], Mapping[str, Any]],
+            Callable[["AppType"], Awaitable[Mapping[str, Any]]],
+            Callable[["AppType"], None],
+            Callable[["AppType"], Awaitable[None]],
         ],
     ) -> Union[
-        Callable[[AppType], Mapping[str, Any]],
-        Callable[[AppType], Awaitable[Mapping[str, Any]]],
-        Callable[[AppType], None],
-        Callable[[AppType], Awaitable[None]],
+        Callable[["AppType"], Mapping[str, Any]],
+        Callable[["AppType"], Awaitable[Mapping[str, Any]]],
+        Callable[["AppType"], None],
+        Callable[["AppType"], Awaitable[None]],
     ]:
         """Register a function to be executed after startup."""
         self._after_startup_hooks.append(to_async(func))  # type: ignore
@@ -364,31 +378,31 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     @overload
     def on_broker_shutdown(
         self,
-        func: Callable[[AppType], None],
-    ) -> Callable[[AppType], None]: ...
+        func: Callable[["AppType"], None],
+    ) -> Callable[["AppType"], None]: ...
 
     @overload
     def on_broker_shutdown(
         self,
-        func: Callable[[AppType], Awaitable[None]],
-    ) -> Callable[[AppType], Awaitable[None]]: ...
+        func: Callable[["AppType"], Awaitable[None]],
+    ) -> Callable[["AppType"], Awaitable[None]]: ...
 
     def on_broker_shutdown(
         self,
         func: Union[
-            Callable[[AppType], None],
-            Callable[[AppType], Awaitable[None]],
+            Callable[["AppType"], None],
+            Callable[["AppType"], Awaitable[None]],
         ],
     ) -> Union[
-        Callable[[AppType], None],
-        Callable[[AppType], Awaitable[None]],
+        Callable[["AppType"], None],
+        Callable[["AppType"], Awaitable[None]],
     ]:
         """Register a function to be executed before broker stop."""
         self._on_shutdown_hooks.append(to_async(func))  # type: ignore
         return func
 
     @abstractmethod
-    def publisher(self) -> PublisherProto[MsgType]:
+    def publisher(self) -> "PublisherProto[MsgType]":
         """Create Publisher object."""
         raise NotImplementedError()
 
@@ -467,13 +481,13 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         *,
         prefix: str = "",
         tags: Optional[List[Union[str, Enum]]] = None,
-        dependencies: Optional[Sequence[params.Depends]] = None,
+        dependencies: Optional[Sequence["params.Depends"]] = None,
         default_response_class: Type[Response] = Default(JSONResponse),
-        responses: Optional[Dict[Union[int, str], AnyDict]] = None,
-        callbacks: Optional[List[BaseRoute]] = None,
+        responses: Optional[Dict[Union[int, str], "AnyDict"]] = None,
+        callbacks: Optional[List["BaseRoute"]] = None,
         deprecated: Optional[bool] = None,
         include_in_schema: bool = True,
-        generate_unique_id_function: Callable[[APIRoute], str] = Default(
+        generate_unique_id_function: Callable[["APIRoute"], str] = Default(
             generate_unique_id
         ),
     ) -> None:

@@ -1,5 +1,6 @@
 from functools import partial
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -14,46 +15,55 @@ from typing import (
 )
 
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
-from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
-from fast_depends.dependencies import Depends
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
-from faststream.broker.message import StreamMessage
-from faststream.broker.types import (
-    CustomDecoder,
-    CustomParser,
-    Filter,
-    PublisherMiddleware,
-    SubscriberMiddleware,
-)
 from faststream.broker.utils import default_filter
 from faststream.exceptions import SetupError
-from faststream.kafka.publisher.asyncapi import (
-    AsyncAPIBatchPublisher,
-    AsyncAPIDefaultPublisher,
-    AsyncAPIPublisher,
-)
-from faststream.kafka.subscriber.asyncapi import (
-    AsyncAPIBatchSubscriber,
-    AsyncAPIDefaultSubscriber,
-    AsyncAPISubscriber,
-)
+from faststream.kafka.publisher.asyncapi import AsyncAPIPublisher
+from faststream.kafka.subscriber.asyncapi import AsyncAPISubscriber
+
+if TYPE_CHECKING:
+    from aiokafka import ConsumerRecord
+    from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.types import (
+        CustomCallable,
+        Filter,
+        PublisherMiddleware,
+        SubscriberMiddleware,
+    )
+    from faststream.kafka.message import KafkaMessage
+    from faststream.kafka.publisher.asyncapi import (
+        AsyncAPIBatchPublisher,
+        AsyncAPIDefaultPublisher,
+    )
+    from faststream.kafka.subscriber.asyncapi import (
+        AsyncAPIBatchSubscriber,
+        AsyncAPIDefaultSubscriber,
+    )
 
 
 class KafkaRegistrator(
     ABCBroker[
         Union[
-            ConsumerRecord,
-            Tuple[ConsumerRecord, ...],
+            "ConsumerRecord",
+            Tuple["ConsumerRecord", ...],
         ]
     ]
 ):
     """Includable to KafkaBroker router."""
 
-    _subscribers: Dict[int, Union[AsyncAPIBatchSubscriber, AsyncAPIDefaultSubscriber]]
-    _publishers: Dict[int, Union[AsyncAPIBatchPublisher, AsyncAPIDefaultPublisher]]
+    _subscribers: Dict[
+        int,
+        Union["AsyncAPIBatchSubscriber", "AsyncAPIDefaultSubscriber"],
+    ]
+    _publishers: Dict[
+        int,
+        Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"],
+    ]
 
     @overload  # type: ignore[override]
     def subscriber(
@@ -165,7 +175,7 @@ class KafkaRegistrator(
             """),
         ] = True,
         partition_assignment_strategy: Annotated[
-            Sequence[AbstractPartitionAssignor],
+            Sequence["AbstractPartitionAssignor"],
             Doc("""
             List of objects to use to
             distribute partition ownership amongst consumer instances when
@@ -295,23 +305,23 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable[Depends],
+            Iterable["Depends"],
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional[CustomParser[ConsumerRecord]],
+            Optional["CustomCallable"],
             Doc("Parser to map original **ConsumerRecord** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[CustomDecoder[StreamMessage[ConsumerRecord]]],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable[SubscriberMiddleware],
+            Iterable["SubscriberMiddleware"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            Filter[StreamMessage[ConsumerRecord]],
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -345,7 +355,7 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIDefaultSubscriber: ...
+    ) -> "AsyncAPIDefaultSubscriber": ...
 
     @overload
     def subscriber(
@@ -457,7 +467,7 @@ class KafkaRegistrator(
             """),
         ] = True,
         partition_assignment_strategy: Annotated[
-            Sequence[AbstractPartitionAssignor],
+            Sequence["AbstractPartitionAssignor"],
             Doc("""
             List of objects to use to
             distribute partition ownership amongst consumer instances when
@@ -587,23 +597,23 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable[Depends],
+            Iterable["Depends"],
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional[CustomParser[Tuple[ConsumerRecord, ...]]],
+            Optional["CustomCallable"],
             Doc("Parser to map original **ConsumerRecord** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]]],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable[SubscriberMiddleware],
+            Iterable["SubscriberMiddleware"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            Filter[StreamMessage[Tuple[ConsumerRecord, ...]]],
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -637,7 +647,7 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIBatchSubscriber: ...
+    ) -> "AsyncAPIBatchSubscriber": ...
 
     @overload
     def subscriber(
@@ -749,7 +759,7 @@ class KafkaRegistrator(
             """),
         ] = True,
         partition_assignment_strategy: Annotated[
-            Sequence[AbstractPartitionAssignor],
+            Sequence["AbstractPartitionAssignor"],
             Doc("""
             List of objects to use to
             distribute partition ownership amongst consumer instances when
@@ -879,36 +889,23 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable[Depends],
+            Iterable["Depends"],
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional[
-                Union[
-                    CustomParser[ConsumerRecord],
-                    CustomParser[Tuple[ConsumerRecord, ...]],
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Parser to map original **ConsumerRecord** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[
-                Union[
-                    CustomDecoder[StreamMessage[ConsumerRecord]],
-                    CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]],
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable[SubscriberMiddleware],
+            Iterable["SubscriberMiddleware"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            Union[
-                Filter[StreamMessage[ConsumerRecord]],
-                Filter[StreamMessage[Tuple[ConsumerRecord, ...]]],
-            ],
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -943,8 +940,8 @@ class KafkaRegistrator(
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> Union[
-        AsyncAPIDefaultSubscriber,
-        AsyncAPIBatchSubscriber,
+        "AsyncAPIDefaultSubscriber",
+        "AsyncAPIBatchSubscriber",
     ]: ...
 
     @override
@@ -1057,7 +1054,7 @@ class KafkaRegistrator(
             """),
         ] = True,
         partition_assignment_strategy: Annotated[
-            Sequence[AbstractPartitionAssignor],
+            Sequence["AbstractPartitionAssignor"],
             Doc("""
             List of objects to use to
             distribute partition ownership amongst consumer instances when
@@ -1187,36 +1184,23 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable[Depends],
+            Iterable["Depends"],
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional[
-                Union[
-                    CustomParser[ConsumerRecord],
-                    CustomParser[Tuple[ConsumerRecord, ...]],
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Parser to map original **ConsumerRecord** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[
-                Union[
-                    CustomDecoder[StreamMessage[ConsumerRecord]],
-                    CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]],
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable[SubscriberMiddleware],
+            Iterable["SubscriberMiddleware"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            Union[
-                Filter[StreamMessage[ConsumerRecord]],
-                Filter[StreamMessage[Tuple[ConsumerRecord, ...]]],
-            ],
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -1251,8 +1235,8 @@ class KafkaRegistrator(
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> Union[
-        AsyncAPIDefaultSubscriber,
-        AsyncAPIBatchSubscriber,
+        "AsyncAPIDefaultSubscriber",
+        "AsyncAPIBatchSubscriber",
     ]:
         if not auto_commit and not group_id:
             raise SetupError("You should install `group_id` with manual commit mode")
@@ -1302,7 +1286,7 @@ class KafkaRegistrator(
         )
 
         if batch:
-            return cast(AsyncAPIBatchSubscriber, subscriber).add_call(
+            return cast("AsyncAPIBatchSubscriber", subscriber).add_call(
                 filter_=filter,
                 parser_=parser or self._parser,
                 decoder_=decoder or self._decoder,
@@ -1311,7 +1295,7 @@ class KafkaRegistrator(
             )
 
         else:
-            return cast(AsyncAPIDefaultSubscriber, subscriber).add_call(
+            return cast("AsyncAPIDefaultSubscriber", subscriber).add_call(
                 filter_=filter,
                 parser_=parser or self._parser,
                 decoder_=decoder or self._decoder,
@@ -1364,7 +1348,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable[PublisherMiddleware],
+            Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -1387,7 +1371,7 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIDefaultPublisher: ...
+    ) -> "AsyncAPIDefaultPublisher": ...
 
     @overload
     def publisher(
@@ -1434,7 +1418,7 @@ class KafkaRegistrator(
         ],
         # basic args
         middlewares: Annotated[
-            Iterable[PublisherMiddleware],
+            Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -1457,7 +1441,7 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIBatchPublisher: ...
+    ) -> "AsyncAPIBatchPublisher": ...
 
     @overload
     def publisher(
@@ -1504,7 +1488,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable[PublisherMiddleware],
+            Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -1528,8 +1512,8 @@ class KafkaRegistrator(
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> Union[
-        AsyncAPIBatchPublisher,
-        AsyncAPIDefaultPublisher,
+        "AsyncAPIBatchPublisher",
+        "AsyncAPIDefaultPublisher",
     ]: ...
 
     @override
@@ -1577,7 +1561,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable[PublisherMiddleware],
+            Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -1601,8 +1585,8 @@ class KafkaRegistrator(
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> Union[
-        AsyncAPIBatchPublisher,
-        AsyncAPIDefaultPublisher,
+        "AsyncAPIBatchPublisher",
+        "AsyncAPIDefaultPublisher",
     ]:
         """Creates long-living and AsyncAPI-documented publisher object.
 
@@ -1632,6 +1616,6 @@ class KafkaRegistrator(
         )
 
         if batch:
-            return cast(AsyncAPIBatchPublisher, super().publisher(publisher))
+            return cast("AsyncAPIBatchPublisher", super().publisher(publisher))
         else:
-            return cast(AsyncAPIDefaultPublisher, super().publisher(publisher))
+            return cast("AsyncAPIDefaultPublisher", super().publisher(publisher))

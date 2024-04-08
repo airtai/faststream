@@ -2,43 +2,22 @@ from typing import TYPE_CHECKING, Any, List, Tuple
 
 from faststream.cli.supervisors.basereload import BaseReload
 from faststream.log import logger
-from faststream.types import DecoratedCallable
 
 if TYPE_CHECKING:
     from multiprocessing.context import SpawnProcess
 
+    from faststream.types import DecoratedCallable
+
 
 class Multiprocess(BaseReload):
-    """A class to represent a multiprocess.
-
-    Attributes:
-        target : the target function to be executed by each process
-        args : arguments to be passed to the target function
-        workers : number of worker processes
-
-    Methods:
-        startup : starts the parent process and creates worker processes
-        shutdown : terminates and joins all worker processes, and stops the parent process
-
-    """
+    """A class to represent a multiprocess."""
 
     def __init__(
         self,
-        target: DecoratedCallable,
+        target: "DecoratedCallable",
         args: Tuple[Any, ...],
         workers: int,
     ) -> None:
-        """Initialize a new instance of the class.
-
-        Args:
-            target: The target callable object to be executed.
-            args: The arguments to be passed to the target callable.
-            workers: The number of workers to be used.
-
-        Returns:
-            None.
-
-        """
         super().__init__(target, args, None)
 
         self.workers = workers

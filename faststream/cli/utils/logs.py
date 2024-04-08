@@ -3,9 +3,8 @@ from collections import defaultdict
 from enum import Enum
 from typing import TYPE_CHECKING, DefaultDict, Optional, Union
 
-from faststream.app import FastStream
-
 if TYPE_CHECKING:
+    from faststream.app import FastStream
     from faststream.types import LoggerProto
 
 
@@ -59,16 +58,8 @@ def get_log_level(level: Union[LogLevels, str, int]) -> int:
         return LOG_LEVELS[level.lower()]
 
 
-def set_log_level(level: int, app: FastStream) -> None:
-    """Sets the log level for an application.
-
-    Args:
-        level (int): The log level to set.
-        app (FastStream): The application object.
-
-    Returns:
-        None
-    """
+def set_log_level(level: int, app: "FastStream") -> None:
+    """Sets the log level for an application."""
     if app.logger and isinstance(app.logger, logging.Logger):
         app.logger.setLevel(level)
 

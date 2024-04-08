@@ -23,11 +23,9 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
-        AsyncDecoder,
+        AsyncCallable,
         AsyncFilter,
-        AsyncParser,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         SubscriberMiddleware,
     )
     from faststream.broker.wrapper.call import HandlerCallWrapper
@@ -53,8 +51,8 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         *,
         handler: "HandlerCallWrapper[MsgType, ..., Any]",
         filter: "AsyncFilter[StreamMessage[MsgType]]",
-        item_parser: Optional["CustomParser[MsgType]"],
-        item_decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"],
+        item_parser: Optional["CustomCallable"],
+        item_decoder: Optional["CustomCallable"],
         item_middlewares: Iterable["SubscriberMiddleware"],
         dependencies: Iterable["Depends"],
     ) -> None:
@@ -75,8 +73,8 @@ class HandlerItem(SetupAble, Generic[MsgType]):
     def setup(  # type: ignore[override]
         self,
         *,
-        parser: "AsyncParser[MsgType]",
-        decoder: "AsyncDecoder[StreamMessage[MsgType]]",
+        parser: "AsyncCallable",
+        decoder: "AsyncCallable",
         broker_dependencies: Iterable["Depends"],
         apply_types: bool,
         is_validate: bool,
@@ -128,12 +126,8 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         cache: Dict[Any, Any],
     ) -> Optional["StreamMessage[MsgType]"]:
         """Check is message suite for current filter."""
-        if not (
-            parser := cast(Optional["AsyncParser[MsgType]"], self.item_parser)
-        ) or not (
-            decoder := cast(
-                Optional["AsyncDecoder[StreamMessage[MsgType]]"], self.item_decoder
-            )
+        if not (parser := cast(Optional["AsyncCallable"], self.item_parser)) or not (
+            decoder := cast(Optional["AsyncCallable"], self.item_decoder)
         ):
             raise SetupError("You should setup `HandlerItem` at first.")
 

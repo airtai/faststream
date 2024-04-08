@@ -2,13 +2,13 @@ from typing import TYPE_CHECKING, Any, List, Optional
 
 from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
 from faststream.nats.message import NatsBatchMessage, NatsMessage
-from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
     from nats.aio.msg import Msg
 
     from faststream.nats.subscriber.usecase import LogicSubscriber
+    from faststream.types import AnyDict, DecodedMessage
 
 
 class NatsBaseParser:
@@ -17,8 +17,8 @@ class NatsBaseParser:
     @staticmethod
     def get_path(
         subject: str,
-    ) -> Optional[AnyDict]:
-        path: Optional[AnyDict] = None
+    ) -> Optional["AnyDict"]:
+        path: Optional["AnyDict"] = None
 
         handler: Optional["LogicSubscriber[Any]"]
         if (
@@ -32,8 +32,8 @@ class NatsBaseParser:
 
     @staticmethod
     async def decode_message(
-        msg: StreamMessage["Msg"],
-    ) -> DecodedMessage:
+        msg: "StreamMessage[Msg]",
+    ) -> "DecodedMessage":
         return decode_message(msg)
 
 
@@ -45,8 +45,8 @@ class NatsParser(NatsBaseParser):
         cls,
         message: "Msg",
         *,
-        path: Optional[AnyDict] = None,
-    ) -> StreamMessage["Msg"]:
+        path: Optional["AnyDict"] = None,
+    ) -> "StreamMessage[Msg]":
         if path is None:
             path = cls.get_path(message.subject)
 
@@ -72,8 +72,8 @@ class JsParser(NatsBaseParser):
         cls,
         message: "Msg",
         *,
-        path: Optional[AnyDict] = None,
-    ) -> StreamMessage["Msg"]:
+        path: Optional["AnyDict"] = None,
+    ) -> "StreamMessage[Msg]":
         if path is None:
             path = cls.get_path(message.subject)
 
@@ -97,7 +97,7 @@ class BatchParser(JsParser):
     @staticmethod
     async def parse_batch(
         message: List["Msg"],
-    ) -> StreamMessage[List["Msg"]]:
+    ) -> "StreamMessage[List[Msg]]":
         return NatsBatchMessage(
             raw_message=message,
             body=[m.data for m in message],
@@ -106,11 +106,11 @@ class BatchParser(JsParser):
     @classmethod
     async def decode_batch(
         cls,
-        msg: StreamMessage[List["Msg"]],
-    ) -> List[DecodedMessage]:
-        data: List[DecodedMessage] = []
+        msg: "StreamMessage[List[Msg]]",
+    ) -> List["DecodedMessage"]:
+        data: List["DecodedMessage"] = []
 
-        path: Optional[AnyDict] = None
+        path: Optional["AnyDict"] = None
         for m in msg.raw_message:
             one_msg = await cls.parse_message(m, path=path)
             path = one_msg.path
