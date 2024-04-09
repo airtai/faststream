@@ -44,6 +44,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
     )
     from faststream.nats.schemas import JStream, PullSub
+    from faststream.types import Decorator
 
 
 class LogicSubscriber(SubscriberUsecase[MsgType]):
@@ -128,6 +129,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         apply_types: bool,
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
     ) -> None:
         self._connection = connection
 
@@ -141,6 +143,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             apply_types=apply_types,
             is_validate=is_validate,
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
     async def start(self) -> None:

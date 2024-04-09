@@ -42,7 +42,7 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, LoggerProto, SendableMessage
+    from faststream.types import AnyDict, Decorator, LoggerProto, SendableMessage
 
 Partition = TypeVar("Partition")
 
@@ -323,6 +323,10 @@ class KafkaBroker(
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
         ] = None,
+        _call_decorators: Annotated[
+            Iterable["Decorator"],
+            Doc("Any custom decorator to apply to wrapped functions."),
+        ] = (),
     ) -> None:
         if protocol is None:
             if security is not None and security.use_ssl:
@@ -389,6 +393,7 @@ class KafkaBroker(
             log_fmt=log_fmt,
             # FastDepends args
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
             apply_types=apply_types,
             validate=validate,
         )

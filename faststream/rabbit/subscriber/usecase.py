@@ -31,7 +31,7 @@ if TYPE_CHECKING:
         ReplyConfig,
     )
     from faststream.rabbit.utils import RabbitDeclarer
-    from faststream.types import AnyDict, LoggerProto
+    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 class LogicSubscriber(
@@ -111,6 +111,7 @@ class LogicSubscriber(
         apply_types: bool,
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
     ) -> None:
         self.app_id = app_id
         self.virtual_host = virtual_host
@@ -126,6 +127,7 @@ class LogicSubscriber(
             apply_types=apply_types,
             is_validate=is_validate,
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
     @override

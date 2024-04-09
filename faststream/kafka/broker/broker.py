@@ -29,7 +29,6 @@ from faststream.kafka.broker.registrator import KafkaRegistrator
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.kafka.security import parse_security
-from faststream.types import AnyDict, SendableMessage
 from faststream.utils.data import filter_by_dict
 
 Partition = TypeVar("Partition")
@@ -49,7 +48,7 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.security import BaseSecurity
-    from faststream.types import LoggerProto
+    from faststream.types import AnyDict, Decorator, LoggerProto, SendableMessage
 
     class KafkaInitKwargs(TypedDict, total=False):
         request_timeout_ms: Annotated[
@@ -455,6 +454,10 @@ class KafkaBroker(
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
         ] = None,
+        _call_decorators: Annotated[
+            Iterable["Decorator"],
+            Doc("Any custom decorator to apply to wrapped functions."),
+        ] = (),
     ) -> None:
         if protocol is None:
             if security is not None and security.use_ssl:
@@ -521,6 +524,7 @@ class KafkaBroker(
             log_fmt=log_fmt,
             # FastDepends args
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
             apply_types=apply_types,
             validate=validate,
         )
@@ -554,7 +558,10 @@ class KafkaBroker(
         To startup subscribers too you should use `broker.start()` after/instead this method.
         """
         if bootstrap_servers is not Parameter.empty:
-            connect_kwargs: AnyDict = {**kwargs, "bootstrap_servers": bootstrap_servers}
+            connect_kwargs: "AnyDict" = {
+                **kwargs,
+                "bootstrap_servers": bootstrap_servers,
+            }
         else:
             connect_kwargs = {**kwargs}
 
@@ -591,7 +598,7 @@ class KafkaBroker(
             await handler.start()
 
     @property
-    def _subscriber_setup_extra(self) -> AnyDict:
+    def _subscriber_setup_extra(self) -> "AnyDict":
         return {
             "client_id": self.client_id,
             "connection_args": self._connection or {},

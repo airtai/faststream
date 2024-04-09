@@ -46,7 +46,13 @@ if TYPE_CHECKING:
     )
     from faststream.redis.message import BaseMessage
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, DecodedMessage, LoggerProto, SendableMessage
+    from faststream.types import (
+        AnyDict,
+        DecodedMessage,
+        Decorator,
+        LoggerProto,
+        SendableMessage,
+    )
 
     class RedisInitKwargs(TypedDict, total=False):
         host: Optional[str]
@@ -182,6 +188,10 @@ class RedisBroker(
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
         ] = None,
+        _call_decorators: Annotated[
+            Iterable["Decorator"],
+            Doc("Any custom decorator to apply to wrapped functions."),
+        ] = (),
     ) -> None:
         self.global_polling_interval = polling_interval
         self._producer = None
@@ -236,6 +246,7 @@ class RedisBroker(
             apply_types=apply_types,
             validate=validate,
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
     @override

@@ -47,7 +47,7 @@ if TYPE_CHECKING:
         Filter,
         SubscriberMiddleware,
     )
-    from faststream.types import AnyDict, LoggerProto
+    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 class _CallOptions:
@@ -146,6 +146,7 @@ class SubscriberUsecase(
         apply_types: bool,
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
     ) -> None:
         self.lock = MultiLock()
 
@@ -176,6 +177,7 @@ class SubscriberUsecase(
                 apply_types=apply_types,
                 is_validate=is_validate,
                 _get_dependant=_get_dependant,
+                _call_decorators=_call_decorators,
                 broker_dependencies=self._broker_dependecies,
             )
 

@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import PublisherProto
+    from faststream.types import Decorator
 
 
 class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
@@ -152,8 +153,14 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         is_validate: bool,
         dependencies: Iterable["Depends"],
         _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
     ) -> Optional["CallModel[..., Any]"]:
-        f: Callable[..., Awaitable[Any]] = to_async(self._original_call)
+        call = self._original_call
+        for decor in _call_decorators:
+            call = decor(call)
+        self._original_call = call
+
+        f: Callable[..., Awaitable[Any]] = to_async(call)
 
         dependent: Optional["CallModel[..., Any]"] = None
         if _get_dependant is None:

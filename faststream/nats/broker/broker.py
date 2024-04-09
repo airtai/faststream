@@ -62,7 +62,13 @@ if TYPE_CHECKING:
     )
     from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, DecodedMessage, LoggerProto, SendableMessage
+    from faststream.types import (
+        AnyDict,
+        DecodedMessage,
+        Decorator,
+        LoggerProto,
+        SendableMessage,
+    )
 
     class NatsInitKwargs(TypedDict, total=False):
         """NatsBroker.connect() method type hints."""
@@ -428,6 +434,10 @@ class NatsBroker(
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
         ] = None,
+        _call_decorators: Annotated[
+            Iterable["Decorator"],
+            Doc("Any custom decorator to apply to wrapped functions."),
+        ] = (),
     ) -> None:
         """Initialize the NatsBroker object."""
         if tls:  # pragma: no cover
@@ -522,6 +532,7 @@ class NatsBroker(
             apply_types=apply_types,
             validate=validate,
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
         self.__is_connected = False

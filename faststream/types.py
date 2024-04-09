@@ -31,6 +31,8 @@ AsyncFunc: TypeAlias = Callable[..., Awaitable[Any]]
 DecoratedCallable: TypeAlias = AnyCallable
 DecoratedCallableNone: TypeAlias = NoneCallable
 
+Decorator: TypeAlias = Callable[[AnyCallable], AnyCallable]
+
 JsonArray: TypeAlias = Sequence["DecodedMessage"]
 
 JsonTable: TypeAlias = Dict[str, "DecodedMessage"]

@@ -29,6 +29,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.broker.wrapper.call import HandlerCallWrapper
+    from faststream.types import Decorator
 
 
 class HandlerItem(SetupAble, Generic[MsgType]):
@@ -79,6 +80,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         apply_types: bool,
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
     ) -> None:
         if self.dependant is None:
             self.item_parser = parser
@@ -91,13 +93,15 @@ class HandlerItem(SetupAble, Generic[MsgType]):
                 is_validate=is_validate,
                 dependencies=dependencies,
                 _get_dependant=_get_dependant,
+                _call_decorators=_call_decorators,
             )
 
             if _get_dependant is None:
                 self.dependant = dependant
             else:
                 self.dependant = _get_dependant(
-                    self.handler._original_call, dependencies
+                    self.handler._original_call,
+                    dependencies,
                 )
 
     @property
