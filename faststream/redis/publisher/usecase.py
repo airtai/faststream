@@ -1,6 +1,6 @@
 from abc import abstractmethod
-from contextlib import AsyncExitStack
 from copy import deepcopy
+from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Iterable, Optional
 
@@ -15,7 +15,7 @@ from faststream.redis.schemas import ListSub, PubSub, StreamSub
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
     from faststream.redis.publisher.producer import RedisFastProducer
-    from faststream.types import AnyDict, SendableMessage
+    from faststream.types import AnyDict, AsyncFunc, SendableMessage
 
 
 class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
@@ -159,41 +159,29 @@ class ChannelPublisher(LogicPublisher):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        async with AsyncExitStack() as stack:
-            for m in chain(
+        call: "AsyncFunc" = self._producer.publish
+
+        for m in chain(
+            (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares),
-                self._middlewares,
-            ):
-                message = await stack.enter_async_context(
-                    m(
-                        message,
-                        channel=channel_sub.name,
-                        # basic args
-                        reply_to=reply_to,
-                        headers=headers,
-                        correlation_id=correlation_id,
-                        # RPC args
-                        rpc=rpc,
-                        rpc_timeout=rpc_timeout,
-                        raise_timeout=raise_timeout,
-                    )
-                )
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-            return await self._producer.publish(
-                message=message,
-                channel=channel_sub.name,
-                # basic args
-                reply_to=reply_to,
-                headers=headers,
-                correlation_id=correlation_id,
-                # RPC args
-                rpc=rpc,
-                rpc_timeout=rpc_timeout,
-                raise_timeout=raise_timeout,
-            )
-
-        return None
+        return await call(
+            message,
+            channel=channel_sub.name,
+            # basic args
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
+            # RPC args
+            rpc=rpc,
+            rpc_timeout=rpc_timeout,
+            raise_timeout=raise_timeout,
+        )
 
 
 class ListPublisher(LogicPublisher):
@@ -297,41 +285,29 @@ class ListPublisher(LogicPublisher):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        async with AsyncExitStack() as stack:
-            for m in chain(
+        call: "AsyncFunc" = self._producer.publish
+
+        for m in chain(
+            (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares),
-                self._middlewares,
-            ):
-                message = await stack.enter_async_context(
-                    m(
-                        message,
-                        list=list_sub.name,
-                        # basic args
-                        reply_to=reply_to,
-                        headers=headers,
-                        correlation_id=correlation_id,
-                        # RPC args
-                        rpc=rpc,
-                        rpc_timeout=rpc_timeout,
-                        raise_timeout=raise_timeout,
-                    )
-                )
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-            return await self._producer.publish(
-                message=message,
-                list=list_sub.name,
-                # basic args
-                reply_to=reply_to,
-                headers=headers,
-                correlation_id=correlation_id,
-                # RPC args
-                rpc=rpc,
-                rpc_timeout=rpc_timeout,
-                raise_timeout=raise_timeout,
-            )
-
-        return None
+        return await call(
+            message,
+            list=list_sub.name,
+            # basic args
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
+            # RPC args
+            rpc=rpc,
+            rpc_timeout=rpc_timeout,
+            raise_timeout=raise_timeout,
+        )
 
 
 class ListBatchPublisher(ListPublisher):
@@ -362,30 +338,22 @@ class ListBatchPublisher(ListPublisher):
         list_sub = ListSub.validate(list or self.list)
         correlation_id = correlation_id or gen_cor_id()
 
-        async with AsyncExitStack() as stack:
-            wrapped_messages = [
-                await stack.enter_async_context(
-                    middleware(
-                        msg,
-                        list=list_sub,
-                        correlation_id=correlation_id,
-                    )
-                )
-                for msg in message
-                for middleware in chain(
-                    _extra_middlewares
-                    or (m(None).publish_scope for m in self._broker_middlewares),
-                    self._middlewares,
-                )
-            ] or message
+        call: "AsyncFunc" = self._producer.publish_batch
 
-            return await self._producer.publish_batch(
-                *wrapped_messages,
-                list=list_sub.name,
-                correlation_id=correlation_id,
-            )
+        for m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-        return None
+        await call(
+            *message,
+            list=list_sub.name,
+            correlation_id=correlation_id,
+        )
 
 
 class StreamPublisher(LogicPublisher):
@@ -493,40 +461,27 @@ class StreamPublisher(LogicPublisher):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        async with AsyncExitStack() as stack:
-            for m in chain(
+        call: "AsyncFunc" = self._producer.publish
+
+        for m in chain(
+            (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares),
-                self._middlewares,
-            ):
-                message = await stack.enter_async_context(
-                    m(
-                        message,
-                        stream=stream_sub.name,
-                        maxlen=maxlen,
-                        # basic args
-                        reply_to=reply_to,
-                        headers=headers,
-                        correlation_id=correlation_id,
-                        # RPC args
-                        rpc=rpc,
-                        rpc_timeout=rpc_timeout,
-                        raise_timeout=raise_timeout,
-                    )
-                )
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-            return await self._producer.publish(
-                message=message,
-                stream=stream_sub.name,
-                maxlen=maxlen,
-                # basic args
-                reply_to=reply_to,
-                headers=headers,
-                correlation_id=correlation_id,
-                # RPC args
-                rpc=rpc,
-                rpc_timeout=rpc_timeout,
-                raise_timeout=raise_timeout,
-            )
-
-        return None
+        return await call(
+            message,
+            stream=stream_sub.name,
+            maxlen=maxlen,
+            # basic args
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
+            # RPC args
+            rpc=rpc,
+            rpc_timeout=rpc_timeout,
+            raise_timeout=raise_timeout,
+        )

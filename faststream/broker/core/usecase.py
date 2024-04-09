@@ -1,6 +1,6 @@
 import logging
 from abc import abstractmethod
-from contextlib import AsyncExitStack
+from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from faststream.asyncapi.schema import Tag, TagDict
     from faststream.broker.publisher.proto import ProducerProto, PublisherProto
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, LoggerProto
+    from faststream.types import AnyDict, AsyncFunc, Decorator, LoggerProto
 
 
 class BrokerUsecase(
@@ -110,6 +110,10 @@ class BrokerUsecase(
         _get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
+        ],
+        _call_decorators: Annotated[
+            Iterable["Decorator"],
+            Doc("Any custom decorator to apply to wrapped functions."),
         ],
         # AsyncAPI kwargs
         protocol: Annotated[
@@ -182,6 +186,7 @@ class BrokerUsecase(
         self._is_apply_types = apply_types
         self._is_validate = validate
         self._get_dependant = _get_dependant
+        self._call_decorators = _call_decorators
 
         # AsyncAPI information
         self.url = asyncapi_url
@@ -236,6 +241,7 @@ class BrokerUsecase(
             apply_types=self._is_apply_types,
             is_validate=self._is_validate,
             _get_dependant=self._get_dependant,
+            _call_decorators=self._call_decorators,
             **self._subscriber_setup_extra,
             **kwargs,
         )
@@ -327,14 +333,10 @@ class BrokerUsecase(
         **kwargs: Any,
     ) -> Optional[Any]:
         """Publish message directly."""
-        assert producer, NOT_CONNECTED_YET  # nosec B101
+        assert producer, NOT_CONNECTED_YET  # nosec B101)
 
-        async with AsyncExitStack() as stack:
-            for m in self._middlewares:
-                msg = await stack.enter_async_context(
-                    m(None).publish_scope(msg, **kwargs)
-                )
+        publish: "AsyncFunc" = producer.publish
+        for m in self._middlewares:
+            publish = partial(m(None).publish_scope, publish)
 
-            return await producer.publish(msg, **kwargs)
-
-        return None
+        return await publish(msg, **kwargs)

@@ -50,7 +50,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         CustomCallable,
     )
-    from faststream.types import AnyDict, LoggerProto
+    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 TopicName: TypeAlias = bytes
@@ -111,6 +111,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[UnifyRedisDict]):
         apply_types: bool,
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
     ) -> None:
         self._client = connection
 
@@ -124,6 +125,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[UnifyRedisDict]):
             apply_types=apply_types,
             is_validate=is_validate,
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
     def _make_response_publisher(

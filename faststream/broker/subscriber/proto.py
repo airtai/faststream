@@ -20,7 +20,7 @@ if TYPE_CHECKING:
         Filter,
         SubscriberMiddleware,
     )
-    from faststream.types import AnyDict, LoggerProto
+    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 class SubscriberProto(
@@ -63,6 +63,7 @@ class SubscriberProto(
         apply_types: bool,
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
     ) -> None: ...
 
     @abstractmethod
@@ -91,6 +92,6 @@ class SubscriberProto(
         filter_: "Filter[Any]",
         parser_: "CustomCallable",
         decoder_: "CustomCallable",
-        middlewares_: Iterable["SubscriberMiddleware"],
+        middlewares_: Iterable["SubscriberMiddleware[Any]"],
         dependencies_: Iterable["Depends"],
     ) -> Self: ...

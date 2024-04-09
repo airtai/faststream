@@ -1,6 +1,6 @@
 import logging
 from asyncio import AbstractEventLoop
-from contextlib import AsyncExitStack
+from functools import partial
 from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
@@ -42,7 +42,13 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, LoggerProto, SendableMessage
+    from faststream.types import (
+        AnyDict,
+        AsyncFunc,
+        Decorator,
+        LoggerProto,
+        SendableMessage,
+    )
 
 Partition = TypeVar("Partition")
 
@@ -323,6 +329,10 @@ class KafkaBroker(
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
         ] = None,
+        _call_decorators: Annotated[
+            Iterable["Decorator"],
+            Doc("Any custom decorator to apply to wrapped functions."),
+        ] = (),
     ) -> None:
         if protocol is None:
             if security is not None and security.use_ssl:
@@ -389,6 +399,7 @@ class KafkaBroker(
             log_fmt=log_fmt,
             # FastDepends args
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
             apply_types=apply_types,
             validate=validate,
         )
@@ -496,29 +507,16 @@ class KafkaBroker(
 
         correlation_id = correlation_id or gen_cor_id()
 
-        async with AsyncExitStack() as stack:
-            wrapped_messages = [
-                await stack.enter_async_context(
-                    middleware(None).publish_scope(
-                        msg,
-                        topic=topic,
-                        partition=partition,
-                        timestamp_ms=timestamp_ms,
-                        headers=headers,
-                        reply_to=reply_to,
-                        correlation_id=correlation_id,
-                    )
-                )
-                for msg in msgs
-                for middleware in self._middlewares
-            ] or msgs
+        call: "AsyncFunc" = self._producer.publish_batch
+        for m in self._middlewares:
+            call = partial(m(None).publish_scope, call)
 
-            await self._producer.publish_batch(
-                *wrapped_messages,
-                topic=topic,
-                partition=partition,
-                timestamp_ms=timestamp_ms,
-                headers=headers,
-                reply_to=reply_to,
-                correlation_id=correlation_id,
-            )
+        await call(
+            *msgs,
+            topic=topic,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+        )

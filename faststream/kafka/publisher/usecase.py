@@ -1,4 +1,4 @@
-from contextlib import AsyncExitStack
+from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Tuple, Union, cast
 
@@ -13,7 +13,7 @@ from faststream.exceptions import NOT_CONNECTED_YET
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
     from faststream.kafka.publisher.producer import AioKafkaFastProducer
-    from faststream.types import SendableMessage
+    from faststream.types import AsyncFunc, SendableMessage
 
 
 class LogicPublisher(PublisherUsecase[MsgType]):
@@ -154,7 +154,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
-    ) -> None:
+    ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         topic = topic or self.topic
@@ -164,37 +164,27 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         reply_to = reply_to or self.reply_to
         correlation_id = correlation_id or gen_cor_id()
 
-        async with AsyncExitStack() as stack:
-            for m in chain(
+        call: "AsyncFunc" = self._producer.publish
+
+        for m in chain(
+            (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares),
-                self._middlewares,
-            ):
-                message = await stack.enter_async_context(
-                    m(
-                        message,
-                        topic=topic,
-                        key=key,
-                        partition=partition,
-                        headers=headers,
-                        reply_to=reply_to,
-                        correlation_id=correlation_id,
-                        timestamp_ms=timestamp_ms,
-                    )
-                )
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-            return await self._producer.publish(
-                message=message,
-                topic=topic,
-                key=key,
-                partition=partition,
-                headers=headers,
-                reply_to=reply_to,
-                correlation_id=correlation_id,
-                timestamp_ms=timestamp_ms,
-            )
-
-        return None
+        return await call(
+            message,
+            topic=topic,
+            key=key,
+            partition=partition,
+            headers=headers,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+            timestamp_ms=timestamp_ms,
+        )
 
 
 class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
@@ -262,35 +252,23 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
         reply_to = reply_to or self.reply_to
         correlation_id = correlation_id or gen_cor_id()
 
-        async with AsyncExitStack() as stack:
-            wrapped_messages = [
-                await stack.enter_async_context(
-                    middleware(
-                        msg,
-                        topic=topic,
-                        partition=partition,
-                        headers=headers,
-                        reply_to=reply_to,
-                        correlation_id=correlation_id,
-                        timestamp_ms=timestamp_ms,
-                    )
-                )
-                for msg in msgs
-                for middleware in chain(
-                    _extra_middlewares
-                    or (m(None).publish_scope for m in self._broker_middlewares),
-                    self._middlewares,
-                )
-            ] or msgs
+        call: "AsyncFunc" = self._producer.publish_batch
 
-            return await self._producer.publish_batch(
-                *wrapped_messages,
-                topic=topic,
-                partition=partition,
-                headers=headers,
-                reply_to=reply_to,
-                correlation_id=correlation_id,
-                timestamp_ms=timestamp_ms,
-            )
+        for m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-        return None
+        await call(
+            *msgs,
+            topic=topic,
+            partition=partition,
+            headers=headers,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+            timestamp_ms=timestamp_ms,
+        )

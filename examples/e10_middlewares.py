@@ -1,10 +1,8 @@
-from contextlib import asynccontextmanager
 from types import TracebackType
-from typing import Optional, Type
+from typing import Any, Awaitable, Callable, Optional, Type
 
 from faststream import BaseMiddleware, FastStream
-from faststream.rabbit import RabbitBroker
-from faststream.types import DecodedMessage
+from faststream.rabbit import RabbitBroker, RabbitMessage
 
 
 class TopLevelMiddleware(BaseMiddleware):
@@ -22,11 +20,15 @@ class TopLevelMiddleware(BaseMiddleware):
         return await super().after_processed(exc_type, exc_val, exc_tb)
 
 
-@asynccontextmanager
-async def HandlerMiddleware(msg: DecodedMessage) -> DecodedMessage:
+async def subscriber_middleware(
+    call_next: Callable[[Any], Awaitable[Any]],
+    msg: RabbitMessage,
+) -> Any:
     print(f"call handler middleware with body: {msg}")
-    yield "fake message"
+    msg.decoded_body = "fake message"
+    result = await call_next(msg)
     print("handler middleware out")
+    return result
 
 
 broker = RabbitBroker(
@@ -36,7 +38,7 @@ broker = RabbitBroker(
 app = FastStream(broker)
 
 
-@broker.subscriber("test", middlewares=(HandlerMiddleware,))
+@broker.subscriber("test", middlewares=(subscriber_middleware,))
 async def handle(msg):
     assert msg == "fake message"
 

@@ -1,4 +1,4 @@
-from contextlib import AsyncExitStack
+from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Tuple, Union, cast
 
@@ -13,7 +13,7 @@ from faststream.exceptions import NOT_CONNECTED_YET
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
     from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
-    from faststream.types import AnyDict, SendableMessage
+    from faststream.types import AnyDict, AsyncFunc, SendableMessage
 
 
 class LogicPublisher(PublisherUsecase[MsgType]):
@@ -110,7 +110,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         reply_to: str = "",
         # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-    ) -> None:
+    ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         kwargs: "AnyDict" = {
@@ -124,17 +124,18 @@ class DefaultPublisher(LogicPublisher[Message]):
             "correlation_id": correlation_id or gen_cor_id(),
         }
 
-        async with AsyncExitStack() as stack:
-            for m in chain(
+        call: "AsyncFunc" = self._producer.publish
+
+        for m in chain(
+            (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares),
-                self._middlewares,
-            ):
-                message = await stack.enter_async_context(m(message, **kwargs))
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-            return await self._producer.publish(message=message, **kwargs)
-
-        return None
+        return await call(message, **kwargs)
 
 
 class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
@@ -169,17 +170,15 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
             "correlation_id": correlation_id or gen_cor_id(),
         }
 
-        async with AsyncExitStack() as stack:
-            wrapped_messages = [
-                await stack.enter_async_context(middleware(msg, **kwargs))
-                for msg in msgs
-                for middleware in chain(
-                    _extra_middlewares
-                    or (m(None).publish_scope for m in self._broker_middlewares),
-                    self._middlewares,
-                )
-            ] or msgs
+        call: "AsyncFunc" = self._producer.publish_batch
 
-            return await self._producer.publish_batch(*wrapped_messages, **kwargs)
+        for m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-        return None
+        await call(*msgs, **kwargs)

@@ -1,5 +1,5 @@
 import logging
-from contextlib import AsyncExitStack
+from functools import partial
 from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
@@ -46,7 +46,14 @@ if TYPE_CHECKING:
     )
     from faststream.redis.message import BaseMessage
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, DecodedMessage, LoggerProto, SendableMessage
+    from faststream.types import (
+        AnyDict,
+        AsyncFunc,
+        DecodedMessage,
+        Decorator,
+        LoggerProto,
+        SendableMessage,
+    )
 
     class RedisInitKwargs(TypedDict, total=False):
         host: Optional[str]
@@ -182,6 +189,10 @@ class RedisBroker(
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
         ] = None,
+        _call_decorators: Annotated[
+            Iterable["Decorator"],
+            Doc("Any custom decorator to apply to wrapped functions."),
+        ] = (),
     ) -> None:
         self.global_polling_interval = polling_interval
         self._producer = None
@@ -236,6 +247,7 @@ class RedisBroker(
             apply_types=apply_types,
             validate=validate,
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
     @override
@@ -430,7 +442,7 @@ class RedisBroker(
 
     async def publish_batch(
         self,
-        *messages: Annotated[
+        *msgs: Annotated[
             "SendableMessage",
             Doc("Messages bodies to send."),
         ],
@@ -451,23 +463,13 @@ class RedisBroker(
 
         correlation_id = correlation_id or gen_cor_id()
 
-        async with AsyncExitStack() as stack:
-            wrapped_messages = [
-                await stack.enter_async_context(
-                    middleware(None).publish_scope(
-                        msg,
-                        list=list,
-                        correlation_id=correlation_id,
-                    )
-                )
-                for msg in messages
-                for middleware in self._middlewares
-            ] or messages
+        call: "AsyncFunc" = self._producer.publish_batch
 
-            return await self._producer.publish_batch(
-                *wrapped_messages,
-                list=list,
-                correlation_id=correlation_id,
-            )
+        for m in self._middlewares:
+            call = partial(m(None).publish_scope, call)
 
-        return None
+        await call(
+            *msgs,
+            list=list,
+            correlation_id=correlation_id,
+        )
