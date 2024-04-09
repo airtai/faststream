@@ -13,7 +13,7 @@ from typing_extensions import ParamSpec, TypeAlias
 
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.types import DecodedMessage, SendableMessage
+from faststream.types import AnyAsyncCallable, SendableMessage
 
 MsgType = TypeVar("MsgType")
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
@@ -67,8 +67,8 @@ WrappedHandlerCall: TypeAlias = Union[
 
 BrokerMiddleware: TypeAlias = Callable[[Optional[MsgType]], BaseMiddleware]
 SubscriberMiddleware: TypeAlias = Callable[
-    [Optional[DecodedMessage]],
-    AsyncContextManager[Optional[DecodedMessage]],
+    [AnyAsyncCallable, MsgType],
+    MsgType,
 ]
 
 

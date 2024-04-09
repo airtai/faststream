@@ -24,19 +24,19 @@ class LocalMiddlewareTestcase:
     ) -> BrokerUsecase:
         return broker
 
-    async def test_local_middleware(
+    async def test_subscriber_middleware(
         self,
         event: asyncio.Event,
         queue: str,
         mock: Mock,
         raw_broker,
     ):
-        @asynccontextmanager
-        async def mid(msg):
-            mock.start(msg)
-            yield msg
+        async def mid(call_next, msg):
+            mock.start(msg.decoded_body)
+            result = await call_next(msg)
             mock.end()
             event.set()
+            return result
 
         broker = self.broker_class()
 
@@ -110,11 +110,11 @@ class LocalMiddlewareTestcase:
         event1 = asyncio.Event()
         event2 = asyncio.Event()
 
-        @asynccontextmanager
-        async def mid(msg):
+        async def mid(call_next, msg):
             mock.start(msg)
-            yield msg
+            result = await call_next(msg)
             mock.end()
+            return result
 
         broker = self.broker_class()
 
@@ -154,11 +154,11 @@ class LocalMiddlewareTestcase:
         event1 = asyncio.Event()
         event2 = asyncio.Event()
 
-        @asynccontextmanager
-        async def mid(msg):
+        async def mid(call_next, msg):
             mock.start(msg)
-            yield msg
+            result = await call_next(msg)
             mock.end()
+            return result
 
         broker = self.broker_class()
 
@@ -199,12 +199,14 @@ class LocalMiddlewareTestcase:
         assert mock.call_count == 2
 
     async def test_error_traceback(self, queue: str, mock: Mock, event, raw_broker):
-        @asynccontextmanager
-        async def mid(msg):
+        async def mid(call_next, msg):
             try:
-                yield msg
+                result = await call_next(msg)
             except Exception as e:
                 mock(isinstance(e, ValueError))
+                raise e
+            else:
+                return result
 
         broker = self.broker_class()
 

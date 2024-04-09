@@ -92,6 +92,6 @@ class SubscriberProto(
         filter_: "Filter[Any]",
         parser_: "CustomCallable",
         decoder_: "CustomCallable",
-        middlewares_: Iterable["SubscriberMiddleware"],
+        middlewares_: Iterable["SubscriberMiddleware[Any]"],
         dependencies_: Iterable["Depends"],
     ) -> Self: ...

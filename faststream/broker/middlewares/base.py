@@ -6,7 +6,8 @@ from typing_extensions import Self
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from faststream.types import DecodedMessage, SendableMessage
+    from faststream.broker.message import StreamMessage
+    from faststream.types import AnyAsyncCallable, SendableMessage
 
 
 class BaseMiddleware:
@@ -43,8 +44,8 @@ class BaseMiddleware:
 
     async def on_consume(
         self,
-        msg: Optional["DecodedMessage"],
-    ) -> Optional["DecodedMessage"]:
+        msg: "StreamMessage[Any]",
+    ) -> "StreamMessage[Any]":
         """Asynchronously consumes a message."""
         return msg
 
@@ -53,20 +54,25 @@ class BaseMiddleware:
         if err is not None:
             raise err
 
-    @asynccontextmanager
     async def consume_scope(
         self,
-        msg: Optional["DecodedMessage"],
-    ) -> AsyncIterator[Optional["DecodedMessage"]]:
+        call_next: "AnyAsyncCallable",
+        msg: "StreamMessage[Any]",
+    ) -> Any:
         """Asynchronously consumes a message and returns an asynchronous iterator of decoded messages."""
         err: Optional[Exception]
         try:
-            yield await self.on_consume(msg)
+            await self.on_consume(msg)
+            result = await call_next(msg)
+
         except Exception as e:
             err = e
         else:
             err = None
+
         await self.after_consume(err)
+
+        return result
 
     async def on_publish(
         self,

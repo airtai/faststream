@@ -1,4 +1,4 @@
-from contextlib import AsyncExitStack
+from functools import partial
 from inspect import unwrap
 from itertools import chain
 from typing import (
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.broker.wrapper.call import HandlerCallWrapper
-    from faststream.types import Decorator
+    from faststream.types import AnyAsyncCallable, Decorator
 
 
 class HandlerItem(SetupAble, Generic[MsgType]):
@@ -54,7 +54,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         filter: "AsyncFilter[StreamMessage[MsgType]]",
         item_parser: Optional["CustomCallable"],
         item_decoder: Optional["CustomCallable"],
-        item_middlewares: Iterable["SubscriberMiddleware"],
+        item_middlewares: Iterable["SubscriberMiddleware[StreamMessage[MsgType]]"],
         dependencies: Iterable["Depends"],
     ) -> None:
         self.handler = handler
@@ -152,26 +152,25 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         self,
         /,
         message: "StreamMessage[MsgType]",
-        _extra_middlewares: Iterable["SubscriberMiddleware"],
+        _extra_middlewares: Iterable["SubscriberMiddleware[Any]"],
     ) -> Any:
         """Execute wrapped handler with consume middlewares."""
-        async with AsyncExitStack() as consume_stack:
-            for middleware in chain(self.item_middlewares, _extra_middlewares):
-                message.decoded_body = await consume_stack.enter_async_context(
-                    middleware(message.decoded_body)
-                )
+        call: "AnyAsyncCallable" = self.handler.call_wrapped
 
-            try:
-                result = await self.handler.call_wrapped(message)
+        for middleware in chain(self.item_middlewares, _extra_middlewares):
+            call = partial(middleware, call)
 
-            except (IgnoredException, SystemExit):
-                self.handler.trigger()
-                raise
+        try:
+            result = await call(message)
 
-            except Exception as e:
-                self.handler.trigger(error=e)
-                raise e
+        except (IgnoredException, SystemExit):
+            self.handler.trigger()
+            raise
 
-            else:
-                self.handler.trigger(result=result)
-                return result
+        except Exception as e:
+            self.handler.trigger(error=e)
+            raise e
+
+        else:
+            self.handler.trigger(result=result)
+            return result
