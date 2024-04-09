@@ -47,7 +47,7 @@ if TYPE_CHECKING:
         Filter,
         SubscriberMiddleware,
     )
-    from faststream.types import AnyDict, LoggerProto
+    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 class _CallOptions:
@@ -65,7 +65,7 @@ class _CallOptions:
         filter: "Filter[Any]",
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
-        middlewares: Iterable["SubscriberMiddleware"],
+        middlewares: Iterable["SubscriberMiddleware[Any]"],
         dependencies: Iterable["Depends"],
     ) -> None:
         self.filter = filter
@@ -146,6 +146,7 @@ class SubscriberUsecase(
         apply_types: bool,
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
     ) -> None:
         self.lock = MultiLock()
 
@@ -176,6 +177,7 @@ class SubscriberUsecase(
                 apply_types=apply_types,
                 is_validate=is_validate,
                 _get_dependant=_get_dependant,
+                _call_decorators=_call_decorators,
                 broker_dependencies=self._broker_dependecies,
             )
 
@@ -202,7 +204,7 @@ class SubscriberUsecase(
         filter_: "Filter[Any]",
         parser_: Optional["CustomCallable"],
         decoder_: Optional["CustomCallable"],
-        middlewares_: Iterable["SubscriberMiddleware"],
+        middlewares_: Iterable["SubscriberMiddleware[Any]"],
         dependencies_: Iterable["Depends"],
     ) -> Self:
         self._call_options = _CallOptions(
@@ -222,7 +224,7 @@ class SubscriberUsecase(
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware"] = (),
+        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -237,7 +239,7 @@ class SubscriberUsecase(
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware"] = (),
+        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
 
@@ -248,7 +250,7 @@ class SubscriberUsecase(
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware"] = (),
+        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> Any:
         if (options := self._call_options) is None:

@@ -1,5 +1,5 @@
 import logging
-from contextlib import AsyncExitStack
+from functools import partial
 from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
@@ -29,7 +29,6 @@ from faststream.kafka.broker.registrator import KafkaRegistrator
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.kafka.security import parse_security
-from faststream.types import AnyDict, SendableMessage
 from faststream.utils.data import filter_by_dict
 
 Partition = TypeVar("Partition")
@@ -49,7 +48,13 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.security import BaseSecurity
-    from faststream.types import LoggerProto
+    from faststream.types import (
+        AnyDict,
+        AsyncFunc,
+        Decorator,
+        LoggerProto,
+        SendableMessage,
+    )
 
     class KafkaInitKwargs(TypedDict, total=False):
         request_timeout_ms: Annotated[
@@ -455,6 +460,10 @@ class KafkaBroker(
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
         ] = None,
+        _call_decorators: Annotated[
+            Iterable["Decorator"],
+            Doc("Any custom decorator to apply to wrapped functions."),
+        ] = (),
     ) -> None:
         if protocol is None:
             if security is not None and security.use_ssl:
@@ -521,6 +530,7 @@ class KafkaBroker(
             log_fmt=log_fmt,
             # FastDepends args
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
             apply_types=apply_types,
             validate=validate,
         )
@@ -554,7 +564,10 @@ class KafkaBroker(
         To startup subscribers too you should use `broker.start()` after/instead this method.
         """
         if bootstrap_servers is not Parameter.empty:
-            connect_kwargs: AnyDict = {**kwargs, "bootstrap_servers": bootstrap_servers}
+            connect_kwargs: "AnyDict" = {
+                **kwargs,
+                "bootstrap_servers": bootstrap_servers,
+            }
         else:
             connect_kwargs = {**kwargs}
 
@@ -591,7 +604,7 @@ class KafkaBroker(
             await handler.start()
 
     @property
-    def _subscriber_setup_extra(self) -> AnyDict:
+    def _subscriber_setup_extra(self) -> "AnyDict":
         return {
             "client_id": self.client_id,
             "connection_args": self._connection or {},
@@ -719,29 +732,17 @@ class KafkaBroker(
 
         correlation_id = correlation_id or gen_cor_id()
 
-        async with AsyncExitStack() as stack:
-            wrapped_messages = [
-                await stack.enter_async_context(
-                    middleware(None).publish_scope(
-                        msg,
-                        topic=topic,
-                        partition=partition,
-                        timestamp_ms=timestamp_ms,
-                        headers=headers,
-                        reply_to=reply_to,
-                        correlation_id=correlation_id,
-                    )
-                )
-                for msg in msgs
-                for middleware in self._middlewares
-            ] or msgs
+        call: "AsyncFunc" = self._producer.publish_batch
 
-            await self._producer.publish_batch(
-                *wrapped_messages,
-                topic=topic,
-                partition=partition,
-                timestamp_ms=timestamp_ms,
-                headers=headers,
-                reply_to=reply_to,
-                correlation_id=correlation_id,
-            )
+        for m in self._middlewares:
+            call = partial(m(None).publish_scope, call)
+
+        await call(
+            *msgs,
+            topic=topic,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+        )

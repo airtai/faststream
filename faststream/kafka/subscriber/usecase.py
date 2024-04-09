@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto
     from faststream.kafka.schemas.params import ConsumerConnectionParams
-    from faststream.types import AnyDict, LoggerProto
+    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
@@ -109,6 +109,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         apply_types: bool,
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
     ) -> None:
         self.client_id = client_id
         self.__connection_args = connection_args
@@ -123,6 +124,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             apply_types=apply_types,
             is_validate=is_validate,
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
     async def start(self) -> None:

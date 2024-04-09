@@ -27,9 +27,12 @@ F_Spec = ParamSpec("F_Spec")
 AnyCallable: TypeAlias = Callable[..., Any]
 NoneCallable: TypeAlias = Callable[..., None]
 AsyncFunc: TypeAlias = Callable[..., Awaitable[Any]]
+AsyncFuncAny: TypeAlias = Callable[[Any], Awaitable[Any]]
 
 DecoratedCallable: TypeAlias = AnyCallable
 DecoratedCallableNone: TypeAlias = NoneCallable
+
+Decorator: TypeAlias = Callable[[AnyCallable], AnyCallable]
 
 JsonArray: TypeAlias = Sequence["DecodedMessage"]
 

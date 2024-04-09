@@ -10,7 +10,8 @@ from faststream.utils.context.repository import context
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from faststream.types import DecodedMessage, LoggerProto
+    from faststream.broker.message import StreamMessage
+    from faststream.types import LoggerProto
 
 
 class CriticalLogMiddleware(BaseMiddleware):
@@ -32,8 +33,8 @@ class CriticalLogMiddleware(BaseMiddleware):
 
     async def on_consume(
         self,
-        msg: Optional["DecodedMessage"],
-    ) -> Optional["DecodedMessage"]:
+        msg: "StreamMessage[Any]",
+    ) -> "StreamMessage[Any]":
         if self.logger is not None:
             c = context.get_local("log_context") or {}
             self.logger.log(self.log_level, "Received", extra=c)

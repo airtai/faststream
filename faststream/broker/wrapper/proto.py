@@ -35,7 +35,7 @@ class WrapperProto(Protocol[MsgType]):
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware"] = (),
+        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -53,7 +53,7 @@ class WrapperProto(Protocol[MsgType]):
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware"] = (),
+        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
 
@@ -68,7 +68,7 @@ class WrapperProto(Protocol[MsgType]):
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware"] = (),
+        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> Union[
         "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",

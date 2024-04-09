@@ -1,5 +1,5 @@
-from contextlib import AsyncExitStack
 from copy import deepcopy
+from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas.exchange import RabbitExchange
     from faststream.rabbit.types import AioPikaSendableMessage
-    from faststream.types import AnyDict
+    from faststream.types import AnyDict, AsyncFunc
 
 
 # should be public to use in imports
@@ -237,17 +237,19 @@ class LogicPublisher(
             **publish_kwargs,
         }
 
-        async with AsyncExitStack() as stack:
-            for m in chain(
+        call: "AsyncFunc" = self._producer.publish
+
+        for m in chain(
+            (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares),
-                self._middlewares,
-            ):
-                message = await stack.enter_async_context(m(message, **kwargs))
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-            return await self._producer.publish(message, **kwargs)
+        return await call(message, **kwargs)
 
-        return None
 
     def add_prefix(self, prefix: str) -> None:
         """Include Publisher in router."""

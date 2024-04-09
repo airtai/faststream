@@ -1,12 +1,12 @@
-from contextlib import AsyncExitStack
+from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Iterable, Optional
 
 from faststream.broker.publisher.proto import BasePublisherProto
 
 if TYPE_CHECKING:
     from faststream.broker.types import PublisherMiddleware
-    from faststream.types import AnyDict, SendableMessage
+    from faststream.types import AnyDict, AsyncFunc, SendableMessage
 
 
 class FakePublisher(BasePublisherProto):
@@ -14,7 +14,7 @@ class FakePublisher(BasePublisherProto):
 
     def __init__(
         self,
-        method: Callable[..., Awaitable["SendableMessage"]],
+        method: "AsyncFunc",
         *,
         publish_kwargs: "AnyDict",
         middlewares: Iterable["PublisherMiddleware"] = (),
@@ -39,8 +39,8 @@ class FakePublisher(BasePublisherProto):
             **kwargs,
         }
 
-        async with AsyncExitStack() as stack:
-            for m in chain(_extra_middlewares, self.middlewares):
-                message = await stack.enter_async_context(m(message, **publish_kwargs))
+        call: "AsyncFunc" = self.method
+        for m in chain(_extra_middlewares, self.middlewares):
+            call = partial(m, call)
 
-            return await self.method(message, **publish_kwargs)
+        return await call(message, **publish_kwargs)

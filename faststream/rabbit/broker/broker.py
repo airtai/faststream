@@ -53,7 +53,7 @@ if TYPE_CHECKING:
     )
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, LoggerProto
+    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 class RabbitBroker(
@@ -188,6 +188,10 @@ class RabbitBroker(
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
         ] = None,
+        _call_decorators: Annotated[
+            Iterable["Decorator"],
+            Doc("Any custom decorator to apply to wrapped functions."),
+        ] = (),
     ) -> None:
         security_args = parse_security(security)
 
@@ -237,6 +241,7 @@ class RabbitBroker(
             apply_types=apply_types,
             validate=validate,
             _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
         self._max_consumers = max_consumers
