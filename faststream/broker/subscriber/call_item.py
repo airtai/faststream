@@ -29,7 +29,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.broker.wrapper.call import HandlerCallWrapper
-    from faststream.types import AnyAsyncCallable, Decorator
+    from faststream.types import AsyncFuncAny, Decorator
 
 
 class HandlerItem(SetupAble, Generic[MsgType]):
@@ -155,7 +155,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         _extra_middlewares: Iterable["SubscriberMiddleware[Any]"],
     ) -> Any:
         """Execute wrapped handler with consume middlewares."""
-        call: "AnyAsyncCallable" = self.handler.call_wrapped
+        call: "AsyncFuncAny" = self.handler.call_wrapped
 
         for middleware in chain(self.item_middlewares, _extra_middlewares):
             call = partial(middleware, call)

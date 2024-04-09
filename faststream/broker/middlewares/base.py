@@ -1,5 +1,4 @@
-from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, AsyncIterator, Optional, Type, cast
+from typing import TYPE_CHECKING, Any, Optional, Type
 
 from typing_extensions import Self
 
@@ -7,7 +6,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from faststream.broker.message import StreamMessage
-    from faststream.types import AnyAsyncCallable, SendableMessage
+    from faststream.types import AsyncFunc, AsyncFuncAny
 
 
 class BaseMiddleware:
@@ -56,23 +55,23 @@ class BaseMiddleware:
 
     async def consume_scope(
         self,
-        call_next: "AnyAsyncCallable",
+        call_next: "AsyncFuncAny",
         msg: "StreamMessage[Any]",
     ) -> Any:
         """Asynchronously consumes a message and returns an asynchronous iterator of decoded messages."""
         err: Optional[Exception]
         try:
-            await self.on_consume(msg)
-            result = await call_next(msg)
+            result = await call_next(await self.on_consume(msg))
 
         except Exception as e:
             err = e
+
         else:
             err = None
+            return result
 
-        await self.after_consume(err)
-
-        return result
+        finally:
+            await self.after_consume(err)
 
     async def on_publish(
         self,
@@ -91,20 +90,28 @@ class BaseMiddleware:
         if err is not None:
             raise err
 
-    @asynccontextmanager
     async def publish_scope(
         self,
+        call_next: "AsyncFunc",
         msg: Any,
-        /,
         *args: Any,
         **kwargs: Any,
-    ) -> AsyncIterator["SendableMessage"]:
+    ) -> Any:
         """Publish a message and return an async iterator."""
         err: Optional[Exception]
         try:
-            yield cast("SendableMessage", await self.on_publish(msg, *args, **kwargs))
+            result = await call_next(
+                await self.on_publish(msg, *args, **kwargs),
+                *args,
+                **kwargs,
+            )
+
         except Exception as e:
             err = e
+
         else:
             err = None
-        await self.after_publish(err)
+            return result
+
+        finally:
+            await self.after_publish(err)

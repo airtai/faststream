@@ -1,5 +1,5 @@
 import logging
-from contextlib import AsyncExitStack
+from functools import partial
 from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
@@ -48,7 +48,13 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, Decorator, LoggerProto, SendableMessage
+    from faststream.types import (
+        AnyDict,
+        AsyncFunc,
+        Decorator,
+        LoggerProto,
+        SendableMessage,
+    )
 
     class KafkaInitKwargs(TypedDict, total=False):
         request_timeout_ms: Annotated[
@@ -726,29 +732,17 @@ class KafkaBroker(
 
         correlation_id = correlation_id or gen_cor_id()
 
-        async with AsyncExitStack() as stack:
-            wrapped_messages = [
-                await stack.enter_async_context(
-                    middleware(None).publish_scope(
-                        msg,
-                        topic=topic,
-                        partition=partition,
-                        timestamp_ms=timestamp_ms,
-                        headers=headers,
-                        reply_to=reply_to,
-                        correlation_id=correlation_id,
-                    )
-                )
-                for msg in msgs
-                for middleware in self._middlewares
-            ] or msgs
+        call: "AsyncFunc" = self._producer.publish_batch
 
-            await self._producer.publish_batch(
-                *wrapped_messages,
-                topic=topic,
-                partition=partition,
-                timestamp_ms=timestamp_ms,
-                headers=headers,
-                reply_to=reply_to,
-                correlation_id=correlation_id,
-            )
+        for m in self._middlewares:
+            call = partial(m(None).publish_scope, call)
+
+        await call(
+            *msgs,
+            topic=topic,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+        )

@@ -1,6 +1,6 @@
 import logging
 from abc import abstractmethod
-from contextlib import AsyncExitStack
+from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from faststream.asyncapi.schema import Tag, TagDict
     from faststream.broker.publisher.proto import ProducerProto, PublisherProto
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, Decorator, LoggerProto
+    from faststream.types import AnyDict, AsyncFunc, Decorator, LoggerProto
 
 
 class BrokerUsecase(
@@ -333,14 +333,10 @@ class BrokerUsecase(
         **kwargs: Any,
     ) -> Optional[Any]:
         """Publish message directly."""
-        assert producer, NOT_CONNECTED_YET  # nosec B101
+        assert producer, NOT_CONNECTED_YET  # nosec B101)
 
-        async with AsyncExitStack() as stack:
-            for m in self._middlewares:
-                msg = await stack.enter_async_context(
-                    m(None).publish_scope(msg, **kwargs)
-                )
+        publish: "AsyncFunc" = producer.publish
+        for m in self._middlewares:
+            publish = partial(m(None).publish_scope, publish)
 
-            return await producer.publish(msg, **kwargs)
-
-        return None
+        return await publish(msg, **kwargs)

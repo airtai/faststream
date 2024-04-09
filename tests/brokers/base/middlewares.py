@@ -1,5 +1,4 @@
 import asyncio
-from contextlib import asynccontextmanager
 from typing import Any, ClassVar, Dict, Type
 from unittest.mock import Mock
 
@@ -70,13 +69,13 @@ class LocalMiddlewareTestcase:
         mock: Mock,
         raw_broker,
     ):
-        @asynccontextmanager
-        async def mid(msg, *args, **kwargs):
+        async def mid(call_next, msg, **kwargs):
             mock.enter()
-            yield msg
+            result = await call_next(msg, **kwargs)
             mock.end()
             if mock.end.call_count > 1:
                 event.set()
+            return result
 
         broker = self.broker_class()
 

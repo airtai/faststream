@@ -1,6 +1,5 @@
 from typing import (
     Any,
-    AsyncContextManager,
     Awaitable,
     Callable,
     Optional,
@@ -13,7 +12,7 @@ from typing_extensions import ParamSpec, TypeAlias
 
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.types import AnyAsyncCallable, SendableMessage
+from faststream.types import AsyncFunc, AsyncFuncAny
 
 MsgType = TypeVar("MsgType")
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
@@ -67,7 +66,7 @@ WrappedHandlerCall: TypeAlias = Union[
 
 BrokerMiddleware: TypeAlias = Callable[[Optional[MsgType]], BaseMiddleware]
 SubscriberMiddleware: TypeAlias = Callable[
-    [AnyAsyncCallable, MsgType],
+    [AsyncFuncAny, MsgType],
     MsgType,
 ]
 
@@ -76,5 +75,8 @@ class PublisherMiddleware(Protocol):
     """Publisher middleware interface."""
 
     def __call__(
-        self, __msg: Any, /, **__kwargs: Any
-    ) -> AsyncContextManager[SendableMessage]: ...
+        self,
+        call_next: AsyncFunc,
+        *__args: Any,
+        **__kwargs: Any,
+    ) -> Any: ...

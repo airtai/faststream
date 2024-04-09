@@ -1,4 +1,4 @@
-from contextlib import AsyncExitStack
+from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
     from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
     from faststream.nats.schemas import JStream
-    from faststream.types import AnyDict, DecodedMessage, SendableMessage
+    from faststream.types import AnyDict, AsyncFunc, SendableMessage
 
 
 class LogicPublisher(PublisherUsecase[Msg]):
@@ -122,7 +122,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
-    ) -> Optional["DecodedMessage"]:
+    ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         kwargs: "AnyDict" = {
@@ -139,17 +139,18 @@ class LogicPublisher(PublisherUsecase[Msg]):
         if stream := stream or getattr(self.stream, "name", None):
             kwargs.update({"stream": stream, "timeout": timeout or self.timeout})
 
-        async with AsyncExitStack() as stack:
-            for m in chain(
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares),
-                self._middlewares,
-            ):
-                message = await stack.enter_async_context(m(message, **kwargs))
+        call: "AsyncFunc" = self._producer.publish
 
-            return await self._producer.publish(message, **kwargs)
+        for m in chain(
+            (
+                _extra_middlewares or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-        return None
+        return await call(message, **kwargs)
+
 
     def add_prefix(self, prefix: str) -> None:
         self.subject = prefix + self.subject
