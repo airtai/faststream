@@ -255,6 +255,9 @@ def _generate_api_docs_for_module(root_path: Path, module_name: str) -> Tuple[st
             _import_all_members(module_name, includ_public_api_only=True)
         )
     )
+    # Using public_api/ symlink pointing to api/ because of the issue
+    # https://github.com/mkdocs/mkdocs/issues/1974
+    public_api_summary = public_api_summary.replace("(api/", "(public_api/")
 
     members = _import_all_members(module_name)
     members_with_submodules = _add_all_submodules(members)
