@@ -67,11 +67,11 @@ class FastStream:
         terms_of_service: Optional["AnyHttpUrl"] = None,
         license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
         contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
-        identifier: Optional[str] = None,
         tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]] = None,
         external_docs: Optional[
             Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,
+        identifier: Optional[str] = None,
     ) -> None:
         context.set_global("app", self)
 
@@ -159,13 +159,17 @@ class FastStream:
 
         set_exit(lambda *_: self.exit(), sync=False)
 
-        async with self.lifespan_context(**(run_extra_options or {})):
-            await self._startup(log_level, run_extra_options)
+        async with (
+            self.lifespan_context(**(run_extra_options or {})),
+            anyio.create_task_group() as tg,
+        ):
+            tg.start_soon(self._startup, log_level, run_extra_options)
 
             while not self.should_exit:
                 await anyio.sleep(sleep_time)
 
             await self._shutdown(log_level)
+            tg.cancel_scope.cancel()
 
     def exit(self) -> None:
         """Stop application manually."""
