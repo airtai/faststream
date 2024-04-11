@@ -55,14 +55,19 @@ class WatchReloader(BaseReload):
         )
 
     def startup(self) -> None:
-        logger.info(f"Will watch for changes in these directories: {self.reload_dirs}")
+        logger.info(
+            "Will watch for changes in these directories: %s",
+            [str(i) for i in self.reload_dirs],
+        )
         super().startup()
 
     def should_restart(self) -> bool:
         for changes in self.watcher:  # pragma: no branch
             if changes:  # pragma: no branch
-                unique_paths = {Path(c[1]).name for c in changes}
-                message = "WatchReloader detected file change in '%s'. Reloading..."
-                logger.info(message % tuple(unique_paths))
+                unique_paths = {str(Path(c[1]).name) for c in changes}
+                logger.info(
+                    "WatchReloader detected file change in '%s'. Reloading...",
+                    ", ".join(unique_paths),
+                )
                 return True
         return False  # pragma: no cover
