@@ -21,6 +21,17 @@ API_META = (
 MD_API_META = "---\n" + API_META + "\n---\n\n"
 
 
+PUBLIC_API_FILES = [
+    "faststream/asyncapi/__init__.py",
+    "faststream/__init__.py",
+    "faststream/nats/__init__.py",
+    "faststream/rabbit/__init__.py",
+    "faststream/confluent/__init__.py",
+    "faststream/kafka/__init__.py",
+    "faststream/redis/__init__.py",
+]
+
+
 def _get_submodules(package_name: str) -> List[str]:
     """Get all submodules of a package.
 
@@ -61,8 +72,16 @@ def _import_submodules(
     package_names = _get_submodules(module_name)
     modules = [_import_module(n) for n in package_names]
     if includ_public_api_only:
-        init_modules = [m for m in modules if "__init__.py" in m.__file__]
-        return init_modules
+        repo_path = Path.cwd().parent
+
+        # Extract only faststream/__init__.py or faststream/<something>/__init__.py
+        public_api_modules = [
+            m
+            for m in modules
+            if m.__file__.replace(str(repo_path) + "/", "") in PUBLIC_API_FILES
+        ]
+
+        return public_api_modules
     return [m for m in modules if m is not None]
 
 
