@@ -15,6 +15,7 @@ from typing import (
 import anyio
 from typing_extensions import ParamSpec
 
+from faststream._compat import ExceptionGroup
 from faststream.cli.supervisors.utils import set_exit
 from faststream.exceptions import ValidationError
 from faststream.log.logging import logger
@@ -159,17 +160,19 @@ class FastStream:
 
         set_exit(lambda *_: self.exit(), sync=False)
 
-        async with (
-            self.lifespan_context(**(run_extra_options or {})),
-            anyio.create_task_group() as tg,
-        ):
-            tg.start_soon(self._startup, log_level, run_extra_options)
+        async with self.lifespan_context(**(run_extra_options or {})):
+            try:
+                async with anyio.create_task_group() as tg:
+                    tg.start_soon(self._startup, log_level, run_extra_options)
 
-            while not self.should_exit:
-                await anyio.sleep(sleep_time)
+                    while not self.should_exit:
+                        await anyio.sleep(sleep_time)
 
-            await self._shutdown(log_level)
-            tg.cancel_scope.cancel()
+                    await self._shutdown(log_level)
+                    tg.cancel_scope.cancel()
+            except ExceptionGroup as e:
+                for ex in e.exceptions:
+                    raise ex from None
 
     def exit(self) -> None:
         """Stop application manually."""
