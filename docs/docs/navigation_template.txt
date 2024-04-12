@@ -107,6 +107,9 @@ search:
     - [Message Information](redis/message.md)
     - [Security Configuration](redis/security.md)
 - [Reference - Code API](api/index.md)
+    - Public API
+{public_api}
+    - All API
 {api}
 - Contributing
     - [Development](getting-started/contributing/CONTRIBUTING.md)
