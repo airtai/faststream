@@ -1,22 +1,33 @@
 import msgpack
 
-from faststream import FastStream, Logger
+from faststream import BaseMiddleware, FastStream, Logger
 from faststream.rabbit import RabbitBroker, RabbitMessage
 
-broker = RabbitBroker()
-app = FastStream(broker)
+
+class MsgPackMiddleware(BaseMiddleware):
+    async def publish_scope(self, call_next, msg, **options):
+        return await call_next(
+            msgpack.dumps(msg, use_bin_type=True),
+            **options,
+        )
 
 
-async def decode_message(msg: RabbitMessage):
+def decode_message(msg: RabbitMessage):
     return msgpack.loads(msg.body)
 
 
-@broker.subscriber("test", decoder=decode_message)
+broker = RabbitBroker(
+    decoder=decode_message,
+    middlewares=(MsgPackMiddleware,),
+)
+app = FastStream(broker)
+
+
+@broker.subscriber("test")
 async def consume(name: str, age: int, logger: Logger):
     logger.info(f"{name}: {age}")
 
 
 @app.after_startup
 async def publish():
-    body = msgpack.dumps({"name": "John", "age": 25}, use_bin_type=True)
-    await broker.publish(body, "test")
+    await broker.publish({"name": "John", "age": 25}, "test")
