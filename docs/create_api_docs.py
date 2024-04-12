@@ -60,7 +60,7 @@ def _get_submodules(package_name: str) -> List[str]:
 
 
 def _import_submodules(
-    module_name: str, includ_public_api_only: bool = False
+    module_name: str, include_public_api_only: bool = False
 ) -> Optional[List[ModuleType]]:
     def _import_module(name: str) -> Optional[ModuleType]:
         try:
@@ -71,7 +71,7 @@ def _import_submodules(
 
     package_names = _get_submodules(module_name)
     modules = [_import_module(n) for n in package_names]
-    if includ_public_api_only:
+    if include_public_api_only:
         repo_path = Path.cwd().parent
 
         # Extract only faststream/__init__.py or faststream/<something>/__init__.py
@@ -86,11 +86,14 @@ def _import_submodules(
 
 
 def _import_functions_and_classes(
-    m: ModuleType,
+    m: ModuleType, include_public_api_only: bool = False
 ) -> List[Tuple[str, Union[FunctionType, Type[Any]]]]:
-    funcs_and_classes = [
-        (x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)
-    ]
+    funcs_and_classes = []
+    if not include_public_api_only:
+        funcs_and_classes = [
+            (x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)
+        ]
+
     if hasattr(m, "__all__"):
         for t in m.__all__:
             obj = getattr(m, t)
@@ -106,13 +109,20 @@ def _is_private(name: str) -> bool:
 
 
 def _import_all_members(
-    module_name: str, includ_public_api_only: bool = False
+    module_name: str, include_public_api_only: bool = False
 ) -> List[str]:
     submodules = _import_submodules(
-        module_name, includ_public_api_only=includ_public_api_only
+        module_name, include_public_api_only=include_public_api_only
     )
     members: List[Tuple[str, Union[FunctionType, Type[Any]]]] = list(
-        itertools.chain(*[_import_functions_and_classes(m) for m in submodules])
+        itertools.chain(
+            *[
+                _import_functions_and_classes(
+                    m, include_public_api_only=include_public_api_only
+                )
+                for m in submodules
+            ]
+        )
     )
 
     names = [
@@ -271,7 +281,7 @@ def _generate_api_docs_for_module(root_path: Path, module_name: str) -> Tuple[st
     """
     public_api_summary = _get_api_summary(
         _add_all_submodules(
-            _import_all_members(module_name, includ_public_api_only=True)
+            _import_all_members(module_name, include_public_api_only=True)
         )
     )
     # Using public_api/ symlink pointing to api/ because of the issue
