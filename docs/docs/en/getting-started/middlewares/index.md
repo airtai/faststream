@@ -39,13 +39,13 @@ class MyMiddleware(BaseMiddleware):
         return await super().after_processed(exc_type, exc_val, exc_tb)
 ```
 
-These methods should be overwritten only in a broker-level middlewares.
+These methods should be overridden only in a broker-level middlewares.
 
 ```python
 Broker(middlewares=[MyMiddleware])
 ```
 
-Also, you can use `BaseMiddlewares` inheritors as a [router](../routers/index.md)-level dependencies as well (they will be aplied only to created by this router objects):
+Also, you can use `BaseMiddleware` inheritors as [router](../routers/index.md)-level dependencies as well(they will be applied only to objects created by this router):
 
 ```python
 BrokerRouter(middlewares=[MyMiddleware])
@@ -56,9 +56,9 @@ BrokerRouter(middlewares=[MyMiddleware])
 
 ## Subscriber Middleware
 
-Subscriber middlewares will be called at your `handler` function call. Using it you can patch the incoming message body right before passing it to your consumer subscriber or catch any handler exception with returning fall-back value to publish (middleware return value will be published then).
+Subscriber middlewares will be called at your `handler` function call. Using it, you can patch the incoming message body right before passing it to your consumer subscriber or catch any handler exception by returning a fallback value to publish (the middleware return value will be published then).
 
-In this case, you need to implement `consume_scope` middleware method:
+In this case, you need to implement the `consume_scope` middleware method:
 
 ```python linenums="1"
 from typing import Callable, Awaitable
@@ -79,9 +79,9 @@ Broker(middlewares=[MyMiddleware])
 ```
 
 !!! note
-    `msg` option always has already decoded body. To prevent default `#!python json.loads(...)` call, you should use [custom decoder](../serialization/decoder.md) instead.
+    The `msg` option always has the already decoded body. To prevent the default `#!python json.loads(...)` call, you should use a [custom decoder](../serialization/decoder.md) instead.
 
-If you want to apply such middleware to specific subscriber instead of whole application, you can just create a function with the same signature and pass it right to your subscriber:
+If you want to apply such middleware to a specific subscriber instead of the whole application, you can just create a function with the same signature and pass it right to your subscriber:
 
 ```python linenums="1" hl_lines="10"
 async def subscriber_middleware(
@@ -103,9 +103,9 @@ async def handler():
 
 Finally, using middlewares, you are able to patch outgoing messages too. For example, you can compress/encode outgoing messages at the application level or add custom types serialization logic.
 
-Publisher middlewares can be applied at **broker**, **router** or each **publisher** levels. **Broker** publisher middlewares affects at all ways to publish somehting (including `#!python broker.publish` call).
+Publisher middlewares can be applied at the **broker**, **router** or each **publisher** level. **Broker** publisher middlewares affect all the ways to publish something (including `#!python broker.publish` call).
 
-In this, case you need to specify `publish_scope` method:
+In this case, you need to specify the `publish_scope` method:
 
 ```python linenums="1"
 from typing import Callable, Awaitable
@@ -125,9 +125,9 @@ class MyMiddleware(BaseMiddleware):
 Broker(middlewares=[MyMiddleware])
 ```
 
-This method consumes message body to send and any other options passing to `publish` call (destination. headers, etc).
+This method consumes the message body to send and any other options passing to the `publish` call (destination. headers, etc).
 
-Also, you can specify middleware for publisher object as well. In this case, use should create a function the same with `publish_scope` signature and use it as a publisher middleware:
+Also, you can specify middleware for publisher object as well. In this case, you should create a function with the same `publish_scope` signature and use it as a publisher middleware:
 
 ```python linenums="1" hl_lines="12"
 async def publisher_middleware(
