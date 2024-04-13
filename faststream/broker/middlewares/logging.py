@@ -69,8 +69,3 @@ class CriticalLogMiddleware(BaseMiddleware):
             self.logger.log(self.log_level, "Processed", extra=c)
 
         await super().after_processed(exc_type, exc_val, exc_tb)
-
-        if exc_type:
-            return not issubclass(exc_type, (IgnoredException, SystemExit))
-
-        return False

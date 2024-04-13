@@ -168,7 +168,7 @@ class WatcherContext:
         else:
             await self.__nack()
 
-        return False
+        return True
 
     async def __ack(self) -> None:
         await self.message.ack(**self.extra_options)
