@@ -52,7 +52,9 @@ class NatsParser(NatsBaseParser):
 
         headers = message.header or {}
 
-        return StreamMessage["Msg"](
+        message._ackd = True  # prevent message from acking
+
+        return NatsMessage(
             raw_message=message,
             body=message.data,
             path=path or {},
