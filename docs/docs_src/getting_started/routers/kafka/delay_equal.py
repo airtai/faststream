@@ -1,31 +1,19 @@
 from faststream import FastStream
-from faststream.confluent import KafkaBroker
-from faststream.confluent import KafkaRoute, KafkaRouter, KafkaPublisher
+from faststream.kafka import KafkaBroker, KafkaRouter
 
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
 
+router = KafkaRouter()
 
+@router.subscriber("test-topic")
+@router.publisher("outer-topic")
 async def handle(name: str, user_id: int):
     assert name == "John"
     assert user_id == 1
     return "Hi!"
 
-
-router = KafkaRouter(
-    handlers=(
-        KafkaRoute(
-            handle,
-            "test-topic",
-            publishers=(
-                KafkaPublisher("outer-topic"),
-            ),
-        ),
-    )
-)
-
 broker.include_router(router)
-
 
 @app.after_startup
 async def test():

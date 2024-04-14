@@ -4,6 +4,7 @@ from collections import Counter
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 from typing import Counter as CounterType
 
+from faststream._compat import is_test_env
 from faststream.exceptions import (
     AckMessage,
     HandlerException,
@@ -168,7 +169,7 @@ class WatcherContext:
         else:
             await self.__nack()
 
-        return False
+        return not is_test_env()
 
     async def __ack(self) -> None:
         await self.message.ack(**self.extra_options)

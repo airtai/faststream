@@ -79,27 +79,31 @@ plugins:
       default_handler: python
       handlers:
         python:
-          paths: [..]
           import:
           - https://docs.python.org/3/objects.inv
           options:
+            # extensions:
+            # - griffe_typingdoc
+            preload_modules:
+            - httpx
+            - starlette
+            - fastapi
             filters:
-              - "!^_"
-            show_if_no_docstring: true
-            separate_signature: true
-            docstring_section_style: spacy
-            show_docstring_attributes: false
+            - '!^_'
             show_root_heading: true
-            show_signature_annotations: true
+            show_if_no_docstring: true
             inherited_members: true
-            members_order: alphabetical
+            members_order: source
+            separate_signature: true
             unwrap_annotated: true
             merge_init_into_class: true
+            docstring_section_style: spacy
             signature_crossrefs: true
             show_symbol_type_heading: true
             show_symbol_type_toc: true
-            load_external_modules: true
-            preload_modules: [httpx, starlette, fastapi]
+            # show_docstring_attributes: false
+            # show_signature_annotations: true
+            # load_external_modules: true
   - i18n:
       docs_structure: folder
       reconfigure_material: true

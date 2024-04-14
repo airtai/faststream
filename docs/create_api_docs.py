@@ -21,6 +21,17 @@ API_META = (
 MD_API_META = "---\n" + API_META + "\n---\n\n"
 
 
+PUBLIC_API_FILES = [
+    "faststream/asyncapi/__init__.py",
+    "faststream/__init__.py",
+    "faststream/nats/__init__.py",
+    "faststream/rabbit/__init__.py",
+    "faststream/confluent/__init__.py",
+    "faststream/kafka/__init__.py",
+    "faststream/redis/__init__.py",
+]
+
+
 def _get_submodules(package_name: str) -> List[str]:
     """Get all submodules of a package.
 
@@ -48,7 +59,9 @@ def _get_submodules(package_name: str) -> List[str]:
     return [package_name, *submodules]
 
 
-def _import_submodules(module_name: str) -> Optional[List[ModuleType]]:
+def _import_submodules(
+    module_name: str, include_public_api_only: bool = False
+) -> Optional[List[ModuleType]]:
     def _import_module(name: str) -> Optional[ModuleType]:
         try:
             # nosemgrep: python.lang.security.audit.non-literal-import.non-literal-import
@@ -58,15 +71,29 @@ def _import_submodules(module_name: str) -> Optional[List[ModuleType]]:
 
     package_names = _get_submodules(module_name)
     modules = [_import_module(n) for n in package_names]
+    if include_public_api_only:
+        repo_path = Path.cwd().parent
+
+        # Extract only faststream/__init__.py or faststream/<something>/__init__.py
+        public_api_modules = [
+            m
+            for m in modules
+            if m.__file__.replace(str(repo_path) + "/", "") in PUBLIC_API_FILES
+        ]
+
+        return public_api_modules
     return [m for m in modules if m is not None]
 
 
 def _import_functions_and_classes(
-    m: ModuleType,
+    m: ModuleType, include_public_api_only: bool = False
 ) -> List[Tuple[str, Union[FunctionType, Type[Any]]]]:
-    funcs_and_classes = [
-        (x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)
-    ]
+    funcs_and_classes = []
+    if not include_public_api_only:
+        funcs_and_classes = [
+            (x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)
+        ]
+
     if hasattr(m, "__all__"):
         for t in m.__all__:
             obj = getattr(m, t)
@@ -81,10 +108,21 @@ def _is_private(name: str) -> bool:
     return any(part.startswith("_") for part in parts)
 
 
-def _import_all_members(module_name: str) -> List[str]:
-    submodules = _import_submodules(module_name)
+def _import_all_members(
+    module_name: str, include_public_api_only: bool = False
+) -> List[str]:
+    submodules = _import_submodules(
+        module_name, include_public_api_only=include_public_api_only
+    )
     members: List[Tuple[str, Union[FunctionType, Type[Any]]]] = list(
-        itertools.chain(*[_import_functions_and_classes(m) for m in submodules])
+        itertools.chain(
+            *[
+                _import_functions_and_classes(
+                    m, include_public_api_only=include_public_api_only
+                )
+                for m in submodules
+            ]
+        )
     )
 
     names = [
@@ -125,10 +163,10 @@ def _add_all_submodules(members: List[str]) -> List[str]:
 def _get_api_summary_item(x: str) -> str:
     xs = x.split(".")
     if x.endswith("."):
-        indent = " " * (4 * (len(xs) - 1))
+        indent = " " * (4 * (len(xs) - 1 + 1))
         return f"{indent}- {xs[-2]}"
     else:
-        indent = " " * (4 * (len(xs)))
+        indent = " " * (4 * (len(xs) + 1))
         return f"{indent}- [{xs[-1]}](api/{'/'.join(xs)}.md)"
 
 
@@ -230,7 +268,7 @@ def _update_api_docs(
         )
 
 
-def _generate_api_docs_for_module(root_path: Path, module_name: str) -> str:
+def _generate_api_docs_for_module(root_path: Path, module_name: str) -> Tuple[str, str]:
     """Generate API documentation for a module.
 
     Args:
@@ -241,6 +279,15 @@ def _generate_api_docs_for_module(root_path: Path, module_name: str) -> str:
         A string containing the API documentation for the module.
 
     """
+    public_api_summary = _get_api_summary(
+        _add_all_submodules(
+            _import_all_members(module_name, include_public_api_only=True)
+        )
+    )
+    # Using public_api/ symlink pointing to api/ because of the issue
+    # https://github.com/mkdocs/mkdocs/issues/1974
+    public_api_summary = public_api_summary.replace("(api/", "(public_api/")
+
     members = _import_all_members(module_name)
     members_with_submodules = _add_all_submodules(members)
     api_summary = _get_api_summary(members_with_submodules)
@@ -265,7 +312,7 @@ def _generate_api_docs_for_module(root_path: Path, module_name: str) -> str:
 """
     api_summary = api_summary.replace(src, dst)
 
-    return api_summary
+    return api_summary, public_api_summary
 
 
 def create_api_docs(
@@ -279,14 +326,14 @@ def create_api_docs(
         module: The name of the module.
 
     """
-    api = _generate_api_docs_for_module(root_path, module)
+    api, public_api = _generate_api_docs_for_module(root_path, module)
 
     docs_dir = root_path / "docs"
 
     # read summary template from file
     navigation_template = (docs_dir / "navigation_template.txt").read_text()
 
-    summary = navigation_template.format(api=api)
+    summary = navigation_template.format(api=api, public_api=public_api)
 
     summary = "\n".join(filter(bool, (x.rstrip() for x in summary.split("\n"))))
 
