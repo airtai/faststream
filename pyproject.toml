@@ -106,7 +106,7 @@ types = [
 
 lint = [
     "faststream[types]",
-    "ruff==0.3.4",
+    "ruff==0.3.7",
     "bandit==1.7.8",
     "semgrep==1.67.0",
     "codespell==2.2.6",
