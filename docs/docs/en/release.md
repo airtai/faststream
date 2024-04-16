@@ -12,6 +12,131 @@ hide:
 ---
 
 # Release Notes
+## 0.5.0
+
+### What's Changed
+
+This is the biggest change since the creation of FastStream. We have completely refactored the entire package, changing the object registration mechanism, message processing pipeline, and application lifecycle. However, you won't even notice it—we've preserved all public APIs from breaking changes. The only feature not compatible with the previous code is the new middleware.
+
+New features:
+
+1. `await FastStream.stop()` method and `StopApplication` exception to stop a `FastStream` worker are added.
+
+2. `broker.subscriber()` and `router.subscriber()` functions now return a `Subscriber` object you can use later.
+
+```python
+subscriber = broker.subscriber("test")
+
+@subscriber(filter = lambda msg: msg.content_type == "application/json")
+async def handler(msg: dict[str, Any]):
+    ...
+ 
+@subscriber()
+async def handler(msg: dict[str, Any]):
+    ...
+ ```
+ 
+This is the preferred syntax for [filtering](https://faststream.airt.ai/latest/getting-started/subscription/filtering/) now (the old one will be removed in `0.6.0`)
+ 
+ 3. The `router.publisher()` function now returns the correct `Publisher` object you can use later (after broker startup).
+ 
+ ```python
+ publisher = router.publisher("test")
+ 
+ @router.subscriber("in")
+ async def handler():
+     await publisher.publish("msg")
+ ```
+ 
+ (Until `0.5.0` you could use it in this way with `broker.publisher` only)
+ 
+ 4. A list of `middlewares` can be passed to a `broker.publisher` as well:
+ 
+ ```python
+ broker = Broker(..., middlewares=())
+ 
+ @broker.subscriber(..., middlewares=())
+ @broker.publisher(..., middlewares=())  # new feature
+ async def handler():
+     ...
+ ```
+ 
+5. Broker-level middlewares now affect all ways to publish a message, so you can encode application outgoing messages here.
+
+6. ⚠️ BREAKING CHANGE ⚠️ : both `subscriber` and `publisher` middlewares should be async context manager type
+
+```python
+async def subscriber_middleware(call_next, msg):
+    return await call_next(msg)
+
+async def publisher_middleware(call_next, msg, **kwargs):
+    return await call_next(msg, **kwargs)
+
+@broker.subscriber(
+    "in",
+    middlewares=(subscriber_middleware,),
+)
+@broker.publisher(
+    "out",
+    middlewares=(publisher_middleware,),
+)
+async def handler(msg):
+    return msg
+```
+
+Such changes allow you two previously unavailable features:
+* suppress any exceptions and pass fall-back message body to publishers, and
+* patch any outgoing message headers and other parameters.
+
+Without those features we could not implement [Observability Middleware](https://github.com/airtai/faststream/issues/916) or any similar tool, so it is the job that just had to be done.
+7. A better **FastAPI** compatibility: `fastapi.BackgroundTasks` and `response_class` subscriber option are supported.
+
+8. All `.pyi` files are removed, and explicit docstrings and methods options are added.
+
+9. New subscribers can be registered in runtime (with an already-started broker):
+
+```python
+subscriber = broker.subscriber("dynamic")
+subscriber(handler_method)
+...
+broker.setup_subscriber(subscriber)
+await subscriber.start()
+...
+await subscriber.close()
+```
+
+10. `faststream[docs]` distribution is removed.
+
+* Update Release Notes for 0.4.7 by @faststream-release-notes-updater in https://github.com/airtai/faststream/pull/1295
+* 1129 - Create a publish command for the CLI by @MRLab12 in https://github.com/airtai/faststream/pull/1151
+* Chore: packages upgraded by @davorrunje in https://github.com/airtai/faststream/pull/1306
+* docs: fix typos by @omahs in https://github.com/airtai/faststream/pull/1309
+* chore: update dependencies by @Lancetnik in https://github.com/airtai/faststream/pull/1323
+* docs: fix misc by @Lancetnik in https://github.com/airtai/faststream/pull/1324
+* docs (#1327): correct RMQ exhcanges behavior by @Lancetnik in https://github.com/airtai/faststream/pull/1328
+* fix: typer 0.12 exclude by @Lancetnik in https://github.com/airtai/faststream/pull/1341
+* 0.5.0 by @Lancetnik in https://github.com/airtai/faststream/pull/1326
+  * close #1103
+  * close #840
+  * fix #690
+  * fix #1206
+  * fix #1227
+  * close #568
+  * close #1303
+  * close #1287
+  * feat #607 
+* Generate docs and linter fixes by @davorrunje in https://github.com/airtai/faststream/pull/1348
+* Fix types by @davorrunje in https://github.com/airtai/faststream/pull/1349
+* chore: update dependencies by @Lancetnik in https://github.com/airtai/faststream/pull/1358
+* feat: final middlewares by @Lancetnik in https://github.com/airtai/faststream/pull/1357
+* Docs/0.5.0 features by @Lancetnik in https://github.com/airtai/faststream/pull/1360
+
+### New Contributors
+* @MRLab12 made their first contribution in https://github.com/airtai/faststream/pull/1151
+* @omahs made their first contribution in https://github.com/airtai/faststream/pull/1309
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.4.7...0.5.0
+
 ## 0.5.0rc2
 
 ### What's Changed
