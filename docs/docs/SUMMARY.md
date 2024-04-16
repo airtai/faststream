@@ -616,6 +616,7 @@ search:
                     - [PullSub](api/faststream/nats/schemas/PullSub.md)
                     - js_stream
                         - [JStream](api/faststream/nats/schemas/js_stream/JStream.md)
+                        - [compile_nats_wildcard](api/faststream/nats/schemas/js_stream/compile_nats_wildcard.md)
                         - [is_subject_match_wildcard](api/faststream/nats/schemas/js_stream/is_subject_match_wildcard.md)
                     - pull_sub
                         - [PullSub](api/faststream/nats/schemas/pull_sub/PullSub.md)
