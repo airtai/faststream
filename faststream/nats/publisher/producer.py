@@ -39,8 +39,10 @@ class NatsFastProducer(ProducerProto):
         decoder: Optional["CustomCallable"],
     ) -> None:
         self._connection = connection
-        self._parser = resolve_custom_func(parser, NatsParser.parse_message)
-        self._decoder = resolve_custom_func(decoder, NatsParser.decode_message)
+        self._parser = resolve_custom_func(parser, NatsParser(pattern="").parse_message)
+        self._decoder = resolve_custom_func(
+            decoder, NatsParser(pattern="").decode_message
+        )
 
     @override
     async def publish(  # type: ignore[override]
@@ -115,8 +117,10 @@ class NatsJSFastProducer(ProducerProto):
         decoder: Optional["CustomCallable"],
     ) -> None:
         self._connection = connection
-        self._parser = resolve_custom_func(parser, NatsParser.parse_message)
-        self._decoder = resolve_custom_func(decoder, NatsParser.decode_message)
+        self._parser = resolve_custom_func(parser, NatsParser(pattern="").parse_message)
+        self._decoder = resolve_custom_func(
+            decoder, NatsParser(pattern="").decode_message
+        )
 
     @override
     async def publish(  # type: ignore[override]

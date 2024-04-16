@@ -171,7 +171,7 @@ Such changes allows you two features previously unavailable
 * suppress any exceptions and pas fall-back message body to publishers
 * patch any outgoing message headers and other parameters
 
-Without these features we just can't impelement [Observability Middleware](https://github.com/airtai/faststream/issues/916) or any similar tool, so it is the job to be done.
+Without these features we just can't implement [Observability Middleware](https://github.com/airtai/faststream/issues/916) or any similar tool, so it is the job to be done.
 
 Now you are free to get access at any message processing stage and we are one step closer to the framework we would like to create!
 

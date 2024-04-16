@@ -1,7 +1,7 @@
 import pytest
 
 from faststream import Path
-from faststream.nats import NatsBroker, TestNatsBroker
+from faststream.nats import NatsBroker, PullSub, TestNatsBroker
 from faststream.rabbit import (
     ExchangeType,
     RabbitBroker,
@@ -17,6 +17,31 @@ async def test_nats_path():
     broker = NatsBroker()
 
     @broker.subscriber("in.{name}.{id}")
+    async def h(
+        name: str = Path(),
+        id_: int = Path("id"),
+    ):
+        assert name == "john"
+        assert id_ == 1
+        return 1
+
+    async with TestNatsBroker(broker) as br:
+        assert (
+            await br.publish(
+                "",
+                "in.john.1",
+                rpc=True,
+                rpc_timeout=1.0,
+            )
+            == 1
+        )
+
+
+@pytest.mark.asyncio()
+async def test_nats_batch_path():
+    broker = NatsBroker()
+
+    @broker.subscriber("in.{name}.{id}", stream="test", pull_sub=PullSub(batch=True))
     async def h(
         name: str = Path(),
         id_: int = Path("id"),

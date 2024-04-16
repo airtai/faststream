@@ -250,7 +250,6 @@ class LogicPublisher(
 
         return await call(message, **kwargs)
 
-
     def add_prefix(self, prefix: str) -> None:
         """Include Publisher in router."""
         new_q = deepcopy(self.queue)

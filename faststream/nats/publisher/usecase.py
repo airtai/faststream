@@ -143,14 +143,14 @@ class LogicPublisher(PublisherUsecase[Msg]):
 
         for m in chain(
             (
-                _extra_middlewares or (m(None).publish_scope for m in self._broker_middlewares)
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
             ),
             self._middlewares,
         ):
             call = partial(m, call)
 
         return await call(message, **kwargs)
-
 
     def add_prefix(self, prefix: str) -> None:
         self.subject = prefix + self.subject
