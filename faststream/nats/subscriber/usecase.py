@@ -11,7 +11,6 @@ from typing import (
     List,
     Optional,
     Sequence,
-    Type,
     Union,
     cast,
 )
