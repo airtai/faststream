@@ -71,6 +71,19 @@ class RouterTestcase:
         schema = get_app_schema(FastStream(broker))
         assert schema.channels == {}, schema.channels
 
+    def test_not_include_in_method(self):
+        broker = self.broker_class()
+        router = self.router_class()
+
+        @router.subscriber("test")
+        @router.publisher("test")
+        async def handle(msg): ...
+
+        broker.include_router(router, include_in_schema=False)
+
+        schema = get_app_schema(FastStream(broker))
+        assert schema.channels == {}, schema.channels
+
     def test_respect_subrouter(self):
         broker = self.broker_class()
         router = self.router_class()
@@ -98,6 +111,38 @@ class RouterTestcase:
 
         router.include_router(router2)
         broker.include_router(router)
+
+        schema = get_app_schema(FastStream(broker))
+
+        assert schema.channels == {}
+
+    def test_not_include_subrouter_by_method(self):
+        broker = self.broker_class()
+        router = self.router_class()
+        router2 = self.router_class()
+
+        @router2.subscriber("test")
+        @router2.publisher("test")
+        async def handle(msg): ...
+
+        router.include_router(router2, include_in_schema=False)
+        broker.include_router(router)
+
+        schema = get_app_schema(FastStream(broker))
+
+        assert schema.channels == {}
+
+    def test_all_nested_routers_by_method(self):
+        broker = self.broker_class()
+        router = self.router_class()
+        router2 = self.router_class()
+
+        @router2.subscriber("test")
+        @router2.publisher("test")
+        async def handle(msg): ...
+
+        router.include_router(router2)
+        broker.include_router(router, include_in_schema=False)
 
         schema = get_app_schema(FastStream(broker))
 

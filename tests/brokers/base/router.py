@@ -89,6 +89,32 @@ class RouterTestcase(
 
             assert event.is_set()
 
+    async def test_include_with_prefix(
+        self,
+        router: BrokerRouter,
+        pub_broker: BrokerUsecase,
+        queue: str,
+        event: asyncio.Event,
+    ):
+        @router.subscriber(queue, **self.subscriber_kwargs)
+        def subscriber(m):
+            event.set()
+
+        pub_broker.include_router(router, prefix="test_")
+
+        async with pub_broker:
+            await pub_broker.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
+
+            assert event.is_set()
+
     async def test_empty_prefix_publisher(
         self,
         router: BrokerRouter,
@@ -342,8 +368,6 @@ class RouterTestcase(
         router: BrokerRouter,
         pub_broker: BrokerUsecase,
         queue: str,
-        event: asyncio.Event,
-        mock: Mock,
     ):
         router = type(router)(dependencies=(Depends(lambda: 1),))
         router2 = type(router)(dependencies=(Depends(lambda: 2),))
@@ -359,13 +383,33 @@ class RouterTestcase(
         sub = next(iter(pub_broker._subscribers.values()))
         assert len((*sub._broker_dependecies, *sub.calls[0].dependencies)) == 3
 
+    async def test_router_include_with_dependencies(
+        self,
+        router: BrokerRouter,
+        pub_broker: BrokerUsecase,
+        queue: str,
+    ):
+        router2 = type(router)()
+
+        @router2.subscriber(
+            queue,
+            dependencies=(Depends(lambda: 3),),
+            **self.subscriber_kwargs,
+        )
+        def subscriber(): ...
+
+        router.include_router(router2, dependencies=(Depends(lambda: 2),))
+        pub_broker.include_router(router, dependencies=(Depends(lambda: 1),))
+
+        sub = next(iter(pub_broker._subscribers.values()))
+        dependencies = (*sub._broker_dependecies, *sub.calls[0].dependencies)
+        assert len(dependencies) == 3, dependencies
+
     async def test_router_middlewares(
         self,
         router: BrokerRouter,
         pub_broker: BrokerUsecase,
         queue: str,
-        event: asyncio.Event,
-        mock: Mock,
     ):
         router = type(router)(middlewares=(BaseMiddleware,))
         router2 = type(router)(middlewares=(BaseMiddleware,))
@@ -381,6 +425,28 @@ class RouterTestcase(
         publisher = next(iter(pub_broker._publishers.values()))
 
         assert len((*sub._broker_middlewares, *sub.calls[0].item_middlewares)) == 3
+        assert len((*publisher._broker_middlewares, *publisher._middlewares)) == 3
+
+    async def test_router_include_with_middlewares(
+        self,
+        router: BrokerRouter,
+        pub_broker: BrokerUsecase,
+        queue: str,
+    ):
+        router2 = type(router)()
+
+        @router2.subscriber(queue, middlewares=(3,), **self.subscriber_kwargs)
+        @router2.publisher(queue, middlewares=(3,))
+        def subscriber(): ...
+
+        router.include_router(router2, middlewares=(BaseMiddleware,))
+        pub_broker.include_router(router, middlewares=(BaseMiddleware,))
+
+        sub = next(iter(pub_broker._subscribers.values()))
+        publisher = next(iter(pub_broker._publishers.values()))
+
+        sub_middlewares = (*sub._broker_middlewares, *sub.calls[0].item_middlewares)
+        assert len(sub_middlewares) == 3, sub_middlewares
         assert len((*publisher._broker_middlewares, *publisher._middlewares)) == 3
 
     async def test_router_parser(

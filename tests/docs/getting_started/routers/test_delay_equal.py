@@ -14,7 +14,6 @@ async def test_delay_router_kafka():
         app,
         broker,
     )
-
     from docs.docs_src.getting_started.routers.kafka.router_delay import (
         broker as control_broker,
     )
@@ -36,7 +35,6 @@ async def test_delay_router_confluent():
         app,
         broker,
     )
-
     from docs.docs_src.getting_started.routers.confluent.router_delay import (
         broker as control_broker,
     )
@@ -58,7 +56,6 @@ async def test_delay_router_rabbit():
         app,
         broker,
     )
-
     from docs.docs_src.getting_started.routers.rabbit.router_delay import (
         broker as control_broker,
     )
@@ -80,7 +77,6 @@ async def test_delay_router_nats():
         app,
         broker,
     )
-
     from docs.docs_src.getting_started.routers.nats.router_delay import (
         broker as control_broker,
     )
@@ -102,7 +98,6 @@ async def test_delay_router_redis():
         app,
         broker,
     )
-
     from docs.docs_src.getting_started.routers.redis.router_delay import (
         broker as control_broker,
     )

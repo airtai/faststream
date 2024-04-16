@@ -27,8 +27,8 @@ from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import CustomCallable, MsgType
 from faststream.exceptions import NOT_CONNECTED_YET, SetupError
 from faststream.nats.parser import BatchParser, JsParser, NatsParser
+from faststream.nats.schemas.js_stream import compile_nats_wildcard
 from faststream.types import AnyDict, LoggerProto, SendableMessage
-from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
     from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
@@ -79,14 +79,9 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        reg, path = compile_path(
-            subject,
-            replace_symbol="*",
-            patch_regex=lambda x: x.replace(".>", "..+"),
-        )
+        _, path = compile_nats_wildcard(subject)
 
         self.subject = path
-        self.path_regex = reg
         self.queue = queue
 
         self.stream = stream
@@ -284,9 +279,10 @@ class DefaultHandler(LogicSubscriber["Msg"]):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        parser_: Union[Type[NatsParser], Type[JsParser]] = (
-            NatsParser if stream is None else JsParser
+        parser_: Union[NatsParser, JsParser] = (
+            NatsParser(pattern=subject) if stream is None else JsParser(pattern=subject)
         )
+
         super().__init__(
             subject=subject,
             queue=queue,
@@ -419,6 +415,8 @@ class BatchHandler(LogicSubscriber[List["Msg"]]):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
+        parser = BatchParser(pattern=subject)
+
         super().__init__(
             subject=subject,
             queue=queue,
@@ -426,8 +424,8 @@ class BatchHandler(LogicSubscriber[List["Msg"]]):
             pull_sub=pull_sub,
             extra_options=extra_options,
             # subscriber args
-            default_parser=BatchParser.parse_batch,
-            default_decoder=BatchParser.decode_batch,
+            default_parser=parser.parse_batch,
+            default_decoder=parser.decode_batch,
             # Propagated args
             no_ack=no_ack,
             retry=retry,

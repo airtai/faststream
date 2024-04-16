@@ -30,6 +30,7 @@ from faststream.kafka.subscriber.usecase import (
 
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer, ConsumerRecord
+    from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import BrokerMiddleware
@@ -76,6 +77,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
+        listener: Optional["ConsumerRebalanceListener"],
+        pattern: Optional[str],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -98,6 +101,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
+        listener: Optional["ConsumerRebalanceListener"],
+        pattern: Optional[str],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -120,6 +125,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
+        listener: Optional["ConsumerRebalanceListener"],
+        pattern: Optional[str],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -147,6 +154,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
+        listener: Optional["ConsumerRebalanceListener"],
+        pattern: Optional[str],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -170,6 +179,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
                 batch_timeout_ms=batch_timeout_ms,
                 max_records=max_records,
                 group_id=group_id,
+                listener=listener,
+                pattern=pattern,
                 builder=builder,
                 is_manual=is_manual,
                 no_ack=no_ack,
@@ -184,6 +195,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
             return AsyncAPIDefaultSubscriber(
                 *topics,
                 group_id=group_id,
+                listener=listener,
+                pattern=pattern,
                 builder=builder,
                 is_manual=is_manual,
                 no_ack=no_ack,

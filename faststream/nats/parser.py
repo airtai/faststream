@@ -1,31 +1,35 @@
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
 from faststream.nats.message import NatsBatchMessage, NatsMessage
-from faststream.utils.context.repository import context
+from faststream.nats.schemas.js_stream import compile_nats_wildcard
 
 if TYPE_CHECKING:
     from nats.aio.msg import Msg
 
-    from faststream.nats.subscriber.usecase import LogicSubscriber
     from faststream.types import AnyDict, DecodedMessage
 
 
 class NatsBaseParser:
     """A class to parse NATS messages."""
 
-    @staticmethod
+    def __init__(
+        self,
+        *,
+        pattern: str,
+    ) -> None:
+        path_re, _ = compile_nats_wildcard(pattern)
+        self.__path_re = path_re
+
     def get_path(
+        self,
         subject: str,
     ) -> Optional["AnyDict"]:
         path: Optional["AnyDict"] = None
 
-        handler: Optional["LogicSubscriber[Any]"]
-        if (
-            (handler := context.get_local("handler_")) is not None
-            and (path_re := handler.path_regex) is not None
-            and (match := path_re.match(subject)) is not None
-        ):
+        if (path_re := self.__path_re) is not None and (
+            match := path_re.match(subject)
+        ) is not None:
             path = match.groupdict()
 
         return path
@@ -40,15 +44,14 @@ class NatsBaseParser:
 class NatsParser(NatsBaseParser):
     """A class to parse NATS core messages."""
 
-    @classmethod
     async def parse_message(
-        cls,
+        self,
         message: "Msg",
         *,
         path: Optional["AnyDict"] = None,
     ) -> "StreamMessage[Msg]":
         if path is None:
-            path = cls.get_path(message.subject)
+            path = self.get_path(message.subject)
 
         headers = message.header or {}
 
@@ -69,15 +72,14 @@ class NatsParser(NatsBaseParser):
 class JsParser(NatsBaseParser):
     """A class to parse NATS JS messages."""
 
-    @classmethod
     async def parse_message(
-        cls,
+        self,
         message: "Msg",
         *,
         path: Optional["AnyDict"] = None,
     ) -> "StreamMessage[Msg]":
         if path is None:
-            path = cls.get_path(message.subject)
+            path = self.get_path(message.subject)
 
         headers = message.header or {}
 
@@ -96,25 +98,30 @@ class JsParser(NatsBaseParser):
 class BatchParser(JsParser):
     """A class to parse NATS batch messages."""
 
-    @staticmethod
     async def parse_batch(
+        self,
         message: List["Msg"],
     ) -> "StreamMessage[List[Msg]]":
+        if first_msg := next(iter(message), None):
+            path = self.get_path(first_msg.subject)
+        else:
+            path = None
+
         return NatsBatchMessage(
             raw_message=message,
             body=[m.data for m in message],
+            path=path or {},
         )
 
-    @classmethod
     async def decode_batch(
-        cls,
+        self,
         msg: "StreamMessage[List[Msg]]",
     ) -> List["DecodedMessage"]:
         data: List["DecodedMessage"] = []
 
         path: Optional["AnyDict"] = None
         for m in msg.raw_message:
-            one_msg = await cls.parse_message(m, path=path)
+            one_msg = await self.parse_message(m, path=path)
             path = one_msg.path
 
             data.append(decode_message(one_msg))
