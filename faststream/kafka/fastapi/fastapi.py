@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
     from enum import Enum
 
-    from aiokafka.abc import AbstractTokenProvider
+    from aiokafka.abc import AbstractTokenProvider, ConsumerRebalanceListener
     from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
     from fastapi import params
     from fastapi.types import IncEx
@@ -887,6 +887,38 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Literal[False],
             Doc("Whether to consume messages in batches or not."),
         ] = False,
+        listener: Annotated[
+            Optional["ConsumerRebalanceListener"],
+            Doc("""
+            Optionally include listener
+               callback, which will be called before and after each rebalance
+               operation.
+               As part of group management, the consumer will keep track of
+               the list of consumers that belong to a particular group and
+               will trigger a rebalance operation if one of the following
+               events trigger:
+
+               * Number of partitions change for any of the subscribed topics
+               * Topic is created or deleted
+               * An existing member of the consumer group dies
+               * A new member is added to the consumer group
+
+               When any of these events are triggered, the provided listener
+               will be invoked first to indicate that the consumer's
+               assignment has been revoked, and then again when the new
+               assignment has been received. Note that this listener will
+               immediately override any listener set in a previous call
+               to subscribe. It is guaranteed, however, that the partitions
+               revoked/assigned
+               through this interface are from topics subscribed in this call.
+            """),
+        ] = None,
+        pattern: Annotated[
+            Optional[str],
+            Doc("""
+            Pattern to match available topics. You must provide either topics or pattern, but not both.
+            """),
+        ] = None,
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -1337,6 +1369,38 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Literal[True],
             Doc("Whether to consume messages in batches or not."),
         ],
+        listener: Annotated[
+            Optional["ConsumerRebalanceListener"],
+            Doc("""
+            Optionally include listener
+               callback, which will be called before and after each rebalance
+               operation.
+               As part of group management, the consumer will keep track of
+               the list of consumers that belong to a particular group and
+               will trigger a rebalance operation if one of the following
+               events trigger:
+
+               * Number of partitions change for any of the subscribed topics
+               * Topic is created or deleted
+               * An existing member of the consumer group dies
+               * A new member is added to the consumer group
+
+               When any of these events are triggered, the provided listener
+               will be invoked first to indicate that the consumer's
+               assignment has been revoked, and then again when the new
+               assignment has been received. Note that this listener will
+               immediately override any listener set in a previous call
+               to subscribe. It is guaranteed, however, that the partitions
+               revoked/assigned
+               through this interface are from topics subscribed in this call.
+            """),
+        ] = None,
+        pattern: Annotated[
+            Optional[str],
+            Doc("""
+            Pattern to match available topics. You must provide either topics or pattern, but not both.
+            """),
+        ] = None,
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -1787,6 +1851,38 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             bool,
             Doc("Whether to consume messages in batches or not."),
         ] = False,
+        listener: Annotated[
+            Optional["ConsumerRebalanceListener"],
+            Doc("""
+            Optionally include listener
+               callback, which will be called before and after each rebalance
+               operation.
+               As part of group management, the consumer will keep track of
+               the list of consumers that belong to a particular group and
+               will trigger a rebalance operation if one of the following
+               events trigger:
+
+               * Number of partitions change for any of the subscribed topics
+               * Topic is created or deleted
+               * An existing member of the consumer group dies
+               * A new member is added to the consumer group
+
+               When any of these events are triggered, the provided listener
+               will be invoked first to indicate that the consumer's
+               assignment has been revoked, and then again when the new
+               assignment has been received. Note that this listener will
+               immediately override any listener set in a previous call
+               to subscribe. It is guaranteed, however, that the partitions
+               revoked/assigned
+               through this interface are from topics subscribed in this call.
+            """),
+        ] = None,
+        pattern: Annotated[
+            Optional[str],
+            Doc("""
+            Pattern to match available topics. You must provide either topics or pattern, but not both.
+            """),
+        ] = None,
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -2240,6 +2336,38 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             bool,
             Doc("Whether to consume messages in batches or not."),
         ] = False,
+        listener: Annotated[
+            Optional["ConsumerRebalanceListener"],
+            Doc("""
+            Optionally include listener
+               callback, which will be called before and after each rebalance
+               operation.
+               As part of group management, the consumer will keep track of
+               the list of consumers that belong to a particular group and
+               will trigger a rebalance operation if one of the following
+               events trigger:
+
+               * Number of partitions change for any of the subscribed topics
+               * Topic is created or deleted
+               * An existing member of the consumer group dies
+               * A new member is added to the consumer group
+
+               When any of these events are triggered, the provided listener
+               will be invoked first to indicate that the consumer's
+               assignment has been revoked, and then again when the new
+               assignment has been received. Note that this listener will
+               immediately override any listener set in a previous call
+               to subscribe. It is guaranteed, however, that the partitions
+               revoked/assigned
+               through this interface are from topics subscribed in this call.
+            """),
+        ] = None,
+        pattern: Annotated[
+            Optional[str],
+            Doc("""
+            Pattern to match available topics. You must provide either topics or pattern, but not both.
+            """),
+        ] = None,
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -2445,6 +2573,8 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             batch=batch,
             max_records=max_records,
             batch_timeout_ms=batch_timeout_ms,
+            listener=listener,
+            pattern=pattern,
             # broker args
             dependencies=dependencies,
             parser=parser,

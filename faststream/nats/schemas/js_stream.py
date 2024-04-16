@@ -1,12 +1,15 @@
 from itertools import zip_longest
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 from nats.js.api import DiscardPolicy, StreamConfig
 from typing_extensions import Annotated, Doc
 
 from faststream.broker.schemas import NameRequired
+from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
+    from re import Pattern
+
     from nats.js.api import (
         Placement,
         RePublish,
@@ -221,6 +224,8 @@ class JStream(NameRequired):
 
     def add_subject(self, subject: str) -> None:
         """Add subject to stream params."""
+        _, subject = compile_nats_wildcard(subject)
+
         if not any(is_subject_match_wildcard(subject, x) for x in self.subjects):
             self.subjects.append(subject)
 
@@ -245,3 +250,11 @@ def is_subject_match_wildcard(subject: str, wildcard: str) -> bool:
             break
 
     return call
+
+
+def compile_nats_wildcard(pattern: str) -> Tuple[Optional["Pattern[str]"], str]:
+    return compile_path(
+        pattern,
+        replace_symbol="*",
+        patch_regex=lambda x: x.replace(".>", "..+"),
+    )

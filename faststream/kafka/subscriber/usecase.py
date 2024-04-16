@@ -28,6 +28,7 @@ from faststream.kafka.parser import AioKafkaParser
 
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer, ConsumerRecord
+    from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
     from faststream.broker.message import StreamMessage
@@ -53,6 +54,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         # Kafka information
         group_id: Optional[str],
         builder: Callable[..., "AIOKafkaConsumer"],
+        listener: Optional["ConsumerRebalanceListener"],
+        pattern: Optional[str],
         is_manual: bool,
         # Subscriber args
         default_parser: "AsyncCallable",
@@ -89,6 +92,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         # Setup it later
         self.client_id = ""
+        self.__pattern = pattern
+        self.__listener = listener
         self.__connection_args: "ConsumerConnectionParams" = {}
 
     @override
@@ -130,10 +135,14 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     async def start(self) -> None:
         """Start the consumer."""
         self.consumer = consumer = self.builder(
-            *self.topics,
             group_id=self.group_id,
             client_id=self.client_id,
             **self.__connection_args,
+        )
+        consumer.subscribe(
+            topics=self.topics,
+            pattern=self.__pattern,
+            listener=self.__listener,
         )
         await consumer.start()
 
@@ -205,7 +214,10 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         return hash("".join((*topics, group_id or "")))
 
     def __hash__(self) -> int:
-        return self.get_routing_hash(self.topics, self.group_id)
+        return self.get_routing_hash(
+            topics=(*self.topics, self.__pattern or ""),
+            group_id=self.group_id,
+        )
 
     @staticmethod
     def build_log_context(
@@ -246,6 +258,8 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         *topics: str,
         # Kafka information
         group_id: Optional[str],
+        listener: Optional["ConsumerRebalanceListener"],
+        pattern: Optional[str],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -261,6 +275,8 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         super().__init__(
             *topics,
             group_id=group_id,
+            listener=listener,
+            pattern=pattern,
             builder=builder,
             is_manual=is_manual,
             # subscriber args
@@ -290,6 +306,8 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
+        listener: Optional["ConsumerRebalanceListener"],
+        pattern: Optional[str],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -310,6 +328,8 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         super().__init__(
             *topics,
             group_id=group_id,
+            listener=listener,
+            pattern=pattern,
             builder=builder,
             is_manual=is_manual,
             # subscriber args
