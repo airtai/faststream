@@ -317,56 +317,120 @@
 <a id=__codelineno-0-56 name=__codelineno-0-56></a>    <span class=n>subscriber</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>subscriber</span><span class=p>)</span>
 <a id=__codelineno-0-57 name=__codelineno-0-57></a>    <span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span> <span class=o>=</span> <span class=p>{</span><span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span><span class=p>,</span> <span class=n>key</span><span class=p>:</span> <span class=n>subscriber</span><span class=p>}</span>
 <a id=__codelineno-0-58 name=__codelineno-0-58></a>    <span class=k>return</span> <span class=n>subscriber</span>
-</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.broker.core.usecase.BrokerUsecase.include_router class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">include_router</span> <a href=#faststream.broker.core.usecase.BrokerUsecase.include_router class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>include_router</span><span class=p>(</span><span class=n>router</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Includes a router in the current object.</p> <details class=quote> <summary>Source code in <code>faststream/broker/core/abc.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-71>71</a></span>
-<span class=normal><a href=#__codelineno-0-72>72</a></span>
-<span class=normal><a href=#__codelineno-0-73>73</a></span>
-<span class=normal><a href=#__codelineno-0-74>74</a></span>
-<span class=normal><a href=#__codelineno-0-75>75</a></span>
-<span class=normal><a href=#__codelineno-0-76>76</a></span>
-<span class=normal><a href=#__codelineno-0-77>77</a></span>
-<span class=normal><a href=#__codelineno-0-78>78</a></span>
-<span class=normal><a href=#__codelineno-0-79>79</a></span>
-<span class=normal><a href=#__codelineno-0-80>80</a></span>
-<span class=normal><a href=#__codelineno-0-81>81</a></span>
-<span class=normal><a href=#__codelineno-0-82>82</a></span>
-<span class=normal><a href=#__codelineno-0-83>83</a></span>
-<span class=normal><a href=#__codelineno-0-84>84</a></span>
-<span class=normal><a href=#__codelineno-0-85>85</a></span>
-<span class=normal><a href=#__codelineno-0-86>86</a></span>
-<span class=normal><a href=#__codelineno-0-87>87</a></span>
-<span class=normal><a href=#__codelineno-0-88>88</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-71 name=__codelineno-0-71></a><span class=k>def</span> <span class=nf>include_router</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>router</span><span class=p>:</span> <span class=s2>&quot;ABCBroker[Any]&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-72 name=__codelineno-0-72></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Includes a router in the current object.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-73 name=__codelineno-0-73></a>    <span class=k>for</span> <span class=n>h</span> <span class=ow>in</span> <span class=n>router</span><span class=o>.</span><span class=n>_subscribers</span><span class=o>.</span><span class=n>values</span><span class=p>():</span>
-<a id=__codelineno-0-74 name=__codelineno-0-74></a>        <span class=n>h</span><span class=o>.</span><span class=n>add_prefix</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>prefix</span><span class=p>)</span>
-<a id=__codelineno-0-75 name=__codelineno-0-75></a>
-<a id=__codelineno-0-76 name=__codelineno-0-76></a>        <span class=k>if</span> <span class=p>(</span><span class=n>key</span> <span class=o>:=</span> <span class=nb>hash</span><span class=p>(</span><span class=n>h</span><span class=p>))</span> <span class=ow>not</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span><span class=p>:</span>
-<a id=__codelineno-0-77 name=__codelineno-0-77></a>            <span class=n>h</span><span class=o>.</span><span class=n>include_in_schema</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_solve_include_in_schema</span><span class=p>(</span><span class=n>h</span><span class=o>.</span><span class=n>include_in_schema</span><span class=p>)</span>
-<a id=__codelineno-0-78 name=__codelineno-0-78></a>            <span class=n>h</span><span class=o>.</span><span class=n>_broker_middlewares</span> <span class=o>=</span> <span class=p>(</span><span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_middlewares</span><span class=p>,</span> <span class=o>*</span><span class=n>h</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>)</span>
-<a id=__codelineno-0-79 name=__codelineno-0-79></a>            <span class=n>h</span><span class=o>.</span><span class=n>_broker_dependecies</span> <span class=o>=</span> <span class=p>(</span><span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_dependencies</span><span class=p>,</span> <span class=o>*</span><span class=n>h</span><span class=o>.</span><span class=n>_broker_dependecies</span><span class=p>)</span>
-<a id=__codelineno-0-80 name=__codelineno-0-80></a>            <span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span> <span class=o>=</span> <span class=p>{</span><span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span><span class=p>,</span> <span class=n>key</span><span class=p>:</span> <span class=n>h</span><span class=p>}</span>
-<a id=__codelineno-0-81 name=__codelineno-0-81></a>
-<a id=__codelineno-0-82 name=__codelineno-0-82></a>    <span class=k>for</span> <span class=n>p</span> <span class=ow>in</span> <span class=n>router</span><span class=o>.</span><span class=n>_publishers</span><span class=o>.</span><span class=n>values</span><span class=p>():</span>
-<a id=__codelineno-0-83 name=__codelineno-0-83></a>        <span class=n>p</span><span class=o>.</span><span class=n>add_prefix</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>prefix</span><span class=p>)</span>
-<a id=__codelineno-0-84 name=__codelineno-0-84></a>
-<a id=__codelineno-0-85 name=__codelineno-0-85></a>        <span class=k>if</span> <span class=p>(</span><span class=n>key</span> <span class=o>:=</span> <span class=nb>hash</span><span class=p>(</span><span class=n>p</span><span class=p>))</span> <span class=ow>not</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>_publishers</span><span class=p>:</span>
-<a id=__codelineno-0-86 name=__codelineno-0-86></a>            <span class=n>p</span><span class=o>.</span><span class=n>include_in_schema</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_solve_include_in_schema</span><span class=p>(</span><span class=n>p</span><span class=o>.</span><span class=n>include_in_schema</span><span class=p>)</span>
-<a id=__codelineno-0-87 name=__codelineno-0-87></a>            <span class=n>p</span><span class=o>.</span><span class=n>_broker_middlewares</span> <span class=o>=</span> <span class=p>(</span><span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_middlewares</span><span class=p>,</span> <span class=o>*</span><span class=n>p</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>)</span>
-<a id=__codelineno-0-88 name=__codelineno-0-88></a>            <span class=bp>self</span><span class=o>.</span><span class=n>_publishers</span> <span class=o>=</span> <span class=p>{</span><span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>_publishers</span><span class=p>,</span> <span class=n>key</span><span class=p>:</span> <span class=n>p</span><span class=p>}</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.broker.core.usecase.BrokerUsecase.include_router class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">include_router</span> <a href=#faststream.broker.core.usecase.BrokerUsecase.include_router class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>include_router</span><span class=p>(</span><span class=n>router</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>prefix</span><span class=o>=</span><span class=s1>&#39;&#39;</span><span class=p>,</span> <span class=n>dependencies</span><span class=o>=</span><span class=p>(),</span> <span class=n>middlewares</span><span class=o>=</span><span class=p>(),</span> <span class=n>include_in_schema</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Includes a router in the current object.</p> <details class=quote> <summary>Source code in <code>faststream/broker/core/abc.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-71> 71</a></span>
+<span class=normal><a href=#__codelineno-0-72> 72</a></span>
+<span class=normal><a href=#__codelineno-0-73> 73</a></span>
+<span class=normal><a href=#__codelineno-0-74> 74</a></span>
+<span class=normal><a href=#__codelineno-0-75> 75</a></span>
+<span class=normal><a href=#__codelineno-0-76> 76</a></span>
+<span class=normal><a href=#__codelineno-0-77> 77</a></span>
+<span class=normal><a href=#__codelineno-0-78> 78</a></span>
+<span class=normal><a href=#__codelineno-0-79> 79</a></span>
+<span class=normal><a href=#__codelineno-0-80> 80</a></span>
+<span class=normal><a href=#__codelineno-0-81> 81</a></span>
+<span class=normal><a href=#__codelineno-0-82> 82</a></span>
+<span class=normal><a href=#__codelineno-0-83> 83</a></span>
+<span class=normal><a href=#__codelineno-0-84> 84</a></span>
+<span class=normal><a href=#__codelineno-0-85> 85</a></span>
+<span class=normal><a href=#__codelineno-0-86> 86</a></span>
+<span class=normal><a href=#__codelineno-0-87> 87</a></span>
+<span class=normal><a href=#__codelineno-0-88> 88</a></span>
+<span class=normal><a href=#__codelineno-0-89> 89</a></span>
+<span class=normal><a href=#__codelineno-0-90> 90</a></span>
+<span class=normal><a href=#__codelineno-0-91> 91</a></span>
+<span class=normal><a href=#__codelineno-0-92> 92</a></span>
+<span class=normal><a href=#__codelineno-0-93> 93</a></span>
+<span class=normal><a href=#__codelineno-0-94> 94</a></span>
+<span class=normal><a href=#__codelineno-0-95> 95</a></span>
+<span class=normal><a href=#__codelineno-0-96> 96</a></span>
+<span class=normal><a href=#__codelineno-0-97> 97</a></span>
+<span class=normal><a href=#__codelineno-0-98> 98</a></span>
+<span class=normal><a href=#__codelineno-0-99> 99</a></span>
+<span class=normal><a href=#__codelineno-0-100>100</a></span>
+<span class=normal><a href=#__codelineno-0-101>101</a></span>
+<span class=normal><a href=#__codelineno-0-102>102</a></span>
+<span class=normal><a href=#__codelineno-0-103>103</a></span>
+<span class=normal><a href=#__codelineno-0-104>104</a></span>
+<span class=normal><a href=#__codelineno-0-105>105</a></span>
+<span class=normal><a href=#__codelineno-0-106>106</a></span>
+<span class=normal><a href=#__codelineno-0-107>107</a></span>
+<span class=normal><a href=#__codelineno-0-108>108</a></span>
+<span class=normal><a href=#__codelineno-0-109>109</a></span>
+<span class=normal><a href=#__codelineno-0-110>110</a></span>
+<span class=normal><a href=#__codelineno-0-111>111</a></span>
+<span class=normal><a href=#__codelineno-0-112>112</a></span>
+<span class=normal><a href=#__codelineno-0-113>113</a></span>
+<span class=normal><a href=#__codelineno-0-114>114</a></span>
+<span class=normal><a href=#__codelineno-0-115>115</a></span>
+<span class=normal><a href=#__codelineno-0-116>116</a></span>
+<span class=normal><a href=#__codelineno-0-117>117</a></span>
+<span class=normal><a href=#__codelineno-0-118>118</a></span>
+<span class=normal><a href=#__codelineno-0-119>119</a></span>
+<span class=normal><a href=#__codelineno-0-120>120</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-71 name=__codelineno-0-71></a><span class=k>def</span> <span class=nf>include_router</span><span class=p>(</span>
+<a id=__codelineno-0-72 name=__codelineno-0-72></a>    <span class=bp>self</span><span class=p>,</span>
+<a id=__codelineno-0-73 name=__codelineno-0-73></a>    <span class=n>router</span><span class=p>:</span> <span class=s2>&quot;ABCBroker[Any]&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-74 name=__codelineno-0-74></a>    <span class=o>*</span><span class=p>,</span>
+<a id=__codelineno-0-75 name=__codelineno-0-75></a>    <span class=n>prefix</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-76 name=__codelineno-0-76></a>    <span class=n>dependencies</span><span class=p>:</span> <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;Depends&quot;</span><span class=p>]</span> <span class=o>=</span> <span class=p>(),</span>
+<a id=__codelineno-0-77 name=__codelineno-0-77></a>    <span class=n>middlewares</span><span class=p>:</span> <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;BrokerMiddleware[MsgType]&quot;</span><span class=p>]</span> <span class=o>=</span> <span class=p>(),</span>
+<a id=__codelineno-0-78 name=__codelineno-0-78></a>    <span class=n>include_in_schema</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>bool</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-79 name=__codelineno-0-79></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-80 name=__codelineno-0-80></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Includes a router in the current object.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-81 name=__codelineno-0-81></a>    <span class=k>for</span> <span class=n>h</span> <span class=ow>in</span> <span class=n>router</span><span class=o>.</span><span class=n>_subscribers</span><span class=o>.</span><span class=n>values</span><span class=p>():</span>
+<a id=__codelineno-0-82 name=__codelineno-0-82></a>        <span class=n>h</span><span class=o>.</span><span class=n>add_prefix</span><span class=p>(</span><span class=s2>&quot;&quot;</span><span class=o>.</span><span class=n>join</span><span class=p>((</span><span class=bp>self</span><span class=o>.</span><span class=n>prefix</span><span class=p>,</span> <span class=n>prefix</span><span class=p>)))</span>
+<a id=__codelineno-0-83 name=__codelineno-0-83></a>
+<a id=__codelineno-0-84 name=__codelineno-0-84></a>        <span class=k>if</span> <span class=p>(</span><span class=n>key</span> <span class=o>:=</span> <span class=nb>hash</span><span class=p>(</span><span class=n>h</span><span class=p>))</span> <span class=ow>not</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span><span class=p>:</span>
+<a id=__codelineno-0-85 name=__codelineno-0-85></a>            <span class=k>if</span> <span class=n>include_in_schema</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-86 name=__codelineno-0-86></a>                <span class=n>h</span><span class=o>.</span><span class=n>include_in_schema</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_solve_include_in_schema</span><span class=p>(</span>
+<a id=__codelineno-0-87 name=__codelineno-0-87></a>                    <span class=n>h</span><span class=o>.</span><span class=n>include_in_schema</span>
+<a id=__codelineno-0-88 name=__codelineno-0-88></a>                <span class=p>)</span>
+<a id=__codelineno-0-89 name=__codelineno-0-89></a>            <span class=k>else</span><span class=p>:</span>
+<a id=__codelineno-0-90 name=__codelineno-0-90></a>                <span class=n>h</span><span class=o>.</span><span class=n>include_in_schema</span> <span class=o>=</span> <span class=n>include_in_schema</span>
+<a id=__codelineno-0-91 name=__codelineno-0-91></a>
+<a id=__codelineno-0-92 name=__codelineno-0-92></a>            <span class=n>h</span><span class=o>.</span><span class=n>_broker_middlewares</span> <span class=o>=</span> <span class=p>(</span>
+<a id=__codelineno-0-93 name=__codelineno-0-93></a>                <span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_middlewares</span><span class=p>,</span>
+<a id=__codelineno-0-94 name=__codelineno-0-94></a>                <span class=o>*</span><span class=n>middlewares</span><span class=p>,</span>
+<a id=__codelineno-0-95 name=__codelineno-0-95></a>                <span class=o>*</span><span class=n>h</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>,</span>
+<a id=__codelineno-0-96 name=__codelineno-0-96></a>            <span class=p>)</span>
+<a id=__codelineno-0-97 name=__codelineno-0-97></a>            <span class=n>h</span><span class=o>.</span><span class=n>_broker_dependecies</span> <span class=o>=</span> <span class=p>(</span>
+<a id=__codelineno-0-98 name=__codelineno-0-98></a>                <span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_dependencies</span><span class=p>,</span>
+<a id=__codelineno-0-99 name=__codelineno-0-99></a>                <span class=o>*</span><span class=n>dependencies</span><span class=p>,</span>
+<a id=__codelineno-0-100 name=__codelineno-0-100></a>                <span class=o>*</span><span class=n>h</span><span class=o>.</span><span class=n>_broker_dependecies</span><span class=p>,</span>
+<a id=__codelineno-0-101 name=__codelineno-0-101></a>            <span class=p>)</span>
+<a id=__codelineno-0-102 name=__codelineno-0-102></a>            <span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span> <span class=o>=</span> <span class=p>{</span><span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span><span class=p>,</span> <span class=n>key</span><span class=p>:</span> <span class=n>h</span><span class=p>}</span>
+<a id=__codelineno-0-103 name=__codelineno-0-103></a>
+<a id=__codelineno-0-104 name=__codelineno-0-104></a>    <span class=k>for</span> <span class=n>p</span> <span class=ow>in</span> <span class=n>router</span><span class=o>.</span><span class=n>_publishers</span><span class=o>.</span><span class=n>values</span><span class=p>():</span>
+<a id=__codelineno-0-105 name=__codelineno-0-105></a>        <span class=n>p</span><span class=o>.</span><span class=n>add_prefix</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>prefix</span><span class=p>)</span>
+<a id=__codelineno-0-106 name=__codelineno-0-106></a>
+<a id=__codelineno-0-107 name=__codelineno-0-107></a>        <span class=k>if</span> <span class=p>(</span><span class=n>key</span> <span class=o>:=</span> <span class=nb>hash</span><span class=p>(</span><span class=n>p</span><span class=p>))</span> <span class=ow>not</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>_publishers</span><span class=p>:</span>
+<a id=__codelineno-0-108 name=__codelineno-0-108></a>            <span class=k>if</span> <span class=n>include_in_schema</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-109 name=__codelineno-0-109></a>                <span class=n>p</span><span class=o>.</span><span class=n>include_in_schema</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_solve_include_in_schema</span><span class=p>(</span>
+<a id=__codelineno-0-110 name=__codelineno-0-110></a>                    <span class=n>p</span><span class=o>.</span><span class=n>include_in_schema</span>
+<a id=__codelineno-0-111 name=__codelineno-0-111></a>                <span class=p>)</span>
+<a id=__codelineno-0-112 name=__codelineno-0-112></a>            <span class=k>else</span><span class=p>:</span>
+<a id=__codelineno-0-113 name=__codelineno-0-113></a>                <span class=n>p</span><span class=o>.</span><span class=n>include_in_schema</span> <span class=o>=</span> <span class=n>include_in_schema</span>
+<a id=__codelineno-0-114 name=__codelineno-0-114></a>
+<a id=__codelineno-0-115 name=__codelineno-0-115></a>            <span class=n>p</span><span class=o>.</span><span class=n>_broker_middlewares</span> <span class=o>=</span> <span class=p>(</span>
+<a id=__codelineno-0-116 name=__codelineno-0-116></a>                <span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_middlewares</span><span class=p>,</span>
+<a id=__codelineno-0-117 name=__codelineno-0-117></a>                <span class=o>*</span><span class=n>middlewares</span><span class=p>,</span>
+<a id=__codelineno-0-118 name=__codelineno-0-118></a>                <span class=o>*</span><span class=n>p</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>,</span>
+<a id=__codelineno-0-119 name=__codelineno-0-119></a>            <span class=p>)</span>
+<a id=__codelineno-0-120 name=__codelineno-0-120></a>            <span class=bp>self</span><span class=o>.</span><span class=n>_publishers</span> <span class=o>=</span> <span class=p>{</span><span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>_publishers</span><span class=p>,</span> <span class=n>key</span><span class=p>:</span> <span class=n>p</span><span class=p>}</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.broker.core.usecase.BrokerUsecase.include_routers class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">include_routers</span> <a href=#faststream.broker.core.usecase.BrokerUsecase.include_routers class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>include_routers</span><span class=p>(</span><span class=o>*</span><span class=n>routers</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Includes routers in the object.</p> <details class=quote> <summary>Source code in <code>faststream/broker/core/abc.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-90>90</a></span>
-<span class=normal><a href=#__codelineno-0-91>91</a></span>
-<span class=normal><a href=#__codelineno-0-92>92</a></span>
-<span class=normal><a href=#__codelineno-0-93>93</a></span>
-<span class=normal><a href=#__codelineno-0-94>94</a></span>
-<span class=normal><a href=#__codelineno-0-95>95</a></span>
-<span class=normal><a href=#__codelineno-0-96>96</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-90 name=__codelineno-0-90></a><span class=k>def</span> <span class=nf>include_routers</span><span class=p>(</span>
-<a id=__codelineno-0-91 name=__codelineno-0-91></a>    <span class=bp>self</span><span class=p>,</span>
-<a id=__codelineno-0-92 name=__codelineno-0-92></a>    <span class=o>*</span><span class=n>routers</span><span class=p>:</span> <span class=s2>&quot;ABCBroker[MsgType]&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-93 name=__codelineno-0-93></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-94 name=__codelineno-0-94></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Includes routers in the object.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-95 name=__codelineno-0-95></a>    <span class=k>for</span> <span class=n>r</span> <span class=ow>in</span> <span class=n>routers</span><span class=p>:</span>
-<a id=__codelineno-0-96 name=__codelineno-0-96></a>        <span class=bp>self</span><span class=o>.</span><span class=n>include_router</span><span class=p>(</span><span class=n>r</span><span class=p>)</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Includes routers in the object.</p> <details class=quote> <summary>Source code in <code>faststream/broker/core/abc.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-122>122</a></span>
+<span class=normal><a href=#__codelineno-0-123>123</a></span>
+<span class=normal><a href=#__codelineno-0-124>124</a></span>
+<span class=normal><a href=#__codelineno-0-125>125</a></span>
+<span class=normal><a href=#__codelineno-0-126>126</a></span>
+<span class=normal><a href=#__codelineno-0-127>127</a></span>
+<span class=normal><a href=#__codelineno-0-128>128</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-122 name=__codelineno-0-122></a><span class=k>def</span> <span class=nf>include_routers</span><span class=p>(</span>
+<a id=__codelineno-0-123 name=__codelineno-0-123></a>    <span class=bp>self</span><span class=p>,</span>
+<a id=__codelineno-0-124 name=__codelineno-0-124></a>    <span class=o>*</span><span class=n>routers</span><span class=p>:</span> <span class=s2>&quot;ABCBroker[MsgType]&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-125 name=__codelineno-0-125></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-126 name=__codelineno-0-126></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Includes routers in the object.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-127 name=__codelineno-0-127></a>    <span class=k>for</span> <span class=n>r</span> <span class=ow>in</span> <span class=n>routers</span><span class=p>:</span>
+<a id=__codelineno-0-128 name=__codelineno-0-128></a>        <span class=bp>self</span><span class=o>.</span><span class=n>include_router</span><span class=p>(</span><span class=n>r</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.broker.core.usecase.BrokerUsecase.get_fmt class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_fmt</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small> </span> <a href=#faststream.broker.core.usecase.BrokerUsecase.get_fmt class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_fmt</span><span class=p>()</span>
 </code></pre></div> <div class="doc doc-contents "> <p>Fallback method to get log format if <code>log_fmt</code> if not specified.</p> <details class=quote> <summary>Source code in <code>faststream/broker/core/logging.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-20>20</a></span>
 <span class=normal><a href=#__codelineno-0-21>21</a></span>
