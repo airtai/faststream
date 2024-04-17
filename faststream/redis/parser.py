@@ -27,12 +27,11 @@ from faststream.redis.message import (
     bDATA_KEY,
 )
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
-from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
+    from re import Pattern
+
     from faststream.broker.message import StreamMessage
-    from faststream.redis.schemas import PubSub
-    from faststream.redis.subscriber.usecase import ChannelSubscriber
 
 
 MsgType = TypeVar("MsgType", bound=Mapping[str, Any])
@@ -127,16 +126,22 @@ class RawMessage:
 class SimpleParser:
     msg_class: Type["StreamMessage[Any]"]
 
-    @classmethod
+    def __init__(
+        self,
+        pattern: Optional["Pattern[str]"] = None,
+    ) -> None:
+        self.pattern = pattern
+
     async def parse_message(
-        cls, message: Mapping[str, Any]
+        self,
+        message: Mapping[str, Any],
     ) -> "StreamMessage[Mapping[str, Any]]":
-        data, headers = cls._parse_data(message)
+        data, headers = self._parse_data(message)
         id_ = gen_cor_id()
-        return cls.msg_class(
+        return self.msg_class(
             raw_message=message,
             body=data,
-            path=cls.get_path(message),
+            path=self.get_path(message),
             headers=headers,
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
@@ -148,9 +153,16 @@ class SimpleParser:
     def _parse_data(message: Mapping[str, Any]) -> Tuple[bytes, "AnyDict"]:
         return RawMessage.parse(message["data"])
 
-    @staticmethod
-    def get_path(message: Mapping[str, Any]) -> "AnyDict":
-        return {}
+    def get_path(self, message: Mapping[str, Any]) -> "AnyDict":
+        if (
+            message.get("pattern")
+            and (path_re := self.pattern)
+            and (match := path_re.match(message["channel"]))
+        ):
+            return match.groupdict()
+
+        else:
+            return {}
 
     @staticmethod
     async def decode_message(
@@ -161,20 +173,6 @@ class SimpleParser:
 
 class RedisPubSubParser(SimpleParser):
     msg_class = RedisMessage
-
-    @staticmethod
-    def get_path(message: Mapping[str, Any]) -> "AnyDict":
-        if (
-            message.get("pattern")
-            and (handler := cast("ChannelSubscriber", context.get_local("handler_")))
-            and (channel := cast(Optional["PubSub"], getattr(handler, "channel", None)))
-            and (path_re := channel.path_regex)
-            and (match := path_re.match(message["channel"]))
-        ):
-            return match.groupdict()
-
-        else:
-            return {}
 
 
 class RedisListParser(SimpleParser):
@@ -187,7 +185,9 @@ class RedisBatchListParser(SimpleParser):
     @staticmethod
     def _parse_data(message: Mapping[str, Any]) -> Tuple[bytes, "AnyDict"]:
         return (
-            dump_json(RawMessage.parse(x)[0] for x in message["data"]),
+            dump_json(
+                _decode_batch_body_item(x) for x in message["data"]
+            ),
             {"content-type": ContentTypes.json},
         )
 
@@ -208,8 +208,16 @@ class RedisBatchStreamParser(SimpleParser):
     def _parse_data(message: Mapping[str, Any]) -> Tuple[bytes, "AnyDict"]:
         return (
             dump_json(
-                RawMessage.parse(data)[0] if (data := x.get(bDATA_KEY)) else x
+                _decode_batch_body_item(x.get(bDATA_KEY, x))
                 for x in message["data"]
             ),
             {"content-type": ContentTypes.json},
         )
+
+
+def _decode_batch_body_item(msg_content: bytes) -> Any:
+    msg_body, _ = RawMessage.parse(msg_content)
+    try:
+        return json_loads(msg_body)
+    except Exception:
+        return msg_body

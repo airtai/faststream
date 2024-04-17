@@ -52,9 +52,12 @@ class AioPikaFastProducer(ProducerProto):
     ) -> None:
         self._channel = channel
         self.declarer = declarer
-        self._parser = resolve_custom_func(parser, AioPikaParser.parse_message)
-        self._decoder = resolve_custom_func(decoder, AioPikaParser.decode_message)
+
         self._rpc_lock = anyio.Lock()
+
+        default_parser = AioPikaParser()
+        self._parser = resolve_custom_func(parser, default_parser.parse_message)
+        self._decoder = resolve_custom_func(decoder, default_parser.decode_message)
 
     @override
     async def publish(  # type: ignore[override]

@@ -37,11 +37,11 @@ class RedisFastProducer(ProducerProto):
         self._connection = connection
         self._parser = resolve_custom_func(
             parser,
-            RedisPubSubParser.parse_message,
+            RedisPubSubParser().parse_message,
         )
         self._decoder = resolve_custom_func(
             decoder,
-            RedisPubSubParser.decode_message,
+            RedisPubSubParser().decode_message,
         )
 
     @override

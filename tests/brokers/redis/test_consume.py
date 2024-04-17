@@ -1,4 +1,5 @@
 import asyncio
+from typing import List
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -174,7 +175,36 @@ class TestConsumeList:
                 timeout=3,
             )
 
-        assert [{"1", "hi"}] == [set(r.result()) for r in result]
+        assert [{1, "hi"}] == [set(r.result()) for r in result]
+    
+    @pytest.mark.slow()
+    async def test_consume_list_batch_complex(self, queue: str, broker: RedisBroker):
+        from pydantic import BaseModel
+
+        class Data(BaseModel):
+            m: str
+
+            def __hash__(self):
+                return hash(self.m)
+
+        msgs_queue = asyncio.Queue(maxsize=1)
+
+        @broker.subscriber(list=ListSub(queue, batch=True, polling_interval=1))
+        async def handler(msg: List[Data]):
+            await msgs_queue.put(msg)
+
+        broker._is_apply_types = True
+        async with broker:
+            await broker.start()
+
+            await broker.publish_batch(Data(m="hi"), Data(m="again"), list=queue)
+
+            result, _ = await asyncio.wait(
+                (asyncio.create_task(msgs_queue.get()),),
+                timeout=3,
+            )
+
+        assert [{Data(m="hi"), Data(m="again")}] == [set(r.result()) for r in result]
 
     @pytest.mark.slow()
     async def test_consume_list_batch_native(self, queue: str, broker: RedisBroker):
@@ -194,7 +224,7 @@ class TestConsumeList:
                 timeout=3,
             )
 
-        assert [{"1", "hi"}] == [set(r.result()) for r in result]
+        assert [{1, "hi"}] == [set(r.result()) for r in result]
 
 
 @pytest.mark.redis()
@@ -225,33 +255,6 @@ class TestConsumeStream:
             )
 
         mock.assert_called_once_with("hello")
-
-    # commented out because it is already defined below
-    # @pytest.mark.slow()
-    # @pytest.mark.asyncio()
-    # async def test_consume_group(
-    #     self,
-    #     queue: str,
-    #     full_broker: RedisBroker,
-    # ):
-    #     @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue))
-    #     async def handler(msg: RedisMessage): ...
-
-    #     assert next(iter(full_broker.handlers.values())).last_id == "$"
-
-    # commented out because it is already defined below
-    # @pytest.mark.asyncio()
-    # async def test_consume_group_with_last_id(
-    #     self,
-    #     queue: str,
-    #     full_broker: RedisBroker,
-    # ):
-    #     @full_broker.subscriber(
-    #         stream=StreamSub(queue, group="group", consumer=queue, last_id="0")
-    #     )
-    #     async def handler(msg: RedisMessage): ...
-
-    #     assert next(iter(full_broker.handlers.values())).last_id == "0"
 
     @pytest.mark.slow()
     async def test_consume_stream_native(
@@ -306,6 +309,39 @@ class TestConsumeStream:
             )
 
         mock.assert_called_once_with(["hello"])
+    
+
+    @pytest.mark.slow()
+    async def test_consume_stream_batch_complex(
+        self,
+        broker: RedisBroker,
+        queue,
+    ):
+        from pydantic import BaseModel
+
+        class Data(BaseModel):
+            m: str
+
+        msgs_queue = asyncio.Queue(maxsize=1)
+
+        @broker.subscriber(stream=StreamSub(queue, polling_interval=3000, batch=True))
+        async def handler(msg: List[Data]):
+            await msgs_queue.put(msg)
+
+        broker._is_apply_types = True
+        async with broker:
+            await broker.start()
+
+            await broker.publish(Data(m="hi"), stream=queue)
+
+            result, _ = await asyncio.wait(
+                (
+                    asyncio.create_task(msgs_queue.get()),
+                ),
+                timeout=3,
+            )
+
+        assert next(iter(result)).result() == [Data(m="hi")]
 
     @pytest.mark.slow()
     async def test_consume_stream_batch_native(
