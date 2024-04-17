@@ -10,13 +10,13 @@ from faststream.broker.message import (
     gen_cor_id,
 )
 from faststream.rabbit.message import RabbitMessage
-from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
+    from re import Pattern
+
     from aio_pika import IncomingMessage
     from aio_pika.abc import DateType, HeadersType
 
-    from faststream.rabbit.subscriber.usecase import LogicSubscriber
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import DecodedMessage
 
@@ -24,16 +24,16 @@ if TYPE_CHECKING:
 class AioPikaParser:
     """A class for parsing, encoding, and decoding messages using aio-pika."""
 
-    @staticmethod
+    def __init__(self, pattern: Optional["Pattern[str]"] = None) -> None:
+        self.pattern = pattern
+
     async def parse_message(
+        self,
         message: "IncomingMessage",
     ) -> StreamMessage["IncomingMessage"]:
         """Parses an incoming message and returns a RabbitMessage object."""
-        handler: Optional["LogicSubscriber"] = context.get_local("handler_")
-        if (
-            handler is not None
-            and (path_re := handler.queue.path_regex)
-            and (match := path_re.match(message.routing_key or ""))
+        if (path_re := self.pattern) and (
+            match := path_re.match(message.routing_key or "")
         ):
             path = match.groupdict()
         else:

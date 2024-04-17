@@ -64,9 +64,11 @@ class LogicSubscriber(
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
+        parser = AioPikaParser(pattern=queue.path_regex)
+
         super().__init__(
-            default_parser=AioPikaParser.parse_message,
-            default_decoder=AioPikaParser.decode_message,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
             retry=retry,

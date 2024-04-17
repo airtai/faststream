@@ -215,9 +215,10 @@ class ChannelSubscriber(LogicSubscriber):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
+        parser = RedisPubSubParser(pattern=channel.path_regex)
         super().__init__(
-            default_parser=RedisPubSubParser.parse_message,
-            default_decoder=RedisPubSubParser.decode_message,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
             retry=retry,
@@ -367,10 +368,11 @@ class ListSubscriber(_ListHandlerMixin):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
+        parser = RedisListParser()
         super().__init__(
             list=list,
-            default_parser=RedisListParser.parse_message,
-            default_decoder=RedisListParser.decode_message,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
             retry=retry,
@@ -413,10 +415,11 @@ class BatchListSubscriber(_ListHandlerMixin):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
+        parser = RedisBatchListParser()
         super().__init__(
             list=list,
-            default_parser=RedisBatchListParser.parse_message,
-            default_decoder=RedisBatchListParser.decode_message,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
             retry=retry,
@@ -610,10 +613,11 @@ class StreamSubscriber(_StreamHandlerMixin):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
+        parser = RedisStreamParser()
         super().__init__(
             stream=stream,
-            default_parser=RedisStreamParser.parse_message,
-            default_decoder=RedisStreamParser.decode_message,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
             retry=retry,
@@ -676,10 +680,11 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
+        parser = RedisBatchStreamParser()
         super().__init__(
             stream=stream,
-            default_parser=RedisBatchStreamParser.parse_message,
-            default_decoder=RedisBatchStreamParser.decode_message,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
             retry=retry,

@@ -12,6 +12,64 @@ hide:
 ---
 
 # Release Notes
+## 0.5.1
+
+### What's Changed
+
+We already have some fixes related to `RedisBroker` (#1375, #1376) and some new features for you:
+
+1. Now `broke.include_router(...)` allows to pass some arguments to setup router at including moment instead of creation
+
+  ```python
+  broker.include_router(
+     router,
+     prefix="test_",
+     dependencies=[Depends(...)],
+     middlewares=[BrokerMiddleware],
+     include_in_schema=False,
+  )
+  ```
+ 
+2. `KafkaBroker().subscriber(...)` now consumes `aiokafka.ConsumerRebalanceListener` object.
+You can find more information about it in the official [**aiokafka** doc](https://aiokafka.readthedocs.io/en/stable/consumer.html?highlight=subscribe#topic-subscription-by-pattern)
+
+  (close #1319)
+
+  ```python
+  broker = KafkaBroker()
+  
+  broker.subscriber(..., listener=MyRebalancer())
+  ```
+
+`pattern` option was added too, but it is still experimental and does not support `Path`
+
+3. [`Path`](https://faststream.airt.ai/latest/nats/message/#subject-pattern-access) feature perfomance was increased. Also, `Path` is suitable for NATS `PullSub` batch subscribtion as well now.
+
+```python
+from faststream import NatsBroker, PullSub
+
+broker = NastBroker()
+
+@broker.subscriber(
+    "logs.{level}",
+    steam="test-stream",
+    pull_sub=PullSub(batch=True),
+)
+async def base_handler(
+    ...,
+    level: str = Path(),
+):
+  ...
+```
+
+* Update Release Notes for 0.5.0 by @faststream-release-notes-updater in https://github.com/airtai/faststream/pull/1366
+* chore: bump version by @Lancetnik in https://github.com/airtai/faststream/pull/1372
+* feat: kafka listener, extended include_router by @Lancetnik in https://github.com/airtai/faststream/pull/1374
+* Fix/1375 by @Lancetnik in https://github.com/airtai/faststream/pull/1377
+
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.0...0.5.1
+
 ## 0.5.0
 
 ### What's Changed

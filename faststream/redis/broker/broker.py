@@ -94,9 +94,10 @@ class RedisBroker(
         url: str = "redis://localhost:6379",
         polling_interval: Optional[float] = None,
         *,
-        host: str = "localhost",
-        port: Union[str, int] = 6379,
-        db: Union[str, int] = 0,
+        host: Union[str, object] = Parameter.empty,
+        port: Union[str, int, object] = Parameter.empty,
+        db: Union[str, int, object] = Parameter.empty,
+        connection_class: Union[Type["Connection"], object] = Parameter.empty,
         client_name: Optional[str] = None,
         health_check_interval: float = 0,
         max_connections: Optional[int] = None,
@@ -111,7 +112,6 @@ class RedisBroker(
         encoding_errors: str = "strict",
         decode_responses: bool = False,
         parser_class: Type["BaseParser"] = DefaultParser,
-        connection_class: Type["Connection"] = Connection,
         encoder_class: Type["Encoder"] = Encoder,
         # broker args
         graceful_timeout: Annotated[
@@ -272,9 +272,10 @@ class RedisBroker(
         self,
         url: str,
         *,
-        host: str,
-        port: Union[str, int],
-        db: Union[str, int],
+        host: Union[str, object],
+        port: Union[str, int, object],
+        db: Union[str, int, object],
+        connection_class: Union[Type["Connection"], object],
         client_name: Optional[str],
         health_check_interval: float,
         max_connections: Optional[int],
@@ -289,34 +290,37 @@ class RedisBroker(
         encoding_errors: str,
         decode_responses: bool,
         parser_class: Type["BaseParser"],
-        connection_class: Type["Connection"],
         encoder_class: Type["Encoder"],
     ) -> "Redis[bytes]":
-        url_options: "AnyDict" = dict(parse_url(url))
-        url_options.update(
-            {
-                "host": host,
-                "port": port,
-                "db": db,
-                "client_name": client_name,
-                "health_check_interval": health_check_interval,
-                "max_connections": max_connections,
-                "socket_timeout": socket_timeout,
-                "socket_connect_timeout": socket_connect_timeout,
-                "socket_read_size": socket_read_size,
-                "socket_keepalive": socket_keepalive,
-                "socket_keepalive_options": socket_keepalive_options,
-                "socket_type": socket_type,
-                "retry_on_timeout": retry_on_timeout,
-                "encoding": encoding,
-                "encoding_errors": encoding_errors,
-                "decode_responses": decode_responses,
-                "parser_class": parser_class,
-                "connection_class": connection_class,
-                "encoder_class": encoder_class,
-            }
-        )
-        url_options.update(parse_security(self.security))
+        url_options: "AnyDict" = {
+            **dict(parse_url(url)),
+            **parse_security(self.security),
+            "client_name": client_name,
+            "health_check_interval": health_check_interval,
+            "max_connections": max_connections,
+            "socket_timeout": socket_timeout,
+            "socket_connect_timeout": socket_connect_timeout,
+            "socket_read_size": socket_read_size,
+            "socket_keepalive": socket_keepalive,
+            "socket_keepalive_options": socket_keepalive_options,
+            "socket_type": socket_type,
+            "retry_on_timeout": retry_on_timeout,
+            "encoding": encoding,
+            "encoding_errors": encoding_errors,
+            "decode_responses": decode_responses,
+            "parser_class": parser_class,
+            "encoder_class": encoder_class,
+        }
+
+        if port is not Parameter.empty:
+            url_options["port"] = port
+        if host is not Parameter.empty:
+            url_options["host"] = host
+        if db is not Parameter.empty:
+            url_options["db"] = db
+        if connection_class is not Parameter.empty:
+            url_options["connection_class"] = connection_class
+
         pool = ConnectionPool(
             **url_options,
             lib_name="faststream",
