@@ -176,7 +176,7 @@ class TestConsumeList:
             )
 
         assert [{1, "hi"}] == [set(r.result()) for r in result]
-    
+
     @pytest.mark.slow()
     async def test_consume_list_batch_complex(self, queue: str, broker: RedisBroker):
         from pydantic import BaseModel
@@ -309,7 +309,6 @@ class TestConsumeStream:
             )
 
         mock.assert_called_once_with(["hello"])
-    
 
     @pytest.mark.slow()
     async def test_consume_stream_batch_complex(
@@ -335,9 +334,7 @@ class TestConsumeStream:
             await broker.publish(Data(m="hi"), stream=queue)
 
             result, _ = await asyncio.wait(
-                (
-                    asyncio.create_task(msgs_queue.get()),
-                ),
+                (asyncio.create_task(msgs_queue.get()),),
                 timeout=3,
             )
 

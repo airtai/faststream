@@ -21,7 +21,6 @@ from redis.asyncio.client import Redis
 from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
-from faststream._compat import json_loads
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.redis.message import (
@@ -33,7 +32,6 @@ from faststream.redis.message import (
     UnifyRedisDict,
 )
 from faststream.redis.parser import (
-    RawMessage,
     RedisBatchListParser,
     RedisBatchStreamParser,
     RedisListParser,

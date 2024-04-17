@@ -8,7 +8,6 @@ from typing import (
     Type,
     TypeVar,
     Union,
-    cast,
 )
 
 from faststream._compat import dump_json, json_loads
@@ -185,9 +184,7 @@ class RedisBatchListParser(SimpleParser):
     @staticmethod
     def _parse_data(message: Mapping[str, Any]) -> Tuple[bytes, "AnyDict"]:
         return (
-            dump_json(
-                _decode_batch_body_item(x) for x in message["data"]
-            ),
+            dump_json(_decode_batch_body_item(x) for x in message["data"]),
             {"content-type": ContentTypes.json},
         )
 
@@ -208,8 +205,7 @@ class RedisBatchStreamParser(SimpleParser):
     def _parse_data(message: Mapping[str, Any]) -> Tuple[bytes, "AnyDict"]:
         return (
             dump_json(
-                _decode_batch_body_item(x.get(bDATA_KEY, x))
-                for x in message["data"]
+                _decode_batch_body_item(x.get(bDATA_KEY, x)) for x in message["data"]
             ),
             {"content-type": ContentTypes.json},
         )

@@ -32,9 +32,8 @@ class AioPikaParser:
         message: "IncomingMessage",
     ) -> StreamMessage["IncomingMessage"]:
         """Parses an incoming message and returns a RabbitMessage object."""
-        if (
-            (path_re := self.pattern)
-            and (match := path_re.match(message.routing_key or ""))
+        if (path_re := self.pattern) and (
+            match := path_re.match(message.routing_key or "")
         ):
             path = match.groupdict()
         else:
