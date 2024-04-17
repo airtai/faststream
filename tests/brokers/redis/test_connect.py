@@ -31,14 +31,16 @@ class TestConnection(BrokerConnectionTestcase):
     @pytest.mark.asyncio()
     async def test_connect_merge_kwargs_with_priority(self, settings):
         broker = self.broker(host="fake-host", port=6377)  # kwargs will be ignored
-        assert await broker.connect(
+        await broker.connect(
             host=settings.host,
             port=settings.port,
         )
+        assert await self.ping(broker)
         await broker.close()
 
     @pytest.mark.asyncio()
     async def test_connect_merge_args_and_kwargs_native(self, settings):
         broker = self.broker("fake-url")  # will be ignored
-        assert await broker.connect(url=settings.url)
+        await broker.connect(url=settings.url)
+        assert await self.ping(broker)
         await broker.close()

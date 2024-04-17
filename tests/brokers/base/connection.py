@@ -27,7 +27,7 @@ class BrokerConnectionTestcase:
     async def test_init_connect_by_url(self, settings):
         kwargs = self.get_broker_args(settings)
         broker = self.broker(**kwargs)
-        assert await broker.connect()
+        await broker.connect()
         assert await self.ping(broker)
         await broker.close()
 
@@ -35,7 +35,7 @@ class BrokerConnectionTestcase:
     async def test_connection_by_url(self, settings):
         kwargs = self.get_broker_args(settings)
         broker = self.broker()
-        assert await broker.connect(**kwargs)
+        await broker.connect(**kwargs)
         assert await self.ping(broker)
         await broker.close()
 
@@ -43,6 +43,6 @@ class BrokerConnectionTestcase:
     async def test_connect_by_url_priority(self, settings):
         kwargs = self.get_broker_args(settings)
         broker = self.broker("wrong_url")
-        assert await broker.connect(**kwargs)
+        await broker.connect(**kwargs)
         assert await self.ping(broker)
         await broker.close()
