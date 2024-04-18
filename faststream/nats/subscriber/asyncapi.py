@@ -24,8 +24,8 @@ from faststream.nats.helpers import stream_builder
 from faststream.nats.subscriber.usecase import (
     BatchHandler,
     DefaultHandler,
-    LogicSubscriber,
     KvWatchHandler,
+    LogicSubscriber,
     ObjWatchHandler,
 )
 
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from nats.js import api
 
     from faststream.broker.types import BrokerMiddleware
-    from faststream.nats.schemas import JStream, PullSub, KvWatch, ObjWatch
+    from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
     from faststream.types import AnyDict
 
 

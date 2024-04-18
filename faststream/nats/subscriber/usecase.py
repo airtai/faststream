@@ -25,7 +25,13 @@ from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import CustomCallable, MsgType
 from faststream.exceptions import NOT_CONNECTED_YET, SetupError
-from faststream.nats.parser import BatchParser, JsParser, NatsParser, KvParser, ObjParser
+from faststream.nats.parser import (
+    BatchParser,
+    JsParser,
+    KvParser,
+    NatsParser,
+    ObjParser,
+)
 from faststream.nats.schemas.js_stream import compile_nats_wildcard
 from faststream.types import AnyDict, LoggerProto, SendableMessage
 
@@ -44,7 +50,7 @@ if TYPE_CHECKING:
         AsyncCallable,
         BrokerMiddleware,
     )
-    from faststream.nats.schemas import JStream, PullSub, KvWatch, ObjWatch
+    from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
     from faststream.types import Decorator
 
 

@@ -1,13 +1,19 @@
 from typing import TYPE_CHECKING, List, Optional
 
 from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
-from faststream.nats.message import NatsBatchMessage, NatsMessage, NatsKvMessage, NatsObjMessage
+from faststream.nats.message import (
+    NatsBatchMessage,
+    NatsKvMessage,
+    NatsMessage,
+    NatsObjMessage,
+)
 from faststream.nats.schemas.js_stream import compile_nats_wildcard
 
 if TYPE_CHECKING:
     from nats.aio.msg import Msg
-    from nats.js.kv import KeyValue
     from nats.js.api import ObjectInfo
+    from nats.js.kv import KeyValue
+
     from faststream.types import AnyDict, DecodedMessage
 
 

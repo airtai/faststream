@@ -19,7 +19,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.nats.message import NatsBatchMessage, NatsMessage
-    from faststream.nats.schemas import JStream, PullSub, KvWatch, ObjWatch
+    from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
 
 
 class NatsRegistrator(ABCBroker["Msg"]):
