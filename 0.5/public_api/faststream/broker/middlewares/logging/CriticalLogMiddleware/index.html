@@ -58,14 +58,13 @@
 <span class=normal><a href=#__codelineno-0-70>70</a></span>
 <span class=normal><a href=#__codelineno-0-71>71</a></span>
 <span class=normal><a href=#__codelineno-0-72>72</a></span>
-<span class=normal><a href=#__codelineno-0-73>73</a></span>
-<span class=normal><a href=#__codelineno-0-74>74</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-56 name=__codelineno-0-56></a><span class=k>async</span> <span class=k>def</span> <span class=nf>consume_scope</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-73>73</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-56 name=__codelineno-0-56></a><span class=k>async</span> <span class=k>def</span> <span class=nf>consume_scope</span><span class=p>(</span>
 <a id=__codelineno-0-57 name=__codelineno-0-57></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-58 name=__codelineno-0-58></a>    <span class=n>call_next</span><span class=p>:</span> <span class=s2>&quot;AsyncFuncAny&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-59 name=__codelineno-0-59></a>    <span class=n>msg</span><span class=p>:</span> <span class=s2>&quot;StreamMessage[Any]&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-60 name=__codelineno-0-60></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
 <a id=__codelineno-0-61 name=__codelineno-0-61></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Asynchronously consumes a message and returns an asynchronous iterator of decoded messages.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-62 name=__codelineno-0-62></a>    <span class=n>err</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=ne>Exception</span><span class=p>]</span>
+<a id=__codelineno-0-62 name=__codelineno-0-62></a>    <span class=n>err</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=ne>Exception</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
 <a id=__codelineno-0-63 name=__codelineno-0-63></a>    <span class=k>try</span><span class=p>:</span>
 <a id=__codelineno-0-64 name=__codelineno-0-64></a>        <span class=n>result</span> <span class=o>=</span> <span class=k>await</span> <span class=n>call_next</span><span class=p>(</span><span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>on_consume</span><span class=p>(</span><span class=n>msg</span><span class=p>))</span>
 <a id=__codelineno-0-65 name=__codelineno-0-65></a>
@@ -73,43 +72,43 @@
 <a id=__codelineno-0-67 name=__codelineno-0-67></a>        <span class=n>err</span> <span class=o>=</span> <span class=n>e</span>
 <a id=__codelineno-0-68 name=__codelineno-0-68></a>
 <a id=__codelineno-0-69 name=__codelineno-0-69></a>    <span class=k>else</span><span class=p>:</span>
-<a id=__codelineno-0-70 name=__codelineno-0-70></a>        <span class=n>err</span> <span class=o>=</span> <span class=kc>None</span>
-<a id=__codelineno-0-71 name=__codelineno-0-71></a>        <span class=k>return</span> <span class=n>result</span>
-<a id=__codelineno-0-72 name=__codelineno-0-72></a>
-<a id=__codelineno-0-73 name=__codelineno-0-73></a>    <span class=k>finally</span><span class=p>:</span>
-<a id=__codelineno-0-74 name=__codelineno-0-74></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>after_consume</span><span class=p>(</span><span class=n>err</span><span class=p>)</span>
+<a id=__codelineno-0-70 name=__codelineno-0-70></a>        <span class=k>return</span> <span class=n>result</span>
+<a id=__codelineno-0-71 name=__codelineno-0-71></a>
+<a id=__codelineno-0-72 name=__codelineno-0-72></a>    <span class=k>finally</span><span class=p>:</span>
+<a id=__codelineno-0-73 name=__codelineno-0-73></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>after_consume</span><span class=p>(</span><span class=n>err</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.broker.middlewares.logging.CriticalLogMiddleware.on_publish class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">on_publish</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.broker.middlewares.logging.CriticalLogMiddleware.on_publish class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>on_publish</span><span class=p>(</span><span class=n>msg</span><span class=p>,</span> <span class=o>*</span><span class=n>args</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Asynchronously handle a publish event.</p> <details class=quote> <summary>Source code in <code>faststream/broker/middlewares/base.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-76>76</a></span>
+</code></pre></div> <div class="doc doc-contents "> <p>Asynchronously handle a publish event.</p> <details class=quote> <summary>Source code in <code>faststream/broker/middlewares/base.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-75>75</a></span>
+<span class=normal><a href=#__codelineno-0-76>76</a></span>
 <span class=normal><a href=#__codelineno-0-77>77</a></span>
 <span class=normal><a href=#__codelineno-0-78>78</a></span>
 <span class=normal><a href=#__codelineno-0-79>79</a></span>
 <span class=normal><a href=#__codelineno-0-80>80</a></span>
 <span class=normal><a href=#__codelineno-0-81>81</a></span>
-<span class=normal><a href=#__codelineno-0-82>82</a></span>
-<span class=normal><a href=#__codelineno-0-83>83</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-76 name=__codelineno-0-76></a><span class=k>async</span> <span class=k>def</span> <span class=nf>on_publish</span><span class=p>(</span>
-<a id=__codelineno-0-77 name=__codelineno-0-77></a>    <span class=bp>self</span><span class=p>,</span>
-<a id=__codelineno-0-78 name=__codelineno-0-78></a>    <span class=n>msg</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
-<a id=__codelineno-0-79 name=__codelineno-0-79></a>    <span class=o>*</span><span class=n>args</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
-<a id=__codelineno-0-80 name=__codelineno-0-80></a>    <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
-<a id=__codelineno-0-81 name=__codelineno-0-81></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
-<a id=__codelineno-0-82 name=__codelineno-0-82></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Asynchronously handle a publish event.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-83 name=__codelineno-0-83></a>    <span class=k>return</span> <span class=n>msg</span>
+<span class=normal><a href=#__codelineno-0-82>82</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-75 name=__codelineno-0-75></a><span class=k>async</span> <span class=k>def</span> <span class=nf>on_publish</span><span class=p>(</span>
+<a id=__codelineno-0-76 name=__codelineno-0-76></a>    <span class=bp>self</span><span class=p>,</span>
+<a id=__codelineno-0-77 name=__codelineno-0-77></a>    <span class=n>msg</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
+<a id=__codelineno-0-78 name=__codelineno-0-78></a>    <span class=o>*</span><span class=n>args</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
+<a id=__codelineno-0-79 name=__codelineno-0-79></a>    <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
+<a id=__codelineno-0-80 name=__codelineno-0-80></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
+<a id=__codelineno-0-81 name=__codelineno-0-81></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Asynchronously handle a publish event.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-82 name=__codelineno-0-82></a>    <span class=k>return</span> <span class=n>msg</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.broker.middlewares.logging.CriticalLogMiddleware.after_publish class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">after_publish</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.broker.middlewares.logging.CriticalLogMiddleware.after_publish class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>after_publish</span><span class=p>(</span><span class=n>err</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Asynchronous function to handle the after publish event.</p> <details class=quote> <summary>Source code in <code>faststream/broker/middlewares/base.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-85>85</a></span>
+</code></pre></div> <div class="doc doc-contents "> <p>Asynchronous function to handle the after publish event.</p> <details class=quote> <summary>Source code in <code>faststream/broker/middlewares/base.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-84>84</a></span>
+<span class=normal><a href=#__codelineno-0-85>85</a></span>
 <span class=normal><a href=#__codelineno-0-86>86</a></span>
 <span class=normal><a href=#__codelineno-0-87>87</a></span>
 <span class=normal><a href=#__codelineno-0-88>88</a></span>
 <span class=normal><a href=#__codelineno-0-89>89</a></span>
-<span class=normal><a href=#__codelineno-0-90>90</a></span>
-<span class=normal><a href=#__codelineno-0-91>91</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-85 name=__codelineno-0-85></a><span class=k>async</span> <span class=k>def</span> <span class=nf>after_publish</span><span class=p>(</span>
-<a id=__codelineno-0-86 name=__codelineno-0-86></a>    <span class=bp>self</span><span class=p>,</span>
-<a id=__codelineno-0-87 name=__codelineno-0-87></a>    <span class=n>err</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=ne>Exception</span><span class=p>],</span>
-<a id=__codelineno-0-88 name=__codelineno-0-88></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-89 name=__codelineno-0-89></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Asynchronous function to handle the after publish event.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-90 name=__codelineno-0-90></a>    <span class=k>if</span> <span class=n>err</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-91 name=__codelineno-0-91></a>        <span class=k>raise</span> <span class=n>err</span>
+<span class=normal><a href=#__codelineno-0-90>90</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-84 name=__codelineno-0-84></a><span class=k>async</span> <span class=k>def</span> <span class=nf>after_publish</span><span class=p>(</span>
+<a id=__codelineno-0-85 name=__codelineno-0-85></a>    <span class=bp>self</span><span class=p>,</span>
+<a id=__codelineno-0-86 name=__codelineno-0-86></a>    <span class=n>err</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=ne>Exception</span><span class=p>],</span>
+<a id=__codelineno-0-87 name=__codelineno-0-87></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-88 name=__codelineno-0-88></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Asynchronous function to handle the after publish event.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-89 name=__codelineno-0-89></a>    <span class=k>if</span> <span class=n>err</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-90 name=__codelineno-0-90></a>        <span class=k>raise</span> <span class=n>err</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.broker.middlewares.logging.CriticalLogMiddleware.publish_scope class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">publish_scope</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.broker.middlewares.logging.CriticalLogMiddleware.publish_scope class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>publish_scope</span><span class=p>(</span><span class=n>call_next</span><span class=p>,</span> <span class=n>msg</span><span class=p>,</span> <span class=o>*</span><span class=n>args</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Publish a message and return an async iterator.</p> <details class=quote> <summary>Source code in <code>faststream/broker/middlewares/base.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-93> 93</a></span>
+</code></pre></div> <div class="doc doc-contents "> <p>Publish a message and return an async iterator.</p> <details class=quote> <summary>Source code in <code>faststream/broker/middlewares/base.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-92> 92</a></span>
+<span class=normal><a href=#__codelineno-0-93> 93</a></span>
 <span class=normal><a href=#__codelineno-0-94> 94</a></span>
 <span class=normal><a href=#__codelineno-0-95> 95</a></span>
 <span class=normal><a href=#__codelineno-0-96> 96</a></span>
@@ -132,32 +131,31 @@
 <span class=normal><a href=#__codelineno-0-113>113</a></span>
 <span class=normal><a href=#__codelineno-0-114>114</a></span>
 <span class=normal><a href=#__codelineno-0-115>115</a></span>
-<span class=normal><a href=#__codelineno-0-116>116</a></span>
-<span class=normal><a href=#__codelineno-0-117>117</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-93 name=__codelineno-0-93></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish_scope</span><span class=p>(</span>
-<a id=__codelineno-0-94 name=__codelineno-0-94></a>    <span class=bp>self</span><span class=p>,</span>
-<a id=__codelineno-0-95 name=__codelineno-0-95></a>    <span class=n>call_next</span><span class=p>:</span> <span class=s2>&quot;AsyncFunc&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-96 name=__codelineno-0-96></a>    <span class=n>msg</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
-<a id=__codelineno-0-97 name=__codelineno-0-97></a>    <span class=o>*</span><span class=n>args</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
-<a id=__codelineno-0-98 name=__codelineno-0-98></a>    <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
-<a id=__codelineno-0-99 name=__codelineno-0-99></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
-<a id=__codelineno-0-100 name=__codelineno-0-100></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Publish a message and return an async iterator.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-101 name=__codelineno-0-101></a>    <span class=n>err</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=ne>Exception</span><span class=p>]</span>
-<a id=__codelineno-0-102 name=__codelineno-0-102></a>    <span class=k>try</span><span class=p>:</span>
-<a id=__codelineno-0-103 name=__codelineno-0-103></a>        <span class=n>result</span> <span class=o>=</span> <span class=k>await</span> <span class=n>call_next</span><span class=p>(</span>
-<a id=__codelineno-0-104 name=__codelineno-0-104></a>            <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>on_publish</span><span class=p>(</span><span class=n>msg</span><span class=p>,</span> <span class=o>*</span><span class=n>args</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>),</span>
-<a id=__codelineno-0-105 name=__codelineno-0-105></a>            <span class=o>*</span><span class=n>args</span><span class=p>,</span>
-<a id=__codelineno-0-106 name=__codelineno-0-106></a>            <span class=o>**</span><span class=n>kwargs</span><span class=p>,</span>
-<a id=__codelineno-0-107 name=__codelineno-0-107></a>        <span class=p>)</span>
-<a id=__codelineno-0-108 name=__codelineno-0-108></a>
-<a id=__codelineno-0-109 name=__codelineno-0-109></a>    <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
-<a id=__codelineno-0-110 name=__codelineno-0-110></a>        <span class=n>err</span> <span class=o>=</span> <span class=n>e</span>
-<a id=__codelineno-0-111 name=__codelineno-0-111></a>
-<a id=__codelineno-0-112 name=__codelineno-0-112></a>    <span class=k>else</span><span class=p>:</span>
-<a id=__codelineno-0-113 name=__codelineno-0-113></a>        <span class=n>err</span> <span class=o>=</span> <span class=kc>None</span>
-<a id=__codelineno-0-114 name=__codelineno-0-114></a>        <span class=k>return</span> <span class=n>result</span>
-<a id=__codelineno-0-115 name=__codelineno-0-115></a>
-<a id=__codelineno-0-116 name=__codelineno-0-116></a>    <span class=k>finally</span><span class=p>:</span>
-<a id=__codelineno-0-117 name=__codelineno-0-117></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>after_publish</span><span class=p>(</span><span class=n>err</span><span class=p>)</span>
+<span class=normal><a href=#__codelineno-0-116>116</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-92 name=__codelineno-0-92></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish_scope</span><span class=p>(</span>
+<a id=__codelineno-0-93 name=__codelineno-0-93></a>    <span class=bp>self</span><span class=p>,</span>
+<a id=__codelineno-0-94 name=__codelineno-0-94></a>    <span class=n>call_next</span><span class=p>:</span> <span class=s2>&quot;AsyncFunc&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-95 name=__codelineno-0-95></a>    <span class=n>msg</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
+<a id=__codelineno-0-96 name=__codelineno-0-96></a>    <span class=o>*</span><span class=n>args</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
+<a id=__codelineno-0-97 name=__codelineno-0-97></a>    <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
+<a id=__codelineno-0-98 name=__codelineno-0-98></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
+<a id=__codelineno-0-99 name=__codelineno-0-99></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Publish a message and return an async iterator.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-100 name=__codelineno-0-100></a>    <span class=n>err</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=ne>Exception</span><span class=p>]</span>
+<a id=__codelineno-0-101 name=__codelineno-0-101></a>    <span class=k>try</span><span class=p>:</span>
+<a id=__codelineno-0-102 name=__codelineno-0-102></a>        <span class=n>result</span> <span class=o>=</span> <span class=k>await</span> <span class=n>call_next</span><span class=p>(</span>
+<a id=__codelineno-0-103 name=__codelineno-0-103></a>            <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>on_publish</span><span class=p>(</span><span class=n>msg</span><span class=p>,</span> <span class=o>*</span><span class=n>args</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>),</span>
+<a id=__codelineno-0-104 name=__codelineno-0-104></a>            <span class=o>*</span><span class=n>args</span><span class=p>,</span>
+<a id=__codelineno-0-105 name=__codelineno-0-105></a>            <span class=o>**</span><span class=n>kwargs</span><span class=p>,</span>
+<a id=__codelineno-0-106 name=__codelineno-0-106></a>        <span class=p>)</span>
+<a id=__codelineno-0-107 name=__codelineno-0-107></a>
+<a id=__codelineno-0-108 name=__codelineno-0-108></a>    <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+<a id=__codelineno-0-109 name=__codelineno-0-109></a>        <span class=n>err</span> <span class=o>=</span> <span class=n>e</span>
+<a id=__codelineno-0-110 name=__codelineno-0-110></a>
+<a id=__codelineno-0-111 name=__codelineno-0-111></a>    <span class=k>else</span><span class=p>:</span>
+<a id=__codelineno-0-112 name=__codelineno-0-112></a>        <span class=n>err</span> <span class=o>=</span> <span class=kc>None</span>
+<a id=__codelineno-0-113 name=__codelineno-0-113></a>        <span class=k>return</span> <span class=n>result</span>
+<a id=__codelineno-0-114 name=__codelineno-0-114></a>
+<a id=__codelineno-0-115 name=__codelineno-0-115></a>    <span class=k>finally</span><span class=p>:</span>
+<a id=__codelineno-0-116 name=__codelineno-0-116></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>after_publish</span><span class=p>(</span><span class=n>err</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.broker.middlewares.logging.CriticalLogMiddleware.on_consume class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">on_consume</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.broker.middlewares.logging.CriticalLogMiddleware.on_consume class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>on_consume</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/broker/middlewares/logging.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-34>34</a></span>
 <span class=normal><a href=#__codelineno-0-35>35</a></span>
