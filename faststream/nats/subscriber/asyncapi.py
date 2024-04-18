@@ -159,8 +159,6 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
                 extra_options=extra_options,
                 # basic args
                 pull_sub=pull_sub,
-                kv_watch=kv_watch,
-                obj_watch=obj_watch,
                 subject=subject,
                 queue=queue,
                 stream=stream,
@@ -201,8 +199,6 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
                 extra_options=extra_options,
                 # basic args
                 pull_sub=pull_sub,
-                kv_watch=kv_watch,
-                obj_watch=obj_watch,
                 subject=subject,
                 queue=queue,
                 stream=stream,
@@ -229,6 +225,22 @@ class AsyncAPIBatchSubscriber(AsyncAPISubscriber, BatchHandler):
 class AsyncAPIKvWatchSubscriber(AsyncAPISubscriber, KvWatchHandler):
     """KvWatch consumer with AsyncAPI methods."""
 
+    @override
+    def get_name(self) -> str:
+        return ""
+
+    @override
+    def get_schema(self) -> Dict[str, Channel]:
+        return {}
+
 
 class AsyncAPIObjWatchSubscriber(AsyncAPISubscriber, ObjWatchHandler):
     """ObjWatch consumer with AsyncAPI methods."""
+
+    @override
+    def get_name(self) -> str:
+        return ""
+
+    @override
+    def get_schema(self) -> Dict[str, Channel]:
+        return {}

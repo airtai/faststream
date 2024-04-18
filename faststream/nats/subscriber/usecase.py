@@ -76,8 +76,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         queue: Optional[str],
         stream: Optional["JStream"],
         pull_sub: Optional["PullSub"],
-        kv_watch: Optional["KvWatch"],
-        obj_watch: Optional["ObjWatch"],
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
@@ -97,8 +95,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
 
         self.stream = stream
         self.pull_sub = pull_sub
-        self.kv_watch = kv_watch
-        self.obj_watch = obj_watch
         self.extra_options = extra_options or {}
 
         super().__init__(
@@ -281,8 +277,6 @@ class DefaultHandler(LogicSubscriber["Msg"]):
         queue: str,
         stream: Optional["JStream"],
         pull_sub: Optional["PullSub"],
-        kv_watch: Optional["KvWatch"],
-        obj_watch: Optional["ObjWatch"],
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
@@ -303,8 +297,6 @@ class DefaultHandler(LogicSubscriber["Msg"]):
             queue=queue,
             stream=stream,
             pull_sub=pull_sub,
-            kv_watch=kv_watch,
-            obj_watch=obj_watch,
             extra_options=extra_options,
             # subscriber args
             default_parser=parser_.parse_message,
@@ -421,8 +413,6 @@ class BatchHandler(LogicSubscriber[List["Msg"]]):
         queue: str,
         stream: Optional["JStream"],
         pull_sub: Optional["PullSub"],
-        kv_watch: Optional["KvWatch"],
-        obj_watch: Optional["ObjWatch"],
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
@@ -441,8 +431,8 @@ class BatchHandler(LogicSubscriber[List["Msg"]]):
             queue=queue,
             stream=stream,
             pull_sub=pull_sub,
-            kv_watch=kv_watch,
-            obj_watch=obj_watch,
+            # kv_watch=kv_watch,
+            # obj_watch=obj_watch,
             extra_options=extra_options,
             # subscriber args
             default_parser=parser.parse_batch,
@@ -502,6 +492,7 @@ class KvWatchHandler(LogicSubscriber["KeyValue.Entry"]):
         include_in_schema: bool,
     ) -> None:
         parser = KvParser()
+        self.kv_watch = kv_watch
 
         super().__init__(
             subject="",
@@ -511,8 +502,6 @@ class KvWatchHandler(LogicSubscriber["KeyValue.Entry"]):
             pull_sub=None,
             no_ack=None,
             retry=None,
-            kv_watch=kv_watch,
-            obj_watch=None,
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             broker_middlewares=broker_middlewares,
@@ -564,6 +553,8 @@ class ObjWatchHandler(LogicSubscriber["ObjectInfo"]):
         include_in_schema: bool,
     ) -> None:
         parser = ObjParser()
+        self.obj_watch = obj_watch
+
         super().__init__(
             subject="",
             extra_options=None,
@@ -572,8 +563,6 @@ class ObjWatchHandler(LogicSubscriber["ObjectInfo"]):
             pull_sub=None,
             no_ack=None,
             retry=None,
-            kv_watch=None,
-            obj_watch=obj_watch,
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             broker_middlewares=broker_middlewares,
