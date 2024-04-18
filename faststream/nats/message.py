@@ -73,3 +73,11 @@ class NatsBatchMessage(StreamMessage[List["Msg"]]):
             self.raw_message,
         ):
             await m.in_progress()
+
+
+class NatsKvMessage(StreamMessage):
+    pass
+
+
+class NatsObjMessage(StreamMessage):
+    pass

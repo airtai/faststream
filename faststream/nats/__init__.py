@@ -16,7 +16,7 @@ from nats.js.api import (
 from faststream.nats.annotations import NatsMessage
 from faststream.nats.broker.broker import NatsBroker
 from faststream.nats.router import NatsPublisher, NatsRoute, NatsRouter
-from faststream.nats.schemas import JStream, PullSub
+from faststream.nats.schemas import JStream, PullSub, KvWatch, ObjWatch
 from faststream.nats.testing import TestNatsBroker
 from faststream.testing.app import TestApp
 

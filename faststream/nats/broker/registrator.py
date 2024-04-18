@@ -19,7 +19,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.nats.message import NatsBatchMessage, NatsMessage
-    from faststream.nats.schemas import JStream, PullSub
+    from faststream.nats.schemas import JStream, PullSub, KvWatch, ObjWatch
 
 
 class NatsRegistrator(ABCBroker["Msg"]):
@@ -108,6 +108,14 @@ class NatsRegistrator(ABCBroker["Msg"]):
                 "Should be used with `stream` only."
             ),
         ] = None,
+        kv_watch: Annotated[
+            Optional["KvWatch"],
+            Doc(""),
+        ] = None,
+        obj_watch: Annotated[
+            Optional["ObjWatch"],
+            Doc(""),
+        ] = None,
         inbox_prefix: Annotated[
             bytes,
             Doc(
@@ -195,6 +203,8 @@ class NatsRegistrator(ABCBroker["Msg"]):
                     queue=queue,
                     stream=stream,
                     pull_sub=pull_sub,
+                    kv_watch=kv_watch,
+                    obj_watch=obj_watch,
                     max_workers=max_workers,
                     # extra args
                     pending_msgs_limit=pending_msgs_limit,

@@ -25,7 +25,7 @@ from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import CustomCallable, MsgType
 from faststream.exceptions import NOT_CONNECTED_YET, SetupError
-from faststream.nats.parser import BatchParser, JsParser, NatsParser
+from faststream.nats.parser import BatchParser, JsParser, NatsParser, KvParser, ObjParser
 from faststream.nats.schemas.js_stream import compile_nats_wildcard
 from faststream.types import AnyDict, LoggerProto, SendableMessage
 
@@ -35,6 +35,8 @@ if TYPE_CHECKING:
     from nats.aio.msg import Msg
     from nats.aio.subscription import Subscription
     from nats.js import JetStreamContext
+    from nats.js.kv import KeyValue
+    from nats.js.object_store import ObjectStore
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto
@@ -42,7 +44,7 @@ if TYPE_CHECKING:
         AsyncCallable,
         BrokerMiddleware,
     )
-    from faststream.nats.schemas import JStream, PullSub
+    from faststream.nats.schemas import JStream, PullSub, KvWatch, ObjWatch
     from faststream.types import Decorator
 
 
@@ -54,6 +56,8 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         "Subscription",
         "JetStreamContext.PushSubscription",
         "JetStreamContext.PullSubscription",
+        "KeyValue.KeyWatcher",
+        "ObjectStore.ObjectWatcher",
     ]
     producer: Optional["ProducerProto"]
     _connection: Union["Client", "JetStreamContext", None]
@@ -61,16 +65,18 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
     def __init__(
         self,
         *,
-        subject: str,
+        subject: Optional[str],
         extra_options: Optional[AnyDict],
-        queue: str,
+        queue: Optional[str],
         stream: Optional["JStream"],
         pull_sub: Optional["PullSub"],
+        kv_watch: Optional["KvWatch"],
+        obj_watch: Optional["ObjWatch"],
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
-        no_ack: bool,
-        retry: Union[bool, int],
+        no_ack: Optional[bool],
+        retry: Optional[Union[bool, int]],
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
@@ -79,12 +85,14 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         include_in_schema: bool,
     ) -> None:
         _, path = compile_nats_wildcard(subject)
-
         self.subject = path
+
         self.queue = queue
 
         self.stream = stream
         self.pull_sub = pull_sub
+        self.kv_watch = kv_watch
+        self.obj_watch = obj_watch
         self.extra_options = extra_options or {}
 
         super().__init__(
@@ -267,6 +275,8 @@ class DefaultHandler(LogicSubscriber["Msg"]):
         queue: str,
         stream: Optional["JStream"],
         pull_sub: Optional["PullSub"],
+        kv_watch: Optional["KvWatch"],
+        obj_watch: Optional["ObjWatch"],
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
@@ -287,6 +297,8 @@ class DefaultHandler(LogicSubscriber["Msg"]):
             queue=queue,
             stream=stream,
             pull_sub=pull_sub,
+            kv_watch=kv_watch,
+            obj_watch=obj_watch,
             extra_options=extra_options,
             # subscriber args
             default_parser=parser_.parse_message,
@@ -403,6 +415,8 @@ class BatchHandler(LogicSubscriber[List["Msg"]]):
         queue: str,
         stream: Optional["JStream"],
         pull_sub: Optional["PullSub"],
+        kv_watch: Optional["KvWatch"],
+        obj_watch: Optional["ObjWatch"],
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
@@ -421,6 +435,8 @@ class BatchHandler(LogicSubscriber[List["Msg"]]):
             queue=queue,
             stream=stream,
             pull_sub=pull_sub,
+            kv_watch=kv_watch,
+            obj_watch=obj_watch,
             extra_options=extra_options,
             # subscriber args
             default_parser=parser.parse_batch,
@@ -464,3 +480,123 @@ class BatchHandler(LogicSubscriber[List["Msg"]]):
 
                 if messages:
                     await self.consume(messages)
+
+
+class KvWatchHandler(LogicSubscriber["KeyValue.Entry"]):
+
+    def __init__(
+        self,
+        *,
+        kv_watch: "KvWatch",
+        broker_dependencies: Iterable[Depends],
+        broker_middlewares: Iterable["BrokerMiddleware[List[Msg]]"],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        parser = KvParser()
+
+        super().__init__(
+            subject="",
+            extra_options=None,
+            queue=None,
+            stream=None,
+            pull_sub=None,
+            no_ack=None,
+            retry=None,
+            kv_watch=kv_watch,
+            obj_watch=None,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            # AsyncAPI args
+            description_=description_,
+            title_=title_,
+            include_in_schema=include_in_schema,
+        )
+
+    @override
+    async def _create_subscription(
+        self,
+        *,
+        connection: "JetStreamContext",
+    ) -> None:
+        bucket = await connection.key_value(self.kv_watch.bucket)
+        self.subscription = await bucket.watch(
+            keys=self.kv_watch.keys,
+            headers_only=self.kv_watch.headers_only,
+            include_history=self.kv_watch.include_history,
+            ignore_deletes=self.kv_watch.ignore_deletes,
+            meta_only=self.kv_watch.meta_only,
+            inactive_threshold=self.kv_watch.inactive_threshold
+        )
+        self.tasks.append(asyncio.create_task(self._consume_watch()))
+
+    async def _consume_watch(self):
+        sub = cast("KeyValue.KeyWatcher", self.subscription)
+
+        while self.running:
+            with suppress(TimeoutError):
+                message = await sub.updates(self.kv_watch.timeout)
+                if message:
+                    await self.consume(message)
+
+
+class ObjWatchHandler(LogicSubscriber["ObjectInfo"]):
+
+    def __init__(
+        self,
+        *,
+        obj_watch: "ObjWatch",
+        broker_dependencies: Iterable[Depends],
+        broker_middlewares: Iterable["BrokerMiddleware[List[Msg]]"],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        parser = ObjParser()
+        super().__init__(
+            subject="",
+            extra_options=None,
+            queue=None,
+            stream=None,
+            pull_sub=None,
+            no_ack=None,
+            retry=None,
+            kv_watch=None,
+            obj_watch=obj_watch,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            # AsyncAPI args
+            description_=description_,
+            title_=title_,
+            include_in_schema=include_in_schema,
+        )
+
+    @override
+    async def _create_subscription(
+        self,
+        *,
+        connection: "JetStreamContext",
+    ) -> None:
+        bucket = await connection.object_store(self.obj_watch.bucket)
+        self.subscription = await bucket.watch(
+            ignore_deletes=self.obj_watch.ignore_deletes,
+            include_history=self.obj_watch.include_history,
+            meta_only=self.obj_watch.meta_only,
+        )
+        self.tasks.append(asyncio.create_task(self._consume_watch()))
+
+    async def _consume_watch(self):
+        sub = cast("ObjectStore.ObjectWatcher", self.subscription)
+
+        while self.running:
+            with suppress(TimeoutError):
+                message = await sub.updates(self.obj_watch.timeout)
+                if message:
+                    await self.consume(message)

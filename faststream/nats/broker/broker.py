@@ -752,7 +752,10 @@ class NatsBroker(
     ) -> None:
         connection: Union["Client", "JetStreamContext", None] = None
 
-        connection = self._connection if subscriber.stream is None else self.stream
+        if subscriber.stream is not None or subscriber.kv_watch is not None or subscriber.obj_watch is not None:
+            connection = self.stream
+        else:
+            connection = self._connection
 
         return super().setup_subscriber(subscriber, connection=connection)
 

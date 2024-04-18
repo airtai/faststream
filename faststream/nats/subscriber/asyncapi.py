@@ -25,6 +25,8 @@ from faststream.nats.subscriber.usecase import (
     BatchHandler,
     DefaultHandler,
     LogicSubscriber,
+    KvWatchHandler,
+    ObjWatchHandler,
 )
 
 if TYPE_CHECKING:
@@ -32,7 +34,7 @@ if TYPE_CHECKING:
     from nats.js import api
 
     from faststream.broker.types import BrokerMiddleware
-    from faststream.nats.schemas import JStream, PullSub
+    from faststream.nats.schemas import JStream, PullSub, KvWatch, ObjWatch
     from faststream.types import AnyDict
 
 
@@ -86,6 +88,8 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
         headers_only: Optional[bool],
         # pull args
         pull_sub: Optional["PullSub"],
+        kv_watch: Optional["KvWatch"],
+        obj_watch: Optional["ObjWatch"],
         inbox_prefix: bytes,
         # custom args
         ack_first: bool,
@@ -103,6 +107,8 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
     ) -> Union[
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIBatchSubscriber",
+        "AsyncAPIKvWatchSubscriber",
+        "AsyncAPIObjWatchSubscriber",
     ]:
         if stream := stream_builder.stream(stream):
             stream.add_subject(subject)
@@ -153,6 +159,8 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
                 extra_options=extra_options,
                 # basic args
                 pull_sub=pull_sub,
+                kv_watch=kv_watch,
+                obj_watch=obj_watch,
                 subject=subject,
                 queue=queue,
                 stream=stream,
@@ -167,12 +175,34 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
                 include_in_schema=include_in_schema,
             )
 
+        elif kv_watch is not None:
+            return AsyncAPIKvWatchSubscriber(
+                kv_watch=kv_watch,
+                broker_dependencies=broker_dependencies,
+                broker_middlewares=broker_middlewares,
+                title_=title_,
+                description_=description_,
+                include_in_schema=include_in_schema,
+            )
+
+        elif obj_watch is not None:
+            return AsyncAPIObjWatchSubscriber(
+                obj_watch=obj_watch,
+                broker_dependencies=broker_dependencies,
+                broker_middlewares=broker_middlewares,
+                title_=title_,
+                description_=description_,
+                include_in_schema=include_in_schema,
+            )
+
         else:
             return AsyncAPIDefaultSubscriber(
                 max_workers=max_workers,
                 extra_options=extra_options,
                 # basic args
                 pull_sub=pull_sub,
+                kv_watch=kv_watch,
+                obj_watch=obj_watch,
                 subject=subject,
                 queue=queue,
                 stream=stream,
@@ -194,3 +224,11 @@ class AsyncAPIDefaultSubscriber(AsyncAPISubscriber, DefaultHandler):
 
 class AsyncAPIBatchSubscriber(AsyncAPISubscriber, BatchHandler):
     """Batch-message consumer with AsyncAPI methods."""
+
+
+class AsyncAPIKvWatchSubscriber(AsyncAPISubscriber, KvWatchHandler):
+    """KvWatch consumer with AsyncAPI methods."""
+
+
+class AsyncAPIObjWatchSubscriber(AsyncAPISubscriber, ObjWatchHandler):
+    """ObjWatch consumer with AsyncAPI methods."""
