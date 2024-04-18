@@ -4,7 +4,7 @@ from typing import Callable, Type, TypeVar
 from unittest.mock import Mock
 
 import pytest
-from fastapi import Depends, FastAPI, Header
+from fastapi import BackgroundTasks, Depends, FastAPI, Header
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
@@ -28,6 +28,30 @@ class FastAPITestcase:
         async def hello(msg):
             event.set()
             return mock(msg)
+
+        async with router.broker:
+            await router.broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(router.broker.publish("hi", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_with("hi")
+
+    async def test_background(self, mock: Mock, queue: str, event: asyncio.Event):
+        router = self.router_class()
+
+        def task(msg):
+            event.set()
+            return mock(msg)
+
+        @router.subscriber(queue)
+        async def hello(msg, tasks: BackgroundTasks):
+            tasks.add_task(task, msg)
 
         async with router.broker:
             await router.broker.start()
