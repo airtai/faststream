@@ -14,6 +14,17 @@ from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 class TestRouter(FastAPITestcase):
     router_class = RedisRouter
 
+    async def test_connection_params(self, settings):
+        broker = RedisRouter(
+            host="fake-host", port=6377
+        ).broker  # kwargs will be ignored
+        await broker.connect(
+            host=settings.host,
+            port=settings.port,
+        )
+        await broker._connection.ping()
+        await broker.close()
+
     async def test_batch_real(
         self,
         mock: Mock,

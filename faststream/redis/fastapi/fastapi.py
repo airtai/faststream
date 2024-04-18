@@ -69,9 +69,10 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         url: str = "redis://localhost:6379",
         polling_interval: Optional[float] = None,
         *,
-        host: str = "localhost",
-        port: Union[str, int] = 6379,
-        db: Union[str, int] = 0,
+        host: Union[str, object] = Parameter.empty,
+        port: Union[str, int, object] = Parameter.empty,
+        db: Union[str, int, object] = Parameter.empty,
+        connection_class: Union[Type["Connection"], object] = Parameter.empty,
         client_name: Optional[str] = SERVICE_NAME,
         health_check_interval: float = 0,
         max_connections: Optional[int] = None,
@@ -86,7 +87,6 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         encoding_errors: str = "strict",
         decode_responses: bool = False,
         parser_class: Type["BaseParser"] = DefaultParser,
-        connection_class: Type["Connection"] = Connection,
         encoder_class: Type["Encoder"] = Encoder,
         # broker base args
         graceful_timeout: Annotated[

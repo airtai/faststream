@@ -59,7 +59,7 @@ class BaseMiddleware:
         msg: "StreamMessage[Any]",
     ) -> Any:
         """Asynchronously consumes a message and returns an asynchronous iterator of decoded messages."""
-        err: Optional[Exception]
+        err: Optional[Exception] = None
         try:
             result = await call_next(await self.on_consume(msg))
 
@@ -67,7 +67,6 @@ class BaseMiddleware:
             err = e
 
         else:
-            err = None
             return result
 
         finally:
