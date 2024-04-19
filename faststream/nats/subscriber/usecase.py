@@ -431,8 +431,6 @@ class BatchHandler(LogicSubscriber[List["Msg"]]):
             queue=queue,
             stream=stream,
             pull_sub=pull_sub,
-            # kv_watch=kv_watch,
-            # obj_watch=obj_watch,
             extra_options=extra_options,
             # subscriber args
             default_parser=parser.parse_batch,
