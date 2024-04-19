@@ -213,7 +213,20 @@ class BrokerUsecase(
         """Start the broker async use case."""
         self._abc_start()
         await self.connect()
+
+    async def connect(self, **kwargs: Any) -> ConnectionType:
+        """Connect to a remote server."""
+        if self._connection is None:
+            connection_kwargs = self._connection_kwargs.copy()
+            connection_kwargs.update(kwargs)
+            self._connection = await self._connect(**connection_kwargs)
         self.setup()
+        return self._connection
+
+    @abstractmethod
+    async def _connect(self) -> ConnectionType:
+        """Connect to a resource."""
+        raise NotImplementedError()
 
     def setup(self) -> None:
         """Prepare all Broker entities to startup."""
@@ -286,19 +299,6 @@ class BrokerUsecase(
                     cast(logging.Logger, self.logger),
                     self._get_fmt(),
                 )
-
-    async def connect(self, **kwargs: Any) -> ConnectionType:
-        """Connect to a remote server."""
-        if self._connection is None:
-            connection_kwargs = self._connection_kwargs.copy()
-            connection_kwargs.update(kwargs)
-            self._connection = await self._connect(**connection_kwargs)
-        return self._connection
-
-    @abstractmethod
-    async def _connect(self) -> ConnectionType:
-        """Connect to a resource."""
-        raise NotImplementedError()
 
     async def close(
         self,
