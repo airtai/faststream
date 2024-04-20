@@ -13,6 +13,7 @@ from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 class TestRouter(FastAPITestcase):
     router_class = RabbitRouter
 
+    @pytest.mark.asyncio()
     async def test_path(
         self,
         queue: str,
