@@ -2,8 +2,11 @@ import asyncio
 
 import pytest
 
+from faststream import Path
 from faststream.rabbit import (
+    ExchangeType,
     RabbitBroker,
+    RabbitExchange,
     RabbitPublisher,
     RabbitQueue,
     RabbitRoute,
@@ -17,6 +20,92 @@ class TestRouter(RouterTestcase):
     broker_class = RabbitRouter
     route_class = RabbitRoute
     publisher_class = RabbitPublisher
+
+    async def test_router_path(
+        self,
+        queue,
+        event,
+        mock,
+        router,
+        pub_broker,
+    ):
+        @router.subscriber(
+            RabbitQueue(
+                queue,
+                routing_key="in.{name}.{id}",
+            ),
+            RabbitExchange(
+                queue + "1",
+                type=ExchangeType.TOPIC,
+            ),
+        )
+        async def h(
+            name: str = Path(),
+            id: int = Path("id"),
+        ):
+            event.set()
+            mock(name=name, id=id)
+
+        pub_broker._is_apply_types = True
+        pub_broker.include_router(router)
+
+        await pub_broker.start()
+
+        await pub_broker.publish(
+            "",
+            "in.john.2",
+            queue + "1",
+            rpc=True,
+        )
+
+        assert event.is_set()
+        mock.assert_called_once_with(name="john", id=2)
+
+    async def test_router_delay_handler_path(
+        self,
+        queue,
+        event,
+        mock,
+        router,
+        pub_broker,
+    ):
+        async def h(
+            name: str = Path(),
+            id: int = Path("id"),
+        ):
+            event.set()
+            mock(name=name, id=id)
+
+        r = type(router)(
+            handlers=(
+                self.route_class(
+                    h,
+                    queue=RabbitQueue(
+                        queue,
+                        routing_key="in.{name}.{id}",
+                    ),
+                    exchange=RabbitExchange(
+                        queue + "1",
+                        type=ExchangeType.TOPIC,
+                    ),
+                ),
+            )
+        )
+
+        pub_broker._is_apply_types = True
+        pub_broker.include_router(r)
+
+        await pub_broker.start()
+
+        await pub_broker.publish(
+            "",
+            "in.john.2",
+            queue + "1",
+            rpc=True,
+        )
+
+        assert event.is_set()
+        mock.assert_called_once_with(name="john", id=2)
 
     async def test_queue_obj(
         self,
