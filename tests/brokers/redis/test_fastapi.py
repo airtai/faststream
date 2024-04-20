@@ -14,6 +14,32 @@ from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 class TestRouter(FastAPITestcase):
     router_class = RedisRouter
 
+    async def test_path(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        mock: Mock,
+    ):
+        router = RedisRouter()
+
+        @router.subscriber("in.{name}")
+        def subscriber(msg: str, name: str):
+            mock(msg=msg, name=name)
+            event.set()
+
+        async with router.broker:
+            await router.broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(router.broker.publish("hello", "in.john")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_once_with(msg="hello", name="john")
+
     async def test_connection_params(self, settings):
         broker = RedisRouter(
             host="fake-host", port=6377

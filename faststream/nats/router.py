@@ -302,8 +302,8 @@ class NatsRoute(SubscriberRoute):
 
 
 class NatsRouter(
-    BrokerRouter["Msg"],
     NatsRegistrator,
+    BrokerRouter["Msg"],
 ):
     """Includable to NatsBroker router."""
 

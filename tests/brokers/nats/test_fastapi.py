@@ -14,6 +14,33 @@ from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 class TestRouter(FastAPITestcase):
     router_class = NatsRouter
 
+    async def test_path(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        mock: MagicMock,
+    ):
+        router = NatsRouter()
+
+        @router.subscriber("in.{name}")
+        def subscriber(msg: str, name: str):
+            mock(msg=msg, name=name)
+            event.set()
+
+        async with router.broker:
+            await router.broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(router.broker.publish("hello", "in.john")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_once_with(msg="hello", name="john")
+
+
     async def test_consume_batch(
         self,
         queue: str,

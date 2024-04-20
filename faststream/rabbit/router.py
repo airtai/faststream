@@ -285,8 +285,8 @@ class RabbitRoute(SubscriberRoute):
 
 
 class RabbitRouter(
-    BrokerRouter["IncomingMessage"],
     RabbitRegistrator,
+    BrokerRouter["IncomingMessage"],
 ):
     """Includable to RabbitBroker router."""
 
