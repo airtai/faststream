@@ -13,13 +13,6 @@ from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 class TestRouter(FastAPITestcase):
     router_class = RabbitRouter
 
-
-@pytest.mark.asyncio()
-class TestRouterLocal(FastAPILocalTestcase):
-    router_class = RabbitRouter
-    broker_test = staticmethod(TestRabbitBroker)
-    build_message = staticmethod(build_message)
-
     async def test_path(
         self,
         queue: str,
@@ -56,3 +49,36 @@ class TestRouterLocal(FastAPILocalTestcase):
 
         assert event.is_set()
         mock.assert_called_once_with(msg="hello", name="john")
+
+
+@pytest.mark.asyncio()
+class TestRouterLocal(FastAPILocalTestcase):
+    router_class = RabbitRouter
+    broker_test = staticmethod(TestRabbitBroker)
+    build_message = staticmethod(build_message)
+
+    async def test_path(self):
+        router = self.router_class()
+
+        @router.subscriber(
+            RabbitQueue(
+                "",
+                routing_key="in.{name}",
+            ),
+            RabbitExchange(
+                "test",
+                type=ExchangeType.TOPIC,
+            ),
+        )
+        async def hello(name):
+            return name
+
+        async with self.broker_test(router.broker):
+            r = await router.broker.publish(
+                "hi",
+                "in.john",
+                "test",
+                rpc=True,
+                rpc_timeout=0.5,
+            )
+            assert r == "john"

@@ -40,7 +40,6 @@ class TestRouter(FastAPITestcase):
         assert event.is_set()
         mock.assert_called_once_with(msg="hello", name="john")
 
-
     async def test_consume_batch(
         self,
         queue: str,
