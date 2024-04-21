@@ -13,7 +13,7 @@ from faststream.types import AsyncFunc, AsyncFuncAny
 _OTEL_SCHEMA = "https://opentelemetry.io/schemas/1.11.0"
 
 
-def _build_meter(
+def _get_meter(
     meter_provider: Optional[MeterProvider] = None,
     meter: Optional[Meter] = None,
 ) -> Meter:
@@ -26,7 +26,7 @@ def _build_meter(
     return meter
 
 
-def _build_tracer(tracer_provider: Optional[TracerProvider] = None) -> Tracer:
+def _get_tracer(tracer_provider: Optional[TracerProvider] = None) -> Tracer:
     return trace.get_tracer(
         __name__,
         tracer_provider=tracer_provider,
@@ -65,15 +65,16 @@ class _MetricsContainer:
         )
 
 
-class _TelemetryMiddleware(BaseMiddleware):
+class BaseTelemetryMiddleware(BaseMiddleware):
     def __init__(
         self,
         msg: StreamMessage[Any],
+        system: str,
         tracer: Tracer,
         metrics_container: _MetricsContainer,
     ) -> None:
         self.msg = msg
-        self._system = "nats"
+        self._system = system
         self._tracer = tracer
         self._metrics = metrics_container
         self._current_span: Optional[Span] = None
@@ -171,13 +172,14 @@ class TelemetryMiddleware:
             meter_provider: Optional[MeterProvider] = None,
             meter: Optional[Meter] = None,
     ) -> None:
-        self._tracer = _build_tracer(tracer_provider)
-        self._meter = _build_meter(meter_provider, meter)
+        self._tracer = _get_tracer(tracer_provider)
+        self._meter = _get_meter(meter_provider, meter)
         self._metrics = _MetricsContainer(self._meter)
 
-    def __call__(self, msg: StreamMessage[Any]) -> _TelemetryMiddleware:
-        return _TelemetryMiddleware(
+    def __call__(self, msg: StreamMessage[Any]) -> BaseTelemetryMiddleware:
+        return BaseTelemetryMiddleware(
             msg=msg,
+            system="nats",
             tracer=self._tracer,
             metrics_container=self._metrics,
         )
