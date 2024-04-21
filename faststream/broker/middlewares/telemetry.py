@@ -35,6 +35,13 @@ def _build_tracer(tracer_provider: Optional[TracerProvider] = None) -> Tracer:
 
 
 class _MetricsContainer:
+    __slots__ = (
+        "active_requests_counter",
+        "duration_histogram",
+        "consumer_message_size_histogram",
+        "publisher_message_size_histogram",
+    )
+
     def __init__(self, meter: Meter) -> None:
         self.active_requests_counter = meter.create_up_down_counter(
             name="faststream.consumer.active_requests",
@@ -65,11 +72,11 @@ class _TelemetryMiddleware(BaseMiddleware):
         tracer: Tracer,
         metrics_container: _MetricsContainer,
     ) -> None:
-        self.system = "nats"
-        self.tracer = tracer
-        self.metrics = metrics_container
         self.msg = msg
-        self.current_span: Optional[Span] = None
+        self._system = "nats"
+        self._tracer = tracer
+        self._metrics = metrics_container
+        self._current_span: Optional[Span] = None
 
     async def publish_scope(
         self,
@@ -81,9 +88,9 @@ class _TelemetryMiddleware(BaseMiddleware):
         headers = kwargs.pop("headers") or {}
         span_name = f"{kwargs.get('subject')} publish"
         attributes = self._get_attrs_from_kwargs(kwargs)
-        current_context = trace.set_span_in_context(self.current_span) if self.current_span else None
+        current_context = trace.set_span_in_context(self._current_span) if self._current_span else None
 
-        with self.tracer.start_as_current_span(
+        with self._tracer.start_as_current_span(
             name=span_name,
             kind=trace.SpanKind.PRODUCER,
             attributes=attributes,
@@ -97,7 +104,7 @@ class _TelemetryMiddleware(BaseMiddleware):
                 **kwargs,
             )
 
-        self.metrics.publisher_message_size_histogram.record(len(msg), attributes)
+        self._metrics.publisher_message_size_histogram.record(len(msg), attributes)
         return result
 
     async def consume_scope(
@@ -110,32 +117,32 @@ class _TelemetryMiddleware(BaseMiddleware):
         span_name = f"{msg.raw_message.subject} receive"
         attributes = self._get_attrs_from_message(msg)
 
-        self.metrics.active_requests_counter.add(1, attributes)
-        self.metrics.publisher_message_size_histogram.record(len(msg.body), attributes)
+        self._metrics.active_requests_counter.add(1, attributes)
+        self._metrics.publisher_message_size_histogram.record(len(msg.body), attributes)
 
         try:
-            with self.tracer.start_as_current_span(
+            with self._tracer.start_as_current_span(
                 name=span_name,
                 kind=trace.SpanKind.CONSUMER,
                 context=span_context,
                 attributes=attributes,
             ) as span:
-                self.current_span = span
+                self._current_span = span
                 new_context = trace.set_span_in_context(span, span_context)
                 token = context.attach(new_context)
                 result = await call_next(msg)
                 context.detach(token)
 
             total_time = time.perf_counter() - start_time
-            self.metrics.duration_histogram.record(amount=total_time, attributes=attributes)
+            self._metrics.duration_histogram.record(amount=total_time, attributes=attributes)
         finally:
-            self.metrics.active_requests_counter.add(-1, attributes)
+            self._metrics.active_requests_counter.add(-1, attributes)
 
         return result
 
     def _get_attrs_from_message(self, msg: StreamMessage[Any]) -> Dict[str, Any]:
         return {
-            SpanAttributes.MESSAGING_SYSTEM: self.system,
+            SpanAttributes.MESSAGING_SYSTEM: self._system,
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
@@ -143,7 +150,7 @@ class _TelemetryMiddleware(BaseMiddleware):
         }
 
     def _get_attrs_from_kwargs(self, kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        attrs = {SpanAttributes.MESSAGING_SYSTEM: self.system}
+        attrs = {SpanAttributes.MESSAGING_SYSTEM: self._system}
 
         if (destination := kwargs.get("subject")) is not None:
             attrs[SpanAttributes.MESSAGING_DESTINATION_NAME] = destination
@@ -156,19 +163,21 @@ class _TelemetryMiddleware(BaseMiddleware):
 
 
 class TelemetryMiddleware:
+    __slots__ = ("_tracer", "_meter", "_metrics")
+
     def __init__(
             self,
             tracer_provider: Optional[TracerProvider] = None,
             meter_provider: Optional[MeterProvider] = None,
             meter: Optional[Meter] = None,
     ) -> None:
-        self.tracer = _build_tracer(tracer_provider)
-        self.meter = _build_meter(meter_provider, meter)
-        self.metrics = _MetricsContainer(self.meter)
+        self._tracer = _build_tracer(tracer_provider)
+        self._meter = _build_meter(meter_provider, meter)
+        self._metrics = _MetricsContainer(self._meter)
 
     def __call__(self, msg: StreamMessage[Any]) -> _TelemetryMiddleware:
         return _TelemetryMiddleware(
             msg=msg,
-            tracer=self.tracer,
-            metrics_container=self.metrics,
+            tracer=self._tracer,
+            metrics_container=self._metrics,
         )
