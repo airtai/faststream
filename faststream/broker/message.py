@@ -11,6 +11,7 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
+    cast,
 )
 from uuid import uuid4
 
@@ -68,12 +69,16 @@ def decode_message(message: "StreamMessage[Any]") -> "DecodedMessage":
     if (
         content_type := getattr(message, "content_type", Parameter.empty)
     ) is not Parameter.empty:
+        content_type = cast(Optional[str], content_type)
+
         if not content_type:
             with suppress(json.JSONDecodeError, UnicodeDecodeError):
                 m = json_loads(body)
+
         elif ContentTypes.text.value in content_type:
             m = body.decode()
-        elif ContentTypes.json.value in content_type:  # pragma: no branch
+
+        elif ContentTypes.json.value in content_type:
             m = json_loads(body)
 
     else:
