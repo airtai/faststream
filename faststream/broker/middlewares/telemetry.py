@@ -9,6 +9,8 @@ from opentelemetry.trace import Span, Tracer, TracerProvider
 if TYPE_CHECKING:
     from types import TracebackType
 
+    from opentelemetry.context import Context
+
     from faststream.broker.message import StreamMessage
     from faststream.types import AsyncFunc, AsyncFuncAny
 
@@ -36,6 +38,17 @@ def _get_tracer(tracer_provider: Optional[TracerProvider] = None) -> Tracer:
         tracer_provider=tracer_provider,
         schema_url=_OTEL_SCHEMA,
     )
+
+
+def _create_span_name(destination: str, action: str) -> str:
+    return f"{destination} {action}"
+
+
+class MessageAction:
+    CREATE = "create"
+    PUBLISH = "publish"
+    PROCESS = "process"
+    RECEIVE = "receive"
 
 
 class _MetricsContainer:
@@ -82,6 +95,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         self._tracer = tracer
         self._metrics = metrics_container
         self._current_span: Optional[Span] = None
+        self._origin_context: Optional[Context] = None
 
     async def publish_scope(
         self,
@@ -91,17 +105,31 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         **kwargs: Any,
     ) -> Any:
         headers = kwargs.pop("headers") or {}
-        span_name = f"{kwargs.get('subject')} publish"
         attributes = self._get_attrs_from_kwargs(kwargs)
-        current_context = trace.set_span_in_context(self._current_span) if self._current_span else None
+        current_context = context.get_current()
+        destination_name = kwargs.get("subject", "faststream")
+
+        if self._current_span and self._current_span.is_recording():
+            current_context = trace.set_span_in_context(
+                self._current_span, current_context
+            )
+            propagate.inject(headers, context=self._origin_context)
+        else:
+            create_span = self._tracer.start_span(
+                name=_create_span_name(destination_name, MessageAction.CREATE),
+                kind=trace.SpanKind.CONSUMER,
+                attributes=attributes,
+            )
+            current_context = trace.set_span_in_context(create_span)
+            propagate.inject(headers, context=current_context)
+            create_span.end()
 
         with self._tracer.start_as_current_span(
-            name=span_name,
+            name=_create_span_name(destination_name, MessageAction.PUBLISH),
             kind=trace.SpanKind.PRODUCER,
             attributes=attributes,
             context=current_context,
-        ) as span:
-            propagate.inject(headers, context=trace.set_span_in_context(span))
+        ):
             result = await super().publish_scope(
                 call_next,
                 msg,
@@ -118,29 +146,41 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         msg: "StreamMessage[Any]",
     ) -> Any:
         start_time = time.perf_counter()
-        span_context = propagate.extract(msg.headers)
-        span_name = f"{msg.raw_message.subject} process"
+        current_context = propagate.extract(msg.headers)
+        destination_name = msg.raw_message.subject
         attributes = self._get_attrs_from_message(msg)
 
+        if not len(current_context):
+            create_span = self._tracer.start_span(
+                name=_create_span_name(destination_name, MessageAction.CREATE),
+                kind=trace.SpanKind.CONSUMER,
+                attributes=attributes,
+            )
+            current_context = trace.set_span_in_context(create_span)
+            create_span.end()
+
+        self._origin_context = current_context
         self._metrics.active_requests_counter.add(1, attributes)
         self._metrics.publisher_message_size_histogram.record(len(msg.body), attributes)
 
         try:
             with self._tracer.start_as_current_span(
-                name=span_name,
+                name=_create_span_name(destination_name, MessageAction.PROCESS),
                 kind=trace.SpanKind.CONSUMER,
-                context=span_context,
+                context=current_context,
                 attributes=attributes,
                 end_on_exit=False,
             ) as span:
                 self._current_span = span
-                new_context = trace.set_span_in_context(span, span_context)
+                new_context = trace.set_span_in_context(span, current_context)
                 token = context.attach(new_context)
                 result = await call_next(msg)
                 context.detach(token)
 
             total_time = time.perf_counter() - start_time
-            self._metrics.duration_histogram.record(amount=total_time, attributes=attributes)
+            self._metrics.duration_histogram.record(
+                amount=total_time, attributes=attributes
+            )
         finally:
             self._metrics.active_requests_counter.add(-1, attributes)
 
@@ -182,10 +222,10 @@ class TelemetryMiddleware:
     __slots__ = ("_tracer", "_meter", "_metrics")
 
     def __init__(
-            self,
-            tracer_provider: Optional[TracerProvider] = None,
-            meter_provider: Optional[MeterProvider] = None,
-            meter: Optional[Meter] = None,
+        self,
+        tracer_provider: Optional[TracerProvider] = None,
+        meter_provider: Optional[MeterProvider] = None,
+        meter: Optional[Meter] = None,
     ) -> None:
         self._tracer = _get_tracer(tracer_provider)
         self._meter = _get_meter(meter_provider, meter)
