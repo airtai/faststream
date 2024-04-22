@@ -68,10 +68,10 @@ class _MetricsContainer:
 class BaseTelemetryMiddleware(BaseMiddleware):
     def __init__(
         self,
-        msg: StreamMessage[Any],
         system: str,
         tracer: Tracer,
         metrics_container: _MetricsContainer,
+        msg: Optional[Any] = None,
     ) -> None:
         self.msg = msg
         self._system = system
@@ -176,10 +176,10 @@ class TelemetryMiddleware:
         self._meter = _get_meter(meter_provider, meter)
         self._metrics = _MetricsContainer(self._meter)
 
-    def __call__(self, msg: StreamMessage[Any]) -> BaseTelemetryMiddleware:
+    def __call__(self, msg: Optional[Any]) -> BaseMiddleware:
         return BaseTelemetryMiddleware(
-            msg=msg,
             system="nats",
             tracer=self._tracer,
             metrics_container=self._metrics,
+            msg=msg,
         )
