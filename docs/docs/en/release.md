@@ -12,6 +12,19 @@ hide:
 ---
 
 # Release Notes
+## 0.5.2
+
+### What's Changed
+
+Just a little bugfix patch. Fixes #1379 and #1376.
+
+* Update Release Notes for 0.5.1 by @faststream-release-notes-updater in [#1378](https://github.com/airtai/faststream/pull/1378){.external-link target="_blank"}
+* Tests/fastapi background by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1380](https://github.com/airtai/faststream/pull/1380){.external-link target="_blank"}
+* Fix/0.5.2 by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1381](https://github.com/airtai/faststream/pull/1381){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.1...0.5.2](https://github.com/airtai/faststream/compare/0.5.1...0.5.2){.external-link target="_blank"}
+
 ## 0.5.1
 
 ### What's Changed
@@ -43,7 +56,7 @@ You can find more information about it in the official [**aiokafka** doc](https:
 
 `pattern` option was added too, but it is still experimental and does not support `Path`
 
-3. [`Path`](https://faststream.airt.ai/latest/nats/message/#subject-pattern-access) feature perfomance was increased. Also, `Path` is suitable for NATS `PullSub` batch subscribtion as well now.
+3. [`Path`](https://faststream.airt.ai/latest/nats/message/#subject-pattern-access) feature performance was increased. Also, `Path` is suitable for NATS `PullSub` batch subscribtion as well now.
 
 ```python
 from faststream import NatsBroker, PullSub

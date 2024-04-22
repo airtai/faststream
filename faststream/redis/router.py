@@ -197,8 +197,8 @@ class RedisRoute(SubscriberRoute):
 
 
 class RedisRouter(
-    BrokerRouter[BaseMessage],
     RedisRegistrator,
+    BrokerRouter[BaseMessage],
 ):
     """Includable to RedisBroker router."""
 

@@ -468,13 +468,13 @@ class KafkaRoute(SubscriberRoute):
 
 
 class KafkaRouter(
+    KafkaRegistrator,
     BrokerRouter[
         Union[
             "Message",
             Tuple["Message", ...],
         ]
     ],
-    KafkaRegistrator,
 ):
     """Includable to KafkaBroker router."""
 
