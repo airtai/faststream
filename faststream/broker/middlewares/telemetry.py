@@ -1,14 +1,18 @@
 import time
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, Type
 
 from opentelemetry import context, metrics, propagate, trace
 from opentelemetry.metrics import Meter, MeterProvider
 from opentelemetry.semconv.trace import SpanAttributes
 from opentelemetry.trace import Span, Tracer, TracerProvider
 
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from faststream.broker.message import StreamMessage
+    from faststream.types import AsyncFunc, AsyncFuncAny
+
 from faststream import BaseMiddleware
-from faststream.broker.message import StreamMessage
-from faststream.types import AsyncFunc, AsyncFuncAny
 
 _OTEL_SCHEMA = "https://opentelemetry.io/schemas/1.11.0"
 
@@ -110,12 +114,12 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 
     async def consume_scope(
         self,
-        call_next: AsyncFuncAny,
-        msg: StreamMessage[Any],
+        call_next: "AsyncFuncAny",
+        msg: "StreamMessage[Any]",
     ) -> Any:
         start_time = time.perf_counter()
         span_context = propagate.extract(msg.headers)
-        span_name = f"{msg.raw_message.subject} receive"
+        span_name = f"{msg.raw_message.subject} process"
         attributes = self._get_attrs_from_message(msg)
 
         self._metrics.active_requests_counter.add(1, attributes)
@@ -127,6 +131,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 kind=trace.SpanKind.CONSUMER,
                 context=span_context,
                 attributes=attributes,
+                end_on_exit=False,
             ) as span:
                 self._current_span = span
                 new_context = trace.set_span_in_context(span, span_context)
@@ -141,7 +146,17 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 
         return result
 
-    def _get_attrs_from_message(self, msg: StreamMessage[Any]) -> Dict[str, Any]:
+    async def after_processed(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_val: Optional[BaseException] = None,
+        exc_tb: Optional["TracebackType"] = None,
+    ) -> Optional[bool]:
+        if self._current_span and self._current_span.is_recording():
+            self._current_span.end()
+        return False
+
+    def _get_attrs_from_message(self, msg: "StreamMessage[Any]") -> Dict[str, Any]:
         return {
             SpanAttributes.MESSAGING_SYSTEM: self._system,
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.correlation_id,
