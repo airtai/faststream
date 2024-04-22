@@ -68,13 +68,13 @@ def decode_message(message: "StreamMessage[Any]") -> "DecodedMessage":
     if (
         content_type := getattr(message, "content_type", Parameter.empty)
     ) is not Parameter.empty:
-        if ContentTypes.text.value in content_type:
+        if not content_type:
+            with suppress(json.JSONDecodeError, UnicodeDecodeError):
+                m = json_loads(body)
+        elif ContentTypes.text.value in content_type:
             m = body.decode()
         elif ContentTypes.json.value in content_type:  # pragma: no branch
             m = json_loads(body)
-        else:
-            with suppress(json.JSONDecodeError, UnicodeDecodeError):
-                m = json_loads(body)
 
     else:
         with suppress(json.JSONDecodeError, UnicodeDecodeError):
