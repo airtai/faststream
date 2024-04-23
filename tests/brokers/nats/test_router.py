@@ -42,6 +42,37 @@ class TestRouter(RouterTestcase):
         assert event.is_set()
         mock.assert_called_once_with(name="john", id=2)
 
+    async def test_router_path_with_prefix(
+        self,
+        event,
+        mock,
+        router: NatsRouter,
+        pub_broker,
+    ):
+        router.prefix = "test."
+
+        @router.subscriber("in.{name}.{id}")
+        async def h(
+            name: str = Path(),
+            id: int = Path("id"),
+        ):
+            event.set()
+            mock(name=name, id=id)
+
+        pub_broker._is_apply_types = True
+        pub_broker.include_router(router)
+
+        await pub_broker.start()
+
+        await pub_broker.publish(
+            "",
+            "test.in.john.2",
+            rpc=True,
+        )
+
+        assert event.is_set()
+        mock.assert_called_once_with(name="john", id=2)
+
     async def test_router_delay_handler_path(
         self,
         event,
