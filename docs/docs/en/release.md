@@ -12,6 +12,20 @@ hide:
 ---
 
 # Release Notes
+## 0.5.3
+
+### What's Changed
+* Update Release Notes for 0.5.2 by @faststream-release-notes-updater in [#1382](https://github.com/airtai/faststream/pull/1382){.external-link target="_blank"}
+* Fix/setup at broker connection instead of starting by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1385](https://github.com/airtai/faststream/pull/1385){.external-link target="_blank"}
+* Tests/add path tests by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1388](https://github.com/airtai/faststream/pull/1388){.external-link target="_blank"}
+* Fix/path with router prefix by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1395](https://github.com/airtai/faststream/pull/1395){.external-link target="_blank"}
+* chore: update dependencies by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1396](https://github.com/airtai/faststream/pull/1396){.external-link target="_blank"}
+* chore: bump version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1397](https://github.com/airtai/faststream/pull/1397){.external-link target="_blank"}
+* chore: polishing by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1399](https://github.com/airtai/faststream/pull/1399){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.2...0.5.3](https://github.com/airtai/faststream/compare/0.5.2...0.5.3){.external-link target="_blank"}
+
 ## 0.5.2
 
 ### What's Changed
