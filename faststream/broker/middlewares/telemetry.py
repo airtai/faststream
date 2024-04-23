@@ -2,14 +2,14 @@ import time
 from typing import TYPE_CHECKING, Any, Dict, Optional, Type
 
 from opentelemetry import context, metrics, propagate, trace
-from opentelemetry.metrics import Meter, MeterProvider
 from opentelemetry.semconv.trace import SpanAttributes
-from opentelemetry.trace import Span, Tracer, TracerProvider
 
 if TYPE_CHECKING:
     from types import TracebackType
 
     from opentelemetry.context import Context
+    from opentelemetry.metrics import Meter, MeterProvider
+    from opentelemetry.trace import Span, Tracer, TracerProvider
 
     from faststream.broker.message import StreamMessage
     from faststream.types import AsyncFunc, AsyncFuncAny
@@ -20,9 +20,9 @@ _OTEL_SCHEMA = "https://opentelemetry.io/schemas/1.11.0"
 
 
 def _get_meter(
-    meter_provider: Optional[MeterProvider] = None,
-    meter: Optional[Meter] = None,
-) -> Meter:
+    meter_provider: Optional["MeterProvider"] = None,
+    meter: Optional["Meter"] = None,
+) -> "Meter":
     if meter is None:
         return metrics.get_meter(
             __name__,
@@ -32,7 +32,7 @@ def _get_meter(
     return meter
 
 
-def _get_tracer(tracer_provider: Optional[TracerProvider] = None) -> Tracer:
+def _get_tracer(tracer_provider: Optional["TracerProvider"] = None) -> "Tracer":
     return trace.get_tracer(
         __name__,
         tracer_provider=tracer_provider,
@@ -59,7 +59,7 @@ class _MetricsContainer:
         "publisher_message_size_histogram",
     )
 
-    def __init__(self, meter: Meter) -> None:
+    def __init__(self, meter: "Meter") -> None:
         self.active_requests_counter = meter.create_up_down_counter(
             name="faststream.consumer.active_requests",
             unit="requests",
@@ -86,7 +86,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
     def __init__(
         self,
         system: str,
-        tracer: Tracer,
+        tracer: "Tracer",
         metrics_container: _MetricsContainer,
         msg: Optional[Any] = None,
     ) -> None:
@@ -130,12 +130,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             attributes=attributes,
             context=current_context,
         ):
-            result = await super().publish_scope(
-                call_next,
-                msg,
-                headers=headers,
-                **kwargs,
-            )
+            result = await call_next(msg, *args, headers=headers, **kwargs)
 
         self._metrics.publisher_message_size_histogram.record(len(msg), attributes)
         return result
@@ -219,13 +214,17 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 
 
 class TelemetryMiddleware:
-    __slots__ = ("_tracer", "_meter", "_metrics")
+    __slots__ = (
+        "_tracer",
+        "_meter",
+        "_metrics",
+    )
 
     def __init__(
         self,
-        tracer_provider: Optional[TracerProvider] = None,
-        meter_provider: Optional[MeterProvider] = None,
-        meter: Optional[Meter] = None,
+        tracer_provider: Optional["TracerProvider"] = None,
+        meter_provider: Optional["MeterProvider"] = None,
+        meter: Optional["Meter"] = None,
     ) -> None:
         self._tracer = _get_tracer(tracer_provider)
         self._meter = _get_meter(meter_provider, meter)
