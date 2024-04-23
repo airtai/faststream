@@ -42,7 +42,7 @@ We already have some fixes related to `RedisBroker` (#1375, #1376) and some new 
      include_in_schema=False,
   )
   ```
- 
+
 2. `KafkaBroker().subscriber(...)` now consumes `aiokafka.ConsumerRebalanceListener` object.
 You can find more information about it in the official [**aiokafka** doc](https://aiokafka.readthedocs.io/en/stable/consumer.html?highlight=subscribe#topic-subscription-by-pattern)
 
@@ -50,7 +50,7 @@ You can find more information about it in the official [**aiokafka** doc](https:
 
   ```python
   broker = KafkaBroker()
-  
+
   broker.subscriber(..., listener=MyRebalancer())
   ```
 
@@ -101,37 +101,37 @@ subscriber = broker.subscriber("test")
 @subscriber(filter = lambda msg: msg.content_type == "application/json")
 async def handler(msg: dict[str, Any]):
     ...
- 
+
 @subscriber()
 async def handler(msg: dict[str, Any]):
     ...
  ```
- 
+
 This is the preferred syntax for [filtering](https://faststream.airt.ai/latest/getting-started/subscription/filtering/) now (the old one will be removed in `0.6.0`)
- 
+
  3. The `router.publisher()` function now returns the correct `Publisher` object you can use later (after broker startup).
- 
+
  ```python
  publisher = router.publisher("test")
- 
+
  @router.subscriber("in")
  async def handler():
      await publisher.publish("msg")
  ```
- 
+
  (Until `0.5.0` you could use it in this way with `broker.publisher` only)
- 
+
  4. A list of `middlewares` can be passed to a `broker.publisher` as well:
- 
+
  ```python
  broker = Broker(..., middlewares=())
- 
+
  @broker.subscriber(..., middlewares=())
  @broker.publisher(..., middlewares=())  # new feature
  async def handler():
      ...
  ```
- 
+
 5. Broker-level middlewares now affect all ways to publish a message, so you can encode application outgoing messages here.
 
 6. ⚠️ BREAKING CHANGE ⚠️ : both `subscriber` and `publisher` middlewares should be async context manager type
@@ -195,7 +195,7 @@ await subscriber.close()
   * close #568
   * close #1303
   * close #1287
-  * feat #607 
+  * feat #607
 * Generate docs and linter fixes by @davorrunje in https://github.com/airtai/faststream/pull/1348
 * Fix types by @davorrunje in https://github.com/airtai/faststream/pull/1349
 * chore: update dependencies by @Lancetnik in https://github.com/airtai/faststream/pull/1358
