@@ -76,6 +76,10 @@ redis = ["redis>=5.0.0,<6.0.0"]
 telemetry = ["opentelemetry-sdk>=1.24.0,<2.0.0"]
 
 # dev dependencies
+optionals = [
+    "faststream[rabbit,kafka,confluent,nats,redis,telemetry]",
+]
+
 devdocs = [
     "mkdocs-material==9.5.18",
     "mkdocs-static-i18n==1.2.2",
@@ -94,7 +98,7 @@ devdocs = [
 ]
 
 types = [
-    "faststream[rabbit,confluent,kafka,nats,redis]",
+    "faststream[optionals]",
     "mypy==1.9.0",
     # mypy extensions
     "types-PyYAML",
@@ -132,7 +136,7 @@ testing = [
 ]
 
 dev = [
-    "faststream[rabbit,kafka,confluent,nats,redis,lint,testing,devdocs]",
+    "faststream[optionals,lint,testing,devdocs]",
     "pre-commit==3.5.0; python_version < '3.9'",
     "pre-commit==3.7.0; python_version >= '3.9'",
     "detect-secrets==1.4.0",
