@@ -36,6 +36,14 @@ from faststream.nats.broker.registrator import NatsRegistrator
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.security import parse_security
 from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.utils.context.repository import context
+
+try:
+    from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
+    from faststream.nats.telemetry.provider import NatsTelemetrySettingsProvider
+except ImportError:
+    TELEMETRY_PROVIDER_CONTEXT_KEY = NatsTelemetrySettingsProvider = None  # type: ignore[assignment,misc]
+
 
 if TYPE_CHECKING:
     import ssl
@@ -458,6 +466,13 @@ class NatsBroker(
                 ),
                 DeprecationWarning,
                 stacklevel=2,
+            )
+
+        # TODO: mv it to `setup_subscriber` extra context to support multiple brokers
+        if TELEMETRY_PROVIDER_CONTEXT_KEY is not None:
+            context.set_global(
+                TELEMETRY_PROVIDER_CONTEXT_KEY,
+                NatsTelemetrySettingsProvider(),
             )
 
         secure_kwargs = {

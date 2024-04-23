@@ -1,8 +1,11 @@
 import time
-from typing import TYPE_CHECKING, Any, Dict, Optional, Type
+from typing import TYPE_CHECKING, Any, Optional, Protocol, Type
 
 from opentelemetry import context, metrics, propagate, trace
-from opentelemetry.semconv.trace import SpanAttributes
+
+from faststream import BaseMiddleware
+from faststream import context as global_context
+from faststream.broker.types import MsgType
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -12,32 +15,36 @@ if TYPE_CHECKING:
     from opentelemetry.trace import Span, Tracer, TracerProvider
 
     from faststream.broker.message import StreamMessage
-    from faststream.types import AsyncFunc, AsyncFuncAny
+    from faststream.types import AnyDict, AsyncFunc, AsyncFuncAny
 
-from faststream import BaseMiddleware
 
 _OTEL_SCHEMA = "https://opentelemetry.io/schemas/1.11.0"
 
-
-def _get_meter(
-    meter_provider: Optional["MeterProvider"] = None,
-    meter: Optional["Meter"] = None,
-) -> "Meter":
-    if meter is None:
-        return metrics.get_meter(
-            __name__,
-            meter_provider=meter_provider,
-            schema_url=_OTEL_SCHEMA,
-        )
-    return meter
+TELEMETRY_PROVIDER_CONTEXT_KEY = "_telemetry_provider"
 
 
-def _get_tracer(tracer_provider: Optional["TracerProvider"] = None) -> "Tracer":
-    return trace.get_tracer(
-        __name__,
-        tracer_provider=tracer_provider,
-        schema_url=_OTEL_SCHEMA,
-    )
+class TelemetrySettingsProvider(Protocol[MsgType]):
+    messaging_system: str
+
+    def get_consume_attrs_from_message(
+        self,
+        msg: "StreamMessage[MsgType]",
+    ) -> "AnyDict": ...
+
+    def get_consume_destination_name(
+        self,
+        msg: "StreamMessage[MsgType]",
+    ) -> str: ...
+
+    def get_publish_attrs_from_kwargs(
+        self,
+        kwargs: "AnyDict",
+    ) -> "AnyDict": ...
+
+    def get_publish_destination_name(
+        self,
+        kwargs: "AnyDict",
+    ) -> str: ...
 
 
 def _create_span_name(destination: str, action: str) -> str:
@@ -85,17 +92,18 @@ class _MetricsContainer:
 class BaseTelemetryMiddleware(BaseMiddleware):
     def __init__(
         self,
-        system: str,
         tracer: "Tracer",
         metrics_container: _MetricsContainer,
         msg: Optional[Any] = None,
     ) -> None:
         self.msg = msg
-        self._system = system
         self._tracer = tracer
         self._metrics = metrics_container
         self._current_span: Optional[Span] = None
         self._origin_context: Optional[Context] = None
+        self.__settings_provider: TelemetrySettingsProvider[Any] = global_context.get(
+            TELEMETRY_PROVIDER_CONTEXT_KEY
+        )
 
     async def publish_scope(
         self,
@@ -104,16 +112,18 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         *args: Any,
         **kwargs: Any,
     ) -> Any:
-        headers = kwargs.pop("headers") or {}
-        attributes = self._get_attrs_from_kwargs(kwargs)
-        current_context = context.get_current()
-        destination_name = kwargs.get("subject", "faststream")
+        attributes = self.__settings_provider.get_publish_attrs_from_kwargs(kwargs)
 
+        current_context = context.get_current()
+        destination_name = self.__settings_provider.get_publish_destination_name(kwargs)
+
+        headers = kwargs.pop("headers") or {}
         if self._current_span and self._current_span.is_recording():
             current_context = trace.set_span_in_context(
                 self._current_span, current_context
             )
             propagate.inject(headers, context=self._origin_context)
+
         else:
             create_span = self._tracer.start_span(
                 name=_create_span_name(destination_name, MessageAction.CREATE),
@@ -142,8 +152,8 @@ class BaseTelemetryMiddleware(BaseMiddleware):
     ) -> Any:
         start_time = time.perf_counter()
         current_context = propagate.extract(msg.headers)
-        destination_name = msg.raw_message.subject
-        attributes = self._get_attrs_from_message(msg)
+        destination_name = self.__settings_provider.get_consume_destination_name(msg)
+        attributes = self.__settings_provider.get_consume_attrs_from_message(msg)
 
         if not len(current_context):
             create_span = self._tracer.start_span(
@@ -191,29 +201,9 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             self._current_span.end()
         return False
 
-    def _get_attrs_from_message(self, msg: "StreamMessage[Any]") -> Dict[str, Any]:
-        return {
-            SpanAttributes.MESSAGING_SYSTEM: self._system,
-            SpanAttributes.MESSAGING_MESSAGE_ID: msg.correlation_id,
-            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
-            SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
-            "messaging.destination_publish.name": msg.raw_message.subject,
-        }
-
-    def _get_attrs_from_kwargs(self, kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        attrs = {SpanAttributes.MESSAGING_SYSTEM: self._system}
-
-        if (destination := kwargs.get("subject")) is not None:
-            attrs[SpanAttributes.MESSAGING_DESTINATION_NAME] = destination
-        if (message_id := kwargs.get("message_id")) is not None:
-            attrs[SpanAttributes.MESSAGING_MESSAGE_ID] = message_id
-        if (correlation_id := kwargs.get("correlation_id")) is not None:
-            attrs[SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID] = correlation_id
-
-        return attrs
-
 
 class TelemetryMiddleware:
+    # NOTE: should it be class or function?
     __slots__ = (
         "_tracer",
         "_meter",
@@ -232,8 +222,28 @@ class TelemetryMiddleware:
 
     def __call__(self, msg: Optional[Any]) -> BaseMiddleware:
         return BaseTelemetryMiddleware(
-            system="nats",
             tracer=self._tracer,
             metrics_container=self._metrics,
             msg=msg,
         )
+
+
+def _get_meter(
+    meter_provider: Optional["MeterProvider"] = None,
+    meter: Optional["Meter"] = None,
+) -> "Meter":
+    if meter is None:
+        return metrics.get_meter(
+            __name__,
+            meter_provider=meter_provider,
+            schema_url=_OTEL_SCHEMA,
+        )
+    return meter
+
+
+def _get_tracer(tracer_provider: Optional["TracerProvider"] = None) -> "Tracer":
+    return trace.get_tracer(
+        __name__,
+        tracer_provider=tracer_provider,
+        schema_url=_OTEL_SCHEMA,
+    )

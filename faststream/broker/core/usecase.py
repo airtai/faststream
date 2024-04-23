@@ -239,6 +239,7 @@ class BrokerUsecase(
     def setup_subscriber(
         self,
         subscriber: SubscriberProto[MsgType],
+        extra_context: Optional["AnyDict"] = None,
         **kwargs: Any,
     ) -> None:
         """Setup the Subscriber to prepare it to starting."""
@@ -246,7 +247,7 @@ class BrokerUsecase(
             logger=self.logger,
             producer=self._producer,
             graceful_timeout=self.graceful_timeout,
-            extra_context={},
+            extra_context=extra_context or {},
             # broker options
             broker_parser=self._parser,
             broker_decoder=self._decoder,
