@@ -75,7 +75,7 @@ redis = ["redis>=5.0.0,<6.0.0"]
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material==9.5.17",
+    "mkdocs-material==9.5.18",
     "mkdocs-static-i18n==1.2.2",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.24.3",
@@ -106,9 +106,9 @@ types = [
 
 lint = [
     "faststream[types]",
-    "ruff==0.3.7",
+    "ruff==0.4.1",
     "bandit==1.7.8",
-    "semgrep==1.68.0",
+    "semgrep==1.69.0",
     "codespell==2.2.6",
 ]
 
@@ -121,7 +121,7 @@ test-core = [
 
 testing = [
     "faststream[test-core]",
-    "fastapi==0.110.1",
+    "fastapi==0.110.2",
     "pydantic-settings>=2.0.0,<3.0.0",
     "httpx==0.27.0",
     "PyYAML==6.0.1",
