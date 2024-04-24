@@ -86,7 +86,7 @@ class SubscriberUsecase(
     extra_context: "AnyDict"
     graceful_timeout: Optional[float]
 
-    _broker_dependecies: Iterable["Depends"]
+    _broker_dependencies: Iterable["Depends"]
     _call_options: Optional["_CallOptions"]
 
     def __init__(
@@ -117,7 +117,7 @@ class SubscriberUsecase(
         self.lock = sync_fake_context()
 
         # Setup in include
-        self._broker_dependecies = broker_dependencies
+        self._broker_dependencies = broker_dependencies
         self._broker_middlewares = broker_middlewares
 
         # register in setup later
@@ -178,7 +178,7 @@ class SubscriberUsecase(
                 is_validate=is_validate,
                 _get_dependant=_get_dependant,
                 _call_decorators=_call_decorators,
-                broker_dependencies=self._broker_dependecies,
+                broker_dependencies=self._broker_dependencies,
             )
 
             call.handler.refresh(with_mock=False)

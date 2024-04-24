@@ -31,7 +31,7 @@ class SubscriberProto(
     calls: List["HandlerItem[MsgType]"]
     running: bool
 
-    _broker_dependecies: Iterable["Depends"]
+    _broker_dependencies: Iterable["Depends"]
     _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
     _producer: Optional["ProducerProto"]
 

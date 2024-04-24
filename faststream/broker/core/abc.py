@@ -94,10 +94,10 @@ class ABCBroker(Generic[MsgType]):
                     *middlewares,
                     *h._broker_middlewares,
                 )
-                h._broker_dependecies = (
+                h._broker_dependencies = (
                     *self._dependencies,
                     *dependencies,
-                    *h._broker_dependecies,
+                    *h._broker_dependencies,
                 )
                 self._subscribers = {**self._subscribers, key: h}
 
