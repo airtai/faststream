@@ -79,44 +79,22 @@ class LocalTelemetryTestcase:
         create, publish, process = trace_exporter.get_finished_spans()
         parent_span_id = create.context.span_id
 
-        assert (
-            create.attributes.get(SpanAttributes.MESSAGING_SYSTEM)
-            == self.messaging_system
-        )
-        assert create.attributes.get(SpanAttributes.MESSAGING_DESTINATION_NAME) == queue
-        assert (
-            create.attributes.get(SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID)
-            == IsUUID
-        )
+        assert create.attributes[SpanAttributes.MESSAGING_SYSTEM] == self.messaging_system
+        assert create.attributes[SpanAttributes.MESSAGING_DESTINATION_NAME] == queue
+        assert create.attributes[SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID] == IsUUID
         assert create.name == f"{queue} {MessageAction.CREATE}"
 
-        assert (
-            publish.attributes.get(SpanAttributes.MESSAGING_SYSTEM)
-            == self.messaging_system
-        )
-        assert (
-            publish.attributes.get(SpanAttributes.MESSAGING_DESTINATION_NAME) == queue
-        )
-        assert (
-            publish.attributes.get(SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID)
-            == IsUUID
-        )
+        assert publish.attributes[SpanAttributes.MESSAGING_SYSTEM] == self.messaging_system
+        assert publish.attributes[SpanAttributes.MESSAGING_DESTINATION_NAME] == queue
+        assert publish.attributes[SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID] == IsUUID
         assert publish.name == f"{queue} {MessageAction.PUBLISH}"
         assert publish.parent.span_id == parent_span_id
 
-        assert (
-            process.attributes.get(SpanAttributes.MESSAGING_SYSTEM)
-            == self.messaging_system
-        )
-        assert process.attributes.get("messaging.destination_publish.name") == queue
-        assert (
-            process.attributes.get(SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID)
-            == IsUUID
-        )
-        assert process.attributes.get(SpanAttributes.MESSAGING_MESSAGE_ID) == IsUUID
-        assert process.attributes.get(
-            SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES
-        ) == len(msg)
+        assert process.attributes[SpanAttributes.MESSAGING_SYSTEM] == self.messaging_system
+        assert process.attributes["messaging.destination_publish.name"] == queue
+        assert process.attributes[SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID] == IsUUID
+        assert process.attributes[SpanAttributes.MESSAGING_MESSAGE_ID] == IsUUID
+        assert process.attributes[SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES] == len(msg)
         assert process.name == f"{queue} {MessageAction.PROCESS}"
         assert process.parent.span_id == parent_span_id
 
