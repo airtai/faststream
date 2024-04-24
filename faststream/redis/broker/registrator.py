@@ -7,6 +7,7 @@ from faststream.broker.utils import default_filter
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
 from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.redis.subscriber.factory import SubsciberType, create_subscriber
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -20,7 +21,6 @@ if TYPE_CHECKING:
     from faststream.redis.message import UnifyRedisMessage
     from faststream.redis.publisher.asyncapi import PublisherType
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
-    from faststream.redis.subscriber.asyncapi import SubsciberType
     from faststream.types import AnyDict
 
 
@@ -104,7 +104,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         subscriber = cast(
             AsyncAPISubscriber,
             super().subscriber(
-                AsyncAPISubscriber.create(
+                create_subscriber(
                     channel=channel,
                     list=list,
                     stream=stream,

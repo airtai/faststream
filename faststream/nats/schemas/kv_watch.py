@@ -2,19 +2,21 @@ from typing import Optional
 
 from typing_extensions import Annotated, Doc
 
+from faststream.broker.schemas import NameRequired
 
-class KvWatch:
+
+class KvWatch(NameRequired):
     """A class to represent a NATS kv watch subscription."""
 
     __slots__ = (
         "bucket",
-        "keys",
         "headers_only",
         "include_history",
         "ignore_deletes",
         "meta_only",
         "inactive_threshold",
         "timeout",
+        "declare",
     )
 
     def __init__(
@@ -22,10 +24,6 @@ class KvWatch:
         bucket: Annotated[
             str,
             Doc("Bucket name."),
-        ],
-        keys: Annotated[
-            str,
-            Doc("Keys to watch."),
         ],
         headers_only: Annotated[
             bool,
@@ -51,12 +49,22 @@ class KvWatch:
             Optional[float],
             Doc("Timeout in seconds."),
         ] = 5.0,
+        # custom
+        declare: Annotated[
+            bool,
+            Doc("Whether to create bucket automatically or just connect to it."),
+        ] = True,
     ) -> None:
-        self.bucket = bucket
-        self.keys = keys
+        super().__init__(bucket)
+
         self.headers_only = headers_only
         self.include_history = include_history
         self.ignore_deletes = ignore_deletes
         self.meta_only = meta_only
         self.inactive_threshold = inactive_threshold
         self.timeout = timeout
+
+        self.declare = declare
+
+    def __hash__(self) -> int:
+        return hash(self.name)

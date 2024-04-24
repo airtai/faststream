@@ -35,12 +35,6 @@ class SubscriberProto(
     _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
     _producer: Optional["ProducerProto"]
 
-    @staticmethod
-    @abstractmethod
-    def create() -> "SubscriberProto[MsgType]":
-        """Abstract factory to create a real Subscriber."""
-        ...
-
     @abstractmethod
     def get_log_context(
         self,

@@ -20,7 +20,7 @@ from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
 from faststream.confluent.client import AsyncConfluentConsumer
 from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
-from faststream.confluent.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.confluent.subscriber.factory import create_subscriber
 from faststream.exceptions import SetupError
 
 if TYPE_CHECKING:
@@ -1259,7 +1259,7 @@ class KafkaRegistrator(
         )
 
         subscriber = super().subscriber(
-            AsyncAPISubscriber.create(
+            create_subscriber(
                 *topics,
                 batch=batch,
                 batch_timeout_ms=batch_timeout_ms,

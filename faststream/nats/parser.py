@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
 from faststream.nats.message import (
@@ -43,7 +43,7 @@ class NatsBaseParser:
 
     @staticmethod
     async def decode_message(
-        msg: "StreamMessage[Msg]",
+        msg: "StreamMessage[Any]",
     ) -> "DecodedMessage":
         return decode_message(msg)
 
@@ -136,29 +136,20 @@ class BatchParser(JsParser):
         return data
 
 
-class KvParser:
-    async def parse_message(self, msg: "KeyValue.Entry") -> NatsKvMessage:
+class KvParser(NatsBaseParser):
+    async def parse_message(
+        self, msg: "KeyValue.Entry"
+    ) -> StreamMessage["KeyValue.Entry"]:
         return NatsKvMessage(
             raw_message=msg,
             body=msg.value,
+            path=self.get_path(msg.key) or {},
         )
 
-    @staticmethod
-    async def decode_message(
-        msg: "StreamMessage[KeyValue.Entry]",
-    ) -> "DecodedMessage":
-        return decode_message(msg)
 
-
-class ObjParser:
-    async def parse_message(self, msg: "ObjectInfo") -> NatsObjMessage:
+class ObjParser(NatsBaseParser):
+    async def parse_message(self, msg: "ObjectInfo") -> StreamMessage["ObjectInfo"]:
         return NatsObjMessage(
             raw_message=msg,
-            body=msg.bucket,
+            body=msg.name,
         )
-
-    @staticmethod
-    async def decode_message(
-        msg: "StreamMessage[KeyValue.Entry]",
-    ) -> "DecodedMessage":
-        return decode_message(msg)

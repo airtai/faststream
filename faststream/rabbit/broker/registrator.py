@@ -11,6 +11,7 @@ from faststream.rabbit.schemas import (
     RabbitQueue,
 )
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.rabbit.subscriber.factory import create_subscriber
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage  # noqa: F401
@@ -117,7 +118,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         subscriber = cast(
             AsyncAPISubscriber,
             super().subscriber(
-                AsyncAPISubscriber.create(
+                create_subscriber(
                     queue=RabbitQueue.validate(queue),
                     exchange=RabbitExchange.validate(exchange),
                     consume_args=consume_args,
