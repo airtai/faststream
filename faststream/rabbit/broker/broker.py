@@ -415,11 +415,6 @@ class RabbitBroker(
                 await self._channel_pool.close()
             self._channel_pool = None
 
-        if self._connection is not None:
-            if not self._connection.is_closed:
-                await self._connection.close()
-            self._connection = None
-
         if self._connection_pool is not None:
             if not self._connection_pool.is_closed:
                 await self._connection_pool.close()
