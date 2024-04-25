@@ -127,7 +127,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         else:
             create_span = self._tracer.start_span(
                 name=_create_span_name(destination_name, MessageAction.CREATE),
-                kind=trace.SpanKind.CONSUMER,
+                kind=trace.SpanKind.PRODUCER,
                 attributes=attributes,
             )
             current_context = trace.set_span_in_context(create_span)
