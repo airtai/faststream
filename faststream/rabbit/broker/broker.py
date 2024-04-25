@@ -1,18 +1,10 @@
 import logging
 from inspect import Parameter
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterable,
-    Optional,
-    Type,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Type, Union, cast
 from urllib.parse import urlparse
 
 from aio_pika import connect_robust
+from aio_pika.pool import Pool
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
@@ -21,11 +13,7 @@ from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.broker.logging import RabbitLoggingBroker
 from faststream.rabbit.broker.registrator import RabbitRegistrator
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
-from faststream.rabbit.schemas import (
-    RABBIT_REPLY,
-    RabbitExchange,
-    RabbitQueue,
-)
+from faststream.rabbit.schemas import RABBIT_REPLY, RabbitExchange, RabbitQueue
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.rabbit.utils import RabbitDeclarer, build_url
@@ -47,13 +35,33 @@ if TYPE_CHECKING:
     from yarl import URL
 
     from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.types import (
-        BrokerMiddleware,
-        CustomCallable,
-    )
+    from faststream.broker.types import BrokerMiddleware, CustomCallable
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, Decorator, LoggerProto
+
+
+async def get_connection(
+    url: str,
+    timeout: "TimeoutType",
+    ssl_context: Optional["SSLContext"],
+) -> "RobustConnection":
+    return cast(
+        "RobustConnection",
+        await connect_robust(
+            url,
+            timeout=timeout,
+            ssl_context=ssl_context,
+        ),
+    )
+
+
+async def get_channel(connection_pool: "Pool[RobustConnection]") -> "RobustChannel":
+    async with connection_pool.acquire() as connection:
+        return cast(
+            "RobustChannel",
+            await connection.channel(),
+        )
 
 
 class RabbitBroker(
@@ -66,7 +74,8 @@ class RabbitBroker(
     _producer: Optional["AioPikaFastProducer"]
 
     declarer: Optional[RabbitDeclarer]
-    _channel: Optional["RobustChannel"]
+    _channel_pool: Optional["Pool[RobustChannel]"]
+    _connection_pool: Optional["Pool[RobustConnection]"]
 
     def __init__(
         self,
@@ -249,6 +258,8 @@ class RabbitBroker(
         self.app_id = app_id
 
         self._channel = None
+        self._channel_pool = None
+        self._connection_pool = None
         self.declarer = None
 
     @property
@@ -346,22 +357,33 @@ class RabbitBroker(
         *,
         timeout: "TimeoutType",
         ssl_context: Optional["SSLContext"],
+        max_connection_pool_size: int = 1,
+        max_channel_pool_size: int = 10,
     ) -> "RobustConnection":
-        connection = cast(
-            "RobustConnection",
-            await connect_robust(
-                url,
-                timeout=timeout,
-                ssl_context=ssl_context,
-            ),
-        )
-
-        if self._channel is None:  # pragma: no branch
-            max_consumers = self._max_consumers
-            channel = self._channel = cast(
-                "RobustChannel",
-                await connection.channel(),
+        if self._connection_pool is None:
+            self._connection_pool = Pool(
+                lambda: get_connection(
+                    url=url,
+                    timeout=timeout,
+                    ssl_context=ssl_context,
+                ),
+                max_size=max_connection_pool_size,
             )
+
+        if self._channel_pool is None:
+            assert self._connection_pool is not None
+            self._channel_pool = cast(
+                Pool["RobustChannel"],
+                Pool(
+                    lambda: get_channel(
+                        cast("Pool[RobustConnection]", self._connection_pool)
+                    ),
+                    max_size=max_channel_pool_size,
+                ),
+            )
+
+        async with self._channel_pool.acquire() as channel:
+            max_consumers = self._max_consumers
 
             declarer = self.declarer = RabbitDeclarer(channel)
             await declarer.declare_queue(RABBIT_REPLY)
@@ -380,7 +402,7 @@ class RabbitBroker(
                 self._log(f"Set max consumers to {max_consumers}", extra=c)
                 await channel.set_qos(prefetch_count=int(max_consumers))
 
-        return connection
+            return cast("RobustConnection", channel._connection)
 
     async def _close(
         self,
@@ -388,17 +410,23 @@ class RabbitBroker(
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
-        if self._channel is not None:
-            if not self._channel.is_closed:
-                await self._channel.close()
+        if self._channel_pool is not None:
+            if not self._channel_pool.is_closed:
+                await self._channel_pool.close()
+            self._channel_pool = None
 
-            self._channel = None
+        if self._connection is not None:
+            if not self._connection.is_closed:
+                await self._connection.close()
+            self._connection = None
+
+        if self._connection_pool is not None:
+            if not self._connection_pool.is_closed:
+                await self._connection_pool.close()
+            self._connection_pool = None
 
         self.declarer = None
         self._producer = None
-
-        if self._connection is not None:
-            await self._connection.close()
 
         await super()._close(exc_type, exc_val, exc_tb)
 
