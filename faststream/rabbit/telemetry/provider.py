@@ -36,30 +36,24 @@ class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage
         msg: "StreamMessage[IncomingMessage]",
     ) -> str:
         exchange = msg.raw_message.exchange or "default"
-        routing_key = msg.raw_message.routing_key or "default"
+        routing_key = msg.raw_message.routing_key
         return f"{exchange}.{routing_key}"
 
     def get_publish_attrs_from_kwargs(
         self,
         kwargs: "AnyDict",
     ) -> "AnyDict":
-        attrs = {
+        return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
             SpanAttributes.MESSAGING_DESTINATION_NAME: kwargs.get("exchange") or "",
-            SpanAttributes.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY: kwargs.get("routing_key") or "",
+            SpanAttributes.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY: kwargs["routing_key"],
+            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: kwargs["correlation_id"]
         }
-
-        if (correlation_id := kwargs.get("correlation_id")) is not None:
-            attrs[SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID] = correlation_id
-        if (message_id := kwargs.get("message_id")) is not None:
-            attrs[SpanAttributes.MESSAGING_MESSAGE_ID] = message_id
-
-        return attrs
 
     @staticmethod
     def get_publish_destination_name(
         kwargs: "AnyDict",
     ) -> str:
         exchange: str = kwargs.get("exchange") or "default"
-        routing_key: str = kwargs.get("routing_key") or "default"
+        routing_key: str = kwargs["routing_key"]
         return f"{exchange}.{routing_key}"
