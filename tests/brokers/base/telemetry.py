@@ -14,10 +14,8 @@ from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind
 
 from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.middlewares.telemetry import (
-    MessageAction as Action,
-    TelemetryMiddleware,
-)
+from faststream.broker.middlewares.telemetry import MessageAction as Action
+from faststream.broker.middlewares.telemetry import TelemetryMiddleware
 
 
 @pytest.mark.asyncio()

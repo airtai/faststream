@@ -27,7 +27,7 @@ class NatsTelemetrySettingsProvider(TelemetrySettingsProvider["Msg"]):
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.message_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
-            "messaging.destination_publish.name": msg.raw_message.subject,
+            "messaging.destination_publish.name": self.get_consume_destination_name(msg),
         }
 
     @staticmethod
@@ -42,10 +42,9 @@ class NatsTelemetrySettingsProvider(TelemetrySettingsProvider["Msg"]):
     ) -> "AnyDict":
         attrs = {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
+            SpanAttributes.MESSAGING_DESTINATION_NAME: self.get_publish_destination_name(kwargs),
         }
 
-        if (subject := kwargs.get("subject")) is not None:
-            attrs[SpanAttributes.MESSAGING_DESTINATION_NAME] = subject
         if (correlation_id := kwargs.get("correlation_id")) is not None:
             attrs[SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID] = correlation_id
         if (message_id := kwargs.get("message_id")) is not None:
