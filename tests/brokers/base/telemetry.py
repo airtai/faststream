@@ -229,6 +229,10 @@ class LocalTelemetryTestcase:
         metric_reader: InMemoryMetricReader,
         raw_broker,
     ):
+        expected_requests_in_flight = 0
+        expected_publishing_count = 1
+        expected_consuming_count = 1
+
         mid = TelemetryMiddleware(meter_provider=meter_provider)
         broker = self.broker_class(middlewares=(mid,))
 
@@ -256,15 +260,15 @@ class LocalTelemetryTestcase:
         )
         pub_mes_size, requests, cons_mes_size, duration = metrics
 
-        assert pub_mes_size.data.data_points[0].count == 1
+        assert pub_mes_size.data.data_points[0].count == expected_publishing_count
         assert pub_mes_size.data.data_points[0].sum == len(msg)
 
-        assert requests.data.data_points[0].value == 0
+        assert requests.data.data_points[0].value == expected_requests_in_flight
 
-        assert cons_mes_size.data.data_points[0].count == 1
+        assert cons_mes_size.data.data_points[0].count == expected_consuming_count
         assert cons_mes_size.data.data_points[0].sum == len(msg)
 
-        assert duration.data.data_points[0].count == 1
+        assert duration.data.data_points[0].count == expected_consuming_count
 
         assert event.is_set()
         mock.assert_called_once_with(msg)
