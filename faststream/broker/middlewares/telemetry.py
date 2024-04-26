@@ -166,7 +166,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 
         self._origin_context = current_context
         self._metrics.active_requests_counter.add(1, attributes)
-        self._metrics.publisher_message_size_histogram.record(len(msg.body), attributes)
+        self._metrics.consumer_message_size_histogram.record(len(msg.body), attributes)
 
         try:
             with self._tracer.start_as_current_span(
