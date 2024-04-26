@@ -46,8 +46,10 @@ class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage
         return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
             SpanAttributes.MESSAGING_DESTINATION_NAME: kwargs.get("exchange") or "",
-            SpanAttributes.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY: kwargs["routing_key"],
-            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: kwargs["correlation_id"]
+            SpanAttributes.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY: kwargs[
+                "routing_key"
+            ],
+            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: kwargs["correlation_id"],
         }
 
     @staticmethod
