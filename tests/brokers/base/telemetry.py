@@ -26,14 +26,17 @@ class LocalTelemetryTestcase:
     subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
     resource: Resource = Resource.create(attributes={"service.name": "faststream.test"})
 
-    @pytest.fixture()
-    def raw_broker(self):
-        return None
-
     def patch_broker(
         self, raw_broker: BrokerUsecase, broker: BrokerUsecase
     ) -> BrokerUsecase:
         return broker
+
+    def destination_name(self, queue: str) -> str:
+        return queue
+
+    @pytest.fixture()
+    def raw_broker(self):
+        return None
 
     @pytest.fixture()
     def tracer_provider(self) -> TracerProvider:
@@ -58,25 +61,29 @@ class LocalTelemetryTestcase:
         self,
         span: Span,
         action: str,
-        destination: str,
+        queue: str,
         msg: str,
         parent_span_id: Optional[str] = None,
     ) -> None:
         attrs = span.attributes
         assert attrs[SpanAttr.MESSAGING_SYSTEM] == self.messaging_system
         assert attrs[SpanAttr.MESSAGING_MESSAGE_CONVERSATION_ID] == IsUUID
-        assert span.name == f"{destination} {action}"
+        assert span.name == f"{self.destination_name(queue)} {action}"
         assert span.kind in (SpanKind.CONSUMER, SpanKind.PRODUCER)
 
         if span.kind == SpanKind.PRODUCER and action in (Action.CREATE, Action.PUBLISH):
-            assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == destination
+            assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == queue
 
         if span.kind == SpanKind.CONSUMER and action in (Action.CREATE, Action.PROCESS):
-            assert attrs["messaging.destination_publish.name"] == destination
+            assert attrs["messaging.destination_publish.name"] == queue
             assert attrs[SpanAttr.MESSAGING_MESSAGE_ID] == IsUUID
 
         if action == Action.PROCESS:
             assert attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES] == len(msg)
+            assert attrs[SpanAttr.MESSAGING_OPERATION] == action
+
+        if action == Action.PUBLISH:
+            assert attrs[SpanAttr.MESSAGING_OPERATION] == action
 
         if parent_span_id:
             assert span.parent.span_id == parent_span_id

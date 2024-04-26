@@ -29,6 +29,14 @@ from faststream.rabbit.schemas import (
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.rabbit.utils import RabbitDeclarer, build_url
+from faststream.utils.context.repository import context
+
+try:
+    from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
+    from faststream.rabbit.telemetry.provider import RabbitTelemetrySettingsProvider
+except ImportError:
+    TELEMETRY_PROVIDER_CONTEXT_KEY = RabbitTelemetrySettingsProvider = None  # type: ignore[assignment,misc]
+
 
 if TYPE_CHECKING:
     from ssl import SSLContext
@@ -206,6 +214,13 @@ class RabbitBroker(
             password=security_args.get("password"),
             ssl=security_args.get("ssl"),
         )
+
+        # TODO: mv it to `setup_subscriber` extra context to support multiple brokers
+        if TELEMETRY_PROVIDER_CONTEXT_KEY is not None:
+            context.set_global(
+                TELEMETRY_PROVIDER_CONTEXT_KEY,
+                RabbitTelemetrySettingsProvider(),
+            )
 
         if asyncapi_url is None:
             asyncapi_url = str(amqp_url)

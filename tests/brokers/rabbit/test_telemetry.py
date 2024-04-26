@@ -1,0 +1,53 @@
+from typing import Optional
+
+import pytest
+from dirty_equals import IsUUID, IsInt
+from opentelemetry.sdk.trace import Span
+from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
+from opentelemetry.trace import SpanKind
+
+from faststream.broker.middlewares.telemetry import MessageAction as Action
+from faststream.rabbit import RabbitBroker
+from tests.brokers.base.telemetry import LocalTelemetryTestcase
+
+
+@pytest.mark.nats()
+class TestMiddlewares(LocalTelemetryTestcase):
+    messaging_system = "rabbitmq"
+    broker_class = RabbitBroker
+
+    def destination_name(self, queue: str) -> str:
+        return f"default.{queue}"
+
+    def assert_span(
+        self,
+        span: Span,
+        action: str,
+        queue: str,
+        msg: str,
+        parent_span_id: Optional[str] = None,
+    ) -> None:
+        attrs = span.attributes
+        assert attrs[SpanAttr.MESSAGING_SYSTEM] == self.messaging_system
+        assert attrs[SpanAttr.MESSAGING_MESSAGE_CONVERSATION_ID] == IsUUID
+        assert attrs[SpanAttr.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY] == queue
+        assert span.name == f"{self.destination_name(queue)} {action}"
+        assert span.kind in (SpanKind.CONSUMER, SpanKind.PRODUCER)
+
+        if span.kind == SpanKind.PRODUCER and action in (Action.CREATE, Action.PUBLISH):
+            assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == ""
+
+        if span.kind == SpanKind.CONSUMER and action in (Action.CREATE, Action.PROCESS):
+            assert attrs["messaging.destination_publish.name"] == ""
+            assert attrs["messaging.rabbitmq.message.delivery_tag"] == IsInt
+            assert attrs[SpanAttr.MESSAGING_MESSAGE_ID] == IsUUID
+
+        if action == Action.PROCESS:
+            assert attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES] == len(msg)
+            assert attrs[SpanAttr.MESSAGING_OPERATION] == action
+
+        if action == Action.PUBLISH:
+            assert attrs[SpanAttr.MESSAGING_OPERATION] == action
+
+        if parent_span_id:
+            assert span.parent.span_id == parent_span_id

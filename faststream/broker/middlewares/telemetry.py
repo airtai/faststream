@@ -2,6 +2,7 @@ import time
 from typing import TYPE_CHECKING, Any, Optional, Protocol, Type
 
 from opentelemetry import context, metrics, propagate, trace
+from opentelemetry.semconv.trace import SpanAttributes
 
 from faststream import BaseMiddleware
 from faststream import context as global_context
@@ -139,7 +140,8 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             kind=trace.SpanKind.PRODUCER,
             attributes=attributes,
             context=current_context,
-        ):
+        ) as span:
+            span.set_attribute(SpanAttributes.MESSAGING_OPERATION, MessageAction.PUBLISH)
             result = await call_next(msg, *args, headers=headers, **kwargs)
 
         self._metrics.publisher_message_size_histogram.record(len(msg), attributes)
@@ -176,6 +178,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 attributes=attributes,
                 end_on_exit=False,
             ) as span:
+                span.set_attribute(SpanAttributes.MESSAGING_OPERATION, MessageAction.PROCESS)
                 self._current_span = span
                 new_context = trace.set_span_in_context(span, current_context)
                 token = context.attach(new_context)
