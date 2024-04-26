@@ -11,7 +11,7 @@ from faststream.rabbit import RabbitBroker
 from tests.brokers.base.telemetry import LocalTelemetryTestcase
 
 
-@pytest.mark.nats()
+@pytest.mark.rabbit()
 class TestMiddlewares(LocalTelemetryTestcase):
     messaging_system = "rabbitmq"
     broker_class = RabbitBroker

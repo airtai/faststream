@@ -53,8 +53,6 @@ class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage
             attrs[SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID] = correlation_id
         if (message_id := kwargs.get("message_id")) is not None:
             attrs[SpanAttributes.MESSAGING_MESSAGE_ID] = message_id
-        if (delivery_tag := kwargs.get("delivery_tag")) is not None:
-            attrs["messaging.rabbitmq.message.delivery_tag"] = delivery_tag
 
         return attrs
 
