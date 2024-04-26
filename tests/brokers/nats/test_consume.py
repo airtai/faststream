@@ -248,3 +248,56 @@ class TestConsume(BrokerRealConsumeTestcase):
             m.mock.assert_not_called()
 
         assert event.is_set()
+
+    @pytest.mark.asyncio()
+    async def test_consume_kv(
+        self, queue: str, full_broker: NatsBroker, event: asyncio.Event
+    ):
+        @full_broker.subscriber("hello", kv_watch="test")
+        async def handler(filename: str):
+            event.set()
+
+        async with full_broker:
+            await full_broker.start()
+            bucket = await full_broker.key_value("test")
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        bucket.put(
+                            "hello",
+                            b"world",
+                        )
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+
+    @pytest.mark.asyncio()
+    async def test_consume_os(
+        self, queue: str, full_broker: NatsBroker, event: asyncio.Event
+    ):
+        @full_broker.subscriber("test", obj_watch=True)
+        async def handler(filename: str):
+            event.set()
+
+        async with full_broker:
+            await full_broker.start()
+            bucket = await full_broker.object_storage("test")
+            await bucket.watch()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        bucket.put(
+                            "hello",
+                            b"world",
+                        )
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
