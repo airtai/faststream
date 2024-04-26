@@ -1,7 +1,7 @@
 from typing import Optional
 
 import pytest
-from dirty_equals import IsUUID, IsInt
+from dirty_equals import IsInt, IsUUID
 from opentelemetry.sdk.trace import Span
 from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind
