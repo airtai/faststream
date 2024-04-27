@@ -22,16 +22,21 @@ from typing_extensions import Annotated, Doc, override
 from faststream import context
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
-from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.confluent.broker.logging import KafkaLoggingBroker
 from faststream.confluent.broker.registrator import KafkaRegistrator
 from faststream.confluent.client import AsyncConfluentProducer, _missing
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
-from faststream.confluent.telemetry.provider import ConfluentTelemetrySettingsProvider
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.utils.data import filter_by_dict
+
+try:
+    from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
+    from faststream.confluent.telemetry.provider import ConfluentTelemetrySettingsProvider
+except ImportError:
+    TELEMETRY_PROVIDER_CONTEXT_KEY = ConfluentTelemetrySettingsProvider = None  # type: ignore[assignment,misc]
+
 
 if TYPE_CHECKING:
     from types import TracebackType

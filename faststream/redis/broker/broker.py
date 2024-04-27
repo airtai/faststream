@@ -27,13 +27,18 @@ from typing_extensions import Annotated, Doc, TypeAlias, override
 from faststream import context
 from faststream.__about__ import __version__
 from faststream.broker.message import gen_cor_id
-from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.broker.logging import RedisLoggingBroker
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
-from faststream.redis.telemetry.provider import RedisTelemetrySettingsProvider
+
+try:
+    from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
+    from faststream.redis.telemetry.provider import RedisTelemetrySettingsProvider
+except ImportError:
+    TELEMETRY_PROVIDER_CONTEXT_KEY = RedisTelemetrySettingsProvider = None  # type: ignore[assignment,misc]
+
 
 if TYPE_CHECKING:
     from types import TracebackType

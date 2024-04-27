@@ -24,15 +24,20 @@ from typing_extensions import Annotated, Doc, override
 from faststream import context
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
-from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.broker.logging import KafkaLoggingBroker
 from faststream.kafka.broker.registrator import KafkaRegistrator
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.kafka.security import parse_security
-from faststream.kafka.telemetry.provider import KafkaTelemetrySettingsProvider
 from faststream.utils.data import filter_by_dict
+
+try:
+    from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
+    from faststream.kafka.telemetry.provider import KafkaTelemetrySettingsProvider
+except ImportError:
+    TELEMETRY_PROVIDER_CONTEXT_KEY = KafkaTelemetrySettingsProvider = None  # type: ignore[assignment,misc]
+
 
 Partition = TypeVar("Partition")
 
