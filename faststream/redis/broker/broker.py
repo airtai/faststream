@@ -24,13 +24,16 @@ from redis.asyncio.connection import (
 )
 from typing_extensions import Annotated, Doc, TypeAlias, override
 
+from faststream import context
 from faststream.__about__ import __version__
 from faststream.broker.message import gen_cor_id
+from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.broker.logging import RedisLoggingBroker
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
+from faststream.redis.telemetry.provider import RedisTelemetrySettingsProvider
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -203,6 +206,13 @@ class RedisBroker(
         if protocol is None:
             url_kwargs = urlparse(asyncapi_url)
             protocol = url_kwargs.scheme
+
+        # TODO: mv it to `setup_subscriber` extra context to support multiple brokers
+        if TELEMETRY_PROVIDER_CONTEXT_KEY is not None:
+            context.set_global(
+                TELEMETRY_PROVIDER_CONTEXT_KEY,
+                RedisTelemetrySettingsProvider(),
+            )
 
         super().__init__(
             url=url,
