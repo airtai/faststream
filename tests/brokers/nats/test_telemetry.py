@@ -5,6 +5,6 @@ from tests.brokers.base.telemetry import LocalTelemetryTestcase
 
 
 @pytest.mark.nats()
-class TestMiddlewares(LocalTelemetryTestcase):
+class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "nats"
     broker_class = NatsBroker

@@ -12,7 +12,7 @@ from tests.brokers.base.telemetry import LocalTelemetryTestcase
 
 
 @pytest.mark.rabbit()
-class TestMiddlewares(LocalTelemetryTestcase):
+class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "rabbitmq"
     broker_class = RabbitBroker
 

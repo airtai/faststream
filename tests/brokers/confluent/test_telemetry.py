@@ -12,7 +12,7 @@ from tests.brokers.base.telemetry import LocalTelemetryTestcase
 
 
 @pytest.mark.confluent()
-class TestMiddlewares(LocalTelemetryTestcase):
+class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "kafka"
     timeout: int = 10
     subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}

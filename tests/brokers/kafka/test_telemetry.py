@@ -12,7 +12,7 @@ from tests.brokers.base.telemetry import LocalTelemetryTestcase
 
 
 @pytest.mark.kafka()
-class TestMiddlewares(LocalTelemetryTestcase):
+class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "kafka"
     broker_class = KafkaBroker
 
