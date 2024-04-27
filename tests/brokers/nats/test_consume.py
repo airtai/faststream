@@ -251,10 +251,15 @@ class TestConsume(BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     async def test_consume_kv(
-        self, queue: str, full_broker: NatsBroker, event: asyncio.Event
+        self,
+        queue: str,
+        full_broker: NatsBroker,
+        event: asyncio.Event,
+        mock,
     ):
         @full_broker.subscriber("hello", kv_watch="test")
-        async def handler(filename: str):
+        async def handler(m):
+            mock(m)
             event.set()
 
         async with full_broker:
@@ -274,14 +279,15 @@ class TestConsume(BrokerRealConsumeTestcase):
             )
 
         assert event.is_set()
-
+        mock.assert_called_with(b"world")
     @pytest.mark.asyncio()
     async def test_consume_os(
         self, queue: str, full_broker: NatsBroker, event: asyncio.Event
     ):
         @full_broker.subscriber("test", obj_watch=True)
         async def handler(filename: str):
-            event.set()
+            if filename == "hello":
+                event.set()
 
         async with full_broker:
             await full_broker.start()
