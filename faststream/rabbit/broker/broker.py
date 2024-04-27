@@ -18,6 +18,7 @@ from typing_extensions import Annotated, Doc, override
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.opentelemetry import HAS_OPEN_TELEMETRY
 from faststream.rabbit.broker.logging import RabbitLoggingBroker
 from faststream.rabbit.broker.registrator import RabbitRegistrator
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -28,15 +29,8 @@ from faststream.rabbit.schemas import (
 )
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.rabbit.telemetry.provider import RabbitTelemetrySettingsProvider
 from faststream.rabbit.utils import RabbitDeclarer, build_url
-from faststream.utils.context.repository import context
-
-try:
-    from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
-    from faststream.rabbit.telemetry.provider import RabbitTelemetrySettingsProvider
-except ImportError:
-    TELEMETRY_PROVIDER_CONTEXT_KEY = RabbitTelemetrySettingsProvider = None  # type: ignore[assignment,misc]
-
 
 if TYPE_CHECKING:
     from ssl import SSLContext
@@ -215,13 +209,6 @@ class RabbitBroker(
             ssl=security_args.get("ssl"),
         )
 
-        # TODO: mv it to `setup_subscriber` extra context to support multiple brokers
-        if TELEMETRY_PROVIDER_CONTEXT_KEY is not None:
-            context.set_global(
-                TELEMETRY_PROVIDER_CONTEXT_KEY,
-                RabbitTelemetrySettingsProvider(),
-            )
-
         if asyncapi_url is None:
             asyncapi_url = str(amqp_url)
 
@@ -259,6 +246,9 @@ class RabbitBroker(
             _call_decorators=_call_decorators,
         )
 
+        if HAS_OPEN_TELEMETRY:
+            self._telemetry_provider = RabbitTelemetrySettingsProvider()
+
         self._max_consumers = max_consumers
 
         self.app_id = app_id
@@ -269,6 +259,7 @@ class RabbitBroker(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
+            **super()._subscriber_setup_extra,
             "app_id": self.app_id,
             "virtual_host": self.virtual_host,
             "declarer": self.declarer,
@@ -277,6 +268,7 @@ class RabbitBroker(
     @property
     def _publisher_setup_extra(self) -> "AnyDict":
         return {
+            **super()._publisher_setup_extra,
             "app_id": self.app_id,
             "virtual_host": self.virtual_host,
         }

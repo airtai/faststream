@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from opentelemetry.semconv.trace import SpanAttributes
 
-from faststream.broker.middlewares.telemetry import TelemetrySettingsProvider
+from faststream.opentelemetry import TelemetrySettingsProvider
 
 if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
@@ -15,10 +15,6 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
     def __init__(self) -> None:
         self.messaging_system = "redis"
 
-    @staticmethod
-    def _get_destination(kwargs: "AnyDict") -> str:
-        return kwargs.get("channel") or kwargs.get("list") or kwargs.get("stream")
-
     def get_consume_attrs_from_message(
         self,
         msg: "StreamMessage[AnyDict]",
@@ -28,9 +24,7 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.message_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
-            "messaging.destination_publish.name": self._get_destination(
-                msg.raw_message
-            ),
+            "messaging.destination_publish.name": msg.raw_message["channel"],
         }
 
     def get_consume_destination_name(
@@ -54,3 +48,7 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
         kwargs: "AnyDict",
     ) -> str:
         return self._get_destination(kwargs)
+
+    @staticmethod
+    def _get_destination(kwargs: "AnyDict") -> str:
+        return kwargs.get("channel") or kwargs.get("list") or kwargs.get("stream")

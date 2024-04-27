@@ -28,6 +28,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         PublisherMiddleware,
     )
+    from faststream.opentelemetry import TelemetrySettingsProvider
     from faststream.types import AnyDict
 
 
@@ -40,6 +41,8 @@ class PublisherUsecase(
 
     mock: Optional[MagicMock]
     calls: List[Callable[..., Any]]
+
+    _telemetry_provider: Optional["TelemetrySettingsProvider"]
 
     def __init__(
         self,
@@ -77,6 +80,7 @@ class PublisherUsecase(
         self._middlewares = middlewares
         self._broker_middlewares = broker_middlewares
         self._producer = None
+        self._telemetry_provider = None
 
         self._fake_handler = False
         self.mock = None
@@ -92,7 +96,9 @@ class PublisherUsecase(
         self,
         *,
         producer: Optional["ProducerProto"],
+        telemetry_provider: Optional["TelemetrySettingsProvider"],
     ) -> None:
+        self._telemetry_provider = telemetry_provider
         self._producer = producer
 
     def set_test(

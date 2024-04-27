@@ -138,7 +138,7 @@ class SubscriberUsecase(
         logger: Optional["LoggerProto"],
         producer: Optional[ProducerProto],
         graceful_timeout: Optional[float],
-        extra_context: Optional["AnyDict"],
+        extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
@@ -152,7 +152,7 @@ class SubscriberUsecase(
 
         self._producer = producer
         self.graceful_timeout = graceful_timeout
-        self.extra_context = extra_context or {}
+        self.extra_context = extra_context
 
         self.watcher = get_watcher_context(logger, self._no_ack, self._retry)
 

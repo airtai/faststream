@@ -6,7 +6,7 @@ from opentelemetry.sdk.trace import Span
 from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind
 
-from faststream.broker.middlewares.telemetry import MessageAction as Action
+from faststream.opentelemetry.middleware import MessageAction as Action
 from faststream.rabbit import RabbitBroker
 from tests.brokers.base.telemetry import LocalTelemetryTestcase
 

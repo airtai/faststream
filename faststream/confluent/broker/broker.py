@@ -28,15 +28,10 @@ from faststream.confluent.client import AsyncConfluentProducer, _missing
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
+from faststream.confluent.telemetry.provider import ConfluentTelemetrySettingsProvider
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.opentelemetry import HAS_OPEN_TELEMETRY, TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.utils.data import filter_by_dict
-
-try:
-    from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
-    from faststream.confluent.telemetry.provider import ConfluentTelemetrySettingsProvider
-except ImportError:
-    TELEMETRY_PROVIDER_CONTEXT_KEY = ConfluentTelemetrySettingsProvider = None  # type: ignore[assignment,misc]
-
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -362,13 +357,6 @@ class KafkaBroker(
         else:
             asyncapi_url = servers
 
-        # TODO: mv it to `setup_subscriber` extra context to support multiple brokers
-        if TELEMETRY_PROVIDER_CONTEXT_KEY is not None:
-            context.set_global(
-                TELEMETRY_PROVIDER_CONTEXT_KEY,
-                ConfluentTelemetrySettingsProvider(),
-            )
-
         super().__init__(
             bootstrap_servers=servers,
             # both args
@@ -418,6 +406,9 @@ class KafkaBroker(
             apply_types=apply_types,
             validate=validate,
         )
+        if HAS_OPEN_TELEMETRY:
+            self._telemetry_provider = ConfluentTelemetrySettingsProvider()
+
         self.client_id = client_id
         self._producer = None
 
@@ -476,7 +467,11 @@ class KafkaBroker(
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
-        return {"client_id": self.client_id, "connection_data": self._connection or {}}
+        return {
+            **super()._subscriber_setup_extra,
+            "client_id": self.client_id,
+            "connection_data": self._connection or {},
+        }
 
     @override
     async def publish(  # type: ignore[override]
@@ -522,16 +517,17 @@ class KafkaBroker(
 
         correlation_id = correlation_id or gen_cor_id()
 
-        call: "AsyncFunc" = self._producer.publish_batch
-        for m in self._middlewares:
-            call = partial(m(None).publish_scope, call)
+        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
+            call: "AsyncFunc" = self._producer.publish_batch
+            for m in self._middlewares:
+                call = partial(m(None).publish_scope, call)
 
-        await call(
-            *msgs,
-            topic=topic,
-            partition=partition,
-            timestamp_ms=timestamp_ms,
-            headers=headers,
-            reply_to=reply_to,
-            correlation_id=correlation_id,
-        )
+            await call(
+                *msgs,
+                topic=topic,
+                partition=partition,
+                timestamp_ms=timestamp_ms,
+                headers=headers,
+                reply_to=reply_to,
+                correlation_id=correlation_id,
+            )

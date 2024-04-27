@@ -1,12 +1,16 @@
 import time
-from typing import TYPE_CHECKING, Any, Optional, Protocol, Type
+from typing import TYPE_CHECKING, Any, Optional, Type
 
 from opentelemetry import context, metrics, propagate, trace
 from opentelemetry.semconv.trace import SpanAttributes
 
 from faststream import BaseMiddleware
-from faststream import context as global_context
-from faststream.broker.types import MsgType
+from faststream.opentelemetry.consts import (
+    TELEMETRY_PROVIDER_CONTEXT_KEY,
+    MessageAction,
+)
+from faststream.opentelemetry.provider import TelemetrySettingsProvider
+from faststream.utils.context.repository import context as global_context
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -16,47 +20,14 @@ if TYPE_CHECKING:
     from opentelemetry.trace import Span, Tracer, TracerProvider
 
     from faststream.broker.message import StreamMessage
-    from faststream.types import AnyDict, AsyncFunc, AsyncFuncAny
+    from faststream.types import AsyncFunc, AsyncFuncAny
 
 
 _OTEL_SCHEMA = "https://opentelemetry.io/schemas/1.11.0"
 
-TELEMETRY_PROVIDER_CONTEXT_KEY = "_telemetry_provider"
-
-
-class TelemetrySettingsProvider(Protocol[MsgType]):
-    messaging_system: str
-
-    def get_consume_attrs_from_message(
-        self,
-        msg: "StreamMessage[MsgType]",
-    ) -> "AnyDict": ...
-
-    def get_consume_destination_name(
-        self,
-        msg: "StreamMessage[MsgType]",
-    ) -> str: ...
-
-    def get_publish_attrs_from_kwargs(
-        self,
-        kwargs: "AnyDict",
-    ) -> "AnyDict": ...
-
-    def get_publish_destination_name(
-        self,
-        kwargs: "AnyDict",
-    ) -> str: ...
-
 
 def _create_span_name(destination: str, action: str) -> str:
     return f"{destination} {action}"
-
-
-class MessageAction:
-    CREATE = "create"
-    PUBLISH = "publish"
-    PROCESS = "process"
-    RECEIVE = "receive"
 
 
 class _MetricsContainer:
@@ -91,18 +62,22 @@ class _MetricsContainer:
 
 
 class BaseTelemetryMiddleware(BaseMiddleware):
+    __settings_provider: TelemetrySettingsProvider[Any]
+
     def __init__(
         self,
+        *,
         tracer: "Tracer",
         metrics_container: _MetricsContainer,
         msg: Optional[Any] = None,
     ) -> None:
         self.msg = msg
+
         self._tracer = tracer
         self._metrics = metrics_container
         self._current_span: Optional[Span] = None
         self._origin_context: Optional[Context] = None
-        self.__settings_provider: TelemetrySettingsProvider[Any] = global_context.get(
+        self.__settings_provider = global_context.get_local(
             TELEMETRY_PROVIDER_CONTEXT_KEY
         )
 
@@ -113,12 +88,14 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         *args: Any,
         **kwargs: Any,
     ) -> Any:
-        attributes = self.__settings_provider.get_publish_attrs_from_kwargs(kwargs)
+        provider: TelemetrySettingsProvider[Any] = self.__settings_provider
+
+        attributes = provider.get_publish_attrs_from_kwargs(kwargs)
 
         current_context = context.get_current()
-        destination_name = self.__settings_provider.get_publish_destination_name(kwargs)
+        destination_name = provider.get_publish_destination_name(kwargs)
 
-        headers = kwargs.pop("headers") or {}
+        headers = kwargs.pop("headers", {}) or {}
         if self._current_span and self._current_span.is_recording():
             current_context = trace.set_span_in_context(
                 self._current_span, current_context
@@ -146,7 +123,11 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             )
             result = await call_next(msg, *args, headers=headers, **kwargs)
 
-        self._metrics.publisher_message_size_histogram.record(len(msg), attributes)
+        self._metrics.publisher_message_size_histogram.record(
+            len(str(msg) or ""),
+            attributes,
+        )
+
         return result
 
     async def consume_scope(
@@ -154,10 +135,12 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         call_next: "AsyncFuncAny",
         msg: "StreamMessage[Any]",
     ) -> Any:
+        provider: TelemetrySettingsProvider[Any] = self.__settings_provider
+
         start_time = time.perf_counter()
         current_context = propagate.extract(msg.headers)
-        destination_name = self.__settings_provider.get_consume_destination_name(msg)
-        attributes = self.__settings_provider.get_consume_attrs_from_message(msg)
+        destination_name = provider.get_consume_destination_name(msg)
+        attributes = provider.get_consume_attrs_from_message(msg)
 
         if not len(current_context):
             create_span = self._tracer.start_span(

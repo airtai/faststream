@@ -36,14 +36,8 @@ from faststream.nats.broker.registrator import NatsRegistrator
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.security import parse_security
 from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
-from faststream.utils.context.repository import context
-
-try:
-    from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
-    from faststream.nats.telemetry.provider import NatsTelemetrySettingsProvider
-except ImportError:
-    TELEMETRY_PROVIDER_CONTEXT_KEY = NatsTelemetrySettingsProvider = None  # type: ignore[assignment,misc]
-
+from faststream.nats.telemetry.provider import NatsTelemetrySettingsProvider
+from faststream.opentelemetry import HAS_OPEN_TELEMETRY
 
 if TYPE_CHECKING:
     import ssl
@@ -226,6 +220,7 @@ class NatsBroker(
 
     _producer: Optional["NatsFastProducer"]
     _js_producer: Optional["NatsJSFastProducer"]
+    _telemetry_provider: Optional["NatsTelemetrySettingsProvider"]
 
     def __init__(
         self,
@@ -468,13 +463,6 @@ class NatsBroker(
                 stacklevel=2,
             )
 
-        # TODO: mv it to `setup_subscriber` extra context to support multiple brokers
-        if TELEMETRY_PROVIDER_CONTEXT_KEY is not None:
-            context.set_global(
-                TELEMETRY_PROVIDER_CONTEXT_KEY,
-                NatsTelemetrySettingsProvider(),
-            )
-
         secure_kwargs = {
             "tls": tls,
             "user": user,
@@ -549,6 +537,9 @@ class NatsBroker(
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
         )
+
+        if HAS_OPEN_TELEMETRY:
+            self._telemetry_provider = NatsTelemetrySettingsProvider()
 
         self.__is_connected = False
         self._producer = None
@@ -732,7 +723,7 @@ class NatsBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        publihs_kwargs = {
+        publish_kwargs = {
             "subject": subject,
             "headers": headers,
             "reply_to": reply_to,
@@ -747,7 +738,7 @@ class NatsBroker(
             producer = self._producer
         else:
             producer = self._js_producer
-            publihs_kwargs.update(
+            publish_kwargs.update(
                 {
                     "stream": stream,
                     "timeout": timeout,
@@ -757,7 +748,7 @@ class NatsBroker(
         return await super().publish(
             message,
             producer=producer,
-            **publihs_kwargs,
+            **publish_kwargs,
         )
 
     @override
@@ -785,10 +776,7 @@ class NatsBroker(
         elif self._producer is not None:
             producer = self._producer
 
-        publisher.setup(
-            producer=producer,
-            **self._publisher_setup_extra,
-        )
+        super().setup_publisher(publisher, producer=producer)
 
     def _log_connection_broken(
         self,

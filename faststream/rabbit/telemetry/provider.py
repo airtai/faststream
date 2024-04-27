@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from opentelemetry.semconv.trace import SpanAttributes
 
-from faststream.broker.middlewares.telemetry import TelemetrySettingsProvider
+from faststream.opentelemetry import TelemetrySettingsProvider
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage

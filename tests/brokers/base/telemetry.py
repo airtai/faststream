@@ -14,8 +14,8 @@ from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind
 
 from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.middlewares.telemetry import MessageAction as Action
-from faststream.broker.middlewares.telemetry import TelemetryMiddleware
+from faststream.opentelemetry.middleware import MessageAction as Action
+from faststream.opentelemetry.middleware import TelemetryMiddleware
 
 
 @pytest.mark.asyncio()
@@ -66,27 +66,43 @@ class LocalTelemetryTestcase:
         parent_span_id: Optional[str] = None,
     ) -> None:
         attrs = span.attributes
-        assert attrs[SpanAttr.MESSAGING_SYSTEM] == self.messaging_system
-        assert attrs[SpanAttr.MESSAGING_MESSAGE_CONVERSATION_ID] == IsUUID
-        assert span.name == f"{self.destination_name(queue)} {action}"
-        assert span.kind in (SpanKind.CONSUMER, SpanKind.PRODUCER)
+        assert attrs[SpanAttr.MESSAGING_SYSTEM] == self.messaging_system, attrs[
+            SpanAttr.MESSAGING_SYSTEM
+        ]
+        assert attrs[SpanAttr.MESSAGING_MESSAGE_CONVERSATION_ID] == IsUUID, attrs[
+            SpanAttr.MESSAGING_MESSAGE_CONVERSATION_ID
+        ]
+        assert span.name == f"{self.destination_name(queue)} {action}", span.name
+        assert span.kind in (SpanKind.CONSUMER, SpanKind.PRODUCER), span.kind
 
         if span.kind == SpanKind.PRODUCER and action in (Action.CREATE, Action.PUBLISH):
-            assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == queue
+            assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == queue, attrs[
+                SpanAttr.MESSAGING_DESTINATION_NAME
+            ]
 
         if span.kind == SpanKind.CONSUMER and action in (Action.CREATE, Action.PROCESS):
-            assert attrs["messaging.destination_publish.name"] == queue
-            assert attrs[SpanAttr.MESSAGING_MESSAGE_ID] == IsUUID
+            assert attrs["messaging.destination_publish.name"] == queue, attrs[
+                "messaging.destination_publish.name"
+            ]
+            assert attrs[SpanAttr.MESSAGING_MESSAGE_ID] == IsUUID, attrs[
+                SpanAttr.MESSAGING_MESSAGE_ID
+            ]
 
         if action == Action.PROCESS:
-            assert attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES] == len(msg)
-            assert attrs[SpanAttr.MESSAGING_OPERATION] == action
+            assert attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES] == len(
+                msg
+            ), attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES]
+            assert attrs[SpanAttr.MESSAGING_OPERATION] == action, attrs[
+                SpanAttr.MESSAGING_OPERATION
+            ]
 
         if action == Action.PUBLISH:
-            assert attrs[SpanAttr.MESSAGING_OPERATION] == action
+            assert attrs[SpanAttr.MESSAGING_OPERATION] == action, attrs[
+                SpanAttr.MESSAGING_OPERATION
+            ]
 
         if parent_span_id:
-            assert span.parent.span_id == parent_span_id
+            assert span.parent.span_id == parent_span_id, span.parent.span_id
 
     async def test_subscriber_create_publish_process_span(
         self,

@@ -31,6 +31,7 @@ from faststream.broker.types import (
 )
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.log.logging import set_logger_fmt
+from faststream.opentelemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
 
@@ -41,8 +42,9 @@ if TYPE_CHECKING:
 
     from faststream.asyncapi.schema import Tag, TagDict
     from faststream.broker.publisher.proto import ProducerProto, PublisherProto
+    from faststream.opentelemetry import TelemetrySettingsProvider
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, AsyncFunc, Decorator, LoggerProto
+    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 class BrokerUsecase(
@@ -55,6 +57,7 @@ class BrokerUsecase(
     url: Union[str, Sequence[str]]
     _connection: Optional[ConnectionType]
     _producer: Optional["ProducerProto"]
+    _telemetry_provider: Optional["TelemetrySettingsProvider"]
 
     def __init__(
         self,
@@ -171,6 +174,7 @@ class BrokerUsecase(
         self._connection_kwargs = connection_kwargs
         self._connection = None
         self._producer = None
+        self._telemetry_provider = None
 
         if not is_test_env():
             self._middlewares = (
@@ -239,26 +243,10 @@ class BrokerUsecase(
     def setup_subscriber(
         self,
         subscriber: SubscriberProto[MsgType],
-        extra_context: Optional["AnyDict"] = None,
         **kwargs: Any,
     ) -> None:
         """Setup the Subscriber to prepare it to starting."""
-        subscriber.setup(
-            logger=self.logger,
-            producer=self._producer,
-            graceful_timeout=self.graceful_timeout,
-            extra_context=extra_context or {},
-            # broker options
-            broker_parser=self._parser,
-            broker_decoder=self._decoder,
-            # dependant args
-            apply_types=self._is_apply_types,
-            is_validate=self._is_validate,
-            _get_dependant=self._get_dependant,
-            _call_decorators=self._call_decorators,
-            **self._subscriber_setup_extra,
-            **kwargs,
-        )
+        subscriber.setup(**(self._subscriber_setup_extra | kwargs))
 
     def setup_publisher(
         self,
@@ -266,19 +254,31 @@ class BrokerUsecase(
         **kwargs: Any,
     ) -> None:
         """Setup the Publisher to prepare it to starting."""
-        publisher.setup(
-            producer=self._producer,
-            **self._publisher_setup_extra,
-            **kwargs,
-        )
+        publisher.setup(**(self._publisher_setup_extra | kwargs))
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
-        return {}
+        return {
+            "logger": self.logger,
+            "producer": self._producer,
+            "graceful_timeout": self.graceful_timeout,
+            "extra_context": {},
+            # broker options
+            "broker_parser": self._parser,
+            "broker_decoder": self._decoder,
+            # dependant args
+            "apply_types": self._is_apply_types,
+            "is_validate": self._is_validate,
+            "_get_dependant": self._get_dependant,
+            "_call_decorators": self._call_decorators,
+        }
 
     @property
     def _publisher_setup_extra(self) -> "AnyDict":
-        return {}
+        return {
+            "producer": self._producer,
+            "telemetry_provider": self._telemetry_provider,
+        }
 
     def publisher(self, *args: Any, **kwargs: Any) -> "PublisherProto[MsgType]":
         pub = super().publisher(*args, **kwargs)
@@ -336,8 +336,10 @@ class BrokerUsecase(
         """Publish message directly."""
         assert producer, NOT_CONNECTED_YET  # nosec B101)
 
-        publish: "AsyncFunc" = producer.publish
-        for m in self._middlewares:
-            publish = partial(m(None).publish_scope, publish)
+        publish = producer.publish
 
-        return await publish(msg, **kwargs)
+        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
+            for m in self._middlewares:
+                publish = partial(m(None).publish_scope, publish)
+
+            return await publish(msg, **kwargs)

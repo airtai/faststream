@@ -9,8 +9,10 @@ from typing_extensions import Annotated, Doc, override
 from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.opentelemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
+from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
@@ -161,27 +163,28 @@ class ChannelPublisher(LogicPublisher):
 
         call: "AsyncFunc" = self._producer.publish
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
+            for m in chain(
+                (
+                    _extra_middlewares
+                    or (m(None).publish_scope for m in self._broker_middlewares)
+                ),
+                self._middlewares,
+            ):
+                call = partial(m, call)
 
-        return await call(
-            message,
-            channel=channel_sub.name,
-            # basic args
-            reply_to=reply_to,
-            headers=headers,
-            correlation_id=correlation_id,
-            # RPC args
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
-        )
+            return await call(
+                message,
+                channel=channel_sub.name,
+                # basic args
+                reply_to=reply_to,
+                headers=headers,
+                correlation_id=correlation_id,
+                # RPC args
+                rpc=rpc,
+                rpc_timeout=rpc_timeout,
+                raise_timeout=raise_timeout,
+            )
 
 
 class ListPublisher(LogicPublisher):
@@ -287,27 +290,28 @@ class ListPublisher(LogicPublisher):
 
         call: "AsyncFunc" = self._producer.publish
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
+            for m in chain(
+                (
+                    _extra_middlewares
+                    or (m(None).publish_scope for m in self._broker_middlewares)
+                ),
+                self._middlewares,
+            ):
+                call = partial(m, call)
 
-        return await call(
-            message,
-            list=list_sub.name,
-            # basic args
-            reply_to=reply_to,
-            headers=headers,
-            correlation_id=correlation_id,
-            # RPC args
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
-        )
+            return await call(
+                message,
+                list=list_sub.name,
+                # basic args
+                reply_to=reply_to,
+                headers=headers,
+                correlation_id=correlation_id,
+                # RPC args
+                rpc=rpc,
+                rpc_timeout=rpc_timeout,
+                raise_timeout=raise_timeout,
+            )
 
 
 class ListBatchPublisher(ListPublisher):
@@ -340,20 +344,21 @@ class ListBatchPublisher(ListPublisher):
 
         call: "AsyncFunc" = self._producer.publish_batch
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
+            for m in chain(
+                (
+                    _extra_middlewares
+                    or (m(None).publish_scope for m in self._broker_middlewares)
+                ),
+                self._middlewares,
+            ):
+                call = partial(m, call)
 
-        await call(
-            *message,
-            list=list_sub.name,
-            correlation_id=correlation_id,
-        )
+            await call(
+                *message,
+                list=list_sub.name,
+                correlation_id=correlation_id,
+            )
 
 
 class StreamPublisher(LogicPublisher):
@@ -463,25 +468,26 @@ class StreamPublisher(LogicPublisher):
 
         call: "AsyncFunc" = self._producer.publish
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
+            for m in chain(
+                (
+                    _extra_middlewares
+                    or (m(None).publish_scope for m in self._broker_middlewares)
+                ),
+                self._middlewares,
+            ):
+                call = partial(m, call)
 
-        return await call(
-            message,
-            stream=stream_sub.name,
-            maxlen=maxlen,
-            # basic args
-            reply_to=reply_to,
-            headers=headers,
-            correlation_id=correlation_id,
-            # RPC args
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
-        )
+            return await call(
+                message,
+                stream=stream_sub.name,
+                maxlen=maxlen,
+                # basic args
+                reply_to=reply_to,
+                headers=headers,
+                correlation_id=correlation_id,
+                # RPC args
+                rpc=rpc,
+                rpc_timeout=rpc_timeout,
+                raise_timeout=raise_timeout,
+            )

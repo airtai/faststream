@@ -23,6 +23,7 @@ from typing_extensions import TypeAlias, override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
+from faststream.opentelemetry import HAS_OPEN_TELEMETRY, TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,
@@ -39,6 +40,7 @@ from faststream.redis.parser import (
     RedisStreamParser,
 )
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
+from faststream.redis.telemetry.provider import RedisTelemetrySettingsProvider
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -103,7 +105,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[UnifyRedisDict]):
         logger: Optional["LoggerProto"],
         producer: Optional["ProducerProto"],
         graceful_timeout: Optional[float],
-        extra_context: Optional["AnyDict"],
+        extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
@@ -232,6 +234,44 @@ class ChannelSubscriber(LogicSubscriber):
 
         self.channel = channel
         self.subscription = None
+
+    @override
+    def setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        apply_types: bool,
+        is_validate: bool,
+        _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
+    ) -> None:
+        if HAS_OPEN_TELEMETRY:
+            extra_context[TELEMETRY_PROVIDER_CONTEXT_KEY] = (
+                RedisTelemetrySettingsProvider()
+            )
+
+        super().setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            apply_types=apply_types,
+            is_validate=is_validate,
+            _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
+        )
 
     def __hash__(self) -> int:
         return hash(self.channel)
@@ -384,6 +424,44 @@ class ListSubscriber(_ListHandlerMixin):
             include_in_schema=include_in_schema,
         )
 
+    @override
+    def setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        apply_types: bool,
+        is_validate: bool,
+        _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
+    ) -> None:
+        if HAS_OPEN_TELEMETRY:
+            extra_context[TELEMETRY_PROVIDER_CONTEXT_KEY] = (
+                RedisTelemetrySettingsProvider()
+            )
+
+        super().setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            apply_types=apply_types,
+            is_validate=is_validate,
+            _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
+        )
+
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
         raw_msg = await client.lpop(name=self.list_sub.name)
 
@@ -429,6 +507,44 @@ class BatchListSubscriber(_ListHandlerMixin):
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
+        )
+
+    @override
+    def setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        apply_types: bool,
+        is_validate: bool,
+        _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
+    ) -> None:
+        if HAS_OPEN_TELEMETRY:
+            extra_context[TELEMETRY_PROVIDER_CONTEXT_KEY] = (
+                RedisTelemetrySettingsProvider()
+            )
+
+        super().setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            apply_types=apply_types,
+            is_validate=is_validate,
+            _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
@@ -629,6 +745,44 @@ class StreamSubscriber(_StreamHandlerMixin):
             include_in_schema=include_in_schema,
         )
 
+    @override
+    def setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        apply_types: bool,
+        is_validate: bool,
+        _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
+    ) -> None:
+        if HAS_OPEN_TELEMETRY:
+            extra_context[TELEMETRY_PROVIDER_CONTEXT_KEY] = (
+                RedisTelemetrySettingsProvider()
+            )
+
+        super().setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            apply_types=apply_types,
+            is_validate=is_validate,
+            _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
+        )
+
     async def _get_msgs(
         self,
         read: Callable[
@@ -694,6 +848,44 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
+        )
+
+    @override
+    def setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        apply_types: bool,
+        is_validate: bool,
+        _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
+    ) -> None:
+        if HAS_OPEN_TELEMETRY:
+            extra_context[TELEMETRY_PROVIDER_CONTEXT_KEY] = (
+                RedisTelemetrySettingsProvider()
+            )
+
+        super().setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            apply_types=apply_types,
+            is_validate=is_validate,
+            _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
     async def _get_msgs(

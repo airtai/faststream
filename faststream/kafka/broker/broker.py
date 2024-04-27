@@ -30,14 +30,9 @@ from faststream.kafka.broker.registrator import KafkaRegistrator
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.kafka.security import parse_security
+from faststream.kafka.telemetry.provider import KafkaTelemetrySettingsProvider
+from faststream.opentelemetry import HAS_OPEN_TELEMETRY, TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.utils.data import filter_by_dict
-
-try:
-    from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
-    from faststream.kafka.telemetry.provider import KafkaTelemetrySettingsProvider
-except ImportError:
-    TELEMETRY_PROVIDER_CONTEXT_KEY = KafkaTelemetrySettingsProvider = None  # type: ignore[assignment,misc]
-
 
 Partition = TypeVar("Partition")
 
@@ -493,13 +488,6 @@ class KafkaBroker(
         else:
             asyncapi_url = servers
 
-        # TODO: mv it to `setup_subscriber` extra context to support multiple brokers
-        if TELEMETRY_PROVIDER_CONTEXT_KEY is not None:
-            context.set_global(
-                TELEMETRY_PROVIDER_CONTEXT_KEY,
-                KafkaTelemetrySettingsProvider(),
-            )
-
         super().__init__(
             bootstrap_servers=servers,
             # both args
@@ -549,6 +537,10 @@ class KafkaBroker(
             apply_types=apply_types,
             validate=validate,
         )
+
+        if HAS_OPEN_TELEMETRY:
+            self._telemetry_provider = KafkaTelemetrySettingsProvider()
+
         self.client_id = client_id
         self._producer = None
 
@@ -621,6 +613,7 @@ class KafkaBroker(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
+            **super()._subscriber_setup_extra,
             "client_id": self.client_id,
             "connection_args": self._connection or {},
         }
@@ -749,15 +742,16 @@ class KafkaBroker(
 
         call: "AsyncFunc" = self._producer.publish_batch
 
-        for m in self._middlewares:
-            call = partial(m(None).publish_scope, call)
+        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
+            for m in self._middlewares:
+                call = partial(m(None).publish_scope, call)
 
-        await call(
-            *msgs,
-            topic=topic,
-            partition=partition,
-            timestamp_ms=timestamp_ms,
-            headers=headers,
-            reply_to=reply_to,
-            correlation_id=correlation_id,
-        )
+            await call(
+                *msgs,
+                topic=topic,
+                partition=partition,
+                timestamp_ms=timestamp_ms,
+                headers=headers,
+                reply_to=reply_to,
+                correlation_id=correlation_id,
+            )

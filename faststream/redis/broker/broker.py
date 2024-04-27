@@ -28,17 +28,12 @@ from faststream import context
 from faststream.__about__ import __version__
 from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.opentelemetry import HAS_OPEN_TELEMETRY, TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.redis.broker.logging import RedisLoggingBroker
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
-
-try:
-    from faststream.broker.middlewares.telemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
-    from faststream.redis.telemetry.provider import RedisTelemetrySettingsProvider
-except ImportError:
-    TELEMETRY_PROVIDER_CONTEXT_KEY = RedisTelemetrySettingsProvider = None  # type: ignore[assignment,misc]
-
+from faststream.redis.telemetry.provider import RedisTelemetrySettingsProvider
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -212,13 +207,6 @@ class RedisBroker(
             url_kwargs = urlparse(asyncapi_url)
             protocol = url_kwargs.scheme
 
-        # TODO: mv it to `setup_subscriber` extra context to support multiple brokers
-        if TELEMETRY_PROVIDER_CONTEXT_KEY is not None:
-            context.set_global(
-                TELEMETRY_PROVIDER_CONTEXT_KEY,
-                RedisTelemetrySettingsProvider(),
-            )
-
         super().__init__(
             url=url,
             host=host,
@@ -265,6 +253,9 @@ class RedisBroker(
             _call_decorators=_call_decorators,
         )
 
+        if HAS_OPEN_TELEMETRY:
+            self._telemetry_provider = RedisTelemetrySettingsProvider()
+
     @override
     async def connect(  # type: ignore[override]
         self,
@@ -278,7 +269,7 @@ class RedisBroker(
                 **kwargs,
             }
         else:
-            connect_kwargs = {**kwargs}
+            connect_kwargs = kwargs.copy()
 
         return await super().connect(**connect_kwargs)
 
@@ -374,6 +365,7 @@ class RedisBroker(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
+            **super()._subscriber_setup_extra,
             "connection": self._connection,
         }
 
@@ -484,11 +476,12 @@ class RedisBroker(
 
         call: "AsyncFunc" = self._producer.publish_batch
 
-        for m in self._middlewares:
-            call = partial(m(None).publish_scope, call)
+        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
+            for m in self._middlewares:
+                call = partial(m(None).publish_scope, call)
 
-        await call(
-            *msgs,
-            list=list,
-            correlation_id=correlation_id,
-        )
+            await call(
+                *msgs,
+                list=list,
+                correlation_id=correlation_id,
+            )

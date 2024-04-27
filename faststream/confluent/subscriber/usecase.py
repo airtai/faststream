@@ -20,6 +20,11 @@ from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.schemas.params import ConsumerConnectionParams
+from faststream.confluent.telemetry.provider import (
+    BatchConfluentTelemetrySettingsProvider,
+    ConfluentTelemetrySettingsProvider,
+)
+from faststream.opentelemetry import HAS_OPEN_TELEMETRY, TELEMETRY_PROVIDER_CONTEXT_KEY
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -99,7 +104,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         logger: Optional["LoggerProto"],
         producer: Optional["ProducerProto"],
         graceful_timeout: Optional[float],
-        extra_context: Optional["AnyDict"],
+        extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
@@ -250,6 +255,46 @@ class DefaultSubscriber(LogicSubscriber[Message]):
             include_in_schema=include_in_schema,
         )
 
+    @override
+    def setup(  # type: ignore[override]
+        self,
+        *,
+        client_id: Optional[str],
+        connection_data: "ConsumerConnectionParams",
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        apply_types: bool,
+        is_validate: bool,
+        _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
+    ) -> None:
+        if HAS_OPEN_TELEMETRY:
+            extra_context[TELEMETRY_PROVIDER_CONTEXT_KEY] = (
+                ConfluentTelemetrySettingsProvider()
+            )
+
+        super().setup(
+            client_id=client_id,
+            connection_data=connection_data,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            apply_types=apply_types,
+            is_validate=is_validate,
+            _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
+        )
+
     async def get_msg(self) -> Optional["Message"]:
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
         return await self.consumer.getone()
@@ -310,6 +355,46 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
+        )
+
+    @override
+    def setup(  # type: ignore[override]
+        self,
+        *,
+        client_id: Optional[str],
+        connection_data: "ConsumerConnectionParams",
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        apply_types: bool,
+        is_validate: bool,
+        _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
+    ) -> None:
+        if HAS_OPEN_TELEMETRY:
+            extra_context[TELEMETRY_PROVIDER_CONTEXT_KEY] = (
+                BatchConfluentTelemetrySettingsProvider()
+            )
+
+        super().setup(
+            client_id=client_id,
+            connection_data=connection_data,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            apply_types=apply_types,
+            is_validate=is_validate,
+            _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
     async def get_msg(self) -> Optional[Tuple["Message", ...]]:
