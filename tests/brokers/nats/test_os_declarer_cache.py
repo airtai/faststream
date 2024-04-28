@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch
 
+from nats.js import JetStreamContext
 from faststream.nats import NatsBroker
 from tests.tools import spy_decorator
 
@@ -10,7 +11,8 @@ async def test_object_storage_cache():
     broker = NatsBroker()
     await broker.connect()
 
-    with patch.object(NatsBroker, "object_storage", spy_decorator(NatsBroker.object_storage)) as m:
+    with patch.object(JetStreamContext, "create_object_store", spy_decorator(JetStreamContext.create_object_store)) as m:
+        await broker.object_storage("test")
         await broker.object_storage("test")
         assert broker._os_declarer.buckets["test"]
         m.mock.assert_called_once()
