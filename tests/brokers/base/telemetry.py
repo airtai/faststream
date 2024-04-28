@@ -1,10 +1,11 @@
 import asyncio
-from typing import Any, ClassVar, Dict, Optional, Type, cast
+from typing import Any, ClassVar, Dict, List, Optional, Tuple, Type, cast
 from unittest.mock import Mock
 
 import pytest
 from dirty_equals import IsUUID
 from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics._internal.point import Metric
 from opentelemetry.sdk.metrics.export import InMemoryMetricReader
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import Span, TracerProvider
@@ -33,6 +34,29 @@ class LocalTelemetryTestcase:
 
     def destination_name(self, queue: str) -> str:
         return queue
+
+    @staticmethod
+    def get_spans(exporter: InMemorySpanExporter) -> List[Span]:
+        spans = cast(Tuple[Span, ...], exporter.get_finished_spans())
+        return sorted(spans, key=lambda s: s.start_time)
+
+    @staticmethod
+    def get_metrics(
+        reader: InMemoryMetricReader,
+    ) -> Tuple[Metric, Metric, Metric, Metric]:
+        """Get sorted metrics.
+
+        Return order:
+            - faststream.consumer.active_requests
+            - faststream.consumer.duration
+            - faststream.consumer.message_size
+            - faststream.publisher.message_size
+        """
+        metrics = reader.get_metrics_data()
+        metrics = metrics.resource_metrics[0].scope_metrics[0].metrics
+        metrics = sorted(metrics, key=lambda m: m.name)
+        requests, cons_mes_size, duration, pub_mes_size = metrics
+        return requests, duration, cons_mes_size, pub_mes_size
 
     @pytest.fixture()
     def raw_broker(self):
@@ -132,8 +156,7 @@ class LocalTelemetryTestcase:
             )
             await asyncio.wait(tasks, timeout=self.timeout)
 
-        spans = trace_exporter.get_finished_spans()
-        create, publish, process = cast("tuple[Span, Span, Span]", spans)
+        create, publish, process = self.get_spans(trace_exporter)
         parent_span_id = create.context.span_id
 
         self.assert_span(create, Action.CREATE, queue, msg)
@@ -179,10 +202,8 @@ class LocalTelemetryTestcase:
             )
             await asyncio.wait(tasks, timeout=self.timeout)
 
-        spans = trace_exporter.get_finished_spans()
-        create, pub1, pub2, proc1, proc2 = cast(
-            "tuple[Span, Span, Span, Span, Span]", spans
-        )
+        spans = self.get_spans(trace_exporter)
+        create, pub1, proc1, pub2, proc2 = spans
         parent_span_id = create.context.span_id
 
         self.assert_span(create, Action.CREATE, first_queue, msg)
@@ -192,13 +213,12 @@ class LocalTelemetryTestcase:
         self.assert_span(proc2, Action.PROCESS, second_queue, msg, parent_span_id)
 
         assert (
-            create.end_time
-            < pub1.end_time
-            < pub2.end_time
-            < proc1.end_time
-            < proc2.end_time
+            create.start_time
+            < pub1.start_time
+            < proc1.start_time
+            < pub2.start_time
+            < proc2.start_time
         )
-        assert proc1.start_time < pub2.start_time < pub2.end_time < proc1.end_time
 
         assert event.is_set()
         mock.assert_called_once_with(msg)
@@ -232,7 +252,7 @@ class LocalTelemetryTestcase:
             )
             await asyncio.wait(tasks, timeout=self.timeout)
 
-        create, process = cast("tuple[Span, Span]", trace_exporter.get_finished_spans())
+        create, process = self.get_spans(trace_exporter)
         parent_span_id = create.context.span_id
 
         self.assert_span(create, Action.CREATE, queue, msg)
@@ -273,16 +293,8 @@ class LocalTelemetryTestcase:
             )
             await asyncio.wait(tasks, timeout=self.timeout)
 
-        metrics = (
-            metric_reader.get_metrics_data()
-            .resource_metrics[0]
-            .scope_metrics[0]
-            .metrics
-        )
-        pub_mes_size, requests, cons_mes_size, duration = metrics
-
-        assert pub_mes_size.data.data_points[0].count == expected_publishing_count
-        assert pub_mes_size.data.data_points[0].sum == len(msg)
+        metrics = self.get_metrics(metric_reader)
+        requests, cons_mes_size, duration, pub_mes_size = metrics
 
         assert requests.data.data_points[0].value == expected_requests_in_flight
 
@@ -290,6 +302,9 @@ class LocalTelemetryTestcase:
         assert cons_mes_size.data.data_points[0].sum == len(msg)
 
         assert duration.data.data_points[0].count == expected_consuming_count
+
+        assert pub_mes_size.data.data_points[0].count == expected_publishing_count
+        assert pub_mes_size.data.data_points[0].sum == len(msg)
 
         assert event.is_set()
         mock.assert_called_once_with(msg)

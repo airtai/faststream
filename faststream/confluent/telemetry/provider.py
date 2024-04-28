@@ -50,21 +50,18 @@ class ConfluentTelemetrySettingsProvider(
         self,
         msg: "StreamMessage[Message]",
     ) -> "AnyDict":
-        raw_message = msg.raw_message[0]
         attrs = {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.message_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
-            SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(
-                bytearray().join(msg.body)
-            ),
-            SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: raw_message.partition(),
-            # SpanAttributes.MESSAGING_KAFKA_MESSAGE_OFFSET: msg.raw_message.offset(),
-            "messaging.destination_publish.name": raw_message.topic(),
+            SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
+            SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: msg.raw_message.partition(),
+            SpanAttributes.MESSAGING_KAFKA_MESSAGE_OFFSET: msg.raw_message.offset(),
+            "messaging.destination_publish.name": msg.raw_message.topic(),
         }
 
-        # if (key := msg.raw_message.key()) is not None:
-        #     attrs[SpanAttributes.MESSAGING_KAFKA_MESSAGE_KEY] = key
+        if (key := msg.raw_message.key()) is not None:
+            attrs[SpanAttributes.MESSAGING_KAFKA_MESSAGE_KEY] = key
 
         return attrs
 
@@ -82,18 +79,21 @@ class BatchConfluentTelemetrySettingsProvider(
         self,
         msg: "StreamMessage[Tuple[Message, ...]]",
     ) -> "AnyDict":
+        raw_message = msg.raw_message[0]
         attrs = {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.message_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
-            SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
-            SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: msg.raw_message.partition(),
-            SpanAttributes.MESSAGING_KAFKA_MESSAGE_OFFSET: msg.raw_message.offset(),
-            "messaging.destination_publish.name": msg.raw_message.topic(),
+            SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(
+                bytearray().join(msg.body)
+            ),
+            SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: raw_message.partition(),
+            # SpanAttributes.MESSAGING_KAFKA_MESSAGE_OFFSET: msg.raw_message.offset(),
+            "messaging.destination_publish.name": raw_message.topic(),
         }
 
-        if (key := msg.raw_message.key()) is not None:
-            attrs[SpanAttributes.MESSAGING_KAFKA_MESSAGE_KEY] = key
+        # if (key := msg.raw_message.key()) is not None:
+        #     attrs[SpanAttributes.MESSAGING_KAFKA_MESSAGE_KEY] = key
 
         return attrs
 
