@@ -88,13 +88,10 @@ class BatchKafkaTelemetrySettingsProvider(
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(
                 bytearray().join(msg.body)
             ),
+            SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: len(msg.raw_message),
             SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: raw_message.partition,
-            # SpanAttributes.MESSAGING_KAFKA_MESSAGE_OFFSET: msg.raw_message.offset,
             "messaging.destination_publish.name": raw_message.topic,
         }
-
-        # if msg.raw_message.key is not None:
-        #     attrs[SpanAttributes.MESSAGING_KAFKA_MESSAGE_KEY] = msg.raw_message.key
 
         return attrs
 
