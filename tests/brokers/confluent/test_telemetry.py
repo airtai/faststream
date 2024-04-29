@@ -6,9 +6,14 @@ from opentelemetry.sdk.trace import Span
 from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind
 
+from faststream.broker.core.usecase import BrokerUsecase
 from faststream.confluent import KafkaBroker
+from faststream.opentelemetry import TelemetryMiddleware
 from faststream.opentelemetry.middleware import MessageAction as Action
 from tests.brokers.base.telemetry import LocalTelemetryTestcase
+
+from .test_consume import TestConsume
+from .test_publish import TestPublish
 
 
 @pytest.mark.confluent()
@@ -50,3 +55,19 @@ class TestTelemetry(LocalTelemetryTestcase):
 
         if parent_span_id:
             assert span.parent.span_id == parent_span_id
+
+
+@pytest.mark.confluent()
+class TestPublishWithTelemetry(TestPublish):
+    @pytest.fixture()
+    def pub_broker(self, full_broker):
+        full_broker._middlewares = (*full_broker._middlewares, TelemetryMiddleware())
+        return full_broker
+
+
+@pytest.mark.confluent()
+class TestConsumeWithTelemetry(TestConsume):
+    @pytest.fixture()
+    def consume_broker(self, broker: BrokerUsecase):
+        broker._middlewares = (*broker._middlewares, TelemetryMiddleware())
+        return broker
