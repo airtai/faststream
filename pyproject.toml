@@ -93,7 +93,7 @@ devdocs = [
 
 types = [
     "faststream[rabbit,confluent,kafka,nats,redis]",
-    "mypy==1.9.0",
+    "mypy==1.10.0",
     # mypy extensions
     "types-PyYAML",
     "types-setuptools",
