@@ -358,7 +358,7 @@ class RabbitBroker(
         timeout: "TimeoutType",
         ssl_context: Optional["SSLContext"],
         max_connection_pool_size: int = 1,
-        max_channel_pool_size: int = 10,
+        max_channel_pool_size: int = 1,
     ) -> "RobustConnection":
         if self._connection_pool is None:
             self._connection_pool = Pool(
