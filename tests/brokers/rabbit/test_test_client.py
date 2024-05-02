@@ -19,7 +19,7 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 @pytest.mark.asyncio()
 class TestTestclient(BrokerTestclientTestcase):
-    async def test_rpc_conflicts_reply(self, broker, queue):
+    async def test_rpc_conflicts_reply(self, queue):
         async with TestRabbitBroker(RabbitBroker()) as br:
             with pytest.raises(SetupError):
                 await br.publish(
