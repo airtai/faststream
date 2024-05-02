@@ -593,7 +593,7 @@ class KafkaBroker(
             producer=producer,
         )
 
-        return filter_by_dict(ConsumerConnectionParams, **kwargs)
+        return filter_by_dict(ConsumerConnectionParams, kwargs)
 
     async def start(self) -> None:
         """Connect broker to Kafka and startup all subscribers."""

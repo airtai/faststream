@@ -450,7 +450,7 @@ class KafkaBroker(
             producer=producer,
         )
 
-        return filter_by_dict(ConsumerConnectionParams, **kwargs)
+        return filter_by_dict(ConsumerConnectionParams, kwargs)
 
     async def start(self) -> None:
         await super().start()
