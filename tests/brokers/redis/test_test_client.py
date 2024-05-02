@@ -11,7 +11,7 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 @pytest.mark.asyncio()
 class TestTestclient(BrokerTestclientTestcase):
     async def test_rpc_conflicts_reply(self, broker, queue):
-        async with TestRedisBroker(broker) as br:
+        async with TestRedisBroker(RedisBroker()) as br:
             with pytest.raises(SetupError):
                 await br.publish(
                     "",
