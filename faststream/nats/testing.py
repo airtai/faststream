@@ -4,6 +4,7 @@ from nats.aio.msg import Msg
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
+from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.nats.broker import NatsBroker
 from faststream.nats.publisher.producer import NatsFastProducer
 from faststream.nats.schemas.js_stream import is_subject_match_wildcard
@@ -71,6 +72,9 @@ class FakeProducer(NatsFastProducer):
         rpc_timeout: Optional[float] = None,
         raise_timeout: bool = False,
     ) -> Any:
+        if rpc and reply_to:
+            raise WRONG_PUBLISH_ARGS
+
         incoming = build_message(
             message=message,
             subject=subject,
