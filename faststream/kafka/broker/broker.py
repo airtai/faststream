@@ -581,16 +581,19 @@ class KafkaBroker(
         **kwargs: Any,
     ) -> ConsumerConnectionParams:
         security_params = parse_security(self.security)
+        kwargs.update(security_params)
+
         producer = aiokafka.AIOKafkaProducer(
             **kwargs,
-            **security_params,
             client_id=client_id,
         )
+
         await producer.start()
         self._producer = AioKafkaFastProducer(
             producer=producer,
         )
-        return filter_by_dict(ConsumerConnectionParams, {**kwargs, **security_params})
+
+        return filter_by_dict(ConsumerConnectionParams, **kwargs)
 
     async def start(self) -> None:
         """Connect broker to Kafka and startup all subscribers."""
