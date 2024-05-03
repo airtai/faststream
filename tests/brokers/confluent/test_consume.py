@@ -23,21 +23,19 @@ class TestConsume(BrokerRealConsumeTestcase):
         return KafkaBroker(apply_types=apply_types)
 
     @pytest.mark.asyncio()
-    async def test_consume_batch(self, confluent_kafka_topic: str):
+    async def test_consume_batch(self, queue: str):
         consume_broker = self.get_broker()
 
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @consume_broker.subscriber(
-            confluent_kafka_topic, batch=True, **self.subscriber_kwargs
-        )
+        @consume_broker.subscriber(queue, batch=True, **self.subscriber_kwargs)
         async def handler(msg):
             await msgs_queue.put(msg)
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
-            await br.publish_batch(1, "hi", topic=confluent_kafka_topic)
+            await br.publish_batch(1, "hi", topic=queue)
 
             result, _ = await asyncio.wait(
                 (asyncio.create_task(msgs_queue.get()),),

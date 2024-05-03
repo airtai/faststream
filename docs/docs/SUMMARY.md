@@ -438,6 +438,15 @@ search:
                     - [ConsumerProtocol](api/faststream/confluent/message/ConsumerProtocol.md)
                     - [FakeConsumer](api/faststream/confluent/message/FakeConsumer.md)
                     - [KafkaMessage](api/faststream/confluent/message/KafkaMessage.md)
+                - opentelemetry
+                    - [KafkaTelemetryMiddleware](api/faststream/confluent/opentelemetry/KafkaTelemetryMiddleware.md)
+                    - middleware
+                        - [KafkaTelemetryMiddleware](api/faststream/confluent/opentelemetry/middleware/KafkaTelemetryMiddleware.md)
+                    - provider
+                        - [BaseConfluentTelemetrySettingsProvider](api/faststream/confluent/opentelemetry/provider/BaseConfluentTelemetrySettingsProvider.md)
+                        - [BatchConfluentTelemetrySettingsProvider](api/faststream/confluent/opentelemetry/provider/BatchConfluentTelemetrySettingsProvider.md)
+                        - [ConfluentTelemetrySettingsProvider](api/faststream/confluent/opentelemetry/provider/ConfluentTelemetrySettingsProvider.md)
+                        - [telemetry_attributes_provider_factory](api/faststream/confluent/opentelemetry/provider/telemetry_attributes_provider_factory.md)
                 - parser
                     - [AsyncConfluentParser](api/faststream/confluent/parser/AsyncConfluentParser.md)
                 - publisher
@@ -512,6 +521,15 @@ search:
                     - [ConsumerProtocol](api/faststream/kafka/message/ConsumerProtocol.md)
                     - [FakeConsumer](api/faststream/kafka/message/FakeConsumer.md)
                     - [KafkaMessage](api/faststream/kafka/message/KafkaMessage.md)
+                - opentelemetry
+                    - [KafkaTelemetryMiddleware](api/faststream/kafka/opentelemetry/KafkaTelemetryMiddleware.md)
+                    - middleware
+                        - [KafkaTelemetryMiddleware](api/faststream/kafka/opentelemetry/middleware/KafkaTelemetryMiddleware.md)
+                    - provider
+                        - [BaseKafkaTelemetrySettingsProvider](api/faststream/kafka/opentelemetry/provider/BaseKafkaTelemetrySettingsProvider.md)
+                        - [BatchKafkaTelemetrySettingsProvider](api/faststream/kafka/opentelemetry/provider/BatchKafkaTelemetrySettingsProvider.md)
+                        - [KafkaTelemetrySettingsProvider](api/faststream/kafka/opentelemetry/provider/KafkaTelemetrySettingsProvider.md)
+                        - [telemetry_attributes_provider_factory](api/faststream/kafka/opentelemetry/provider/telemetry_attributes_provider_factory.md)
                 - parser
                     - [AioKafkaParser](api/faststream/kafka/parser/AioKafkaParser.md)
                 - publisher
@@ -594,6 +612,15 @@ search:
                 - message
                     - [NatsBatchMessage](api/faststream/nats/message/NatsBatchMessage.md)
                     - [NatsMessage](api/faststream/nats/message/NatsMessage.md)
+                - opentelemetry
+                    - [NatsTelemetryMiddleware](api/faststream/nats/opentelemetry/NatsTelemetryMiddleware.md)
+                    - middleware
+                        - [NatsTelemetryMiddleware](api/faststream/nats/opentelemetry/middleware/NatsTelemetryMiddleware.md)
+                    - provider
+                        - [BaseNatsTelemetrySettingsProvider](api/faststream/nats/opentelemetry/provider/BaseNatsTelemetrySettingsProvider.md)
+                        - [NatsBatchTelemetrySettingsProvider](api/faststream/nats/opentelemetry/provider/NatsBatchTelemetrySettingsProvider.md)
+                        - [NatsTelemetrySettingsProvider](api/faststream/nats/opentelemetry/provider/NatsTelemetrySettingsProvider.md)
+                        - [telemetry_attributes_provider_factory](api/faststream/nats/opentelemetry/provider/telemetry_attributes_provider_factory.md)
                 - parser
                     - [BatchParser](api/faststream/nats/parser/BatchParser.md)
                     - [JsParser](api/faststream/nats/parser/JsParser.md)
@@ -636,6 +663,16 @@ search:
                     - [PatchedMessage](api/faststream/nats/testing/PatchedMessage.md)
                     - [TestNatsBroker](api/faststream/nats/testing/TestNatsBroker.md)
                     - [build_message](api/faststream/nats/testing/build_message.md)
+            - opentelemetry
+                - [TelemetryMiddleware](api/faststream/opentelemetry/TelemetryMiddleware.md)
+                - [TelemetrySettingsProvider](api/faststream/opentelemetry/TelemetrySettingsProvider.md)
+                - consts
+                    - [MessageAction](api/faststream/opentelemetry/consts/MessageAction.md)
+                - middleware
+                    - [BaseTelemetryMiddleware](api/faststream/opentelemetry/middleware/BaseTelemetryMiddleware.md)
+                    - [TelemetryMiddleware](api/faststream/opentelemetry/middleware/TelemetryMiddleware.md)
+                - provider
+                    - [TelemetrySettingsProvider](api/faststream/opentelemetry/provider/TelemetrySettingsProvider.md)
             - rabbit
                 - [ExchangeType](api/faststream/rabbit/ExchangeType.md)
                 - [RabbitBroker](api/faststream/rabbit/RabbitBroker.md)
@@ -662,6 +699,12 @@ search:
                         - [RabbitRouter](api/faststream/rabbit/fastapi/router/RabbitRouter.md)
                 - message
                     - [RabbitMessage](api/faststream/rabbit/message/RabbitMessage.md)
+                - opentelemetry
+                    - [RabbitTelemetryMiddleware](api/faststream/rabbit/opentelemetry/RabbitTelemetryMiddleware.md)
+                    - middleware
+                        - [RabbitTelemetryMiddleware](api/faststream/rabbit/opentelemetry/middleware/RabbitTelemetryMiddleware.md)
+                    - provider
+                        - [RabbitTelemetrySettingsProvider](api/faststream/rabbit/opentelemetry/provider/RabbitTelemetrySettingsProvider.md)
                 - parser
                     - [AioPikaParser](api/faststream/rabbit/parser/AioPikaParser.md)
                 - publisher
@@ -746,6 +789,12 @@ search:
                     - [StreamMessage](api/faststream/redis/message/StreamMessage.md)
                     - [UnifyRedisDict](api/faststream/redis/message/UnifyRedisDict.md)
                     - [UnifyRedisMessage](api/faststream/redis/message/UnifyRedisMessage.md)
+                - opentelemetry
+                    - [RedisTelemetryMiddleware](api/faststream/redis/opentelemetry/RedisTelemetryMiddleware.md)
+                    - middleware
+                        - [RedisTelemetryMiddleware](api/faststream/redis/opentelemetry/middleware/RedisTelemetryMiddleware.md)
+                    - provider
+                        - [RedisTelemetrySettingsProvider](api/faststream/redis/opentelemetry/provider/RedisTelemetrySettingsProvider.md)
                 - parser
                     - [RawMessage](api/faststream/redis/parser/RawMessage.md)
                     - [RedisBatchListParser](api/faststream/redis/parser/RedisBatchListParser.md)

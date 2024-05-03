@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Sequence, Tuple, Union, overload
+from typing import TYPE_CHECKING, Sequence, Tuple, Union, cast
 
 from opentelemetry.semconv.trace import SpanAttributes
 
@@ -40,7 +40,7 @@ class BaseConfluentTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType])
     def get_publish_destination_name(
         kwargs: "AnyDict",
     ) -> str:
-        return kwargs["topic"]
+        return cast(str, kwargs["topic"])
 
 
 class ConfluentTelemetrySettingsProvider(
@@ -69,7 +69,7 @@ class ConfluentTelemetrySettingsProvider(
     def get_consume_destination_name(
         msg: "StreamMessage[Message]",
     ) -> str:
-        return msg.raw_message.topic()
+        return cast(str, msg.raw_message.topic())
 
 
 class BatchConfluentTelemetrySettingsProvider(
@@ -86,7 +86,7 @@ class BatchConfluentTelemetrySettingsProvider(
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: len(msg.raw_message),
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(
-                bytearray().join(msg.body)
+                bytearray().join(cast(Sequence[bytes], msg.body))
             ),
             SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: raw_message.partition(),
             "messaging.destination_publish.name": raw_message.topic(),
@@ -98,28 +98,7 @@ class BatchConfluentTelemetrySettingsProvider(
     def get_consume_destination_name(
         msg: "StreamMessage[Tuple[Message, ...]]",
     ) -> str:
-        return msg.raw_message[0].topic()
-
-
-@overload
-def telemetry_attributes_provider_factory(
-    msg: Optional["Message"],
-) -> ConfluentTelemetrySettingsProvider: ...
-
-
-@overload
-def telemetry_attributes_provider_factory(
-    msg: Sequence["Message"],
-) -> BatchConfluentTelemetrySettingsProvider: ...
-
-
-@overload
-def telemetry_attributes_provider_factory(
-    msg: Union["Message", Sequence["Message"], None],
-) -> Union[
-    ConfluentTelemetrySettingsProvider,
-    BatchConfluentTelemetrySettingsProvider,
-]: ...
+        return cast(str, msg.raw_message[0].topic())
 
 
 def telemetry_attributes_provider_factory(

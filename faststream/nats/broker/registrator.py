@@ -190,7 +190,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         subscriber = cast(
             AsyncAPISubscriber,
             super().subscriber(
-                AsyncAPISubscriber.create(
+                AsyncAPISubscriber.create(  # type: ignore[arg-type]
                     subject=subject,
                     queue=queue,
                     stream=stream,

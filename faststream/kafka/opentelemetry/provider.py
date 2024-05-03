@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Sequence, Tuple, Union, cast, overload
+from typing import TYPE_CHECKING, Sequence, Tuple, Union, cast
 
 from opentelemetry.semconv.trace import SpanAttributes
 
@@ -100,27 +100,6 @@ class BatchKafkaTelemetrySettingsProvider(
         msg: "StreamMessage[Tuple[ConsumerRecord, ...]]",
     ) -> str:
         return cast(str, msg.raw_message[0].topic)
-
-
-@overload
-def telemetry_attributes_provider_factory(
-    msg: Optional["ConsumerRecord"],
-) -> KafkaTelemetrySettingsProvider: ...
-
-
-@overload
-def telemetry_attributes_provider_factory(
-    msg: Sequence["ConsumerRecord"],
-) -> BatchKafkaTelemetrySettingsProvider: ...
-
-
-@overload
-def telemetry_attributes_provider_factory(
-    msg: Union["ConsumerRecord", Sequence["ConsumerRecord"], None],
-) -> Union[
-    KafkaTelemetrySettingsProvider,
-    BatchKafkaTelemetrySettingsProvider,
-]: ...
 
 
 def telemetry_attributes_provider_factory(
