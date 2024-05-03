@@ -263,7 +263,7 @@ class RedisBroker(
                 **kwargs,
             }
         else:
-            connect_kwargs = kwargs.copy()
+            connect_kwargs = dict(kwargs).copy()
 
         return await super().connect(**connect_kwargs)
 

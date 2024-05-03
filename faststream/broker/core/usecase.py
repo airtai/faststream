@@ -254,7 +254,7 @@ class BrokerUsecase(
         """Setup the Publisher to prepare it to starting."""
         data = self._publisher_setup_extra.copy()
         data.update(kwargs)
-        publisher.setup(**kwargs)
+        publisher.setup(**data)
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":

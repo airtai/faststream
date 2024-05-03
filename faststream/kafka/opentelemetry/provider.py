@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Sequence, Tuple, Union, overload
+from typing import TYPE_CHECKING, Optional, Sequence, Tuple, Union, cast, overload
 
 from opentelemetry.semconv.trace import SpanAttributes
 
@@ -40,7 +40,7 @@ class BaseKafkaTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
     def get_publish_destination_name(
         kwargs: "AnyDict",
     ) -> str:
-        return kwargs["topic"]
+        return cast(str, kwargs["topic"])
 
 
 class KafkaTelemetrySettingsProvider(
@@ -69,7 +69,7 @@ class KafkaTelemetrySettingsProvider(
     def get_consume_destination_name(
         msg: "StreamMessage[ConsumerRecord]",
     ) -> str:
-        return msg.raw_message.topic
+        return cast(str, msg.raw_message.topic)
 
 
 class BatchKafkaTelemetrySettingsProvider(
@@ -86,7 +86,7 @@ class BatchKafkaTelemetrySettingsProvider(
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.message_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(
-                bytearray().join(msg.body)
+                bytearray().join(cast(Sequence[bytes], msg.body))
             ),
             SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: len(msg.raw_message),
             SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: raw_message.partition,
@@ -99,7 +99,7 @@ class BatchKafkaTelemetrySettingsProvider(
     def get_consume_destination_name(
         msg: "StreamMessage[Tuple[ConsumerRecord, ...]]",
     ) -> str:
-        return msg.raw_message[0].topic
+        return cast(str, msg.raw_message[0].topic)
 
 
 @overload

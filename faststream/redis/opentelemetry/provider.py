@@ -51,4 +51,4 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
 
     @staticmethod
     def _get_destination(kwargs: "AnyDict") -> str:
-        return kwargs.get("channel") or kwargs.get("list") or kwargs.get("stream")
+        return kwargs.get("channel") or kwargs.get("list") or kwargs.get("stream") or ""
