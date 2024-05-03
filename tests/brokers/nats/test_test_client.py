@@ -9,6 +9,11 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 @pytest.mark.asyncio()
 class TestTestclient(BrokerTestclientTestcase):
+    def get_broker(self) -> TestNatsBroker:
+        broker = NatsBroker()
+        TestNatsBroker(broker)
+        return broker
+
     @pytest.mark.asyncio()
     async def test_stream_publish(
         self,

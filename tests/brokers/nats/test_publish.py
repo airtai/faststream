@@ -8,6 +8,5 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 class TestPublish(BrokerPublishTestcase):
     """Test publish method of NATS broker."""
 
-    @pytest.fixture()
-    def pub_broker(self):
+    def get_broker(self) -> NatsBroker:
         return NatsBroker()

@@ -13,17 +13,17 @@ from tests.tools import spy_decorator
 
 @pytest.mark.nats()
 class TestConsume(BrokerRealConsumeTestcase):
-    @pytest.fixture()
-    def consume_broker(self):
-        return NatsBroker(apply_types=False)
+    def get_broker(self, apply_types: bool = False) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types)
 
     async def test_consume_js(
         self,
         queue: str,
-        consume_broker: NatsBroker,
         stream: JStream,
         event: asyncio.Event,
     ):
+        consume_broker = self.get_broker()
+
         @consume_broker.subscriber(queue, stream=stream)
         def subscriber(m):
             event.set()
@@ -45,11 +45,12 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_pull(
         self,
         queue: str,
-        consume_broker: NatsBroker,
         stream: JStream,
         event: asyncio.Event,
         mock,
     ):
+        consume_broker = self.get_broker()
+
         @consume_broker.subscriber(
             queue,
             stream=stream,
@@ -74,11 +75,12 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_batch(
         self,
         queue: str,
-        consume_broker: NatsBroker,
         stream: JStream,
         event: asyncio.Event,
         mock,
     ):
+        consume_broker = self.get_broker()
+
         @consume_broker.subscriber(
             queue,
             stream=stream,
@@ -104,11 +106,10 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack(
         self,
         queue: str,
-        consume_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
@@ -137,11 +138,10 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_manual(
         self,
         queue: str,
-        consume_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
@@ -171,11 +171,10 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_raise(
         self,
         queue: str,
-        consume_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
@@ -205,11 +204,10 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_nack(
         self,
         queue: str,
-        consume_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
@@ -237,9 +235,11 @@ class TestConsume(BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     async def test_consume_no_ack(
-        self, queue: str, consume_broker: NatsBroker, event: asyncio.Event
+        self,
+        queue: str,
+        event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, no_ack=True)
         async def handler(msg: NatsMessage):

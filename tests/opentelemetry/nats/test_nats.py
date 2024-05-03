@@ -22,13 +22,16 @@ class TestTelemetry(LocalTelemetryTestcase):
 
 @pytest.mark.nats()
 class TestPublishWithTelemetry(TestPublish):
-    @pytest.fixture()
-    def pub_broker(self):
-        return NatsBroker(middlewares=(NatsTelemetryMiddleware(),))
+    def get_broker(self):
+        return NatsBroker(
+            middlewares=(NatsTelemetryMiddleware(),),
+        )
 
 
 @pytest.mark.nats()
 class TestConsumeWithTelemetry(TestConsume):
-    @pytest.fixture()
-    def consume_broker(self):
-        return NatsBroker(middlewares=(NatsTelemetryMiddleware(),))
+    def get_broker(self, apply_types: bool = False):
+        return NatsBroker(
+            middlewares=(NatsTelemetryMiddleware(),),
+            apply_types=apply_types,
+        )
