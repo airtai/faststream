@@ -3,6 +3,7 @@ import asyncio
 import pytest
 
 from faststream import BaseMiddleware
+from faststream.exceptions import SetupError
 from faststream.nats import JStream, NatsBroker, PullSub, TestNatsBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
@@ -41,6 +42,17 @@ class TestTestclient(BrokerTestclientTestcase):
         async with TestNatsBroker(pub_broker) as br:
             await br.publish("Hi!", queue, stream="test")
             assert not m.mock.called
+
+    @pytest.mark.asyncio()
+    async def test_rpc_conflicts_reply(self, queue):
+        async with TestNatsBroker(NatsBroker()) as br:
+            with pytest.raises(SetupError):
+                await br.publish(
+                    "",
+                    queue,
+                    rpc=True,
+                    reply_to="response",
+                )
 
     @pytest.mark.nats()
     async def test_with_real_testclient(
