@@ -11,6 +11,8 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 class TestTestclient(BrokerTestclientTestcase):
     """A class to represent a test Kafka broker."""
 
+    test_class = TestKafkaBroker
+
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(apply_types=apply_types)
 
