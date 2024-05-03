@@ -21,26 +21,35 @@ class TestTelemetry(LocalTelemetryTestcase):
 
 @pytest.mark.redis()
 class TestPublishWithTelemetry(TestPublish):
-    @pytest.fixture()
-    def pub_broker(self):
-        return RedisBroker(middlewares=(RedisTelemetryMiddleware(),))
+    def get_broker(self, apply_types: bool = False):
+        return RedisBroker(
+            middlewares=(RedisTelemetryMiddleware(),),
+            apply_types=apply_types,
+        )
 
 
 @pytest.mark.redis()
 class TestConsumeWithTelemetry(TestConsume):
-    @pytest.fixture()
-    def consume_broker(self):
-        return RedisBroker(middlewares=(RedisTelemetryMiddleware(),))
+    def get_broker(self, apply_types: bool = False):
+        return RedisBroker(
+            middlewares=(RedisTelemetryMiddleware(),),
+            apply_types=apply_types,
+        )
+
 
 @pytest.mark.redis()
 class TestConsumeListWithTelemetry(TestConsumeList):
-    @pytest.fixture()
-    def consume_broker(self):
-        return RedisBroker(middlewares=(RedisTelemetryMiddleware(),))
+    def get_broker(self, apply_types: bool = False):
+        return RedisBroker(
+            middlewares=(RedisTelemetryMiddleware(),),
+            apply_types=apply_types,
+        )
 
 
 @pytest.mark.redis()
 class TestConsumeStreamWithTelemetry(TestConsumeStream):
-    @pytest.fixture()
-    def consume_broker(self):
-        return RedisBroker(middlewares=(RedisTelemetryMiddleware(),))
+    def get_broker(self, apply_types: bool = False):
+        return RedisBroker(
+            middlewares=(RedisTelemetryMiddleware(),),
+            apply_types=apply_types,
+        )
