@@ -23,7 +23,9 @@ class TestPublish(BrokerPublishTestcase):
     ):
         pub_broker = self.get_broker()
 
-        @pub_broker.subscriber(queue + "reply")
+        reply_queue = queue + "reply"
+
+        @pub_broker.subscriber(reply_queue)
         async def reply_handler(m):
             event.set()
             mock(m)
@@ -32,20 +34,18 @@ class TestPublish(BrokerPublishTestcase):
         async def handler(m):
             return m
 
-        async with pub_broker:
+        async with self.patch_broker(pub_broker) as br:
             with patch.object(
                 AioPikaFastProducer,
                 "publish",
                 spy_decorator(AioPikaFastProducer.publish),
             ) as m:
-                await pub_broker.start()
+                await br.start()
 
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            pub_broker.publish(
-                                "Hello!", queue, reply_to=queue + "reply"
-                            )
+                            br.publish("Hello!", queue, reply_to=reply_queue)
                         ),
                         asyncio.create_task(event.wait()),
                     ),

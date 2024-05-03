@@ -23,6 +23,9 @@ class TestTestclient(BrokerTestclientTestcase):
     def get_broker(self, apply_types: bool = False) -> RabbitBroker:
         return RabbitBroker(apply_types=apply_types)
 
+    def patch_broker(self, broker: RabbitBroker) -> RabbitBroker:
+        return TestRabbitBroker(broker)
+
     async def test_rpc_conflicts_reply(self, queue):
         broker = self.get_broker()
 
