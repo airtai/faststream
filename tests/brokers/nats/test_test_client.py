@@ -15,6 +15,9 @@ class TestTestclient(BrokerTestclientTestcase):
     def get_broker(self, apply_types: bool = False) -> NatsBroker:
         return NatsBroker(apply_types=apply_types)
 
+    def patch_broker(self, broker: NatsBroker) -> TestNatsBroker:
+        return TestNatsBroker(broker)
+
     @pytest.mark.asyncio()
     async def test_stream_publish(
         self,
