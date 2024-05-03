@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional, Sequence, Union, overload
 
 from opentelemetry.semconv.trace import SpanAttributes
 
@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.types import AnyDict
+
 
 
 class BaseNatsTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
@@ -78,3 +79,36 @@ class NatsBatchTelemetrySettingsProvider(
         msg: "StreamMessage[List[Msg]]",
     ) -> str:
         return msg.raw_message[0].subject
+
+
+@overload
+def telemetry_attributes_provider_factory(
+    msg: Optional["Msg"]
+) -> NatsTelemetrySettingsProvider:
+    ...
+
+@overload
+def telemetry_attributes_provider_factory(
+    msg: Sequence["Msg"]
+) -> NatsBatchTelemetrySettingsProvider:
+    ...
+
+@overload
+def telemetry_attributes_provider_factory(
+    msg: Union["Msg", Sequence["Msg"], None]
+) -> Union[
+    NatsTelemetrySettingsProvider,
+    NatsBatchTelemetrySettingsProvider,
+]:
+    ...
+
+def telemetry_attributes_provider_factory(
+    msg: Union["Msg", Sequence["Msg"], None]
+) -> Union[
+    NatsTelemetrySettingsProvider,
+    NatsBatchTelemetrySettingsProvider,
+]:
+    if isinstance(msg, Sequence):
+        return NatsBatchTelemetrySettingsProvider()
+    else:
+        return NatsTelemetrySettingsProvider()

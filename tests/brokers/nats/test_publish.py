@@ -1,5 +1,6 @@
 import pytest
 
+from faststream.nats import NatsBroker
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 
@@ -7,28 +8,6 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 class TestPublish(BrokerPublishTestcase):
     """Test publish method of NATS broker."""
 
-    @pytest.mark.asyncio()
-    async def test_stream_publish(
-        self,
-        queue: str,
-        test_broker,
-    ):
-        @test_broker.subscriber(queue, stream="test")
-        async def m(): ...
-
-        await test_broker.start()
-        await test_broker.publish("Hi!", queue, stream="test")
-        m.mock.assert_called_once_with("Hi!")
-
-    @pytest.mark.asyncio()
-    async def test_wrong_stream_publish(
-        self,
-        queue: str,
-        test_broker,
-    ):
-        @test_broker.subscriber(queue)
-        async def m(): ...
-
-        await test_broker.start()
-        await test_broker.publish("Hi!", queue, stream="test")
-        assert not m.mock.called
+    @pytest.fixture()
+    def pub_broker(self):
+        return NatsBroker()

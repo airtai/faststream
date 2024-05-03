@@ -1,4 +1,4 @@
-from typing import Any, ClassVar, Dict, Optional
+from typing import Optional
 
 import pytest
 from dirty_equals import IsStr, IsUUID
@@ -7,21 +7,20 @@ from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind
 
 from faststream.broker.core.usecase import BrokerUsecase
-from faststream.confluent import KafkaBroker
-from faststream.opentelemetry import TelemetryMiddleware
+from faststream.kafka import KafkaBroker
+from faststream.kafka.opentelemetry import KafkaTelemetryMiddleware
 from faststream.opentelemetry.middleware import MessageAction as Action
-from tests.brokers.base.telemetry import LocalTelemetryTestcase
+from tests.brokers.kafka.test_consume import TestConsume
+from tests.brokers.kafka.test_publish import TestPublish
 
-from .test_consume import TestConsume
-from .test_publish import TestPublish
+from ..basic import LocalTelemetryTestcase
 
 
-@pytest.mark.confluent()
+@pytest.mark.kafka()
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "kafka"
-    timeout: int = 10
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
     broker_class = KafkaBroker
+    telemetry_middleware_class = KafkaTelemetryMiddleware
 
     def assert_span(
         self,
@@ -57,17 +56,15 @@ class TestTelemetry(LocalTelemetryTestcase):
             assert span.parent.span_id == parent_span_id
 
 
-@pytest.mark.confluent()
+@pytest.mark.kafka()
 class TestPublishWithTelemetry(TestPublish):
     @pytest.fixture()
-    def pub_broker(self, full_broker):
-        full_broker._middlewares = (*full_broker._middlewares, TelemetryMiddleware())
-        return full_broker
+    def pub_broker(self):
+        return KafkaBroker(middlewares=(KafkaTelemetryMiddleware(),))
 
 
-@pytest.mark.confluent()
+@pytest.mark.kafka()
 class TestConsumeWithTelemetry(TestConsume):
     @pytest.fixture()
-    def consume_broker(self, broker: BrokerUsecase):
-        broker._middlewares = (*broker._middlewares, TelemetryMiddleware())
-        return broker
+    def consume_broker(self):
+        return KafkaBroker(middlewares=(KafkaTelemetryMiddleware(),))

@@ -31,7 +31,6 @@ from faststream.broker.types import (
 )
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.log.logging import set_logger_fmt
-from faststream.opentelemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
 
@@ -42,7 +41,6 @@ if TYPE_CHECKING:
 
     from faststream.asyncapi.schema import Tag, TagDict
     from faststream.broker.publisher.proto import ProducerProto, PublisherProto
-    from faststream.opentelemetry import TelemetrySettingsProvider
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, Decorator, LoggerProto
 
@@ -57,7 +55,6 @@ class BrokerUsecase(
     url: Union[str, Sequence[str]]
     _connection: Optional[ConnectionType]
     _producer: Optional["ProducerProto"]
-    _telemetry_provider: Optional["TelemetrySettingsProvider"]
 
     def __init__(
         self,
@@ -174,7 +171,6 @@ class BrokerUsecase(
         self._connection_kwargs = connection_kwargs
         self._connection = None
         self._producer = None
-        self._telemetry_provider = None
 
         if not is_test_env():
             self._middlewares = (
@@ -277,7 +273,6 @@ class BrokerUsecase(
     def _publisher_setup_extra(self) -> "AnyDict":
         return {
             "producer": self._producer,
-            "telemetry_provider": self._telemetry_provider,
         }
 
     def publisher(self, *args: Any, **kwargs: Any) -> "PublisherProto[MsgType]":
@@ -338,8 +333,7 @@ class BrokerUsecase(
 
         publish = producer.publish
 
-        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
-            for m in self._middlewares:
-                publish = partial(m(None).publish_scope, publish)
+        for m in self._middlewares:
+            publish = partial(m(None).publish_scope, publish)
 
-            return await publish(msg, **kwargs)
+        return await publish(msg, **kwargs)

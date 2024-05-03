@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Optional, Sequence, Tuple, Union, overload
 
 from opentelemetry.semconv.trace import SpanAttributes
 
@@ -6,13 +6,13 @@ from faststream.broker.types import MsgType
 from faststream.opentelemetry import TelemetrySettingsProvider
 
 if TYPE_CHECKING:
-    from aiokafka import ConsumerRecord
+    from confluent_kafka import Message
 
     from faststream.broker.message import StreamMessage
     from faststream.types import AnyDict
 
 
-class BaseKafkaTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
+class BaseConfluentTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
     __slots__ = ("messaging_system",)
 
     def __init__(self) -> None:
@@ -43,60 +43,92 @@ class BaseKafkaTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
         return kwargs["topic"]
 
 
-class KafkaTelemetrySettingsProvider(
-    BaseKafkaTelemetrySettingsProvider["ConsumerRecord"]
+class ConfluentTelemetrySettingsProvider(
+    BaseConfluentTelemetrySettingsProvider["Message"]
 ):
     def get_consume_attrs_from_message(
         self,
-        msg: "StreamMessage[ConsumerRecord]",
+        msg: "StreamMessage[Message]",
     ) -> "AnyDict":
         attrs = {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.message_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
-            SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: msg.raw_message.partition,
-            SpanAttributes.MESSAGING_KAFKA_MESSAGE_OFFSET: msg.raw_message.offset,
-            "messaging.destination_publish.name": msg.raw_message.topic,
+            SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: msg.raw_message.partition(),
+            SpanAttributes.MESSAGING_KAFKA_MESSAGE_OFFSET: msg.raw_message.offset(),
+            "messaging.destination_publish.name": msg.raw_message.topic(),
         }
 
-        if msg.raw_message.key is not None:
-            attrs[SpanAttributes.MESSAGING_KAFKA_MESSAGE_KEY] = msg.raw_message.key
+        if (key := msg.raw_message.key()) is not None:
+            attrs[SpanAttributes.MESSAGING_KAFKA_MESSAGE_KEY] = key
 
         return attrs
 
     @staticmethod
     def get_consume_destination_name(
-        msg: "StreamMessage[ConsumerRecord]",
+        msg: "StreamMessage[Message]",
     ) -> str:
-        return msg.raw_message.topic
+        return msg.raw_message.topic()
 
 
-class BatchKafkaTelemetrySettingsProvider(
-    BaseKafkaTelemetrySettingsProvider[Tuple["ConsumerRecord", ...]]
+class BatchConfluentTelemetrySettingsProvider(
+    BaseConfluentTelemetrySettingsProvider[Tuple["Message", ...]]
 ):
     def get_consume_attrs_from_message(
         self,
-        msg: "StreamMessage[Tuple[ConsumerRecord, ...]]",
+        msg: "StreamMessage[Tuple[Message, ...]]",
     ) -> "AnyDict":
         raw_message = msg.raw_message[0]
-
         attrs = {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.message_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
+            SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: len(msg.raw_message),
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(
                 bytearray().join(msg.body)
             ),
-            SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: len(msg.raw_message),
-            SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: raw_message.partition,
-            "messaging.destination_publish.name": raw_message.topic,
+            SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: raw_message.partition(),
+            "messaging.destination_publish.name": raw_message.topic(),
         }
 
         return attrs
 
     @staticmethod
     def get_consume_destination_name(
-        msg: "StreamMessage[Tuple[ConsumerRecord, ...]]",
+        msg: "StreamMessage[Tuple[Message, ...]]",
     ) -> str:
-        return msg.raw_message[0].topic
+        return msg.raw_message[0].topic()
+
+
+@overload
+def telemetry_attributes_provider_factory(
+    msg: Optional["Message"]
+) -> ConfluentTelemetrySettingsProvider:
+    ...
+
+@overload
+def telemetry_attributes_provider_factory(
+    msg: Sequence["Message"]
+) -> BatchConfluentTelemetrySettingsProvider:
+    ...
+
+@overload
+def telemetry_attributes_provider_factory(
+    msg: Union["Message", Sequence["Message"], None]
+) -> Union[
+    ConfluentTelemetrySettingsProvider,
+    BatchConfluentTelemetrySettingsProvider,
+]:
+    ...
+
+def telemetry_attributes_provider_factory(
+    msg: Union["Message", Sequence["Message"], None]
+) -> Union[
+    ConfluentTelemetrySettingsProvider,
+    BatchConfluentTelemetrySettingsProvider,
+]:
+    if isinstance(msg, Sequence):
+        return BatchConfluentTelemetrySettingsProvider()
+    else:
+        return ConfluentTelemetrySettingsProvider()

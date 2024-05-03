@@ -1,28 +1,27 @@
-from typing import Optional
+from typing import Any, ClassVar, Dict, Optional
 
 import pytest
-from dirty_equals import IsInt, IsUUID
+from dirty_equals import IsStr, IsUUID
 from opentelemetry.sdk.trace import Span
 from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind
 
-from faststream.broker.core.usecase import BrokerUsecase
-from faststream.opentelemetry import TelemetryMiddleware
+from faststream.confluent import KafkaBroker
+from faststream.confluent.opentelemetry import KafkaTelemetryMiddleware
 from faststream.opentelemetry.middleware import MessageAction as Action
-from faststream.rabbit import RabbitBroker
-from tests.brokers.base.telemetry import LocalTelemetryTestcase
+from tests.brokers.confluent.test_consume import TestConsume
+from tests.brokers.confluent.test_publish import TestPublish
 
-from .test_consume import TestConsume
-from .test_publish import TestPublish
+from ..basic import LocalTelemetryTestcase
 
 
-@pytest.mark.rabbit()
+@pytest.mark.confluent()
 class TestTelemetry(LocalTelemetryTestcase):
-    messaging_system = "rabbitmq"
-    broker_class = RabbitBroker
-
-    def destination_name(self, queue: str) -> str:
-        return f"default.{queue}"
+    messaging_system = "kafka"
+    timeout: int = 10
+    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
+    broker_class = KafkaBroker
+    telemetry_middleware_class = KafkaTelemetryMiddleware
 
     def assert_span(
         self,
@@ -35,17 +34,17 @@ class TestTelemetry(LocalTelemetryTestcase):
         attrs = span.attributes
         assert attrs[SpanAttr.MESSAGING_SYSTEM] == self.messaging_system
         assert attrs[SpanAttr.MESSAGING_MESSAGE_CONVERSATION_ID] == IsUUID
-        assert attrs[SpanAttr.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY] == queue
         assert span.name == f"{self.destination_name(queue)} {action}"
         assert span.kind in (SpanKind.CONSUMER, SpanKind.PRODUCER)
 
         if span.kind == SpanKind.PRODUCER and action in (Action.CREATE, Action.PUBLISH):
-            assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == ""
+            assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == queue
 
         if span.kind == SpanKind.CONSUMER and action in (Action.CREATE, Action.PROCESS):
-            assert attrs["messaging.destination_publish.name"] == ""
-            assert attrs["messaging.rabbitmq.message.delivery_tag"] == IsInt
-            assert attrs[SpanAttr.MESSAGING_MESSAGE_ID] == IsUUID
+            assert attrs["messaging.destination_publish.name"] == queue
+            assert attrs[SpanAttr.MESSAGING_MESSAGE_ID] == IsStr(regex=r"0-.+")
+            assert attrs[SpanAttr.MESSAGING_KAFKA_DESTINATION_PARTITION] == 0
+            assert attrs[SpanAttr.MESSAGING_KAFKA_MESSAGE_OFFSET] == 0
 
         if action == Action.PROCESS:
             assert attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES] == len(msg)
@@ -58,17 +57,16 @@ class TestTelemetry(LocalTelemetryTestcase):
             assert span.parent.span_id == parent_span_id
 
 
-@pytest.mark.rabbit()
+@pytest.mark.confluent()
 class TestPublishWithTelemetry(TestPublish):
     @pytest.fixture()
-    def pub_broker(self, full_broker):
-        full_broker._middlewares = (*full_broker._middlewares, TelemetryMiddleware())
-        return full_broker
+    def pub_broker(self):
+        return KafkaBroker(middlewares=(KafkaTelemetryMiddleware(),))
 
 
-@pytest.mark.rabbit()
+@pytest.mark.confluent()
 class TestConsumeWithTelemetry(TestConsume):
     @pytest.fixture()
-    def consume_broker(self, broker: BrokerUsecase):
-        broker._middlewares = (*broker._middlewares, TelemetryMiddleware())
-        return broker
+    def consume_broker(self):
+        return KafkaBroker(middlewares=(KafkaTelemetryMiddleware(),))
+

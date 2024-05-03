@@ -36,8 +36,6 @@ from faststream.nats.broker.registrator import NatsRegistrator
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.security import parse_security
 from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
-from faststream.nats.telemetry.provider import NatsTelemetrySettingsProvider
-from faststream.opentelemetry import HAS_OPEN_TELEMETRY
 
 if TYPE_CHECKING:
     import ssl
@@ -220,7 +218,6 @@ class NatsBroker(
 
     _producer: Optional["NatsFastProducer"]
     _js_producer: Optional["NatsJSFastProducer"]
-    _telemetry_provider: Optional["NatsTelemetrySettingsProvider"]
 
     def __init__(
         self,
@@ -537,9 +534,6 @@ class NatsBroker(
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
         )
-
-        if HAS_OPEN_TELEMETRY:
-            self._telemetry_provider = NatsTelemetrySettingsProvider()
 
         self.__is_connected = False
         self._producer = None

@@ -18,7 +18,6 @@ from typing_extensions import Annotated, Doc, override
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.opentelemetry import HAS_OPEN_TELEMETRY
 from faststream.rabbit.broker.logging import RabbitLoggingBroker
 from faststream.rabbit.broker.registrator import RabbitRegistrator
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -29,7 +28,6 @@ from faststream.rabbit.schemas import (
 )
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
-from faststream.rabbit.telemetry.provider import RabbitTelemetrySettingsProvider
 from faststream.rabbit.utils import RabbitDeclarer, build_url
 
 if TYPE_CHECKING:
@@ -245,9 +243,6 @@ class RabbitBroker(
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
         )
-
-        if HAS_OPEN_TELEMETRY:
-            self._telemetry_provider = RabbitTelemetrySettingsProvider()
 
         self._max_consumers = max_consumers
 

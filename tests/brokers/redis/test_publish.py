@@ -12,6 +12,10 @@ from tests.tools import spy_decorator
 @pytest.mark.redis()
 @pytest.mark.asyncio()
 class TestPublish(BrokerPublishTestcase):
+    @pytest.fixture()
+    def pub_broker(self):
+        return RedisBroker()
+
     async def test_list_publisher(
         self,
         queue: str,
@@ -42,17 +46,17 @@ class TestPublish(BrokerPublishTestcase):
         assert event.is_set()
         mock.assert_called_once_with("")
 
-    async def test_list_publish_batch(self, queue: str, broker: RedisBroker):
+    async def test_list_publish_batch(self, queue: str, pub_broker: RedisBroker):
         msgs_queue = asyncio.Queue(maxsize=2)
 
-        @broker.subscriber(list=queue)
+        @pub_broker.subscriber(list=queue)
         async def handler(msg):
             await msgs_queue.put(msg)
 
-        async with broker:
-            await broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-            await broker.publish_batch(1, "hi", list=queue)
+            await pub_broker.publish_batch(1, "hi", list=queue)
 
             result, _ = await asyncio.wait(
                 (

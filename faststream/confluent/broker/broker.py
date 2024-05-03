@@ -19,7 +19,6 @@ from typing import (
 
 from typing_extensions import Annotated, Doc, override
 
-from faststream import context
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
 from faststream.confluent.broker.logging import KafkaLoggingBroker
@@ -28,9 +27,7 @@ from faststream.confluent.client import AsyncConfluentProducer, _missing
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
-from faststream.confluent.telemetry.provider import ConfluentTelemetrySettingsProvider
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.opentelemetry import HAS_OPEN_TELEMETRY, TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.utils.data import filter_by_dict
 
 if TYPE_CHECKING:
@@ -406,8 +403,6 @@ class KafkaBroker(
             apply_types=apply_types,
             validate=validate,
         )
-        if HAS_OPEN_TELEMETRY:
-            self._telemetry_provider = ConfluentTelemetrySettingsProvider()
 
         self.client_id = client_id
         self._producer = None
@@ -517,17 +512,16 @@ class KafkaBroker(
 
         correlation_id = correlation_id or gen_cor_id()
 
-        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
-            call: "AsyncFunc" = self._producer.publish_batch
-            for m in self._middlewares:
-                call = partial(m(None).publish_scope, call)
+        call: "AsyncFunc" = self._producer.publish_batch
+        for m in self._middlewares:
+            call = partial(m(None).publish_scope, call)
 
-            await call(
-                *msgs,
-                topic=topic,
-                partition=partition,
-                timestamp_ms=timestamp_ms,
-                headers=headers,
-                reply_to=reply_to,
-                correlation_id=correlation_id,
-            )
+        await call(
+            *msgs,
+            topic=topic,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+        )

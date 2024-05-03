@@ -27,8 +27,10 @@ class LocalTelemetryTestcase:
     subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
     resource: Resource = Resource.create(attributes={"service.name": "faststream.test"})
 
+    telemetry_middleware_class: TelemetryMiddleware
+
     def patch_broker(
-        self, raw_broker: BrokerUsecase, broker: BrokerUsecase
+        self, broker: BrokerUsecase
     ) -> BrokerUsecase:
         return broker
 
@@ -57,10 +59,6 @@ class LocalTelemetryTestcase:
         metrics = sorted(metrics, key=lambda m: m.name)
         requests, cons_mes_size, duration, pub_mes_size = metrics
         return requests, duration, cons_mes_size, pub_mes_size
-
-    @pytest.fixture()
-    def raw_broker(self):
-        return None
 
     @pytest.fixture()
     def tracer_provider(self) -> TracerProvider:
@@ -135,9 +133,8 @@ class LocalTelemetryTestcase:
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
-        raw_broker,
     ):
-        mid = TelemetryMiddleware(tracer_provider=tracer_provider)
+        mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.broker_class(middlewares=(mid,))
 
         @broker.subscriber(queue, **self.subscriber_kwargs)
@@ -145,7 +142,7 @@ class LocalTelemetryTestcase:
             mock(m)
             event.set()
 
-        broker = self.patch_broker(raw_broker, broker)
+        broker = self.patch_broker(broker)
         msg = "start"
 
         async with broker:
@@ -173,9 +170,8 @@ class LocalTelemetryTestcase:
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
-        raw_broker,
     ):
-        mid = TelemetryMiddleware(tracer_provider=tracer_provider)
+        mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.broker_class(middlewares=(mid,))
 
         first_queue = queue
@@ -191,7 +187,7 @@ class LocalTelemetryTestcase:
             mock(m)
             event.set()
 
-        broker = self.patch_broker(raw_broker, broker)
+        broker = self.patch_broker(broker)
         msg = "start"
 
         async with broker:
@@ -230,9 +226,8 @@ class LocalTelemetryTestcase:
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
-        raw_broker,
     ):
-        mid = TelemetryMiddleware(tracer_provider=tracer_provider)
+        mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.broker_class(middlewares=(mid,))
 
         @broker.subscriber(queue, **self.subscriber_kwargs)
@@ -240,7 +235,7 @@ class LocalTelemetryTestcase:
             mock(m)
             event.set()
 
-        broker = self.patch_broker(raw_broker, broker)
+        broker = self.patch_broker(broker)
         msg = "start"
 
         async with broker:
@@ -268,13 +263,12 @@ class LocalTelemetryTestcase:
         mock: Mock,
         meter_provider: MeterProvider,
         metric_reader: InMemoryMetricReader,
-        raw_broker,
     ):
         expected_requests_in_flight = 0
         expected_publishing_count = 1
         expected_consuming_count = 1
 
-        mid = TelemetryMiddleware(meter_provider=meter_provider)
+        mid = self.telemetry_middleware_class(meter_provider=meter_provider)
         broker = self.broker_class(middlewares=(mid,))
 
         @broker.subscriber(queue, **self.subscriber_kwargs)
@@ -282,7 +276,7 @@ class LocalTelemetryTestcase:
             mock(m)
             event.set()
 
-        broker = self.patch_broker(raw_broker, broker)
+        broker = self.patch_broker(broker)
         msg = "start"
 
         async with broker:

@@ -14,7 +14,6 @@ if TYPE_CHECKING:
         PublisherMiddleware,
         T_HandlerReturn,
     )
-    from faststream.opentelemetry import TelemetrySettingsProvider
     from faststream.types import SendableMessage
 
 
@@ -56,7 +55,6 @@ class PublisherProto(
     _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
     _middlewares: Iterable["PublisherMiddleware"]
     _producer: Optional["ProducerProto"]
-    _telemetry_provider: Optional["TelemetrySettingsProvider"]
 
     @staticmethod
     @abstractmethod
@@ -70,7 +68,6 @@ class PublisherProto(
         self,
         *,
         producer: Optional["ProducerProto"],
-        telemetry_provider: Optional["TelemetrySettingsProvider"],
     ) -> None: ...
 
     @abstractmethod

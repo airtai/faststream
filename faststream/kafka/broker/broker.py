@@ -21,7 +21,6 @@ from aiokafka.partitioner import DefaultPartitioner
 from aiokafka.producer.producer import _missing
 from typing_extensions import Annotated, Doc, override
 
-from faststream import context
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -30,8 +29,6 @@ from faststream.kafka.broker.registrator import KafkaRegistrator
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.kafka.security import parse_security
-from faststream.kafka.telemetry.provider import KafkaTelemetrySettingsProvider
-from faststream.opentelemetry import HAS_OPEN_TELEMETRY, TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.utils.data import filter_by_dict
 
 Partition = TypeVar("Partition")
@@ -538,9 +535,6 @@ class KafkaBroker(
             validate=validate,
         )
 
-        if HAS_OPEN_TELEMETRY:
-            self._telemetry_provider = KafkaTelemetrySettingsProvider()
-
         self.client_id = client_id
         self._producer = None
 
@@ -742,16 +736,15 @@ class KafkaBroker(
 
         call: "AsyncFunc" = self._producer.publish_batch
 
-        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
-            for m in self._middlewares:
-                call = partial(m(None).publish_scope, call)
+        for m in self._middlewares:
+            call = partial(m(None).publish_scope, call)
 
-            await call(
-                *msgs,
-                topic=topic,
-                partition=partition,
-                timestamp_ms=timestamp_ms,
-                headers=headers,
-                reply_to=reply_to,
-                correlation_id=correlation_id,
-            )
+        await call(
+            *msgs,
+            topic=topic,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+        )

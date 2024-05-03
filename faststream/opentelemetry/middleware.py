@@ -1,16 +1,12 @@
 import time
-from typing import TYPE_CHECKING, Any, Optional, Type
+from typing import TYPE_CHECKING, Any, Callable, Optional, Type
 
 from opentelemetry import context, metrics, propagate, trace
 from opentelemetry.semconv.trace import SpanAttributes
 
 from faststream import BaseMiddleware
-from faststream.opentelemetry.consts import (
-    TELEMETRY_PROVIDER_CONTEXT_KEY,
-    MessageAction,
-)
+from faststream.opentelemetry.consts import MessageAction
 from faststream.opentelemetry.provider import TelemetrySettingsProvider
-from faststream.utils.context.repository import context as global_context
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -62,12 +58,12 @@ class _MetricsContainer:
 
 
 class BaseTelemetryMiddleware(BaseMiddleware):
-    __settings_provider: TelemetrySettingsProvider[Any]
 
     def __init__(
         self,
         *,
         tracer: "Tracer",
+        settings_provider_factory: Callable[[Any], TelemetrySettingsProvider[Any]],
         metrics_container: _MetricsContainer,
         msg: Optional[Any] = None,
     ) -> None:
@@ -77,9 +73,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         self._metrics = metrics_container
         self._current_span: Optional[Span] = None
         self._origin_context: Optional[Context] = None
-        self.__settings_provider = global_context.get_local(
-            TELEMETRY_PROVIDER_CONTEXT_KEY
-        )
+        self.__settings_provider = settings_provider_factory(msg)
 
     async def publish_scope(
         self,
@@ -88,7 +82,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         *args: Any,
         **kwargs: Any,
     ) -> Any:
-        provider: TelemetrySettingsProvider[Any] = self.__settings_provider
+        provider = self.__settings_provider
 
         attributes = provider.get_publish_attrs_from_kwargs(kwargs)
 
@@ -135,7 +129,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         call_next: "AsyncFuncAny",
         msg: "StreamMessage[Any]",
     ) -> Any:
-        provider: TelemetrySettingsProvider[Any] = self.__settings_provider
+        provider = self.__settings_provider
 
         start_time = time.perf_counter()
         current_context = propagate.extract(msg.headers)
@@ -198,10 +192,13 @@ class TelemetryMiddleware:
         "_tracer",
         "_meter",
         "_metrics",
+        "_settings_provider_factory",
     )
 
     def __init__(
         self,
+        *,
+        settings_provider_factory: Callable[[Any], TelemetrySettingsProvider[Any]],
         tracer_provider: Optional["TracerProvider"] = None,
         meter_provider: Optional["MeterProvider"] = None,
         meter: Optional["Meter"] = None,
@@ -209,11 +206,13 @@ class TelemetryMiddleware:
         self._tracer = _get_tracer(tracer_provider)
         self._meter = _get_meter(meter_provider, meter)
         self._metrics = _MetricsContainer(self._meter)
+        self._settings_provider_factory = settings_provider_factory
 
     def __call__(self, msg: Optional[Any]) -> BaseMiddleware:
         return BaseTelemetryMiddleware(
             tracer=self._tracer,
             metrics_container=self._metrics,
+            settings_provider_factory=self._settings_provider_factory,
             msg=msg,
         )
 

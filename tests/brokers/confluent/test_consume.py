@@ -20,17 +20,17 @@ class TestConsume(BrokerRealConsumeTestcase):
     subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
 
     @pytest.mark.asyncio()
-    async def test_consume_batch(self, confluent_kafka_topic: str, broker: KafkaBroker):
+    async def test_consume_batch(self, confluent_kafka_topic: str, consume_broker: KafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @broker.subscriber(confluent_kafka_topic, batch=True, **self.subscriber_kwargs)
+        @consume_broker.subscriber(confluent_kafka_topic, batch=True, **self.subscriber_kwargs)
         async def handler(msg):
             await msgs_queue.put(msg)
 
-        async with broker:
-            await broker.start()
+        async with consume_broker:
+            await consume_broker.start()
 
-            await broker.publish_batch(1, "hi", topic=confluent_kafka_topic)
+            await consume_broker.publish_batch(1, "hi", topic=confluent_kafka_topic)
 
             result, _ = await asyncio.wait(
                 (asyncio.create_task(msgs_queue.get()),),
@@ -44,17 +44,19 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack(
         self,
         queue: str,
-        full_broker: KafkaBroker,
+        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        @full_broker.subscriber(
+        consume_broker._is_apply_types = True
+
+        @consume_broker.subscriber(
             queue, group_id="test", auto_commit=False, **self.subscriber_kwargs
         )
         async def handler(msg: KafkaMessage):
             event.set()
 
-        async with full_broker:
-            await full_broker.start()
+        async with consume_broker:
+            await consume_broker.start()
 
             with patch.object(
                 AsyncConfluentConsumer,
@@ -64,7 +66,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            full_broker.publish(
+                            consume_broker.publish(
                                 "hello",
                                 queue,
                             )
@@ -82,18 +84,20 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_manual(
         self,
         queue: str,
-        full_broker: KafkaBroker,
+        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        @full_broker.subscriber(
+        consume_broker._is_apply_types = True
+
+        @consume_broker.subscriber(
             queue, group_id="test", auto_commit=False, **self.subscriber_kwargs
         )
         async def handler(msg: KafkaMessage):
             await msg.ack()
             event.set()
 
-        async with full_broker:
-            await full_broker.start()
+        async with consume_broker:
+            await consume_broker.start()
 
             with patch.object(
                 AsyncConfluentConsumer,
@@ -103,7 +107,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            full_broker.publish(
+                            consume_broker.publish(
                                 "hello",
                                 queue,
                             )
@@ -121,18 +125,20 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_raise(
         self,
         queue: str,
-        full_broker: KafkaBroker,
+        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        @full_broker.subscriber(
+        consume_broker._is_apply_types = True
+
+        @consume_broker.subscriber(
             queue, group_id="test", auto_commit=False, **self.subscriber_kwargs
         )
         async def handler(msg: KafkaMessage):
             event.set()
             raise AckMessage()
 
-        async with full_broker:
-            await full_broker.start()
+        async with consume_broker:
+            await consume_broker.start()
 
             with patch.object(
                 AsyncConfluentConsumer,
@@ -142,7 +148,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            full_broker.publish(
+                            consume_broker.publish(
                                 "hello",
                                 queue,
                             )
@@ -160,18 +166,20 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_nack(
         self,
         queue: str,
-        full_broker: KafkaBroker,
+        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        @full_broker.subscriber(
+        consume_broker._is_apply_types = True
+
+        @consume_broker.subscriber(
             queue, group_id="test", auto_commit=False, **self.subscriber_kwargs
         )
         async def handler(msg: KafkaMessage):
             await msg.nack()
             event.set()
 
-        async with full_broker:
-            await full_broker.start()
+        async with consume_broker:
+            await consume_broker.start()
 
             with patch.object(
                 AsyncConfluentConsumer,
@@ -181,7 +189,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            full_broker.publish(
+                            consume_broker.publish(
                                 "hello",
                                 queue,
                             )
@@ -199,16 +207,18 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_no_ack(
         self,
         queue: str,
-        full_broker: KafkaBroker,
+        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        @full_broker.subscriber(
+        consume_broker._is_apply_types = True
+
+        @consume_broker.subscriber(
             queue, group_id="test", no_ack=True, **self.subscriber_kwargs
         )
         async def handler(msg: KafkaMessage):
             event.set()
 
-        await full_broker.start()
+        await consume_broker.start()
         with patch.object(
             AsyncConfluentConsumer,
             "commit",
@@ -217,7 +227,7 @@ class TestConsume(BrokerRealConsumeTestcase):
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        full_broker.publish(
+                        consume_broker.publish(
                             "hello",
                             queue,
                         )
@@ -235,10 +245,12 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_with_no_auto_commit(
         self,
         queue: str,
-        full_broker: KafkaBroker,
+        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        @full_broker.subscriber(
+        consume_broker._is_apply_types = True
+
+        @consume_broker.subscriber(
             queue, auto_commit=False, group_id="test", **self.subscriber_kwargs
         )
         async def subscriber_no_auto_commit(msg: KafkaMessage):
@@ -254,11 +266,11 @@ class TestConsume(BrokerRealConsumeTestcase):
         async def subscriber_with_auto_commit(m):
             event2.set()
 
-        async with full_broker:
-            await full_broker.start()
+        async with consume_broker:
+            await consume_broker.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(full_broker.publish("hello", queue)),
+                    asyncio.create_task(consume_broker.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,

@@ -9,10 +9,8 @@ from typing_extensions import Annotated, Doc, TypedDict, Unpack, override
 from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.opentelemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
-from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
@@ -20,7 +18,6 @@ if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas.exchange import RabbitExchange
-    from faststream.rabbit.telemetry.provider import RabbitTelemetrySettingsProvider
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import AnyDict, AsyncFunc
 
@@ -103,7 +100,6 @@ class LogicPublisher(
     app_id: Optional[str]
 
     _producer: Optional["AioPikaFastProducer"]
-    _telemetry_provider: Optional["RabbitTelemetrySettingsProvider"]
 
     def __init__(
         self,
@@ -147,15 +143,13 @@ class LogicPublisher(
         self,
         *,
         producer: Optional["AioPikaFastProducer"],
-        telemetry_provider: Optional["RabbitTelemetrySettingsProvider"],
         app_id: Optional[str],
         virtual_host: str,
     ) -> None:
         self.app_id = app_id
         self.virtual_host = virtual_host
         super().setup(
-            producer=producer,
-            telemetry_provider=telemetry_provider,
+            producer=producer
         )
 
     @property
@@ -248,17 +242,16 @@ class LogicPublisher(
 
         call: "AsyncFunc" = self._producer.publish
 
-        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
-            for m in chain(
-                (
-                    _extra_middlewares
-                    or (m(None).publish_scope for m in self._broker_middlewares)
-                ),
-                self._middlewares,
-            ):
-                call = partial(m, call)
+        for m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-            return await call(message, **kwargs)
+        return await call(message, **kwargs)
 
     def add_prefix(self, prefix: str) -> None:
         """Include Publisher in router."""

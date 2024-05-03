@@ -24,16 +24,13 @@ from redis.asyncio.connection import (
 )
 from typing_extensions import Annotated, Doc, TypeAlias, override
 
-from faststream import context
 from faststream.__about__ import __version__
 from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.opentelemetry import HAS_OPEN_TELEMETRY, TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.redis.broker.logging import RedisLoggingBroker
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
-from faststream.redis.telemetry.provider import RedisTelemetrySettingsProvider
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -252,9 +249,6 @@ class RedisBroker(
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
         )
-
-        if HAS_OPEN_TELEMETRY:
-            self._telemetry_provider = RedisTelemetrySettingsProvider()
 
     @override
     async def connect(  # type: ignore[override]
@@ -476,12 +470,11 @@ class RedisBroker(
 
         call: "AsyncFunc" = self._producer.publish_batch
 
-        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
-            for m in self._middlewares:
-                call = partial(m(None).publish_scope, call)
+        for m in self._middlewares:
+            call = partial(m(None).publish_scope, call)
 
-            await call(
-                *msgs,
-                list=list,
-                correlation_id=correlation_id,
-            )
+        await call(
+            *msgs,
+            list=list,
+            correlation_id=correlation_id,
+        )

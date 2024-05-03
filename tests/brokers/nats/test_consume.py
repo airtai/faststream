@@ -13,6 +13,10 @@ from tests.tools import spy_decorator
 
 @pytest.mark.nats()
 class TestConsume(BrokerRealConsumeTestcase):
+    @pytest.fixture()
+    def consume_broker(self):
+        return NatsBroker(apply_types=False)
+
     async def test_consume_js(
         self,
         queue: str,
@@ -100,21 +104,23 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack(
         self,
         queue: str,
-        full_broker: NatsBroker,
+        consume_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        @full_broker.subscriber(queue, stream=stream)
+        consume_broker._is_apply_types = True
+
+        @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
             event.set()
 
-        async with full_broker:
-            await full_broker.start()
+        async with consume_broker:
+            await consume_broker.start()
             with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            full_broker.publish(
+                            consume_broker.publish(
                                 "hello",
                                 queue,
                             )
@@ -131,22 +137,24 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_manual(
         self,
         queue: str,
-        full_broker: NatsBroker,
+        consume_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        @full_broker.subscriber(queue, stream=stream)
+        consume_broker._is_apply_types = True
+
+        @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
             await msg.ack()
             event.set()
 
-        async with full_broker:
-            await full_broker.start()
+        async with consume_broker:
+            await consume_broker.start()
             with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            full_broker.publish(
+                            consume_broker.publish(
                                 "hello",
                                 queue,
                             )
@@ -163,22 +171,24 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_raise(
         self,
         queue: str,
-        full_broker: NatsBroker,
+        consume_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        @full_broker.subscriber(queue, stream=stream)
+        consume_broker._is_apply_types = True
+
+        @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
             event.set()
             raise AckMessage()
 
-        async with full_broker:
-            await full_broker.start()
+        async with consume_broker:
+            await consume_broker.start()
             with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            full_broker.publish(
+                            consume_broker.publish(
                                 "hello",
                                 queue,
                             )
@@ -195,22 +205,24 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_nack(
         self,
         queue: str,
-        full_broker: NatsBroker,
+        consume_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        @full_broker.subscriber(queue, stream=stream)
+        consume_broker._is_apply_types = True
+
+        @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
             await msg.nack()
             event.set()
 
-        async with full_broker:
-            await full_broker.start()
+        async with consume_broker:
+            await consume_broker.start()
             with patch.object(Msg, "nak", spy_decorator(Msg.nak)) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            full_broker.publish(
+                            consume_broker.publish(
                                 "hello",
                                 queue,
                             )
@@ -225,18 +237,20 @@ class TestConsume(BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     async def test_consume_no_ack(
-        self, queue: str, full_broker: NatsBroker, event: asyncio.Event
+        self, queue: str, consume_broker: NatsBroker, event: asyncio.Event
     ):
-        @full_broker.subscriber(queue, no_ack=True)
+        consume_broker._is_apply_types = True
+
+        @consume_broker.subscriber(queue, no_ack=True)
         async def handler(msg: NatsMessage):
             event.set()
 
-        await full_broker.start()
+        await consume_broker.start()
         with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        full_broker.publish(
+                        consume_broker.publish(
                             "hello",
                             queue,
                         )

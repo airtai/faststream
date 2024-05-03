@@ -9,8 +9,6 @@ from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.broker.types import MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.opentelemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
-from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
@@ -168,26 +166,25 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
 
         call: "AsyncFunc" = self._producer.publish
 
-        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
-            for m in chain(
-                (
-                    _extra_middlewares
-                    or (m(None).publish_scope for m in self._broker_middlewares)
-                ),
-                self._middlewares,
-            ):
-                call = partial(m, call)
+        for m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-            return await call(
-                message,
-                topic=topic,
-                key=key,
-                partition=partition,
-                headers=headers,
-                reply_to=reply_to,
-                correlation_id=correlation_id,
-                timestamp_ms=timestamp_ms,
-            )
+        return await call(
+            message,
+            topic=topic,
+            key=key,
+            partition=partition,
+            headers=headers,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+            timestamp_ms=timestamp_ms,
+        )
 
 
 class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
@@ -257,22 +254,21 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
 
         call: "AsyncFunc" = self._producer.publish_batch
 
-        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
-            for m in chain(
-                (
-                    _extra_middlewares
-                    or (m(None).publish_scope for m in self._broker_middlewares)
-                ),
-                self._middlewares,
-            ):
-                call = partial(m, call)
+        for m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-            await call(
-                *msgs,
-                topic=topic,
-                partition=partition,
-                headers=headers,
-                reply_to=reply_to,
-                correlation_id=correlation_id,
-                timestamp_ms=timestamp_ms,
-            )
+        await call(
+            *msgs,
+            topic=topic,
+            partition=partition,
+            headers=headers,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+            timestamp_ms=timestamp_ms,
+        )

@@ -15,10 +15,8 @@ from typing_extensions import override
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.exceptions import SetupError
-from faststream.opentelemetry import HAS_OPEN_TELEMETRY, TELEMETRY_PROVIDER_CONTEXT_KEY
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import BaseRMQInformation
-from faststream.rabbit.telemetry.provider import RabbitTelemetrySettingsProvider
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
@@ -120,11 +118,6 @@ class LogicSubscriber(
         self.app_id = app_id
         self.virtual_host = virtual_host
         self.declarer = declarer
-
-        if HAS_OPEN_TELEMETRY:
-            extra_context[TELEMETRY_PROVIDER_CONTEXT_KEY] = (
-                RabbitTelemetrySettingsProvider()
-            )
 
         super().setup(
             logger=logger,

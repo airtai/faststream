@@ -9,8 +9,6 @@ from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.broker.types import MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.opentelemetry import TELEMETRY_PROVIDER_CONTEXT_KEY
-from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
@@ -128,17 +126,16 @@ class DefaultPublisher(LogicPublisher[Message]):
 
         call: "AsyncFunc" = self._producer.publish
 
-        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
-            for m in chain(
-                (
-                    _extra_middlewares
-                    or (m(None).publish_scope for m in self._broker_middlewares)
-                ),
-                self._middlewares,
-            ):
-                call = partial(m, call)
+        for m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-            return await call(message, **kwargs)
+        return await call(message, **kwargs)
 
 
 class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
@@ -175,14 +172,13 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
 
         call: "AsyncFunc" = self._producer.publish_batch
 
-        with context.scope(TELEMETRY_PROVIDER_CONTEXT_KEY, self._telemetry_provider):
-            for m in chain(
-                (
-                    _extra_middlewares
-                    or (m(None).publish_scope for m in self._broker_middlewares)
-                ),
-                self._middlewares,
-            ):
-                call = partial(m, call)
+        for m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
 
-            await call(*msgs, **kwargs)
+        await call(*msgs, **kwargs)
