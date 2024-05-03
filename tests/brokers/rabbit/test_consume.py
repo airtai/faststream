@@ -2,7 +2,6 @@ import asyncio
 from unittest.mock import patch
 
 import pytest
-import pytest_asyncio
 from aio_pika import IncomingMessage, Message
 
 from faststream.exceptions import AckMessage, NackMessage, RejectMessage, SkipMessage
@@ -14,19 +13,18 @@ from tests.tools import spy_decorator
 
 @pytest.mark.rabbit()
 class TestConsume(BrokerRealConsumeTestcase):
-    @pytest_asyncio.fixture()
-    async def consume_broker(self):
-        async with RabbitBroker(apply_types=False) as br:
-            yield br
+    def get_broker(self, apply_types: bool = False) -> RabbitBroker:
+        return RabbitBroker(apply_types=apply_types)
 
     @pytest.mark.asyncio()
     async def test_consume_from_exchange(
         self,
         queue: str,
         exchange: RabbitExchange,
-        consume_broker: RabbitBroker,
         event: asyncio.Event,
     ):
+        consume_broker = self.get_broker()
+
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
         def h(m):
             event.set()
@@ -50,11 +48,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        consume_broker: RabbitBroker,
         event: asyncio.Event,
     ):
-        await consume_broker.declare_queue(RabbitQueue(queue))
-        await consume_broker.declare_exchange(exchange)
+        consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
             queue=RabbitQueue(name=queue, passive=True),
@@ -65,12 +61,18 @@ class TestConsume(BrokerRealConsumeTestcase):
             event.set()
 
         async with consume_broker:
+            await consume_broker.declare_queue(RabbitQueue(queue))
+            await consume_broker.declare_exchange(exchange)
+
             await consume_broker.start()
+
             await asyncio.wait(
                 (
                     asyncio.create_task(
                         consume_broker.publish(
-                            Message(b"hello"), queue=queue, exchange=exchange.name
+                            Message(b"hello"),
+                            queue=queue,
+                            exchange=exchange.name,
                         )
                     ),
                     asyncio.create_task(event.wait()),
@@ -85,10 +87,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        consume_broker: RabbitBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
         async def handler(msg: RabbitMessage):
@@ -102,7 +103,9 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            consume_broker.publish("hello", queue=queue, exchange=exchange)
+                            consume_broker.publish(
+                                "hello", queue=queue, exchange=exchange
+                            )
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -117,10 +120,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        consume_broker: RabbitBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
         async def handler(msg: RabbitMessage):
@@ -135,7 +137,9 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            consume_broker.publish("hello", queue=queue, exchange=exchange)
+                            consume_broker.publish(
+                                "hello", queue=queue, exchange=exchange
+                            )
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -149,10 +153,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        consume_broker: RabbitBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
         async def handler(msg: RabbitMessage):
@@ -169,7 +172,9 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            consume_broker.publish("hello", queue=queue, exchange=exchange)
+                            consume_broker.publish(
+                                "hello", queue=queue, exchange=exchange
+                            )
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -183,10 +188,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        consume_broker: RabbitBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
         async def handler(msg: RabbitMessage):
@@ -202,7 +206,9 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            consume_broker.publish("hello", queue=queue, exchange=exchange)
+                            consume_broker.publish(
+                                "hello", queue=queue, exchange=exchange
+                            )
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -216,10 +222,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        consume_broker: RabbitBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
         async def handler(msg: RabbitMessage):
@@ -236,7 +241,9 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            consume_broker.publish("hello", queue=queue, exchange=exchange)
+                            consume_broker.publish(
+                                "hello", queue=queue, exchange=exchange
+                            )
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -250,10 +257,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        consume_broker: RabbitBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
         async def handler(msg: RabbitMessage):
@@ -269,7 +275,9 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            consume_broker.publish("hello", queue=queue, exchange=exchange)
+                            consume_broker.publish(
+                                "hello", queue=queue, exchange=exchange
+                            )
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -283,10 +291,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        consume_broker: RabbitBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
         async def handler(msg: RabbitMessage):
@@ -303,7 +310,9 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            consume_broker.publish("hello", queue=queue, exchange=exchange)
+                            consume_broker.publish(
+                                "hello", queue=queue, exchange=exchange
+                            )
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -316,10 +325,9 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_skip_message(
         self,
         queue: str,
-        consume_broker: RabbitBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue)
         async def handler(msg: RabbitMessage):
@@ -355,28 +363,31 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        consume_broker: RabbitBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, exchange=exchange, retry=1, no_ack=True)
         async def handler(msg: RabbitMessage):
             event.set()
 
-        await consume_broker.start()
-        with patch.object(
-            IncomingMessage, "ack", spy_decorator(IncomingMessage.ack)
-        ) as m:
-            await asyncio.wait(
-                (
-                    asyncio.create_task(
-                        consume_broker.publish("hello", queue=queue, exchange=exchange)
-                    ),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=3,
-            )
-            m.mock.assert_not_called()
+        async with consume_broker:
+            await consume_broker.start()
 
-        assert event.is_set()
+            with patch.object(
+                IncomingMessage, "ack", spy_decorator(IncomingMessage.ack)
+            ) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(
+                            consume_broker.publish(
+                                "hello", queue=queue, exchange=exchange
+                            )
+                        ),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=3,
+                )
+                m.mock.assert_not_called()
+
+            assert event.is_set()

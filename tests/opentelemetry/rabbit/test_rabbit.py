@@ -1,7 +1,6 @@
 from typing import Optional
 
 import pytest
-import pytest_asyncio
 from dirty_equals import IsInt, IsUUID
 from opentelemetry.sdk.trace import Span
 from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
@@ -66,15 +65,17 @@ class TestTelemetry(LocalTelemetryTestcase):
 
 @pytest.mark.rabbit()
 class TestPublishWithTelemetry(TestPublish):
-    @pytest_asyncio.fixture()
-    async def pub_broker(self):
-        async with RabbitBroker(middlewares=(RabbitTelemetryMiddleware(),)) as broker:
-            yield broker
+    def get_broker(self, apply_types: bool = False):
+        return RabbitBroker(
+            middlewares=(RabbitTelemetryMiddleware(),),
+            apply_types=apply_types,
+        )
 
 
 @pytest.mark.rabbit()
 class TestConsumeWithTelemetry(TestConsume):
-    @pytest_asyncio.fixture()
-    async def consume_broker(self):
-        async with RabbitBroker(middlewares=(RabbitTelemetryMiddleware(),)) as broker:
-            yield broker
+    def get_broker(self, apply_types: bool = False):
+        return RabbitBroker(
+            middlewares=(RabbitTelemetryMiddleware(),),
+            apply_types=apply_types,
+        )

@@ -11,18 +11,18 @@ from tests.tools import spy_decorator
 
 @pytest.mark.rabbit()
 class TestPublish(BrokerPublishTestcase):
-    @pytest.fixture()
-    def pub_broker(self):
-        return RabbitBroker()
+    def get_broker(self, apply_types: bool = False) -> RabbitBroker:
+        return RabbitBroker(apply_types=apply_types)
 
     @pytest.mark.asyncio()
     async def test_reply_config(
         self,
-        pub_broker: RabbitBroker,
         queue: str,
         event,
         mock,
     ):
+        pub_broker = self.get_broker()
+
         @pub_broker.subscriber(queue + "reply")
         async def reply_handler(m):
             event.set()
