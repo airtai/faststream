@@ -242,7 +242,9 @@ class BrokerUsecase(
         **kwargs: Any,
     ) -> None:
         """Setup the Subscriber to prepare it to starting."""
-        subscriber.setup(**(self._subscriber_setup_extra | kwargs))
+        data = self._subscriber_setup_extra.copy()
+        data.update(kwargs)
+        subscriber.setup(**data)
 
     def setup_publisher(
         self,
@@ -250,7 +252,9 @@ class BrokerUsecase(
         **kwargs: Any,
     ) -> None:
         """Setup the Publisher to prepare it to starting."""
-        publisher.setup(**(self._publisher_setup_extra | kwargs))
+        data = self._publisher_setup_extra.copy()
+        data.update(kwargs)
+        publisher.setup(**kwargs)
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
