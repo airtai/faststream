@@ -148,9 +148,7 @@ class LogicPublisher(
     ) -> None:
         self.app_id = app_id
         self.virtual_host = virtual_host
-        super().setup(
-            producer=producer
-        )
+        super().setup(producer=producer)
 
     @property
     def routing(self) -> str:

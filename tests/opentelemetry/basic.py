@@ -29,9 +29,7 @@ class LocalTelemetryTestcase:
 
     telemetry_middleware_class: TelemetryMiddleware
 
-    def patch_broker(
-        self, broker: BrokerUsecase
-    ) -> BrokerUsecase:
+    def patch_broker(self, broker: BrokerUsecase) -> BrokerUsecase:
         return broker
 
     def destination_name(self, queue: str) -> str:

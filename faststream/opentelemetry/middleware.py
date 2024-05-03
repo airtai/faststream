@@ -58,7 +58,6 @@ class _MetricsContainer:
 
 
 class BaseTelemetryMiddleware(BaseMiddleware):
-
     def __init__(
         self,
         *,

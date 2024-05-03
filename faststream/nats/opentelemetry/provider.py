@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict
 
 
-
 class BaseNatsTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
     __slots__ = ("messaging_system",)
 
@@ -83,27 +82,27 @@ class NatsBatchTelemetrySettingsProvider(
 
 @overload
 def telemetry_attributes_provider_factory(
-    msg: Optional["Msg"]
-) -> NatsTelemetrySettingsProvider:
-    ...
+    msg: Optional["Msg"],
+) -> NatsTelemetrySettingsProvider: ...
+
 
 @overload
 def telemetry_attributes_provider_factory(
-    msg: Sequence["Msg"]
-) -> NatsBatchTelemetrySettingsProvider:
-    ...
+    msg: Sequence["Msg"],
+) -> NatsBatchTelemetrySettingsProvider: ...
+
 
 @overload
 def telemetry_attributes_provider_factory(
-    msg: Union["Msg", Sequence["Msg"], None]
+    msg: Union["Msg", Sequence["Msg"], None],
 ) -> Union[
     NatsTelemetrySettingsProvider,
     NatsBatchTelemetrySettingsProvider,
-]:
-    ...
+]: ...
+
 
 def telemetry_attributes_provider_factory(
-    msg: Union["Msg", Sequence["Msg"], None]
+    msg: Union["Msg", Sequence["Msg"], None],
 ) -> Union[
     NatsTelemetrySettingsProvider,
     NatsBatchTelemetrySettingsProvider,

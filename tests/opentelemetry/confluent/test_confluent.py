@@ -59,14 +59,17 @@ class TestTelemetry(LocalTelemetryTestcase):
 
 @pytest.mark.confluent()
 class TestPublishWithTelemetry(TestPublish):
-    @pytest.fixture()
-    def pub_broker(self):
-        return KafkaBroker(middlewares=(KafkaTelemetryMiddleware(),))
+    def get_broker(self, apply_types: bool = False):
+        return KafkaBroker(
+            middlewares=(KafkaTelemetryMiddleware(),),
+            apply_types=apply_types,
+        )
 
 
 @pytest.mark.confluent()
 class TestConsumeWithTelemetry(TestConsume):
-    @pytest.fixture()
-    def consume_broker(self):
-        return KafkaBroker(middlewares=(KafkaTelemetryMiddleware(),))
-
+    def get_broker(self, apply_types: bool = False):
+        return KafkaBroker(
+            middlewares=(KafkaTelemetryMiddleware(),),
+            apply_types=apply_types,
+        )

@@ -104,27 +104,27 @@ class BatchKafkaTelemetrySettingsProvider(
 
 @overload
 def telemetry_attributes_provider_factory(
-    msg: Optional["ConsumerRecord"]
-) -> KafkaTelemetrySettingsProvider:
-    ...
+    msg: Optional["ConsumerRecord"],
+) -> KafkaTelemetrySettingsProvider: ...
+
 
 @overload
 def telemetry_attributes_provider_factory(
-    msg: Sequence["ConsumerRecord"]
-) -> BatchKafkaTelemetrySettingsProvider:
-    ...
+    msg: Sequence["ConsumerRecord"],
+) -> BatchKafkaTelemetrySettingsProvider: ...
+
 
 @overload
 def telemetry_attributes_provider_factory(
-    msg: Union["ConsumerRecord", Sequence["ConsumerRecord"], None]
+    msg: Union["ConsumerRecord", Sequence["ConsumerRecord"], None],
 ) -> Union[
     KafkaTelemetrySettingsProvider,
     BatchKafkaTelemetrySettingsProvider,
-]:
-    ...
+]: ...
+
 
 def telemetry_attributes_provider_factory(
-    msg: Union["ConsumerRecord", Sequence["ConsumerRecord"], None]
+    msg: Union["ConsumerRecord", Sequence["ConsumerRecord"], None],
 ) -> Union[
     KafkaTelemetrySettingsProvider,
     BatchKafkaTelemetrySettingsProvider,

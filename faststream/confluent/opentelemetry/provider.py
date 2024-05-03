@@ -103,27 +103,27 @@ class BatchConfluentTelemetrySettingsProvider(
 
 @overload
 def telemetry_attributes_provider_factory(
-    msg: Optional["Message"]
-) -> ConfluentTelemetrySettingsProvider:
-    ...
+    msg: Optional["Message"],
+) -> ConfluentTelemetrySettingsProvider: ...
+
 
 @overload
 def telemetry_attributes_provider_factory(
-    msg: Sequence["Message"]
-) -> BatchConfluentTelemetrySettingsProvider:
-    ...
+    msg: Sequence["Message"],
+) -> BatchConfluentTelemetrySettingsProvider: ...
+
 
 @overload
 def telemetry_attributes_provider_factory(
-    msg: Union["Message", Sequence["Message"], None]
+    msg: Union["Message", Sequence["Message"], None],
 ) -> Union[
     ConfluentTelemetrySettingsProvider,
     BatchConfluentTelemetrySettingsProvider,
-]:
-    ...
+]: ...
+
 
 def telemetry_attributes_provider_factory(
-    msg: Union["Message", Sequence["Message"], None]
+    msg: Union["Message", Sequence["Message"], None],
 ) -> Union[
     ConfluentTelemetrySettingsProvider,
     BatchConfluentTelemetrySettingsProvider,
