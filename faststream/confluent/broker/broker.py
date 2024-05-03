@@ -439,15 +439,18 @@ class KafkaBroker(
         **kwargs: Any,
     ) -> ConsumerConnectionParams:
         security_params = parse_security(self.security)
+        kwargs.update(security_params)
+
         producer = AsyncConfluentProducer(
             **kwargs,
-            **security_params,
             client_id=client_id,
         )
+
         self._producer = AsyncConfluentFastProducer(
             producer=producer,
         )
-        return filter_by_dict(ConsumerConnectionParams, {**kwargs, **security_params})
+
+        return filter_by_dict(ConsumerConnectionParams, kwargs)
 
     async def start(self) -> None:
         await super().start()
