@@ -15,6 +15,9 @@ class BrokerRPCTestcase:
     def get_broker(self, apply_types: bool = False) -> BrokerUsecase[Any, Any]:
         raise NotImplementedError
 
+    def patch_broker(self, broker: BrokerUsecase[Any, Any]) -> BrokerUsecase[Any, Any]:
+        return broker
+
     @pytest.mark.asyncio()
     async def test_rpc(self, queue: str):
         rpc_broker = self.get_broker()
@@ -23,9 +26,9 @@ class BrokerRPCTestcase:
         async def m(m):  # pragma: no cover
             return "1"
 
-        async with rpc_broker:
-            await rpc_broker.start()
-            r = await rpc_broker.publish("hello", queue, rpc_timeout=3, rpc=True)
+        async with self.patch_broker(rpc_broker) as br:
+            await br.start()
+            r = await br.publish("hello", queue, rpc_timeout=3, rpc=True)
 
         assert r == "1"
 
@@ -37,11 +40,11 @@ class BrokerRPCTestcase:
         async def m(m):  # pragma: no cover
             await anyio.sleep(1)
 
-        async with rpc_broker:
-            await rpc_broker.start()
+        async with self.patch_broker(rpc_broker) as br:
+            await br.start()
 
             with pytest.raises(TimeoutError):  # pragma: no branch
-                await rpc_broker.publish(
+                await br.publish(
                     "hello",
                     queue,
                     rpc=True,
@@ -57,10 +60,10 @@ class BrokerRPCTestcase:
         async def m(m):  # pragma: no cover
             await anyio.sleep(1)
 
-        async with rpc_broker:
-            await rpc_broker.start()
+        async with self.patch_broker(rpc_broker) as br:
+            await br.start()
 
-            r = await rpc_broker.publish(
+            r = await br.publish(
                 "hello",
                 queue,
                 rpc=True,
@@ -89,10 +92,10 @@ class BrokerRPCTestcase:
         async def m(m):  # pragma: no cover
             return "1"
 
-        async with rpc_broker:
-            await rpc_broker.start()
+        async with self.patch_broker(rpc_broker) as br:
+            await br.start()
 
-            await rpc_broker.publish("hello", queue, reply_to=reply_queue)
+            await br.publish("hello", queue, reply_to=reply_queue)
 
             with timeout_scope(3, True):
                 await event.wait()

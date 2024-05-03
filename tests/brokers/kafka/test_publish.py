@@ -1,7 +1,6 @@
 import asyncio
 
 import pytest
-import pytest_asyncio
 
 from faststream.kafka import KafkaBroker
 from tests.brokers.base.publish import BrokerPublishTestcase
@@ -9,23 +8,23 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 
 @pytest.mark.kafka()
 class TestPublish(BrokerPublishTestcase):
-    @pytest_asyncio.fixture()
-    async def pub_broker(self):
-        async with KafkaBroker() as br:
-            yield br
+    def get_broker(self, apply_types: bool = False):
+        return KafkaBroker(apply_types=apply_types)
 
     @pytest.mark.asyncio()
-    async def test_publish_batch(self, queue: str, pub_broker: KafkaBroker):
+    async def test_publish_batch(self, queue: str):
+        pub_broker = self.get_broker()
+
         msgs_queue = asyncio.Queue(maxsize=2)
 
         @pub_broker.subscriber(queue)
         async def handler(msg):
             await msgs_queue.put(msg)
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
 
-            await pub_broker.publish_batch(1, "hi", topic=queue)
+            await br.publish_batch(1, "hi", topic=queue)
 
             result, _ = await asyncio.wait(
                 (
@@ -38,7 +37,9 @@ class TestPublish(BrokerPublishTestcase):
         assert {1, "hi"} == {r.result() for r in result}
 
     @pytest.mark.asyncio()
-    async def test_batch_publisher_manual(self, queue: str, pub_broker: KafkaBroker):
+    async def test_batch_publisher_manual(self, queue: str):
+        pub_broker = self.get_broker()
+
         msgs_queue = asyncio.Queue(maxsize=2)
 
         @pub_broker.subscriber(queue)
@@ -47,8 +48,8 @@ class TestPublish(BrokerPublishTestcase):
 
         publisher = pub_broker.publisher(queue, batch=True)
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
 
             await publisher.publish(1, "hi")
 
@@ -63,7 +64,9 @@ class TestPublish(BrokerPublishTestcase):
         assert {1, "hi"} == {r.result() for r in result}
 
     @pytest.mark.asyncio()
-    async def test_batch_publisher_decorator(self, queue: str, pub_broker: KafkaBroker):
+    async def test_batch_publisher_decorator(self, queue: str):
+        pub_broker = self.get_broker()
+
         msgs_queue = asyncio.Queue(maxsize=2)
 
         @pub_broker.subscriber(queue)
@@ -75,10 +78,10 @@ class TestPublish(BrokerPublishTestcase):
         async def pub(m):
             return 1, "hi"
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
 
-            await pub_broker.publish("", queue + "1")
+            await br.publish("", queue + "1")
 
             result, _ = await asyncio.wait(
                 (

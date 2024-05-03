@@ -1,6 +1,5 @@
 import pytest
 
-from faststream.broker.core.usecase import BrokerUsecase
 from faststream.redis import RedisBroker
 from faststream.redis.opentelemetry import RedisTelemetryMiddleware
 from tests.brokers.redis.test_consume import (

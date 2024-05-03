@@ -28,6 +28,9 @@ class BrokerPublishTestcase:
     def get_broker(self, apply_types: bool = False) -> BrokerUsecase[Any, Any]:
         raise NotImplementedError
 
+    def patch_broker(self, broker: BrokerUsecase[Any, Any]) -> BrokerUsecase[Any, Any]:
+        return broker
+
     @pytest.mark.asyncio()
     @pytest.mark.parametrize(
         ("message", "message_type", "expected_message"),
@@ -122,12 +125,12 @@ class BrokerPublishTestcase:
             event.set()
             mock(m)
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
 
             await asyncio.wait(
                 (
-                    asyncio.create_task(pub_broker.publish(message, queue)),
+                    asyncio.create_task(br.publish(message, queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -150,11 +153,11 @@ class BrokerPublishTestcase:
             event.set()
             mock({"a": a, "b": b})
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(pub_broker.publish({"a": 1, "b": 1.0}, queue)),
+                    asyncio.create_task(br.publish({"a": 1, "b": 1.0}, queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -182,11 +185,11 @@ class BrokerPublishTestcase:
             event.set()
             mock({"a": a, "b": b, "args": args})
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(pub_broker.publish([1, 1.0, 2.0, 3.0], queue)),
+                    asyncio.create_task(br.publish([1, 1.0, 2.0, 3.0], queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -214,11 +217,11 @@ class BrokerPublishTestcase:
             event.set()
             mock(msg)
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(pub_broker.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -248,11 +251,11 @@ class BrokerPublishTestcase:
             event.set()
             mock(msg)
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(pub_broker.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -281,11 +284,11 @@ class BrokerPublishTestcase:
             event.set()
             mock(msg)
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(pub_broker.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -321,11 +324,11 @@ class BrokerPublishTestcase:
             event2.set()
             mock.resp2(msg)
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(pub_broker.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                     asyncio.create_task(event2.wait()),
                 ),
@@ -368,12 +371,12 @@ class BrokerPublishTestcase:
                 consume2.set()
             mock()
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(pub_broker.publish("", queue)),
-                    asyncio.create_task(pub_broker.publish("", queue + "2")),
+                    asyncio.create_task(br.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue + "2")),
                     asyncio.create_task(consume.wait()),
                     asyncio.create_task(consume2.wait()),
                 ),
@@ -402,13 +405,13 @@ class BrokerPublishTestcase:
         async def handler(m):
             return m
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
 
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        pub_broker.publish("Hello!", queue, reply_to=queue + "reply")
+                        br.publish("Hello!", queue, reply_to=queue + "reply")
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -432,10 +435,10 @@ class BrokerPublishTestcase:
             event.set()
             mock(m)
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
 
-            pub = pub_broker.publisher(queue)
+            pub = br.publisher(queue)
 
             await asyncio.wait(
                 (

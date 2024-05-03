@@ -6,7 +6,6 @@ from opentelemetry.sdk.trace import Span
 from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind
 
-from faststream.broker.core.usecase import BrokerUsecase
 from faststream.kafka import KafkaBroker
 from faststream.kafka.opentelemetry import KafkaTelemetryMiddleware
 from faststream.opentelemetry.middleware import MessageAction as Action
@@ -58,13 +57,17 @@ class TestTelemetry(LocalTelemetryTestcase):
 
 @pytest.mark.kafka()
 class TestPublishWithTelemetry(TestPublish):
-    @pytest.fixture()
-    def pub_broker(self):
-        return KafkaBroker(middlewares=(KafkaTelemetryMiddleware(),))
+    def get_broker(self, apply_types: bool = False):
+        return KafkaBroker(
+            middlewares=(KafkaTelemetryMiddleware(),),
+            apply_types=apply_types,
+        )
 
 
 @pytest.mark.kafka()
 class TestConsumeWithTelemetry(TestConsume):
-    @pytest.fixture()
-    def consume_broker(self):
-        return KafkaBroker(middlewares=(KafkaTelemetryMiddleware(),))
+    def get_broker(self, apply_types: bool = False):
+        return KafkaBroker(
+            middlewares=(KafkaTelemetryMiddleware(),),
+            apply_types=apply_types,
+        )

@@ -2,7 +2,6 @@ import asyncio
 from unittest.mock import patch
 
 import pytest
-import pytest_asyncio
 from aiokafka import AIOKafkaConsumer
 
 from faststream.exceptions import AckMessage
@@ -14,23 +13,23 @@ from tests.tools import spy_decorator
 
 @pytest.mark.kafka()
 class TestConsume(BrokerRealConsumeTestcase):
-    @pytest_asyncio.fixture()
-    async def consume_broker(self):
-        async with KafkaBroker(apply_types=False) as br:
-            yield br
+    def get_broker(self, apply_types: bool = False):
+        return KafkaBroker(apply_types=apply_types)
 
     @pytest.mark.asyncio()
-    async def test_consume_batch(self, queue: str, consume_broker: KafkaBroker):
+    async def test_consume_batch(self, queue: str):
+        consume_broker = self.get_broker()
+
         msgs_queue = asyncio.Queue(maxsize=1)
 
         @consume_broker.subscriber(queue, batch=True)
         async def handler(msg):
             await msgs_queue.put(msg)
 
-        async with consume_broker:
-            await consume_broker.start()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
 
-            await consume_broker.publish_batch(1, "hi", topic=queue)
+            await br.publish_batch(1, "hi", topic=queue)
 
             result, _ = await asyncio.wait(
                 (asyncio.create_task(msgs_queue.get()),),
@@ -44,17 +43,16 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack(
         self,
         queue: str,
-        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
         async def handler(msg: KafkaMessage):
             event.set()
 
-        async with consume_broker:
-            await consume_broker.start()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
 
             with patch.object(
                 AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
@@ -80,18 +78,17 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_manual(
         self,
         queue: str,
-        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
         async def handler(msg: KafkaMessage):
             await msg.ack()
             event.set()
 
-        async with consume_broker:
-            await consume_broker.start()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
 
             with patch.object(
                 AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
@@ -99,7 +96,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            consume_broker.publish(
+                            br.publish(
                                 "hello",
                                 queue,
                             )
@@ -117,18 +114,17 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_raise(
         self,
         queue: str,
-        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
         async def handler(msg: KafkaMessage):
             event.set()
             raise AckMessage()
 
-        async with consume_broker:
-            await consume_broker.start()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
 
             with patch.object(
                 AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
@@ -136,7 +132,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            consume_broker.publish(
+                            br.publish(
                                 "hello",
                                 queue,
                             )
@@ -154,18 +150,17 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_nack(
         self,
         queue: str,
-        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
         async def handler(msg: KafkaMessage):
             await msg.nack()
             event.set()
 
-        async with consume_broker:
-            await consume_broker.start()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
 
             with patch.object(
                 AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
@@ -173,7 +168,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            consume_broker.publish(
+                            br.publish(
                                 "hello",
                                 queue,
                             )
@@ -191,31 +186,32 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_no_ack(
         self,
         queue: str,
-        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        consume_broker._is_apply_types = True
+        consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, group_id="test", no_ack=True)
         async def handler(msg: KafkaMessage):
             event.set()
 
-        await consume_broker.start()
-        with patch.object(
-            AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
-        ) as m:
-            await asyncio.wait(
-                (
-                    asyncio.create_task(
-                        consume_broker.publish(
-                            "hello",
-                            queue,
-                        )
-                    ),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=10,
-            )
-            m.mock.assert_not_called()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
 
-        assert event.is_set()
+            with patch.object(
+                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+            ) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(
+                            br.publish(
+                                "hello",
+                                queue,
+                            )
+                        ),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=10,
+                )
+                m.mock.assert_not_called()
+
+            assert event.is_set()
