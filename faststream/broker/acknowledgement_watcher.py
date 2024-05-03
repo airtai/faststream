@@ -126,11 +126,13 @@ class WatcherContext:
         self,
         message: "StreamMessage[MsgType]",
         watcher: BaseWatcher,
+        logger: Optional["LoggerProto"] = None,
         **extra_options: Any,
     ) -> None:
         self.watcher = watcher
         self.message = message
         self.extra_options = extra_options
+        self.logger = logger
 
     async def __aenter__(self) -> None:
         self.watcher.add(self.message.message_id)
@@ -172,15 +174,41 @@ class WatcherContext:
         return not is_test_env()
 
     async def __ack(self) -> None:
-        await self.message.ack(**self.extra_options)
-        self.watcher.remove(self.message.message_id)
+        try:
+            await self.message.ack(**self.extra_options)
+        except Exception as er:
+            if self.logger is not None:
+                self.logger.log(
+                    logging.ERROR,
+                    er,
+                    exc_info=er
+                )
+        else:
+            self.watcher.remove(self.message.message_id)
 
     async def __nack(self) -> None:
-        await self.message.nack(**self.extra_options)
+        try:
+            await self.message.nack(**self.extra_options)
+        except Exception as er:
+            if self.logger is not None:
+                self.logger.log(
+                    logging.ERROR,
+                    er,
+                    exc_info=er
+                )
 
     async def __reject(self) -> None:
-        await self.message.reject(**self.extra_options)
-        self.watcher.remove(self.message.message_id)
+        try:
+            await self.message.reject(**self.extra_options)
+        except Exception as er:
+            if self.logger is not None:
+                self.logger.log(
+                    logging.ERROR,
+                    er,
+                    exc_info=er
+                )
+        else:
+            self.watcher.remove(self.message.message_id)
 
 
 def get_watcher(
