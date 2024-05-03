@@ -4,6 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from faststream import BaseMiddleware
+from faststream.exceptions import SetupError
 from faststream.rabbit import (
     ExchangeType,
     RabbitBroker,
@@ -18,6 +19,16 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 @pytest.mark.asyncio()
 class TestTestclient(BrokerTestclientTestcase):
+    async def test_rpc_conflicts_reply(self, queue):
+        async with TestRabbitBroker(RabbitBroker()) as br:
+            with pytest.raises(SetupError):
+                await br.publish(
+                    "",
+                    queue,
+                    rpc=True,
+                    reply_to="response",
+                )
+
     @pytest.mark.rabbit()
     async def test_with_real_testclient(
         self,

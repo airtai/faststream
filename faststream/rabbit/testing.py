@@ -8,6 +8,7 @@ from pamqp.header import ContentHeader
 from typing_extensions import override
 
 from faststream.broker.message import gen_cor_id
+from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.rabbit.broker.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.asyncapi import AsyncAPIPublisher
@@ -196,6 +197,9 @@ class FakeProducer(AioPikaFastProducer):
     ) -> Optional[Any]:
         """Publish a message to a RabbitMQ queue or exchange."""
         exch = RabbitExchange.validate(exchange)
+
+        if rpc and reply_to:
+            raise WRONG_PUBLISH_ARGS
 
         incoming = build_message(
             message=message,
