@@ -1,4 +1,6 @@
 import asyncio
+from abc import abstractstaticmethod
+from typing import Any
 from unittest.mock import MagicMock
 
 import anyio
@@ -9,12 +11,14 @@ from faststream.utils.functions import timeout_scope
 
 
 class BrokerRPCTestcase:
-    @pytest.fixture()
-    def rpc_broker(self, broker):
-        return broker
+    @abstractstaticmethod
+    def get_broker(self, apply_types: bool = False) -> BrokerUsecase[Any, Any]:
+        raise NotImplementedError
 
     @pytest.mark.asyncio()
-    async def test_rpc(self, queue: str, rpc_broker: BrokerUsecase):
+    async def test_rpc(self, queue: str):
+        rpc_broker = self.get_broker()
+
         @rpc_broker.subscriber(queue)
         async def m(m):  # pragma: no cover
             return "1"
@@ -26,7 +30,9 @@ class BrokerRPCTestcase:
         assert r == "1"
 
     @pytest.mark.asyncio()
-    async def test_rpc_timeout_raises(self, queue: str, rpc_broker: BrokerUsecase):
+    async def test_rpc_timeout_raises(self, queue: str):
+        rpc_broker = self.get_broker()
+
         @rpc_broker.subscriber(queue)
         async def m(m):  # pragma: no cover
             await anyio.sleep(1)
@@ -44,7 +50,9 @@ class BrokerRPCTestcase:
                 )
 
     @pytest.mark.asyncio()
-    async def test_rpc_timeout_none(self, queue: str, rpc_broker: BrokerUsecase):
+    async def test_rpc_timeout_none(self, queue: str):
+        rpc_broker = self.get_broker()
+
         @rpc_broker.subscriber(queue)
         async def m(m):  # pragma: no cover
             await anyio.sleep(1)
@@ -65,10 +73,11 @@ class BrokerRPCTestcase:
     async def test_rpc_with_reply(
         self,
         queue: str,
-        rpc_broker: BrokerUsecase,
         mock: MagicMock,
         event: asyncio.Event,
     ):
+        rpc_broker = self.get_broker()
+
         reply_queue = queue + "1"
 
         @rpc_broker.subscriber(reply_queue)
@@ -93,12 +102,15 @@ class BrokerRPCTestcase:
 
 class ReplyAndConsumeForbidden:
     @pytest.mark.asyncio()
-    async def test_rpc_with_reply_and_callback(self, full_broker: BrokerUsecase):
-        with pytest.raises(ValueError):  # noqa: PT011
-            await full_broker.publish(
-                "hello",
-                "some",
-                reply_to="some",
-                rpc=True,
-                rpc_timeout=0,
-            )
+    async def test_rpc_with_reply_and_callback(self):
+        rpc_broker = self.get_broker()
+
+        async with rpc_broker:
+            with pytest.raises(ValueError):  # noqa: PT011
+                await rpc_broker.publish(
+                    "hello",
+                    "some",
+                    reply_to="some",
+                    rpc=True,
+                    rpc_timeout=0,
+                )

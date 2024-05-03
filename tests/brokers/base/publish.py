@@ -25,7 +25,7 @@ class BrokerPublishTestcase:
     subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
 
     @abstractmethod
-    def get_broker(self) -> BrokerUsecase[Any, Any]:
+    def get_broker(self, apply_types: bool = False) -> BrokerUsecase[Any, Any]:
         raise NotImplementedError
 
     @pytest.mark.asyncio()
@@ -115,7 +115,7 @@ class BrokerPublishTestcase:
         expected_message,
         event,
     ):
-        pub_broker = self.get_broker()
+        pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def handler(m: message_type, logger: Logger):
@@ -143,7 +143,7 @@ class BrokerPublishTestcase:
         queue: str,
         event,
     ):
-        pub_broker = self.get_broker()
+        pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def m(a: int, b: int, logger: Logger):
@@ -175,7 +175,7 @@ class BrokerPublishTestcase:
         queue: str,
         event: asyncio.Event,
     ):
-        pub_broker = self.get_broker()
+        pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def m(a: int, b: int, *args: Tuple[int, ...], logger: Logger):
@@ -202,7 +202,7 @@ class BrokerPublishTestcase:
         event,
         mock,
     ):
-        pub_broker = self.get_broker()
+        pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         @pub_broker.publisher(queue + "resp")
@@ -234,7 +234,7 @@ class BrokerPublishTestcase:
         event,
         mock,
     ):
-        pub_broker = self.get_broker()
+        pub_broker = self.get_broker(apply_types=True)
 
         publisher = pub_broker.publisher(queue + "resp")
 
@@ -268,7 +268,7 @@ class BrokerPublishTestcase:
         event,
         mock,
     ):
-        pub_broker = self.get_broker()
+        pub_broker = self.get_broker(apply_types=True)
 
         publisher = pub_broker.publisher(queue + "resp")
 
@@ -300,7 +300,7 @@ class BrokerPublishTestcase:
         queue: str,
         mock,
     ):
-        pub_broker = self.get_broker()
+        pub_broker = self.get_broker(apply_types=True)
 
         event = anyio.Event()
         event2 = anyio.Event()
@@ -343,7 +343,7 @@ class BrokerPublishTestcase:
         queue: str,
         mock,
     ):
-        pub_broker = self.get_broker()
+        pub_broker = self.get_broker(apply_types=True)
 
         consume = anyio.Event()
         consume2 = anyio.Event()
@@ -391,7 +391,7 @@ class BrokerPublishTestcase:
         event,
         mock,
     ):
-        pub_broker = self.get_broker()
+        pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue + "reply", **self.subscriber_kwargs)
         async def reply_handler(m):
@@ -425,7 +425,7 @@ class BrokerPublishTestcase:
         event,
         mock,
     ):
-        pub_broker = self.get_broker()
+        pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def handler(m):

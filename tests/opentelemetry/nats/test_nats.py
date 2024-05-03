@@ -22,9 +22,10 @@ class TestTelemetry(LocalTelemetryTestcase):
 
 @pytest.mark.nats()
 class TestPublishWithTelemetry(TestPublish):
-    def get_broker(self):
+    def get_broker(self, apply_types: bool = False):
         return NatsBroker(
             middlewares=(NatsTelemetryMiddleware(),),
+            apply_types=apply_types,
         )
 
 
