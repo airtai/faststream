@@ -19,7 +19,8 @@ from faststream.broker.utils import default_filter
 from faststream.kafka.broker.registrator import KafkaRegistrator
 
 if TYPE_CHECKING:
-    from aiokafka import ConsumerRecord
+    from aiokafka import ConsumerRecord, TopicPartition
+    from aiokafka.abc import ConsumerRebalanceListener
     from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
     from fast_depends.dependencies import Depends
 
@@ -376,6 +377,44 @@ class KafkaRoute(SubscriberRoute):
             Optional[int],
             Doc("Number of messages to consume as one batch."),
         ] = None,
+        listener: Annotated[
+            Optional["ConsumerRebalanceListener"],
+            Doc("""
+            Optionally include listener
+               callback, which will be called before and after each rebalance
+               operation.
+               As part of group management, the consumer will keep track of
+               the list of consumers that belong to a particular group and
+               will trigger a rebalance operation if one of the following
+               events trigger:
+
+               * Number of partitions change for any of the subscribed topics
+               * Topic is created or deleted
+               * An existing member of the consumer group dies
+               * A new member is added to the consumer group
+
+               When any of these events are triggered, the provided listener
+               will be invoked first to indicate that the consumer's
+               assignment has been revoked, and then again when the new
+               assignment has been received. Note that this listener will
+               immediately override any listener set in a previous call
+               to subscribe. It is guaranteed, however, that the partitions
+               revoked/assigned
+               through this interface are from topics subscribed in this call.
+            """),
+        ] = None,
+        pattern: Annotated[
+            Optional[str],
+            Doc("""
+            Pattern to match available topics. You must provide either topics or pattern, but not both.
+            """),
+        ] = None,
+        partitions: Annotated[
+            Optional[Iterable["TopicPartition"]],
+            Doc("""
+            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            """),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["Depends"],
@@ -456,6 +495,9 @@ class KafkaRoute(SubscriberRoute):
             max_records=max_records,
             batch_timeout_ms=batch_timeout_ms,
             batch=batch,
+            listener=listener,
+            pattern=pattern,
+            partitions=partitions,
             # basic args
             dependencies=dependencies,
             parser=parser,
