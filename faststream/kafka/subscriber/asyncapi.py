@@ -29,7 +29,7 @@ from faststream.kafka.subscriber.usecase import (
 )
 
 if TYPE_CHECKING:
-    from aiokafka import AIOKafkaConsumer, ConsumerRecord
+    from aiokafka import AIOKafkaConsumer, ConsumerRecord, TopicPartition
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
@@ -79,6 +79,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        partitions: Optional[Iterable["TopicPartition"]],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -103,6 +104,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        partitions: Optional[Iterable["TopicPartition"]],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -127,6 +129,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        partitions: Optional[Iterable["TopicPartition"]],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -156,6 +159,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        partitions: Optional[Iterable["TopicPartition"]],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args

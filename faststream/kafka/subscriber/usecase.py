@@ -24,10 +24,11 @@ from faststream.broker.types import (
     CustomCallable,
     MsgType,
 )
+from faststream.exceptions import SetupError
 from faststream.kafka.parser import AioKafkaParser
 
 if TYPE_CHECKING:
-    from aiokafka import AIOKafkaConsumer, ConsumerRecord
+    from aiokafka import AIOKafkaConsumer, ConsumerRecord, TopicPartition
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
@@ -56,6 +57,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         builder: Callable[..., "AIOKafkaConsumer"],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        partitions: Optional[Iterable["TopicPartition"]],
         is_manual: bool,
         # Subscriber args
         default_parser: "AsyncCallable",
@@ -94,6 +96,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.client_id = ""
         self.__pattern = pattern
         self.__listener = listener
+        self.__partitions = partitions
         self.__connection_args: "ConsumerConnectionParams" = {}
 
     @override
@@ -139,13 +142,17 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             client_id=self.client_id,
             **self.__connection_args,
         )
-        consumer.subscribe(
-            topics=self.topics,
-            pattern=self.__pattern,
-            listener=self.__listener,
-        )
+        if self.topics and self.__partitions:
+            raise SetupError("You can't use 'topics' and 'partitions' in the same time")
+        if self.topics:
+            consumer.subscribe(
+                topics=self.topics,
+                pattern=self.__pattern,
+                listener=self.__listener,
+            )
+        elif self.__partitions:
+            consumer.assign(partitions=self.__partitions)
         await consumer.start()
-
         await super().start()
 
         self.task = asyncio.create_task(self._consume())
