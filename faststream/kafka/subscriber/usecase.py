@@ -96,7 +96,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.client_id = ""
         self.__pattern = pattern
         self.__listener = listener
-        self.__partitions = partitions
+        self.partitions = partitions
         self.__connection_args: "ConsumerConnectionParams" = {}
 
     @override
@@ -142,7 +142,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             client_id=self.client_id,
             **self.__connection_args,
         )
-        if self.topics and self.__partitions:
+        if self.topics and self.partitions:
             raise SetupError("You can't use 'topics' and 'partitions' in the same time")
         if self.topics:
             consumer.subscribe(
@@ -150,8 +150,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
                 pattern=self.__pattern,
                 listener=self.__listener,
             )
-        elif self.__partitions:
-            consumer.assign(partitions=self.__partitions)
+        elif self.partitions:
+            consumer.assign(partitions=self.partitions)
         await consumer.start()
         await super().start()
 
