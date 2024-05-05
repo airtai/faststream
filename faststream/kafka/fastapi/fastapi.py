@@ -37,7 +37,7 @@ from faststream.kafka.broker.broker import KafkaBroker as KB
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
     from enum import Enum
-
+    from aiokafka import TopicPartition
     from aiokafka.abc import AbstractTokenProvider, ConsumerRebalanceListener
     from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
     from fastapi import params
@@ -919,6 +919,12 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Pattern to match available topics. You must provide either topics or pattern, but not both.
             """),
         ] = None,
+        partitions: Annotated[
+            Optional[Iterable["TopicPartition"]],
+            Doc("""
+            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            """),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -1401,6 +1407,12 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Pattern to match available topics. You must provide either topics or pattern, but not both.
             """),
         ] = None,
+        partitions: Annotated[
+            Optional[Iterable["TopicPartition"]],
+            Doc("""
+            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            """),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -1883,6 +1895,12 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Pattern to match available topics. You must provide either topics or pattern, but not both.
             """),
         ] = None,
+        partitions: Annotated[
+            Optional[Iterable["TopicPartition"]],
+            Doc("""
+            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            """),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -2368,6 +2386,12 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Pattern to match available topics. You must provide either topics or pattern, but not both.
             """),
         ] = None,
+        partitions: Annotated[
+            Optional[Iterable["TopicPartition"]],
+            Doc("""
+            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            """),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -2575,6 +2599,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             batch_timeout_ms=batch_timeout_ms,
             listener=listener,
             pattern=pattern,
+            partitions=partitions,
             # broker args
             dependencies=dependencies,
             parser=parser,
