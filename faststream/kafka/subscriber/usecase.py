@@ -267,6 +267,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        partitions: Optional[Iterable["TopicPartition"]],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -284,6 +285,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             group_id=group_id,
             listener=listener,
             pattern=pattern,
+            partitions=partitions,
             builder=builder,
             is_manual=is_manual,
             # subscriber args
@@ -315,6 +317,7 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        partitions: Optional[Iterable["TopicPartition"]],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -337,6 +340,7 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             group_id=group_id,
             listener=listener,
             pattern=pattern,
+            partitions=partitions,
             builder=builder,
             is_manual=is_manual,
             # subscriber args
