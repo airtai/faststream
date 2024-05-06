@@ -92,7 +92,16 @@ class FakeProducer(AioKafkaFastProducer):
         )
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if topic in handler.topics:
+            call: bool = False
+
+            for p in handler.partitions:
+                if p.topic == topic and (partition is None or p.partition == partition):
+                    call = True
+
+            if not call and topic in handler.topics:
+                call = True
+
+            if call:
                 return await call_handler(
                     handler=handler,
                     message=[incoming]

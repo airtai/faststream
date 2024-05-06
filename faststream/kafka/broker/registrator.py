@@ -337,9 +337,10 @@ class KafkaRegistrator(
             """),
         ] = None,
         partitions: Annotated[
-            Optional[Iterable["TopicPartition"]],
+            Iterable["TopicPartition"],
             Doc("""
-            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
             """),
         ] = (),
         # broker args
@@ -667,9 +668,10 @@ class KafkaRegistrator(
             """),
         ] = None,
         partitions: Annotated[
-            Optional[Iterable["TopicPartition"]],
+            Iterable["TopicPartition"],
             Doc("""
-            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
             """),
         ] = (),
         # broker args
@@ -997,9 +999,10 @@ class KafkaRegistrator(
             """),
         ] = None,
         partitions: Annotated[
-            Optional[Iterable["TopicPartition"]],
+            Iterable["TopicPartition"],
             Doc("""
-            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
             """),
         ] = (),
         # broker args
@@ -1330,9 +1333,10 @@ class KafkaRegistrator(
             """),
         ] = None,
         partitions: Annotated[
-            Optional[Iterable["TopicPartition"]],
+            Iterable["TopicPartition"],
             Doc("""
-            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
             """),
         ] = (),
         # broker args

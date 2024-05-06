@@ -7,12 +7,14 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    List,
     Optional,
     Sequence,
     Tuple,
 )
 
 import anyio
+from aiokafka import TopicPartition
 from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import override
 
@@ -24,11 +26,10 @@ from faststream.broker.types import (
     CustomCallable,
     MsgType,
 )
-from faststream.exceptions import SetupError
 from faststream.kafka.parser import AioKafkaParser
 
 if TYPE_CHECKING:
-    from aiokafka import AIOKafkaConsumer, ConsumerRecord, TopicPartition
+    from aiokafka import AIOKafkaConsumer, ConsumerRecord
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
@@ -57,7 +58,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         builder: Callable[..., "AIOKafkaConsumer"],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
-        partitions: Optional[Iterable["TopicPartition"]],
+        partitions: Iterable["TopicPartition"],
         is_manual: bool,
         # Subscriber args
         default_parser: "AsyncCallable",
@@ -142,16 +143,17 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             client_id=self.client_id,
             **self.__connection_args,
         )
-        if self.topics and self.partitions:
-            raise SetupError("You can't use 'topics' and 'partitions' in the same time")
+
         if self.topics:
             consumer.subscribe(
                 topics=self.topics,
                 pattern=self.__pattern,
                 listener=self.__listener,
             )
+
         elif self.partitions:
             consumer.assign(partitions=self.partitions)
+
         await consumer.start()
         await super().start()
 
@@ -220,9 +222,18 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     ) -> int:
         return hash("".join((*topics, group_id or "")))
 
+    @property
+    def topic_names(self) -> List[str]:
+        if self.__pattern:
+            return [self.__pattern]
+        elif self.topics:
+            return list(self.topics)
+        else:
+            return [f"{p.topic}-{p.partition}" for p in self.partitions]
+
     def __hash__(self) -> int:
         return self.get_routing_hash(
-            topics=(*self.topics, self.__pattern or ""),
+            topics=self.topic_names,
             group_id=self.group_id,
         )
 
@@ -243,7 +254,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         message: Optional["StreamMessage[ConsumerRecord]"],
     ) -> Dict[str, str]:
         if message is None:
-            topic = ",".join(self.topics)
+            topic = ",".join(self.topic_names)
         elif isinstance(message.raw_message, Sequence):
             topic = message.raw_message[0].topic
         else:
@@ -258,6 +269,14 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     def add_prefix(self, prefix: str) -> None:
         self.topics = tuple("".join((prefix, t)) for t in self.topics)
 
+        self.partitions = [
+            TopicPartition(
+                topic="".join((prefix, p.topic)),
+                partition=p.partition,
+            )
+            for p in self.partitions
+        ]
+
 
 class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
     def __init__(
@@ -267,7 +286,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
-        partitions: Optional[Iterable["TopicPartition"]],
+        partitions: Iterable["TopicPartition"],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -317,7 +336,7 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
-        partitions: Optional[Iterable["TopicPartition"]],
+        partitions: Iterable["TopicPartition"],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args

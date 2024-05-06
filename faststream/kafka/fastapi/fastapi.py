@@ -37,6 +37,7 @@ from faststream.kafka.broker.broker import KafkaBroker as KB
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
     from enum import Enum
+
     from aiokafka import TopicPartition
     from aiokafka.abc import AbstractTokenProvider, ConsumerRebalanceListener
     from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
@@ -920,9 +921,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             """),
         ] = None,
         partitions: Annotated[
-            Optional[Iterable["TopicPartition"]],
+            Iterable["TopicPartition"],
             Doc("""
-            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
             """),
         ] = (),
         # broker args
@@ -1408,9 +1410,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             """),
         ] = None,
         partitions: Annotated[
-            Optional[Iterable["TopicPartition"]],
+            Iterable["TopicPartition"],
             Doc("""
-            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
             """),
         ] = (),
         # broker args
@@ -1896,9 +1899,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             """),
         ] = None,
         partitions: Annotated[
-            Optional[Iterable["TopicPartition"]],
+            Iterable["TopicPartition"],
             Doc("""
-            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
             """),
         ] = (),
         # broker args
@@ -2387,9 +2391,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             """),
         ] = None,
         partitions: Annotated[
-            Optional[Iterable["TopicPartition"]],
+            Iterable["TopicPartition"],
             Doc("""
-            A topic and partition tuple. You can't use 'topics' and 'partitions' in the same time.
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
             """),
         ] = (),
         # broker args
