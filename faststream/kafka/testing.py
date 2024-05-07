@@ -5,6 +5,7 @@ from aiokafka import ConsumerRecord
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
+from faststream.kafka import TopicPartition
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.publisher.asyncapi import AsyncAPIBatchPublisher
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
@@ -31,10 +32,17 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         broker: KafkaBroker,
         publisher: "AsyncAPIPublisher[Any]",
     ) -> "HandlerCallWrapper[Any, Any, Any]":
-        sub = broker.subscriber(
-            publisher.topic,
-            batch=isinstance(publisher, AsyncAPIBatchPublisher),
-        )
+        if publisher.partition:
+            tp = TopicPartition(topic=publisher.topic, partition=publisher.partition)
+            sub = broker.subscriber(
+                partitions=[tp],
+                batch=isinstance(publisher, AsyncAPIBatchPublisher),
+            )
+        else:
+            sub = broker.subscriber(
+                publisher.topic,
+                batch=isinstance(publisher, AsyncAPIBatchPublisher),
+            )
 
         if not sub.calls:
 
