@@ -22,6 +22,7 @@ from faststream.asyncapi.schema import (
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import MsgType
+from faststream.exceptions import SetupError
 from faststream.kafka.subscriber.usecase import (
     BatchSubscriber,
     DefaultSubscriber,
@@ -29,7 +30,7 @@ from faststream.kafka.subscriber.usecase import (
 )
 
 if TYPE_CHECKING:
-    from aiokafka import AIOKafkaConsumer, ConsumerRecord
+    from aiokafka import AIOKafkaConsumer, ConsumerRecord, TopicPartition
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
@@ -79,6 +80,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        partitions: Iterable["TopicPartition"],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -103,6 +105,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        partitions: Iterable["TopicPartition"],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -127,6 +130,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        partitions: Iterable["TopicPartition"],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -156,6 +160,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        partitions: Iterable["TopicPartition"],
         builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
@@ -173,6 +178,17 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIBatchSubscriber",
     ]:
+        if not topics and not partitions and not pattern:
+            raise SetupError(
+                "You should provide either `topics` or `partitions` or `pattern`."
+            )
+        elif topics and partitions:
+            raise SetupError("You can't provide both `topics` and `partitions`.")
+        elif topics and pattern:
+            raise SetupError("You can't provide both `topics` and `pattern`.")
+        elif pattern and partitions:
+            raise SetupError("You can't provide both `pattern` and `partitions`.")
+
         if batch:
             return AsyncAPIBatchSubscriber(
                 *topics,
@@ -181,6 +197,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
                 group_id=group_id,
                 listener=listener,
                 pattern=pattern,
+                partitions=partitions,
                 builder=builder,
                 is_manual=is_manual,
                 no_ack=no_ack,
@@ -197,6 +214,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
                 group_id=group_id,
                 listener=listener,
                 pattern=pattern,
+                partitions=partitions,
                 builder=builder,
                 is_manual=is_manual,
                 no_ack=no_ack,
