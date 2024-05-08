@@ -1,3 +1,5 @@
+from aiokafka import TopicPartition
+
 from faststream.kafka.annotations import KafkaMessage
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.router import KafkaPublisher, KafkaRoute, KafkaRouter
@@ -12,4 +14,5 @@ __all__ = (
     "KafkaPublisher",
     "TestKafkaBroker",
     "TestApp",
+    "TopicPartition",
 )
