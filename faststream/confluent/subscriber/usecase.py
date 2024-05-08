@@ -19,7 +19,6 @@ from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
-from faststream.confluent.schemas.params import ConsumerConnectionParams
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -41,7 +40,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     topics: Sequence[str]
     group_id: Optional[str]
 
+    builder: Optional[Callable[..., "AsyncConfluentConsumer"]]
     consumer: Optional["AsyncConfluentConsumer"]
+
     task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
 
@@ -50,7 +51,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         *topics: str,
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., "AsyncConfluentConsumer"],
+        connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
         default_parser: "AsyncCallable",
@@ -81,20 +82,20 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.group_id = group_id
         self.topics = topics
         self.is_manual = is_manual
-        self.builder = builder
+        self.builder = None
         self.consumer = None
         self.task = None
 
         # Setup it later
         self.client_id = ""
-        self.__connection_data = ConsumerConnectionParams()
+        self.__connection_data = connection_data
 
     @override
     def setup(  # type: ignore[override]
         self,
         *,
         client_id: Optional[str],
-        connection_data: "ConsumerConnectionParams",
+        builder: Callable[..., "AsyncConfluentConsumer"],
         # basic args
         logger: Optional["LoggerProto"],
         producer: Optional["ProducerProto"],
@@ -110,7 +111,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         _call_decorators: Iterable["Decorator"],
     ) -> None:
         self.client_id = client_id
-        self.__connection_data = connection_data
+        self.builder = builder
 
         super().setup(
             logger=logger,
@@ -128,6 +129,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     @override
     async def start(self) -> None:
         """Start the consumer."""
+        assert self.builder, "You should setup subscriber at first."  # nosec B101
+
         self.consumer = consumer = self.builder(
             *self.topics,
             group_id=self.group_id,
@@ -172,7 +175,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         raise NotImplementedError()
 
     async def _consume(self) -> None:
-        assert self.consumer, "You need to start handler first"  # nosec B101
+        assert self.consumer, "You should start subscriber at first."  # nosec B101
 
         connected = True
         while self.running:
@@ -219,7 +222,7 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         *topics: str,
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., "AsyncConfluentConsumer"],
+        connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -234,7 +237,7 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         super().__init__(
             *topics,
             group_id=group_id,
-            builder=builder,
+            connection_data=connection_data,
             is_manual=is_manual,
             # subscriber args
             default_parser=AsyncConfluentParser.parse_message,
@@ -278,7 +281,7 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., "AsyncConfluentConsumer"],
+        connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -296,7 +299,7 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
         super().__init__(
             *topics,
             group_id=group_id,
-            builder=builder,
+            connection_data=connection_data,
             is_manual=is_manual,
             # subscriber args
             default_parser=AsyncConfluentParser.parse_message_batch,

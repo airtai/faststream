@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
+from unittest.mock import AsyncMock
 
 from aiokafka import ConsumerRecord
 from typing_extensions import override
@@ -23,8 +24,13 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     """A class to test Kafka brokers."""
 
     @staticmethod
-    async def _fake_connect(broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
+    async def _fake_connect(  # type: ignore[override]
+        broker: KafkaBroker,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Callable[..., AsyncMock]:
         broker._producer = FakeProducer(broker)
+        return _fake_connection
 
     @staticmethod
     def create_publisher_fake_subscriber(
@@ -184,3 +190,7 @@ def build_message(
         offset=0,
         headers=[(i, j.encode()) for i, j in headers.items()],
     )
+
+
+def _fake_connection(*args: Any, **kwargs: Any) -> AsyncMock:
+    return AsyncMock()

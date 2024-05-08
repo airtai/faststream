@@ -1,9 +1,8 @@
 import logging
 from inspect import Parameter
-from typing import TYPE_CHECKING, Any, ClassVar, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Optional, Tuple, Union
 
 from faststream.broker.core.usecase import BrokerUsecase
-from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.log.logging import get_broker_logger
 
 if TYPE_CHECKING:
@@ -15,7 +14,7 @@ if TYPE_CHECKING:
 class KafkaLoggingBroker(
     BrokerUsecase[
         Union["aiokafka.ConsumerRecord", Tuple["aiokafka.ConsumerRecord", ...]],
-        ConsumerConnectionParams,
+        Callable[..., "aiokafka.AIOKafkaConsumer"],
     ]
 ):
     """A class that extends the LoggingMixin class and adds additional functionality for logging Kafka related information."""

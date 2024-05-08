@@ -1,5 +1,6 @@
 import re
 from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
+from unittest.mock import AsyncMock, MagicMock
 
 from typing_extensions import override
 
@@ -49,12 +50,15 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         return sub.calls[0].handler
 
     @staticmethod
-    async def _fake_connect(
+    async def _fake_connect(  # type: ignore[override]
         broker: RedisBroker,
         *args: Any,
         **kwargs: Any,
-    ) -> None:
+    ) -> AsyncMock:
         broker._producer = FakeProducer(broker)  # type: ignore[assignment]
+        connection = MagicMock()
+        connection.pubsub.side_effect = AsyncMock
+        return connection
 
     @staticmethod
     def remove_publisher_fake_subscriber(
