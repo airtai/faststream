@@ -25,7 +25,7 @@ from faststream.kafka.publisher.asyncapi import AsyncAPIPublisher
 from faststream.kafka.subscriber.asyncapi import AsyncAPISubscriber
 
 if TYPE_CHECKING:
-    from aiokafka import ConsumerRecord
+    from aiokafka import ConsumerRecord, TopicPartition
     from aiokafka.abc import ConsumerRebalanceListener
     from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
     from fast_depends.dependencies import Depends
@@ -336,6 +336,13 @@ class KafkaRegistrator(
             Pattern to match available topics. You must provide either topics or pattern, but not both.
             """),
         ] = None,
+        partitions: Annotated[
+            Iterable["TopicPartition"],
+            Doc("""
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
+            """),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["Depends"],
@@ -660,6 +667,13 @@ class KafkaRegistrator(
             Pattern to match available topics. You must provide either topics or pattern, but not both.
             """),
         ] = None,
+        partitions: Annotated[
+            Iterable["TopicPartition"],
+            Doc("""
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
+            """),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["Depends"],
@@ -984,6 +998,13 @@ class KafkaRegistrator(
             Pattern to match available topics. You must provide either topics or pattern, but not both.
             """),
         ] = None,
+        partitions: Annotated[
+            Iterable["TopicPartition"],
+            Doc("""
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
+            """),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["Depends"],
@@ -1311,6 +1332,13 @@ class KafkaRegistrator(
             Pattern to match available topics. You must provide either topics or pattern, but not both.
             """),
         ] = None,
+        partitions: Annotated[
+            Iterable["TopicPartition"],
+            Doc("""
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
+            """),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["Depends"],
@@ -1402,6 +1430,7 @@ class KafkaRegistrator(
                 group_id=group_id,
                 listener=listener,
                 pattern=pattern,
+                partitions=partitions,
                 builder=builder,
                 is_manual=not auto_commit,
                 # subscriber args
