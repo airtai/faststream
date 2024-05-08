@@ -3,12 +3,56 @@ import asyncio
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.kafka import KafkaBroker, TestKafkaBroker
+from faststream.kafka import KafkaBroker, TestKafkaBroker, TopicPartition
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
 @pytest.mark.asyncio()
 class TestTestclient(BrokerTestclientTestcase):
+    async def test_partition_match(
+        self,
+        test_broker: KafkaBroker,
+        queue: str,
+    ):
+        @test_broker.subscriber(partitions=[TopicPartition(queue, 1)])
+        async def m():
+            pass
+
+        await test_broker.start()
+        await test_broker.publish("hello", queue)
+        m.mock.assert_called_once_with("hello")
+
+    async def test_partition_match_exect(
+        self,
+        test_broker: KafkaBroker,
+        queue: str,
+    ):
+        @test_broker.subscriber(partitions=[TopicPartition(queue, 1)])
+        async def m():
+            pass
+
+        await test_broker.start()
+        await test_broker.publish("hello", queue, partition=1)
+        m.mock.assert_called_once_with("hello")
+
+    async def test_partition_missmatch(
+        self,
+        test_broker: KafkaBroker,
+        queue: str,
+    ):
+        @test_broker.subscriber(partitions=[TopicPartition(queue, 1)])
+        async def m():
+            pass
+
+        @test_broker.subscriber(queue)
+        async def m2():
+            pass
+
+        await test_broker.start()
+        await test_broker.publish("hello", queue, partition=2)
+        assert not m.mock.called
+        m2.mock.assert_called_once_with("hello")
+
     @pytest.mark.kafka()
     async def test_with_real_testclient(
         self,

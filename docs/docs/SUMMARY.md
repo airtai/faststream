@@ -134,6 +134,7 @@ search:
                 - [KafkaRouter](public_api/faststream/kafka/KafkaRouter.md)
                 - [TestApp](public_api/faststream/kafka/TestApp.md)
                 - [TestKafkaBroker](public_api/faststream/kafka/TestKafkaBroker.md)
+                - [TopicPartition](public_api/faststream/kafka/TopicPartition.md)
             - nats
                 - [AckPolicy](public_api/faststream/nats/AckPolicy.md)
                 - [ConsumerConfig](public_api/faststream/nats/ConsumerConfig.md)
@@ -495,6 +496,7 @@ search:
                 - [KafkaRouter](api/faststream/kafka/KafkaRouter.md)
                 - [TestApp](api/faststream/kafka/TestApp.md)
                 - [TestKafkaBroker](api/faststream/kafka/TestKafkaBroker.md)
+                - [TopicPartition](api/faststream/kafka/TopicPartition.md)
                 - broker
                     - [KafkaBroker](api/faststream/kafka/broker/KafkaBroker.md)
                     - broker
