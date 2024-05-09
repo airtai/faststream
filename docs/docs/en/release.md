@@ -27,7 +27,7 @@ broker = KafkaBroker()
 topic_partition_fisrt = TopicPartition("my_topic", 1)
 topic_partition_second = TopicPartition("my_topic", 2)
 
-@broker.subscribe(partition=[topic_partition_fisrt, topic_partition_second])
+@broker.subscribe(partitions=[topic_partition_fisrt, topic_partition_second])
 async def some_consumer(msg):
    ...
 ```
