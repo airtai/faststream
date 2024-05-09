@@ -246,6 +246,8 @@ class BrokerConsumeTestcase:
                 timeout=self.timeout,
             )
 
+            await sub.close()
+
         assert event.is_set()
 
 
