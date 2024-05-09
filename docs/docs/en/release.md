@@ -12,6 +12,35 @@ hide:
 ---
 
 # Release Notes
+## 0.5.5
+
+### What's Changed
+
+Add support for explicit partition assignment in aiokafka `KafkaBroker` (special thanks to @spataphore1337):
+
+```python
+from faststream import FastStream
+from faststream.kafka import KafkaBroker, TopicPartition
+
+broker = KafkaBroker()
+
+topic_partition_fisrt = TopicPartition("my_topic", 1)
+topic_partition_second = TopicPartition("my_topic", 2)
+
+@broker.subscribe(partition=[topic_partition_fisrt, topic_partition_second])
+async def some_consumer(msg):
+   ...
+```
+
+* Update Release Notes for 0.5.4 by @faststream-release-notes-updater in [#1421](https://github.com/airtai/faststream/pull/1421){.external-link target="_blank"}
+* feature: manual partition assignment to Kafka by [@spataphore1337](https://github.com/spataphore1337){.external-link target="_blank"} in [#1422](https://github.com/airtai/faststream/pull/1422){.external-link target="_blank"}
+* Chore/update deps by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1429](https://github.com/airtai/faststream/pull/1429){.external-link target="_blank"}
+* Fix/correct dynamic subscriber registration by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1433](https://github.com/airtai/faststream/pull/1433){.external-link target="_blank"}
+* chore: bump version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1435](https://github.com/airtai/faststream/pull/1435){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.4...0.5.5](https://github.com/airtai/faststream/compare/0.5.4...0.5.5){.external-link target="_blank"}
+
 ## 0.5.4
 
 ### What's Changed
