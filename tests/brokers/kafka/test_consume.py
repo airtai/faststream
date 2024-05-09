@@ -5,7 +5,7 @@ import pytest
 from aiokafka import AIOKafkaConsumer
 
 from faststream.exceptions import AckMessage
-from faststream.kafka import KafkaBroker
+from faststream.kafka import KafkaBroker, TopicPartition
 from faststream.kafka.annotations import KafkaMessage
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
@@ -70,6 +70,33 @@ class TestConsume(BrokerRealConsumeTestcase):
                     timeout=10,
                 )
                 m.mock.assert_called_once()
+
+        assert event.is_set()
+
+    @pytest.mark.asyncio()
+    async def test_manual_partition_consume(
+        self,
+        queue: str,
+        event: asyncio.Event,
+    ):
+        consume_broker = self.get_broker()
+
+        tp1 = TopicPartition(queue, partition=0)
+
+        @consume_broker.subscriber(partitions=[tp1])
+        async def handler_tp1(msg):
+            event.set()
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish("hello", queue, partition=0)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=10,
+            )
 
         assert event.is_set()
 

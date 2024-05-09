@@ -50,6 +50,7 @@ def get_watcher_context(
         return partial(
             WatcherContext,
             watcher=get_watcher(logger, retry),
+            logger=logger,
             **extra_options,
         )
 

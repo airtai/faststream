@@ -79,13 +79,13 @@ telemetry = ["opentelemetry-sdk>=1.24.0,<2.0.0"]
 optionals = ["faststream[rabbit,kafka,confluent,nats,redis,telemetry]"]
 
 devdocs = [
-    "mkdocs-material==9.5.18",
+    "mkdocs-material==9.5.21",
     "mkdocs-static-i18n==1.2.2",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.25.0",
     "mkdocs-literate-nav==0.6.1",
-    "mkdocs-git-revision-date-localized-plugin==1.2.4",
-    "mike==2.0.0",                                      # versioning
+    "mkdocs-git-revision-date-localized-plugin==1.2.5",
+    "mike==2.1.1",                                      # versioning
     "mkdocs-minify-plugin==0.8.0",
     "mkdocs-macros-plugin==1.0.5",                      # includes with variables
     "mkdocs-glightbox==0.3.7",                          # img zoom
@@ -110,7 +110,7 @@ types = [
 
 lint = [
     "faststream[types]",
-    "ruff==0.4.2",
+    "ruff==0.4.3",
     "bandit==1.7.8",
     "semgrep==1.70.0",
     "codespell==2.2.6",
@@ -125,7 +125,7 @@ test-core = [
 
 testing = [
     "faststream[test-core]",
-    "fastapi==0.110.2",
+    "fastapi==0.111.0",
     "pydantic-settings>=2.0.0,<3.0.0",
     "httpx==0.27.0",
     "PyYAML==6.0.1",
