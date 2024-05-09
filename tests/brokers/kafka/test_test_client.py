@@ -22,13 +22,13 @@ class TestTestclient(BrokerTestclientTestcase):
         queue: str,
     ):
         broker = self.get_broker()
-      
+
         @broker.subscriber(partitions=[TopicPartition(queue, 1)])
-        async def m():
+        async def m(msg):
             pass
 
         async with self.patch_broker(broker) as br:
-            await  br.publish("hello", queue)
+            await br.publish("hello", queue)
 
             m.mock.assert_called_once_with("hello")
 
@@ -37,13 +37,13 @@ class TestTestclient(BrokerTestclientTestcase):
         queue: str,
     ):
         broker = self.get_broker()
-      
+
         @broker.subscriber(partitions=[TopicPartition(queue, 1)])
-        async def m():
+        async def m(msg):
             pass
 
         async with self.patch_broker(broker) as br:
-            await test_broker.publish("hello", queue, partition=1)
+            await br.publish("hello", queue, partition=1)
 
             m.mock.assert_called_once_with("hello")
 
@@ -54,13 +54,13 @@ class TestTestclient(BrokerTestclientTestcase):
         broker = self.get_broker()
 
         @broker.subscriber(partitions=[TopicPartition(queue, 1)])
-        async def m():
+        async def m(msg):
             pass
 
         @broker.subscriber(queue)
-        async def m2():
+        async def m2(msg):
             pass
-        
+
         async with self.patch_broker(broker) as br:
             await br.publish("hello", queue, partition=2)
 
