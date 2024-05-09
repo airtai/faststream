@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 from typing_extensions import override
 
@@ -240,4 +240,7 @@ def build_message(
 
 
 def _fake_connection(*args: Any, **kwargs: Any) -> AsyncMock:
-    return AsyncMock()
+    mock = AsyncMock()
+    mock.getone.return_value = MagicMock()
+    mock.getmany.return_value = [MagicMock()]
+    return mock
