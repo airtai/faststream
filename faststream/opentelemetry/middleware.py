@@ -1,5 +1,5 @@
 import time
-from typing import TYPE_CHECKING, Any, Callable, Optional, Type
+from typing import TYPE_CHECKING, Any, Callable, Optional, Sequence, Type
 
 from opentelemetry import context, metrics, propagate, trace
 from opentelemetry.semconv.trace import SpanAttributes
@@ -28,32 +28,33 @@ def _create_span_name(destination: str, action: str) -> str:
 
 class _MetricsContainer:
     __slots__ = (
-        "active_requests_counter",
-        "duration_histogram",
-        "consumer_message_size_histogram",
-        "publisher_message_size_histogram",
+        "publish_duration",
+        "publish_counter",
+        "process_duration",
+        "process_counter",
     )
 
     def __init__(self, meter: "Meter") -> None:
-        self.active_requests_counter = meter.create_up_down_counter(
-            name="faststream.consumer.active_requests",
-            unit="requests",
-            description="Measures the number of concurrent messages that are currently in-flight.",
-        )
-        self.duration_histogram = meter.create_histogram(
-            name="faststream.consumer.duration",
+        # Metric attributes: messaging.system, error.type, messaging.destination.name/messaging.destination_publish.name
+        self.publish_duration = meter.create_histogram(
+            name="messaging.publish.duration",
             unit="s",
-            description="Measures the duration of message processing.",
+            description="Measures the duration of publish operation.",
         )
-        self.consumer_message_size_histogram = meter.create_histogram(
-            name="faststream.consumer.message_size",
-            unit="By",
-            description="Measures the size of consumed messages.",
+        self.publish_counter = meter.create_counter(
+            name="messaging.publish.messages",
+            unit="message",
+            description="Measures the number of published messages.",
         )
-        self.publisher_message_size_histogram = meter.create_histogram(
-            name="faststream.publisher.message_size",
-            unit="By",
-            description="Measures the size of published messages.",
+        self.process_duration = meter.create_histogram(
+            name="messaging.process.duration",
+            unit="s",
+            description="Measures the duration of process operation.",
+        )
+        self.process_counter = meter.create_counter(
+            name="messaging.process.messages",
+            unit="message",
+            description="Measures the number of processed messages.",
         )
 
 
@@ -105,21 +106,33 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             propagate.inject(headers, context=current_context)
             create_span.end()
 
-        with self._tracer.start_as_current_span(
-            name=_create_span_name(destination_name, MessageAction.PUBLISH),
-            kind=trace.SpanKind.PRODUCER,
-            attributes=attributes,
-            context=current_context,
-        ) as span:
-            span.set_attribute(
-                SpanAttributes.MESSAGING_OPERATION, MessageAction.PUBLISH
-            )
-            result = await call_next(msg, *args, headers=headers, **kwargs)
+        start_time = time.perf_counter()
 
-        self._metrics.publisher_message_size_histogram.record(
-            len(str(msg) or ""),
-            attributes,
-        )
+        try:
+            with self._tracer.start_as_current_span(
+                name=_create_span_name(destination_name, MessageAction.PUBLISH),
+                kind=trace.SpanKind.PRODUCER,
+                attributes=attributes,
+                context=current_context,
+            ) as span:
+                span.set_attribute(
+                    SpanAttributes.MESSAGING_OPERATION, MessageAction.PUBLISH
+                )
+                result = await call_next(msg, *args, headers=headers, **kwargs)
+
+        except Exception as e:
+            attributes["error.type"] = type(e).__name__
+            raise
+
+        finally:
+            self._metrics.publish_duration.record(
+                amount=time.perf_counter() - start_time,
+                attributes=attributes,
+            )
+            self._metrics.publish_counter.add(
+                amount=len(msg) if isinstance(msg, Sequence) else 1,
+                attributes=attributes
+            )
 
         return result
 
@@ -130,7 +143,6 @@ class BaseTelemetryMiddleware(BaseMiddleware):
     ) -> Any:
         provider = self.__settings_provider
 
-        start_time = time.perf_counter()
         current_context = propagate.extract(msg.headers)
         destination_name = provider.get_consume_destination_name(msg)
         attributes = provider.get_consume_attrs_from_message(msg)
@@ -145,8 +157,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             create_span.end()
 
         self._origin_context = current_context
-        self._metrics.active_requests_counter.add(1, attributes)
-        self._metrics.consumer_message_size_histogram.record(len(msg.body), attributes)
+        start_time = time.perf_counter()
 
         try:
             with self._tracer.start_as_current_span(
@@ -165,12 +176,19 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 result = await call_next(msg)
                 context.detach(token)
 
-            total_time = time.perf_counter() - start_time
-            self._metrics.duration_histogram.record(
-                amount=total_time, attributes=attributes
-            )
+        except Exception as e:
+            attributes["error.type"] = type(e).__name__
+            raise
+
         finally:
-            self._metrics.active_requests_counter.add(-1, attributes)
+            self._metrics.process_duration.record(
+                amount=time.perf_counter() - start_time,
+                attributes=attributes,
+            )
+            self._metrics.process_counter.add(
+                amount=len(msg) if isinstance(msg, Sequence) else 1,
+                attributes=attributes
+            )
 
         return result
 
