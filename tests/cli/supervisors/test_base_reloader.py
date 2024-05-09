@@ -14,7 +14,7 @@ class PatchedBaseReload(BaseReload):
         return True
 
 
-def empty():
+def empty(*args, **kwargs):
     pass
 
 
