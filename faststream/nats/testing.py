@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from unittest.mock import AsyncMock
 
 from nats.aio.msg import Msg
 from typing_extensions import override
@@ -40,8 +41,14 @@ class TestNatsBroker(TestBroker[NatsBroker]):
         return sub.calls[0].handler
 
     @staticmethod
-    async def _fake_connect(broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
+    async def _fake_connect(  # type: ignore[override]
+        broker: NatsBroker,
+        *args: Any,
+        **kwargs: Any,
+    ) -> AsyncMock:
+        broker.stream = AsyncMock()  # type: ignore[assignment]
         broker._js_producer = broker._producer = FakeProducer(broker)  # type: ignore[assignment]
+        return AsyncMock()
 
     @staticmethod
     def remove_publisher_fake_subscriber(
