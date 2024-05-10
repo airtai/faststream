@@ -5,7 +5,11 @@ from opentelemetry import context, metrics, propagate, trace
 from opentelemetry.semconv.trace import SpanAttributes
 
 from faststream import BaseMiddleware
-from faststream.opentelemetry.consts import MessageAction
+from faststream.opentelemetry.consts import (
+    ERROR_TYPE,
+    MESSAGING_DESTINATION_PUBLISH_NAME,
+    MessageAction,
+)
 from faststream.opentelemetry.provider import TelemetrySettingsProvider
 
 if TYPE_CHECKING:
@@ -16,7 +20,7 @@ if TYPE_CHECKING:
     from opentelemetry.trace import Span, Tracer, TracerProvider
 
     from faststream.broker.message import StreamMessage
-    from faststream.types import AsyncFunc, AsyncFuncAny
+    from faststream.types import AnyDict, AsyncFunc, AsyncFuncAny
 
 
 _OTEL_SCHEMA = "https://opentelemetry.io/schemas/1.11.0"
@@ -28,34 +32,64 @@ def _create_span_name(destination: str, action: str) -> str:
 
 class _MetricsContainer:
     __slots__ = (
+        "include_messages_counters",
         "publish_duration",
         "publish_counter",
         "process_duration",
         "process_counter",
     )
 
-    def __init__(self, meter: "Meter") -> None:
-        # Metric attributes: messaging.system, error.type, messaging.destination.name/messaging.destination_publish.name
+    def __init__(self, meter: "Meter", include_messages_counters: bool) -> None:
+        self.include_messages_counters = include_messages_counters
+
         self.publish_duration = meter.create_histogram(
             name="messaging.publish.duration",
             unit="s",
             description="Measures the duration of publish operation.",
-        )
-        self.publish_counter = meter.create_counter(
-            name="messaging.publish.messages",
-            unit="message",
-            description="Measures the number of published messages.",
         )
         self.process_duration = meter.create_histogram(
             name="messaging.process.duration",
             unit="s",
             description="Measures the duration of process operation.",
         )
-        self.process_counter = meter.create_counter(
-            name="messaging.process.messages",
-            unit="message",
-            description="Measures the number of processed messages.",
+
+        if include_messages_counters:
+            self.process_counter = meter.create_counter(
+                name="messaging.process.messages",
+                unit="message",
+                description="Measures the number of processed messages.",
+            )
+            self.publish_counter = meter.create_counter(
+                name="messaging.publish.messages",
+                unit="message",
+                description="Measures the number of published messages.",
+            )
+
+    def observe_publish(self, attrs: "AnyDict", duration: float, msg: Any) -> None:
+        self.publish_duration.record(
+            amount=duration,
+            attributes=attrs,
         )
+        if self.include_messages_counters:
+            attrs.pop(ERROR_TYPE, None)
+            self.publish_counter.add(
+                amount=len(msg) if isinstance(msg, Sequence) else 1,
+                attributes=attrs,
+            )
+
+    def observe_consume(
+        self, attrs: "AnyDict", duration: float, msg: "StreamMessage[Any]"
+    ) -> None:
+        self.process_duration.record(
+            amount=duration,
+            attributes=attrs,
+        )
+        if self.include_messages_counters:
+            attrs.pop(ERROR_TYPE, None)
+            self.process_counter.add(
+                amount=len(msg) if isinstance(msg, Sequence) else 1,
+                attributes=attrs,
+            )
 
 
 class BaseTelemetryMiddleware(BaseMiddleware):
@@ -84,12 +118,16 @@ class BaseTelemetryMiddleware(BaseMiddleware):
     ) -> Any:
         provider = self.__settings_provider
 
-        attributes = provider.get_publish_attrs_from_kwargs(kwargs)
-
+        headers = kwargs.pop("headers", {}) or {}
         current_context = context.get_current()
         destination_name = provider.get_publish_destination_name(kwargs)
 
-        headers = kwargs.pop("headers", {}) or {}
+        trace_attributes = provider.get_publish_attrs_from_kwargs(kwargs)
+        metrics_attributes = {
+            SpanAttributes.MESSAGING_SYSTEM: provider.messaging_system,
+            SpanAttributes.MESSAGING_DESTINATION_NAME: destination_name,
+        }
+
         if self._current_span and self._current_span.is_recording():
             current_context = trace.set_span_in_context(
                 self._current_span, current_context
@@ -100,7 +138,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             create_span = self._tracer.start_span(
                 name=_create_span_name(destination_name, MessageAction.CREATE),
                 kind=trace.SpanKind.PRODUCER,
-                attributes=attributes,
+                attributes=trace_attributes,
             )
             current_context = trace.set_span_in_context(create_span)
             propagate.inject(headers, context=current_context)
@@ -112,7 +150,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             with self._tracer.start_as_current_span(
                 name=_create_span_name(destination_name, MessageAction.PUBLISH),
                 kind=trace.SpanKind.PRODUCER,
-                attributes=attributes,
+                attributes=trace_attributes,
                 context=current_context,
             ) as span:
                 span.set_attribute(
@@ -121,18 +159,12 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 result = await call_next(msg, *args, headers=headers, **kwargs)
 
         except Exception as e:
-            attributes["error.type"] = type(e).__name__
+            metrics_attributes[ERROR_TYPE] = type(e).__name__
             raise
 
         finally:
-            self._metrics.publish_duration.record(
-                amount=time.perf_counter() - start_time,
-                attributes=attributes,
-            )
-            self._metrics.publish_counter.add(
-                amount=len(msg) if isinstance(msg, Sequence) else 1,
-                attributes=attributes
-            )
+            duration = time.perf_counter() - start_time
+            self._metrics.observe_publish(metrics_attributes, duration, msg)
 
         return result
 
@@ -145,13 +177,18 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 
         current_context = propagate.extract(msg.headers)
         destination_name = provider.get_consume_destination_name(msg)
-        attributes = provider.get_consume_attrs_from_message(msg)
+
+        trace_attributes = provider.get_consume_attrs_from_message(msg)
+        metrics_attributes = {
+            SpanAttributes.MESSAGING_SYSTEM: provider.messaging_system,
+            MESSAGING_DESTINATION_PUBLISH_NAME: destination_name,
+        }
 
         if not len(current_context):
             create_span = self._tracer.start_span(
                 name=_create_span_name(destination_name, MessageAction.CREATE),
                 kind=trace.SpanKind.CONSUMER,
-                attributes=attributes,
+                attributes=trace_attributes,
             )
             current_context = trace.set_span_in_context(create_span)
             create_span.end()
@@ -164,7 +201,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 name=_create_span_name(destination_name, MessageAction.PROCESS),
                 kind=trace.SpanKind.CONSUMER,
                 context=current_context,
-                attributes=attributes,
+                attributes=trace_attributes,
                 end_on_exit=False,
             ) as span:
                 span.set_attribute(
@@ -177,18 +214,12 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 context.detach(token)
 
         except Exception as e:
-            attributes["error.type"] = type(e).__name__
+            metrics_attributes[ERROR_TYPE] = type(e).__name__
             raise
 
         finally:
-            self._metrics.process_duration.record(
-                amount=time.perf_counter() - start_time,
-                attributes=attributes,
-            )
-            self._metrics.process_counter.add(
-                amount=len(msg) if isinstance(msg, Sequence) else 1,
-                attributes=attributes
-            )
+            duration = time.perf_counter() - start_time
+            self._metrics.observe_consume(metrics_attributes, duration, msg)
 
         return result
 
@@ -219,10 +250,11 @@ class TelemetryMiddleware:
         tracer_provider: Optional["TracerProvider"] = None,
         meter_provider: Optional["MeterProvider"] = None,
         meter: Optional["Meter"] = None,
+        include_messages_counters: bool = False,
     ) -> None:
         self._tracer = _get_tracer(tracer_provider)
         self._meter = _get_meter(meter_provider, meter)
-        self._metrics = _MetricsContainer(self._meter)
+        self._metrics = _MetricsContainer(self._meter, include_messages_counters)
         self._settings_provider_factory = settings_provider_factory
 
     def __call__(self, msg: Optional[Any]) -> BaseMiddleware:

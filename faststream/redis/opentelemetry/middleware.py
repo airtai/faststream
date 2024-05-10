@@ -20,4 +20,5 @@ class RedisTelemetryMiddleware(TelemetryMiddleware):
             tracer_provider=tracer_provider,
             meter_provider=meter_provider,
             meter=meter,
+            include_messages_counters=False,
         )

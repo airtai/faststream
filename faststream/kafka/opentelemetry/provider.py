@@ -4,6 +4,7 @@ from opentelemetry.semconv.trace import SpanAttributes
 
 from faststream.broker.types import MsgType
 from faststream.opentelemetry import TelemetrySettingsProvider
+from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord
@@ -57,7 +58,7 @@ class KafkaTelemetrySettingsProvider(
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
             SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: msg.raw_message.partition,
             SpanAttributes.MESSAGING_KAFKA_MESSAGE_OFFSET: msg.raw_message.offset,
-            "messaging.destination_publish.name": msg.raw_message.topic,
+            MESSAGING_DESTINATION_PUBLISH_NAME: msg.raw_message.topic,
         }
 
         if msg.raw_message.key is not None:
@@ -90,7 +91,7 @@ class BatchKafkaTelemetrySettingsProvider(
             ),
             SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: len(msg.raw_message),
             SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: raw_message.partition,
-            "messaging.destination_publish.name": raw_message.topic,
+            MESSAGING_DESTINATION_PUBLISH_NAME: raw_message.topic,
         }
 
         return attrs

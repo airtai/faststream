@@ -5,6 +5,7 @@ from opentelemetry.semconv.trace import SpanAttributes
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.types import MsgType
 from faststream.opentelemetry import TelemetrySettingsProvider
+from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 
 if TYPE_CHECKING:
     from nats.aio.msg import Msg
@@ -47,7 +48,7 @@ class NatsTelemetrySettingsProvider(BaseNatsTelemetrySettingsProvider["Msg"]):
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.message_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
-            "messaging.destination_publish.name": msg.raw_message.subject,
+            MESSAGING_DESTINATION_PUBLISH_NAME: msg.raw_message.subject,
         }
 
     @staticmethod
@@ -70,7 +71,7 @@ class NatsBatchTelemetrySettingsProvider(
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
             SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: len(msg.raw_message),
-            "messaging.destination_publish.name": msg.raw_message[0].subject,
+            MESSAGING_DESTINATION_PUBLISH_NAME: msg.raw_message[0].subject,
         }
 
     @staticmethod

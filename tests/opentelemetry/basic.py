@@ -15,6 +15,7 @@ from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind
 
 from faststream.broker.core.usecase import BrokerUsecase
+from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 from faststream.opentelemetry.middleware import MessageAction as Action
 from faststream.opentelemetry.middleware import TelemetryMiddleware
 
@@ -101,8 +102,8 @@ class LocalTelemetryTestcase:
             ]
 
         if span.kind == SpanKind.CONSUMER and action in (Action.CREATE, Action.PROCESS):
-            assert attrs["messaging.destination_publish.name"] == queue, attrs[
-                "messaging.destination_publish.name"
+            assert attrs[MESSAGING_DESTINATION_PUBLISH_NAME] == queue, attrs[
+                MESSAGING_DESTINATION_PUBLISH_NAME
             ]
             assert attrs[SpanAttr.MESSAGING_MESSAGE_ID] == IsUUID, attrs[
                 SpanAttr.MESSAGING_MESSAGE_ID

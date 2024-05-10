@@ -6,6 +6,7 @@ from opentelemetry.sdk.trace import Span
 from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind
 
+from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 from faststream.opentelemetry.middleware import MessageAction as Action
 from faststream.rabbit import RabbitBroker, RabbitExchange
 from faststream.rabbit.opentelemetry import RabbitTelemetryMiddleware
@@ -48,7 +49,7 @@ class TestTelemetry(LocalTelemetryTestcase):
             assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == ""
 
         if span.kind == SpanKind.CONSUMER and action in (Action.CREATE, Action.PROCESS):
-            assert attrs["messaging.destination_publish.name"] == ""
+            assert attrs[MESSAGING_DESTINATION_PUBLISH_NAME] == ""
             assert attrs["messaging.rabbitmq.message.delivery_tag"] == IsInt
             assert attrs[SpanAttr.MESSAGING_MESSAGE_ID] == IsUUID
 
