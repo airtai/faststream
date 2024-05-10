@@ -19,6 +19,7 @@ from ..basic import LocalTelemetryTestcase
 @pytest.mark.confluent()
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "kafka"
+    include_messages_counters = True
     timeout: int = 10
     subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
     broker_class = KafkaBroker

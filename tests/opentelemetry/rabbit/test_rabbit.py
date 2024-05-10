@@ -24,6 +24,7 @@ def exchange(queue):
 @pytest.mark.rabbit()
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "rabbitmq"
+    include_messages_counters = False
     broker_class = RabbitBroker
     telemetry_middleware_class = RabbitTelemetryMiddleware
 

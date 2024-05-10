@@ -19,6 +19,7 @@ from ..basic import LocalTelemetryTestcase
 @pytest.mark.kafka()
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "kafka"
+    include_messages_counters = True
     broker_class = KafkaBroker
     telemetry_middleware_class = KafkaTelemetryMiddleware
 

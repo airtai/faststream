@@ -1,4 +1,5 @@
 import time
+from copy import copy
 from typing import TYPE_CHECKING, Any, Callable, Optional, Sequence, Type
 
 from opentelemetry import context, metrics, propagate, trace
@@ -71,10 +72,11 @@ class _MetricsContainer:
             attributes=attrs,
         )
         if self.include_messages_counters:
-            attrs.pop(ERROR_TYPE, None)
+            counter_attrs = copy(attrs)
+            counter_attrs.pop(ERROR_TYPE, None)
             self.publish_counter.add(
-                amount=len(msg) if isinstance(msg, Sequence) else 1,
-                attributes=attrs,
+                amount=self._get_messages_count(msg),
+                attributes=counter_attrs,
             )
 
     def observe_consume(
@@ -85,11 +87,18 @@ class _MetricsContainer:
             attributes=attrs,
         )
         if self.include_messages_counters:
-            attrs.pop(ERROR_TYPE, None)
+            counter_attrs = copy(attrs)
+            counter_attrs.pop(ERROR_TYPE, None)
             self.process_counter.add(
-                amount=len(msg) if isinstance(msg, Sequence) else 1,
-                attributes=attrs,
+                amount=self._get_messages_count(msg.decoded_body),
+                attributes=counter_attrs,
             )
+
+    @staticmethod
+    def _get_messages_count(payload: Any) -> int:
+        if isinstance(payload, Sequence) and not isinstance(payload, str):
+            return len(payload)
+        return 1
 
 
 class BaseTelemetryMiddleware(BaseMiddleware):
