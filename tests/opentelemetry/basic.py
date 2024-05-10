@@ -301,8 +301,7 @@ class LocalTelemetryTestcase:
             event.set()
 
         broker = self.patch_broker(broker)
-        msg = ["1", "2", "3"] if self.include_messages_counters else "start"
-        count = len(msg) if self.include_messages_counters else 1
+        msg = "start"
 
         async with broker:
             await broker.start()
@@ -314,7 +313,7 @@ class LocalTelemetryTestcase:
 
         metrics = self.get_metrics(metric_reader)
 
-        self.assert_metrics(metrics, count)
+        self.assert_metrics(metrics, 1)
 
         assert event.is_set()
         mock.assert_called_once_with(msg)

@@ -1,6 +1,6 @@
 import time
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, Optional, Sequence, Type
+from typing import TYPE_CHECKING, Any, Callable, Optional, Type
 
 from opentelemetry import context, metrics, propagate, trace
 from opentelemetry.semconv.trace import SpanAttributes
@@ -66,7 +66,9 @@ class _MetricsContainer:
                 description="Measures the number of published messages.",
             )
 
-    def observe_publish(self, attrs: "AnyDict", duration: float, msg: Any) -> None:
+    def observe_publish(
+        self, attrs: "AnyDict", duration: float, msg_count: int
+    ) -> None:
         self.publish_duration.record(
             amount=duration,
             attributes=attrs,
@@ -75,12 +77,12 @@ class _MetricsContainer:
             counter_attrs = copy(attrs)
             counter_attrs.pop(ERROR_TYPE, None)
             self.publish_counter.add(
-                amount=self._get_messages_count(msg),
+                amount=msg_count,
                 attributes=counter_attrs,
             )
 
     def observe_consume(
-        self, attrs: "AnyDict", duration: float, msg: "StreamMessage[Any]"
+        self, attrs: "AnyDict", duration: float, msg_count: int
     ) -> None:
         self.process_duration.record(
             amount=duration,
@@ -90,15 +92,9 @@ class _MetricsContainer:
             counter_attrs = copy(attrs)
             counter_attrs.pop(ERROR_TYPE, None)
             self.process_counter.add(
-                amount=self._get_messages_count(msg.decoded_body),
+                amount=msg_count,
                 attributes=counter_attrs,
             )
-
-    @staticmethod
-    def _get_messages_count(payload: Any) -> int:
-        if isinstance(payload, Sequence) and not isinstance(payload, str):
-            return len(payload)
-        return 1
 
 
 class BaseTelemetryMiddleware(BaseMiddleware):
@@ -173,7 +169,10 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 
         finally:
             duration = time.perf_counter() - start_time
-            self._metrics.observe_publish(metrics_attributes, duration, msg)
+            msg_count = trace_attributes.get(
+                SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT, 1
+            )
+            self._metrics.observe_publish(metrics_attributes, duration, msg_count)
 
         return result
 
@@ -228,7 +227,10 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 
         finally:
             duration = time.perf_counter() - start_time
-            self._metrics.observe_consume(metrics_attributes, duration, msg)
+            msg_count = trace_attributes.get(
+                SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT, 1
+            )
+            self._metrics.observe_consume(metrics_attributes, duration, msg_count)
 
         return result
 
