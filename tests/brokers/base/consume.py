@@ -231,6 +231,35 @@ class BrokerConsumeTestcase:
             assert event.is_set()
             mock.assert_called_once_with({"x": 1}, "100", consume_broker)
 
+    async def test_dynamic_sub(
+        self,
+        queue: str,
+        consume_broker: BrokerUsecase,
+        event: asyncio.Event,
+    ):
+        def subscriber(m):
+            event.set()
+
+        async with consume_broker:
+            await consume_broker.start()
+
+            sub = consume_broker.subscriber(queue, **self.subscriber_kwargs)
+            sub(subscriber)
+            consume_broker.setup_subscriber(sub)
+            await sub.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
+
+            await sub.close()
+
+        assert event.is_set()
+
 
 @pytest.mark.asyncio()
 class BrokerRealConsumeTestcase(BrokerConsumeTestcase):

@@ -1,4 +1,3 @@
-from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -18,7 +17,6 @@ from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
-from faststream.confluent.client import AsyncConfluentConsumer
 from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
 from faststream.confluent.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.exceptions import SetupError
@@ -1235,29 +1233,6 @@ class KafkaRegistrator(
         if not auto_commit and not group_id:
             raise SetupError("You should install `group_id` with manual commit mode")
 
-        builder = partial(
-            AsyncConfluentConsumer,
-            key_deserializer=key_deserializer,
-            value_deserializer=value_deserializer,
-            fetch_max_wait_ms=fetch_max_wait_ms,
-            fetch_max_bytes=fetch_max_bytes,
-            fetch_min_bytes=fetch_min_bytes,
-            max_partition_fetch_bytes=max_partition_fetch_bytes,
-            auto_offset_reset=auto_offset_reset,
-            enable_auto_commit=auto_commit,
-            auto_commit_interval_ms=auto_commit_interval_ms,
-            check_crcs=check_crcs,
-            partition_assignment_strategy=partition_assignment_strategy,
-            max_poll_interval_ms=max_poll_interval_ms,
-            rebalance_timeout_ms=rebalance_timeout_ms,
-            session_timeout_ms=session_timeout_ms,
-            heartbeat_interval_ms=heartbeat_interval_ms,
-            consumer_timeout_ms=consumer_timeout_ms,
-            max_poll_records=max_poll_records,
-            exclude_internal_topics=exclude_internal_topics,
-            isolation_level=isolation_level,
-        )
-
         subscriber = super().subscriber(
             AsyncAPISubscriber.create(
                 *topics,
@@ -1265,7 +1240,27 @@ class KafkaRegistrator(
                 batch_timeout_ms=batch_timeout_ms,
                 max_records=max_records,
                 group_id=group_id,
-                builder=builder,
+                connection_data={
+                    "key_deserializer": key_deserializer,
+                    "value_deserializer": value_deserializer,
+                    "fetch_max_wait_ms": fetch_max_wait_ms,
+                    "fetch_max_bytes": fetch_max_bytes,
+                    "fetch_min_bytes": fetch_min_bytes,
+                    "max_partition_fetch_bytes": max_partition_fetch_bytes,
+                    "auto_offset_reset": auto_offset_reset,
+                    "enable_auto_commit": auto_commit,
+                    "auto_commit_interval_ms": auto_commit_interval_ms,
+                    "check_crcs": check_crcs,
+                    "partition_assignment_strategy": partition_assignment_strategy,
+                    "max_poll_interval_ms": max_poll_interval_ms,
+                    "rebalance_timeout_ms": rebalance_timeout_ms,
+                    "session_timeout_ms": session_timeout_ms,
+                    "heartbeat_interval_ms": heartbeat_interval_ms,
+                    "consumer_timeout_ms": consumer_timeout_ms,
+                    "max_poll_records": max_poll_records,
+                    "exclude_internal_topics": exclude_internal_topics,
+                    "isolation_level": isolation_level,
+                },
                 is_manual=not auto_commit,
                 # subscriber args
                 no_ack=no_ack,

@@ -35,7 +35,6 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto
-    from faststream.kafka.schemas.params import ConsumerConnectionParams
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
@@ -45,7 +44,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     topics: Sequence[str]
     group_id: Optional[str]
 
+    builder: Optional[Callable[..., "AIOKafkaConsumer"]]
     consumer: Optional["AIOKafkaConsumer"]
+
     task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
     batch: bool
@@ -55,7 +56,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         *topics: str,
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., "AIOKafkaConsumer"],
+        connection_args: "AnyDict",
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
         partitions: Iterable["TopicPartition"],
@@ -86,10 +87,12 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             include_in_schema=include_in_schema,
         )
 
-        self.group_id = group_id
         self.topics = topics
+        self.partitions = partitions
+        self.group_id = group_id
+
         self.is_manual = is_manual
-        self.builder = builder
+        self.builder = None
         self.consumer = None
         self.task = None
 
@@ -97,15 +100,14 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.client_id = ""
         self.__pattern = pattern
         self.__listener = listener
-        self.partitions = partitions
-        self.__connection_args: "ConsumerConnectionParams" = {}
+        self.__connection_args = connection_args
 
     @override
     def setup(  # type: ignore[override]
         self,
         *,
         client_id: Optional[str],
-        connection_args: "ConsumerConnectionParams",
+        builder: Callable[..., "AIOKafkaConsumer"],
         # basic args
         logger: Optional["LoggerProto"],
         producer: Optional["ProducerProto"],
@@ -121,7 +123,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         _call_decorators: Iterable["Decorator"],
     ) -> None:
         self.client_id = client_id
-        self.__connection_args = connection_args
+        self.builder = builder
 
         super().setup(
             logger=logger,
@@ -138,6 +140,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
     async def start(self) -> None:
         """Start the consumer."""
+        assert self.builder, "You should setup subscriber at first."  # nosec B101
+
         self.consumer = consumer = self.builder(
             group_id=self.group_id,
             client_id=self.client_id,
@@ -192,7 +196,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         raise NotImplementedError()
 
     async def _consume(self) -> None:
-        assert self.consumer, "You should setup subscriber at first."  # nosec B101
+        assert self.consumer, "You should start subscriber at first."  # nosec B101
 
         connected = True
         while self.running:
@@ -286,8 +290,8 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
-        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -304,8 +308,8 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             group_id=group_id,
             listener=listener,
             pattern=pattern,
+            connection_args=connection_args,
             partitions=partitions,
-            builder=builder,
             is_manual=is_manual,
             # subscriber args
             default_parser=AioKafkaParser.parse_message,
@@ -336,8 +340,8 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
-        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -359,8 +363,8 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             group_id=group_id,
             listener=listener,
             pattern=pattern,
+            connection_args=connection_args,
             partitions=partitions,
-            builder=builder,
             is_manual=is_manual,
             # subscriber args
             default_parser=AioKafkaParser.parse_message_batch,
