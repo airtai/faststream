@@ -16,6 +16,7 @@ def stream(queue):
 @pytest.mark.nats()
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "nats"
+    include_messages_counters = True
     broker_class = NatsBroker
     telemetry_middleware_class = NatsTelemetryMiddleware
 

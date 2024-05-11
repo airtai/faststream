@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from opentelemetry.semconv.trace import SpanAttributes
 
 from faststream.opentelemetry import TelemetrySettingsProvider
+from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 
 if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
@@ -24,7 +25,7 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.message_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
-            "messaging.destination_publish.name": msg.raw_message["channel"],
+            MESSAGING_DESTINATION_PUBLISH_NAME: msg.raw_message["channel"],
         }
 
     def get_consume_destination_name(

@@ -8,6 +8,7 @@ from opentelemetry.trace import SpanKind
 
 from faststream.confluent import KafkaBroker
 from faststream.confluent.opentelemetry import KafkaTelemetryMiddleware
+from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 from faststream.opentelemetry.middleware import MessageAction as Action
 from tests.brokers.confluent.test_consume import TestConsume
 from tests.brokers.confluent.test_publish import TestPublish
@@ -18,6 +19,7 @@ from ..basic import LocalTelemetryTestcase
 @pytest.mark.confluent()
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "kafka"
+    include_messages_counters = True
     timeout: int = 10
     subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
     broker_class = KafkaBroker
@@ -41,7 +43,7 @@ class TestTelemetry(LocalTelemetryTestcase):
             assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == queue
 
         if span.kind == SpanKind.CONSUMER and action in (Action.CREATE, Action.PROCESS):
-            assert attrs["messaging.destination_publish.name"] == queue
+            assert attrs[MESSAGING_DESTINATION_PUBLISH_NAME] == queue
             assert attrs[SpanAttr.MESSAGING_MESSAGE_ID] == IsStr(regex=r"0-.+")
             assert attrs[SpanAttr.MESSAGING_KAFKA_DESTINATION_PARTITION] == 0
             assert attrs[SpanAttr.MESSAGING_KAFKA_MESSAGE_OFFSET] == 0

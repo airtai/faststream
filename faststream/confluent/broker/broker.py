@@ -407,7 +407,6 @@ class KafkaBroker(
             apply_types=apply_types,
             validate=validate,
         )
-
         self.client_id = client_id
         self._producer = None
 

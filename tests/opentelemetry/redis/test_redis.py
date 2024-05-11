@@ -15,6 +15,7 @@ from ..basic import LocalTelemetryTestcase
 @pytest.mark.redis()
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "redis"
+    include_messages_counters = False
     broker_class = RedisBroker
     telemetry_middleware_class = RedisTelemetryMiddleware
 

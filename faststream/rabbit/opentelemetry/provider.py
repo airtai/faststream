@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from opentelemetry.semconv.trace import SpanAttributes
 
 from faststream.opentelemetry import TelemetrySettingsProvider
+from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage
@@ -28,7 +29,7 @@ class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
             SpanAttributes.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY: msg.raw_message.routing_key,
             "messaging.rabbitmq.message.delivery_tag": msg.raw_message.delivery_tag,
-            "messaging.destination_publish.name": msg.raw_message.exchange,
+            MESSAGING_DESTINATION_PUBLISH_NAME: msg.raw_message.exchange,
         }
 
     @staticmethod
