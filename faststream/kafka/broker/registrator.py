@@ -1,4 +1,3 @@
-from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -14,13 +13,12 @@ from typing import (
     overload,
 )
 
-from aiokafka import AIOKafkaConsumer, ConsumerRecord
+from aiokafka import ConsumerRecord
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
-from faststream.exceptions import SetupError
 from faststream.kafka.publisher.asyncapi import AsyncAPIPublisher
 from faststream.kafka.subscriber.asyncapi import AsyncAPISubscriber
 
@@ -1395,32 +1393,6 @@ class KafkaRegistrator(
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIBatchSubscriber",
     ]:
-        if not auto_commit and not group_id:
-            raise SetupError("You should install `group_id` with manual commit mode")
-
-        builder = partial(
-            AIOKafkaConsumer,
-            key_deserializer=key_deserializer,
-            value_deserializer=value_deserializer,
-            fetch_max_wait_ms=fetch_max_wait_ms,
-            fetch_max_bytes=fetch_max_bytes,
-            fetch_min_bytes=fetch_min_bytes,
-            max_partition_fetch_bytes=max_partition_fetch_bytes,
-            auto_offset_reset=auto_offset_reset,
-            enable_auto_commit=auto_commit,
-            auto_commit_interval_ms=auto_commit_interval_ms,
-            check_crcs=check_crcs,
-            partition_assignment_strategy=partition_assignment_strategy,
-            max_poll_interval_ms=max_poll_interval_ms,
-            rebalance_timeout_ms=rebalance_timeout_ms,
-            session_timeout_ms=session_timeout_ms,
-            heartbeat_interval_ms=heartbeat_interval_ms,
-            consumer_timeout_ms=consumer_timeout_ms,
-            max_poll_records=max_poll_records,
-            exclude_internal_topics=exclude_internal_topics,
-            isolation_level=isolation_level,
-        )
-
         subscriber = super().subscriber(
             AsyncAPISubscriber.create(
                 *topics,
@@ -1430,8 +1402,28 @@ class KafkaRegistrator(
                 group_id=group_id,
                 listener=listener,
                 pattern=pattern,
+                connection_args={
+                    "key_deserializer": key_deserializer,
+                    "value_deserializer": value_deserializer,
+                    "fetch_max_wait_ms": fetch_max_wait_ms,
+                    "fetch_max_bytes": fetch_max_bytes,
+                    "fetch_min_bytes": fetch_min_bytes,
+                    "max_partition_fetch_bytes": max_partition_fetch_bytes,
+                    "auto_offset_reset": auto_offset_reset,
+                    "enable_auto_commit": auto_commit,
+                    "auto_commit_interval_ms": auto_commit_interval_ms,
+                    "check_crcs": check_crcs,
+                    "partition_assignment_strategy": partition_assignment_strategy,
+                    "max_poll_interval_ms": max_poll_interval_ms,
+                    "rebalance_timeout_ms": rebalance_timeout_ms,
+                    "session_timeout_ms": session_timeout_ms,
+                    "heartbeat_interval_ms": heartbeat_interval_ms,
+                    "consumer_timeout_ms": consumer_timeout_ms,
+                    "max_poll_records": max_poll_records,
+                    "exclude_internal_topics": exclude_internal_topics,
+                    "isolation_level": isolation_level,
+                },
                 partitions=partitions,
-                builder=builder,
                 is_manual=not auto_commit,
                 # subscriber args
                 no_ack=no_ack,

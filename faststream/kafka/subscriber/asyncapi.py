@@ -1,6 +1,5 @@
 from typing import (
     TYPE_CHECKING,
-    Callable,
     Dict,
     Iterable,
     Literal,
@@ -30,11 +29,12 @@ from faststream.kafka.subscriber.usecase import (
 )
 
 if TYPE_CHECKING:
-    from aiokafka import AIOKafkaConsumer, ConsumerRecord, TopicPartition
+    from aiokafka import ConsumerRecord, TopicPartition
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import BrokerMiddleware
+    from faststream.types import AnyDict
 
 
 class AsyncAPISubscriber(LogicSubscriber[MsgType]):
@@ -80,8 +80,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
-        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -105,8 +105,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
-        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -130,8 +130,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
-        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -160,8 +160,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
+        connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
-        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -178,6 +178,9 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIBatchSubscriber",
     ]:
+        if is_manual and not group_id:
+            raise SetupError("You should install `group_id` with manual commit mode")
+
         if not topics and not partitions and not pattern:
             raise SetupError(
                 "You should provide either `topics` or `partitions` or `pattern`."
@@ -197,8 +200,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
                 group_id=group_id,
                 listener=listener,
                 pattern=pattern,
+                connection_args=connection_args,
                 partitions=partitions,
-                builder=builder,
                 is_manual=is_manual,
                 no_ack=no_ack,
                 retry=retry,
@@ -214,8 +217,8 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
                 group_id=group_id,
                 listener=listener,
                 pattern=pattern,
+                connection_args=connection_args,
                 partitions=partitions,
-                builder=builder,
                 is_manual=is_manual,
                 no_ack=no_ack,
                 retry=retry,
