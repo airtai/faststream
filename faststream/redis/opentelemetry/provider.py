@@ -20,13 +20,18 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
         self,
         msg: "StreamMessage[AnyDict]",
     ) -> "AnyDict":
-        return {
+        attrs = {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.message_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(msg.body),
             MESSAGING_DESTINATION_PUBLISH_NAME: msg.raw_message["channel"],
         }
+
+        if msg.raw_message.get("type", "").startswith("b"):
+            attrs[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = len(msg.decoded_body)
+
+        return attrs
 
     def get_consume_destination_name(
         self,
