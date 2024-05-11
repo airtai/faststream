@@ -1,8 +1,13 @@
+import asyncio
 from typing import Any, ClassVar, Dict, Optional
+from unittest.mock import Mock
 
 import pytest
 from dirty_equals import IsStr, IsUUID
-from opentelemetry.sdk.trace import Span
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import InMemoryMetricReader
+from opentelemetry.sdk.trace import Span, TracerProvider
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind
 
@@ -57,6 +62,54 @@ class TestTelemetry(LocalTelemetryTestcase):
 
         if parent_span_id:
             assert span.parent.span_id == parent_span_id
+
+    async def test_batch(
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+        meter_provider: MeterProvider,
+        metric_reader: InMemoryMetricReader,
+        tracer_provider: TracerProvider,
+        trace_exporter: InMemorySpanExporter,
+    ):
+        mid = self.telemetry_middleware_class(
+            meter_provider=meter_provider, tracer_provider=tracer_provider
+        )
+        broker = self.broker_class(middlewares=(mid,))
+        expected_msg_count = 3
+
+        @broker.subscriber(queue, batch=True, **self.subscriber_kwargs)
+        async def handler(m):
+            mock(m)
+            event.set()
+
+        broker = self.patch_broker(broker)
+
+        async with broker:
+            await broker.start()
+            tasks = (
+                asyncio.create_task(broker.publish_batch(1, "hi", 3, topic=queue)),
+                asyncio.create_task(event.wait()),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
+
+        metrics = self.get_metrics(metric_reader)
+        spans = self.get_spans(trace_exporter)
+        _, publish, process = spans
+
+        assert (
+            publish.attributes[SpanAttr.MESSAGING_BATCH_MESSAGE_COUNT]
+            == expected_msg_count
+        )
+        assert (
+            process.attributes[SpanAttr.MESSAGING_BATCH_MESSAGE_COUNT]
+            == expected_msg_count
+        )
+        self.assert_metrics(metrics, count=expected_msg_count)
+
+        assert event.is_set()
+        mock.assert_called_once_with([1, "hi", 3])
 
 
 @pytest.mark.confluent()

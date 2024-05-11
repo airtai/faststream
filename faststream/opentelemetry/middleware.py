@@ -133,6 +133,10 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             SpanAttributes.MESSAGING_DESTINATION_NAME: destination_name,
         }
 
+        # NOTE: if batch with single message?
+        if (msg_count := len((msg, *args))) > 1:
+            trace_attributes[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = msg_count
+
         if self._current_span and self._current_span.is_recording():
             current_context = trace.set_span_in_context(
                 self._current_span, current_context
@@ -169,9 +173,6 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 
         finally:
             duration = time.perf_counter() - start_time
-            msg_count = trace_attributes.get(
-                SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT, 1
-            )
             self._metrics.observe_publish(metrics_attributes, duration, msg_count)
 
         return result

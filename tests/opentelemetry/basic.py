@@ -131,7 +131,7 @@ class LocalTelemetryTestcase:
     def assert_metrics(
         self,
         metrics: List[Metric],
-        count: int,
+        count: int = 1,
         error_type: Optional[str] = None,
     ) -> None:
         if self.include_messages_counters:
@@ -313,7 +313,7 @@ class LocalTelemetryTestcase:
 
         metrics = self.get_metrics(metric_reader)
 
-        self.assert_metrics(metrics, 1)
+        self.assert_metrics(metrics)
 
         assert event.is_set()
         mock.assert_called_once_with(msg)
@@ -351,7 +351,7 @@ class LocalTelemetryTestcase:
 
         metrics = self.get_metrics(metric_reader)
 
-        self.assert_metrics(metrics, 1, expected_value_type)
+        self.assert_metrics(metrics, error_type=expected_value_type)
 
         assert event.is_set()
         mock.assert_called_once_with(msg)
