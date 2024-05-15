@@ -270,6 +270,55 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         mock.start.assert_called_once()
         mock.end.assert_called_once()
 
+    async def test_add_global_middleware(
+        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker,
+    ):
+        class mid(BaseMiddleware):  # noqa: N801
+            async def on_receive(self):
+                mock.start(self.msg)
+                return await super().on_receive()
+
+            async def after_processed(self, exc_type, exc_val, exc_tb):
+                mock.end()
+                return await super().after_processed(exc_type, exc_val, exc_tb)
+
+        broker = self.broker_class()
+
+        # already registered subscriber
+        @broker.subscriber(queue, **self.subscriber_kwargs)
+        async def handler(m):
+            event.set()
+            return ""
+
+        # should affect to already registered and a new subscriber both
+        broker.add_middleware(mid)
+
+        event2 = asyncio.Event()
+
+        # new subscriber
+        @broker.subscriber(f"{queue}1", **self.subscriber_kwargs)
+        async def handler2(m):
+            event2.set()
+            return ""
+
+        broker = self.patch_broker(raw_broker, broker)
+
+        async with broker:
+            await broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(broker.publish("", f"{queue}1")),
+                    asyncio.create_task(event.wait()),
+                    asyncio.create_task(event2.wait()),
+                ),
+                timeout=self.timeout,
+            )
+
+        assert event.is_set()
+        assert mock.start.call_count == 2
+        assert mock.end.call_count == 2
+
     async def test_patch_publish(self, queue: str, mock: Mock, event, raw_broker):
         class Mid(BaseMiddleware):
             async def on_publish(self, msg: str, *args, **kwargs) -> str:

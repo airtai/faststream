@@ -1,6 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Any,
+    Dict,
     Mapping,
     Optional,
     Sequence,
@@ -183,9 +184,13 @@ class RedisBatchListParser(SimpleParser):
 
     @staticmethod
     def _parse_data(message: Mapping[str, Any]) -> Tuple[bytes, "AnyDict"]:
+        data = [_decode_batch_body_item(x) for x in message["data"]]
         return (
-            dump_json(_decode_batch_body_item(x) for x in message["data"]),
-            {"content-type": ContentTypes.json},
+            dump_json(i[0] for i in data),
+            {
+                **data[0][1],
+                "content-type": ContentTypes.json,
+            },
         )
 
 
@@ -203,17 +208,19 @@ class RedisBatchStreamParser(SimpleParser):
 
     @staticmethod
     def _parse_data(message: Mapping[str, Any]) -> Tuple[bytes, "AnyDict"]:
+        data = [_decode_batch_body_item(x.get(bDATA_KEY, x)) for x in message["data"]]
         return (
-            dump_json(
-                _decode_batch_body_item(x.get(bDATA_KEY, x)) for x in message["data"]
-            ),
-            {"content-type": ContentTypes.json},
+            dump_json(i[0] for i in data),
+            {
+                **data[0][1],
+                "content-type": ContentTypes.json,
+            },
         )
 
 
-def _decode_batch_body_item(msg_content: bytes) -> Any:
-    msg_body, _ = RawMessage.parse(msg_content)
+def _decode_batch_body_item(msg_content: bytes) -> Tuple[Any, Dict[str, str]]:
+    msg_body, headers = RawMessage.parse(msg_content)
     try:
-        return json_loads(msg_body)
+        return json_loads(msg_body), headers
     except Exception:
-        return msg_body
+        return msg_body, headers

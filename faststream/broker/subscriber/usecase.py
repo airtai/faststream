@@ -131,6 +131,9 @@ class SubscriberUsecase(
         self.description_ = description_
         self.include_in_schema = include_in_schema
 
+    def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
+        self._broker_middlewares = (*self._broker_middlewares, middleware)
+
     @override
     def setup(  # type: ignore[override]
         self,

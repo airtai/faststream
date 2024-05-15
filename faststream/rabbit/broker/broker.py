@@ -100,6 +100,26 @@ class RabbitBroker(
             "TimeoutType",
             Doc("Connection establishement timeout."),
         ] = None,
+        # channel args
+        channel_number: Annotated[
+            Optional[int],
+            Doc("Specify the channel number explicit."),
+        ] = None,
+        publisher_confirms: Annotated[
+            bool,
+            Doc(
+                "if `True` the `publish` method will "
+                "return `bool` type after publish is complete."
+                "Otherwise it will returns `None`."
+            ),
+        ] = True,
+        on_return_raises: Annotated[
+            bool,
+            Doc(
+                "raise an :class:`aio_pika.exceptions.DeliveryError`"
+                "when mandatory message will be returned"
+            )
+        ] = False,
         # broker args
         max_consumers: Annotated[
             Optional[int],
@@ -220,6 +240,10 @@ class RabbitBroker(
             url=str(amqp_url),
             ssl_context=security_args.get("ssl_context"),
             timeout=timeout,
+            # channel args
+            channel_number=channel_number,
+            publisher_confirms=publisher_confirms,
+            on_return_raises=on_return_raises,
             # Basic args
             graceful_timeout=graceful_timeout,
             dependencies=dependencies,
@@ -303,12 +327,41 @@ class RabbitBroker(
             "TimeoutType",
             Doc("Connection establishement timeout."),
         ] = None,
+        # channel args
+        channel_number: Annotated[
+            Union[int, None, object],
+            Doc("Specify the channel number explicit."),
+        ] = Parameter.empty,
+        publisher_confirms: Annotated[
+            Union[bool, object],
+            Doc(
+                "if `True` the `publish` method will "
+                "return `bool` type after publish is complete."
+                "Otherwise it will returns `None`."
+            ),
+        ] = Parameter.empty,
+        on_return_raises: Annotated[
+            Union[bool, object],
+            Doc(
+                "raise an :class:`aio_pika.exceptions.DeliveryError`"
+                "when mandatory message will be returned"
+            )
+        ] = Parameter.empty,
     ) -> "RobustConnection":
         """Connect broker object to RabbitMQ.
 
         To startup subscribers too you should use `broker.start()` after/instead this method.
         """
         kwargs: AnyDict = {}
+
+        if channel_number is not Parameter.empty:
+            kwargs["channel_number"] = channel_number
+
+        if publisher_confirms is not Parameter.empty:
+            kwargs["publisher_confirms"] = publisher_confirms
+
+        if on_return_raises is not Parameter.empty:
+            kwargs["on_return_raises"] = on_return_raises
 
         if timeout:
             kwargs["timeout"] = timeout
@@ -346,6 +399,9 @@ class RabbitBroker(
         *,
         timeout: "TimeoutType",
         ssl_context: Optional["SSLContext"],
+        channel_number: Optional[int],
+        publisher_confirms: bool,
+        on_return_raises: bool,
     ) -> "RobustConnection":
         connection = cast(
             "RobustConnection",
@@ -360,7 +416,11 @@ class RabbitBroker(
             max_consumers = self._max_consumers
             channel = self._channel = cast(
                 "RobustChannel",
-                await connection.channel(),
+                await connection.channel(
+                    channel_number=channel_number,
+                    publisher_confirms=publisher_confirms,
+                    on_return_raises=on_return_raises,
+                ),
             )
 
             declarer = self.declarer = RabbitDeclarer(channel)

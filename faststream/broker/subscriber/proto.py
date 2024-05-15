@@ -35,6 +35,10 @@ class SubscriberProto(
     _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
     _producer: Optional["ProducerProto"]
 
+    @abstractmethod
+    def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
+        ...
+
     @staticmethod
     @abstractmethod
     def create() -> "SubscriberProto[MsgType]":

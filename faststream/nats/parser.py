@@ -104,13 +104,17 @@ class BatchParser(JsParser):
     ) -> "StreamMessage[List[Msg]]":
         if first_msg := next(iter(message), None):
             path = self.get_path(first_msg.subject)
+            headers = first_msg.headers
+
         else:
             path = None
+            headers = None
 
         return NatsBatchMessage(
             raw_message=message,
             body=[m.data for m in message],
             path=path or {},
+            headers=headers or {},
         )
 
     async def decode_batch(

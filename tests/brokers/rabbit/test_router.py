@@ -139,6 +139,39 @@ class TestRouter(RouterTestcase):
 
             assert event.is_set()
 
+    async def test_queue_obj_with_routing_key(
+        self,
+        router: RabbitRouter,
+        broker: RabbitBroker,
+        queue: str,
+        event: asyncio.Event,
+    ):
+        router.prefix = "test/"
+
+        r_queue = RabbitQueue("useless", routing_key=f"{queue}1")
+        exchange = RabbitExchange(f"{queue}exch")
+
+        @router.subscriber(r_queue, exchange=exchange)
+        def subscriber(m):
+            event.set()
+
+        broker.include_router(router)
+
+        async with broker:
+            await broker.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        broker.publish("hello", f"test/{queue}1", exchange=exchange)
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+            assert event.is_set()
+
     async def test_delayed_handlers_with_queue(
         self,
         event: asyncio.Event,
