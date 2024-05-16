@@ -1,4 +1,3 @@
-from copy import deepcopy
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -223,6 +222,4 @@ class LogicSubscriber(
 
     def add_prefix(self, prefix: str) -> None:
         """Include Subscriber in router."""
-        new_q = deepcopy(self.queue)
-        new_q.name = "".join((prefix, new_q.name))
-        self.queue = new_q
+        self.queue = self.queue.add_prefix(prefix)

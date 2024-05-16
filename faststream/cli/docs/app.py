@@ -45,8 +45,7 @@ def serve(
         ),
     ),
     is_factory: bool = typer.Option(
-        False,
-        "--factory", help="Treat APP as an application factory"
+        False, "--factory", help="Treat APP as an application factory"
     ),
 ) -> None:
     """Serve project AsyncAPI schema."""
@@ -110,7 +109,8 @@ def gen(
     ),
     is_factory: bool = typer.Option(
         False,
-        "--factory", help="Treat APP as an application factory"
+        "--factory",
+        help="Treat APP as an application factory",
     ),
 ) -> None:
     """Generate project AsyncAPI schema."""

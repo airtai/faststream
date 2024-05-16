@@ -76,9 +76,9 @@ redis = ["redis>=5.0.0,<6.0.0"]
 # dev dependencies
 devdocs = [
     "mkdocs-material==9.5.21",
-    "mkdocs-static-i18n==1.2.2",
+    "mkdocs-static-i18n==1.2.3",
     "mdx-include==1.4.2",
-    "mkdocstrings[python]==0.25.0",
+    "mkdocstrings[python]==0.25.1",
     "mkdocs-literate-nav==0.6.1",
     "mkdocs-git-revision-date-localized-plugin==1.2.5",
     "mike==2.1.1",                                      # versioning
@@ -106,14 +106,14 @@ types = [
 
 lint = [
     "faststream[types]",
-    "ruff==0.4.3",
+    "ruff==0.4.4",
     "bandit==1.7.8",
     "semgrep==1.70.0",
     "codespell==2.2.6",
 ]
 
 test-core = [
-    "coverage[toml]==7.4.4",
+    "coverage[toml]==7.5.1",
     "pytest==8.2.0",
     "pytest-asyncio==0.23.6",
     "dirty-equals==0.7.1.post0",
@@ -133,7 +133,7 @@ dev = [
     "faststream[rabbit,kafka,confluent,nats,redis,lint,testing,devdocs]",
     "pre-commit==3.5.0; python_version < '3.9'",
     "pre-commit==3.7.0; python_version >= '3.9'",
-    "detect-secrets==1.4.0",
+    "detect-secrets==1.5.0",
 ]
 
 [project.urls]

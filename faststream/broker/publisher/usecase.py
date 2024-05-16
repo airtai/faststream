@@ -19,7 +19,12 @@ from faststream.asyncapi.abc import AsyncAPIOperation
 from faststream.asyncapi.message import get_response_schema
 from faststream.asyncapi.utils import to_camelcase
 from faststream.broker.publisher.proto import PublisherProto
-from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
+from faststream.broker.types import (
+    BrokerMiddleware,
+    MsgType,
+    P_HandlerParams,
+    T_HandlerReturn,
+)
 from faststream.broker.wrapper.call import HandlerCallWrapper
 
 if TYPE_CHECKING:
@@ -86,6 +91,9 @@ class PublisherUsecase(
         self.description_ = description_
         self.include_in_schema = include_in_schema
         self.schema_ = schema_
+
+    def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
+        self._broker_middlewares = (*self._broker_middlewares, middleware)
 
     @override
     def setup(  # type: ignore[override]

@@ -96,6 +96,26 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             "TimeoutType",
             Doc("Connection establishement timeout."),
         ] = None,
+        # channel args
+        channel_number: Annotated[
+            Optional[int],
+            Doc("Specify the channel number explicit."),
+        ] = None,
+        publisher_confirms: Annotated[
+            bool,
+            Doc(
+                "if `True` the `publish` method will "
+                "return `bool` type after publish is complete."
+                "Otherwise it will returns `None`."
+            ),
+        ] = True,
+        on_return_raises: Annotated[
+            bool,
+            Doc(
+                "raise an :class:`aio_pika.exceptions.DeliveryError`"
+                "when mandatory message will be returned"
+            ),
+        ] = False,
         # broker args
         max_consumers: Annotated[
             Optional[int],
@@ -408,6 +428,9 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             graceful_timeout=graceful_timeout,
             decoder=decoder,
             parser=parser,
+            channel_number=channel_number,
+            publisher_confirms=publisher_confirms,
+            on_return_raises=on_return_raises,
             middlewares=middlewares,
             security=security,
             asyncapi_url=asyncapi_url,
