@@ -118,7 +118,7 @@ class RabbitBroker(
             Doc(
                 "raise an :class:`aio_pika.exceptions.DeliveryError`"
                 "when mandatory message will be returned"
-            )
+            ),
         ] = False,
         # broker args
         max_consumers: Annotated[
@@ -345,7 +345,7 @@ class RabbitBroker(
             Doc(
                 "raise an :class:`aio_pika.exceptions.DeliveryError`"
                 "when mandatory message will be returned"
-            )
+            ),
         ] = Parameter.empty,
     ) -> "RobustConnection":
         """Connect broker object to RabbitMQ.

@@ -271,7 +271,11 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         mock.end.assert_called_once()
 
     async def test_add_global_middleware(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker,
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+        raw_broker,
     ):
         class mid(BaseMiddleware):  # noqa: N801
             async def on_receive(self):

@@ -6,6 +6,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
+    List,
     Optional,
     Sequence,
     Tuple,
@@ -38,6 +39,7 @@ class StreamMessage(Generic[MsgType]):
 
     body: Union[bytes, Any]
     headers: "AnyDict" = field(default_factory=dict)
+    batch_headers: List["AnyDict"] = field(default_factory=list)
     path: "AnyDict" = field(default_factory=dict)
 
     content_type: Optional[str] = None

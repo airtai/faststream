@@ -114,7 +114,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Doc(
                 "raise an :class:`aio_pika.exceptions.DeliveryError`"
                 "when mandatory message will be returned"
-            )
+            ),
         ] = False,
         # broker args
         max_consumers: Annotated[

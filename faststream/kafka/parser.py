@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 from faststream.broker.message import decode_message, gen_cor_id
 from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
@@ -39,13 +39,24 @@ class AioKafkaParser:
         message: Tuple["ConsumerRecord", ...],
     ) -> "StreamMessage[Tuple[ConsumerRecord, ...]]":
         """Parses a batch of messages from a Kafka consumer."""
+        body: List[Any] = []
+        batch_headers: List[Dict[str, str]] = []
+
         first = message[0]
         last = message[-1]
-        headers = {i: j.decode() for i, j in first.headers}
+
+        for m in message:
+            body.append(m.value)
+            batch_headers.append({i: j.decode() for i, j in m.headers})
+
+        headers = next(iter(batch_headers), {})
+
         handler: Optional["LogicSubscriber[Any]"] = context.get_local("handler_")
+
         return KafkaMessage(
-            body=[m.value for m in message],
+            body=body,
             headers=headers,
+            batch_headers=batch_headers,
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
             message_id=f"{first.offset}-{last.offset}-{first.timestamp}",

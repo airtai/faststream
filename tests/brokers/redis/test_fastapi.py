@@ -86,7 +86,7 @@ class TestRouter(FastAPITestcase):
     ):
         router = RedisRouter()
 
-        @router.subscriber(stream=StreamSub(queue, polling_interval=3000))
+        @router.subscriber(stream=StreamSub(queue, polling_interval=10))
         async def handler(msg):
             mock(msg)
             event.set()
@@ -114,7 +114,7 @@ class TestRouter(FastAPITestcase):
     ):
         router = RedisRouter()
 
-        @router.subscriber(stream=StreamSub(queue, polling_interval=3000, batch=True))
+        @router.subscriber(stream=StreamSub(queue, polling_interval=10, batch=True))
         async def handler(msg: List[str]):
             mock(msg)
             event.set()

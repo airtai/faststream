@@ -96,7 +96,6 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
         mock.assert_called_once_with([b"hello"])
 
-    @pytest.mark.asyncio()
     async def test_consume_ack(
         self,
         queue: str,
@@ -127,7 +126,6 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio()
     async def test_consume_ack_manual(
         self,
         queue: str,
@@ -159,7 +157,6 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio()
     async def test_consume_ack_raise(
         self,
         queue: str,
@@ -191,7 +188,6 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio()
     async def test_nack(
         self,
         queue: str,
@@ -223,7 +219,6 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio()
     async def test_consume_no_ack(
         self, queue: str, full_broker: NatsBroker, event: asyncio.Event
     ):
@@ -248,3 +243,41 @@ class TestConsume(BrokerRealConsumeTestcase):
             m.mock.assert_not_called()
 
         assert event.is_set()
+
+    async def test_consume_batch_headers(
+        self,
+        queue: str,
+        full_broker: NatsBroker,
+        stream: JStream,
+        event: asyncio.Event,
+        mock,
+    ):
+        @full_broker.subscriber(
+            queue,
+            stream=stream,
+            pull_sub=PullSub(1, batch=True),
+        )
+        def subscriber(m, msg: NatsMessage):
+            check = all(
+                (
+                    msg.headers,
+                    [msg.headers] == msg.batch_headers,
+                    msg.headers.get("custom") == "1",
+                )
+            )
+            mock(check)
+            event.set()
+
+        await full_broker.start()
+        await asyncio.wait(
+            (
+                asyncio.create_task(
+                    full_broker.publish("", queue, headers={"custom": "1"})
+                ),
+                asyncio.create_task(event.wait()),
+            ),
+            timeout=3,
+        )
+
+        assert event.is_set()
+        mock.assert_called_once_with(True)

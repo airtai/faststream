@@ -210,8 +210,7 @@ def publish(
     message: str = typer.Argument(..., help="Message to be published"),
     rpc: bool = typer.Option(False, help="Enable RPC mode and system output"),
     is_factory: bool = typer.Option(
-        False,
-        "--factory", help="Treat APP as an application factory"
+        False, "--factory", help="Treat APP as an application factory"
     ),
 ) -> None:
     """Publish a message using the specified broker in a FastStream application.
