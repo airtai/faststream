@@ -12,6 +12,24 @@ hide:
 ---
 
 # Release Notes
+## 0.5.6
+
+### What's Changed
+
+* feature: add --factory param by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1440](https://github.com/airtai/faststream/pull/1440){.external-link target="_blank"}
+* feat: add RMQ channels options, support for prefix for routing_key, a… by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1448](https://github.com/airtai/faststream/pull/1448){.external-link target="_blank"}
+* feature: Add `from faststream.rabbit.annotations import Connection, Channel` shortcuts
+* Bugfix: RabbitMQ RabbitRouter prefix now affects to queue routing key as well
+* Feature (close #1402): add `broker.add_middleware` public API to append a middleware to already created broker
+* Feature: add `RabbitBroker(channel_number: int, publisher_confirms: bool, on_return_raises: bool)` options to setup channel settings
+* Feature (close #1447): add `StreamMessage.batch_headers` attribute to provide with access to whole batch messages headers
+
+### New Contributors
+
+* [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} made their first contribution in [#1440](https://github.com/airtai/faststream/pull/1440){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.5...0.5.6](https://github.com/airtai/faststream/compare/0.5.5...0.5.6){.external-link target="_blank"}
+
 ## 0.5.5
 
 ### What's Changed
