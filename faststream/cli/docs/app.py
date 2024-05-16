@@ -108,7 +108,9 @@ def gen(
         ),
     ),
     is_factory: bool = typer.Option(
-        False, "--factory", help="Treat APP as an application factory"
+        False,
+        "--factory",
+        help="Treat APP as an application factory",
     ),
 ) -> None:
     """Generate project AsyncAPI schema."""
