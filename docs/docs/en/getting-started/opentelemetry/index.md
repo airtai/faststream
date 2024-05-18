@@ -17,13 +17,55 @@ search:
 Tracing is a form of observability that tracks the flow of requests as they move through various services in a distributed system. It provides insights into the interactions between services, highlighting performance bottlenecks and errors. The result of implementing tracing is a detailed map of the service interactions, often visualized as a trace diagram. This helps developers understand the behavior and performance of their applications. For an in-depth explanation, refer to the [OpenTelemetry tracing specification](https://opentelemetry.io/docs/concepts/signals/traces/){.external-link target="_blank"}.
 
 ![HTML-page](../../../assets/img/simple-trace.png){ loading=lazy }
+`Visualized via Grafana and Tempo`
 
+This trace is derived from this relationship between handlers:
+
+```python linenums="1"
+@broker.subscriber("first")
+@broker.publisher("second")
+async def first_handler(msg: str):
+    await asyncio.sleep(0.1)
+    return msg
+
+
+@broker.subscriber("second")
+@broker.publisher("third")
+async def second_handler(msg: str):
+    await asyncio.sleep(0.05)
+    return msg
+
+
+@broker.subscriber("third")
+async def third_handler(msg: str):
+    await asyncio.sleep(0.075)
+```
 
 ## FastStream Tracing
 
 **OpenTelemetry** tracing support in **FastStream** adheres to the [semantic conventions for messaging systems](https://opentelemetry.io/docs/specs/semconv/messaging/){.external-link target="_blank"}.
 
-Just add `TelemetryMiddleware` to your broker:
+To add a trace to your broker, you need to:
+
+1. Install `FastStream` with `opentelemetry-sdk`
+
+```shell
+pip install faststream[otel]
+```
+
+2. Configure `TracerProvider`
+
+```python linenums="1" hl_lines="5-7"
+from opentelemetry import trace
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+
+resource = Resource.create(attributes={"service.name": "faststream"})
+tracer_provider = TracerProvider(resource=resource)
+trace.set_tracer_provider(tracer_provider)
+```
+
+3. Add `TelemetryMiddleware` to your broker
 
 {! includes/getting_started/opentelemetry/1.md !}
 
@@ -39,16 +81,10 @@ There are other exporters.
 
 Configuring the export of traces via `opentelemetry-exporter-otlp`:
 
-```python linenums="1" hl_lines="10-12"
-from opentelemetry import trace
+```python linenums="1" hl_lines="4-6"
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-resource = Resource.create(attributes={"service.name": "faststream"})
-tracer_provider = TracerProvider(resource=resource)
-trace.set_tracer_provider(tracer_provider)
 exporter = OTLPSpanExporter(endpoint="http://127.0.0.1:4317")
 processor = BatchSpanProcessor(exporter)
 tracer_provider.add_span_processor(processor)
@@ -66,4 +102,13 @@ To visualize traces, you can send them to a backend system that supports distrib
 
 To see how to set up, visualize, and configure tracing for **FastStream** services, go to [example](https://github.com/draincoder/faststream-monitoring){.external-link target="_blank"}.
 
+An example includes:
+
+* Three `FastStream` services
+* Exporting traces to `Grafana Tempo` via `gRPC`
+* Visualization of traces via `Grafana`
+* Examples with custom spans
+* Configured `docker-compose` with the entire infrastructure
+
 ![HTML-page](../../../assets/img/distributed-trace.png){ loading=lazy }
+`Visualized via Grafana and Tempo`
