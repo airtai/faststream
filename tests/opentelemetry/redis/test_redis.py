@@ -60,7 +60,7 @@ class TestTelemetry(LocalTelemetryTestcase):
 
         metrics = self.get_metrics(metric_reader)
         spans = self.get_spans(trace_exporter)
-        _, publish, _, process = spans
+        _, publish, process = spans
 
         assert (
             publish.attributes[SpanAttr.MESSAGING_BATCH_MESSAGE_COUNT]
