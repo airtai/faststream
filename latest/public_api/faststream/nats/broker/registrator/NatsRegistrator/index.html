@@ -149,10 +149,10 @@
 <a id=__codelineno-0-107 name=__codelineno-0-107></a>                <span class=o>*</span><span class=n>middlewares</span><span class=p>,</span>
 <a id=__codelineno-0-108 name=__codelineno-0-108></a>                <span class=o>*</span><span class=n>h</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>,</span>
 <a id=__codelineno-0-109 name=__codelineno-0-109></a>            <span class=p>)</span>
-<a id=__codelineno-0-110 name=__codelineno-0-110></a>            <span class=n>h</span><span class=o>.</span><span class=n>_broker_dependecies</span> <span class=o>=</span> <span class=p>(</span>
+<a id=__codelineno-0-110 name=__codelineno-0-110></a>            <span class=n>h</span><span class=o>.</span><span class=n>_broker_dependencies</span> <span class=o>=</span> <span class=p>(</span>
 <a id=__codelineno-0-111 name=__codelineno-0-111></a>                <span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_dependencies</span><span class=p>,</span>
 <a id=__codelineno-0-112 name=__codelineno-0-112></a>                <span class=o>*</span><span class=n>dependencies</span><span class=p>,</span>
-<a id=__codelineno-0-113 name=__codelineno-0-113></a>                <span class=o>*</span><span class=n>h</span><span class=o>.</span><span class=n>_broker_dependecies</span><span class=p>,</span>
+<a id=__codelineno-0-113 name=__codelineno-0-113></a>                <span class=o>*</span><span class=n>h</span><span class=o>.</span><span class=n>_broker_dependencies</span><span class=p>,</span>
 <a id=__codelineno-0-114 name=__codelineno-0-114></a>            <span class=p>)</span>
 <a id=__codelineno-0-115 name=__codelineno-0-115></a>            <span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span> <span class=o>=</span> <span class=p>{</span><span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span><span class=p>,</span> <span class=n>key</span><span class=p>:</span> <span class=n>h</span><span class=p>}</span>
 <a id=__codelineno-0-116 name=__codelineno-0-116></a>
@@ -550,7 +550,7 @@
 <a id=__codelineno-0-190 name=__codelineno-0-190></a>    <span class=n>subscriber</span> <span class=o>=</span> <span class=n>cast</span><span class=p>(</span>
 <a id=__codelineno-0-191 name=__codelineno-0-191></a>        <span class=n>AsyncAPISubscriber</span><span class=p>,</span>
 <a id=__codelineno-0-192 name=__codelineno-0-192></a>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span>
-<a id=__codelineno-0-193 name=__codelineno-0-193></a>            <span class=n>AsyncAPISubscriber</span><span class=o>.</span><span class=n>create</span><span class=p>(</span>
+<a id=__codelineno-0-193 name=__codelineno-0-193></a>            <span class=n>AsyncAPISubscriber</span><span class=o>.</span><span class=n>create</span><span class=p>(</span>  <span class=c1># type: ignore[arg-type]</span>
 <a id=__codelineno-0-194 name=__codelineno-0-194></a>                <span class=n>subject</span><span class=o>=</span><span class=n>subject</span><span class=p>,</span>
 <a id=__codelineno-0-195 name=__codelineno-0-195></a>                <span class=n>queue</span><span class=o>=</span><span class=n>queue</span><span class=p>,</span>
 <a id=__codelineno-0-196 name=__codelineno-0-196></a>                <span class=n>stream</span><span class=o>=</span><span class=n>stream</span><span class=p>,</span>

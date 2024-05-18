@@ -217,10 +217,10 @@
 <a id=__codelineno-0-107 name=__codelineno-0-107></a>                <span class=o>*</span><span class=n>middlewares</span><span class=p>,</span>
 <a id=__codelineno-0-108 name=__codelineno-0-108></a>                <span class=o>*</span><span class=n>h</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>,</span>
 <a id=__codelineno-0-109 name=__codelineno-0-109></a>            <span class=p>)</span>
-<a id=__codelineno-0-110 name=__codelineno-0-110></a>            <span class=n>h</span><span class=o>.</span><span class=n>_broker_dependecies</span> <span class=o>=</span> <span class=p>(</span>
+<a id=__codelineno-0-110 name=__codelineno-0-110></a>            <span class=n>h</span><span class=o>.</span><span class=n>_broker_dependencies</span> <span class=o>=</span> <span class=p>(</span>
 <a id=__codelineno-0-111 name=__codelineno-0-111></a>                <span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_dependencies</span><span class=p>,</span>
 <a id=__codelineno-0-112 name=__codelineno-0-112></a>                <span class=o>*</span><span class=n>dependencies</span><span class=p>,</span>
-<a id=__codelineno-0-113 name=__codelineno-0-113></a>                <span class=o>*</span><span class=n>h</span><span class=o>.</span><span class=n>_broker_dependecies</span><span class=p>,</span>
+<a id=__codelineno-0-113 name=__codelineno-0-113></a>                <span class=o>*</span><span class=n>h</span><span class=o>.</span><span class=n>_broker_dependencies</span><span class=p>,</span>
 <a id=__codelineno-0-114 name=__codelineno-0-114></a>            <span class=p>)</span>
 <a id=__codelineno-0-115 name=__codelineno-0-115></a>            <span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span> <span class=o>=</span> <span class=p>{</span><span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>_subscribers</span><span class=p>,</span> <span class=n>key</span><span class=p>:</span> <span class=n>h</span><span class=p>}</span>
 <a id=__codelineno-0-116 name=__codelineno-0-116></a>
@@ -290,9 +290,17 @@
 <span class=normal><a href=#__codelineno-0-244>244</a></span>
 <span class=normal><a href=#__codelineno-0-245>245</a></span>
 <span class=normal><a href=#__codelineno-0-246>246</a></span>
-<span class=normal><a href=#__codelineno-0-247>247</a></span>
-<span class=normal><a href=#__codelineno-0-248>248</a></span>
-<span class=normal><a href=#__codelineno-0-249>249</a></span>
+<span class=normal><a href=#__codelineno-0-247>247</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-239 name=__codelineno-0-239></a><span class=k>def</span> <span class=nf>setup_subscriber</span><span class=p>(</span>
+<a id=__codelineno-0-240 name=__codelineno-0-240></a>    <span class=bp>self</span><span class=p>,</span>
+<a id=__codelineno-0-241 name=__codelineno-0-241></a>    <span class=n>subscriber</span><span class=p>:</span> <span class=n>SubscriberProto</span><span class=p>[</span><span class=n>MsgType</span><span class=p>],</span>
+<a id=__codelineno-0-242 name=__codelineno-0-242></a>    <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
+<a id=__codelineno-0-243 name=__codelineno-0-243></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-244 name=__codelineno-0-244></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Setup the Subscriber to prepare it to starting.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-245 name=__codelineno-0-245></a>    <span class=n>data</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_subscriber_setup_extra</span><span class=o>.</span><span class=n>copy</span><span class=p>()</span>
+<a id=__codelineno-0-246 name=__codelineno-0-246></a>    <span class=n>data</span><span class=o>.</span><span class=n>update</span><span class=p>(</span><span class=n>kwargs</span><span class=p>)</span>
+<a id=__codelineno-0-247 name=__codelineno-0-247></a>    <span class=n>subscriber</span><span class=o>.</span><span class=n>setup</span><span class=p>(</span><span class=o>**</span><span class=n>data</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.rabbit.broker.logging.RabbitLoggingBroker.setup_publisher class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">setup_publisher</span> <a href=#faststream.rabbit.broker.logging.RabbitLoggingBroker.setup_publisher class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>setup_publisher</span><span class=p>(</span><span class=n>publisher</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>)</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Setup the Publisher to prepare it to starting.</p> <details class=quote> <summary>Source code in <code>faststream/broker/core/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-249>249</a></span>
 <span class=normal><a href=#__codelineno-0-250>250</a></span>
 <span class=normal><a href=#__codelineno-0-251>251</a></span>
 <span class=normal><a href=#__codelineno-0-252>252</a></span>
@@ -300,53 +308,15 @@
 <span class=normal><a href=#__codelineno-0-254>254</a></span>
 <span class=normal><a href=#__codelineno-0-255>255</a></span>
 <span class=normal><a href=#__codelineno-0-256>256</a></span>
-<span class=normal><a href=#__codelineno-0-257>257</a></span>
-<span class=normal><a href=#__codelineno-0-258>258</a></span>
-<span class=normal><a href=#__codelineno-0-259>259</a></span>
-<span class=normal><a href=#__codelineno-0-260>260</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-239 name=__codelineno-0-239></a><span class=k>def</span> <span class=nf>setup_subscriber</span><span class=p>(</span>
-<a id=__codelineno-0-240 name=__codelineno-0-240></a>    <span class=bp>self</span><span class=p>,</span>
-<a id=__codelineno-0-241 name=__codelineno-0-241></a>    <span class=n>subscriber</span><span class=p>:</span> <span class=n>SubscriberProto</span><span class=p>[</span><span class=n>MsgType</span><span class=p>],</span>
-<a id=__codelineno-0-242 name=__codelineno-0-242></a>    <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
-<a id=__codelineno-0-243 name=__codelineno-0-243></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-244 name=__codelineno-0-244></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Setup the Subscriber to prepare it to starting.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-245 name=__codelineno-0-245></a>    <span class=n>subscriber</span><span class=o>.</span><span class=n>setup</span><span class=p>(</span>
-<a id=__codelineno-0-246 name=__codelineno-0-246></a>        <span class=n>logger</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=p>,</span>
-<a id=__codelineno-0-247 name=__codelineno-0-247></a>        <span class=n>producer</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_producer</span><span class=p>,</span>
-<a id=__codelineno-0-248 name=__codelineno-0-248></a>        <span class=n>graceful_timeout</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>graceful_timeout</span><span class=p>,</span>
-<a id=__codelineno-0-249 name=__codelineno-0-249></a>        <span class=n>extra_context</span><span class=o>=</span><span class=p>{},</span>
-<a id=__codelineno-0-250 name=__codelineno-0-250></a>        <span class=c1># broker options</span>
-<a id=__codelineno-0-251 name=__codelineno-0-251></a>        <span class=n>broker_parser</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_parser</span><span class=p>,</span>
-<a id=__codelineno-0-252 name=__codelineno-0-252></a>        <span class=n>broker_decoder</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_decoder</span><span class=p>,</span>
-<a id=__codelineno-0-253 name=__codelineno-0-253></a>        <span class=c1># dependant args</span>
-<a id=__codelineno-0-254 name=__codelineno-0-254></a>        <span class=n>apply_types</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_is_apply_types</span><span class=p>,</span>
-<a id=__codelineno-0-255 name=__codelineno-0-255></a>        <span class=n>is_validate</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_is_validate</span><span class=p>,</span>
-<a id=__codelineno-0-256 name=__codelineno-0-256></a>        <span class=n>_get_dependant</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_get_dependant</span><span class=p>,</span>
-<a id=__codelineno-0-257 name=__codelineno-0-257></a>        <span class=n>_call_decorators</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_call_decorators</span><span class=p>,</span>
-<a id=__codelineno-0-258 name=__codelineno-0-258></a>        <span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>_subscriber_setup_extra</span><span class=p>,</span>
-<a id=__codelineno-0-259 name=__codelineno-0-259></a>        <span class=o>**</span><span class=n>kwargs</span><span class=p>,</span>
-<a id=__codelineno-0-260 name=__codelineno-0-260></a>    <span class=p>)</span>
-</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.rabbit.broker.logging.RabbitLoggingBroker.setup_publisher class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">setup_publisher</span> <a href=#faststream.rabbit.broker.logging.RabbitLoggingBroker.setup_publisher class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>setup_publisher</span><span class=p>(</span><span class=n>publisher</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Setup the Publisher to prepare it to starting.</p> <details class=quote> <summary>Source code in <code>faststream/broker/core/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-262>262</a></span>
-<span class=normal><a href=#__codelineno-0-263>263</a></span>
-<span class=normal><a href=#__codelineno-0-264>264</a></span>
-<span class=normal><a href=#__codelineno-0-265>265</a></span>
-<span class=normal><a href=#__codelineno-0-266>266</a></span>
-<span class=normal><a href=#__codelineno-0-267>267</a></span>
-<span class=normal><a href=#__codelineno-0-268>268</a></span>
-<span class=normal><a href=#__codelineno-0-269>269</a></span>
-<span class=normal><a href=#__codelineno-0-270>270</a></span>
-<span class=normal><a href=#__codelineno-0-271>271</a></span>
-<span class=normal><a href=#__codelineno-0-272>272</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-262 name=__codelineno-0-262></a><span class=k>def</span> <span class=nf>setup_publisher</span><span class=p>(</span>
-<a id=__codelineno-0-263 name=__codelineno-0-263></a>    <span class=bp>self</span><span class=p>,</span>
-<a id=__codelineno-0-264 name=__codelineno-0-264></a>    <span class=n>publisher</span><span class=p>:</span> <span class=s2>&quot;PublisherProto[MsgType]&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-265 name=__codelineno-0-265></a>    <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
-<a id=__codelineno-0-266 name=__codelineno-0-266></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-267 name=__codelineno-0-267></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Setup the Publisher to prepare it to starting.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-268 name=__codelineno-0-268></a>    <span class=n>publisher</span><span class=o>.</span><span class=n>setup</span><span class=p>(</span>
-<a id=__codelineno-0-269 name=__codelineno-0-269></a>        <span class=n>producer</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_producer</span><span class=p>,</span>
-<a id=__codelineno-0-270 name=__codelineno-0-270></a>        <span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>_publisher_setup_extra</span><span class=p>,</span>
-<a id=__codelineno-0-271 name=__codelineno-0-271></a>        <span class=o>**</span><span class=n>kwargs</span><span class=p>,</span>
-<a id=__codelineno-0-272 name=__codelineno-0-272></a>    <span class=p>)</span>
+<span class=normal><a href=#__codelineno-0-257>257</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-249 name=__codelineno-0-249></a><span class=k>def</span> <span class=nf>setup_publisher</span><span class=p>(</span>
+<a id=__codelineno-0-250 name=__codelineno-0-250></a>    <span class=bp>self</span><span class=p>,</span>
+<a id=__codelineno-0-251 name=__codelineno-0-251></a>    <span class=n>publisher</span><span class=p>:</span> <span class=s2>&quot;PublisherProto[MsgType]&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-252 name=__codelineno-0-252></a>    <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
+<a id=__codelineno-0-253 name=__codelineno-0-253></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-254 name=__codelineno-0-254></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Setup the Publisher to prepare it to starting.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-255 name=__codelineno-0-255></a>    <span class=n>data</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_publisher_setup_extra</span><span class=o>.</span><span class=n>copy</span><span class=p>()</span>
+<a id=__codelineno-0-256 name=__codelineno-0-256></a>    <span class=n>data</span><span class=o>.</span><span class=n>update</span><span class=p>(</span><span class=n>kwargs</span><span class=p>)</span>
+<a id=__codelineno-0-257 name=__codelineno-0-257></a>    <span class=n>publisher</span><span class=o>.</span><span class=n>setup</span><span class=p>(</span><span class=o>**</span><span class=n>data</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.rabbit.broker.logging.RabbitLoggingBroker.close class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">close</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.rabbit.broker.logging.RabbitLoggingBroker.close class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>close</span><span class=p>(</span><span class=n>exc_type</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>exc_val</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>exc_tb</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <p>Closes the object.</p> <details class=quote> <summary>Source code in <code>faststream/broker/core/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-303>303</a></span>
 <span class=normal><a href=#__codelineno-0-304>304</a></span>
@@ -390,7 +360,8 @@
 <span class=normal><a href=#__codelineno-0-339>339</a></span>
 <span class=normal><a href=#__codelineno-0-340>340</a></span>
 <span class=normal><a href=#__codelineno-0-341>341</a></span>
-<span class=normal><a href=#__codelineno-0-342>342</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-328 name=__codelineno-0-328></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-342>342</a></span>
+<span class=normal><a href=#__codelineno-0-343>343</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-328 name=__codelineno-0-328></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish</span><span class=p>(</span>
 <a id=__codelineno-0-329 name=__codelineno-0-329></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-330 name=__codelineno-0-330></a>    <span class=n>msg</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
 <a id=__codelineno-0-331 name=__codelineno-0-331></a>    <span class=o>*</span><span class=p>,</span>
@@ -398,13 +369,14 @@
 <a id=__codelineno-0-333 name=__codelineno-0-333></a>    <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
 <a id=__codelineno-0-334 name=__codelineno-0-334></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Any</span><span class=p>]:</span>
 <a id=__codelineno-0-335 name=__codelineno-0-335></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Publish message directly.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-336 name=__codelineno-0-336></a>    <span class=k>assert</span> <span class=n>producer</span><span class=p>,</span> <span class=n>NOT_CONNECTED_YET</span>  <span class=c1># nosec B101)</span>
+<a id=__codelineno-0-336 name=__codelineno-0-336></a>    <span class=k>assert</span> <span class=n>producer</span><span class=p>,</span> <span class=n>NOT_CONNECTED_YET</span>  <span class=c1># nosec B101</span>
 <a id=__codelineno-0-337 name=__codelineno-0-337></a>
-<a id=__codelineno-0-338 name=__codelineno-0-338></a>    <span class=n>publish</span><span class=p>:</span> <span class=s2>&quot;AsyncFunc&quot;</span> <span class=o>=</span> <span class=n>producer</span><span class=o>.</span><span class=n>publish</span>
-<a id=__codelineno-0-339 name=__codelineno-0-339></a>    <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>_middlewares</span><span class=p>:</span>
-<a id=__codelineno-0-340 name=__codelineno-0-340></a>        <span class=n>publish</span> <span class=o>=</span> <span class=n>partial</span><span class=p>(</span><span class=n>m</span><span class=p>(</span><span class=kc>None</span><span class=p>)</span><span class=o>.</span><span class=n>publish_scope</span><span class=p>,</span> <span class=n>publish</span><span class=p>)</span>
-<a id=__codelineno-0-341 name=__codelineno-0-341></a>
-<a id=__codelineno-0-342 name=__codelineno-0-342></a>    <span class=k>return</span> <span class=k>await</span> <span class=n>publish</span><span class=p>(</span><span class=n>msg</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>)</span>
+<a id=__codelineno-0-338 name=__codelineno-0-338></a>    <span class=n>publish</span> <span class=o>=</span> <span class=n>producer</span><span class=o>.</span><span class=n>publish</span>
+<a id=__codelineno-0-339 name=__codelineno-0-339></a>
+<a id=__codelineno-0-340 name=__codelineno-0-340></a>    <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>_middlewares</span><span class=p>:</span>
+<a id=__codelineno-0-341 name=__codelineno-0-341></a>        <span class=n>publish</span> <span class=o>=</span> <span class=n>partial</span><span class=p>(</span><span class=n>m</span><span class=p>(</span><span class=kc>None</span><span class=p>)</span><span class=o>.</span><span class=n>publish_scope</span><span class=p>,</span> <span class=n>publish</span><span class=p>)</span>
+<a id=__codelineno-0-342 name=__codelineno-0-342></a>
+<a id=__codelineno-0-343 name=__codelineno-0-343></a>    <span class=k>return</span> <span class=k>await</span> <span class=n>publish</span><span class=p>(</span><span class=n>msg</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.rabbit.broker.logging.RabbitLoggingBroker.get_fmt class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_fmt</span> <a href=#faststream.rabbit.broker.logging.RabbitLoggingBroker.get_fmt class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_fmt</span><span class=p>()</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/rabbit/broker/logging.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-49>49</a></span>
 <span class=normal><a href=#__codelineno-0-50>50</a></span>
