@@ -52,7 +52,7 @@ class AsyncConfluentParser:
         last = message[-1]
 
         for m in message:
-            body.append(m.value)
+            body.append(m.value())
             batch_headers.append(_parse_msg_headers(m.headers()))
 
         headers = next(iter(batch_headers), {})
