@@ -6,7 +6,6 @@ from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
 from faststream.confluent.broker import KafkaBroker
-from faststream.confluent.client import TopicPartition
 from faststream.confluent.publisher.asyncapi import AsyncAPIBatchPublisher
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.subscriber.asyncapi import AsyncAPIBatchSubscriber
@@ -37,17 +36,10 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         broker: KafkaBroker,
         publisher: "AsyncAPIPublisher[Any]",
     ) -> "HandlerCallWrapper[Any, Any, Any]":
-        if publisher.partition:
-            tp = TopicPartition(topic=publisher.topic, partition=publisher.partition)
-            sub = broker.subscriber(
-                partitions=[tp],
-                batch=isinstance(publisher, AsyncAPIBatchPublisher),
-            )
-        else:
-            sub = broker.subscriber(
-                publisher.topic,
-                batch=isinstance(publisher, AsyncAPIBatchPublisher),
-            )
+        sub = broker.subscriber(  # type: ignore[call-overload,misc]
+            publisher.topic,
+            batch=isinstance(publisher, AsyncAPIBatchPublisher),
+        )
 
         if not sub.calls:
 
