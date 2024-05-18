@@ -49,25 +49,25 @@ To add a trace to your broker, you need to:
 
 1. Install `FastStream` with `opentelemetry-sdk`
 
-```shell
-pip install faststream[otel]
-```
+    ```shell
+    pip install faststream[otel]
+    ```
 
 2. Configure `TracerProvider`
 
-```python linenums="1" hl_lines="5-7"
-from opentelemetry import trace
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
+    ```python linenums="1" hl_lines="5-7"
+    from opentelemetry import trace
+    from opentelemetry.sdk.resources import Resource
+    from opentelemetry.sdk.trace import TracerProvider
 
-resource = Resource.create(attributes={"service.name": "faststream"})
-tracer_provider = TracerProvider(resource=resource)
-trace.set_tracer_provider(tracer_provider)
-```
+    resource = Resource.create(attributes={"service.name": "faststream"})
+    tracer_provider = TracerProvider(resource=resource)
+    trace.set_tracer_provider(tracer_provider)
+    ```
 
 3. Add `TelemetryMiddleware` to your broker
 
-{! includes/getting_started/opentelemetry/1.md !}
+    {!> includes/getting_started/opentelemetry/1.md !}
 
 ### Exporting
 
