@@ -44,6 +44,9 @@ def serve(
             " Defaults to the current working directory."
         ),
     ),
+    is_factory: bool = typer.Option(
+        False, "--factory", help="Treat APP as an application factory"
+    ),
 ) -> None:
     """Serve project AsyncAPI schema."""
     if ":" in app:
@@ -66,18 +69,18 @@ def serve(
 
         except ImportError:
             warnings.warn(INSTALL_WATCHFILES, category=ImportWarning, stacklevel=1)
-            _parse_and_serve(app, host, port)
+            _parse_and_serve(app, host, port, is_factory)
 
         else:
             WatchReloader(
                 target=_parse_and_serve,
-                args=(app, host, port),
+                args=(app, host, port, is_factory),
                 reload_dirs=(str(module_parent),),
                 extra_extensions=extra_extensions,
             ).run()
 
     else:
-        _parse_and_serve(app, host, port)
+        _parse_and_serve(app, host, port, is_factory)
 
 
 @docs_app.command(name="gen")
@@ -104,12 +107,19 @@ def gen(
             " Defaults to the current working directory."
         ),
     ),
+    is_factory: bool = typer.Option(
+        False,
+        "--factory",
+        help="Treat APP as an application factory",
+    ),
 ) -> None:
     """Generate project AsyncAPI schema."""
     if app_dir:  # pragma: no branch
         sys.path.insert(0, app_dir)
 
     _, app_obj = import_from_string(app)
+    if callable(app_obj) and is_factory:
+        app_obj = app_obj()
     raw_schema = get_app_schema(app_obj)
 
     if yaml:
@@ -138,9 +148,12 @@ def _parse_and_serve(
     app: str,
     host: str = "localhost",
     port: int = 8000,
+    is_factory: bool = False,
 ) -> None:
     if ":" in app:
         _, app_obj = import_from_string(app)
+        if callable(app_obj) and is_factory:
+            app_obj = app_obj()
         raw_schema = get_app_schema(app_obj)
 
     else:

@@ -623,12 +623,12 @@ class NatsBroker(
                     )
 
                 except BadRequestError as e:
-                    old_config = (await self.stream.stream_info(stream.name)).config
-
                     if (
                         e.description
                         == "stream name already in use with a different configuration"
                     ):
+                        old_config = (await self.stream.stream_info(stream.name)).config
+
                         self._log(str(e), logging.WARNING, log_context)
                         await self.stream.update_stream(
                             config=stream.config,

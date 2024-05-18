@@ -21,5 +21,6 @@ __all__ = (
     "ReplyConfig",
     "RabbitExchange",
     "RabbitQueue",
+    # Annotations
     "RabbitMessage",
 )

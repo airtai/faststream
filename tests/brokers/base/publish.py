@@ -1,5 +1,6 @@
 import asyncio
 from abc import abstractmethod
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from typing import Any, ClassVar, Dict, List, Tuple
 from unittest.mock import Mock
@@ -8,12 +9,17 @@ import anyio
 import pytest
 from pydantic import BaseModel
 
-from faststream._compat import model_to_json
+from faststream._compat import dump_json, model_to_json
 from faststream.annotations import Logger
 from faststream.broker.core.usecase import BrokerUsecase
 
 
 class SimpleModel(BaseModel):
+    r: str
+
+
+@dataclass
+class SimpleDataclass:
     r: str
 
 
@@ -58,6 +64,12 @@ class BrokerPublishTestcase:
                 float,
                 1.0,
                 id="float->float",
+            ),
+            pytest.param(
+                1,
+                float,
+                1.0,
+                id="int->float",
             ),
             pytest.param(
                 False,
@@ -106,6 +118,30 @@ class BrokerPublishTestcase:
                 SimpleModel,
                 SimpleModel(r="hello!"),
                 id="dict->model",
+            ),
+            pytest.param(
+                dump_json(asdict(SimpleDataclass(r="hello!"))),
+                SimpleDataclass,
+                SimpleDataclass(r="hello!"),
+                id="bytes->dataclass",
+            ),
+            pytest.param(
+                SimpleDataclass(r="hello!"),
+                SimpleDataclass,
+                SimpleDataclass(r="hello!"),
+                id="dataclass->dataclass",
+            ),
+            pytest.param(
+                SimpleDataclass(r="hello!"),
+                dict,
+                {"r": "hello!"},
+                id="dataclass->dict",
+            ),
+            pytest.param(
+                {"r": "hello!"},
+                SimpleDataclass,
+                SimpleDataclass(r="hello!"),
+                id="dict->dataclass",
             ),
         ),
     )

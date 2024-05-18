@@ -46,6 +46,19 @@ class ABCBroker(Generic[MsgType]):
         self._parser = parser
         self._decoder = decoder
 
+    def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
+        """Append BrokerMiddleware to the end of middlewares list.
+
+        Current middleware will be used as a most inner of already existed ones.
+        """
+        self._middlewares = (*self._middlewares, middleware)
+
+        for sub in self._subscribers.values():
+            sub.add_middleware(middleware)
+
+        for pub in self._publishers.values():
+            pub.add_middleware(middleware)
+
     @abstractmethod
     def subscriber(
         self,

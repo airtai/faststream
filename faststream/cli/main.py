@@ -94,6 +94,12 @@ def run(
             " Defaults to the current working directory."
         ),
     ),
+    is_factory: bool = typer.Option(
+        False,
+        "--factory",
+        is_flag=True,
+        help="Treat APP as an application factory",
+    ),
 ) -> None:
     """Run [MODULE:APP] FastStream application."""
     if watch_extensions and not reload:
@@ -108,7 +114,7 @@ def run(
     if app_dir:  # pragma: no branch
         sys.path.insert(0, app_dir)
 
-    args = (app, extra, casted_log_level)
+    args = (app, extra, is_factory, casted_log_level)
 
     if reload and workers > 1:
         raise SetupError("You can't use reload option with multiprocessing")
@@ -151,11 +157,14 @@ def _run(
     # NOTE: we should pass `str` due FastStream is not picklable
     app: str,
     extra_options: Dict[str, "SettingField"],
+    is_factory: bool,
     log_level: int = logging.INFO,
     app_level: int = logging.INFO,
 ) -> None:
     """Runs the specified application."""
     _, app_obj = import_from_string(app)
+    if is_factory and callable(app_obj):
+        app_obj = app_obj()
 
     if not isinstance(app_obj, FastStream):
         raise typer.BadParameter(
@@ -200,6 +209,12 @@ def publish(
     app: str = typer.Argument(..., help="FastStream app instance, e.g., main:app"),
     message: str = typer.Argument(..., help="Message to be published"),
     rpc: bool = typer.Option(False, help="Enable RPC mode and system output"),
+    is_factory: bool = typer.Option(
+        False,
+        "--factory",
+        is_flag=True,
+        help="Treat APP as an application factory",
+    ),
 ) -> None:
     """Publish a message using the specified broker in a FastStream application.
 
@@ -218,6 +233,9 @@ def publish(
             raise ValueError("Message parameter is required.")
 
         _, app_obj = import_from_string(app)
+        if callable(app_obj) and is_factory:
+            app_obj = app_obj()
+
         if not app_obj.broker:
             raise ValueError("Broker instance not found in the app.")
 

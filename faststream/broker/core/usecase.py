@@ -333,7 +333,7 @@ class BrokerUsecase(
         **kwargs: Any,
     ) -> Optional[Any]:
         """Publish message directly."""
-        assert producer, NOT_CONNECTED_YET  # nosec B101)
+        assert producer, NOT_CONNECTED_YET  # nosec B101
 
         publish = producer.publish
 
