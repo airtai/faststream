@@ -6,6 +6,7 @@ from aiokafka import ConsumerRecord
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
+from faststream.kafka import TopicPartition
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.publisher.asyncapi import AsyncAPIBatchPublisher
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
@@ -37,10 +38,17 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         broker: KafkaBroker,
         publisher: "AsyncAPIPublisher[Any]",
     ) -> "HandlerCallWrapper[Any, Any, Any]":
-        sub = broker.subscriber(
-            publisher.topic,
-            batch=isinstance(publisher, AsyncAPIBatchPublisher),
-        )
+        if publisher.partition:
+            tp = TopicPartition(topic=publisher.topic, partition=publisher.partition)
+            sub = broker.subscriber(
+                partitions=[tp],
+                batch=isinstance(publisher, AsyncAPIBatchPublisher),
+            )
+        else:
+            sub = broker.subscriber(
+                publisher.topic,
+                batch=isinstance(publisher, AsyncAPIBatchPublisher),
+            )
 
         if not sub.calls:
 
@@ -86,8 +94,6 @@ class FakeProducer(AioKafkaFastProducer):
         raise_timeout: bool = False,
     ) -> Optional[Any]:
         """Publish a message to the Kafka broker."""
-        correlation_id = correlation_id or gen_cor_id()
-
         incoming = build_message(
             message=message,
             topic=topic,
@@ -102,8 +108,13 @@ class FakeProducer(AioKafkaFastProducer):
         return_value = None
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
+
+            # for p in handler.partitions:
+            #     if p.topic == topic and (partition is None or p.partition == partition):
+            #         call = True
+
             if topic in handler.topics:
-                handle_value = await call_handler(
+                return await call_handler(
                     handler=handler,
                     message=[incoming]
                     if isinstance(handler, AsyncAPIBatchSubscriber)
@@ -128,8 +139,6 @@ class FakeProducer(AioKafkaFastProducer):
         correlation_id: Optional[str] = None,
     ) -> None:
         """Publish a batch of messages to the Kafka broker."""
-        correlation_id = correlation_id or gen_cor_id()
-
         for handler in self.broker._subscribers.values():  # pragma: no branch
             if topic in handler.topics:
                 messages = (

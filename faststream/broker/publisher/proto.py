@@ -56,6 +56,9 @@ class PublisherProto(
     _middlewares: Iterable["PublisherMiddleware"]
     _producer: Optional["ProducerProto"]
 
+    @abstractmethod
+    def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None: ...
+
     @staticmethod
     @abstractmethod
     def create() -> "PublisherProto[MsgType]":

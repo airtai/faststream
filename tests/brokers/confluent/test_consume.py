@@ -40,6 +40,38 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert [{1, "hi"}] == [set(r.result()) for r in result]
 
     @pytest.mark.asyncio()
+    async def test_consume_batch_headers(
+        self, mock, event: asyncio.Event, queue: str, full_broker: KafkaBroker
+    ):
+        @full_broker.subscriber(queue, batch=True, **self.subscriber_kwargs)
+        def subscriber(m, msg: KafkaMessage):
+            check = all(
+                (
+                    msg.headers,
+                    [msg.headers] == msg.batch_headers,
+                    msg.headers.get("custom") == "1",
+                )
+            )
+            mock(check)
+            event.set()
+
+        async with full_broker:
+            await full_broker.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        full_broker.publish("", queue, headers={"custom": "1"})
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
+
+        assert event.is_set()
+        mock.assert_called_once_with(True)
+
+    @pytest.mark.asyncio()
     @pytest.mark.slow()
     async def test_consume_ack(
         self,

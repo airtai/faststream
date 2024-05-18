@@ -1,6 +1,5 @@
 from typing import (
     TYPE_CHECKING,
-    Callable,
     Dict,
     Iterable,
     Literal,
@@ -33,7 +32,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import BrokerMiddleware
-    from faststream.confluent.client import AsyncConfluentConsumer
+    from faststream.types import AnyDict
 
 
 class AsyncAPISubscriber(LogicSubscriber[MsgType]):
@@ -77,7 +76,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., "AsyncConfluentConsumer"],
+        connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -99,7 +98,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., "AsyncConfluentConsumer"],
+        connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -121,7 +120,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., "AsyncConfluentConsumer"],
+        connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -148,7 +147,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., "AsyncConfluentConsumer"],
+        connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
@@ -171,7 +170,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
                 batch_timeout_ms=batch_timeout_ms,
                 max_records=max_records,
                 group_id=group_id,
-                builder=builder,
+                connection_data=connection_data,
                 is_manual=is_manual,
                 no_ack=no_ack,
                 retry=retry,
@@ -185,7 +184,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
             return AsyncAPIDefaultSubscriber(
                 *topics,
                 group_id=group_id,
-                builder=builder,
+                connection_data=connection_data,
                 is_manual=is_manual,
                 no_ack=no_ack,
                 retry=retry,

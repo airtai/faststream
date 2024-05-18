@@ -63,7 +63,7 @@ class TestRouter(RouterTestcase):
                         "subscribe": {
                             "bindings": {
                                 "amqp": {
-                                    "cc": "key",
+                                    "cc": "test_key",
                                     "ack": True,
                                     "bindingVersion": "0.2.0",
                                 }
@@ -91,7 +91,7 @@ class TestRouter(RouterTestcase):
                     },
                 },
             }
-        )
+        ), schema
 
 
 class TestRouterArguments(ArgumentsTestcase):

@@ -3,12 +3,23 @@ import asyncio
 import pytest
 
 from faststream import BaseMiddleware
+from faststream.exceptions import SetupError
 from faststream.redis import ListSub, RedisBroker, StreamSub, TestRedisBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
 @pytest.mark.asyncio()
 class TestTestclient(BrokerTestclientTestcase):
+    async def test_rpc_conflicts_reply(self, queue):
+        async with TestRedisBroker(RedisBroker()) as br:
+            with pytest.raises(SetupError):
+                await br.publish(
+                    "",
+                    queue,
+                    rpc=True,
+                    reply_to="response",
+                )
+
     @pytest.mark.redis()
     async def test_with_real_testclient(
         self,

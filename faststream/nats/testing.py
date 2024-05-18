@@ -1,9 +1,11 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from unittest.mock import AsyncMock
 
 from nats.aio.msg import Msg
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
+from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.nats.broker import NatsBroker
 from faststream.nats.publisher.producer import NatsFastProducer
 from faststream.nats.schemas.js_stream import is_subject_match_wildcard
@@ -39,8 +41,14 @@ class TestNatsBroker(TestBroker[NatsBroker]):
         return sub.calls[0].handler
 
     @staticmethod
-    async def _fake_connect(broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
+    async def _fake_connect(  # type: ignore[override]
+        broker: NatsBroker,
+        *args: Any,
+        **kwargs: Any,
+    ) -> AsyncMock:
+        broker.stream = AsyncMock()  # type: ignore[assignment]
         broker._js_producer = broker._producer = FakeProducer(broker)  # type: ignore[assignment]
+        return AsyncMock()
 
     @staticmethod
     def remove_publisher_fake_subscriber(
@@ -71,6 +79,9 @@ class FakeProducer(NatsFastProducer):
         rpc_timeout: Optional[float] = None,
         raise_timeout: bool = False,
     ) -> Any:
+        if rpc and reply_to:
+            raise WRONG_PUBLISH_ARGS
+
         incoming = build_message(
             message=message,
             subject=subject,

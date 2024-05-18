@@ -138,30 +138,70 @@ class TestConsumeList:
         mock.assert_called_once_with(b"hello")
 
     @pytest.mark.slow()
-    async def test_consume_list_batch_with_one(self, queue: str, broker: RedisBroker):
-        msgs_queue = asyncio.Queue(maxsize=1)
-
-        @broker.subscriber(list=ListSub(queue, batch=True, polling_interval=1))
+    async def test_consume_list_batch_with_one(
+        self, event: asyncio.Event, mock, queue: str, broker: RedisBroker
+    ):
+        @broker.subscriber(
+            list=ListSub(queue, batch=True, max_records=1, polling_interval=0.01)
+        )
         async def handler(msg):
-            await msgs_queue.put(msg)
+            mock(msg)
+            event.set()
 
         async with broker:
             await broker.start()
 
-            await broker.publish("hi", list=queue)
-
-            result, _ = await asyncio.wait(
-                (asyncio.create_task(msgs_queue.get()),),
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("hi", list=queue)),
+                    asyncio.create_task(event.wait()),
+                ),
                 timeout=3,
             )
 
-        assert ["hi"] == [r.result()[0] for r in result]
+        assert event.is_set()
+        mock.assert_called_once_with(["hi"])
+
+    @pytest.mark.slow()
+    async def test_consume_list_batch_headers(
+        self,
+        queue: str,
+        full_broker: RedisBroker,
+        event: asyncio.Event,
+        mock,
+    ):
+        @full_broker.subscriber(list=ListSub(queue, batch=True, polling_interval=0.01))
+        def subscriber(m, msg: RedisMessage):
+            check = all(
+                (
+                    msg.headers,
+                    msg.headers["correlation_id"]
+                    == msg.batch_headers[0]["correlation_id"],
+                    msg.headers.get("custom") == "1",
+                )
+            )
+            mock(check)
+            event.set()
+
+        await full_broker.start()
+        await asyncio.wait(
+            (
+                asyncio.create_task(
+                    full_broker.publish("", list=queue, headers={"custom": "1"})
+                ),
+                asyncio.create_task(event.wait()),
+            ),
+            timeout=3,
+        )
+
+        assert event.is_set()
+        mock.assert_called_once_with(True)
 
     @pytest.mark.slow()
     async def test_consume_list_batch(self, queue: str, broker: RedisBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @broker.subscriber(list=ListSub(queue, batch=True, polling_interval=1))
+        @broker.subscriber(list=ListSub(queue, batch=True, polling_interval=0.01))
         async def handler(msg):
             await msgs_queue.put(msg)
 
@@ -189,7 +229,7 @@ class TestConsumeList:
 
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @broker.subscriber(list=ListSub(queue, batch=True, polling_interval=1))
+        @broker.subscriber(list=ListSub(queue, batch=True, polling_interval=0.01))
         async def handler(msg: List[Data]):
             await msgs_queue.put(msg)
 
@@ -210,7 +250,7 @@ class TestConsumeList:
     async def test_consume_list_batch_native(self, queue: str, broker: RedisBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @broker.subscriber(list=ListSub(queue, batch=True, polling_interval=1))
+        @broker.subscriber(list=ListSub(queue, batch=True, polling_interval=0.01))
         async def handler(msg):
             await msgs_queue.put(msg)
 
@@ -238,7 +278,7 @@ class TestConsumeStream:
         mock: MagicMock,
         queue,
     ):
-        @broker.subscriber(stream=StreamSub(queue, polling_interval=3000))
+        @broker.subscriber(stream=StreamSub(queue, polling_interval=10))
         async def handler(msg):
             mock(msg)
             event.set()
@@ -264,7 +304,7 @@ class TestConsumeStream:
         mock: MagicMock,
         queue,
     ):
-        @broker.subscriber(stream=StreamSub(queue, polling_interval=3000))
+        @broker.subscriber(stream=StreamSub(queue, polling_interval=10))
         async def handler(msg):
             mock(msg)
             event.set()
@@ -292,7 +332,7 @@ class TestConsumeStream:
         mock: MagicMock,
         queue,
     ):
-        @broker.subscriber(stream=StreamSub(queue, polling_interval=3000, batch=True))
+        @broker.subscriber(stream=StreamSub(queue, polling_interval=10, batch=True))
         async def handler(msg):
             mock(msg)
             event.set()
@@ -311,6 +351,43 @@ class TestConsumeStream:
         mock.assert_called_once_with(["hello"])
 
     @pytest.mark.slow()
+    async def test_consume_stream_batch_headers(
+        self,
+        queue: str,
+        full_broker: RedisBroker,
+        event: asyncio.Event,
+        mock,
+    ):
+        @full_broker.subscriber(
+            stream=StreamSub(queue, polling_interval=10, batch=True)
+        )
+        def subscriber(m, msg: RedisMessage):
+            check = all(
+                (
+                    msg.headers,
+                    msg.headers["correlation_id"]
+                    == msg.batch_headers[0]["correlation_id"],
+                    msg.headers.get("custom") == "1",
+                )
+            )
+            mock(check)
+            event.set()
+
+        await full_broker.start()
+        await asyncio.wait(
+            (
+                asyncio.create_task(
+                    full_broker.publish("", stream=queue, headers={"custom": "1"})
+                ),
+                asyncio.create_task(event.wait()),
+            ),
+            timeout=3,
+        )
+
+        assert event.is_set()
+        mock.assert_called_once_with(True)
+
+    @pytest.mark.slow()
     async def test_consume_stream_batch_complex(
         self,
         broker: RedisBroker,
@@ -323,7 +400,7 @@ class TestConsumeStream:
 
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @broker.subscriber(stream=StreamSub(queue, polling_interval=3000, batch=True))
+        @broker.subscriber(stream=StreamSub(queue, polling_interval=10, batch=True))
         async def handler(msg: List[Data]):
             await msgs_queue.put(msg)
 
@@ -348,7 +425,7 @@ class TestConsumeStream:
         mock: MagicMock,
         queue,
     ):
-        @broker.subscriber(stream=StreamSub(queue, polling_interval=3000, batch=True))
+        @broker.subscriber(stream=StreamSub(queue, polling_interval=10, batch=True))
         async def handler(msg):
             mock(msg)
             event.set()
