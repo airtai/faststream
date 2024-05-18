@@ -100,14 +100,11 @@ class FakeProducer(AsyncConfluentFastProducer):
             reply_to=reply_to,
         )
 
+        return_value = None
+
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            call: bool = False
-
-            if not call and topic in handler.topics:
-                call = True
-
-            if call:
-                return await call_handler(
+            if topic in handler.topics:
+                handle_value = await call_handler(
                     handler=handler,
                     message=[incoming]
                     if isinstance(handler, AsyncAPIBatchSubscriber)
@@ -117,7 +114,9 @@ class FakeProducer(AsyncConfluentFastProducer):
                     raise_timeout=raise_timeout,
                 )
 
-        return None
+                return_value = return_value or handle_value
+
+        return return_value
 
     async def publish_batch(
         self,
