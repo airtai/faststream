@@ -109,21 +109,10 @@ class FakeProducer(AsyncConfluentFastProducer):
         return_value = None
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            call = False
-
-            # for p in handler.partitions:
-            #     if p.topic == topic and (partition is None or p.partition == partition):
-            #         call = True
-
             if topic in handler.topics:
-                call = True
-
-            if call:
                 handle_value = await call_handler(
                     handler=handler,
-                    message=[incoming]
-                    if isinstance(handler, AsyncAPIBatchSubscriber)
-                    else incoming,
+                    message=[incoming] if isinstance(handler, AsyncAPIBatchSubscriber) else incoming,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,
