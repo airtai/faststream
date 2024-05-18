@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
+from unittest.mock import AsyncMock, MagicMock
 
 from aiokafka import ConsumerRecord
 from typing_extensions import override
@@ -23,8 +24,13 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     """A class to test Kafka brokers."""
 
     @staticmethod
-    async def _fake_connect(broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
+    async def _fake_connect(  # type: ignore[override]
+        broker: KafkaBroker,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Callable[..., AsyncMock]:
         broker._producer = FakeProducer(broker)
+        return _fake_connection
 
     @staticmethod
     def create_publisher_fake_subscriber(
@@ -80,6 +86,8 @@ class FakeProducer(AioKafkaFastProducer):
         raise_timeout: bool = False,
     ) -> Optional[Any]:
         """Publish a message to the Kafka broker."""
+        correlation_id = correlation_id or gen_cor_id()
+
         incoming = build_message(
             message=message,
             topic=topic,
@@ -92,7 +100,12 @@ class FakeProducer(AioKafkaFastProducer):
         )
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if topic in handler.topics:
+            call: bool = False
+
+            if not call and topic in handler.topics:
+                call = True
+
+            if call:
                 return await call_handler(
                     handler=handler,
                     message=[incoming]
@@ -116,6 +129,8 @@ class FakeProducer(AioKafkaFastProducer):
         correlation_id: Optional[str] = None,
     ) -> None:
         """Publish a batch of messages to the Kafka broker."""
+        correlation_id = correlation_id or gen_cor_id()
+
         for handler in self.broker._subscribers.values():  # pragma: no branch
             if topic in handler.topics:
                 messages = (
@@ -184,3 +199,10 @@ def build_message(
         offset=0,
         headers=[(i, j.encode()) for i, j in headers.items()],
     )
+
+
+def _fake_connection(*args: Any, **kwargs: Any) -> AsyncMock:
+    mock = AsyncMock()
+    mock.subscribe = MagicMock
+    mock.assign = MagicMock
+    return mock
