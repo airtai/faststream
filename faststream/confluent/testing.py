@@ -112,7 +112,9 @@ class FakeProducer(AsyncConfluentFastProducer):
             if topic in handler.topics:
                 handle_value = await call_handler(
                     handler=handler,
-                    message=[incoming] if isinstance(handler, AsyncAPIBatchSubscriber) else incoming,
+                    message=[incoming]
+                    if isinstance(handler, AsyncAPIBatchSubscriber)
+                    else incoming,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,

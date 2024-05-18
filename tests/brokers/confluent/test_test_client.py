@@ -13,10 +13,10 @@ class TestTestclient(BrokerTestclientTestcase):
 
     @pytest.mark.confluent()
     async def test_with_real_testclient(
-            self,
-            broker: KafkaBroker,
-            queue: str,
-            event: asyncio.Event,
+        self,
+        broker: KafkaBroker,
+        queue: str,
+        event: asyncio.Event,
     ):
         @broker.subscriber(queue, auto_offset_reset="earliest")
         def subscriber(m):
@@ -34,9 +34,9 @@ class TestTestclient(BrokerTestclientTestcase):
         assert event.is_set()
 
     async def test_batch_pub_by_default_pub(
-            self,
-            test_broker: KafkaBroker,
-            queue: str,
+        self,
+        test_broker: KafkaBroker,
+        queue: str,
     ):
         @test_broker.subscriber(queue, batch=True, auto_offset_reset="earliest")
         async def m():
@@ -47,9 +47,9 @@ class TestTestclient(BrokerTestclientTestcase):
         m.mock.assert_called_once_with(["hello"])
 
     async def test_batch_pub_by_pub_batch(
-            self,
-            test_broker: KafkaBroker,
-            queue: str,
+        self,
+        test_broker: KafkaBroker,
+        queue: str,
     ):
         @test_broker.subscriber(queue, batch=True, auto_offset_reset="earliest")
         async def m():
@@ -60,9 +60,9 @@ class TestTestclient(BrokerTestclientTestcase):
         m.mock.assert_called_once_with(["hello"])
 
     async def test_batch_publisher_mock(
-            self,
-            test_broker: KafkaBroker,
-            queue: str,
+        self,
+        test_broker: KafkaBroker,
+        queue: str,
     ):
         publisher = test_broker.publisher(queue + "1", batch=True)
 
@@ -125,9 +125,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     @pytest.mark.confluent()
     async def test_multiple_subscribers_different_groups(
-            self,
-            queue: str,
-            test_broker: KafkaBroker,
+        self,
+        queue: str,
+        test_broker: KafkaBroker,
     ):
         @test_broker.subscriber(queue, group_id="group1")
         async def subscriber1(): ...
@@ -143,9 +143,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     @pytest.mark.confluent()
     async def test_multiple_subscribers_same_group(
-            self,
-            queue: str,
-            test_broker: KafkaBroker,
+        self,
+        queue: str,
+        test_broker: KafkaBroker,
     ):
         @test_broker.subscriber(queue, group_id="group1")
         async def subscriber1(): ...

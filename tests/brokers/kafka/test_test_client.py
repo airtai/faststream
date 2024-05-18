@@ -200,4 +200,3 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert subscriber1.mock.call_count == 1
         assert subscriber2.mock.call_count == 0
-
