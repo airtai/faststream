@@ -19,7 +19,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.nats.message import NatsBatchMessage, NatsMessage
-    from faststream.nats.schemas import JStream, PullSub
+    from faststream.nats.schemas import JStream, PullSub, KvWatch, ObjWatch
     from faststream.types import SendableMessage
 
 
@@ -193,6 +193,14 @@ class NatsRoute(SubscriberRoute):
                 "Should be used with `stream` only."
             ),
         ] = None,
+        kv_watch: Annotated[
+            Union[str, "KvWatch", None],
+            Doc("KeyValue watch parameters container."),
+        ] = None,
+        obj_watch: Annotated[
+            Union[bool, "ObjWatch"],
+            Doc("ObjecStore watch parameters container."),
+        ] = False,
         inbox_prefix: Annotated[
             bytes,
             Doc(
@@ -283,6 +291,8 @@ class NatsRoute(SubscriberRoute):
             deliver_policy=deliver_policy,
             headers_only=headers_only,
             pull_sub=pull_sub,
+            kv_watch=kv_watch,
+            obj_watch=obj_watch,
             inbox_prefix=inbox_prefix,
             ack_first=ack_first,
             stream=stream,
