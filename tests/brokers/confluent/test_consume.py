@@ -46,9 +46,14 @@ class TestConsume(BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     async def test_consume_batch_headers(
-        self, mock, event: asyncio.Event, queue: str, full_broker: KafkaBroker
+        self,
+        mock,
+        event: asyncio.Event,
+        queue: str,
     ):
-        @full_broker.subscriber(queue, batch=True, **self.subscriber_kwargs)
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, batch=True, **self.subscriber_kwargs)
         def subscriber(m, msg: KafkaMessage):
             check = all(
                 (
@@ -60,14 +65,12 @@ class TestConsume(BrokerRealConsumeTestcase):
             mock(check)
             event.set()
 
-        async with full_broker:
-            await full_broker.start()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
 
             await asyncio.wait(
                 (
-                    asyncio.create_task(
-                        full_broker.publish("", queue, headers={"custom": "1"})
-                    ),
+                    asyncio.create_task(br.publish("", queue, headers={"custom": "1"})),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,

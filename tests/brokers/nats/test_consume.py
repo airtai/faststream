@@ -265,7 +265,7 @@ class TestConsume(BrokerRealConsumeTestcase):
             )
             mock(check)
             event.set()
-        
+
         async with self.patch_broker(consume_broker) as br:
             await br.start()
             await asyncio.wait(

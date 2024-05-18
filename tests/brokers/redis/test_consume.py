@@ -163,7 +163,9 @@ class TestConsumeList:
     ):
         consume_broker = self.get_broker()
 
-        @consume_broker.subscriber(list=ListSub(queue, batch=True, polling_interval=0.01))
+        @consume_broker.subscriber(
+            list=ListSub(queue, batch=True, polling_interval=0.01)
+        )
         async def handler(msg):
             mock(msg)
             event.set()
@@ -172,7 +174,7 @@ class TestConsumeList:
             await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("hi", list=queue)),
+                    asyncio.create_task(br.publish("hi", list=queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -188,9 +190,11 @@ class TestConsumeList:
         event: asyncio.Event,
         mock,
     ):
-        consume_broker = self.get_broker()
-        
-        @full_broker.subscriber(list=ListSub(queue, batch=True, polling_interval=0.01))
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(
+            list=ListSub(queue, batch=True, polling_interval=0.01)
+        )
         def subscriber(m, msg: RedisMessage):
             check = all(
                 (
@@ -203,19 +207,20 @@ class TestConsumeList:
             mock(check)
             event.set()
 
-        await full_broker.start()
-        await asyncio.wait(
-            (
-                asyncio.create_task(
-                    full_broker.publish("", list=queue, headers={"custom": "1"})
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        br.publish("", list=queue, headers={"custom": "1"})
+                    ),
+                    asyncio.create_task(event.wait()),
                 ),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+                timeout=3,
+            )
 
-        assert event.is_set()
-        mock.assert_called_once_with(True)
+            assert event.is_set()
+            mock.assert_called_once_with(True)
 
     @pytest.mark.slow()
     async def test_consume_list_batch(
@@ -226,7 +231,9 @@ class TestConsumeList:
 
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @consume_broker.subscriber(list=ListSub(queue, batch=True, polling_interval=0.01))
+        @consume_broker.subscriber(
+            list=ListSub(queue, batch=True, polling_interval=0.01)
+        )
         async def handler(msg):
             await msgs_queue.put(msg)
 
@@ -240,7 +247,7 @@ class TestConsumeList:
                 timeout=3,
             )
 
-          assert [{1, "hi"}] == [set(r.result()) for r in result]
+            assert [{1, "hi"}] == [set(r.result()) for r in result]
 
     @pytest.mark.slow()
     async def test_consume_list_batch_complex(
@@ -259,7 +266,9 @@ class TestConsumeList:
 
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @consume_broker.subscriber(list=ListSub(queue, batch=True, polling_interval=0.01))
+        @consume_broker.subscriber(
+            list=ListSub(queue, batch=True, polling_interval=0.01)
+        )
         async def handler(msg: List[Data]):
             await msgs_queue.put(msg)
 
@@ -284,7 +293,9 @@ class TestConsumeList:
 
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @consume_broker.subscriber(list=ListSub(queue, batch=True, polling_interval=0.01))
+        @consume_broker.subscriber(
+            list=ListSub(queue, batch=True, polling_interval=0.01)
+        )
         async def handler(msg):
             await msgs_queue.put(msg)
 
@@ -375,7 +386,9 @@ class TestConsumeStream:
     ):
         consume_broker = self.get_broker()
 
-        @consume_broker.subscriber(stream=StreamSub(queue, polling_interval=10, batch=True))
+        @consume_broker.subscriber(
+            stream=StreamSub(queue, polling_interval=10, batch=True)
+        )
         async def handler(msg):
             mock(msg)
             event.set()
@@ -401,7 +414,7 @@ class TestConsumeStream:
         mock,
     ):
         consume_broker = self.get_broker(apply_types=True)
-        
+
         @consume_broker.subscriber(
             stream=StreamSub(queue, polling_interval=10, batch=True)
         )
@@ -416,7 +429,7 @@ class TestConsumeStream:
             )
             mock(check)
             event.set()
-    
+
         async with self.patch_broker(consume_broker) as br:
             await br.start()
             await asyncio.wait(
@@ -446,7 +459,9 @@ class TestConsumeStream:
 
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @consume_broker.subscriber(stream=StreamSub(queue, polling_interval=10, batch=True))
+        @consume_broker.subscriber(
+            stream=StreamSub(queue, polling_interval=10, batch=True)
+        )
         async def handler(msg: List[Data]):
             await msgs_queue.put(msg)
 
@@ -471,7 +486,9 @@ class TestConsumeStream:
     ):
         consume_broker = self.get_broker()
 
-        @consume_broker.subscriber(stream=StreamSub(queue, polling_interval=10, batch=True))
+        @consume_broker.subscriber(
+            stream=StreamSub(queue, polling_interval=10, batch=True)
+        )
         async def handler(msg):
             mock(msg)
             event.set()
