@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional, Union
 
 from typing_extensions import Annotated, Doc, deprecated
 
@@ -99,7 +99,10 @@ class RedisRoute(SubscriberRoute):
     def __init__(
         self,
         call: Annotated[
-            Callable[..., "SendableMessage"],
+            Union[
+                Callable[..., "SendableMessage"],
+                Callable[..., Awaitable["SendableMessage"]],
+            ],
             Doc(
                 "Message handler function "
                 "to wrap the same with `@broker.subscriber(...)` way."
