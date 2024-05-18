@@ -22,5 +22,5 @@ Please delete options that are not relevant.
 - [ ] My changes do not generate any new warnings
 - [ ] I have added tests to validate the effectiveness of my fix or the functionality of my new feature
 - [ ] Both new and existing unit tests pass successfully on my local environment by running `scripts/test-cov.sh`
-- [ ] I have ensured that static analysis tests are passing by running `scripts/static-anaylysis.sh`
+- [ ] I have ensured that static analysis tests are passing by running `scripts/static-analysis.sh`
 - [ ] I have included code examples to illustrate the modifications

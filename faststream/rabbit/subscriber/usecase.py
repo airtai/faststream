@@ -104,7 +104,7 @@ class LogicSubscriber(
         logger: Optional["LoggerProto"],
         producer: Optional["AioPikaFastProducer"],
         graceful_timeout: Optional[float],
-        extra_context: Optional["AnyDict"],
+        extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],

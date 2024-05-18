@@ -10,6 +10,14 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 @pytest.mark.asyncio()
 class TestTestclient(BrokerTestclientTestcase):
+    test_class = TestRedisBroker
+
+    def get_broker(self, apply_types: bool = False) -> RedisBroker:
+        return RedisBroker(apply_types=apply_types)
+
+    def patch_broker(self, broker: RedisBroker) -> TestRedisBroker:
+        return TestRedisBroker(broker)
+
     async def test_rpc_conflicts_reply(self, queue):
         async with TestRedisBroker(RedisBroker()) as br:
             with pytest.raises(SetupError):
@@ -23,10 +31,11 @@ class TestTestclient(BrokerTestclientTestcase):
     @pytest.mark.redis()
     async def test_with_real_testclient(
         self,
-        broker: RedisBroker,
         queue: str,
         event: asyncio.Event,
     ):
+        broker = self.get_broker()
+
         @broker.subscriber(queue)
         def subscriber(m):
             event.set()
@@ -89,127 +98,131 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    async def test_pub_sub_pattern(
-        self,
-        test_broker: RedisBroker,
-    ):
-        @test_broker.subscriber("test.{name}")
+    async def test_pub_sub_pattern(self):
+        broker = self.get_broker()
+
+        @broker.subscriber("test.{name}")
         async def handler(msg):
             return msg
 
-        await test_broker.start()
-
-        assert await test_broker.publish(1, "test.name.useless", rpc=True) == 1
-        handler.mock.assert_called_once_with(1)
+        async with self.patch_broker(broker) as br:
+            assert await br.publish(1, "test.name.useless", rpc=True) == 1
+            handler.mock.assert_called_once_with(1)
 
     async def test_list(
         self,
-        test_broker: RedisBroker,
         queue: str,
     ):
-        @test_broker.subscriber(list=queue)
+        broker = self.get_broker()
+
+        @broker.subscriber(list=queue)
         async def handler(msg):
             return msg
 
-        await test_broker.start()
-
-        assert await test_broker.publish(1, list=queue, rpc=True) == 1
-        handler.mock.assert_called_once_with(1)
+        async with self.patch_broker(broker) as br:
+            assert await br.publish(1, list=queue, rpc=True) == 1
+            handler.mock.assert_called_once_with(1)
 
     async def test_batch_pub_by_default_pub(
         self,
-        test_broker: RedisBroker,
         queue: str,
     ):
-        @test_broker.subscriber(list=ListSub(queue, batch=True))
-        async def m():
+        broker = self.get_broker()
+
+        @broker.subscriber(list=ListSub(queue, batch=True))
+        async def m(msg):
             pass
 
-        await test_broker.start()
-        await test_broker.publish("hello", list=queue)
-        m.mock.assert_called_once_with(["hello"])
+        async with self.patch_broker(broker) as br:
+            await br.publish("hello", list=queue)
+            m.mock.assert_called_once_with(["hello"])
 
     async def test_batch_pub_by_pub_batch(
         self,
-        test_broker: RedisBroker,
         queue: str,
     ):
-        @test_broker.subscriber(list=ListSub(queue, batch=True))
-        async def m():
+        broker = self.get_broker()
+
+        @broker.subscriber(list=ListSub(queue, batch=True))
+        async def m(msg):
             pass
 
-        await test_broker.start()
-        await test_broker.publish_batch("hello", list=queue)
-        m.mock.assert_called_once_with(["hello"])
+        async with self.patch_broker(broker) as br:
+            await br.publish_batch("hello", list=queue)
+            m.mock.assert_called_once_with(["hello"])
 
     async def test_batch_publisher_mock(
         self,
-        test_broker: RedisBroker,
         queue: str,
     ):
+        broker = self.get_broker()
+
         batch_list = ListSub(queue + "1", batch=True)
-        publisher = test_broker.publisher(list=batch_list)
+        publisher = broker.publisher(list=batch_list)
 
         @publisher
-        @test_broker.subscriber(queue)
-        async def m():
+        @broker.subscriber(queue)
+        async def m(msg):
             return 1, 2, 3
 
-        await test_broker.start()
-        await test_broker.publish("hello", queue)
-        m.mock.assert_called_once_with("hello")
-        publisher.mock.assert_called_once_with([1, 2, 3])
+        async with self.patch_broker(broker) as br:
+            await br.publish("hello", queue)
+            m.mock.assert_called_once_with("hello")
+            publisher.mock.assert_called_once_with([1, 2, 3])
 
     async def test_stream(
         self,
-        test_broker: RedisBroker,
         queue: str,
     ):
-        @test_broker.subscriber(stream=queue)
+        broker = self.get_broker()
+
+        @broker.subscriber(stream=queue)
         async def handler(msg):
             return msg
 
-        await test_broker.start()
-
-        assert await test_broker.publish(1, stream=queue, rpc=True) == 1
-        handler.mock.assert_called_once_with(1)
+        async with self.patch_broker(broker) as br:
+            assert await br.publish(1, stream=queue, rpc=True) == 1
+            handler.mock.assert_called_once_with(1)
 
     async def test_stream_batch_pub_by_default_pub(
         self,
-        test_broker: RedisBroker,
         queue: str,
     ):
-        @test_broker.subscriber(stream=StreamSub(queue, batch=True))
-        async def m():
+        broker = self.get_broker()
+
+        @broker.subscriber(stream=StreamSub(queue, batch=True))
+        async def m(msg):
             pass
 
-        await test_broker.start()
-        await test_broker.publish("hello", stream=queue)
-        m.mock.assert_called_once_with(["hello"])
+        async with self.patch_broker(broker) as br:
+            await br.publish("hello", stream=queue)
+            m.mock.assert_called_once_with(["hello"])
 
     async def test_stream_publisher(
         self,
-        test_broker: RedisBroker,
         queue: str,
     ):
+        broker = self.get_broker()
+
         batch_stream = StreamSub(queue + "1")
-        publisher = test_broker.publisher(stream=batch_stream)
+        publisher = broker.publisher(stream=batch_stream)
 
         @publisher
-        @test_broker.subscriber(queue)
-        async def m():
+        @broker.subscriber(queue)
+        async def m(msg):
             return 1, 2, 3
 
-        await test_broker.start()
-        await test_broker.publish("hello", queue)
-        m.mock.assert_called_once_with("hello")
-        publisher.mock.assert_called_once_with([1, 2, 3])
+        async with self.patch_broker(broker) as br:
+            await br.publish("hello", queue)
+            m.mock.assert_called_once_with("hello")
+            publisher.mock.assert_called_once_with([1, 2, 3])
 
     async def test_publish_to_none(
         self,
-        test_broker: RedisBroker,
         queue: str,
     ):
-        await test_broker.start()
-        with pytest.raises(ValueError):  # noqa: PT011
-            await test_broker.publish("hello")
+        broker = self.get_broker()
+
+        async with self.patch_broker(broker) as br:
+            with pytest.raises(ValueError):  # noqa: PT011
+                await br.publish("hello")

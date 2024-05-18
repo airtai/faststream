@@ -126,13 +126,14 @@ class RedisFastProducer(ProducerProto):
         *msgs: "SendableMessage",
         list: str,
         correlation_id: str,
+        headers: Optional["AnyDict"] = None,
     ) -> None:
         batch = (
             RawMessage.encode(
                 message=msg,
                 correlation_id=correlation_id,
                 reply_to=None,
-                headers=None,
+                headers=headers,
             )
             for msg in msgs
         )

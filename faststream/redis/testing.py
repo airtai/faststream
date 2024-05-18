@@ -183,6 +183,7 @@ class FakeProducer(RedisFastProducer):
         self,
         *msgs: "SendableMessage",
         list: str,
+        headers: Optional["AnyDict"] = None,
         correlation_id: Optional[str] = None,
     ) -> None:
         correlation_id = correlation_id or gen_cor_id()
@@ -200,6 +201,7 @@ class FakeProducer(RedisFastProducer):
                             build_message(
                                 m,
                                 correlation_id=correlation_id,
+                                headers=headers,
                             )
                             for m in msgs
                         ],

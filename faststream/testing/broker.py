@@ -214,7 +214,9 @@ async def call_handler(
 
         if rpc:
             message_body, content_type = encode_message(result)
-            msg_to_publish = StreamMessage(raw_message=None, body=message_body, content_type=content_type)
+            msg_to_publish = StreamMessage(
+                raw_message=None, body=message_body, content_type=content_type
+            )
             consumed_data = decode_message(msg_to_publish)
             return consumed_data
 

@@ -263,7 +263,7 @@ class RedisBroker(
                 **kwargs,
             }
         else:
-            connect_kwargs = {**kwargs}
+            connect_kwargs = dict(kwargs).copy()
 
         return await super().connect(**connect_kwargs)
 
@@ -359,6 +359,7 @@ class RedisBroker(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
+            **super()._subscriber_setup_extra,
             "connection": self._connection,
         }
 

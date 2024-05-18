@@ -1,6 +1,6 @@
 import pytest
 
-from faststream.broker.core.usecase import BrokerUsecase
+from faststream.testing.broker import TestBroker
 from faststream.types import AnyCallable
 from tests.brokers.base.consume import BrokerConsumeTestcase
 from tests.brokers.base.publish import BrokerPublishTestcase
@@ -13,61 +13,62 @@ class BrokerTestclientTestcase(
     BrokerRPCTestcase,
 ):
     build_message: AnyCallable
-
-    @pytest.fixture()
-    def pub_broker(self, test_broker):
-        return test_broker
-
-    @pytest.fixture()
-    def consume_broker(self, test_broker):
-        return test_broker
-
-    @pytest.fixture()
-    def rpc_broker(self, test_broker):
-        return test_broker
+    test_class: TestBroker
 
     @pytest.mark.asyncio()
-    async def test_subscriber_mock(self, queue: str, test_broker: BrokerUsecase):
+    async def test_subscriber_mock(self, queue: str):
+        test_broker = self.get_broker()
+
         @test_broker.subscriber(queue)
-        async def m():
+        async def m(msg):
             pass
 
-        await test_broker.start()
-        await test_broker.publish("hello", queue)
-        m.mock.assert_called_once_with("hello")
+        async with self.test_class(test_broker):
+            await test_broker.start()
+            await test_broker.publish("hello", queue)
+            m.mock.assert_called_once_with("hello")
 
     @pytest.mark.asyncio()
-    async def test_publisher_mock(self, queue: str, test_broker: BrokerUsecase):
+    async def test_publisher_mock(self, queue: str):
+        test_broker = self.get_broker()
+
         publisher = test_broker.publisher(queue + "resp")
 
         @publisher
         @test_broker.subscriber(queue)
-        async def m():
+        async def m(msg):
             return "response"
 
-        await test_broker.start()
-        await test_broker.publish("hello", queue)
-        publisher.mock.assert_called_with("response")
+        async with self.test_class(test_broker):
+            await test_broker.start()
+            await test_broker.publish("hello", queue)
+            publisher.mock.assert_called_with("response")
 
     @pytest.mark.asyncio()
-    async def test_manual_publisher_mock(self, queue: str, test_broker: BrokerUsecase):
+    async def test_manual_publisher_mock(self, queue: str):
+        test_broker = self.get_broker()
+
         publisher = test_broker.publisher(queue + "resp")
 
         @test_broker.subscriber(queue)
-        async def m():
+        async def m(msg):
             await publisher.publish("response")
 
-        await test_broker.start()
-        await test_broker.publish("hello", queue)
-        publisher.mock.assert_called_with("response")
+        async with self.test_class(test_broker):
+            await test_broker.start()
+            await test_broker.publish("hello", queue)
+            publisher.mock.assert_called_with("response")
 
     @pytest.mark.asyncio()
-    async def test_exception_raises(self, queue: str, test_broker: BrokerUsecase):
+    async def test_exception_raises(self, queue: str):
+        test_broker = self.get_broker()
+
         @test_broker.subscriber(queue)
-        async def m():  # pragma: no cover
+        async def m(msg):  # pragma: no cover
             raise ValueError()
 
-        await test_broker.start()
+        async with self.test_class(test_broker):
+            await test_broker.start()
 
-        with pytest.raises(ValueError):  # noqa: PT011
-            await test_broker.publish("hello", queue)
+            with pytest.raises(ValueError):  # noqa: PT011
+                await test_broker.publish("hello", queue)

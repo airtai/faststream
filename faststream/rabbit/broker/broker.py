@@ -278,6 +278,7 @@ class RabbitBroker(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
+            **super()._subscriber_setup_extra,
             "app_id": self.app_id,
             "virtual_host": self.virtual_host,
             "declarer": self.declarer,
@@ -286,6 +287,7 @@ class RabbitBroker(
     @property
     def _publisher_setup_extra(self) -> "AnyDict":
         return {
+            **super()._publisher_setup_extra,
             "app_id": self.app_id,
             "virtual_host": self.virtual_host,
         }

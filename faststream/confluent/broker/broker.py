@@ -472,6 +472,7 @@ class KafkaBroker(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
+            **super()._subscriber_setup_extra,
             "client_id": self.client_id,
             "builder": self._connection,
         }
