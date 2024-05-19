@@ -12,6 +12,45 @@ hide:
 ---
 
 # Release Notes
+## 0.5.7
+
+### What's Changed
+
+Finally, FastStream supports [OpenTelemetry](https://opentelemetry.io/) in a native way to collect the full trace of your services! Big thanks for @draincoder for that!
+
+First of all you need to install required dependencies to support OpenTelemetry:
+
+```bash
+pip install faststream[otel]
+```
+
+Then you can just add a middleware for your broker and that's it!
+
+```python
+from faststream import FastStream
+from faststream.nats import NatsBroker
+from faststream.nats.opentelemetry import NatsTelemetryMiddleware
+
+broker = NatsBroker(
+    middlewares=(
+        NatsTelemetryMiddleware(),
+    )
+)
+app = FastStream(broker)
+```
+
+To find detailt information just visit our documentation aboout [telemetry](https://faststream.airt.ai/latest/getting-started/opentelemetry/)
+
+P.S. The release includes basic OpenTelemetry support - messages tracing & basic metrics. Baggage support and correct spans linking in batch processing case will be added soon.
+
+* fix: serialize TestClient rpc output to mock the real message by @Lancetnik in https://github.com/airtai/faststream/pull/1452
+* feature (#916): Observability by @draincoder in https://github.com/airtai/faststream/pull/1398
+
+### New Contributors
+* @draincoder made their first contribution in https://github.com/airtai/faststream/pull/1398
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.6...0.5.7
+
 ## 0.5.6
 
 ### What's Changed
