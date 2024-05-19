@@ -534,6 +534,7 @@ class KafkaBroker(
             apply_types=apply_types,
             validate=validate,
         )
+
         self.client_id = client_id
         self._producer = None
 
@@ -612,6 +613,7 @@ class KafkaBroker(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
+            **super()._subscriber_setup_extra,
             "client_id": self.client_id,
             "builder": self._connection,
         }

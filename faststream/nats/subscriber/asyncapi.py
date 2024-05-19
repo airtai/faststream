@@ -188,9 +188,9 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
             )
 
 
-class AsyncAPIDefaultSubscriber(AsyncAPISubscriber, DefaultHandler):
+class AsyncAPIDefaultSubscriber(DefaultHandler, AsyncAPISubscriber):
     """One-message consumer with AsyncAPI methods."""
 
 
-class AsyncAPIBatchSubscriber(AsyncAPISubscriber, BatchHandler):
+class AsyncAPIBatchSubscriber(BatchHandler, AsyncAPISubscriber):
     """Batch-message consumer with AsyncAPI methods."""

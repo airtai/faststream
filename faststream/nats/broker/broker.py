@@ -717,7 +717,7 @@ class NatsBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        publihs_kwargs = {
+        publish_kwargs = {
             "subject": subject,
             "headers": headers,
             "reply_to": reply_to,
@@ -732,7 +732,7 @@ class NatsBroker(
             producer = self._producer
         else:
             producer = self._js_producer
-            publihs_kwargs.update(
+            publish_kwargs.update(
                 {
                     "stream": stream,
                     "timeout": timeout,
@@ -742,7 +742,7 @@ class NatsBroker(
         return await super().publish(
             message,
             producer=producer,
-            **publihs_kwargs,
+            **publish_kwargs,
         )
 
     @override
@@ -770,10 +770,7 @@ class NatsBroker(
         elif self._producer is not None:
             producer = self._producer
 
-        publisher.setup(
-            producer=producer,
-            **self._publisher_setup_extra,
-        )
+        super().setup_publisher(publisher, producer=producer)
 
     def _log_connection_broken(
         self,

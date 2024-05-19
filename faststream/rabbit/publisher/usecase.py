@@ -97,8 +97,9 @@ class LogicPublisher(
 ):
     """A class to represent a RabbitMQ publisher."""
 
-    _producer: Optional["AioPikaFastProducer"]
     app_id: Optional[str]
+
+    _producer: Optional["AioPikaFastProducer"]
 
     def __init__(
         self,

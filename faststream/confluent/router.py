@@ -1,6 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
     Callable,
     Dict,
     Iterable,
@@ -129,7 +130,10 @@ class KafkaRoute(SubscriberRoute):
     def __init__(
         self,
         call: Annotated[
-            Callable[..., "SendableMessage"],
+            Union[
+                Callable[..., "SendableMessage"],
+                Callable[..., Awaitable["SendableMessage"]],
+            ],
             Doc("Message handler function."),
         ],
         *topics: Annotated[
