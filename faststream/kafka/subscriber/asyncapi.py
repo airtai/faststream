@@ -14,6 +14,7 @@ from faststream.asyncapi.schema import (
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import MsgType
+from faststream.exceptions import SetupError
 from faststream.kafka.subscriber.usecase import (
     BatchSubscriber,
     DefaultSubscriber,
@@ -22,6 +23,12 @@ from faststream.kafka.subscriber.usecase import (
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord
+    from aiokafka import ConsumerRecord, TopicPartition
+    from aiokafka.abc import ConsumerRebalanceListener
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.types import BrokerMiddleware
+    from faststream.types import AnyDict
 
 
 class AsyncAPISubscriber(LogicSubscriber[MsgType]):
@@ -55,7 +62,6 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
             )
 
         return channels
-
 
 class AsyncAPIDefaultSubscriber(
     DefaultSubscriber,

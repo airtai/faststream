@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional, Union
 
 from typing_extensions import Annotated, Doc, deprecated
 
@@ -177,7 +177,10 @@ class RabbitRoute(SubscriberRoute):
     def __init__(
         self,
         call: Annotated[
-            Callable[..., "AioPikaSendableMessage"],
+            Union[
+                Callable[..., "AioPikaSendableMessage"],
+                Callable[..., Awaitable["AioPikaSendableMessage"]],
+            ],
             Doc(
                 "Message handler function "
                 "to wrap the same with `@broker.subscriber(...)` way."
@@ -285,8 +288,8 @@ class RabbitRoute(SubscriberRoute):
 
 
 class RabbitRouter(
-    BrokerRouter["IncomingMessage"],
     RabbitRegistrator,
+    BrokerRouter["IncomingMessage"],
 ):
     """Includable to RabbitBroker router."""
 

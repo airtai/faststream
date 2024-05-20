@@ -1,6 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Any,
+    List,
     Mapping,
     Optional,
     Sequence,
@@ -135,13 +136,16 @@ class SimpleParser:
         self,
         message: Mapping[str, Any],
     ) -> "StreamMessage[Mapping[str, Any]]":
-        data, headers = self._parse_data(message)
+        data, headers, batch_headers = self._parse_data(message)
+
         id_ = gen_cor_id()
+
         return self.msg_class(
             raw_message=message,
             body=data,
             path=self.get_path(message),
             headers=headers,
+            batch_headers=batch_headers,
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
             message_id=headers.get("message_id", id_),
@@ -149,8 +153,10 @@ class SimpleParser:
         )
 
     @staticmethod
-    def _parse_data(message: Mapping[str, Any]) -> Tuple[bytes, "AnyDict"]:
-        return RawMessage.parse(message["data"])
+    def _parse_data(
+        message: Mapping[str, Any],
+    ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
+        return (*RawMessage.parse(message["data"]), [])
 
     def get_path(self, message: Mapping[str, Any]) -> "AnyDict":
         if (
@@ -182,10 +188,26 @@ class RedisBatchListParser(SimpleParser):
     msg_class = RedisBatchListMessage
 
     @staticmethod
-    def _parse_data(message: Mapping[str, Any]) -> Tuple[bytes, "AnyDict"]:
+    def _parse_data(
+        message: Mapping[str, Any],
+    ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
+        body: List[Any] = []
+        batch_headers: List["AnyDict"] = []
+
+        for x in message["data"]:
+            msg_data, msg_headers = _decode_batch_body_item(x)
+            body.append(msg_data)
+            batch_headers.append(msg_headers)
+
+        first_msg_headers = next(iter(batch_headers), {})
+
         return (
-            dump_json(_decode_batch_body_item(x) for x in message["data"]),
-            {"content-type": ContentTypes.json},
+            dump_json(body),
+            {
+                **first_msg_headers,
+                "content-type": ContentTypes.json.value,
+            },
+            batch_headers,
         )
 
 
@@ -193,27 +215,43 @@ class RedisStreamParser(SimpleParser):
     msg_class = RedisStreamMessage
 
     @classmethod
-    def _parse_data(cls, message: Mapping[str, Any]) -> Tuple[bytes, "AnyDict"]:
+    def _parse_data(
+        cls, message: Mapping[str, Any]
+    ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
         data = message["data"]
-        return RawMessage.parse(data.get(bDATA_KEY) or dump_json(data))
+        return (*RawMessage.parse(data.get(bDATA_KEY) or dump_json(data)), [])
 
 
 class RedisBatchStreamParser(SimpleParser):
     msg_class = RedisBatchStreamMessage
 
     @staticmethod
-    def _parse_data(message: Mapping[str, Any]) -> Tuple[bytes, "AnyDict"]:
+    def _parse_data(
+        message: Mapping[str, Any],
+    ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
+        body: List[Any] = []
+        batch_headers: List["AnyDict"] = []
+
+        for x in message["data"]:
+            msg_data, msg_headers = _decode_batch_body_item(x.get(bDATA_KEY, x))
+            body.append(msg_data)
+            batch_headers.append(msg_headers)
+
+        first_msg_headers = next(iter(batch_headers), {})
+
         return (
-            dump_json(
-                _decode_batch_body_item(x.get(bDATA_KEY, x)) for x in message["data"]
-            ),
-            {"content-type": ContentTypes.json},
+            dump_json(body),
+            {
+                **first_msg_headers,
+                "content-type": ContentTypes.json.value,
+            },
+            batch_headers,
         )
 
 
-def _decode_batch_body_item(msg_content: bytes) -> Any:
-    msg_body, _ = RawMessage.parse(msg_content)
+def _decode_batch_body_item(msg_content: bytes) -> Tuple[Any, "AnyDict"]:
+    msg_body, headers = RawMessage.parse(msg_content)
     try:
-        return json_loads(msg_body)
+        return json_loads(msg_body), headers
     except Exception:
-        return msg_body
+        return msg_body, headers

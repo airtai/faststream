@@ -12,16 +12,20 @@ from tests.tools import spy_decorator
 @pytest.mark.redis()
 @pytest.mark.asyncio()
 class TestPublish(BrokerPublishTestcase):
+    def get_broker(self, apply_types: bool = False):
+        return RedisBroker(apply_types=apply_types)
+
     async def test_list_publisher(
         self,
         queue: str,
-        pub_broker: RedisBroker,
         event: asyncio.Event,
         mock: MagicMock,
     ):
+        pub_broker = self.get_broker()
+
         @pub_broker.subscriber(list=queue)
         @pub_broker.publisher(list=queue + "resp")
-        async def m():
+        async def m(msg):
             return ""
 
         @pub_broker.subscriber(list=queue + "resp")
@@ -29,11 +33,12 @@ class TestPublish(BrokerPublishTestcase):
             event.set()
             mock(msg)
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
+
             await asyncio.wait(
                 (
-                    asyncio.create_task(pub_broker.publish("", list=queue)),
+                    asyncio.create_task(br.publish("", list=queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -42,17 +47,22 @@ class TestPublish(BrokerPublishTestcase):
         assert event.is_set()
         mock.assert_called_once_with("")
 
-    async def test_list_publish_batch(self, queue: str, broker: RedisBroker):
+    async def test_list_publish_batch(
+        self,
+        queue: str,
+    ):
+        pub_broker = self.get_broker()
+
         msgs_queue = asyncio.Queue(maxsize=2)
 
-        @broker.subscriber(list=queue)
+        @pub_broker.subscriber(list=queue)
         async def handler(msg):
             await msgs_queue.put(msg)
 
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
 
-            await broker.publish_batch(1, "hi", list=queue)
+            await br.publish_batch(1, "hi", list=queue)
 
             result, _ = await asyncio.wait(
                 (
@@ -67,15 +77,16 @@ class TestPublish(BrokerPublishTestcase):
     async def test_batch_list_publisher(
         self,
         queue: str,
-        pub_broker: RedisBroker,
         event: asyncio.Event,
         mock: MagicMock,
     ):
+        pub_broker = self.get_broker()
+
         batch_list = ListSub(queue + "resp", batch=True)
 
         @pub_broker.subscriber(list=queue)
         @pub_broker.publisher(list=batch_list)
-        async def m():
+        async def m(msg):
             return 1, 2, 3
 
         @pub_broker.subscriber(list=batch_list)
@@ -83,11 +94,12 @@ class TestPublish(BrokerPublishTestcase):
             event.set()
             mock(msg)
 
-        async with pub_broker:
-            await pub_broker.start()
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
+
             await asyncio.wait(
                 (
-                    asyncio.create_task(pub_broker.publish("", list=queue)),
+                    asyncio.create_task(br.publish("", list=queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -99,10 +111,11 @@ class TestPublish(BrokerPublishTestcase):
     async def test_publisher_with_maxlen(
         self,
         queue: str,
-        pub_broker: RedisBroker,
         event: asyncio.Event,
         mock: MagicMock,
     ):
+        pub_broker = self.get_broker()
+
         stream = StreamSub(queue + "resp", maxlen=1)
 
         @pub_broker.subscriber(stream=queue)
@@ -116,11 +129,12 @@ class TestPublish(BrokerPublishTestcase):
             mock(msg)
 
         with patch.object(Redis, "xadd", spy_decorator(Redis.xadd)) as m:
-            async with pub_broker:
-                await pub_broker.start()
+            async with self.patch_broker(pub_broker) as br:
+                await br.start()
+
                 await asyncio.wait(
                     (
-                        asyncio.create_task(pub_broker.publish("hi", stream=queue)),
+                        asyncio.create_task(br.publish("hi", stream=queue)),
                         asyncio.create_task(event.wait()),
                     ),
                     timeout=3,

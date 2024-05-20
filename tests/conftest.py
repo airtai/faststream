@@ -1,5 +1,6 @@
 import asyncio
 from unittest.mock import AsyncMock, MagicMock
+from uuid import uuid4
 
 import pytest
 from typer.testing import CliRunner
@@ -16,6 +17,11 @@ def pytest_keyboard_interrupt(excinfo):  # pragma: no cover
 def pytest_collection_modifyitems(items):
     for item in items:
         item.add_marker("all")
+
+
+@pytest.fixture()
+def queue():
+    return str(uuid4())
 
 
 @pytest.fixture()

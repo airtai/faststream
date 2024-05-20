@@ -23,7 +23,11 @@ from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
 from faststream.confluent.broker.logging import KafkaLoggingBroker
 from faststream.confluent.broker.registrator import KafkaRegistrator
-from faststream.confluent.client import AsyncConfluentProducer, _missing
+from faststream.confluent.client import (
+    AsyncConfluentConsumer,
+    AsyncConfluentProducer,
+    _missing,
+)
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
@@ -425,7 +429,7 @@ class KafkaBroker(
             Doc("Kafka addresses to connect."),
         ] = Parameter.empty,
         **kwargs: Any,
-    ) -> ConsumerConnectionParams:
+    ) -> Callable[..., AsyncConfluentConsumer]:
         if bootstrap_servers is not Parameter.empty:
             kwargs["bootstrap_servers"] = bootstrap_servers
 
@@ -437,17 +441,23 @@ class KafkaBroker(
         *,
         client_id: str,
         **kwargs: Any,
-    ) -> ConsumerConnectionParams:
+    ) -> Callable[..., AsyncConfluentConsumer]:
         security_params = parse_security(self.security)
+        kwargs.update(security_params)
+
         producer = AsyncConfluentProducer(
             **kwargs,
-            **security_params,
             client_id=client_id,
         )
+
         self._producer = AsyncConfluentFastProducer(
             producer=producer,
         )
-        return filter_by_dict(ConsumerConnectionParams, {**kwargs, **security_params})
+
+        return partial(
+            AsyncConfluentConsumer,
+            **filter_by_dict(ConsumerConnectionParams, kwargs),
+        )
 
     async def start(self) -> None:
         await super().start()
@@ -461,7 +471,11 @@ class KafkaBroker(
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
-        return {"client_id": self.client_id, "connection_data": self._connection or {}}
+        return {
+            **super()._subscriber_setup_extra,
+            "client_id": self.client_id,
+            "builder": self._connection,
+        }
 
     @override
     async def publish(  # type: ignore[override]

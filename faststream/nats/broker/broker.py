@@ -655,6 +655,28 @@ class NatsBroker(
                 else:  # pragma: no cover
                     self._log(str(e), logging.ERROR, log_context, exc_info=e)
 
+                except BadRequestError as e:
+                    if (
+                        e.description
+                        == "stream name already in use with a different configuration"
+                    ):
+                        old_config = (await self.stream.stream_info(stream.name)).config
+
+                        self._log(str(e), logging.WARNING, log_context)
+                        await self.stream.update_stream(
+                            config=stream.config,
+                            subjects=tuple(
+                                set(old_config.subjects or ()).union(stream.subjects)
+                            ),
+                        )
+
+                    else:  # pragma: no cover
+                        self._log(str(e), logging.ERROR, log_context, exc_info=e)
+
+                finally:
+                    # prevent from double declaration
+                    stream.declare = False
+
         # TODO: filter by already running handlers after TestClient refactor
         for handler in self._subscribers.values():
             self._log(
@@ -730,7 +752,7 @@ class NatsBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        publihs_kwargs = {
+        publish_kwargs = {
             "subject": subject,
             "headers": headers,
             "reply_to": reply_to,
@@ -745,7 +767,7 @@ class NatsBroker(
             producer = self._producer
         else:
             producer = self._js_producer
-            publihs_kwargs.update(
+            publish_kwargs.update(
                 {
                     "stream": stream,
                     "timeout": timeout,
@@ -755,7 +777,7 @@ class NatsBroker(
         return await super().publish(
             message,
             producer=producer,
-            **publihs_kwargs,
+            **publish_kwargs,
         )
 
     @override
@@ -802,10 +824,7 @@ class NatsBroker(
         elif self._producer is not None:
             producer = self._producer
 
-        publisher.setup(
-            producer=producer,
-            **self._publisher_setup_extra,
-        )
+        super().setup_publisher(publisher, producer=producer)
 
     async def key_value(
         self,

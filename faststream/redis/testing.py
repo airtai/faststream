@@ -1,10 +1,11 @@
 import re
 from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
+from unittest.mock import AsyncMock, MagicMock
 
 from typing_extensions import override
 
 from faststream.broker.message import gen_cor_id
-from faststream.exceptions import SetupError
+from faststream.exceptions import WRONG_PUBLISH_ARGS, SetupError
 from faststream.redis.broker.broker import RedisBroker
 from faststream.redis.message import (
     BatchListMessage,
@@ -49,12 +50,15 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         return sub.calls[0].handler
 
     @staticmethod
-    async def _fake_connect(
+    async def _fake_connect(  # type: ignore[override]
         broker: RedisBroker,
         *args: Any,
         **kwargs: Any,
-    ) -> None:
+    ) -> AsyncMock:
         broker._producer = FakeProducer(broker)  # type: ignore[assignment]
+        connection = MagicMock()
+        connection.pubsub.side_effect = AsyncMock
+        return connection
 
     @staticmethod
     def remove_publisher_fake_subscriber(
@@ -87,6 +91,9 @@ class FakeProducer(RedisFastProducer):
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[Any]:
+        if rpc and reply_to:
+            raise WRONG_PUBLISH_ARGS
+
         correlation_id = correlation_id or gen_cor_id()
 
         body = build_message(
@@ -176,6 +183,7 @@ class FakeProducer(RedisFastProducer):
         self,
         *msgs: "SendableMessage",
         list: str,
+        headers: Optional["AnyDict"] = None,
         correlation_id: Optional[str] = None,
     ) -> None:
         correlation_id = correlation_id or gen_cor_id()
@@ -193,6 +201,7 @@ class FakeProducer(RedisFastProducer):
                             build_message(
                                 m,
                                 correlation_id=correlation_id,
+                                headers=headers,
                             )
                             for m in msgs
                         ],

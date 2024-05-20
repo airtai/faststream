@@ -103,10 +103,16 @@ class AsyncAPIKeyValueWatchSubscriber(AsyncAPISubscriber, KeyValueWatchSubscribe
 class AsyncAPIObjStoreWatchSubscriber(AsyncAPISubscriber, ObjStoreWatchSubscriber):
     """ObjStoreWatch consumer with AsyncAPI methods."""
 
+class AsyncAPIDefaultSubscriber(DefaultHandler, AsyncAPISubscriber):
+    """One-message consumer with AsyncAPI methods."""
+
     @override
     def get_name(self) -> str:
         return ""
 
-    @override
     def get_schema(self) -> Dict[str, Channel]:
         return {}
+
+class AsyncAPIBatchSubscriber(BatchHandler, AsyncAPISubscriber):
+    """Batch-message consumer with AsyncAPI methods."""
+

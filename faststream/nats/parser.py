@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
 from faststream.nats.message import (
@@ -109,15 +110,27 @@ class BatchParser(JsParser):
         self,
         message: List["Msg"],
     ) -> "StreamMessage[List[Msg]]":
-        if first_msg := next(iter(message), None):
-            path = self.get_path(first_msg.subject)
+        body: List[bytes] = []
+        batch_headers: List[Dict[str, str]] = []
+
+        if message:
+            path = self.get_path(message[0].subject)
+
+            for m in message:
+                batch_headers.append(m.headers or {})
+                body.append(m.data)
+
         else:
             path = None
 
+        headers = next(iter(batch_headers), {})
+
         return NatsBatchMessage(
             raw_message=message,
-            body=[m.data for m in message],
+            body=body,
             path=path or {},
+            headers=headers,
+            batch_headers=batch_headers,
         )
 
     async def decode_batch(

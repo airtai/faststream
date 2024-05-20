@@ -534,6 +534,7 @@ class KafkaBroker(
             apply_types=apply_types,
             validate=validate,
         )
+
         self.client_id = client_id
         self._producer = None
 
@@ -557,7 +558,7 @@ class KafkaBroker(
             Doc("Kafka addresses to connect."),
         ] = Parameter.empty,
         **kwargs: "Unpack[KafkaInitKwargs]",
-    ) -> ConsumerConnectionParams:
+    ) -> Callable[..., aiokafka.AIOKafkaConsumer]:
         """Connect to Kafka servers manually.
 
         Consumes the same with `KafkaBroker.__init__` arguments and overrides them.
@@ -579,18 +580,24 @@ class KafkaBroker(
         *,
         client_id: str,
         **kwargs: Any,
-    ) -> ConsumerConnectionParams:
+    ) -> Callable[..., aiokafka.AIOKafkaConsumer]:
         security_params = parse_security(self.security)
+        kwargs.update(security_params)
+
         producer = aiokafka.AIOKafkaProducer(
             **kwargs,
-            **security_params,
             client_id=client_id,
         )
+
         await producer.start()
         self._producer = AioKafkaFastProducer(
             producer=producer,
         )
-        return filter_by_dict(ConsumerConnectionParams, {**kwargs, **security_params})
+
+        return partial(
+            aiokafka.AIOKafkaConsumer,
+            **filter_by_dict(ConsumerConnectionParams, kwargs),
+        )
 
     async def start(self) -> None:
         """Connect broker to Kafka and startup all subscribers."""
@@ -606,8 +613,9 @@ class KafkaBroker(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
+            **super()._subscriber_setup_extra,
             "client_id": self.client_id,
-            "connection_args": self._connection or {},
+            "builder": self._connection,
         }
 
     @override

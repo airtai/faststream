@@ -12,6 +12,131 @@ hide:
 ---
 
 # Release Notes
+## 0.5.7
+
+### What's Changed
+
+Finally, FastStream supports [OpenTelemetry](https://opentelemetry.io/) in a native way to collect the full trace of your services! Big thanks for @draincoder for that!
+
+First of all you need to install required dependencies to support OpenTelemetry:
+
+```bash
+pip install faststream[otel]
+```
+
+Then you can just add a middleware for your broker and that's it!
+
+```python
+from faststream import FastStream
+from faststream.nats import NatsBroker
+from faststream.nats.opentelemetry import NatsTelemetryMiddleware
+
+broker = NatsBroker(
+    middlewares=(
+        NatsTelemetryMiddleware(),
+    )
+)
+app = FastStream(broker)
+```
+
+To find detailt information just visit our documentation aboout [telemetry](https://faststream.airt.ai/latest/getting-started/opentelemetry/)
+
+P.S. The release includes basic OpenTelemetry support - messages tracing & basic metrics. Baggage support and correct spans linking in batch processing case will be added soon.
+
+* fix: serialize TestClient rpc output to mock the real message by @Lancetnik in https://github.com/airtai/faststream/pull/1452
+* feature (#916): Observability by @draincoder in https://github.com/airtai/faststream/pull/1398
+
+### New Contributors
+* @draincoder made their first contribution in https://github.com/airtai/faststream/pull/1398
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.6...0.5.7
+
+## 0.5.6
+
+### What's Changed
+
+* feature: add --factory param by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1440](https://github.com/airtai/faststream/pull/1440){.external-link target="_blank"}
+* feat: add RMQ channels options, support for prefix for routing_key, a… by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1448](https://github.com/airtai/faststream/pull/1448){.external-link target="_blank"}
+* feature: Add `from faststream.rabbit.annotations import Connection, Channel` shortcuts
+* Bugfix: RabbitMQ RabbitRouter prefix now affects to queue routing key as well
+* Feature (close #1402): add `broker.add_middleware` public API to append a middleware to already created broker
+* Feature: add `RabbitBroker(channel_number: int, publisher_confirms: bool, on_return_raises: bool)` options to setup channel settings
+* Feature (close #1447): add `StreamMessage.batch_headers` attribute to provide with access to whole batch messages headers
+
+### New Contributors
+
+* [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} made their first contribution in [#1440](https://github.com/airtai/faststream/pull/1440){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.5...0.5.6](https://github.com/airtai/faststream/compare/0.5.5...0.5.6){.external-link target="_blank"}
+
+## 0.5.5
+
+### What's Changed
+
+Add support for explicit partition assignment in aiokafka `KafkaBroker` (special thanks to @spataphore1337):
+
+```python
+from faststream import FastStream
+from faststream.kafka import KafkaBroker, TopicPartition
+
+broker = KafkaBroker()
+
+topic_partition_fisrt = TopicPartition("my_topic", 1)
+topic_partition_second = TopicPartition("my_topic", 2)
+
+@broker.subscribe(partitions=[topic_partition_fisrt, topic_partition_second])
+async def some_consumer(msg):
+   ...
+```
+
+* Update Release Notes for 0.5.4 by @faststream-release-notes-updater in [#1421](https://github.com/airtai/faststream/pull/1421){.external-link target="_blank"}
+* feature: manual partition assignment to Kafka by [@spataphore1337](https://github.com/spataphore1337){.external-link target="_blank"} in [#1422](https://github.com/airtai/faststream/pull/1422){.external-link target="_blank"}
+* Chore/update deps by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1429](https://github.com/airtai/faststream/pull/1429){.external-link target="_blank"}
+* Fix/correct dynamic subscriber registration by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1433](https://github.com/airtai/faststream/pull/1433){.external-link target="_blank"}
+* chore: bump version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1435](https://github.com/airtai/faststream/pull/1435){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.4...0.5.5](https://github.com/airtai/faststream/compare/0.5.4...0.5.5){.external-link target="_blank"}
+
+## 0.5.4
+
+### What's Changed
+
+* Update Release Notes for 0.5.3 by @faststream-release-notes-updater in [#1400](https://github.com/airtai/faststream/pull/1400){.external-link target="_blank"}
+* fix (#1415): raise SetupError if rpc and reply_to are using in TestCL… by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1419](https://github.com/airtai/faststream/pull/1419){.external-link target="_blank"}
+* Chore/update deps2 by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1418](https://github.com/airtai/faststream/pull/1418){.external-link target="_blank"}
+* refactor: correct security with kwarg params merging by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1417](https://github.com/airtai/faststream/pull/1417){.external-link target="_blank"}
+* fix (#1414): correct Message.ack error processing by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1420](https://github.com/airtai/faststream/pull/1420){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.3...0.5.4](https://github.com/airtai/faststream/compare/0.5.3...0.5.4){.external-link target="_blank"}
+
+## 0.5.3
+
+### What's Changed
+* Update Release Notes for 0.5.2 by @faststream-release-notes-updater in [#1382](https://github.com/airtai/faststream/pull/1382){.external-link target="_blank"}
+* Fix/setup at broker connection instead of starting by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1385](https://github.com/airtai/faststream/pull/1385){.external-link target="_blank"}
+* Tests/add path tests by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1388](https://github.com/airtai/faststream/pull/1388){.external-link target="_blank"}
+* Fix/path with router prefix by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1395](https://github.com/airtai/faststream/pull/1395){.external-link target="_blank"}
+* chore: update dependencies by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1396](https://github.com/airtai/faststream/pull/1396){.external-link target="_blank"}
+* chore: bump version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1397](https://github.com/airtai/faststream/pull/1397){.external-link target="_blank"}
+* chore: polishing by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1399](https://github.com/airtai/faststream/pull/1399){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.2...0.5.3](https://github.com/airtai/faststream/compare/0.5.2...0.5.3){.external-link target="_blank"}
+
+## 0.5.2
+
+### What's Changed
+
+Just a little bugfix patch. Fixes #1379 and #1376.
+
+* Update Release Notes for 0.5.1 by @faststream-release-notes-updater in [#1378](https://github.com/airtai/faststream/pull/1378){.external-link target="_blank"}
+* Tests/fastapi background by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1380](https://github.com/airtai/faststream/pull/1380){.external-link target="_blank"}
+* Fix/0.5.2 by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1381](https://github.com/airtai/faststream/pull/1381){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.1...0.5.2](https://github.com/airtai/faststream/compare/0.5.1...0.5.2){.external-link target="_blank"}
+
 ## 0.5.1
 
 ### What's Changed
@@ -29,7 +154,7 @@ We already have some fixes related to `RedisBroker` (#1375, #1376) and some new 
      include_in_schema=False,
   )
   ```
- 
+
 2. `KafkaBroker().subscriber(...)` now consumes `aiokafka.ConsumerRebalanceListener` object.
 You can find more information about it in the official [**aiokafka** doc](https://aiokafka.readthedocs.io/en/stable/consumer.html?highlight=subscribe#topic-subscription-by-pattern)
 
@@ -37,7 +162,7 @@ You can find more information about it in the official [**aiokafka** doc](https:
 
   ```python
   broker = KafkaBroker()
-  
+
   broker.subscriber(..., listener=MyRebalancer())
   ```
 
@@ -88,37 +213,37 @@ subscriber = broker.subscriber("test")
 @subscriber(filter = lambda msg: msg.content_type == "application/json")
 async def handler(msg: dict[str, Any]):
     ...
- 
+
 @subscriber()
 async def handler(msg: dict[str, Any]):
     ...
  ```
- 
+
 This is the preferred syntax for [filtering](https://faststream.airt.ai/latest/getting-started/subscription/filtering/) now (the old one will be removed in `0.6.0`)
- 
+
  3. The `router.publisher()` function now returns the correct `Publisher` object you can use later (after broker startup).
- 
+
  ```python
  publisher = router.publisher("test")
- 
+
  @router.subscriber("in")
  async def handler():
      await publisher.publish("msg")
  ```
- 
+
  (Until `0.5.0` you could use it in this way with `broker.publisher` only)
- 
+
  4. A list of `middlewares` can be passed to a `broker.publisher` as well:
- 
+
  ```python
  broker = Broker(..., middlewares=())
- 
+
  @broker.subscriber(..., middlewares=())
  @broker.publisher(..., middlewares=())  # new feature
  async def handler():
      ...
  ```
- 
+
 5. Broker-level middlewares now affect all ways to publish a message, so you can encode application outgoing messages here.
 
 6. ⚠️ BREAKING CHANGE ⚠️ : both `subscriber` and `publisher` middlewares should be async context manager type
@@ -182,7 +307,7 @@ await subscriber.close()
   * close #568
   * close #1303
   * close #1287
-  * feat #607 
+  * feat #607
 * Generate docs and linter fixes by @davorrunje in https://github.com/airtai/faststream/pull/1348
 * Fix types by @davorrunje in https://github.com/airtai/faststream/pull/1349
 * chore: update dependencies by @Lancetnik in https://github.com/airtai/faststream/pull/1358

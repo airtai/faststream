@@ -6,8 +6,13 @@ from tests.brokers.base.rpc import BrokerRPCTestcase, ReplyAndConsumeForbidden
 
 @pytest.mark.nats()
 class TestRPC(BrokerRPCTestcase, ReplyAndConsumeForbidden):
+    def get_broker(self, apply_types: bool = False) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types)
+
     @pytest.mark.asyncio()
-    async def test_rpc_js(self, queue: str, rpc_broker: NatsBroker, stream: JStream):
+    async def test_rpc_js(self, queue: str, stream: JStream):
+        rpc_broker = self.get_broker()
+
         @rpc_broker.subscriber(queue, stream=stream)
         async def m(m):  # pragma: no cover
             return "1"

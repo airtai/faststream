@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from faststream.asyncapi.schema import Tag, TagDict
     from faststream.broker.publisher.proto import ProducerProto, PublisherProto
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, AsyncFunc, Decorator, LoggerProto
+    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 class BrokerUsecase(
@@ -214,7 +214,20 @@ class BrokerUsecase(
         """Start the broker async use case."""
         self._abc_start()
         await self.connect()
+
+    async def connect(self, **kwargs: Any) -> ConnectionType:
+        """Connect to a remote server."""
+        if self._connection is None:
+            connection_kwargs = self._connection_kwargs.copy()
+            connection_kwargs.update(kwargs)
+            self._connection = await self._connect(**connection_kwargs)
         self.setup()
+        return self._connection
+
+    @abstractmethod
+    async def _connect(self) -> ConnectionType:
+        """Connect to a resource."""
+        raise NotImplementedError()
 
     def setup(self) -> None:
         """Prepare all Broker entities to startup."""
@@ -230,22 +243,9 @@ class BrokerUsecase(
         **kwargs: Any,
     ) -> None:
         """Setup the Subscriber to prepare it to starting."""
-        subscriber.setup(
-            logger=self.logger,
-            producer=self._producer,
-            graceful_timeout=self.graceful_timeout,
-            extra_context={},
-            # broker options
-            broker_parser=self._parser,
-            broker_decoder=self._decoder,
-            # dependant args
-            apply_types=self._is_apply_types,
-            is_validate=self._is_validate,
-            _get_dependant=self._get_dependant,
-            _call_decorators=self._call_decorators,
-            **self._subscriber_setup_extra,
-            **kwargs,
-        )
+        data = self._subscriber_setup_extra.copy()
+        data.update(kwargs)
+        subscriber.setup(**data)
 
     def setup_publisher(
         self,
@@ -253,19 +253,32 @@ class BrokerUsecase(
         **kwargs: Any,
     ) -> None:
         """Setup the Publisher to prepare it to starting."""
-        publisher.setup(
-            producer=self._producer,
-            **self._publisher_setup_extra,
-            **kwargs,
-        )
+        data = self._publisher_setup_extra.copy()
+        data.update(kwargs)
+        publisher.setup(**data)
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
-        return {}
+        return {
+            "logger": self.logger,
+            "producer": self._producer,
+            "graceful_timeout": self.graceful_timeout,
+            "extra_context": {},
+            # broker options
+            "broker_parser": self._parser,
+            "broker_decoder": self._decoder,
+            # dependant args
+            "apply_types": self._is_apply_types,
+            "is_validate": self._is_validate,
+            "_get_dependant": self._get_dependant,
+            "_call_decorators": self._call_decorators,
+        }
 
     @property
     def _publisher_setup_extra(self) -> "AnyDict":
-        return {}
+        return {
+            "producer": self._producer,
+        }
 
     def publisher(self, *args: Any, **kwargs: Any) -> "PublisherProto[MsgType]":
         pub = super().publisher(*args, **kwargs)
@@ -287,19 +300,6 @@ class BrokerUsecase(
                     cast(logging.Logger, self.logger),
                     self._get_fmt(),
                 )
-
-    async def connect(self, **kwargs: Any) -> ConnectionType:
-        """Connect to a remote server."""
-        if self._connection is None:
-            connection_kwargs = self._connection_kwargs.copy()
-            connection_kwargs.update(kwargs)
-            self._connection = await self._connect(**connection_kwargs)
-        return self._connection
-
-    @abstractmethod
-    async def _connect(self) -> ConnectionType:
-        """Connect to a resource."""
-        raise NotImplementedError()
 
     async def close(
         self,
@@ -334,9 +334,10 @@ class BrokerUsecase(
         **kwargs: Any,
     ) -> Optional[Any]:
         """Publish message directly."""
-        assert producer, NOT_CONNECTED_YET  # nosec B101)
+        assert producer, NOT_CONNECTED_YET  # nosec B101
 
-        publish: "AsyncFunc" = producer.publish
+        publish = producer.publish
+
         for m in self._middlewares:
             publish = partial(m(None).publish_scope, publish)
 

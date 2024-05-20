@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from faststream.broker.message import decode_message, gen_cor_id
 from faststream.confluent.message import FAKE_CONSUMER, KafkaMessage
@@ -20,18 +20,14 @@ class AsyncConfluentParser:
         message: "Message",
     ) -> "StreamMessage[Message]":
         """Parses a Kafka message."""
-        headers = {}
-        if message.headers() is not None:
-            for i, j in message.headers():  # type: ignore[union-attr]
-                if isinstance(j, str):
-                    headers[i] = j
-                else:
-                    headers[i] = j.decode()
+        headers = _parse_msg_headers(message.headers())
+
         body = message.value()
         offset = message.offset()
         _, timestamp = message.timestamp()
 
         handler: Optional["LogicSubscriber[Any]"] = context.get_local("handler_")
+
         return KafkaMessage(
             body=body,
             headers=headers,
@@ -49,28 +45,29 @@ class AsyncConfluentParser:
         message: Tuple["Message", ...],
     ) -> "StreamMessage[Tuple[Message, ...]]":
         """Parses a batch of messages from a Kafka consumer."""
+        body: List[Any] = []
+        batch_headers: List[Dict[str, str]] = []
+
         first = message[0]
         last = message[-1]
 
-        headers = {}
-        if first.headers() is not None:
-            for i, j in first.headers():  # type: ignore[union-attr]
-                if isinstance(j, str):
-                    headers[i] = j
-                else:
-                    headers[i] = j.decode()
-        body = [m.value() for m in message]
-        first_offset = first.offset()
-        last_offset = last.offset()
+        for m in message:
+            body.append(m.value())
+            batch_headers.append(_parse_msg_headers(m.headers()))
+
+        headers = next(iter(batch_headers), {})
+
         _, first_timestamp = first.timestamp()
 
         handler: Optional["LogicSubscriber[Any]"] = context.get_local("handler_")
+
         return KafkaMessage(
             body=body,
             headers=headers,
+            batch_headers=batch_headers,
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
-            message_id=f"{first_offset}-{last_offset}-{first_timestamp}",
+            message_id=f"{first.offset()}-{last.offset()}-{first_timestamp}",
             correlation_id=headers.get("correlation_id", gen_cor_id()),
             raw_message=message,
             consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
@@ -91,3 +88,9 @@ class AsyncConfluentParser:
     ) -> "DecodedMessage":
         """Decode a batch of messages."""
         return [decode_message(await cls.parse_message(m)) for m in msg.raw_message]
+
+
+def _parse_msg_headers(
+    headers: Sequence[Tuple[str, Union[bytes, str]]],
+) -> Dict[str, str]:
+    return {i: j if isinstance(j, str) else j.decode() for i, j in headers}
