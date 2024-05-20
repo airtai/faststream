@@ -183,7 +183,6 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.kafka()
     async def test_multiple_subscribers_different_groups(
         self,
         queue: str,
@@ -201,7 +200,6 @@ class TestTestclient(BrokerTestclientTestcase):
         assert subscriber1.mock.call_count == 1
         assert subscriber2.mock.call_count == 1
 
-    @pytest.mark.kafka()
     async def test_multiple_subscribers_same_group(
         self,
         queue: str,
