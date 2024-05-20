@@ -88,7 +88,7 @@ devdocs = [
     "mike==2.1.1",                                      # versioning
     "mkdocs-minify-plugin==0.8.0",
     "mkdocs-macros-plugin==1.0.5",                      # includes with variables
-    "mkdocs-glightbox==0.3.7",                          # img zoom
+    "mkdocs-glightbox==0.4.0",                          # img zoom
     "pillow",                                           # required for mkdocs-glightbo
     "cairosvg",                                         # required for mkdocs-glightbo
     "requests",                                         # using in CI, do not pin it
