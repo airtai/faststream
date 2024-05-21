@@ -20,7 +20,7 @@ class AsyncConfluentParser:
         message: "Message",
     ) -> "StreamMessage[Message]":
         """Parses a Kafka message."""
-        headers = _parse_msg_headers(message.headers())
+        headers = _parse_msg_headers(message.headers() or ())
 
         body = message.value()
         offset = message.offset()
@@ -53,7 +53,7 @@ class AsyncConfluentParser:
 
         for m in message:
             body.append(m.value())
-            batch_headers.append(_parse_msg_headers(m.headers()))
+            batch_headers.append(_parse_msg_headers(m.headers() or ()))
 
         headers = next(iter(batch_headers), {})
 
