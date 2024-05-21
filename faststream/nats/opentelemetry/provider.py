@@ -110,7 +110,7 @@ def telemetry_attributes_provider_factory(
 ]:
     if isinstance(msg, Sequence):
         return NatsBatchTelemetrySettingsProvider()
-    elif isinstance(msg, Msg):
+    elif isinstance(msg, Msg) or msg is None:
         return NatsTelemetrySettingsProvider()
     else:
         # KeyValue and Object Storage watch cases
