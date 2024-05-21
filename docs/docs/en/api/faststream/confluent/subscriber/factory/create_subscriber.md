@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.nats.subscriber.asyncapi.AsyncAPIBatchSubscriber
+::: faststream.confluent.subscriber.factory.create_subscriber
