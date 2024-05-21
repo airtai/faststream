@@ -1,23 +1,93 @@
-from docs.docs_src.index.confluent.test import test_correct as test_confluent_correct
-from docs.docs_src.index.confluent.test import test_invalid as test_confluent_invalid
-from docs.docs_src.index.kafka.test import test_correct as test_k_correct
-from docs.docs_src.index.kafka.test import test_invalid as test_k_invalid
-from docs.docs_src.index.nats.test import test_correct as test_n_correct
-from docs.docs_src.index.nats.test import test_invalid as test_n_invalid
-from docs.docs_src.index.rabbit.test import test_correct as test_r_correct
-from docs.docs_src.index.rabbit.test import test_invalid as test_r_invalid
-from docs.docs_src.index.redis.test import test_correct as test_red_correct
-from docs.docs_src.index.redis.test import test_invalid as test_red_invalid
+import pytest
 
-__all__ = (
-    "test_k_correct",
-    "test_k_invalid",
-    "test_confluent_correct",
-    "test_confluent_invalid",
-    "test_r_correct",
-    "test_r_invalid",
-    "test_n_correct",
-    "test_n_invalid",
-    "test_red_correct",
-    "test_red_invalid",
+from tests.marks import (
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
 )
+
+
+@pytest.mark.asyncio()
+@require_aiokafka
+async def test_kafka_correct():
+    from docs.docs_src.index.kafka.test import test_correct as test_k_correct
+
+    await test_k_correct()
+
+
+@pytest.mark.asyncio()
+@require_aiokafka
+async def test_kafka_invalid():
+    from docs.docs_src.index.kafka.test import test_invalid as test_k_invalid
+
+    await test_k_invalid()
+
+
+@pytest.mark.asyncio()
+@require_confluent
+async def test_confluent_correct():
+    from docs.docs_src.index.confluent.test import (
+        test_correct as test_confluent_correct,
+    )
+
+    await test_confluent_correct()
+
+
+@pytest.mark.asyncio()
+@require_confluent
+async def test_confluent_invalid():
+    from docs.docs_src.index.confluent.test import (
+        test_invalid as test_confluent_invalid,
+    )
+
+    await test_confluent_invalid()
+
+
+@pytest.mark.asyncio()
+@require_aiopika
+async def test_rabbit_correct():
+    from docs.docs_src.index.rabbit.test import test_correct as test_r_correct
+
+    await test_r_correct()
+
+
+@pytest.mark.asyncio()
+@require_aiopika
+async def test_rabbit_invalid():
+    from docs.docs_src.index.rabbit.test import test_invalid as test_r_invalid
+
+    await test_r_invalid()
+
+
+@pytest.mark.asyncio()
+@require_nats
+async def test_nats_correct():
+    from docs.docs_src.index.nats.test import test_correct as test_n_correct
+
+    await test_n_correct()
+
+
+@pytest.mark.asyncio()
+@require_nats
+async def test_nats_invalid():
+    from docs.docs_src.index.nats.test import test_invalid as test_n_invalid
+
+    await test_n_invalid()
+
+
+@pytest.mark.asyncio()
+@require_redis
+async def test_redis_correct():
+    from docs.docs_src.index.redis.test import test_correct as test_red_correct
+
+    await test_red_correct()
+
+
+@pytest.mark.asyncio()
+@require_redis
+async def test_redis_invalid():
+    from docs.docs_src.index.redis.test import test_invalid as test_red_invalid
+
+    await test_red_invalid()

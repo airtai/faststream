@@ -1,19 +1,23 @@
 import pytest
 
-from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
-from faststream.kafka import TestKafkaBroker
-from faststream.nats import TestNatsBroker
-from faststream.rabbit import TestRabbitBroker
-from faststream.redis import TestRedisBroker
+from tests.marks import (
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
+)
 
 
 @pytest.mark.asyncio()
+@require_aiokafka
 async def test_cast_kafka():
     from docs.docs_src.getting_started.context.kafka.cast import (
         broker,
         handle,
         handle_int,
     )
+    from faststream.kafka import TestKafkaBroker
 
     async with TestKafkaBroker(broker) as br:
         await br.publish("Hi!", "test-topic")
@@ -26,12 +30,14 @@ async def test_cast_kafka():
 
 
 @pytest.mark.asyncio()
+@require_confluent
 async def test_cast_confluent():
     from docs.docs_src.getting_started.context.confluent.cast import (
         broker,
         handle,
         handle_int,
     )
+    from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
     async with TestConfluentKafkaBroker(broker) as br:
         await br.publish("Hi!", "test-topic")
@@ -44,12 +50,14 @@ async def test_cast_confluent():
 
 
 @pytest.mark.asyncio()
+@require_aiopika
 async def test_cast_rabbit():
     from docs.docs_src.getting_started.context.rabbit.cast import (
         broker,
         handle,
         handle_int,
     )
+    from faststream.rabbit import TestRabbitBroker
 
     async with TestRabbitBroker(broker) as br:
         await br.publish("Hi!", "test-queue")
@@ -62,12 +70,14 @@ async def test_cast_rabbit():
 
 
 @pytest.mark.asyncio()
+@require_nats
 async def test_cast_nats():
     from docs.docs_src.getting_started.context.nats.cast import (
         broker,
         handle,
         handle_int,
     )
+    from faststream.nats import TestNatsBroker
 
     async with TestNatsBroker(broker) as br:
         await br.publish("Hi!", "test-subject")
@@ -80,12 +90,14 @@ async def test_cast_nats():
 
 
 @pytest.mark.asyncio()
+@require_redis
 async def test_cast_redis():
     from docs.docs_src.getting_started.context.redis.cast import (
         broker,
         handle,
         handle_int,
     )
+    from faststream.redis import TestRedisBroker
 
     async with TestRedisBroker(broker) as br:
         await br.publish("Hi!", "test-channel")

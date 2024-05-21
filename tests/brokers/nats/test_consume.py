@@ -277,28 +277,31 @@ class TestConsume(BrokerRealConsumeTestcase):
             )
 
         assert event.is_set()
+        mock.assert_called_once_with(True)
 
     @pytest.mark.asyncio()
     async def test_consume_kv(
         self,
         queue: str,
-        full_broker: NatsBroker,
         event: asyncio.Event,
         mock,
     ):
-        @full_broker.subscriber("hello", kv_watch="test")
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, kv_watch=queue + "1")
         async def handler(m):
             mock(m)
             event.set()
 
-        async with full_broker:
-            await full_broker.start()
-            bucket = await full_broker.key_value("test")
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+            bucket = await br.key_value(queue + "1")
+
             await asyncio.wait(
                 (
                     asyncio.create_task(
                         bucket.put(
-                            "hello",
+                            queue,
                             b"world",
                         )
                     ),
@@ -312,17 +315,22 @@ class TestConsume(BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     async def test_consume_os(
-        self, queue: str, full_broker: NatsBroker, event: asyncio.Event
+        self,
+        queue: str,
+        event: asyncio.Event,
+        mock,
     ):
-        @full_broker.subscriber("test", obj_watch=True)
-        async def handler(filename: str):
-            if filename == "hello":
-                event.set()
+        consume_broker = self.get_broker(apply_types=True)
 
-        async with full_broker:
-            await full_broker.start()
-            bucket = await full_broker.object_storage("test")
-            await bucket.watch()
+        @consume_broker.subscriber(queue, obj_watch=True)
+        async def handler(filename: str):
+            event.set()
+            mock(filename)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+            bucket = await br.object_storage(queue)
+
             await asyncio.wait(
                 (
                     asyncio.create_task(
@@ -337,5 +345,4 @@ class TestConsume(BrokerRealConsumeTestcase):
             )
 
         assert event.is_set()
-        assert event.is_set()
-        mock.assert_called_once_with(True)
+        mock.assert_called_once_with("hello")

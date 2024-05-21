@@ -1,3 +1,3 @@
 import pytest
 
-pytest.importorskip("opentelemetry")
+pytest.importorskip("opentelemetry.sdk")

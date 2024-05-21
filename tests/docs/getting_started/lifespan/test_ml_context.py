@@ -1,20 +1,24 @@
 import pytest
 
 from faststream import TestApp
-from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
-from faststream.kafka import TestKafkaBroker
-from faststream.nats import TestNatsBroker
-from faststream.rabbit import TestRabbitBroker
-from faststream.redis import TestRedisBroker
+from tests.marks import (
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
+)
 
 
 @pytest.mark.asyncio()
+@require_aiopika
 async def test_rabbit_ml_lifespan():
     from docs.docs_src.getting_started.lifespan.rabbit.ml_context import (
         app,
         broker,
         predict,
     )
+    from faststream.rabbit import TestRabbitBroker
 
     async with TestRabbitBroker(broker), TestApp(app):
         assert {"result": 42.0} == await broker.publish(1.0, "test", rpc=True)
@@ -23,12 +27,14 @@ async def test_rabbit_ml_lifespan():
 
 
 @pytest.mark.asyncio()
+@require_aiokafka
 async def test_kafka_ml_lifespan():
     from docs.docs_src.getting_started.lifespan.kafka.ml_context import (
         app,
         broker,
         predict,
     )
+    from faststream.kafka import TestKafkaBroker
 
     async with TestKafkaBroker(broker), TestApp(app):
         assert {"result": 42.0} == await broker.publish(1.0, "test", rpc=True)
@@ -37,12 +43,14 @@ async def test_kafka_ml_lifespan():
 
 
 @pytest.mark.asyncio()
+@require_confluent
 async def test_confluent_ml_lifespan():
     from docs.docs_src.getting_started.lifespan.confluent.ml_context import (
         app,
         broker,
         predict,
     )
+    from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
     async with TestConfluentKafkaBroker(broker), TestApp(app):
         assert {"result": 42.0} == await broker.publish(1.0, "test", rpc=True)
@@ -51,12 +59,14 @@ async def test_confluent_ml_lifespan():
 
 
 @pytest.mark.asyncio()
+@require_nats
 async def test_nats_ml_lifespan():
     from docs.docs_src.getting_started.lifespan.nats.ml_context import (
         app,
         broker,
         predict,
     )
+    from faststream.nats import TestNatsBroker
 
     async with TestNatsBroker(broker), TestApp(app):
         assert {"result": 42.0} == await broker.publish(1.0, "test", rpc=True)
@@ -65,12 +75,14 @@ async def test_nats_ml_lifespan():
 
 
 @pytest.mark.asyncio()
+@require_redis
 async def test_redis_ml_lifespan():
     from docs.docs_src.getting_started.lifespan.redis.ml_context import (
         app,
         broker,
         predict,
     )
+    from faststream.redis import TestRedisBroker
 
     async with TestRedisBroker(broker), TestApp(app):
         assert {"result": 42.0} == await broker.publish(1.0, "test", rpc=True)

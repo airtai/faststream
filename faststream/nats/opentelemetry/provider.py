@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, List, Optional, Sequence, Union, overload
 
+from nats.aio.msg import Msg
 from opentelemetry.semconv.trace import SpanAttributes
 
 from faststream.__about__ import SERVICE_NAME
@@ -8,8 +9,6 @@ from faststream.opentelemetry import TelemetrySettingsProvider
 from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 
 if TYPE_CHECKING:
-    from nats.aio.msg import Msg
-
     from faststream.broker.message import StreamMessage
     from faststream.types import AnyDict
 
@@ -107,8 +106,12 @@ def telemetry_attributes_provider_factory(
 ) -> Union[
     NatsTelemetrySettingsProvider,
     NatsBatchTelemetrySettingsProvider,
+    None,
 ]:
     if isinstance(msg, Sequence):
         return NatsBatchTelemetrySettingsProvider()
-    else:
+    elif isinstance(msg, Msg):
         return NatsTelemetrySettingsProvider()
+    else:
+        # KeyValue and Object Storage watch cases
+        return None

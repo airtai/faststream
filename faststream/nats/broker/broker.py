@@ -631,8 +631,6 @@ class NatsBroker(
                 )
 
             except BadRequestError as e:  # noqa: PERF203
-                old_config = (await self.stream.stream_info(stream.name)).config
-
                 log_context = AsyncAPISubscriber.build_log_context(
                     message=None,
                     subject="",
@@ -644,6 +642,8 @@ class NatsBroker(
                     e.description
                     == "stream name already in use with a different configuration"
                 ):
+                    old_config = (await self.stream.stream_info(stream.name)).config
+
                     self._log(str(e), logging.WARNING, log_context)
                     await self.stream.update_stream(
                         config=stream.config,
@@ -655,27 +655,9 @@ class NatsBroker(
                 else:  # pragma: no cover
                     self._log(str(e), logging.ERROR, log_context, exc_info=e)
 
-                except BadRequestError as e:
-                    if (
-                        e.description
-                        == "stream name already in use with a different configuration"
-                    ):
-                        old_config = (await self.stream.stream_info(stream.name)).config
-
-                        self._log(str(e), logging.WARNING, log_context)
-                        await self.stream.update_stream(
-                            config=stream.config,
-                            subjects=tuple(
-                                set(old_config.subjects or ()).union(stream.subjects)
-                            ),
-                        )
-
-                    else:  # pragma: no cover
-                        self._log(str(e), logging.ERROR, log_context, exc_info=e)
-
-                finally:
-                    # prevent from double declaration
-                    stream.declare = False
+            finally:
+                # prevent from double declaration
+                stream.declare = False
 
         # TODO: filter by already running handlers after TestClient refactor
         for handler in self._subscribers.values():

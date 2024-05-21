@@ -1,15 +1,19 @@
 import pytest
 
-from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
-from faststream.kafka import TestKafkaBroker
-from faststream.nats import TestNatsBroker
-from faststream.rabbit import TestRabbitBroker
-from faststream.redis import TestRedisBroker
+from tests.marks import (
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
+)
 
 
 @pytest.mark.asyncio()
+@require_aiokafka
 async def test_index_kafka_base():
     from docs.docs_src.index.kafka.basic import broker, handle_msg
+    from faststream.kafka import TestKafkaBroker
 
     async with TestKafkaBroker(broker) as br:
         await br.publish({"user": "John", "user_id": 1}, "in-topic")
@@ -22,8 +26,10 @@ async def test_index_kafka_base():
 
 
 @pytest.mark.asyncio()
+@require_confluent
 async def test_index_confluent_base():
     from docs.docs_src.index.confluent.basic import broker, handle_msg
+    from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
     async with TestConfluentKafkaBroker(broker) as br:
         await br.publish({"user": "John", "user_id": 1}, "in-topic")
@@ -36,8 +42,10 @@ async def test_index_confluent_base():
 
 
 @pytest.mark.asyncio()
+@require_aiopika
 async def test_index_rabbit_base():
     from docs.docs_src.index.rabbit.basic import broker, handle_msg
+    from faststream.rabbit import TestRabbitBroker
 
     async with TestRabbitBroker(broker) as br:
         await br.publish({"user": "John", "user_id": 1}, "in-queue")
@@ -50,8 +58,10 @@ async def test_index_rabbit_base():
 
 
 @pytest.mark.asyncio()
+@require_nats
 async def test_index_nats_base():
     from docs.docs_src.index.nats.basic import broker, handle_msg
+    from faststream.nats import TestNatsBroker
 
     async with TestNatsBroker(broker) as br:
         await br.publish({"user": "John", "user_id": 1}, "in-subject")
@@ -64,8 +74,10 @@ async def test_index_nats_base():
 
 
 @pytest.mark.asyncio()
+@require_redis
 async def test_index_redis_base():
     from docs.docs_src.index.redis.basic import broker, handle_msg
+    from faststream.redis import TestRedisBroker
 
     async with TestRedisBroker(broker) as br:
         await br.publish({"user": "John", "user_id": 1}, "in-channel")

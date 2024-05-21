@@ -1,23 +1,25 @@
-from typing import Generic, Protocol, TypeVar
+from typing import Any, Generic, Optional, Protocol, TypeVar
 
 
 class Unsubscriptable(Protocol):
     async def unsubscribe(self) -> None: ...
 
 
-class Stopable(Protocol):
+class Watchable(Protocol):
     async def stop(self) -> None: ...
 
+    async def updates(self, timeout: float) -> Optional[Any]: ...
 
-StopableT = TypeVar("StopableT", bound=Stopable)
+
+WatchableT = TypeVar("WatchableT", bound=Watchable)
 
 
-class UnsubscribeAdapter(Unsubscriptable, Generic[StopableT]):
+class UnsubscribeAdapter(Unsubscriptable, Generic[WatchableT]):
     __slots__ = ("obj",)
 
-    obj: StopableT
+    obj: WatchableT
 
-    def __init__(self, subscription: StopableT):
+    def __init__(self, subscription: WatchableT) -> None:
         self.obj = subscription
 
     async def unsubscribe(self) -> None:

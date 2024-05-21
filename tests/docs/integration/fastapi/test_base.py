@@ -1,16 +1,20 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
-from faststream.kafka import TestKafkaBroker
-from faststream.nats import TestNatsBroker
-from faststream.rabbit import TestRabbitBroker
-from faststream.redis import TestRedisBroker
+from tests.marks import (
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
+)
 
 
 @pytest.mark.asyncio()
+@require_aiokafka
 async def test_fastapi_kafka_base():
     from docs.docs_src.integrations.fastapi.kafka.base import app, hello, router
+    from faststream.kafka import TestKafkaBroker
 
     async with TestKafkaBroker(router.broker) as br:
         with TestClient(app) as client:
@@ -26,8 +30,10 @@ async def test_fastapi_kafka_base():
 
 
 @pytest.mark.asyncio()
+@require_confluent
 async def test_fastapi_confluent_base():
     from docs.docs_src.integrations.fastapi.confluent.base import app, hello, router
+    from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
     async with TestConfluentKafkaBroker(router.broker) as br:
         with TestClient(app) as client:
@@ -43,8 +49,10 @@ async def test_fastapi_confluent_base():
 
 
 @pytest.mark.asyncio()
+@require_aiopika
 async def test_fastapi_rabbit_base():
     from docs.docs_src.integrations.fastapi.rabbit.base import app, hello, router
+    from faststream.rabbit import TestRabbitBroker
 
     async with TestRabbitBroker(router.broker) as br:
         with TestClient(app) as client:
@@ -60,8 +68,10 @@ async def test_fastapi_rabbit_base():
 
 
 @pytest.mark.asyncio()
+@require_nats
 async def test_fastapi_nats_base():
     from docs.docs_src.integrations.fastapi.nats.base import app, hello, router
+    from faststream.nats import TestNatsBroker
 
     async with TestNatsBroker(router.broker) as br:
         with TestClient(app) as client:
@@ -77,8 +87,10 @@ async def test_fastapi_nats_base():
 
 
 @pytest.mark.asyncio()
+@require_redis
 async def test_fastapi_redis_base():
     from docs.docs_src.integrations.fastapi.redis.base import app, hello, router
+    from faststream.redis import TestRedisBroker
 
     async with TestRedisBroker(router.broker) as br:
         with TestClient(app) as client:

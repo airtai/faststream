@@ -1,17 +1,21 @@
 import pytest
 
-from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
-from faststream.kafka import TestKafkaBroker
-from faststream.nats import TestNatsBroker
-from faststream.rabbit import TestRabbitBroker
-from faststream.redis import TestRedisBroker
+from tests.marks import (
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
+)
 
 
 @pytest.mark.asyncio()
+@require_aiokafka
 async def test_existed_context_kafka():
     from docs.docs_src.getting_started.context.kafka.existed_context import (
         broker_object,
     )
+    from faststream.kafka import TestKafkaBroker
 
     @broker_object.subscriber("response")
     async def resp(): ...
@@ -24,10 +28,12 @@ async def test_existed_context_kafka():
 
 
 @pytest.mark.asyncio()
+@require_confluent
 async def test_existed_context_confluent():
     from docs.docs_src.getting_started.context.confluent.existed_context import (
         broker_object,
     )
+    from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
     @broker_object.subscriber("response")
     async def resp(): ...
@@ -40,10 +46,12 @@ async def test_existed_context_confluent():
 
 
 @pytest.mark.asyncio()
+@require_aiopika
 async def test_existed_context_rabbit():
     from docs.docs_src.getting_started.context.rabbit.existed_context import (
         broker_object,
     )
+    from faststream.rabbit import TestRabbitBroker
 
     @broker_object.subscriber("response")
     async def resp(): ...
@@ -56,10 +64,12 @@ async def test_existed_context_rabbit():
 
 
 @pytest.mark.asyncio()
+@require_nats
 async def test_existed_context_nats():
     from docs.docs_src.getting_started.context.nats.existed_context import (
         broker_object,
     )
+    from faststream.nats import TestNatsBroker
 
     @broker_object.subscriber("response")
     async def resp(): ...
@@ -72,10 +82,12 @@ async def test_existed_context_nats():
 
 
 @pytest.mark.asyncio()
+@require_redis
 async def test_existed_context_redis():
     from docs.docs_src.getting_started.context.redis.existed_context import (
         broker_object,
     )
+    from faststream.redis import TestRedisBroker
 
     @broker_object.subscriber("response")
     async def resp(): ...

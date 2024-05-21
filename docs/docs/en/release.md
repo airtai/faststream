@@ -39,7 +39,7 @@ broker = NatsBroker(
 app = FastStream(broker)
 ```
 
-To find detailt information just visit our documentation aboout [telemetry](https://faststream.airt.ai/latest/getting-started/opentelemetry/)
+To find detailt information just visit our documentation about [telemetry](https://faststream.airt.ai/latest/getting-started/opentelemetry/)
 
 P.S. The release includes basic OpenTelemetry support - messages tracing & basic metrics. Baggage support and correct spans linking in batch processing case will be added soon.
 

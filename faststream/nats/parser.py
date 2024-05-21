@@ -1,5 +1,4 @@
-from typing import TYPE_CHECKING, Any, List, Optional
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
 from faststream.nats.message import (

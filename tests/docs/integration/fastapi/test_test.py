@@ -1,15 +1,49 @@
-from docs.docs_src.integrations.fastapi.confluent.test import (
-    test_router as test_confluent,
-)
-from docs.docs_src.integrations.fastapi.kafka.test import test_router as test_k
-from docs.docs_src.integrations.fastapi.nats.test import test_router as test_n
-from docs.docs_src.integrations.fastapi.rabbit.test import test_router as test_r
-from docs.docs_src.integrations.fastapi.redis.test import test_router as test_red
+import pytest
 
-__all__ = (
-    "test_k",
-    "test_r",
-    "test_n",
-    "test_red",
-    "test_confluent",
+from tests.marks import (
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
 )
+
+
+@pytest.mark.asyncio()
+@require_aiokafka
+async def test_kafka():
+    from docs.docs_src.integrations.fastapi.kafka.test import test_router
+
+    await test_router()
+
+
+@pytest.mark.asyncio()
+@require_confluent
+async def test_confluent():
+    from docs.docs_src.integrations.fastapi.confluent.test import test_router
+
+    await test_router()
+
+
+@pytest.mark.asyncio()
+@require_aiopika
+async def test_rabbit():
+    from docs.docs_src.integrations.fastapi.rabbit.test import test_router
+
+    await test_router()
+
+
+@pytest.mark.asyncio()
+@require_nats
+async def test_nats():
+    from docs.docs_src.integrations.fastapi.nats.test import test_router
+
+    await test_router()
+
+
+@pytest.mark.asyncio()
+@require_redis
+async def test_redis():
+    from docs.docs_src.integrations.fastapi.redis.test import test_router
+
+    await test_router()

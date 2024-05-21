@@ -66,7 +66,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.nats.message import NatsBatchMessage, NatsMessage
-    from faststream.nats.schemas import JStream, PullSub, KvWatch, ObjWatch
+    from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, LoggerProto
 

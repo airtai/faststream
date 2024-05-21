@@ -22,9 +22,6 @@ from faststream.confluent.subscriber.usecase import (
 
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
-    from fast_depends.dependencies import Depends
-    from faststream.broker.types import BrokerMiddleware
-    from faststream.types import AnyDict
 
 
 class AsyncAPISubscriber(LogicSubscriber[MsgType]):
@@ -58,6 +55,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
             )
 
         return channels
+
 
 class AsyncAPIDefaultSubscriber(
     DefaultSubscriber,
