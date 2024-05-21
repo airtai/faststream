@@ -14,12 +14,14 @@ from typing import (
     Optional,
     Sequence,
     Union,
+    cast,
 )
 
 import anyio
 from fast_depends.dependencies import Depends
 from nats.errors import ConnectionClosedError, TimeoutError
 from nats.js.api import ObjectInfo
+from nats.js.kv import KeyValue
 from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.message import StreamMessage
@@ -48,7 +50,6 @@ if TYPE_CHECKING:
     from nats.aio.msg import Msg
     from nats.aio.subscription import Subscription
     from nats.js import JetStreamContext
-    from nats.js.kv import KeyValue
     from nats.js.object_store import ObjectStore
 
     from faststream.broker.message import StreamMessage
@@ -815,7 +816,7 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
                     await self.consume(messages)
 
 
-class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber["KeyValue.Entry"]):
+class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
     subscription: Optional["UnsubscribeAdapter[KeyValue.KeyWatcher]"]
 
     def __init__(
@@ -859,7 +860,7 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber["KeyValue.Entry"]):
             declare=self.kv_watch.declare,
         )
 
-        self.subscription = UnsubscribeAdapter(
+        self.subscription = UnsubscribeAdapter["KeyValue.KeyWatcher"](
             await bucket.watch(
                 keys=self.clear_subject,
                 headers_only=self.kv_watch.headers_only,
@@ -879,7 +880,11 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber["KeyValue.Entry"]):
 
         while self.running:
             with suppress(ConnectionClosedError, TimeoutError):
-                message = await key_watcher.updates(self.kv_watch.timeout)
+                message = cast(
+                    Optional["KeyValue.Entry"],
+                    await key_watcher.updates(self.kv_watch.timeout),  # type: ignore[no-untyped-call]
+                )
+
                 if message:
                     await self.consume(message)
 
@@ -959,7 +964,7 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
             declare=self.obj_watch.declare,
         )
 
-        self.subscription = UnsubscribeAdapter(
+        self.subscription = UnsubscribeAdapter["ObjectStore.ObjectWatcher"](
             await self.bucket.watch(
                 ignore_deletes=self.obj_watch.ignore_deletes,
                 include_history=self.obj_watch.include_history,
@@ -976,7 +981,11 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
 
         while self.running:
             with suppress(TimeoutError):
-                message = await obj_watch.updates(self.obj_watch.timeout)
+                message = cast(
+                    Optional["ObjectInfo"],
+                    await obj_watch.updates(self.obj_watch.timeout),  # type: ignore[no-untyped-call]
+                )
+
                 if message:
                     with context.scope(OBJECT_STORAGE_CONTEXT_KEY, self.bucket):
                         await self.consume(message)

@@ -99,6 +99,7 @@ types = [
     "faststream[optionals]",
     "mypy==1.10.0",
     # mypy extensions
+    "types-Deprecated",
     "types-PyYAML",
     "types-setuptools",
     "types-ujson",
