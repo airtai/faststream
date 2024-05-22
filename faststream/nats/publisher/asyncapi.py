@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional
 
 from typing_extensions import override
 
@@ -11,7 +11,6 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import nats
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.nats.helpers import stream_builder
 from faststream.nats.publisher.usecase import LogicPublisher
 
 if TYPE_CHECKING:
@@ -58,7 +57,7 @@ class AsyncAPIPublisher(LogicPublisher):
         subject: str,
         reply_to: str,
         headers: Optional[Dict[str, str]],
-        stream: Union[str, "JStream", None],
+        stream: Optional["JStream"],
         timeout: Optional[float],
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
@@ -69,9 +68,6 @@ class AsyncAPIPublisher(LogicPublisher):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> "AsyncAPIPublisher":
-        if stream := stream_builder.stream(stream):
-            stream.add_subject(subject)
-
         return cls(
             subject=subject,
             reply_to=reply_to,

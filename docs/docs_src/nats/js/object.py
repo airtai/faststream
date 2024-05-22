@@ -1,35 +1,26 @@
 from io import BytesIO
 
-from nats.js.object_store import ObjectStore as OS
-from typing_extensions import Annotated
-
+from faststream import FastStream
 from faststream import Logger
-from faststream import Context, FastStream
 from faststream.nats import NatsBroker
-from faststream.nats.annotations import ContextRepo
-
-ObjectStorage = Annotated[OS, Context("OS")]
+from faststream.nats.annotations import ObjectStorage
 
 broker = NatsBroker()
 app = FastStream(broker)
 
 
-@broker.subscriber("subject")
-async def handler(msg: str, os: ObjectStorage, logger: Logger):
-    logger.info(msg)
-    obj = await os.get("file")
-    assert obj.data == b"File mock"
-
-
-@app.on_startup
-async def setup_broker(context: ContextRepo):
-    await broker.connect()
-
-    os = await broker.stream.create_object_store("bucket")
-    context.set_global("OS", os)
+@broker.subscriber("example-bucket", obj_watch=True)
+async def handler(
+    filename: str,
+    storage: ObjectStorage,
+    logger: Logger,
+):
+    assert filename == "file.txt"
+    file = await storage.get(filename)
+    logger.info(file.data)
 
 
 @app.after_startup
-async def test_send(os: ObjectStorage):
-    await os.put("file", BytesIO(b"File mock"))
-    await broker.publish("Hi!", "subject")
+async def test_send():
+    object_storage = await broker.object_storage("example-bucket")
+    await object_storage.put("file.txt", BytesIO(b"File mock"))

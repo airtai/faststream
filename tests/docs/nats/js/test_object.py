@@ -9,6 +9,23 @@ from faststream.nats import TestNatsBroker
 async def test_basic():
     from docs.docs_src.nats.js.object import app, broker, handler
 
-    async with TestNatsBroker(broker, with_real=True), TestApp(app):
+    async with TestNatsBroker(broker, with_real=True):
+        await broker.start()
+
+        os = await broker.object_storage("example-bucket")
+        try:
+            existed_files = await os.list()
+        except Exception:
+            existed_files = ()
+
+        call = True
+        for file in existed_files:
+            if file.name == "file.txt":
+                call = False
+
+        if call:
+            async with TestApp(app):
+                pass
+
         await handler.wait_call(3.0)
-        handler.mock.assert_called_once_with("Hi!")
+        handler.mock.assert_called_once_with("file.txt")

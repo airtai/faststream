@@ -172,6 +172,7 @@ class BrokerUsecase(
         self._connection = None
         self._producer = None
 
+        # TODO: remove useless middleware filter
         if not is_test_env():
             self._middlewares = (
                 CriticalLogMiddleware(self.logger, log_level),

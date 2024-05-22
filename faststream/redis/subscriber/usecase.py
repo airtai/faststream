@@ -1,5 +1,5 @@
 import asyncio
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from contextlib import suppress
 from copy import deepcopy
 from typing import (
@@ -57,7 +57,7 @@ TopicName: TypeAlias = bytes
 Offset: TypeAlias = bytes
 
 
-class LogicSubscriber(ABC, SubscriberUsecase[UnifyRedisDict]):
+class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
     """A class to represent a Redis handler."""
 
     _client: Optional["Redis[bytes]"]

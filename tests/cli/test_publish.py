@@ -1,55 +1,38 @@
 from unittest.mock import AsyncMock, patch
 
-import pytest
 from dirty_equals import IsPartialDict
-from typer.testing import CliRunner
 
 from faststream import FastStream
 from faststream.cli.main import cli as faststream_app
-from faststream.confluent import KafkaBroker as ConfluentBroker
-from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
-from faststream.kafka import KafkaBroker
-from faststream.kafka.publisher.producer import AioKafkaFastProducer
-from faststream.nats import NatsBroker
-from faststream.nats.publisher.producer import NatsFastProducer
-from faststream.rabbit import RabbitBroker
-from faststream.rabbit.publisher.producer import AioPikaFastProducer
-from faststream.redis import RedisBroker
-from faststream.redis.publisher.producer import RedisFastProducer
-
-# Initialize the CLI runner
-runner = CliRunner()
+from tests.marks import (
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
+)
 
 
-@pytest.fixture()
-def mock_app(request):
-    app = FastStream()
-    broker_type = request.param["broker_type"]
-    producer_type = request.param["producer_type"]
-
+def get_mock_app(broker_type, producer_type) -> FastStream:
     broker = broker_type()
     broker.connect = AsyncMock()
-
     mock_producer = AsyncMock(spec=producer_type)
     mock_producer.publish = AsyncMock()
     broker._producer = mock_producer
-
-    app.broker = broker
-    return app
+    return FastStream(broker)
 
 
-@pytest.mark.parametrize(
-    "mock_app",
-    [
-        {
-            "broker_type": RedisBroker,
-            "producer_type": RedisFastProducer,
-        }
-    ],
-    indirect=True,
-)
-def test_publish_command_with_redis_options(mock_app):
-    with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
+@require_redis
+def test_publish_command_with_redis_options(runner):
+    from faststream.redis import RedisBroker
+    from faststream.redis.publisher.producer import RedisFastProducer
+
+    mock_app = get_mock_app(RedisBroker, RedisFastProducer)
+
+    with patch(
+        "faststream.cli.main.import_from_string",
+        return_value=(None, mock_app),
+    ):
         result = runner.invoke(
             faststream_app,
             [
@@ -82,17 +65,13 @@ def test_publish_command_with_redis_options(mock_app):
         )
 
 
-@pytest.mark.parametrize(
-    "mock_app",
-    [
-        {
-            "broker_type": ConfluentBroker,
-            "producer_type": AsyncConfluentFastProducer,
-        }
-    ],
-    indirect=True,
-)
-def test_publish_command_with_confluent_options(mock_app):
+@require_confluent
+def test_publish_command_with_confluent_options(runner):
+    from faststream.confluent import KafkaBroker as ConfluentBroker
+    from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
+
+    mock_app = get_mock_app(ConfluentBroker, AsyncConfluentFastProducer)
+
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
         result = runner.invoke(
             faststream_app,
@@ -116,12 +95,13 @@ def test_publish_command_with_confluent_options(mock_app):
         )
 
 
-@pytest.mark.parametrize(
-    "mock_app",
-    [{"broker_type": KafkaBroker, "producer_type": AioKafkaFastProducer}],
-    indirect=True,
-)
-def test_publish_command_with_kafka_options(mock_app):
+@require_aiokafka
+def test_publish_command_with_kafka_options(runner):
+    from faststream.kafka import KafkaBroker
+    from faststream.kafka.publisher.producer import AioKafkaFastProducer
+
+    mock_app = get_mock_app(KafkaBroker, AioKafkaFastProducer)
+
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
         result = runner.invoke(
             faststream_app,
@@ -145,12 +125,13 @@ def test_publish_command_with_kafka_options(mock_app):
         )
 
 
-@pytest.mark.parametrize(
-    "mock_app",
-    [{"broker_type": NatsBroker, "producer_type": NatsFastProducer}],
-    indirect=True,
-)
-def test_publish_command_with_nats_options(mock_app):
+@require_nats
+def test_publish_command_with_nats_options(runner):
+    from faststream.nats import NatsBroker
+    from faststream.nats.publisher.producer import NatsFastProducer
+
+    mock_app = get_mock_app(NatsBroker, NatsFastProducer)
+
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
         result = runner.invoke(
             faststream_app,
@@ -178,12 +159,13 @@ def test_publish_command_with_nats_options(mock_app):
         )
 
 
-@pytest.mark.parametrize(
-    "mock_app",
-    [{"broker_type": RabbitBroker, "producer_type": AioPikaFastProducer}],
-    indirect=True,
-)
-def test_publish_command_with_rabbit_options(mock_app: AsyncMock):
+@require_aiopika
+def test_publish_command_with_rabbit_options(runner):
+    from faststream.rabbit import RabbitBroker
+    from faststream.rabbit.publisher.producer import AioPikaFastProducer
+
+    mock_app = get_mock_app(RabbitBroker, AioPikaFastProducer)
+
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
         result = runner.invoke(
             faststream_app,

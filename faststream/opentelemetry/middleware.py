@@ -102,7 +102,9 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         self,
         *,
         tracer: "Tracer",
-        settings_provider_factory: Callable[[Any], TelemetrySettingsProvider[Any]],
+        settings_provider_factory: Callable[
+            [Any], Optional[TelemetrySettingsProvider[Any]]
+        ],
         metrics_container: _MetricsContainer,
         msg: Optional[Any] = None,
     ) -> None:
@@ -121,7 +123,8 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         *args: Any,
         **kwargs: Any,
     ) -> Any:
-        provider = self.__settings_provider
+        if (provider := self.__settings_provider) is None:
+            return await call_next(msg, *args, **kwargs)
 
         headers = kwargs.pop("headers", {}) or {}
         current_context = context.get_current()
@@ -182,7 +185,8 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         call_next: "AsyncFuncAny",
         msg: "StreamMessage[Any]",
     ) -> Any:
-        provider = self.__settings_provider
+        if (provider := self.__settings_provider) is None:
+            return await call_next(msg)
 
         current_context = propagate.extract(msg.headers)
         destination_name = provider.get_consume_destination_name(msg)
@@ -258,7 +262,9 @@ class TelemetryMiddleware:
     def __init__(
         self,
         *,
-        settings_provider_factory: Callable[[Any], TelemetrySettingsProvider[Any]],
+        settings_provider_factory: Callable[
+            [Any], Optional[TelemetrySettingsProvider[Any]]
+        ],
         tracer_provider: Optional["TracerProvider"] = None,
         meter_provider: Optional["MeterProvider"] = None,
         meter: Optional["Meter"] = None,

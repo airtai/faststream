@@ -276,5 +276,73 @@ class TestConsume(BrokerRealConsumeTestcase):
                 timeout=3,
             )
 
-            assert event.is_set()
-            mock.assert_called_once_with(True)
+        assert event.is_set()
+        mock.assert_called_once_with(True)
+
+    @pytest.mark.asyncio()
+    async def test_consume_kv(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        mock,
+    ):
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, kv_watch=queue + "1")
+        async def handler(m):
+            mock(m)
+            event.set()
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+            bucket = await br.key_value(queue + "1")
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        bucket.put(
+                            queue,
+                            b"world",
+                        )
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_with(b"world")
+
+    @pytest.mark.asyncio()
+    async def test_consume_os(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        mock,
+    ):
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, obj_watch=True)
+        async def handler(filename: str):
+            event.set()
+            mock(filename)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+            bucket = await br.object_storage(queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        bucket.put(
+                            "hello",
+                            b"world",
+                        )
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_once_with("hello")

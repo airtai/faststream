@@ -143,10 +143,12 @@ search:
                 - [DiscardPolicy](public_api/faststream/nats/DiscardPolicy.md)
                 - [ExternalStream](public_api/faststream/nats/ExternalStream.md)
                 - [JStream](public_api/faststream/nats/JStream.md)
+                - [KvWatch](public_api/faststream/nats/KvWatch.md)
                 - [NatsBroker](public_api/faststream/nats/NatsBroker.md)
                 - [NatsPublisher](public_api/faststream/nats/NatsPublisher.md)
                 - [NatsRoute](public_api/faststream/nats/NatsRoute.md)
                 - [NatsRouter](public_api/faststream/nats/NatsRouter.md)
+                - [ObjWatch](public_api/faststream/nats/ObjWatch.md)
                 - [Placement](public_api/faststream/nats/Placement.md)
                 - [PullSub](public_api/faststream/nats/PullSub.md)
                 - [RePublish](public_api/faststream/nats/RePublish.md)
@@ -476,6 +478,8 @@ search:
                         - [AsyncAPIBatchSubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPIBatchSubscriber.md)
                         - [AsyncAPIDefaultSubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPIDefaultSubscriber.md)
                         - [AsyncAPISubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPISubscriber.md)
+                    - factory
+                        - [create_subscriber](api/faststream/confluent/subscriber/factory/create_subscriber.md)
                     - usecase
                         - [BatchSubscriber](api/faststream/confluent/subscriber/usecase/BatchSubscriber.md)
                         - [DefaultSubscriber](api/faststream/confluent/subscriber/usecase/DefaultSubscriber.md)
@@ -560,6 +564,8 @@ search:
                         - [AsyncAPIBatchSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIBatchSubscriber.md)
                         - [AsyncAPIDefaultSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIDefaultSubscriber.md)
                         - [AsyncAPISubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPISubscriber.md)
+                    - factory
+                        - [create_subscriber](api/faststream/kafka/subscriber/factory/create_subscriber.md)
                     - usecase
                         - [BatchSubscriber](api/faststream/kafka/subscriber/usecase/BatchSubscriber.md)
                         - [DefaultSubscriber](api/faststream/kafka/subscriber/usecase/DefaultSubscriber.md)
@@ -583,10 +589,12 @@ search:
                 - [DiscardPolicy](api/faststream/nats/DiscardPolicy.md)
                 - [ExternalStream](api/faststream/nats/ExternalStream.md)
                 - [JStream](api/faststream/nats/JStream.md)
+                - [KvWatch](api/faststream/nats/KvWatch.md)
                 - [NatsBroker](api/faststream/nats/NatsBroker.md)
                 - [NatsPublisher](api/faststream/nats/NatsPublisher.md)
                 - [NatsRoute](api/faststream/nats/NatsRoute.md)
                 - [NatsRouter](api/faststream/nats/NatsRouter.md)
+                - [ObjWatch](api/faststream/nats/ObjWatch.md)
                 - [Placement](api/faststream/nats/Placement.md)
                 - [PullSub](api/faststream/nats/PullSub.md)
                 - [RePublish](api/faststream/nats/RePublish.md)
@@ -611,10 +619,20 @@ search:
                     - fastapi
                         - [NatsRouter](api/faststream/nats/fastapi/fastapi/NatsRouter.md)
                 - helpers
+                    - [KVBucketDeclarer](api/faststream/nats/helpers/KVBucketDeclarer.md)
+                    - [OSBucketDeclarer](api/faststream/nats/helpers/OSBucketDeclarer.md)
                     - [StreamBuilder](api/faststream/nats/helpers/StreamBuilder.md)
+                    - bucket_declarer
+                        - [KVBucketDeclarer](api/faststream/nats/helpers/bucket_declarer/KVBucketDeclarer.md)
+                    - obj_storage_declarer
+                        - [OSBucketDeclarer](api/faststream/nats/helpers/obj_storage_declarer/OSBucketDeclarer.md)
+                    - object_builder
+                        - [StreamBuilder](api/faststream/nats/helpers/object_builder/StreamBuilder.md)
                 - message
                     - [NatsBatchMessage](api/faststream/nats/message/NatsBatchMessage.md)
+                    - [NatsKvMessage](api/faststream/nats/message/NatsKvMessage.md)
                     - [NatsMessage](api/faststream/nats/message/NatsMessage.md)
+                    - [NatsObjMessage](api/faststream/nats/message/NatsObjMessage.md)
                 - opentelemetry
                     - [NatsTelemetryMiddleware](api/faststream/nats/opentelemetry/NatsTelemetryMiddleware.md)
                     - middleware
@@ -627,8 +645,10 @@ search:
                 - parser
                     - [BatchParser](api/faststream/nats/parser/BatchParser.md)
                     - [JsParser](api/faststream/nats/parser/JsParser.md)
+                    - [KvParser](api/faststream/nats/parser/KvParser.md)
                     - [NatsBaseParser](api/faststream/nats/parser/NatsBaseParser.md)
                     - [NatsParser](api/faststream/nats/parser/NatsParser.md)
+                    - [ObjParser](api/faststream/nats/parser/ObjParser.md)
                 - publisher
                     - asyncapi
                         - [AsyncAPIPublisher](api/faststream/nats/publisher/asyncapi/AsyncAPIPublisher.md)
@@ -643,24 +663,50 @@ search:
                     - [NatsRouter](api/faststream/nats/router/NatsRouter.md)
                 - schemas
                     - [JStream](api/faststream/nats/schemas/JStream.md)
+                    - [KvWatch](api/faststream/nats/schemas/KvWatch.md)
+                    - [ObjWatch](api/faststream/nats/schemas/ObjWatch.md)
                     - [PullSub](api/faststream/nats/schemas/PullSub.md)
                     - js_stream
                         - [JStream](api/faststream/nats/schemas/js_stream/JStream.md)
                         - [compile_nats_wildcard](api/faststream/nats/schemas/js_stream/compile_nats_wildcard.md)
                         - [is_subject_match_wildcard](api/faststream/nats/schemas/js_stream/is_subject_match_wildcard.md)
+                    - kv_watch
+                        - [KvWatch](api/faststream/nats/schemas/kv_watch/KvWatch.md)
+                    - obj_watch
+                        - [ObjWatch](api/faststream/nats/schemas/obj_watch/ObjWatch.md)
                     - pull_sub
                         - [PullSub](api/faststream/nats/schemas/pull_sub/PullSub.md)
                 - security
                     - [parse_security](api/faststream/nats/security/parse_security.md)
                 - subscriber
                     - asyncapi
-                        - [AsyncAPIBatchSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIBatchSubscriber.md)
-                        - [AsyncAPIDefaultSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIDefaultSubscriber.md)
+                        - [AsyncAPIBatchPullStreamSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIBatchPullStreamSubscriber.md)
+                        - [AsyncAPIConcurrentCoreSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIConcurrentCoreSubscriber.md)
+                        - [AsyncAPIConcurrentPullStreamSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIConcurrentPullStreamSubscriber.md)
+                        - [AsyncAPIConcurrentPushStreamSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIConcurrentPushStreamSubscriber.md)
+                        - [AsyncAPICoreSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPICoreSubscriber.md)
+                        - [AsyncAPIKeyValueWatchSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIKeyValueWatchSubscriber.md)
+                        - [AsyncAPIObjStoreWatchSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIObjStoreWatchSubscriber.md)
+                        - [AsyncAPIPullStreamSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIPullStreamSubscriber.md)
+                        - [AsyncAPIStreamSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIStreamSubscriber.md)
                         - [AsyncAPISubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPISubscriber.md)
+                    - factory
+                        - [create_subscriber](api/faststream/nats/subscriber/factory/create_subscriber.md)
+                    - subscription
+                        - [UnsubscribeAdapter](api/faststream/nats/subscriber/subscription/UnsubscribeAdapter.md)
+                        - [Unsubscriptable](api/faststream/nats/subscriber/subscription/Unsubscriptable.md)
+                        - [Watchable](api/faststream/nats/subscriber/subscription/Watchable.md)
                     - usecase
-                        - [BatchHandler](api/faststream/nats/subscriber/usecase/BatchHandler.md)
-                        - [DefaultHandler](api/faststream/nats/subscriber/usecase/DefaultHandler.md)
+                        - [BatchPullStreamSubscriber](api/faststream/nats/subscriber/usecase/BatchPullStreamSubscriber.md)
+                        - [ConcurrentCoreSubscriber](api/faststream/nats/subscriber/usecase/ConcurrentCoreSubscriber.md)
+                        - [ConcurrentPullStreamSubscriber](api/faststream/nats/subscriber/usecase/ConcurrentPullStreamSubscriber.md)
+                        - [ConcurrentPushStreamSubscriber](api/faststream/nats/subscriber/usecase/ConcurrentPushStreamSubscriber.md)
+                        - [CoreSubscriber](api/faststream/nats/subscriber/usecase/CoreSubscriber.md)
+                        - [KeyValueWatchSubscriber](api/faststream/nats/subscriber/usecase/KeyValueWatchSubscriber.md)
                         - [LogicSubscriber](api/faststream/nats/subscriber/usecase/LogicSubscriber.md)
+                        - [ObjStoreWatchSubscriber](api/faststream/nats/subscriber/usecase/ObjStoreWatchSubscriber.md)
+                        - [PullStreamSubscriber](api/faststream/nats/subscriber/usecase/PullStreamSubscriber.md)
+                        - [PushStreamSubscription](api/faststream/nats/subscriber/usecase/PushStreamSubscription.md)
                 - testing
                     - [FakeProducer](api/faststream/nats/testing/FakeProducer.md)
                     - [PatchedMessage](api/faststream/nats/testing/PatchedMessage.md)
@@ -743,6 +789,8 @@ search:
                 - subscriber
                     - asyncapi
                         - [AsyncAPISubscriber](api/faststream/rabbit/subscriber/asyncapi/AsyncAPISubscriber.md)
+                    - factory
+                        - [create_subscriber](api/faststream/rabbit/subscriber/factory/create_subscriber.md)
                     - usecase
                         - [LogicSubscriber](api/faststream/rabbit/subscriber/usecase/LogicSubscriber.md)
                 - testing
@@ -848,6 +896,8 @@ search:
                         - [AsyncAPIStreamBatchSubscriber](api/faststream/redis/subscriber/asyncapi/AsyncAPIStreamBatchSubscriber.md)
                         - [AsyncAPIStreamSubscriber](api/faststream/redis/subscriber/asyncapi/AsyncAPIStreamSubscriber.md)
                         - [AsyncAPISubscriber](api/faststream/redis/subscriber/asyncapi/AsyncAPISubscriber.md)
+                    - factory
+                        - [create_subscriber](api/faststream/redis/subscriber/factory/create_subscriber.md)
                     - usecase
                         - [BatchListSubscriber](api/faststream/redis/subscriber/usecase/BatchListSubscriber.md)
                         - [BatchStreamSubscriber](api/faststream/redis/subscriber/usecase/BatchStreamSubscriber.md)

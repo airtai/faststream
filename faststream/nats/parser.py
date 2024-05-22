@@ -1,11 +1,18 @@
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
-from faststream.nats.message import NatsBatchMessage, NatsMessage
+from faststream.nats.message import (
+    NatsBatchMessage,
+    NatsKvMessage,
+    NatsMessage,
+    NatsObjMessage,
+)
 from faststream.nats.schemas.js_stream import compile_nats_wildcard
 
 if TYPE_CHECKING:
     from nats.aio.msg import Msg
+    from nats.js.api import ObjectInfo
+    from nats.js.kv import KeyValue
 
     from faststream.types import AnyDict, DecodedMessage
 
@@ -36,7 +43,7 @@ class NatsBaseParser:
 
     @staticmethod
     async def decode_message(
-        msg: "StreamMessage[Msg]",
+        msg: "StreamMessage[Any]",
     ) -> "DecodedMessage":
         return decode_message(msg)
 
@@ -139,3 +146,22 @@ class BatchParser(JsParser):
             data.append(decode_message(one_msg))
 
         return data
+
+
+class KvParser(NatsBaseParser):
+    async def parse_message(
+        self, msg: "KeyValue.Entry"
+    ) -> StreamMessage["KeyValue.Entry"]:
+        return NatsKvMessage(
+            raw_message=msg,
+            body=msg.value,
+            path=self.get_path(msg.key) or {},
+        )
+
+
+class ObjParser(NatsBaseParser):
+    async def parse_message(self, msg: "ObjectInfo") -> StreamMessage["ObjectInfo"]:
+        return NatsObjMessage(
+            raw_message=msg,
+            body=msg.name,
+        )

@@ -1,22 +1,65 @@
-from docs.docs_src.getting_started.lifespan.confluent.testing import (
-    test_lifespan as _test_lifespan_confluent,
-)
-from docs.docs_src.getting_started.lifespan.kafka.testing import (
-    test_lifespan as _test_lifespan_k,
-)
-from docs.docs_src.getting_started.lifespan.nats.testing import (
-    test_lifespan as _test_lifespan_n,
-)
-from docs.docs_src.getting_started.lifespan.rabbit.testing import (
-    test_lifespan as _test_lifespan_r,
-)
-from docs.docs_src.getting_started.lifespan.redis.testing import (
-    test_lifespan as _test_lifespan_red,
-)
-from tests.marks import python39
+import pytest
 
-test_lifespan_red = python39(_test_lifespan_red)
-test_lifespan_r = python39(_test_lifespan_r)
-test_lifespan_n = python39(_test_lifespan_n)
-test_lifespan_k = python39(_test_lifespan_k)
-test_lifespan_confluent = python39(_test_lifespan_confluent)
+from tests.marks import (
+    python39,
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
+)
+
+
+@pytest.mark.asyncio()
+@python39
+@require_redis
+async def test_lifespan_redis():
+    from docs.docs_src.getting_started.lifespan.redis.testing import (
+        test_lifespan as _test_lifespan_red,
+    )
+
+    await _test_lifespan_red()
+
+
+@pytest.mark.asyncio()
+@python39
+@require_confluent
+async def test_lifespan_confluent():
+    from docs.docs_src.getting_started.lifespan.confluent.testing import (
+        test_lifespan as _test_lifespan_confluent,
+    )
+
+    await _test_lifespan_confluent()
+
+
+@pytest.mark.asyncio()
+@python39
+@require_aiokafka
+async def test_lifespan_kafka():
+    from docs.docs_src.getting_started.lifespan.kafka.testing import (
+        test_lifespan as _test_lifespan_k,
+    )
+
+    await _test_lifespan_k()
+
+
+@pytest.mark.asyncio()
+@python39
+@require_aiopika
+async def test_lifespan_rabbit():
+    from docs.docs_src.getting_started.lifespan.rabbit.testing import (
+        test_lifespan as _test_lifespan_r,
+    )
+
+    await _test_lifespan_r()
+
+
+@pytest.mark.asyncio()
+@python39
+@require_nats
+async def test_lifespan_nats():
+    from docs.docs_src.getting_started.lifespan.nats.testing import (
+        test_lifespan as _test_lifespan_n,
+    )
+
+    await _test_lifespan_n()

@@ -38,12 +38,6 @@ class SubscriberProto(
     @abstractmethod
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None: ...
 
-    @staticmethod
-    @abstractmethod
-    def create() -> "SubscriberProto[MsgType]":
-        """Abstract factory to create a real Subscriber."""
-        ...
-
     @abstractmethod
     def get_log_context(
         self,

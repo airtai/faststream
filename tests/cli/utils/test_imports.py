@@ -5,6 +5,7 @@ from typer import BadParameter
 
 from faststream.app import FastStream
 from faststream.cli.utils.imports import get_app_path, import_from_string, import_object
+from tests.marks import require_aiokafka, require_aiopika, require_nats
 
 
 def test_import_wrong():
@@ -54,6 +55,9 @@ def test_import_from_string_import_wrong():
         pytest.param("examples.rabbit.topic:app", "examples/rabbit/topic.py"),
     ),
 )
+@require_nats
+@require_aiopika
+@require_aiokafka
 def test_import_from_string(test_input, exp_module):
     module, app = import_from_string(test_input)
     assert isinstance(app, FastStream)
@@ -80,6 +84,9 @@ def test_import_from_string(test_input, exp_module):
         ),
     ),
 )
+@require_nats
+@require_aiopika
+@require_aiokafka
 def test_import_module(test_input, exp_module):
     module, app = import_from_string(test_input)
     assert isinstance(app, FastStream)

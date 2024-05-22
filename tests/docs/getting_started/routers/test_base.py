@@ -1,14 +1,17 @@
 import pytest
 
 from faststream import TestApp
-from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
-from faststream.kafka import TestKafkaBroker
-from faststream.nats import TestNatsBroker
-from faststream.rabbit import TestRabbitBroker
-from faststream.redis import TestRedisBroker
+from tests.marks import (
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
+)
 
 
 @pytest.mark.asyncio()
+@require_aiokafka
 async def test_base_router_kafka():
     from docs.docs_src.getting_started.routers.kafka.router import (
         app,
@@ -16,6 +19,7 @@ async def test_base_router_kafka():
         handle,
         handle_response,
     )
+    from faststream.kafka import TestKafkaBroker
 
     async with TestKafkaBroker(broker), TestApp(app):
         handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
@@ -23,6 +27,7 @@ async def test_base_router_kafka():
 
 
 @pytest.mark.asyncio()
+@require_confluent
 async def test_base_router_confluent():
     from docs.docs_src.getting_started.routers.confluent.router import (
         app,
@@ -30,6 +35,7 @@ async def test_base_router_confluent():
         handle,
         handle_response,
     )
+    from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
     async with TestConfluentKafkaBroker(broker), TestApp(app):
         handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
@@ -37,6 +43,7 @@ async def test_base_router_confluent():
 
 
 @pytest.mark.asyncio()
+@require_aiopika
 async def test_base_router_rabbit():
     from docs.docs_src.getting_started.routers.rabbit.router import (
         app,
@@ -44,6 +51,7 @@ async def test_base_router_rabbit():
         handle,
         handle_response,
     )
+    from faststream.rabbit import TestRabbitBroker
 
     async with TestRabbitBroker(broker), TestApp(app):
         handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
@@ -51,6 +59,7 @@ async def test_base_router_rabbit():
 
 
 @pytest.mark.asyncio()
+@require_nats
 async def test_base_router_nats():
     from docs.docs_src.getting_started.routers.nats.router import (
         app,
@@ -58,6 +67,7 @@ async def test_base_router_nats():
         handle,
         handle_response,
     )
+    from faststream.nats import TestNatsBroker
 
     async with TestNatsBroker(broker), TestApp(app):
         handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
@@ -65,6 +75,7 @@ async def test_base_router_nats():
 
 
 @pytest.mark.asyncio()
+@require_redis
 async def test_base_router_redis():
     from docs.docs_src.getting_started.routers.redis.router import (
         app,
@@ -72,6 +83,7 @@ async def test_base_router_redis():
         handle,
         handle_response,
     )
+    from faststream.redis import TestRedisBroker
 
     async with TestRedisBroker(broker), TestApp(app):
         handle.mock.assert_called_once_with({"name": "John", "user_id": 1})

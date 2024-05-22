@@ -1,6 +1,14 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from tests.marks import (
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
+)
+
 
 class BaseCase:
     def test_running(self, data):
@@ -18,6 +26,7 @@ class BaseCase:
 
 
 @pytest.mark.kafka()
+@require_aiokafka
 class TestKafka(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
@@ -27,6 +36,7 @@ class TestKafka(BaseCase):
 
 
 @pytest.mark.confluent()
+@require_confluent
 class TestConfluent(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
@@ -39,6 +49,7 @@ class TestConfluent(BaseCase):
 
 
 @pytest.mark.nats()
+@require_nats
 class TestNats(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
@@ -48,6 +59,7 @@ class TestNats(BaseCase):
 
 
 @pytest.mark.rabbit()
+@require_aiopika
 class TestRabbit(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
@@ -57,6 +69,7 @@ class TestRabbit(BaseCase):
 
 
 @pytest.mark.redis()
+@require_redis
 class TestRedis(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):

@@ -20,7 +20,7 @@ from typing_extensions import Annotated, Doc, deprecated, override
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
 from faststream.kafka.publisher.asyncapi import AsyncAPIPublisher
-from faststream.kafka.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.kafka.subscriber.factory import create_subscriber
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord, TopicPartition
@@ -1394,7 +1394,7 @@ class KafkaRegistrator(
         "AsyncAPIBatchSubscriber",
     ]:
         subscriber = super().subscriber(
-            AsyncAPISubscriber.create(
+            create_subscriber(
                 *topics,
                 batch=batch,
                 batch_timeout_ms=batch_timeout_ms,

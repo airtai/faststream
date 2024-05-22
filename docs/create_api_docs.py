@@ -78,7 +78,7 @@ def _import_submodules(
         public_api_modules = [
             m
             for m in modules
-            if m.__file__.replace(str(repo_path) + "/", "") in PUBLIC_API_FILES
+            if m and m.__file__.replace(str(repo_path) + "/", "") in PUBLIC_API_FILES
         ]
 
         return public_api_modules

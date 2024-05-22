@@ -18,7 +18,7 @@ from typing_extensions import Annotated, Doc, deprecated, override
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
 from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
-from faststream.confluent.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.confluent.subscriber.factory import create_subscriber
 from faststream.exceptions import SetupError
 
 if TYPE_CHECKING:
@@ -1234,7 +1234,7 @@ class KafkaRegistrator(
             raise SetupError("You should install `group_id` with manual commit mode")
 
         subscriber = super().subscriber(
-            AsyncAPISubscriber.create(
+            create_subscriber(
                 *topics,
                 batch=batch,
                 batch_timeout_ms=batch_timeout_ms,
