@@ -13,7 +13,10 @@ async def test_basic():
         await broker.start()
 
         os = await broker.object_storage("example-bucket")
-        existed_files = await os.list()
+        try:
+            existed_files = await os.list()
+        except Exception:
+            existed_files = ()
 
         call = True
         for file in existed_files:
