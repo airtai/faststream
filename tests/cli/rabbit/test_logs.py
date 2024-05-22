@@ -8,15 +8,12 @@ from faststream.rabbit import RabbitBroker
 
 
 @pytest.mark.parametrize(
-    ("level", "broker"),
+    "level",
     (  # noqa: PT007
-        pytest.param(logging.ERROR, RabbitBroker(), id=str(logging.ERROR)),
+        pytest.param(logging.ERROR, id=str(logging.ERROR)),
+        *(pytest.param(level, id=level) for level in LogLevels.__members__),
         *(
-            pytest.param(level, RabbitBroker(), id=level)
-            for level in LogLevels.__members__
-        ),
-        *(
-            pytest.param(level, RabbitBroker(), id=str(level))
+            pytest.param(level, id=str(level))
             for level in LogLevels.__members__.values()
         ),
     ),

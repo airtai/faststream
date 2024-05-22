@@ -10,10 +10,9 @@ import pytest
 from faststream import FastStream, TestApp
 from faststream._compat import IS_WINDOWS
 from faststream.log import logger
-from faststream.rabbit import RabbitBroker
 
 
-def test_init(app: FastStream, broker: RabbitBroker):
+def test_init(app: FastStream, broker):
     assert app.broker is broker
     assert app.logger is logger
 
@@ -26,7 +25,7 @@ def test_init_without_logger(app_without_logger: FastStream):
     assert app_without_logger.logger is None
 
 
-def test_set_broker(broker: RabbitBroker, app_without_broker: FastStream):
+def test_set_broker(broker, app_without_broker: FastStream):
     assert app_without_broker.broker is None
     app_without_broker.set_broker(broker)
     assert app_without_broker.broker is broker

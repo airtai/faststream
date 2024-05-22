@@ -14,12 +14,14 @@ from docs.docs_src.getting_started.asyncapi.serve import (
     serve_cmd,
 )
 from faststream.cli.main import cli
+from tests.marks import require_aiokafka
 
 GEN_JSON_CMD = gen_json_cmd.split(" ")[1:-1]
 GEN_YAML_CMD = gen_yaml_cmd.split(" ")[1:-1]
 SERVE_CMD = serve_cmd.split(" ")[1:-1]
 
 
+@require_aiokafka
 def test_gen_asyncapi_json_for_kafka_app(runner: CliRunner, kafka_basic_project: Path):
     r = runner.invoke(
         cli, [*GEN_JSON_CMD, "--out", "schema.json", str(kafka_basic_project)]
@@ -36,6 +38,7 @@ def test_gen_asyncapi_json_for_kafka_app(runner: CliRunner, kafka_basic_project:
     schema_path.unlink()
 
 
+@require_aiokafka
 def test_gen_asyncapi_yaml_for_kafka_app(runner: CliRunner, kafka_basic_project: Path):
     r = runner.invoke(cli, GEN_YAML_CMD + [str(kafka_basic_project)])  # noqa: RUF005
     assert r.exit_code == 0
@@ -56,6 +59,7 @@ def test_gen_wrong_path(runner: CliRunner):
     assert "No such file or directory" in r.stdout
 
 
+@require_aiokafka
 def test_serve_asyncapi_docs(
     runner: CliRunner,
     kafka_basic_project: Path,
@@ -70,6 +74,7 @@ def test_serve_asyncapi_docs(
     mock.assert_called_once()
 
 
+@require_aiokafka
 @pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_serve_asyncapi_json_schema(
     runner: CliRunner,
@@ -90,6 +95,7 @@ def test_serve_asyncapi_json_schema(
     schema_path.unlink()
 
 
+@require_aiokafka
 @pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_serve_asyncapi_yaml_schema(
     runner: CliRunner,
