@@ -57,6 +57,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
@@ -70,6 +71,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             default_decoder=default_decoder,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -156,9 +158,10 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.task = None
 
     def _make_response_publisher(
-        self, message: "StreamMessage[Any]"
+        self,
+        message: "StreamMessage[Any]",
     ) -> Sequence[FakePublisher]:
-        if not message.reply_to or self._producer is None:
+        if self._producer is None:
             return ()
 
         return (
@@ -226,6 +229,7 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[Message]"],
@@ -244,6 +248,7 @@ class DefaultSubscriber(LogicSubscriber[Message]):
             default_decoder=AsyncConfluentParser.decode_message,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -285,6 +290,7 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[Tuple[Message, ...]]"],
@@ -306,6 +312,7 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
             default_decoder=AsyncConfluentParser.decode_message_batch,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,

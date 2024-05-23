@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -18,8 +18,8 @@ class TestPublish(BrokerPublishTestcase):
     async def test_reply_config(
         self,
         queue: str,
-        event,
-        mock,
+        event: asyncio.Event,
+        mock: Mock,
     ):
         pub_broker = self.get_broker()
 

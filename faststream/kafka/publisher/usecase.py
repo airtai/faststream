@@ -110,7 +110,8 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         *,
         key: Annotated[
             Union[bytes, Any, None],
-            Doc("""
+            Doc(
+                """
             A key to associate with the message. Can be used to
             determine which partition to send the message to. If partition
             is `None` (and producer's partitioner config is left as default),
@@ -118,21 +119,26 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """),
+            """
+            ),
         ] = None,
         partition: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """),
+            """
+            ),
         ] = None,
         timestamp_ms: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """),
+            """
+            ),
         ] = None,
         headers: Annotated[
             Optional[Dict[str, str]],
@@ -205,17 +211,21 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
         ] = "",
         partition: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """),
+            """
+            ),
         ] = None,
         timestamp_ms: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """),
+            """
+            ),
         ] = None,
         headers: Annotated[
             Optional[Dict[str, str]],

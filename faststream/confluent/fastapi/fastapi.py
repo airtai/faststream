@@ -414,12 +414,14 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ],
         group_id: Annotated[
             Optional[str],
-            Doc("""
+            Doc(
+                """
             Name of the consumer group to join for dynamic
             partition assignment (if enabled), and to use for fetching and
             committing offsets. If `None`, auto-partition assignment (via
             group coordinator) and offset commits are disabled.
-            """),
+            """
+            ),
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
@@ -437,16 +439,19 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = None,
         fetch_max_wait_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of time in milliseconds
             the server will block before answering the fetch request if
             there isn't sufficient data to immediately satisfy the
             requirement given by `fetch_min_bytes`.
-            """),
+            """
+            ),
         ] = 500,
         fetch_max_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of data the server should
             return for a fetch request. This is not an absolute maximum, if
             the first message in the first non-empty partition of the fetch
@@ -455,19 +460,23 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             performs fetches to multiple brokers in parallel so memory
             usage will depend on the number of brokers containing
             partitions for the topic.
-            """),
+            """
+            ),
         ] = 50 * 1024 * 1024,
         fetch_min_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """),
+            """
+            ),
         ] = 1,
         max_partition_fetch_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of data
             per-partition the server will return. The maximum total memory
             used for a request ``= #partitions * max_partition_fetch_bytes``.
@@ -476,43 +485,53 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             send messages larger than the consumer can fetch. If that
             happens, the consumer can get stuck trying to fetch a large
             message on a certain partition.
-            """),
+            """
+            ),
         ] = 1 * 1024 * 1024,
         auto_offset_reset: Annotated[
             Literal["latest", "earliest", "none"],
-            Doc("""
+            Doc(
+                """
             A policy for resetting offsets on `OffsetOutOfRangeError` errors:
 
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """),
+            """
+            ),
         ] = "latest",
         auto_commit: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             If `True` the consumer's offset will be
             periodically committed in the background.
-            """),
+            """
+            ),
         ] = True,
         auto_commit_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Milliseconds between automatic
-            offset commits, if `auto_commit` is `True`."""),
+            offset commits, if `auto_commit` is `True`."""
+            ),
         ] = 5 * 1000,
         check_crcs: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             Automatically check the CRC32 of the records
             consumed. This ensures no on-the-wire or on-disk corruption to
             the messages occurred. This check adds some overhead, so it may
             be disabled in cases seeking extreme performance.
-            """),
+            """
+            ),
         ] = True,
         partition_assignment_strategy: Annotated[
             Sequence[str],
-            Doc("""
+            Doc(
+                """
             List of objects to use to
             distribute partition ownership amongst consumer instances when
             group management is used. This preference is implicit in the order
@@ -522,22 +541,26 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             one. The coordinator will choose the old assignment strategy until
             all members have been updated. Then it will choose the new
             strategy.
-            """),
+            """
+            ),
         ] = ("roundrobin",),
         max_poll_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Maximum allowed time between calls to
             consume messages in batches. If this interval
             is exceeded the consumer is considered failed and the group will
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """),
+            """
+            ),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             The maximum time server will wait for this
             consumer to rejoin the group in a case of rebalance. In Java client
             this behaviour is bound to `max.poll.interval.ms` configuration,
@@ -545,11 +568,13 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """),
+            """
+            ),
         ] = None,
         session_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Client group session and failure detection
             timeout. The consumer sends periodic heartbeats
             (`heartbeat.interval.ms`) to indicate its liveness to the broker.
@@ -558,11 +583,13 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             group and trigger a rebalance. The allowed range is configured with
             the **broker** configuration properties
             `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
-            """),
+            """
+            ),
         ] = 10 * 1000,
         heartbeat_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The expected time in milliseconds
             between heartbeats to the consumer coordinator when using
             Kafka's group management feature. Heartbeats are used to ensure
@@ -572,35 +599,43 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             should be set no higher than 1/3 of that value. It can be
             adjusted even lower to control the expected time for normal
             rebalances.
-            """),
+            """
+            ),
         ] = 3 * 1000,
         consumer_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Maximum wait timeout for background fetching
             routine. Mostly defines how fast the system will see rebalance and
             request new data for new partitions.
-            """),
+            """
+            ),
         ] = 200,
         max_poll_records: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             The maximum number of records returned in a
             single call by batch consumer. Has no limit by default.
-            """),
+            """
+            ),
         ] = None,
         exclude_internal_topics: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             Whether records from internal topics
             (such as offsets) should be exposed to the consumer. If set to True
             the only way to receive records from an internal topic is
             subscribing to it.
-            """),
+            """
+            ),
         ] = True,
         isolation_level: Annotated[
             Literal["read_uncommitted", "read_committed"],
-            Doc("""
+            Doc(
+                """
             Controls how to read messages written
             transactionally.
 
@@ -624,7 +659,8 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             to the high watermark when there are in flight transactions.
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
-            """),
+            """
+            ),
         ] = "read_uncommitted",
         batch: Annotated[
             Literal[False],
@@ -632,12 +668,14 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = False,
         batch_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Milliseconds spent waiting if
             data is not available in the buffer. If 0, returns immediately
             with any records that are available currently in the buffer,
             else returns empty.
-            """),
+            """
+            ),
         ] = 200,
         max_records: Annotated[
             Optional[int],
@@ -678,6 +716,12 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         no_ack: Annotated[
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
         ] = False,
         # AsyncAPI args
         title: Annotated[
@@ -829,12 +873,14 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ],
         group_id: Annotated[
             Optional[str],
-            Doc("""
+            Doc(
+                """
             Name of the consumer group to join for dynamic
             partition assignment (if enabled), and to use for fetching and
             committing offsets. If `None`, auto-partition assignment (via
             group coordinator) and offset commits are disabled.
-            """),
+            """
+            ),
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
@@ -852,16 +898,19 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = None,
         fetch_max_wait_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of time in milliseconds
             the server will block before answering the fetch request if
             there isn't sufficient data to immediately satisfy the
             requirement given by `fetch_min_bytes`.
-            """),
+            """
+            ),
         ] = 500,
         fetch_max_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of data the server should
             return for a fetch request. This is not an absolute maximum, if
             the first message in the first non-empty partition of the fetch
@@ -870,19 +919,23 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             performs fetches to multiple brokers in parallel so memory
             usage will depend on the number of brokers containing
             partitions for the topic.
-            """),
+            """
+            ),
         ] = 50 * 1024 * 1024,
         fetch_min_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """),
+            """
+            ),
         ] = 1,
         max_partition_fetch_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of data
             per-partition the server will return. The maximum total memory
             used for a request ``= #partitions * max_partition_fetch_bytes``.
@@ -891,43 +944,53 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             send messages larger than the consumer can fetch. If that
             happens, the consumer can get stuck trying to fetch a large
             message on a certain partition.
-            """),
+            """
+            ),
         ] = 1 * 1024 * 1024,
         auto_offset_reset: Annotated[
             Literal["latest", "earliest", "none"],
-            Doc("""
+            Doc(
+                """
             A policy for resetting offsets on `OffsetOutOfRangeError` errors:
 
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """),
+            """
+            ),
         ] = "latest",
         auto_commit: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             If `True` the consumer's offset will be
             periodically committed in the background.
-            """),
+            """
+            ),
         ] = True,
         auto_commit_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Milliseconds between automatic
-            offset commits, if `auto_commit` is `True`."""),
+            offset commits, if `auto_commit` is `True`."""
+            ),
         ] = 5 * 1000,
         check_crcs: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             Automatically check the CRC32 of the records
             consumed. This ensures no on-the-wire or on-disk corruption to
             the messages occurred. This check adds some overhead, so it may
             be disabled in cases seeking extreme performance.
-            """),
+            """
+            ),
         ] = True,
         partition_assignment_strategy: Annotated[
             Sequence[str],
-            Doc("""
+            Doc(
+                """
             List of objects to use to
             distribute partition ownership amongst consumer instances when
             group management is used. This preference is implicit in the order
@@ -937,22 +1000,26 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             one. The coordinator will choose the old assignment strategy until
             all members have been updated. Then it will choose the new
             strategy.
-            """),
+            """
+            ),
         ] = ("roundrobin",),
         max_poll_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Maximum allowed time between calls to
             consume messages in batches. If this interval
             is exceeded the consumer is considered failed and the group will
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """),
+            """
+            ),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             The maximum time server will wait for this
             consumer to rejoin the group in a case of rebalance. In Java client
             this behaviour is bound to `max.poll.interval.ms` configuration,
@@ -960,11 +1027,13 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """),
+            """
+            ),
         ] = None,
         session_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Client group session and failure detection
             timeout. The consumer sends periodic heartbeats
             (`heartbeat.interval.ms`) to indicate its liveness to the broker.
@@ -973,11 +1042,13 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             group and trigger a rebalance. The allowed range is configured with
             the **broker** configuration properties
             `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
-            """),
+            """
+            ),
         ] = 10 * 1000,
         heartbeat_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The expected time in milliseconds
             between heartbeats to the consumer coordinator when using
             Kafka's group management feature. Heartbeats are used to ensure
@@ -987,35 +1058,43 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             should be set no higher than 1/3 of that value. It can be
             adjusted even lower to control the expected time for normal
             rebalances.
-            """),
+            """
+            ),
         ] = 3 * 1000,
         consumer_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Maximum wait timeout for background fetching
             routine. Mostly defines how fast the system will see rebalance and
             request new data for new partitions.
-            """),
+            """
+            ),
         ] = 200,
         max_poll_records: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             The maximum number of records returned in a
             single call by batch consumer. Has no limit by default.
-            """),
+            """
+            ),
         ] = None,
         exclude_internal_topics: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             Whether records from internal topics
             (such as offsets) should be exposed to the consumer. If set to True
             the only way to receive records from an internal topic is
             subscribing to it.
-            """),
+            """
+            ),
         ] = True,
         isolation_level: Annotated[
             Literal["read_uncommitted", "read_committed"],
-            Doc("""
+            Doc(
+                """
             Controls how to read messages written
             transactionally.
 
@@ -1039,7 +1118,8 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             to the high watermark when there are in flight transactions.
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
-            """),
+            """
+            ),
         ] = "read_uncommitted",
         batch: Annotated[
             Literal[True],
@@ -1047,12 +1127,14 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ],
         batch_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Milliseconds spent waiting if
             data is not available in the buffer. If 0, returns immediately
             with any records that are available currently in the buffer,
             else returns empty.
-            """),
+            """
+            ),
         ] = 200,
         max_records: Annotated[
             Optional[int],
@@ -1236,12 +1318,14 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ],
         group_id: Annotated[
             Optional[str],
-            Doc("""
+            Doc(
+                """
             Name of the consumer group to join for dynamic
             partition assignment (if enabled), and to use for fetching and
             committing offsets. If `None`, auto-partition assignment (via
             group coordinator) and offset commits are disabled.
-            """),
+            """
+            ),
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
@@ -1259,16 +1343,19 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = None,
         fetch_max_wait_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of time in milliseconds
             the server will block before answering the fetch request if
             there isn't sufficient data to immediately satisfy the
             requirement given by `fetch_min_bytes`.
-            """),
+            """
+            ),
         ] = 500,
         fetch_max_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of data the server should
             return for a fetch request. This is not an absolute maximum, if
             the first message in the first non-empty partition of the fetch
@@ -1277,19 +1364,23 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             performs fetches to multiple brokers in parallel so memory
             usage will depend on the number of brokers containing
             partitions for the topic.
-            """),
+            """
+            ),
         ] = 50 * 1024 * 1024,
         fetch_min_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """),
+            """
+            ),
         ] = 1,
         max_partition_fetch_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of data
             per-partition the server will return. The maximum total memory
             used for a request ``= #partitions * max_partition_fetch_bytes``.
@@ -1298,43 +1389,53 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             send messages larger than the consumer can fetch. If that
             happens, the consumer can get stuck trying to fetch a large
             message on a certain partition.
-            """),
+            """
+            ),
         ] = 1 * 1024 * 1024,
         auto_offset_reset: Annotated[
             Literal["latest", "earliest", "none"],
-            Doc("""
+            Doc(
+                """
             A policy for resetting offsets on `OffsetOutOfRangeError` errors:
 
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """),
+            """
+            ),
         ] = "latest",
         auto_commit: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             If `True` the consumer's offset will be
             periodically committed in the background.
-            """),
+            """
+            ),
         ] = True,
         auto_commit_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Milliseconds between automatic
-            offset commits, if `auto_commit` is `True`."""),
+            offset commits, if `auto_commit` is `True`."""
+            ),
         ] = 5 * 1000,
         check_crcs: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             Automatically check the CRC32 of the records
             consumed. This ensures no on-the-wire or on-disk corruption to
             the messages occurred. This check adds some overhead, so it may
             be disabled in cases seeking extreme performance.
-            """),
+            """
+            ),
         ] = True,
         partition_assignment_strategy: Annotated[
             Sequence[str],
-            Doc("""
+            Doc(
+                """
             List of objects to use to
             distribute partition ownership amongst consumer instances when
             group management is used. This preference is implicit in the order
@@ -1344,22 +1445,26 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             one. The coordinator will choose the old assignment strategy until
             all members have been updated. Then it will choose the new
             strategy.
-            """),
+            """
+            ),
         ] = ("roundrobin",),
         max_poll_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Maximum allowed time between calls to
             consume messages in batches. If this interval
             is exceeded the consumer is considered failed and the group will
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """),
+            """
+            ),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             The maximum time server will wait for this
             consumer to rejoin the group in a case of rebalance. In Java client
             this behaviour is bound to `max.poll.interval.ms` configuration,
@@ -1367,11 +1472,13 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """),
+            """
+            ),
         ] = None,
         session_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Client group session and failure detection
             timeout. The consumer sends periodic heartbeats
             (`heartbeat.interval.ms`) to indicate its liveness to the broker.
@@ -1380,11 +1487,13 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             group and trigger a rebalance. The allowed range is configured with
             the **broker** configuration properties
             `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
-            """),
+            """
+            ),
         ] = 10 * 1000,
         heartbeat_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The expected time in milliseconds
             between heartbeats to the consumer coordinator when using
             Kafka's group management feature. Heartbeats are used to ensure
@@ -1394,35 +1503,43 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             should be set no higher than 1/3 of that value. It can be
             adjusted even lower to control the expected time for normal
             rebalances.
-            """),
+            """
+            ),
         ] = 3 * 1000,
         consumer_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Maximum wait timeout for background fetching
             routine. Mostly defines how fast the system will see rebalance and
             request new data for new partitions.
-            """),
+            """
+            ),
         ] = 200,
         max_poll_records: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             The maximum number of records returned in a
             single call by batch consumer. Has no limit by default.
-            """),
+            """
+            ),
         ] = None,
         exclude_internal_topics: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             Whether records from internal topics
             (such as offsets) should be exposed to the consumer. If set to True
             the only way to receive records from an internal topic is
             subscribing to it.
-            """),
+            """
+            ),
         ] = True,
         isolation_level: Annotated[
             Literal["read_uncommitted", "read_committed"],
-            Doc("""
+            Doc(
+                """
             Controls how to read messages written
             transactionally.
 
@@ -1446,7 +1563,8 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             to the high watermark when there are in flight transactions.
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
-            """),
+            """
+            ),
         ] = "read_uncommitted",
         batch: Annotated[
             bool,
@@ -1454,12 +1572,14 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = False,
         batch_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Milliseconds spent waiting if
             data is not available in the buffer. If 0, returns immediately
             with any records that are available currently in the buffer,
             else returns empty.
-            """),
+            """
+            ),
         ] = 200,
         max_records: Annotated[
             Optional[int],
@@ -1500,6 +1620,12 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         no_ack: Annotated[
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
         ] = False,
         # AsyncAPI args
         title: Annotated[
@@ -1654,12 +1780,14 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ],
         group_id: Annotated[
             Optional[str],
-            Doc("""
+            Doc(
+                """
             Name of the consumer group to join for dynamic
             partition assignment (if enabled), and to use for fetching and
             committing offsets. If `None`, auto-partition assignment (via
             group coordinator) and offset commits are disabled.
-            """),
+            """
+            ),
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
@@ -1677,16 +1805,19 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = None,
         fetch_max_wait_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of time in milliseconds
             the server will block before answering the fetch request if
             there isn't sufficient data to immediately satisfy the
             requirement given by `fetch_min_bytes`.
-            """),
+            """
+            ),
         ] = 500,
         fetch_max_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of data the server should
             return for a fetch request. This is not an absolute maximum, if
             the first message in the first non-empty partition of the fetch
@@ -1695,19 +1826,23 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             performs fetches to multiple brokers in parallel so memory
             usage will depend on the number of brokers containing
             partitions for the topic.
-            """),
+            """
+            ),
         ] = 50 * 1024 * 1024,
         fetch_min_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """),
+            """
+            ),
         ] = 1,
         max_partition_fetch_bytes: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The maximum amount of data
             per-partition the server will return. The maximum total memory
             used for a request ``= #partitions * max_partition_fetch_bytes``.
@@ -1716,43 +1851,53 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             send messages larger than the consumer can fetch. If that
             happens, the consumer can get stuck trying to fetch a large
             message on a certain partition.
-            """),
+            """
+            ),
         ] = 1 * 1024 * 1024,
         auto_offset_reset: Annotated[
             Literal["latest", "earliest", "none"],
-            Doc("""
+            Doc(
+                """
             A policy for resetting offsets on `OffsetOutOfRangeError` errors:
 
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """),
+            """
+            ),
         ] = "latest",
         auto_commit: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             If `True` the consumer's offset will be
             periodically committed in the background.
-            """),
+            """
+            ),
         ] = True,
         auto_commit_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Milliseconds between automatic
-            offset commits, if `auto_commit` is `True`."""),
+            offset commits, if `auto_commit` is `True`."""
+            ),
         ] = 5 * 1000,
         check_crcs: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             Automatically check the CRC32 of the records
             consumed. This ensures no on-the-wire or on-disk corruption to
             the messages occurred. This check adds some overhead, so it may
             be disabled in cases seeking extreme performance.
-            """),
+            """
+            ),
         ] = True,
         partition_assignment_strategy: Annotated[
             Sequence[str],
-            Doc("""
+            Doc(
+                """
             List of objects to use to
             distribute partition ownership amongst consumer instances when
             group management is used. This preference is implicit in the order
@@ -1762,22 +1907,26 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             one. The coordinator will choose the old assignment strategy until
             all members have been updated. Then it will choose the new
             strategy.
-            """),
+            """
+            ),
         ] = ("roundrobin",),
         max_poll_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Maximum allowed time between calls to
             consume messages in batches. If this interval
             is exceeded the consumer is considered failed and the group will
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """),
+            """
+            ),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             The maximum time server will wait for this
             consumer to rejoin the group in a case of rebalance. In Java client
             this behaviour is bound to `max.poll.interval.ms` configuration,
@@ -1785,11 +1934,13 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """),
+            """
+            ),
         ] = None,
         session_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Client group session and failure detection
             timeout. The consumer sends periodic heartbeats
             (`heartbeat.interval.ms`) to indicate its liveness to the broker.
@@ -1798,11 +1949,13 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             group and trigger a rebalance. The allowed range is configured with
             the **broker** configuration properties
             `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
-            """),
+            """
+            ),
         ] = 10 * 1000,
         heartbeat_interval_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             The expected time in milliseconds
             between heartbeats to the consumer coordinator when using
             Kafka's group management feature. Heartbeats are used to ensure
@@ -1812,35 +1965,43 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             should be set no higher than 1/3 of that value. It can be
             adjusted even lower to control the expected time for normal
             rebalances.
-            """),
+            """
+            ),
         ] = 3 * 1000,
         consumer_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Maximum wait timeout for background fetching
             routine. Mostly defines how fast the system will see rebalance and
             request new data for new partitions.
-            """),
+            """
+            ),
         ] = 200,
         max_poll_records: Annotated[
             Optional[int],
-            Doc("""
+            Doc(
+                """
             The maximum number of records returned in a
             single call by batch consumer. Has no limit by default.
-            """),
+            """
+            ),
         ] = None,
         exclude_internal_topics: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             Whether records from internal topics
             (such as offsets) should be exposed to the consumer. If set to True
             the only way to receive records from an internal topic is
             subscribing to it.
-            """),
+            """
+            ),
         ] = True,
         isolation_level: Annotated[
             Literal["read_uncommitted", "read_committed"],
-            Doc("""
+            Doc(
+                """
             Controls how to read messages written
             transactionally.
 
@@ -1864,7 +2025,8 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             to the high watermark when there are in flight transactions.
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
-            """),
+            """
+            ),
         ] = "read_uncommitted",
         batch: Annotated[
             bool,
@@ -1872,12 +2034,14 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = False,
         batch_timeout_ms: Annotated[
             int,
-            Doc("""
+            Doc(
+                """
             Milliseconds spent waiting if
             data is not available in the buffer. If 0, returns immediately
             with any records that are available currently in the buffer,
             else returns empty.
-            """),
+            """
+            ),
         ] = 200,
         max_records: Annotated[
             Optional[int],
@@ -1918,6 +2082,12 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         no_ack: Annotated[
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
         ] = False,
         # AsyncAPI args
         title: Annotated[
@@ -2096,6 +2266,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             filter=filter,
             retry=retry,
             no_ack=no_ack,
+            no_reply=no_reply,
             title=title,
             description=description,
             include_in_schema=include_in_schema,

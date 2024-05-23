@@ -98,6 +98,12 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
         ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
+        ] = False,
         # AsyncAPI information
         title: Annotated[
             Optional[str],
@@ -125,6 +131,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
                     reply_config=reply_config,
                     # subscriber args
                     no_ack=no_ack,
+                    no_reply=no_reply,
                     retry=retry,
                     broker_middlewares=self._middlewares,
                     broker_dependencies=self._dependencies,

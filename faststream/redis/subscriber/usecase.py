@@ -69,6 +69,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         default_decoder: "AsyncCallable",
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -82,6 +83,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
             default_decoder=default_decoder,
             # Propagated options
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -129,9 +131,10 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         )
 
     def _make_response_publisher(
-        self, message: "BrokerStreamMessage[UnifyRedisDict]"
+        self,
+        message: "BrokerStreamMessage[UnifyRedisDict]",
     ) -> Sequence[FakePublisher]:
-        if not message.reply_to or self._producer is None:
+        if self._producer is None:
             return ()
 
         return (
@@ -207,6 +210,7 @@ class ChannelSubscriber(LogicSubscriber):
         channel: "PubSub",
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -221,6 +225,7 @@ class ChannelSubscriber(LogicSubscriber):
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -296,6 +301,7 @@ class _ListHandlerMixin(LogicSubscriber):
         default_decoder: "AsyncCallable",
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -309,6 +315,7 @@ class _ListHandlerMixin(LogicSubscriber):
             default_decoder=default_decoder,
             # Propagated options
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -360,6 +367,7 @@ class ListSubscriber(_ListHandlerMixin):
         list: ListSub,
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -375,6 +383,7 @@ class ListSubscriber(_ListHandlerMixin):
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -407,6 +416,7 @@ class BatchListSubscriber(_ListHandlerMixin):
         list: ListSub,
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -422,6 +432,7 @@ class BatchListSubscriber(_ListHandlerMixin):
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -459,6 +470,7 @@ class _StreamHandlerMixin(LogicSubscriber):
         default_decoder: "AsyncCallable",
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -472,6 +484,7 @@ class _StreamHandlerMixin(LogicSubscriber):
             default_decoder=default_decoder,
             # Propagated options
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -605,6 +618,7 @@ class StreamSubscriber(_StreamHandlerMixin):
         stream: StreamSub,
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -620,6 +634,7 @@ class StreamSubscriber(_StreamHandlerMixin):
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -672,6 +687,7 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
         stream: StreamSub,
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -687,6 +703,7 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,

@@ -145,7 +145,8 @@ class PatchedMessage(Msg):
         pass
 
     async def ack_sync(
-        self, timeout: float = 1
+        self,
+        timeout: float = 1,
     ) -> "PatchedMessage":  # pragma: no cover
         return self
 

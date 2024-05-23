@@ -35,6 +35,7 @@ def create_subscriber(
     stream: Union["StreamSub", str, None],
     # Subscriber args
     no_ack: bool = False,
+    no_reply: bool = False,
     retry: bool = False,
     broker_dependencies: Iterable["Depends"] = (),
     broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"] = (),
@@ -50,6 +51,7 @@ def create_subscriber(
             channel=channel_sub,
             # basic args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -65,6 +67,7 @@ def create_subscriber(
                 stream=stream_sub,
                 # basic args
                 no_ack=no_ack,
+                no_reply=no_reply,
                 retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
@@ -78,6 +81,7 @@ def create_subscriber(
                 stream=stream_sub,
                 # basic args
                 no_ack=no_ack,
+                no_reply=no_reply,
                 retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
@@ -93,6 +97,7 @@ def create_subscriber(
                 list=list_sub,
                 # basic args
                 no_ack=no_ack,
+                no_reply=no_reply,
                 retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
@@ -106,6 +111,7 @@ def create_subscriber(
                 list=list_sub,
                 # basic args
                 no_ack=no_ack,
+                no_reply=no_reply,
                 retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,

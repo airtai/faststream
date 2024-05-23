@@ -1,11 +1,9 @@
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
 
-from fast_depends.dependencies import Depends
 from nats.js import api
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
-from faststream.broker.types import CustomCallable
 from faststream.broker.utils import default_filter
 from faststream.nats.helpers import StreamBuilder
 from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
@@ -183,6 +181,12 @@ class NatsRegistrator(ABCBroker["Msg"]):
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
         ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
+        ] = False,
         # AsyncAPI information
         title: Annotated[
             Optional[str],
@@ -233,6 +237,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
                     ack_first=ack_first,
                     # subscriber args
                     no_ack=no_ack,
+                    no_reply=no_reply,
                     retry=retry,
                     broker_middlewares=self._middlewares,
                     broker_dependencies=self._dependencies,
