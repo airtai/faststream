@@ -271,6 +271,12 @@ class NatsRoute(SubscriberRoute):
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
         ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
+        ] = False,
         # AsyncAPI information
         title: Annotated[
             Optional[str],
@@ -317,6 +323,7 @@ class NatsRoute(SubscriberRoute):
             filter=filter,
             retry=retry,
             no_ack=no_ack,
+            no_reply=no_reply,
             title=title,
             description=description,
             include_in_schema=include_in_schema,

@@ -55,6 +55,7 @@ class LogicSubscriber(
         reply_config: Optional["ReplyConfig"],
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
@@ -70,6 +71,7 @@ class LogicSubscriber(
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -173,7 +175,7 @@ class LogicSubscriber(
         self,
         message: "StreamMessage[Any]",
     ) -> Sequence["FakePublisher"]:
-        if not message.reply_to or self._producer is None:
+        if self._producer is None:
             return ()
 
         return (

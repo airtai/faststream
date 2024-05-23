@@ -21,7 +21,6 @@ from typing_extensions import Self, override
 from faststream.asyncapi.abc import AsyncAPIOperation
 from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.utils import to_camelcase
-from faststream.broker.publisher.proto import ProducerProto
 from faststream.broker.subscriber.call_item import HandlerItem
 from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.types import (
@@ -40,6 +39,7 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.middlewares import BaseMiddleware
+    from faststream.broker.publisher.proto import BasePublisherProto, ProducerProto
     from faststream.broker.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -93,6 +93,7 @@ class SubscriberUsecase(
         self,
         *,
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
@@ -108,6 +109,7 @@ class SubscriberUsecase(
 
         self._default_parser = default_parser
         self._default_decoder = default_decoder
+        self._no_reply = no_reply
         # Watcher args
         self._no_ack = no_ack
         self._retry = retry
@@ -139,7 +141,7 @@ class SubscriberUsecase(
         self,
         *,
         logger: Optional["LoggerProto"],
-        producer: Optional[ProducerProto],
+        producer: Optional["ProducerProto"],
         graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
@@ -338,7 +340,7 @@ class SubscriberUsecase(
                     )
 
                     for p in chain(
-                        self._make_response_publisher(message),
+                        self.__get_reponse_publisher(message),
                         h.handler._publishers,
                     ):
                         await p.publish(
@@ -357,6 +359,16 @@ class SubscriberUsecase(
             raise AssertionError(f"There is no suitable handler for {msg=}")
 
         return None
+
+    def __get_reponse_publisher(
+        self,
+        message: "StreamMessage[MsgType]",
+    ) -> Iterable["BasePublisherProto"]:
+        if not message.reply_to or self._no_reply:
+            return ()
+
+        else:
+            return self._make_response_publisher(message)
 
     def get_log_context(
         self,

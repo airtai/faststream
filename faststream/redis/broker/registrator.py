@@ -84,6 +84,12 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
         ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
+        ] = False,
         # AsyncAPI information
         title: Annotated[
             Optional[str],
@@ -110,6 +116,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
                     stream=stream,
                     # subscriber args
                     no_ack=no_ack,
+                    no_reply=no_reply,
                     retry=retry,
                     broker_middlewares=self._middlewares,
                     broker_dependencies=self._dependencies,

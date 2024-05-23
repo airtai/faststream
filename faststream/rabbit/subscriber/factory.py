@@ -19,6 +19,7 @@ def create_subscriber(
     reply_config: Optional["ReplyConfig"],
     # Subscriber args
     no_ack: bool,
+    no_reply: bool,
     retry: Union[bool, int],
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
@@ -33,6 +34,7 @@ def create_subscriber(
         consume_args=consume_args,
         reply_config=reply_config,
         no_ack=no_ack,
+        no_reply=no_reply,
         retry=retry,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,
