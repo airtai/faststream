@@ -13,7 +13,6 @@ from typing import (
 )
 from urllib.parse import urlparse
 
-from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import (
     Connection,

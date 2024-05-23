@@ -58,6 +58,7 @@ def create_subscriber(
     stream: Optional["JStream"],
     # Subscriber args
     no_ack: bool,
+    no_reply: bool,
     retry: Union[bool, int],
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[Any]"],
@@ -148,6 +149,7 @@ def create_subscriber(
                 extra_options=extra_options,
                 # Subscriber args
                 no_ack=no_ack,
+                no_reply=no_reply,
                 retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
@@ -165,6 +167,7 @@ def create_subscriber(
                 extra_options=extra_options,
                 # Subscriber args
                 no_ack=no_ack,
+                no_reply=no_reply,
                 retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
@@ -186,6 +189,7 @@ def create_subscriber(
                     extra_options=extra_options,
                     # Subscriber args
                     no_ack=no_ack,
+                    no_reply=no_reply,
                     retry=retry,
                     broker_dependencies=broker_dependencies,
                     broker_middlewares=broker_middlewares,
@@ -205,6 +209,7 @@ def create_subscriber(
                     extra_options=extra_options,
                     # Subscriber args
                     no_ack=no_ack,
+                    no_reply=no_reply,
                     retry=retry,
                     broker_dependencies=broker_dependencies,
                     broker_middlewares=broker_middlewares,
@@ -225,6 +230,7 @@ def create_subscriber(
                         extra_options=extra_options,
                         # Subscriber args
                         no_ack=no_ack,
+                        no_reply=no_reply,
                         retry=retry,
                         broker_dependencies=broker_dependencies,
                         broker_middlewares=broker_middlewares,
@@ -243,6 +249,7 @@ def create_subscriber(
                         extra_options=extra_options,
                         # Subscriber args
                         no_ack=no_ack,
+                        no_reply=no_reply,
                         retry=retry,
                         broker_dependencies=broker_dependencies,
                         broker_middlewares=broker_middlewares,
@@ -261,6 +268,7 @@ def create_subscriber(
                     extra_options=extra_options,
                     # Subscriber args
                     no_ack=no_ack,
+                    no_reply=no_reply,
                     retry=retry,
                     broker_dependencies=broker_dependencies,
                     broker_middlewares=broker_middlewares,

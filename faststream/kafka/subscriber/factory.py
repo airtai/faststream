@@ -38,6 +38,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     no_ack: bool,
+    no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
@@ -63,6 +64,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     no_ack: bool,
+    no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
@@ -88,6 +90,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     no_ack: bool,
+    no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
@@ -117,6 +120,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     no_ack: bool,
+    no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
@@ -156,6 +160,7 @@ def create_subscriber(
             partitions=partitions,
             is_manual=is_manual,
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -174,6 +179,7 @@ def create_subscriber(
             partitions=partitions,
             is_manual=is_manual,
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,

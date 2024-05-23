@@ -24,7 +24,6 @@ from nats.js.api import ObjectInfo
 from nats.js.kv import KeyValue
 from typing_extensions import Annotated, Doc, override
 
-from faststream.broker.message import StreamMessage
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import CustomCallable, MsgType
@@ -79,6 +78,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
@@ -96,6 +96,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             default_decoder=default_decoder,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -234,6 +235,7 @@ class _DefaultSubscriber(LogicSubscriber[MsgType]):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
@@ -250,6 +252,7 @@ class _DefaultSubscriber(LogicSubscriber[MsgType]):
             default_decoder=default_decoder,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -261,13 +264,10 @@ class _DefaultSubscriber(LogicSubscriber[MsgType]):
 
     def _make_response_publisher(
         self,
-        message: Annotated[
-            "StreamMessage[Any]",
-            Doc("Message requiring reply"),
-        ],
+        message: "StreamMessage[Any]",
     ) -> Sequence[FakePublisher]:
         """Create FakePublisher object to use it as one of `publishers` in `self.consume` scope."""
-        if not message.reply_to or self._producer is None:
+        if self._producer is None:
             return ()
 
         return (
@@ -372,6 +372,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
@@ -392,6 +393,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
             default_decoder=parser_.decode_message,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -441,6 +443,7 @@ class ConcurrentCoreSubscriber(_ConcurrentMixin, CoreSubscriber):
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
@@ -457,6 +460,7 @@ class ConcurrentCoreSubscriber(_ConcurrentMixin, CoreSubscriber):
             extra_options=extra_options,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -494,6 +498,7 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
@@ -515,6 +520,7 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
             default_decoder=parser_.decode_message,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -572,6 +578,7 @@ class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
@@ -589,6 +596,7 @@ class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
             extra_options=extra_options,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -628,6 +636,7 @@ class PullStreamSubscriber(_TasksMixin, _StreamSubscriber):
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
@@ -646,6 +655,7 @@ class PullStreamSubscriber(_TasksMixin, _StreamSubscriber):
             queue="",
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -701,6 +711,7 @@ class ConcurrentPullStreamSubscriber(_ConcurrentMixin, PullStreamSubscriber):
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
@@ -718,6 +729,7 @@ class ConcurrentPullStreamSubscriber(_ConcurrentMixin, PullStreamSubscriber):
             extra_options=extra_options,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -758,6 +770,7 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[List[Msg]]"],
@@ -779,6 +792,7 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
             default_decoder=parser.decode_batch,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -838,6 +852,7 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
             subject=subject,
             extra_options=None,
             no_ack=True,
+            no_reply=True,
             retry=False,
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
@@ -942,6 +957,7 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
             subject=subject,
             extra_options=None,
             no_ack=True,
+            no_reply=True,
             retry=False,
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
