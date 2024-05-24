@@ -3,7 +3,6 @@ import logging
 from ssl import SSLContext
 from time import time
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -22,9 +21,6 @@ from typing_extensions import Annotated, Doc
 
 from faststream.log import logger
 from faststream.utils.functions import call_or_await
-
-if TYPE_CHECKING:
-    from faststream.types import LoggerProto
 
 _missing = object()
 
@@ -112,7 +108,7 @@ class AsyncConfluentProducer:
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
         logger: Annotated[
-            Union["LoggerProto", logging.Logger, None, object],
+            Union[logging.Logger, None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = logger,
     ) -> None:
@@ -307,7 +303,7 @@ class AsyncConfluentConsumer:
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
         logger: Annotated[
-            Union["LoggerProto", logging.Logger, None, object],
+            Union[logging.Logger, None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = logger,
     ) -> None:
