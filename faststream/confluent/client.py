@@ -303,9 +303,7 @@ class AsyncConfluentConsumer:
             bootstrap_servers, str
         ):
             bootstrap_servers = ",".join(bootstrap_servers)
-
         self.topics = list(topics)
-
         if not isinstance(partition_assignment_strategy, str):
             partition_assignment_strategy = ",".join(
                 [
