@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from ssl import SSLContext
 from time import time
 from typing import (
@@ -111,7 +112,7 @@ class AsyncConfluentProducer:
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Union["LoggerProto", logging.Logger, None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = logger,
     ) -> None:
@@ -306,7 +307,7 @@ class AsyncConfluentConsumer:
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Union["LoggerProto", logging.Logger, None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = logger,
     ) -> None:
