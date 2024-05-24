@@ -37,9 +37,9 @@ class TestLogger:
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
-            await br.publish_batch(1, "hi", topic=queue)
-
-            # ToDo: Fetch consumer logger and assert it
+            for sub in br._subscribers.values():
+                consumer_logger = sub.consumer.logger
+                assert consumer_logger == test_logger
 
             producer_logger = br._producer._producer.logger
             assert producer_logger == test_logger
