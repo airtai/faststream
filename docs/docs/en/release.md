@@ -12,6 +12,19 @@ hide:
 ---
 
 # Release Notes
+## 0.5.9
+
+### What's Changed
+* Update Release Notes for 0.5.8 by @faststream-release-notes-updater in [#1462](https://github.com/airtai/faststream/pull/1462){.external-link target="_blank"}
+* Exclude typing_extensions version 4.12.* by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1467](https://github.com/airtai/faststream/pull/1467){.external-link target="_blank"}
+* fix: add group/consumer to hash to avoid overwriting by [@fbraem](https://github.com/fbraem){.external-link target="_blank"} in [#1463](https://github.com/airtai/faststream/pull/1463){.external-link target="_blank"}
+* Bump version to 0.5.9 by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1468](https://github.com/airtai/faststream/pull/1468){.external-link target="_blank"}
+
+### New Contributors
+* [@fbraem](https://github.com/fbraem){.external-link target="_blank"} made their first contribution in [#1463](https://github.com/airtai/faststream/pull/1463){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.8...0.5.9](https://github.com/airtai/faststream/compare/0.5.8...0.5.9){.external-link target="_blank"}
+
 ## 0.5.8
 
 ### What's Changed
