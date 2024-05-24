@@ -19,37 +19,37 @@ hide:
 This is the time for a new **NATS** features! **FastStream** supports **NATS Key-Value** and **Object Storage** subscribption features in a native way now (big thx for @sheldygg)!
 
 1. KeyValue creation and watching API added (you can read updated [documentation section](https://faststream.airt.ai/latest/nats/jetstream/key-value/) for changes):
-   
+
    ```python
     from faststream import FastStream, Logger
     from faststream.nats import NatsBroker
-    
+
     broker = NatsBroker()
     app = FastStream(broker)
-    
+
     @broker.subscriber("some-key", kv_watch="bucket")
     async def handler(msg: int, logger: Logger):
         logger.info(msg)
-    
+
     @app.after_startup
     async def test():
         kv = await broker.key_value("bucket")
         await kv.put("some-key", b"1")
    ```
-   
+
 2. ObjectStore API added as well (you can read updated [documentation section](https://faststream.airt.ai/latest/nats/jetstream/object/) for changes):
 
     ```python
     from faststream import FastStream, Logger
     from faststream.nats import NatsBroker
-    
+
     broker = NatsBroker()
     app = FastStream(broker)
-    
+
     @broker.subscriber("file-bucket", obj_watch=True)
     async def handler(filename: str, logger: Logger):
         logger.info(filename)
-    
+
     @app.after_startup
     async def test():
         object_store = await broker.object_storage("file-bucket")
@@ -61,22 +61,22 @@ This is the time for a new **NATS** features! **FastStream** supports **NATS Key
    ```python
     from faststream import FastStream, Logger
     from faststream.nats import NatsBroker
-    
+
     broker = NatsBroker()
     app = FastStream(broker)
-    
+
     @broker.subscriber("test", stream="stream", pull_sub=True)
     async def handler(msg, logger: Logger):
         logger.info(msg)
     ```
-    
+
 Finally, we have a new feature, related to all brokers: special flag to suppress automatic RPC and reply_to responses:
 
 ```python
 @broker.subscriber("tests", no_reply=True)
 async def handler():
     ....
- 
+
 # will fail with timeout, because there is no automatic response
 msg = await broker.publish("msg", "test", rpc=True)
 ```
