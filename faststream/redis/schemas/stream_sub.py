@@ -57,4 +57,8 @@ class StreamSub(NameRequired):
         self.max_records = max_records
 
     def __hash__(self) -> int:
+        if self.group is not None:
+            return hash(
+                f"stream:{self.name} group:{self.group} consumer:{self.consumer}"
+            )
         return hash(f"stream:{self.name}")
