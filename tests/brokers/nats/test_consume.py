@@ -13,24 +13,26 @@ from tests.tools import spy_decorator
 
 @pytest.mark.nats()
 class TestConsume(BrokerRealConsumeTestcase):
+    def get_broker(self, apply_types: bool = False) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types)
+
     async def test_consume_js(
         self,
         queue: str,
-        consume_broker: NatsBroker,
         stream: JStream,
         event: asyncio.Event,
     ):
+        consume_broker = self.get_broker()
+
         @consume_broker.subscriber(queue, stream=stream)
         def subscriber(m):
             event.set()
 
-        async with consume_broker:
-            await consume_broker.start()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(
-                        consume_broker.publish("hello", queue, stream=stream.name)
-                    ),
+                    asyncio.create_task(br.publish("hello", queue, stream=stream.name)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -41,11 +43,12 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_pull(
         self,
         queue: str,
-        consume_broker: NatsBroker,
         stream: JStream,
         event: asyncio.Event,
         mock,
     ):
+        consume_broker = self.get_broker()
+
         @consume_broker.subscriber(
             queue,
             stream=stream,
@@ -55,26 +58,29 @@ class TestConsume(BrokerRealConsumeTestcase):
             mock(m)
             event.set()
 
-        await consume_broker.start()
-        await asyncio.wait(
-            (
-                asyncio.create_task(consume_broker.publish("hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
 
-        assert event.is_set()
-        mock.assert_called_once_with("hello")
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+            assert event.is_set()
+            mock.assert_called_once_with("hello")
 
     async def test_consume_batch(
         self,
         queue: str,
-        consume_broker: NatsBroker,
         stream: JStream,
         event: asyncio.Event,
         mock,
     ):
+        consume_broker = self.get_broker()
+
         @consume_broker.subscriber(
             queue,
             stream=stream,
@@ -84,40 +90,39 @@ class TestConsume(BrokerRealConsumeTestcase):
             mock(m)
             event.set()
 
-        await consume_broker.start()
-        await asyncio.wait(
-            (
-                asyncio.create_task(consume_broker.publish(b"hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
 
-        assert event.is_set()
-        mock.assert_called_once_with([b"hello"])
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish(b"hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+            assert event.is_set()
+            mock.assert_called_once_with([b"hello"])
 
     async def test_consume_ack(
         self,
         queue: str,
-        full_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        @full_broker.subscriber(queue, stream=stream)
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
             event.set()
 
-        async with full_broker:
-            await full_broker.start()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
             with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
                 await asyncio.wait(
                     (
-                        asyncio.create_task(
-                            full_broker.publish(
-                                "hello",
-                                queue,
-                            )
-                        ),
+                        asyncio.create_task(br.publish("hello", queue)),
                         asyncio.create_task(event.wait()),
                     ),
                     timeout=3,
@@ -129,26 +134,23 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_manual(
         self,
         queue: str,
-        full_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        @full_broker.subscriber(queue, stream=stream)
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
             await msg.ack()
             event.set()
 
-        async with full_broker:
-            await full_broker.start()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
             with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
                 await asyncio.wait(
                     (
-                        asyncio.create_task(
-                            full_broker.publish(
-                                "hello",
-                                queue,
-                            )
-                        ),
+                        asyncio.create_task(br.publish("hello", queue)),
                         asyncio.create_task(event.wait()),
                     ),
                     timeout=3,
@@ -160,26 +162,23 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_raise(
         self,
         queue: str,
-        full_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        @full_broker.subscriber(queue, stream=stream)
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
             event.set()
             raise AckMessage()
 
-        async with full_broker:
-            await full_broker.start()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
             with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
                 await asyncio.wait(
                     (
-                        asyncio.create_task(
-                            full_broker.publish(
-                                "hello",
-                                queue,
-                            )
-                        ),
+                        asyncio.create_task(br.publish("hello", queue)),
                         asyncio.create_task(event.wait()),
                     ),
                     timeout=3,
@@ -191,26 +190,23 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_nack(
         self,
         queue: str,
-        full_broker: NatsBroker,
         event: asyncio.Event,
         stream: JStream,
     ):
-        @full_broker.subscriber(queue, stream=stream)
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, stream=stream)
         async def handler(msg: NatsMessage):
             await msg.nack()
             event.set()
 
-        async with full_broker:
-            await full_broker.start()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
             with patch.object(Msg, "nak", spy_decorator(Msg.nak)) as m:
                 await asyncio.wait(
                     (
-                        asyncio.create_task(
-                            full_broker.publish(
-                                "hello",
-                                queue,
-                            )
-                        ),
+                        asyncio.create_task(br.publish("hello", queue)),
                         asyncio.create_task(event.wait()),
                     ),
                     timeout=3,
@@ -220,39 +216,41 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
 
     async def test_consume_no_ack(
-        self, queue: str, full_broker: NatsBroker, event: asyncio.Event
+        self,
+        queue: str,
+        event: asyncio.Event,
     ):
-        @full_broker.subscriber(queue, no_ack=True)
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, no_ack=True)
         async def handler(msg: NatsMessage):
             event.set()
 
-        await full_broker.start()
-        with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
-            await asyncio.wait(
-                (
-                    asyncio.create_task(
-                        full_broker.publish(
-                            "hello",
-                            queue,
-                        )
-                    ),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=3,
-            )
-            m.mock.assert_not_called()
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
 
-        assert event.is_set()
+            with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(br.publish("hello", queue)),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=3,
+                )
+                m.mock.assert_not_called()
+
+            assert event.is_set()
 
     async def test_consume_batch_headers(
         self,
         queue: str,
-        full_broker: NatsBroker,
         stream: JStream,
         event: asyncio.Event,
         mock,
     ):
-        @full_broker.subscriber(
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(
             queue,
             stream=stream,
             pull_sub=PullSub(1, batch=True),
@@ -268,16 +266,83 @@ class TestConsume(BrokerRealConsumeTestcase):
             mock(check)
             event.set()
 
-        await full_broker.start()
-        await asyncio.wait(
-            (
-                asyncio.create_task(
-                    full_broker.publish("", queue, headers={"custom": "1"})
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish("", queue, headers={"custom": "1"})),
+                    asyncio.create_task(event.wait()),
                 ),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+                timeout=3,
+            )
 
         assert event.is_set()
         mock.assert_called_once_with(True)
+
+    @pytest.mark.asyncio()
+    async def test_consume_kv(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        mock,
+    ):
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, kv_watch=queue + "1")
+        async def handler(m):
+            mock(m)
+            event.set()
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+            bucket = await br.key_value(queue + "1")
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        bucket.put(
+                            queue,
+                            b"world",
+                        )
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_with(b"world")
+
+    @pytest.mark.asyncio()
+    async def test_consume_os(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        mock,
+    ):
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, obj_watch=True)
+        async def handler(filename: str):
+            event.set()
+            mock(filename)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+            bucket = await br.object_storage(queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        bucket.put(
+                            "hello",
+                            b"world",
+                        )
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_once_with("hello")

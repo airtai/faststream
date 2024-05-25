@@ -31,18 +31,12 @@ class SubscriberProto(
     calls: List["HandlerItem[MsgType]"]
     running: bool
 
-    _broker_dependecies: Iterable["Depends"]
+    _broker_dependencies: Iterable["Depends"]
     _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
     _producer: Optional["ProducerProto"]
 
     @abstractmethod
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None: ...
-
-    @staticmethod
-    @abstractmethod
-    def create() -> "SubscriberProto[MsgType]":
-        """Abstract factory to create a real Subscriber."""
-        ...
 
     @abstractmethod
     def get_log_context(

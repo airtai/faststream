@@ -1,16 +1,20 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
-from faststream.kafka import TestKafkaBroker
-from faststream.nats import TestNatsBroker
-from faststream.rabbit import TestRabbitBroker
-from faststream.redis import TestRedisBroker
+from tests.marks import (
+    require_aiokafka,
+    require_aiopika,
+    require_confluent,
+    require_nats,
+    require_redis,
+)
 
 
 @pytest.mark.asyncio()
+@require_aiokafka
 async def test_fastapi_kafka_send():
     from docs.docs_src.integrations.fastapi.kafka.send import app, router
+    from faststream.kafka import TestKafkaBroker
 
     @router.subscriber("test")
     async def handler(): ...
@@ -23,8 +27,10 @@ async def test_fastapi_kafka_send():
 
 
 @pytest.mark.asyncio()
+@require_confluent
 async def test_fastapi_confluent_send():
     from docs.docs_src.integrations.fastapi.confluent.send import app, router
+    from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
     @router.subscriber("test")
     async def handler(): ...
@@ -37,8 +43,10 @@ async def test_fastapi_confluent_send():
 
 
 @pytest.mark.asyncio()
+@require_aiopika
 async def test_fastapi_rabbit_send():
     from docs.docs_src.integrations.fastapi.rabbit.send import app, router
+    from faststream.rabbit import TestRabbitBroker
 
     @router.subscriber("test")
     async def handler(): ...
@@ -51,8 +59,10 @@ async def test_fastapi_rabbit_send():
 
 
 @pytest.mark.asyncio()
+@require_nats
 async def test_fastapi_nats_send():
     from docs.docs_src.integrations.fastapi.nats.send import app, router
+    from faststream.nats import TestNatsBroker
 
     @router.subscriber("test")
     async def handler(): ...
@@ -65,8 +75,10 @@ async def test_fastapi_nats_send():
 
 
 @pytest.mark.asyncio()
+@require_redis
 async def test_fastapi_redis_send():
     from docs.docs_src.integrations.fastapi.redis.send import app, router
+    from faststream.redis import TestRedisBroker
 
     @router.subscriber("test")
     async def handler(): ...

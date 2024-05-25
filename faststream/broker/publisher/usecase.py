@@ -20,7 +20,6 @@ from faststream.asyncapi.message import get_response_schema
 from faststream.asyncapi.utils import to_camelcase
 from faststream.broker.publisher.proto import PublisherProto
 from faststream.broker.types import (
-    BrokerMiddleware,
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,

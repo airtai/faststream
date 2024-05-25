@@ -24,42 +24,34 @@ This interface provides you with rich abilities to use it like a regular *KV* st
 
 ## FastStream Details
 
-**FastStream** has no native interfaces to this *NatsJS* functionality (yet), but it allows you to get access into the inner `JetStream` object to create it manually.
+**FastStream** has some useful methods to help you with **Key-Value NATS** feature interacting.
 
-First of all, you need to create a *Key-Value* storage object and pass it into the context:
+First of all, you need to create a *Key-Value* storage object and put some value to it:
 
-```python linenums="1" hl_lines="12-13"
-{! docs_src/nats/js/key_value.py [ln:5-8,11-13,22-27] !}
+```python linenums="1" hl_lines="9-10"
+{! docs_src/nats/js/key_value.py [ln:1-5,12-16] !}
 ```
 
 !!! tip
-    We placed this code in `#!python @app.on_startup` hook because `#!python @app.after_startup` will be triggered **AFTER** your handlers start consuming messages. So, if you need to have access to any custom context objects, you should set them up in the `#!python @app.on_startup` hook.
-
-    Also, we call `#!python await broker.connect()` method manually to establish the connection to be able to create a storage.
+    `#!python broker.key_value(bucket="bucket")` is an idempotent method. It means that it stores all already created storages in memory and do not make new request to **NATS** if your are trying to call it for the same bucket.
 
 ---
 
-Next, we are ready to use this object right in our handlers.
+Then we are able to use returned `key_value` object as a regular NATS one. But, if you want to watch by any changes by some key in the bucket, **FastStream** allows you to make it via regular `@broker.subscriber` interface:
 
-Let's create an annotated object to shorten context object access:
-
-```python linenums="1" hl_lines="4"
-{! docs_src/nats/js/key_value.py [ln:1-3,9] !}
+```python linenums="1" hl_lines="1"
+{! docs_src/nats/js/key_value.py [ln:8-10] !}
 ```
 
-And just use it in a handler:
+Also, if you want more detail settings for you **Key Value Storage**, we have `KvWatch` object for it:
 
-```python linenums="1" hl_lines="4 6-8"
-{! docs_src/nats/js/key_value.py [ln:4,14-19] !}
+```python linenums="1" hl_lines="5"
+from faststream.nats import NatsBroker, KvWatch
+
+@broker.subscriber(
+    "key",
+    kv_watch=KvWatch("bucket", declare=False),
+)
+async def handler(msg: str):
+    ...
 ```
-
-Finally, let's test our code behavior by putting something into the KV storage and sending a message:
-
-```python linenums="1" hl_lines="3-4"
-{! docs_src/nats/js/key_value.py [ln:30-33] !}
-```
-
-??? example "Full listing"
-    ```python linenums="1"
-    {!> docs_src/nats/js/key_value.py !}
-    ```

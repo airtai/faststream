@@ -448,6 +448,7 @@ class KafkaBroker(
         producer = AsyncConfluentProducer(
             **kwargs,
             client_id=client_id,
+            logger=self.logger,
         )
 
         self._producer = AsyncConfluentFastProducer(
@@ -457,6 +458,7 @@ class KafkaBroker(
         return partial(
             AsyncConfluentConsumer,
             **filter_by_dict(ConsumerConnectionParams, kwargs),
+            logger=self.logger,
         )
 
     async def start(self) -> None:
@@ -472,6 +474,7 @@ class KafkaBroker(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
+            **super()._subscriber_setup_extra,
             "client_id": self.client_id,
             "builder": self._connection,
         }

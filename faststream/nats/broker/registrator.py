@@ -5,8 +5,11 @@ from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
+from faststream.nats.helpers import StreamBuilder
 from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
+from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
 from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.nats.subscriber.factory import create_subscriber
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -19,7 +22,6 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.nats.message import NatsBatchMessage, NatsMessage
-    from faststream.nats.schemas import JStream, PullSub
 
 
 class NatsRegistrator(ABCBroker["Msg"]):
@@ -27,6 +29,11 @@ class NatsRegistrator(ABCBroker["Msg"]):
 
     _subscribers: Dict[int, "AsyncAPISubscriber"]
     _publishers: Dict[int, "AsyncAPIPublisher"]
+
+    def __init__(self, **kwargs: Any) -> None:
+        self._stream_builder = StreamBuilder()
+
+        super().__init__(**kwargs)
 
     @override
     def subscriber(  # type: ignore[override]
@@ -102,12 +109,20 @@ class NatsRegistrator(ABCBroker["Msg"]):
         ] = None,
         # pull arguments
         pull_sub: Annotated[
-            Optional["PullSub"],
+            Union[bool, "PullSub"],
             Doc(
                 "NATS Pull consumer parameters container. "
                 "Should be used with `stream` only."
             ),
+        ] = False,
+        kv_watch: Annotated[
+            Union[str, "KvWatch", None],
+            Doc("KeyValue watch parameters container."),
         ] = None,
+        obj_watch: Annotated[
+            Union[bool, "ObjWatch"],
+            Doc("ObjecStore watch parameters container."),
+        ] = False,
         inbox_prefix: Annotated[
             bytes,
             Doc(
@@ -166,6 +181,12 @@ class NatsRegistrator(ABCBroker["Msg"]):
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
         ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
+        ] = False,
         # AsyncAPI information
         title: Annotated[
             Optional[str],
@@ -187,14 +208,19 @@ class NatsRegistrator(ABCBroker["Msg"]):
 
         You can use it as a handler decorator `@broker.subscriber(...)`.
         """
+        if stream := self._stream_builder.create(stream):
+            stream.add_subject(subject)
+
         subscriber = cast(
             AsyncAPISubscriber,
             super().subscriber(
-                AsyncAPISubscriber.create(
+                create_subscriber(
                     subject=subject,
                     queue=queue,
                     stream=stream,
-                    pull_sub=pull_sub,
+                    pull_sub=PullSub.validate(pull_sub),
+                    kv_watch=KvWatch.validate(kv_watch),
+                    obj_watch=ObjWatch.validate(obj_watch),
                     max_workers=max_workers,
                     # extra args
                     pending_msgs_limit=pending_msgs_limit,
@@ -211,6 +237,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
                     ack_first=ack_first,
                     # subscriber args
                     no_ack=no_ack,
+                    no_reply=no_reply,
                     retry=retry,
                     broker_middlewares=self._middlewares,
                     broker_dependencies=self._dependencies,
@@ -295,6 +322,9 @@ class NatsRegistrator(ABCBroker["Msg"]):
 
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
+        if stream := self._stream_builder.create(stream):
+            stream.add_subject(subject)
+
         publisher = cast(
             AsyncAPIPublisher,
             super().publisher(

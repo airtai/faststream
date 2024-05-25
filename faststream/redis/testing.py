@@ -18,7 +18,7 @@ from faststream.redis.message import (
 from faststream.redis.parser import RawMessage
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
-from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.redis.subscriber.factory import create_subscriber
 from faststream.testing.broker import TestBroker, call_handler
 
 if TYPE_CHECKING:
@@ -66,7 +66,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         publisher: "AsyncAPIPublisher",
     ) -> None:
         broker._subscribers.pop(
-            hash(AsyncAPISubscriber.create(**publisher.subscriber_property)),
+            hash(create_subscriber(**publisher.subscriber_property)),
             None,
         )
 
@@ -183,6 +183,7 @@ class FakeProducer(RedisFastProducer):
         self,
         *msgs: "SendableMessage",
         list: str,
+        headers: Optional["AnyDict"] = None,
         correlation_id: Optional[str] = None,
     ) -> None:
         correlation_id = correlation_id or gen_cor_id()
@@ -200,6 +201,7 @@ class FakeProducer(RedisFastProducer):
                             build_message(
                                 m,
                                 correlation_id=correlation_id,
+                                headers=headers,
                             )
                             for m in msgs
                         ],

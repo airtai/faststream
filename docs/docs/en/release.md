@@ -12,6 +12,136 @@ hide:
 ---
 
 # Release Notes
+## 0.5.9
+
+### What's Changed
+* Update Release Notes for 0.5.8 by @faststream-release-notes-updater in [#1462](https://github.com/airtai/faststream/pull/1462){.external-link target="_blank"}
+* Exclude typing_extensions version 4.12.* by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1467](https://github.com/airtai/faststream/pull/1467){.external-link target="_blank"}
+* fix: add group/consumer to hash to avoid overwriting by [@fbraem](https://github.com/fbraem){.external-link target="_blank"} in [#1463](https://github.com/airtai/faststream/pull/1463){.external-link target="_blank"}
+* Bump version to 0.5.9 by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1468](https://github.com/airtai/faststream/pull/1468){.external-link target="_blank"}
+
+### New Contributors
+* [@fbraem](https://github.com/fbraem){.external-link target="_blank"} made their first contribution in [#1463](https://github.com/airtai/faststream/pull/1463){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.8...0.5.9](https://github.com/airtai/faststream/compare/0.5.8...0.5.9){.external-link target="_blank"}
+
+## 0.5.8
+
+### What's Changed
+
+This is the time for a new **NATS** features! **FastStream** supports **NATS Key-Value** and **Object Storage** subscribption features in a native way now (big thx for @sheldygg)!
+
+1. KeyValue creation and watching API added (you can read updated [documentation section](https://faststream.airt.ai/latest/nats/jetstream/key-value/) for changes):
+
+   ```python
+    from faststream import FastStream, Logger
+    from faststream.nats import NatsBroker
+
+    broker = NatsBroker()
+    app = FastStream(broker)
+
+    @broker.subscriber("some-key", kv_watch="bucket")
+    async def handler(msg: int, logger: Logger):
+        logger.info(msg)
+
+    @app.after_startup
+    async def test():
+        kv = await broker.key_value("bucket")
+        await kv.put("some-key", b"1")
+   ```
+
+2. ObjectStore API added as well (you can read updated [documentation section](https://faststream.airt.ai/latest/nats/jetstream/object/) for changes):
+
+    ```python
+    from faststream import FastStream, Logger
+    from faststream.nats import NatsBroker
+
+    broker = NatsBroker()
+    app = FastStream(broker)
+
+    @broker.subscriber("file-bucket", obj_watch=True)
+    async def handler(filename: str, logger: Logger):
+        logger.info(filename)
+
+    @app.after_startup
+    async def test():
+        object_store = await broker.object_storage("file-bucket")
+        await object_store.put("some-file.txt", b"1")
+    ```
+
+3. Also now you can use just `pull_sub=True` instead of `pull_sub=PullSub()` in basic case:
+
+   ```python
+    from faststream import FastStream, Logger
+    from faststream.nats import NatsBroker
+
+    broker = NatsBroker()
+    app = FastStream(broker)
+
+    @broker.subscriber("test", stream="stream", pull_sub=True)
+    async def handler(msg, logger: Logger):
+        logger.info(msg)
+    ```
+
+Finally, we have a new feature, related to all brokers: special flag to suppress automatic RPC and reply_to responses:
+
+```python
+@broker.subscriber("tests", no_reply=True)
+async def handler():
+    ....
+
+# will fail with timeout, because there is no automatic response
+msg = await broker.publish("msg", "test", rpc=True)
+```
+
+* fix: when headers() returns None in AsyncConfluentParser, replace it with an empty tuple by @andreaimprovised in https://github.com/airtai/faststream/pull/1460
+* Implement Kv/Obj watch. by @sheldygg in https://github.com/airtai/faststream/pull/1383
+* feat: add subscriber no-reply option by @Lancetnik in https://github.com/airtai/faststream/pull/1461
+
+### New Contributors
+* @andreaimprovised made their first contribution in https://github.com/airtai/faststream/pull/1460
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.7...0.5.8
+
+## 0.5.7
+
+### What's Changed
+
+Finally, FastStream supports [OpenTelemetry](https://opentelemetry.io/) in a native way to collect the full trace of your services! Big thanks for @draincoder for that!
+
+First of all you need to install required dependencies to support OpenTelemetry:
+
+```bash
+pip install faststream[otel]
+```
+
+Then you can just add a middleware for your broker and that's it!
+
+```python
+from faststream import FastStream
+from faststream.nats import NatsBroker
+from faststream.nats.opentelemetry import NatsTelemetryMiddleware
+
+broker = NatsBroker(
+    middlewares=(
+        NatsTelemetryMiddleware(),
+    )
+)
+app = FastStream(broker)
+```
+
+To find detailt information just visit our documentation about [telemetry](https://faststream.airt.ai/latest/getting-started/opentelemetry/)
+
+P.S. The release includes basic OpenTelemetry support - messages tracing & basic metrics. Baggage support and correct spans linking in batch processing case will be added soon.
+
+* fix: serialize TestClient rpc output to mock the real message by @Lancetnik in https://github.com/airtai/faststream/pull/1452
+* feature (#916): Observability by @draincoder in https://github.com/airtai/faststream/pull/1398
+
+### New Contributors
+* @draincoder made their first contribution in https://github.com/airtai/faststream/pull/1398
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.6...0.5.7
+
 ## 0.5.6
 
 ### What's Changed

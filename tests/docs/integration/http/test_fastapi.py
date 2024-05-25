@@ -1,16 +1,18 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from faststream.kafka import TestKafkaBroker
+from tests.marks import require_aiokafka
 
 
 @pytest.mark.asyncio()
+@require_aiokafka
 async def test_fastapi_raw_integration():
     from docs.docs_src.integrations.http_frameworks_integrations.fastapi import (
         app,
         base_handler,
         broker,
     )
+    from faststream.kafka import TestKafkaBroker
 
     async with TestKafkaBroker(broker):
         with TestClient(app) as client:

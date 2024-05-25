@@ -1,4 +1,13 @@
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Iterable,
+    Optional,
+    Union,
+)
 
 from nats.js import api
 from typing_extensions import Annotated, Doc, deprecated
@@ -19,7 +28,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.nats.message import NatsBatchMessage, NatsMessage
-    from faststream.nats.schemas import JStream, PullSub
+    from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
     from faststream.types import SendableMessage
 
 
@@ -106,7 +115,10 @@ class NatsRoute(SubscriberRoute):
     def __init__(
         self,
         call: Annotated[
-            Callable[..., "SendableMessage"],
+            Union[
+                Callable[..., "SendableMessage"],
+                Callable[..., Awaitable["SendableMessage"]],
+            ],
             Doc(
                 "Message handler function "
                 "to wrap the same with `@broker.subscriber(...)` way."
@@ -193,6 +205,14 @@ class NatsRoute(SubscriberRoute):
                 "Should be used with `stream` only."
             ),
         ] = None,
+        kv_watch: Annotated[
+            Union[str, "KvWatch", None],
+            Doc("KeyValue watch parameters container."),
+        ] = None,
+        obj_watch: Annotated[
+            Union[bool, "ObjWatch"],
+            Doc("ObjecStore watch parameters container."),
+        ] = False,
         inbox_prefix: Annotated[
             bytes,
             Doc(
@@ -251,6 +271,12 @@ class NatsRoute(SubscriberRoute):
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
         ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
+        ] = False,
         # AsyncAPI information
         title: Annotated[
             Optional[str],
@@ -283,6 +309,8 @@ class NatsRoute(SubscriberRoute):
             deliver_policy=deliver_policy,
             headers_only=headers_only,
             pull_sub=pull_sub,
+            kv_watch=kv_watch,
+            obj_watch=obj_watch,
             inbox_prefix=inbox_prefix,
             ack_first=ack_first,
             stream=stream,
@@ -295,6 +323,7 @@ class NatsRoute(SubscriberRoute):
             filter=filter,
             retry=retry,
             no_ack=no_ack,
+            no_reply=no_reply,
             title=title,
             description=description,
             include_in_schema=include_in_schema,

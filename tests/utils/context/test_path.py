@@ -1,19 +1,17 @@
+import asyncio
+from unittest.mock import Mock
+
 import pytest
 
 from faststream import Path
-from faststream.nats import NatsBroker, PullSub, TestNatsBroker
-from faststream.rabbit import (
-    ExchangeType,
-    RabbitBroker,
-    RabbitExchange,
-    RabbitQueue,
-    TestRabbitBroker,
-)
-from faststream.redis import RedisBroker, TestRedisBroker
+from tests.marks import require_aiopika, require_nats, require_redis
 
 
 @pytest.mark.asyncio()
+@require_nats
 async def test_nats_path():
+    from faststream.nats import NatsBroker, TestNatsBroker
+
     broker = NatsBroker()
 
     @broker.subscriber("in.{name}.{id}")
@@ -38,7 +36,48 @@ async def test_nats_path():
 
 
 @pytest.mark.asyncio()
+@pytest.mark.nats()
+@require_nats
+async def test_nats_kv_path(
+    queue: str,
+    event: asyncio.Event,
+    mock: Mock,
+):
+    from faststream.nats import NatsBroker
+
+    broker = NatsBroker()
+
+    @broker.subscriber("in.{name}.{id}", kv_watch=queue)
+    async def h(
+        msg: int,
+        name: str = Path(),
+        id_: int = Path("id"),
+    ):
+        mock(msg == 1 and name == "john" and id_ == 1)
+        event.set()
+
+    async with broker:
+        await broker.start()
+
+        kv = await broker.key_value(queue)
+
+        await asyncio.wait(
+            (
+                asyncio.create_task(kv.put("in.john.1", b"1")),
+                asyncio.create_task(event.wait()),
+            ),
+            timeout=3,
+        )
+
+    assert event.is_set()
+    mock.assert_called_once_with(True)
+
+
+@pytest.mark.asyncio()
+@require_nats
 async def test_nats_batch_path():
+    from faststream.nats import NatsBroker, PullSub, TestNatsBroker
+
     broker = NatsBroker()
 
     @broker.subscriber("in.{name}.{id}", stream="test", pull_sub=PullSub(batch=True))
@@ -63,7 +102,10 @@ async def test_nats_batch_path():
 
 
 @pytest.mark.asyncio()
+@require_redis
 async def test_redis_path():
+    from faststream.redis import RedisBroker, TestRedisBroker
+
     broker = RedisBroker()
 
     @broker.subscriber("in.{name}.{id}")
@@ -88,7 +130,16 @@ async def test_redis_path():
 
 
 @pytest.mark.asyncio()
+@require_aiopika
 async def test_rabbit_path():
+    from faststream.rabbit import (
+        ExchangeType,
+        RabbitBroker,
+        RabbitExchange,
+        RabbitQueue,
+        TestRabbitBroker,
+    )
+
     broker = RabbitBroker()
 
     @broker.subscriber(

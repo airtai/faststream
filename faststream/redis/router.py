@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional, Union
 
 from typing_extensions import Annotated, Doc, deprecated
 
@@ -99,7 +99,10 @@ class RedisRoute(SubscriberRoute):
     def __init__(
         self,
         call: Annotated[
-            Callable[..., "SendableMessage"],
+            Union[
+                Callable[..., "SendableMessage"],
+                Callable[..., Awaitable["SendableMessage"]],
+            ],
             Doc(
                 "Message handler function "
                 "to wrap the same with `@broker.subscriber(...)` way."
@@ -160,6 +163,12 @@ class RedisRoute(SubscriberRoute):
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
         ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
+        ] = False,
         # AsyncAPI information
         title: Annotated[
             Optional[str],
@@ -190,6 +199,7 @@ class RedisRoute(SubscriberRoute):
             filter=filter,
             retry=retry,
             no_ack=no_ack,
+            no_reply=no_reply,
             title=title,
             description=description,
             include_in_schema=include_in_schema,
