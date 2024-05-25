@@ -200,3 +200,37 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert subscriber1.mock.call_count == 1
         assert subscriber2.mock.call_count == 0
+
+    async def test_multiple_batch_subscriber_with_different_group(
+        self,
+        queue: str,
+        test_broker: KafkaBroker,
+    ):
+        @test_broker.subscriber(queue, batch=True, group_id="group1")
+        async def subscriber1(): ...
+
+        @test_broker.subscriber(queue, batch=True, group_id="group2")
+        async def subscriber2(): ...
+
+        await test_broker.start()
+        await test_broker.publish("", queue)
+
+        assert subscriber1.mock.call_count == 1
+        assert subscriber2.mock.call_count == 1
+
+    async def test_multiple_batch_subscriber_with_same_group(
+        self,
+        queue: str,
+        test_broker: KafkaBroker,
+    ):
+        @test_broker.subscriber(queue, batch=True, group_id="group1")
+        async def subscriber1(): ...
+
+        @test_broker.subscriber(queue, batch=True, group_id="group1")
+        async def subscriber2(): ...
+
+        await test_broker.start()
+        await test_broker.publish("", queue)
+
+        assert subscriber1.mock.call_count == 1
+        assert subscriber2.mock.call_count == 0
