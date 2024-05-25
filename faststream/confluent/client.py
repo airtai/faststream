@@ -2,6 +2,7 @@ import asyncio
 from ssl import SSLContext
 from time import time
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -16,9 +17,13 @@ from typing import (
 from confluent_kafka import Consumer, KafkaError, KafkaException, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 from pydantic import BaseModel
+from typing_extensions import Annotated, Doc
 
 from faststream.log import logger
 from faststream.utils.functions import call_or_await
+
+if TYPE_CHECKING:
+    from faststream.types import LoggerProto
 
 _missing = object()
 
@@ -105,7 +110,12 @@ class AsyncConfluentProducer:
         sasl_kerberos_service_name: str = "kafka",
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
+        logger: Annotated[
+            Union["LoggerProto", None, object],
+            Doc("User specified logger to pass into Context and log service messages."),
+        ] = logger,
     ) -> None:
+        self.logger = logger
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
         ):
@@ -145,7 +155,7 @@ class AsyncConfluentProducer:
                 }
             )
 
-        self.producer = Producer(self.config)
+        self.producer = Producer(self.config, logger=self.logger)
         # self.producer.init_transactions()
         self.producer.list_topics()
         self.loop = loop or asyncio.get_event_loop()
@@ -295,7 +305,12 @@ class AsyncConfluentConsumer:
         sasl_kerberos_service_name: str = "kafka",
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
+        logger: Annotated[
+            Union["LoggerProto", None, object],
+            Doc("User specified logger to pass into Context and log service messages."),
+        ] = logger,
     ) -> None:
+        self.logger = logger
         if group_id is None:
             group_id = "confluent-kafka-consumer-group"
 
@@ -352,7 +367,7 @@ class AsyncConfluentConsumer:
         self.loop = loop or asyncio.get_event_loop()
 
         create_topics(topics=self.topics, config=self.config)
-        self.consumer = Consumer(self.config)
+        self.consumer = Consumer(self.config, logger=self.logger)
 
     async def start(self) -> None:
         """Starts the Kafka consumer and subscribes to the specified topics."""
