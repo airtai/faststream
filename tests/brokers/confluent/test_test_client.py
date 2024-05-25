@@ -124,7 +124,7 @@ class TestTestclient(BrokerTestclientTestcase):
         assert len(routes) == 2
 
     @pytest.mark.confluent()
-    async def test_multiple_subscribers_different_groups(
+    async def test_multiple_subscribers_with_different_groups(
         self,
         queue: str,
         test_broker: KafkaBroker,
@@ -142,7 +142,7 @@ class TestTestclient(BrokerTestclientTestcase):
         assert subscriber2.mock.call_count == 1
 
     @pytest.mark.confluent()
-    async def test_multiple_subscribers_same_group(
+    async def test_multiple_subscribers_with_same_group(
         self,
         queue: str,
         test_broker: KafkaBroker,
@@ -151,6 +151,40 @@ class TestTestclient(BrokerTestclientTestcase):
         async def subscriber1(): ...
 
         @test_broker.subscriber(queue, group_id="group1")
+        async def subscriber2(): ...
+
+        await test_broker.start()
+        await test_broker.publish("", queue)
+
+        assert subscriber1.mock.call_count == 1
+        assert subscriber2.mock.call_count == 0
+
+    async def test_multiple_batch_subscriber_with_different_group(
+        self,
+        test_broker: KafkaBroker,
+        queue: str,
+    ):
+        @test_broker.subscriber(queue, batch=True, group_id="group1")
+        async def subscriber1(): ...
+
+        @test_broker.subscriber(queue, batch=True, group_id="group2")
+        async def subscriber2(): ...
+
+        await test_broker.start()
+        await test_broker.publish("", queue)
+
+        assert subscriber1.mock.call_count == 1
+        assert subscriber2.mock.call_count == 1
+
+    async def test_multiple_batch_subscriber_with_same_group(
+        self,
+        test_broker: KafkaBroker,
+        queue: str,
+    ):
+        @test_broker.subscriber(queue, batch=True, group_id="group1")
+        async def subscriber1(): ...
+
+        @test_broker.subscriber(queue, batch=True, group_id="group1")
         async def subscriber2(): ...
 
         await test_broker.start()
