@@ -114,7 +114,7 @@ lint = [
     "ruff==0.4.4",
     "bandit==1.7.8",
     "semgrep==1.73.0",
-    "codespell==2.2.6",
+    "codespell==2.3.0",
 ]
 
 test-core = [
