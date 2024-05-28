@@ -9,7 +9,7 @@ import anyio
 import pytest
 from pydantic import BaseModel
 
-from faststream import BaseMiddleware
+from faststream import BaseMiddleware, Context, Response
 from faststream._compat import dump_json, model_to_json
 from faststream.broker.core.usecase import BrokerUsecase
 
@@ -174,6 +174,46 @@ class BrokerPublishTestcase:
 
         assert event.is_set()
         mock.assert_called_with(expected_message)
+
+    @pytest.mark.asyncio()
+    async def test_response(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        mock: Mock,
+    ):
+        pub_broker = self.get_broker(apply_types=True)
+
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        @pub_broker.publisher(queue + "1")
+        async def m():
+            return Response(1, headers={"custom": "1"}, correlation_id="1")
+
+        @pub_broker.subscriber(queue + "1", **self.subscriber_kwargs)
+        async def m_next(msg=Context("message")):
+            event.set()
+            mock(
+                body=msg.body,
+                headers=msg.headers["custom"],
+                correlation_id=msg.correlation_id,
+            )
+
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish(None, queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
+
+        assert event.is_set()
+        mock.assert_called_with(
+            body=b"1",
+            correlation_id="1",
+            headers="1",
+        )
 
     @pytest.mark.asyncio()
     async def test_unwrap_dict(

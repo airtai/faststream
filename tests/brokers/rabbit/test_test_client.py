@@ -61,6 +61,18 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert event.is_set()
 
+    async def test_respect_routing_key(self):
+        broker = self.get_broker()
+
+        publisher = broker.publisher(
+            exchange=RabbitExchange("test", type=ExchangeType.TOPIC), routing_key="up"
+        )
+
+        async with TestRabbitBroker(broker):
+            await publisher.publish("Hi!")
+
+            publisher.mock.assert_called_once_with("Hi!")
+
     async def test_direct(
         self,
         queue: str,
