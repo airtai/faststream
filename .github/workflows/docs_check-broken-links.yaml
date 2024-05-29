@@ -7,6 +7,7 @@ on:
     workflows:
       - Deploy Docs to GitHub Pages
 
+jobs:
   check-broken-link:
     name: Check docs for broken links
     runs-on: ubuntu-latest
