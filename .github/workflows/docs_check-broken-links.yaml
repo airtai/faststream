@@ -5,7 +5,7 @@ on:
     types:
       - completed
     workflows:
-      - docs_deploy
+      - Deploy Docs to GitHub Pages
 
   check-broken-link:
     name: Check docs for broken links
