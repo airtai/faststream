@@ -14,8 +14,9 @@ name: "CodeQL"
 on:
   pull_request:
     types:
-      - opened
-      - synchronize
+      # - opened
+      # - synchronize
+      - review_requested
     branches:
       - main
   schedule:

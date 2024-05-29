@@ -7,6 +7,10 @@ on:
       - synchronize
     paths:
       - faststream/**
+      - docs/**/api/**
+
+permissions:
+  contents: write
 
 jobs:
   check-docs-changes:

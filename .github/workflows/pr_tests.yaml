@@ -3,8 +3,9 @@ name: Run all tests
 on:
   pull_request:
     types: 
-      - opened
-      - synchronize
+      # - opened
+      # - synchronize
+      - review_requested
 
 jobs:
   static_analysis:

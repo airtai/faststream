@@ -9,8 +9,9 @@ name: 'Dependency Review'
 on:
   pull_request:
     types: 
-      - opened
-      - synchronize
+      # - opened
+      # - synchronize
+      - review_requested
     branches:
       - main
     paths:
