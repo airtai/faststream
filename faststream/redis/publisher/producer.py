@@ -56,7 +56,7 @@ class RedisFastProducer(ProducerProto):
         maxlen: Optional[int] = None,
         headers: Optional["AnyDict"] = None,
         reply_to: str = "",
-        reply_to_prefix: str = ""
+        reply_to_prefix: str = "",
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,

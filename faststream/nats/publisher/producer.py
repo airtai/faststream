@@ -134,7 +134,7 @@ class NatsJSFastProducer(ProducerProto):
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
         rpc: bool = False,
-        reply_to_prefix: str = ""
+        reply_to_prefix: str = "",
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[Any]:
