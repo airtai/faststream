@@ -2,7 +2,9 @@ name: Test-PR
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: 
+      - opened
+      - synchronize
 
 jobs:
   static_analysis:
@@ -474,7 +476,6 @@ jobs:
 
     needs:
       - static_analysis
-      - check-docs-changes
       - coverage-combine
       - test-macos-latest
       - test-windows-latest
