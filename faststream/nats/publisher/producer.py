@@ -135,7 +135,7 @@ class NatsJSFastProducer(ProducerProto):
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
         rpc: bool = False,
-        reply_to_prefix: str = "",
+        rpc_prefix: str = "",
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[Any]:
@@ -152,7 +152,7 @@ class NatsJSFastProducer(ProducerProto):
                 raise WRONG_PUBLISH_ARGS
             nuid = NUID()
             rpc_nuid = str(nuid.next(),"utf-8")
-            reply_to = f"{reply_to_prefix}{rpc_nuid}"
+            reply_to = f"{rpc_prefix}{rpc_nuid}"
             future: asyncio.Future[Msg] = asyncio.Future()
             sub = await self._connection._nc.subscribe(
                 reply_to, future=future, max_msgs=1
