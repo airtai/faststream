@@ -2,10 +2,11 @@ name: Check docs for broken links
 
 on:
   workflow_run:
-    workflows: ["pages-build-deployment"]
-    types: [completed]
+    types:
+      - completed
+    workflows:
+      - docs_deploy
 
-jobs:
   check-broken-link:
     name: Check docs for broken links
     runs-on: ubuntu-latest

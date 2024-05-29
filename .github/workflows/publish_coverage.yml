@@ -1,4 +1,4 @@
-name: Smokeshow
+name: Publish tests coverage to Smokeshow and set coverage % status to commit
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
 
       - run: pip install smokeshow
 
-      - uses: dawidd6/action-download-artifact@v3.1.4 # nosemgrep
+      - uses: dawidd6/action-download-artifact@v3.1.4  # nosemgrep
         with:
           workflow: test_pr.yaml
           commit: ${{ github.event.workflow_run.head_sha }}

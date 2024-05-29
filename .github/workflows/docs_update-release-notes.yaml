@@ -1,4 +1,4 @@
-name: Update Release Notes
+name: Create PR with updated Release Notes
 
 on:
   workflow_dispatch: null
