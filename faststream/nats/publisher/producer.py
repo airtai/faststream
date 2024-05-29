@@ -3,6 +3,7 @@ from secrets import token_hex
 from typing import TYPE_CHECKING, Any, Dict, Optional
 from uuid import uuid4
 
+from faststream.utils.nuid import NUID
 import nats
 from typing_extensions import override
 
@@ -150,7 +151,8 @@ class NatsJSFastProducer(ProducerProto):
             if reply_to:
                 raise WRONG_PUBLISH_ARGS
             nuid = NUID()
-            reply_to = f"{reply_to_prefix}{str(nuid.next(),"utf-8")})"
+            rpc_nuid = str(nuid.next(),"utf-8")
+            reply_to = f"{reply_to_prefix}{rpc_nuid}"
             future: asyncio.Future[Msg] = asyncio.Future()
             sub = await self._connection._nc.subscribe(
                 reply_to, future=future, max_msgs=1
