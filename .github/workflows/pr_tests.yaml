@@ -5,6 +5,10 @@ on:
     types: 
       - opened
       - synchronize
+    paths:
+      - faststream/**
+      - tests/**
+      - docs/docs_src/**
 
 jobs:
   static_analysis:

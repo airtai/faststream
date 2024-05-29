@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   smokeshow:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +21,7 @@ jobs:
 
       - uses: dawidd6/action-download-artifact@v3.1.4  # nosemgrep
         with:
-          workflow: test_pr.yaml
+          workflow: pr_tests.yaml
           commit: ${{ github.event.workflow_run.head_sha }}
 
       - run: smokeshow upload coverage-html
