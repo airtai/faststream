@@ -56,6 +56,7 @@ class RedisFastProducer(ProducerProto):
         maxlen: Optional[int] = None,
         headers: Optional["AnyDict"] = None,
         reply_to: str = "",
+        reply_to_prefix: str = ""
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
@@ -67,8 +68,8 @@ class RedisFastProducer(ProducerProto):
         if rpc:
             if reply_to:
                 raise WRONG_PUBLISH_ARGS
-
-            reply_to = str(uuid4())
+            nuid = NUID()
+            reply_to = f"{reply_to_prefix}{str(nuid.next(),"utf-8")})"
             psub = self._connection.pubsub()
             await psub.subscribe(reply_to)
 
