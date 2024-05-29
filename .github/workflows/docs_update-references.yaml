@@ -9,8 +9,8 @@ on:
       - faststream/**
       - docs/**/api/**
 
-permissions:
-  contents: write
+# permissions:
+#   contents: write
 
 jobs:
   check-docs-changes:
