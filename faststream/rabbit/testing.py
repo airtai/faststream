@@ -49,7 +49,7 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
         publisher: AsyncAPIPublisher,
     ) -> "HandlerCallWrapper[Any, Any, Any]":
         sub = broker.subscriber(
-            queue=publisher.queue,
+            queue=publisher.routing,
             exchange=publisher.exchange,
         )
 
@@ -70,7 +70,7 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
     ) -> None:
         broker._subscribers.pop(
             AsyncAPISubscriber.get_routing_hash(
-                queue=publisher.queue,
+                queue=RabbitQueue.validate(publisher.routing),
                 exchange=publisher.exchange,
             ),
             None,
@@ -132,7 +132,7 @@ def build_message(
         priority=priority,
         correlation_id=correlation_id,
         expiration=expiration,
-        message_id=message_id,
+        message_id=message_id or gen_cor_id(),
         timestamp=timestamp,
         message_type=message_type,
         user_id=user_id,
@@ -148,14 +148,21 @@ def build_message(
             header=ContentHeader(
                 properties=spec.Basic.Properties(
                     content_type=msg.content_type,
-                    message_id=gen_cor_id(),
                     headers=msg.headers,
-                    reply_to=reply_to,
+                    reply_to=msg.reply_to,
+                    content_encoding=msg.content_encoding,
+                    priority=msg.priority,
+                    correlation_id=msg.correlation_id,
+                    message_id=msg.message_id,
+                    timestamp=msg.timestamp,
+                    message_type=message_type,
+                    user_id=msg.user_id,
+                    app_id=msg.app_id,
                 )
             ),
             body=msg.body,
             channel=AsyncMock(),
-        )
+        ),
     )
 
 

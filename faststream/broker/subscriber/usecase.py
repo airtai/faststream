@@ -21,6 +21,7 @@ from typing_extensions import Self, override
 from faststream.asyncapi.abc import AsyncAPIOperation
 from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.utils import to_camelcase
+from faststream.broker.response import Response
 from faststream.broker.subscriber.call_item import HandlerItem
 from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.types import (
@@ -333,24 +334,29 @@ class SubscriberUsecase(
                     for m in middlewares:
                         stack.push_async_exit(m.__aexit__)
 
-                    result_msg = await h.call(
-                        message=message,
-                        # consumer middlewares
-                        _extra_middlewares=(m.consume_scope for m in middlewares),
+                    result_msg = Response(
+                        await h.call(
+                            message=message,
+                            # consumer middlewares
+                            _extra_middlewares=(m.consume_scope for m in middlewares),
+                        )
                     )
+
+                    if not result_msg.correlation_id:
+                        result_msg.correlation_id = message.correlation_id
 
                     for p in chain(
                         self.__get_reponse_publisher(message),
                         h.handler._publishers,
                     ):
                         await p.publish(
-                            result_msg,
-                            correlation_id=message.correlation_id,
+                            result_msg.body,
+                            **result_msg.as_publish_kwargs(),
                             # publisher middlewares
                             _extra_middlewares=(m.publish_scope for m in middlewares),
                         )
 
-                    return result_msg
+                    return result_msg.body
 
             # Suitable handler is not founded
             for m in middlewares:

@@ -116,6 +116,7 @@ search:
             - [FastStream](public_api/faststream/FastStream.md)
             - [Header](public_api/faststream/Header.md)
             - [Path](public_api/faststream/Path.md)
+            - [Response](public_api/faststream/Response.md)
             - [TestApp](public_api/faststream/TestApp.md)
             - [apply_types](public_api/faststream/apply_types.md)
             - asyncapi
@@ -124,6 +125,7 @@ search:
             - confluent
                 - [KafkaBroker](public_api/faststream/confluent/KafkaBroker.md)
                 - [KafkaPublisher](public_api/faststream/confluent/KafkaPublisher.md)
+                - [KafkaResponse](public_api/faststream/confluent/KafkaResponse.md)
                 - [KafkaRoute](public_api/faststream/confluent/KafkaRoute.md)
                 - [KafkaRouter](public_api/faststream/confluent/KafkaRouter.md)
                 - [TestApp](public_api/faststream/confluent/TestApp.md)
@@ -131,6 +133,7 @@ search:
             - kafka
                 - [KafkaBroker](public_api/faststream/kafka/KafkaBroker.md)
                 - [KafkaPublisher](public_api/faststream/kafka/KafkaPublisher.md)
+                - [KafkaResponse](public_api/faststream/kafka/KafkaResponse.md)
                 - [KafkaRoute](public_api/faststream/kafka/KafkaRoute.md)
                 - [KafkaRouter](public_api/faststream/kafka/KafkaRouter.md)
                 - [TestApp](public_api/faststream/kafka/TestApp.md)
@@ -146,6 +149,7 @@ search:
                 - [KvWatch](public_api/faststream/nats/KvWatch.md)
                 - [NatsBroker](public_api/faststream/nats/NatsBroker.md)
                 - [NatsPublisher](public_api/faststream/nats/NatsPublisher.md)
+                - [NatsResponse](public_api/faststream/nats/NatsResponse.md)
                 - [NatsRoute](public_api/faststream/nats/NatsRoute.md)
                 - [NatsRouter](public_api/faststream/nats/NatsRouter.md)
                 - [ObjWatch](public_api/faststream/nats/ObjWatch.md)
@@ -165,6 +169,7 @@ search:
                 - [RabbitExchange](public_api/faststream/rabbit/RabbitExchange.md)
                 - [RabbitPublisher](public_api/faststream/rabbit/RabbitPublisher.md)
                 - [RabbitQueue](public_api/faststream/rabbit/RabbitQueue.md)
+                - [RabbitResponse](public_api/faststream/rabbit/RabbitResponse.md)
                 - [RabbitRoute](public_api/faststream/rabbit/RabbitRoute.md)
                 - [RabbitRouter](public_api/faststream/rabbit/RabbitRouter.md)
                 - [ReplyConfig](public_api/faststream/rabbit/ReplyConfig.md)
@@ -175,6 +180,7 @@ search:
                 - [PubSub](public_api/faststream/redis/PubSub.md)
                 - [RedisBroker](public_api/faststream/redis/RedisBroker.md)
                 - [RedisPublisher](public_api/faststream/redis/RedisPublisher.md)
+                - [RedisResponse](public_api/faststream/redis/RedisResponse.md)
                 - [RedisRoute](public_api/faststream/redis/RedisRoute.md)
                 - [RedisRouter](public_api/faststream/redis/RedisRouter.md)
                 - [StreamSub](public_api/faststream/redis/StreamSub.md)
@@ -188,6 +194,7 @@ search:
             - [FastStream](api/faststream/FastStream.md)
             - [Header](api/faststream/Header.md)
             - [Path](api/faststream/Path.md)
+            - [Response](api/faststream/Response.md)
             - [TestApp](api/faststream/TestApp.md)
             - [apply_types](api/faststream/apply_types.md)
             - app
@@ -349,6 +356,8 @@ search:
                         - [PublisherProto](api/faststream/broker/publisher/proto/PublisherProto.md)
                     - usecase
                         - [PublisherUsecase](api/faststream/broker/publisher/usecase/PublisherUsecase.md)
+                - response
+                    - [Response](api/faststream/broker/response/Response.md)
                 - router
                     - [ArgsContainer](api/faststream/broker/router/ArgsContainer.md)
                     - [BrokerRouter](api/faststream/broker/router/BrokerRouter.md)
@@ -413,6 +422,7 @@ search:
             - confluent
                 - [KafkaBroker](api/faststream/confluent/KafkaBroker.md)
                 - [KafkaPublisher](api/faststream/confluent/KafkaPublisher.md)
+                - [KafkaResponse](api/faststream/confluent/KafkaResponse.md)
                 - [KafkaRoute](api/faststream/confluent/KafkaRoute.md)
                 - [KafkaRouter](api/faststream/confluent/KafkaRouter.md)
                 - [TestApp](api/faststream/confluent/TestApp.md)
@@ -464,6 +474,8 @@ search:
                         - [BatchPublisher](api/faststream/confluent/publisher/usecase/BatchPublisher.md)
                         - [DefaultPublisher](api/faststream/confluent/publisher/usecase/DefaultPublisher.md)
                         - [LogicPublisher](api/faststream/confluent/publisher/usecase/LogicPublisher.md)
+                - response
+                    - [KafkaResponse](api/faststream/confluent/response/KafkaResponse.md)
                 - router
                     - [KafkaPublisher](api/faststream/confluent/router/KafkaPublisher.md)
                     - [KafkaRoute](api/faststream/confluent/router/KafkaRoute.md)
@@ -506,6 +518,7 @@ search:
             - kafka
                 - [KafkaBroker](api/faststream/kafka/KafkaBroker.md)
                 - [KafkaPublisher](api/faststream/kafka/KafkaPublisher.md)
+                - [KafkaResponse](api/faststream/kafka/KafkaResponse.md)
                 - [KafkaRoute](api/faststream/kafka/KafkaRoute.md)
                 - [KafkaRouter](api/faststream/kafka/KafkaRouter.md)
                 - [TestApp](api/faststream/kafka/TestApp.md)
@@ -550,6 +563,8 @@ search:
                         - [BatchPublisher](api/faststream/kafka/publisher/usecase/BatchPublisher.md)
                         - [DefaultPublisher](api/faststream/kafka/publisher/usecase/DefaultPublisher.md)
                         - [LogicPublisher](api/faststream/kafka/publisher/usecase/LogicPublisher.md)
+                - response
+                    - [KafkaResponse](api/faststream/kafka/response/KafkaResponse.md)
                 - router
                     - [KafkaPublisher](api/faststream/kafka/router/KafkaPublisher.md)
                     - [KafkaRoute](api/faststream/kafka/router/KafkaRoute.md)
@@ -592,6 +607,7 @@ search:
                 - [KvWatch](api/faststream/nats/KvWatch.md)
                 - [NatsBroker](api/faststream/nats/NatsBroker.md)
                 - [NatsPublisher](api/faststream/nats/NatsPublisher.md)
+                - [NatsResponse](api/faststream/nats/NatsResponse.md)
                 - [NatsRoute](api/faststream/nats/NatsRoute.md)
                 - [NatsRouter](api/faststream/nats/NatsRouter.md)
                 - [ObjWatch](api/faststream/nats/ObjWatch.md)
@@ -657,6 +673,8 @@ search:
                         - [NatsJSFastProducer](api/faststream/nats/publisher/producer/NatsJSFastProducer.md)
                     - usecase
                         - [LogicPublisher](api/faststream/nats/publisher/usecase/LogicPublisher.md)
+                - response
+                    - [NatsResponse](api/faststream/nats/response/NatsResponse.md)
                 - router
                     - [NatsPublisher](api/faststream/nats/router/NatsPublisher.md)
                     - [NatsRoute](api/faststream/nats/router/NatsRoute.md)
@@ -728,6 +746,7 @@ search:
                 - [RabbitExchange](api/faststream/rabbit/RabbitExchange.md)
                 - [RabbitPublisher](api/faststream/rabbit/RabbitPublisher.md)
                 - [RabbitQueue](api/faststream/rabbit/RabbitQueue.md)
+                - [RabbitResponse](api/faststream/rabbit/RabbitResponse.md)
                 - [RabbitRoute](api/faststream/rabbit/RabbitRoute.md)
                 - [RabbitRouter](api/faststream/rabbit/RabbitRouter.md)
                 - [ReplyConfig](api/faststream/rabbit/ReplyConfig.md)
@@ -764,6 +783,8 @@ search:
                     - usecase
                         - [LogicPublisher](api/faststream/rabbit/publisher/usecase/LogicPublisher.md)
                         - [PublishKwargs](api/faststream/rabbit/publisher/usecase/PublishKwargs.md)
+                - response
+                    - [RabbitResponse](api/faststream/rabbit/response/RabbitResponse.md)
                 - router
                     - [RabbitPublisher](api/faststream/rabbit/router/RabbitPublisher.md)
                     - [RabbitRoute](api/faststream/rabbit/router/RabbitRoute.md)
@@ -808,6 +829,7 @@ search:
                 - [PubSub](api/faststream/redis/PubSub.md)
                 - [RedisBroker](api/faststream/redis/RedisBroker.md)
                 - [RedisPublisher](api/faststream/redis/RedisPublisher.md)
+                - [RedisResponse](api/faststream/redis/RedisResponse.md)
                 - [RedisRoute](api/faststream/redis/RedisRoute.md)
                 - [RedisRouter](api/faststream/redis/RedisRouter.md)
                 - [StreamSub](api/faststream/redis/StreamSub.md)
@@ -869,6 +891,8 @@ search:
                         - [ListPublisher](api/faststream/redis/publisher/usecase/ListPublisher.md)
                         - [LogicPublisher](api/faststream/redis/publisher/usecase/LogicPublisher.md)
                         - [StreamPublisher](api/faststream/redis/publisher/usecase/StreamPublisher.md)
+                - response
+                    - [RedisResponse](api/faststream/redis/response/RedisResponse.md)
                 - router
                     - [RedisPublisher](api/faststream/redis/router/RedisPublisher.md)
                     - [RedisRoute](api/faststream/redis/router/RedisRoute.md)

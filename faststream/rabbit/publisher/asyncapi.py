@@ -32,7 +32,6 @@ class AsyncAPIPublisher(LogicPublisher):
     # or
     publisher: AsyncAPIPublisher = router.publisher(...)
     ```
-
     """
 
     def get_name(self) -> str:
