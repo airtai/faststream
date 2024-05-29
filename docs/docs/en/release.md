@@ -12,6 +12,32 @@ hide:
 ---
 
 # Release Notes
+## 0.5.10
+
+### What's Changed
+
+Now you can return Response class to set more specific outgoing message parameters:
+
+```python
+from faststream import Response
+
+@broker.subscriber("in")
+@broker.subscriber("out")
+async def handler():
+    return Response(body=b"", headers={})
+```
+
+* Pass logger to confluent producer and consumer by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1464](https://github.com/airtai/faststream/pull/1464){.external-link target="_blank"}
+* Fixes  #1412 with `TestKafkaBroker` behaviour where Consumer Groups weren't being respected by [@sifex](https://github.com/sifex){.external-link target="_blank"} in [#1413](https://github.com/airtai/faststream/pull/1413){.external-link target="_blank"}
+* Chore: update dependency versions by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1478](https://github.com/airtai/faststream/pull/1478){.external-link target="_blank"}
+* Remove typing-extensions version restriction by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1477](https://github.com/airtai/faststream/pull/1477){.external-link target="_blank"}
+* feat (#1431): add Response class by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1481](https://github.com/airtai/faststream/pull/1481){.external-link target="_blank"}
+
+### New Contributors
+* [@sifex](https://github.com/sifex){.external-link target="_blank"} made their first contribution in [#1413](https://github.com/airtai/faststream/pull/1413){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.9...0.5.10](https://github.com/airtai/faststream/compare/0.5.9...0.5.10){.external-link target="_blank"}
+
 ## 0.5.9
 
 ### What's Changed
