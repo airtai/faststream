@@ -18,6 +18,8 @@ on:
       - synchronize
     branches:
       - main
+    paths:
+      - faststream/**
   schedule:
     - cron: '39 20 * * 0'
 
