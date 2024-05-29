@@ -1,9 +1,7 @@
 import asyncio
 from secrets import token_hex
 from typing import TYPE_CHECKING, Any, Dict, Optional
-from uuid import uuid4
 
-from faststream.utils.nuid import NUID
 import nats
 from typing_extensions import override
 
@@ -13,6 +11,7 @@ from faststream.broker.utils import resolve_custom_func
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.nats.parser import NatsParser
 from faststream.utils.functions import timeout_scope
+from faststream.utils.nuid import NUID
 
 if TYPE_CHECKING:
     from nats.aio.client import Client
@@ -151,7 +150,7 @@ class NatsJSFastProducer(ProducerProto):
             if reply_to:
                 raise WRONG_PUBLISH_ARGS
             nuid = NUID()
-            rpc_nuid = str(nuid.next(),"utf-8")
+            rpc_nuid = str(nuid.next(), "utf-8")
             reply_to = f"{rpc_prefix}{rpc_nuid}"
             future: asyncio.Future[Msg] = asyncio.Future()
             sub = await self._connection._nc.subscribe(

@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING, Any, Optional
-from uuid import uuid4
 
 from typing_extensions import override
 
@@ -70,7 +69,7 @@ class RedisFastProducer(ProducerProto):
             if reply_to:
                 raise WRONG_PUBLISH_ARGS
             nuid = NUID()
-            rpc_nuid = str(nuid.next(),"utf-8")
+            rpc_nuid = str(nuid.next(), "utf-8")
             reply_to = f"{rpc_prefix}{rpc_nuid}"
             psub = self._connection.pubsub()
             await psub.subscribe(reply_to)
