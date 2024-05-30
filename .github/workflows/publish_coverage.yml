@@ -22,7 +22,8 @@ jobs:
       - uses: dawidd6/action-download-artifact@v3.1.4  # nosemgrep
         with:
           workflow: pr_tests.yaml
-          commit: ${{ github.event.workflow_run.head_sha }}
+          workflow_conclusion: success
+          if_no_artifact_found: fail
 
       - run: smokeshow upload coverage-html
         env:

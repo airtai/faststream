@@ -29,6 +29,5 @@ jobs:
         run: pip install -e ".[dev]"
       - name: Run build docs
         run: bash scripts/build-docs.sh
-      - name: Check for changes
-        id: git-diff
-        run: git diff --exit-code
+      - name: Commit
+        uses: stefanzweifel/git-auto-commit-action@v5

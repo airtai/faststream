@@ -5,6 +5,7 @@ on:
     types: 
       - opened
       - synchronize
+      - review_requested
     paths:
       - faststream/**
       - tests/**
