@@ -1,14 +1,11 @@
 name: Run all tests
 
 on:
-  pull_request:
-    types: 
-      - review_requested
+  merge_group:
   pull_request:
     types: 
       - opened
       - synchronize
-      - review_requested
     paths:
       - faststream/**
       - tests/**
