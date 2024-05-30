@@ -7,10 +7,9 @@ on:
       - synchronize
     paths:
       - faststream/**
-      - docs/**/api/**
 
-# permissions:
-#   contents: write
+permissions:
+  contents: write
 
 jobs:
   check-docs-changes:
@@ -31,3 +30,5 @@ jobs:
         run: bash scripts/build-docs.sh
       - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: generate API References"
