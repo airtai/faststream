@@ -52,7 +52,6 @@ class NatsFastProducer(ProducerProto):
         *,
         correlation_id: str,
         headers: Optional[Dict[str, str]] = None,
-        reply_to: str = "",
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
@@ -71,9 +70,8 @@ class NatsFastProducer(ProducerProto):
             if reply_to:
                 raise WRONG_PUBLISH_ARGS
 
-            token = client._nuid.next()
-            token.extend(token_hex(2).encode())
-            reply_to = token.decode()
+            reply_to = client.new_inbox()
+
 
             future: asyncio.Future[Msg] = asyncio.Future()
             sub = await client.subscribe(reply_to, future=future, max_msgs=1)
