@@ -106,7 +106,7 @@ class LogicPublisher(
         *,
         routing_key: str,
         queue: "RabbitQueue",
-        exchange: Optional["RabbitExchange"],
+        exchange: "RabbitExchange",
         message_kwargs: "PublishKwargs",
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
