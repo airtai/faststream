@@ -141,16 +141,20 @@ class LogicSubscriber(
 
         self._queue_obj = queue = await self.declarer.declare_queue(self.queue)
 
-        if self.exchange is not None:
+        if (
+            self.exchange is not None
+            and self.exchange.name  # check Exchange is not default
+            and not queue.passive  # queue just getted from RMQ
+        ):
             exchange = await self.declarer.declare_exchange(self.exchange)
-            if not queue.passive:
-                await queue.bind(
-                    exchange,
-                    routing_key=self.queue.routing,
-                    arguments=self.queue.bind_arguments,
-                    timeout=self.queue.timeout,
-                    robust=self.queue.robust,
-                )
+
+            await queue.bind(
+                exchange,
+                routing_key=self.queue.routing,
+                arguments=self.queue.bind_arguments,
+                timeout=self.queue.timeout,
+                robust=self.queue.robust,
+            )
 
         self._consumer_tag = await queue.consume(
             # NOTE: aio-pika expects AbstractIncomingMessage, not IncomingMessage

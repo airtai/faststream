@@ -52,26 +52,32 @@ class RabbitDeclarer:
     ) -> "aio_pika.RobustExchange":
         """Declare an exchange, parent exchanges and bind them each other."""
         if (exch := self.exchanges.get(exchange)) is None:
-            self.exchanges[exchange] = exch = cast(
-                "aio_pika.RobustExchange",
-                await self.channel.declare_exchange(
-                    name=exchange.name,
-                    type=exchange.type.value,
-                    durable=exchange.durable,
-                    auto_delete=exchange.auto_delete,
-                    passive=exchange.passive,
-                    arguments=exchange.arguments,
-                    timeout=exchange.timeout,
-                    robust=exchange.robust,
-                    internal=False,  # deprecated RMQ option
-                ),
-            )
+            if not exchange.name:
+                exch = self.channel.default_exchange
+
+            else:
+                exch = cast(
+                    "aio_pika.RobustExchange",
+                    await self.channel.declare_exchange(
+                        name=exchange.name,
+                        type=exchange.type.value,
+                        durable=exchange.durable,
+                        auto_delete=exchange.auto_delete,
+                        passive=exchange.passive,
+                        arguments=exchange.arguments,
+                        timeout=exchange.timeout,
+                        robust=exchange.robust,
+                        internal=False,  # deprecated RMQ option
+                    ),
+                )
+
+            self.exchanges[exchange] = exch
 
         if exchange.bind_to is not None:
             parent = await self.declare_exchange(exchange.bind_to)
             await exch.bind(
                 exchange=parent,
-                routing_key=exchange.routing_key,
+                routing_key=exchange.routing,
                 arguments=exchange.bind_arguments,
                 timeout=exchange.timeout,
                 robust=exchange.robust,

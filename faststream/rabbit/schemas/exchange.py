@@ -39,12 +39,17 @@ class RabbitExchange(NameRequired):
             )
         )
 
+    @property
+    def routing(self) -> str:
+        """Return real routing_key of object."""
+        return self.routing_key or self.name
+
     def __init__(
         self,
         name: Annotated[
             str,
             Doc("RabbitMQ exchange name."),
-        ],
+        ] = "",
         type: Annotated[
             ExchangeType,
             Doc(
