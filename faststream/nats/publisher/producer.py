@@ -52,6 +52,7 @@ class NatsFastProducer(ProducerProto):
         *,
         correlation_id: str,
         headers: Optional[Dict[str, str]] = None,
+        reply_to: str = "",
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
