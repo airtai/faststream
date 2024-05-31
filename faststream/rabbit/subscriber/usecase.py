@@ -23,13 +23,13 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import BrokerMiddleware, CustomCallable
+    from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas import (
         RabbitExchange,
         RabbitQueue,
         ReplyConfig,
     )
-    from faststream.rabbit.utils import RabbitDeclarer
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
@@ -50,7 +50,7 @@ class LogicSubscriber(
         self,
         *,
         queue: "RabbitQueue",
-        exchange: Optional["RabbitExchange"],
+        exchange: "RabbitExchange",
         consume_args: Optional["AnyDict"],
         reply_config: Optional["ReplyConfig"],
         # Subscriber args
@@ -143,8 +143,8 @@ class LogicSubscriber(
 
         if (
             self.exchange is not None
-            and self.exchange.name  # check Exchange is not default
             and not queue.passive  # queue just getted from RMQ
+            and self.exchange.name  # check Exchange is not default
         ):
             exchange = await self.declarer.declare_exchange(self.exchange)
 
