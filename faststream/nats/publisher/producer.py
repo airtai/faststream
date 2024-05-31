@@ -73,7 +73,6 @@ class NatsFastProducer(ProducerProto):
 
             reply_to = client.new_inbox()
 
-
             future: asyncio.Future[Msg] = asyncio.Future()
             sub = await client.subscribe(reply_to, future=future, max_msgs=1)
             await sub.unsubscribe(limit=1)
@@ -133,7 +132,6 @@ class NatsJSFastProducer(ProducerProto):
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
         rpc: bool = False,
-        rpc_prefix: str = "",
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[Any]:
@@ -148,9 +146,7 @@ class NatsJSFastProducer(ProducerProto):
         if rpc:
             if reply_to:
                 raise WRONG_PUBLISH_ARGS
-            nuid = NUID()
-            rpc_nuid = str(nuid.next(), "utf-8")
-            reply_to = f"{rpc_prefix}{rpc_nuid}"
+            reply_to = self._connection._nc.new_inbox()
             future: asyncio.Future[Msg] = asyncio.Future()
             sub = await self._connection._nc.subscribe(
                 reply_to, future=future, max_msgs=1
