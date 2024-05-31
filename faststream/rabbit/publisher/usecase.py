@@ -225,7 +225,7 @@ class LogicPublisher(
             "routing_key": routing_key
             or self.routing_key
             or RabbitQueue.validate(queue or self.queue).routing,
-            "exchange": exchange or self.exchange,
+            "exchange": exchange or self.exchange.name,
             "app_id": self.app_id,
             "correlation_id": correlation_id or gen_cor_id(),
             "message_id": message_id,
