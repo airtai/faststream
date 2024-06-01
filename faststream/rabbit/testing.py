@@ -71,7 +71,7 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
         broker._subscribers.pop(
             AsyncAPISubscriber.get_routing_hash(
                 queue=RabbitQueue.validate(publisher.routing),
-                exchange=publisher.exchange,
+                exchange=RabbitExchange.validate(publisher.exchange),
             ),
             None,
         )

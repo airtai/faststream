@@ -1,7 +1,7 @@
 import pytest
 
 from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
-from faststream.rabbit.utils import RabbitDeclarer
+from faststream.rabbit.helpers.declarer import RabbitDeclarer
 
 
 @pytest.mark.asyncio()
