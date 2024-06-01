@@ -124,7 +124,7 @@
 <a id=__codelineno-0-71 name=__codelineno-0-71></a>    <span class=n>broker</span><span class=o>.</span><span class=n>_subscribers</span><span class=o>.</span><span class=n>pop</span><span class=p>(</span>
 <a id=__codelineno-0-72 name=__codelineno-0-72></a>        <span class=n>AsyncAPISubscriber</span><span class=o>.</span><span class=n>get_routing_hash</span><span class=p>(</span>
 <a id=__codelineno-0-73 name=__codelineno-0-73></a>            <span class=n>queue</span><span class=o>=</span><span class=n>RabbitQueue</span><span class=o>.</span><span class=n>validate</span><span class=p>(</span><span class=n>publisher</span><span class=o>.</span><span class=n>routing</span><span class=p>),</span>
-<a id=__codelineno-0-74 name=__codelineno-0-74></a>            <span class=n>exchange</span><span class=o>=</span><span class=n>publisher</span><span class=o>.</span><span class=n>exchange</span><span class=p>,</span>
+<a id=__codelineno-0-74 name=__codelineno-0-74></a>            <span class=n>exchange</span><span class=o>=</span><span class=n>RabbitExchange</span><span class=o>.</span><span class=n>validate</span><span class=p>(</span><span class=n>publisher</span><span class=o>.</span><span class=n>exchange</span><span class=p>),</span>
 <a id=__codelineno-0-75 name=__codelineno-0-75></a>        <span class=p>),</span>
 <a id=__codelineno-0-76 name=__codelineno-0-76></a>        <span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-77 name=__codelineno-0-77></a>    <span class=p>)</span>

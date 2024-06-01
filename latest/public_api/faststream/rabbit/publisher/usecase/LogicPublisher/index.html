@@ -48,7 +48,7 @@
 <a id=__codelineno-0-106 name=__codelineno-0-106></a>    <span class=o>*</span><span class=p>,</span>
 <a id=__codelineno-0-107 name=__codelineno-0-107></a>    <span class=n>routing_key</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-0-108 name=__codelineno-0-108></a>    <span class=n>queue</span><span class=p>:</span> <span class=s2>&quot;RabbitQueue&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-109 name=__codelineno-0-109></a>    <span class=n>exchange</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;RabbitExchange&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-109 name=__codelineno-0-109></a>    <span class=n>exchange</span><span class=p>:</span> <span class=s2>&quot;RabbitExchange&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-110 name=__codelineno-0-110></a>    <span class=n>message_kwargs</span><span class=p>:</span> <span class=s2>&quot;PublishKwargs&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-111 name=__codelineno-0-111></a>    <span class=c1># Publisher args</span>
 <a id=__codelineno-0-112 name=__codelineno-0-112></a>    <span class=n>broker_middlewares</span><span class=p>:</span> <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;BrokerMiddleware[IncomingMessage]&quot;</span><span class=p>],</span>
@@ -427,7 +427,7 @@
 <a id=__codelineno-0-225 name=__codelineno-0-225></a>        <span class=s2>&quot;routing_key&quot;</span><span class=p>:</span> <span class=n>routing_key</span>
 <a id=__codelineno-0-226 name=__codelineno-0-226></a>        <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>routing_key</span>
 <a id=__codelineno-0-227 name=__codelineno-0-227></a>        <span class=ow>or</span> <span class=n>RabbitQueue</span><span class=o>.</span><span class=n>validate</span><span class=p>(</span><span class=n>queue</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>queue</span><span class=p>)</span><span class=o>.</span><span class=n>routing</span><span class=p>,</span>
-<a id=__codelineno-0-228 name=__codelineno-0-228></a>        <span class=s2>&quot;exchange&quot;</span><span class=p>:</span> <span class=n>exchange</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>exchange</span><span class=p>,</span>
+<a id=__codelineno-0-228 name=__codelineno-0-228></a>        <span class=s2>&quot;exchange&quot;</span><span class=p>:</span> <span class=n>exchange</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>exchange</span><span class=o>.</span><span class=n>name</span><span class=p>,</span>
 <a id=__codelineno-0-229 name=__codelineno-0-229></a>        <span class=s2>&quot;app_id&quot;</span><span class=p>:</span> <span class=bp>self</span><span class=o>.</span><span class=n>app_id</span><span class=p>,</span>
 <a id=__codelineno-0-230 name=__codelineno-0-230></a>        <span class=s2>&quot;correlation_id&quot;</span><span class=p>:</span> <span class=n>correlation_id</span> <span class=ow>or</span> <span class=n>gen_cor_id</span><span class=p>(),</span>
 <a id=__codelineno-0-231 name=__codelineno-0-231></a>        <span class=s2>&quot;message_id&quot;</span><span class=p>:</span> <span class=n>message_id</span><span class=p>,</span>
