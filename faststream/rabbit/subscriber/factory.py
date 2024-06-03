@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Iterable, Optional, Union
 
-from faststream.rabbit.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 
 if TYPE_CHECKING:
@@ -8,13 +7,14 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import BrokerMiddleware
+    from faststream.rabbit.schemas import RabbitExchange, RabbitQueue, ReplyConfig
     from faststream.types import AnyDict
 
 
 def create_subscriber(
     *,
-    queue: RabbitQueue,
-    exchange: Optional["RabbitExchange"],
+    queue: "RabbitQueue",
+    exchange: "RabbitExchange",
     consume_args: Optional["AnyDict"],
     reply_config: Optional["ReplyConfig"],
     # Subscriber args

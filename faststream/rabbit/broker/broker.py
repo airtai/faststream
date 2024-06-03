@@ -20,6 +20,7 @@ from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.broker.logging import RabbitLoggingBroker
 from faststream.rabbit.broker.registrator import RabbitRegistrator
+from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from faststream.rabbit.schemas import (
     RABBIT_REPLY,
@@ -28,7 +29,7 @@ from faststream.rabbit.schemas import (
 )
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
-from faststream.rabbit.utils import RabbitDeclarer, build_url
+from faststream.rabbit.utils import build_url
 
 if TYPE_CHECKING:
     from ssl import SSLContext
@@ -429,7 +430,6 @@ class RabbitBroker(
             await declarer.declare_queue(RABBIT_REPLY)
 
             self._producer = AioPikaFastProducer(
-                channel=channel,
                 declarer=declarer,
                 decoder=self._decoder,
                 parser=self._parser,
@@ -437,7 +437,9 @@ class RabbitBroker(
 
             if max_consumers:
                 c = AsyncAPISubscriber.build_log_context(
-                    None, RabbitQueue(""), RabbitExchange("")
+                    None,
+                    RabbitQueue(""),
+                    RabbitExchange(""),
                 )
                 self._log(f"Set max consumers to {max_consumers}", extra=c)
                 await channel.set_qos(prefetch_count=int(max_consumers))

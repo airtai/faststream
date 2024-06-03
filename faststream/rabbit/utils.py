@@ -1,83 +1,15 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from aio_pika.connection import make_url
 
 from faststream.rabbit.schemas.constants import ExchangeType
 
 if TYPE_CHECKING:
-    import aio_pika
     from aio_pika.abc import SSLOptions
     from pamqp.common import FieldTable
     from yarl import URL
 
-    from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
-
-
-class RabbitDeclarer:
-    """An utility class to declare RabbitMQ queues and exchanges."""
-
-    channel: "aio_pika.RobustChannel"
-    queues: Dict["RabbitQueue", "aio_pika.RobustQueue"]
-    exchanges: Dict["RabbitExchange", "aio_pika.RobustExchange"]
-
-    def __init__(self, channel: "aio_pika.RobustChannel") -> None:
-        self.channel = channel
-        self.queues = {}
-        self.exchanges = {}
-
-    async def declare_queue(
-        self,
-        queue: "RabbitQueue",
-    ) -> "aio_pika.RobustQueue":
-        """Declare a queue."""
-        if (q := self.queues.get(queue)) is None:
-            self.queues[queue] = q = cast(
-                "aio_pika.RobustQueue",
-                await self.channel.declare_queue(
-                    name=queue.name,
-                    durable=queue.durable,
-                    exclusive=queue.exclusive,
-                    passive=queue.passive,
-                    auto_delete=queue.auto_delete,
-                    arguments=queue.arguments,
-                    timeout=queue.timeout,
-                    robust=queue.robust,
-                ),
-            )
-        return q
-
-    async def declare_exchange(
-        self,
-        exchange: "RabbitExchange",
-    ) -> "aio_pika.RobustExchange":
-        """Declare an exchange, parent exchanges and bind them each other."""
-        if (exch := self.exchanges.get(exchange)) is None:
-            self.exchanges[exchange] = exch = cast(
-                "aio_pika.RobustExchange",
-                await self.channel.declare_exchange(
-                    name=exchange.name,
-                    type=exchange.type.value,
-                    durable=exchange.durable,
-                    auto_delete=exchange.auto_delete,
-                    passive=exchange.passive,
-                    arguments=exchange.arguments,
-                    timeout=exchange.timeout,
-                    robust=exchange.robust,
-                    internal=False,  # deprecated RMQ option
-                ),
-            )
-
-        if exchange.bind_to is not None:
-            parent = await self.declare_exchange(exchange.bind_to)
-            await exch.bind(
-                exchange=parent,
-                routing_key=exchange.routing_key,
-                arguments=exchange.bind_arguments,
-                timeout=exchange.timeout,
-                robust=exchange.robust,
-            )
-
-        return exch
+    from faststream.rabbit.schemas import RabbitExchange
 
 
 def build_url(
