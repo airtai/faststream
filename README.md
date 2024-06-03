@@ -5,8 +5,8 @@
 ---
 
 <p align="center">
-  <a href="https://github.com/airtai/faststream/actions/workflows/test.yaml" target="_blank">
-    <img src="https://github.com/airtai/faststream/actions/workflows/test.yaml/badge.svg?branch=main" alt="Test Passing"/>
+  <a href="https://github.com/airtai/faststream/actions/workflows/pr_tests.yaml" target="_blank">
+    <img src="https://github.com/airtai/faststream/actions/workflows/pr_tests.yaml/badge.svg?branch=main" alt="Test Passing"/>
   </a>
 
   <a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/airtai/faststream" target="_blank">
@@ -27,12 +27,12 @@
 
   <br/>
 
-  <a href="https://github.com/airtai/faststream/actions/workflows/codeql.yml" target="_blank">
-    <img src="https://github.com/airtai/faststream/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
+  <a href="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yml" target="_blank">
+    <img src="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yml/badge.svg" alt="CodeQL">
   </a>
 
-  <a href="https://github.com/airtai/faststream/actions/workflows/dependency-review.yaml" target="_blank">
-    <img src="https://github.com/airtai/faststream/actions/workflows/dependency-review.yaml/badge.svg" alt="Dependency Review">
+  <a href="https://github.com/airtai/faststream/actions/workflows/pr_dependency-review.yaml" target="_blank">
+    <img src="https://github.com/airtai/faststream/actions/workflows/pr_dependency-review.yaml/badge.svg" alt="Dependency Review">
   </a>
 
   <a href="https://github.com/airtai/faststream/blob/main/LICENSE" target="_blank">
