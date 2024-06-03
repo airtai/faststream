@@ -7,6 +7,8 @@ on:
       - synchronize
   # https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue#triggering-merge-group-checks-with-github-actions
   merge_group:
+    types:
+      - checks_requested
 
 jobs:
   static_analysis:
