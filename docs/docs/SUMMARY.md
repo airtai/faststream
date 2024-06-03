@@ -765,6 +765,9 @@ search:
                     - [RabbitRouter](api/faststream/rabbit/fastapi/RabbitRouter.md)
                     - router
                         - [RabbitRouter](api/faststream/rabbit/fastapi/router/RabbitRouter.md)
+                - helpers
+                    - declarer
+                        - [RabbitDeclarer](api/faststream/rabbit/helpers/declarer/RabbitDeclarer.md)
                 - message
                     - [RabbitMessage](api/faststream/rabbit/message/RabbitMessage.md)
                 - opentelemetry
@@ -821,7 +824,6 @@ search:
                     - [apply_pattern](api/faststream/rabbit/testing/apply_pattern.md)
                     - [build_message](api/faststream/rabbit/testing/build_message.md)
                 - utils
-                    - [RabbitDeclarer](api/faststream/rabbit/utils/RabbitDeclarer.md)
                     - [build_url](api/faststream/rabbit/utils/build_url.md)
                     - [is_routing_exchange](api/faststream/rabbit/utils/is_routing_exchange.md)
             - redis

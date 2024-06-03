@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.rabbit.utils.RabbitDeclarer
+::: faststream.rabbit.helpers.declarer.RabbitDeclarer
