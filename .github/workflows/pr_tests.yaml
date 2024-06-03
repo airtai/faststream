@@ -1,12 +1,14 @@
-name: Test
+name: Run all tests
 
 on:
-  push:
-   branches:
-     - main
   pull_request:
-    types: [opened, synchronize]
+    types: 
+      - opened
+      - synchronize
+  # https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue#triggering-merge-group-checks-with-github-actions
   merge_group:
+    types:
+      - checks_requested
 
 jobs:
   static_analysis:
@@ -40,27 +42,7 @@ jobs:
         shell: bash
         run: semgrep scan --config auto --error
 
-  check-docs-changes:
-    if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install -e ".[dev]"
-      - name: Run build docs
-        run: bash scripts/build-docs.sh
-      - name: Check for changes
-        id: git-diff
-        run: git diff --exit-code
-
-  test:
+  test-basic:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     strategy:
@@ -165,8 +147,28 @@ jobs:
       - name: Test
         run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
 
+  test-kafka-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[kafka,test-core]
+      - name: Test
+        run: bash scripts/test.sh -m "not kafka" tests/brokers/kafka/test_test_client.py
+
   test-kafka-real:
     if: github.event.pull_request.draft == false
+    needs:
+      - test-basic
+      - test-kafka-smoke
     runs-on: ubuntu-latest
     services:
       kafka:
@@ -208,7 +210,7 @@ jobs:
           path: coverage
           if-no-files-found: error
 
-  test-kafka-smoke:
+  test-confluent-smoke:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
@@ -221,12 +223,15 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[kafka,test-core]
+        run: pip install .[confluent,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not kafka" tests/brokers/kafka/test_test_client.py
+        run: bash scripts/test.sh -m "not confluent" tests/brokers/confluent/test_test_client.py
 
   test-confluent-real:
     if: github.event.pull_request.draft == false
+    needs:
+      - test-basic
+      - test-confluent-smoke
     runs-on: ubuntu-latest
     services:
       kafka:
@@ -268,7 +273,7 @@ jobs:
           path: coverage
           if-no-files-found: error
 
-  test-confluent-smoke:
+  test-rabbit-smoke:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
@@ -281,12 +286,15 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[confluent,test-core]
+        run: pip install .[rabbit,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not confluent" tests/brokers/confluent/test_test_client.py
+        run: bash scripts/test.sh -m "not rabbit" tests/brokers/rabbit/test_test_client.py
 
   test-rabbit-real:
     if: github.event.pull_request.draft == false
+    needs:
+      - test-basic
+      - test-rabbit-smoke
     runs-on: ubuntu-latest
     services:
       rabbitmq:
@@ -317,7 +325,7 @@ jobs:
           path: coverage
           if-no-files-found: error
 
-  test-rabbit-smoke:
+  test-nats-smoke:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
@@ -330,12 +338,15 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,test-core]
+        run: pip install .[nats,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not rabbit" tests/brokers/rabbit/test_test_client.py
+        run: bash scripts/test.sh -m "not nats" tests/brokers/nats/test_test_client.py
 
   test-nats-real:
     if: github.event.pull_request.draft == false
+    needs:
+      - test-basic
+      - test-nats-smoke
     runs-on: ubuntu-latest
     services:
       nats:
@@ -366,7 +377,7 @@ jobs:
           path: coverage
           if-no-files-found: error
 
-  test-nats-smoke:
+  test-redis-smoke:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
@@ -379,13 +390,16 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,test-core]
+        run: pip install .[redis,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not nats" tests/brokers/nats/test_test_client.py
+        run: bash scripts/test.sh -m "not redis" tests/brokers/redis/test_test_client.py
 
   test-redis-real:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    needs:
+      - test-basic
+      - test-redis-smoke
     services:
       nats:
         image: redis:alpine
@@ -415,27 +429,10 @@ jobs:
           path: coverage
           if-no-files-found: error
 
-  test-redis-smoke:
-    if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[redis,test-core]
-      - name: Test
-        run: bash scripts/test.sh -m "not redis" tests/brokers/redis/test_test_client.py
-
   coverage-combine:
     if: github.event.pull_request.draft == false
     needs:
-      - test
+      - test-basic
       - test-kafka-real
       - test-confluent-real
       - test-rabbit-real
@@ -478,20 +475,10 @@ jobs:
 
     needs:
       - static_analysis
-      - check-docs-changes
       - coverage-combine
       - test-macos-latest
       - test-windows-latest
-      - test-kafka-real
-      - test-kafka-smoke
-      - test-confluent-real
-      - test-confluent-smoke
-      - test-rabbit-real
-      - test-rabbit-smoke
-      - test-nats-real
-      - test-nats-smoke
-      - test-redis-real
-      - test-redis-smoke
+      - test-orjson
 
     runs-on: ubuntu-latest
 

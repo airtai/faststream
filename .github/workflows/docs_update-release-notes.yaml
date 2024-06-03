@@ -1,10 +1,10 @@
-name: Update Release Notes
+name: Create PR with updated Release Notes
 
 on:
   workflow_dispatch: null
-  push:
-    tags:
-      - '*'
+  release:
+    types:
+      - published
 
 jobs:
   update-release-notes:
