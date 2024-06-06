@@ -66,7 +66,7 @@ class StreamMessage(Generic[MsgType]):
 def decode_message(message: "StreamMessage[Any]") -> "DecodedMessage":
     """Decodes a message."""
     body: Any = getattr(message, "body", message)
-    m: "DecodedMessage" = body
+    m: DecodedMessage = body
 
     if (
         content_type := getattr(message, "content_type", Parameter.empty)

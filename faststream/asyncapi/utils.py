@@ -14,7 +14,7 @@ def resolve_payloads(
     served_words: int = 1,
 ) -> "AnyDict":
     ln = len(payloads)
-    payload: "AnyDict"
+    payload: AnyDict
     if ln > 1:
         one_of_payloads = {}
 

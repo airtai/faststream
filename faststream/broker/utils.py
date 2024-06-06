@@ -60,7 +60,7 @@ class MultiLock:
 
     def __init__(self) -> None:
         """Initialize a new instance of the class."""
-        self.queue: "asyncio.Queue[None]" = asyncio.Queue()
+        self.queue: asyncio.Queue[None] = asyncio.Queue()
 
     def __enter__(self) -> Self:
         """Enter the context."""

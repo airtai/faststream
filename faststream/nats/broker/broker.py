@@ -564,7 +564,7 @@ class NatsBroker(
         To startup subscribers too you should use `broker.start()` after/instead this method.
         """
         if servers is not Parameter.empty:
-            connect_kwargs: "AnyDict" = {
+            connect_kwargs: AnyDict = {
                 **kwargs,
                 "servers": servers,
             }
@@ -768,8 +768,8 @@ class NatsBroker(
         subscriber: "AsyncAPISubscriber",
     ) -> None:
         connection: Union[
-            "Client",
-            "JetStreamContext",
+            Client,
+            JetStreamContext,
             KVBucketDeclarer,
             OSBucketDeclarer,
             None,
