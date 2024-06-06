@@ -21,7 +21,7 @@ class Multiprocess(BaseReload):
         super().__init__(target, args, None)
 
         self.workers = workers
-        self.processes: List["SpawnProcess"] = []
+        self.processes: List[SpawnProcess] = []
 
     def startup(self) -> None:
         logger.info(f"Started parent process [{self.pid}]")

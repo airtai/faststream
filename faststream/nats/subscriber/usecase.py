@@ -295,7 +295,7 @@ class _DefaultSubscriber(LogicSubscriber[MsgType]):
 
 class _TasksMixin(LogicSubscriber[Any]):
     def __init__(self, **kwargs: Any) -> None:
-        self.tasks: List["asyncio.Task[Any]"] = []
+        self.tasks: List[asyncio.Task[Any]] = []
 
         super().__init__(**kwargs)
 

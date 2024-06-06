@@ -86,7 +86,7 @@ class AioPikaFastProducer(ProducerProto):
     ) -> Optional[Any]:
         """Publish a message to a RabbitMQ queue."""
         context: AsyncContextManager[
-            Optional["MemoryObjectReceiveStream[IncomingMessage]"]
+            Optional[MemoryObjectReceiveStream[IncomingMessage]]
         ]
         if rpc:
             if reply_to is not None:
@@ -126,7 +126,7 @@ class AioPikaFastProducer(ProducerProto):
                 return r
 
             else:
-                msg: Optional["IncomingMessage"] = None
+                msg: Optional[IncomingMessage] = None
                 with timeout_scope(rpc_timeout, raise_timeout):
                     msg = await response_queue.receive()
 

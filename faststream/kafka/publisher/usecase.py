@@ -170,7 +170,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         reply_to = reply_to or self.reply_to
         correlation_id = correlation_id or gen_cor_id()
 
-        call: "AsyncFunc" = self._producer.publish
+        call: AsyncFunc = self._producer.publish
 
         for m in chain(
             (
@@ -250,7 +250,7 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        msgs: Iterable["SendableMessage"]
+        msgs: Iterable[SendableMessage]
         if extra_messages:
             msgs = (cast("SendableMessage", message), *extra_messages)
         else:
@@ -262,7 +262,7 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
         reply_to = reply_to or self.reply_to
         correlation_id = correlation_id or gen_cor_id()
 
-        call: "AsyncFunc" = self._producer.publish_batch
+        call: AsyncFunc = self._producer.publish_batch
 
         for m in chain(
             (
