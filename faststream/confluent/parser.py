@@ -26,7 +26,7 @@ class AsyncConfluentParser:
         offset = message.offset()
         _, timestamp = message.timestamp()
 
-        handler: Optional["LogicSubscriber[Any]"] = context.get_local("handler_")
+        handler: Optional[LogicSubscriber[Any]] = context.get_local("handler_")
 
         return KafkaMessage(
             body=body,
@@ -59,7 +59,7 @@ class AsyncConfluentParser:
 
         _, first_timestamp = first.timestamp()
 
-        handler: Optional["LogicSubscriber[Any]"] = context.get_local("handler_")
+        handler: Optional[LogicSubscriber[Any]] = context.get_local("handler_")
 
         return KafkaMessage(
             body=body,

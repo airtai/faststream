@@ -181,7 +181,7 @@ class StreamRouter(
             on_shutdown=on_shutdown,
         )
 
-        self.weak_dependencies_provider: "WeakSet[Any]" = WeakSet()
+        self.weak_dependencies_provider: WeakSet[Any] = WeakSet()
         if dependency_overrides_provider is not None:
             self.weak_dependencies_provider.add(dependency_overrides_provider)
 
@@ -306,7 +306,7 @@ class StreamRouter(
 
             async with lifespan_context(app) as maybe_context:
                 if maybe_context is None:
-                    context: "AnyDict" = {}
+                    context: AnyDict = {}
                 else:
                     context = dict(maybe_context)
 

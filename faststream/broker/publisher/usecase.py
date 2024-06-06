@@ -138,7 +138,7 @@ class PublisherUsecase(
         return handler_call
 
     def get_payloads(self) -> List[Tuple["AnyDict", str]]:
-        payloads: List[Tuple["AnyDict", str]] = []
+        payloads: List[Tuple[AnyDict, str]] = []
 
         if self.schema_:
             params = {"response__": (self.schema_, ...)}

@@ -8,7 +8,7 @@ name: 'Dependency Review'
 
 on:
   pull_request:
-    types: 
+    types:
       - opened
       - synchronize
     branches:

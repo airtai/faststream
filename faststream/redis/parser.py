@@ -107,7 +107,7 @@ class RawMessage:
 
     @staticmethod
     def parse(data: bytes) -> Tuple[bytes, "AnyDict"]:
-        headers: "AnyDict"
+        headers: AnyDict
 
         try:
             # FastStream message format
@@ -192,7 +192,7 @@ class RedisBatchListParser(SimpleParser):
         message: Mapping[str, Any],
     ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
         body: List[Any] = []
-        batch_headers: List["AnyDict"] = []
+        batch_headers: List[AnyDict] = []
 
         for x in message["data"]:
             msg_data, msg_headers = _decode_batch_body_item(x)
@@ -230,7 +230,7 @@ class RedisBatchStreamParser(SimpleParser):
         message: Mapping[str, Any],
     ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
         body: List[Any] = []
-        batch_headers: List["AnyDict"] = []
+        batch_headers: List[AnyDict] = []
 
         for x in message["data"]:
             msg_data, msg_headers = _decode_batch_body_item(x.get(bDATA_KEY, x))

@@ -221,7 +221,7 @@ class LogicPublisher(
     ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        kwargs: "AnyDict" = {
+        kwargs: AnyDict = {
             "routing_key": routing_key
             or self.routing_key
             or RabbitQueue.validate(queue or self.queue).routing,
@@ -238,7 +238,7 @@ class LogicPublisher(
             **publish_kwargs,
         }
 
-        call: "AsyncFunc" = self._producer.publish
+        call: AsyncFunc = self._producer.publish
 
         for m in chain(
             (
