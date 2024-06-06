@@ -1,5 +1,4 @@
 import asyncio
-from ssl import SSLContext
 from time import time
 from typing import (
     TYPE_CHECKING,
@@ -99,7 +98,6 @@ class AsyncConfluentProducer:
         send_backoff_ms: int = 100,
         retry_backoff_ms: int = 100,
         security_protocol: str = "PLAINTEXT",
-        ssl_context: Optional[SSLContext] = None,
         connections_max_idle_ms: int = 540000,
         enable_idempotence: bool = False,
         transactional_id: Optional[Union[str, int]] = None,
@@ -110,12 +108,16 @@ class AsyncConfluentProducer:
         sasl_kerberos_service_name: str = "kafka",
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
         logger: Annotated[
             Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = logger,
     ) -> None:
         self.logger = logger
+
+        self.config = {} if config is None else config
+
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
         ):
@@ -127,7 +129,7 @@ class AsyncConfluentProducer:
         if acks is _missing or acks == "all":
             acks = -1
 
-        self.config = {
+        config_from_params = {
             # "topic.metadata.refresh.interval.ms": 1000,
             "bootstrap.servers": bootstrap_servers,
             "client.id": client_id,
@@ -146,6 +148,8 @@ class AsyncConfluentProducer:
             "connections.max.idle.ms": connections_max_idle_ms,
             "sasl.kerberos.service.name": sasl_kerberos_service_name,
         }
+        self.config = {**self.config, **config_from_params}
+
         if sasl_mechanism:
             self.config.update(
                 {
@@ -293,7 +297,6 @@ class AsyncConfluentConsumer:
         heartbeat_interval_ms: int = 3000,
         consumer_timeout_ms: int = 200,
         max_poll_records: Optional[int] = None,
-        ssl_context: Optional[SSLContext] = None,
         security_protocol: str = "PLAINTEXT",
         api_version: str = "auto",
         exclude_internal_topics: bool = True,
@@ -305,12 +308,16 @@ class AsyncConfluentConsumer:
         sasl_kerberos_service_name: str = "kafka",
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
         logger: Annotated[
             Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = logger,
     ) -> None:
         self.logger = logger
+
+        self.config = {} if config is None else config
+
         if group_id is None:
             group_id = "confluent-kafka-consumer-group"
 
@@ -328,7 +335,7 @@ class AsyncConfluentConsumer:
                     for x in partition_assignment_strategy
                 ]
             )
-        self.config = {
+        config_from_params = {
             "allow.auto.create.topics": True,
             # "topic.metadata.refresh.interval.ms": 1000,
             "bootstrap.servers": bootstrap_servers,
@@ -355,6 +362,8 @@ class AsyncConfluentConsumer:
             "isolation.level": isolation_level,
             "sasl.kerberos.service.name": sasl_kerberos_service_name,
         }
+        self.config = {**self.config, **config_from_params}
+
         if sasl_mechanism:
             self.config.update(
                 {

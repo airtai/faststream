@@ -128,6 +128,13 @@ class KafkaBroker(
             """
             ),
         ] = SERVICE_NAME,
+        config: Annotated[
+            Optional[Dict[str, Any]],
+            Doc("""
+                Extra configuration for the confluent-kafka-python
+                producer/consumer. See `confluent_kafka.Config <https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#kafka-client-configuration>`_.
+                """),
+        ] = None,
         # publisher args
         acks: Annotated[
             Union[Literal[0, 1, -1, "all"], object],
@@ -409,6 +416,7 @@ class KafkaBroker(
         )
         self.client_id = client_id
         self._producer = None
+        self.config = config
 
     async def _close(
         self,
@@ -449,6 +457,7 @@ class KafkaBroker(
             **kwargs,
             client_id=client_id,
             logger=self.logger,
+            config=self.config,
         )
 
         self._producer = AsyncConfluentFastProducer(
@@ -459,6 +468,7 @@ class KafkaBroker(
             AsyncConfluentConsumer,
             **filter_by_dict(ConsumerConnectionParams, kwargs),
             logger=self.logger,
+            config=self.config,
         )
 
     async def start(self) -> None:

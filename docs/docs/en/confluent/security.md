@@ -65,3 +65,21 @@ If the user does not want to use SSL encryption without the warning getting logg
     ```python linenums="1"
     {!> docs_src/confluent/security/sasl_scram512.py [ln:1-10.25,11-] !}
     ```
+
+### 4. Other security related usecases
+
+**Purpose**: If you want to pass additional values to `confluent-kafka-python`, you can pass a dictionary called `config` to `KafkaBroker`. For example, to pass your own certificate file:
+
+```python
+from faststream.confluent import KafkaBroker
+from faststream.security import SASLPlaintext
+
+security = SASLPlaintext(
+    username="admin",
+    password="password",
+)
+
+config = {"ssl.ca.location": "~/my_certs/CRT_cacerts.pem"}
+
+broker = KafkaBroker("localhost:9092", security=security, config=config)
+```

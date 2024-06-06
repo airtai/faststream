@@ -1,4 +1,3 @@
-import ssl
 from contextlib import contextmanager
 from typing import Tuple
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -43,8 +42,6 @@ async def test_base_security():
                 == call_kwargs["security_protocol"]
             )
 
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
-
 
 @pytest.mark.asyncio()
 @pytest.mark.confluent()
@@ -69,8 +66,6 @@ async def test_scram256():
                 producer_call_kwargs["security_protocol"]
                 == call_kwargs["security_protocol"]
             )
-
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
 
 
 @pytest.mark.asyncio()
@@ -97,8 +92,6 @@ async def test_scram512():
                 == call_kwargs["security_protocol"]
             )
 
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
-
 
 @pytest.mark.asyncio()
 @pytest.mark.confluent()
@@ -123,5 +116,3 @@ async def test_plaintext():
                 producer_call_kwargs["security_protocol"]
                 == call_kwargs["security_protocol"]
             )
-
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext

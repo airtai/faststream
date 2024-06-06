@@ -31,7 +31,6 @@ def parse_security(security: Optional[BaseSecurity]) -> "AnyDict":
 def _parse_base_security(security: BaseSecurity) -> "AnyDict":
     return {
         "security_protocol": "SSL" if security.use_ssl else "PLAINTEXT",
-        "ssl_context": security.ssl_context,
     }
 
 
@@ -45,7 +44,6 @@ def _parse_sasl_plaintext(security: SASLPlaintext) -> "AnyDict":
 
     return {
         "security_protocol": "SASL_SSL" if security.use_ssl else "SASL_PLAINTEXT",
-        "ssl_context": security.ssl_context,
         "sasl_mechanism": "PLAIN",
         "sasl_plain_username": security.username,
         "sasl_plain_password": security.password,
@@ -55,7 +53,6 @@ def _parse_sasl_plaintext(security: SASLPlaintext) -> "AnyDict":
 def _parse_sasl_scram256(security: SASLScram256) -> "AnyDict":
     return {
         "security_protocol": "SASL_SSL" if security.use_ssl else "SASL_PLAINTEXT",
-        "ssl_context": security.ssl_context,
         "sasl_mechanism": "SCRAM-SHA-256",
         "sasl_plain_username": security.username,
         "sasl_plain_password": security.password,
@@ -65,7 +62,6 @@ def _parse_sasl_scram256(security: SASLScram256) -> "AnyDict":
 def _parse_sasl_scram512(security: SASLScram512) -> "AnyDict":
     return {
         "security_protocol": "SASL_SSL" if security.use_ssl else "SASL_PLAINTEXT",
-        "ssl_context": security.ssl_context,
         "sasl_mechanism": "SCRAM-SHA-512",
         "sasl_plain_username": security.username,
         "sasl_plain_password": security.password,
