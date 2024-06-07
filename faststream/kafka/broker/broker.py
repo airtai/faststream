@@ -607,7 +607,7 @@ class KafkaBroker(
         To startup subscribers too you should use `broker.start()` after/instead this method.
         """
         if bootstrap_servers is not Parameter.empty:
-            connect_kwargs: "AnyDict" = {
+            connect_kwargs: AnyDict = {
                 **kwargs,
                 "bootstrap_servers": bootstrap_servers,
             }
@@ -792,7 +792,7 @@ class KafkaBroker(
 
         correlation_id = correlation_id or gen_cor_id()
 
-        call: "AsyncFunc" = self._producer.publish_batch
+        call: AsyncFunc = self._producer.publish_batch
 
         for m in self._middlewares:
             call = partial(m(None).publish_scope, call)

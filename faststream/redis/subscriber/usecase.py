@@ -94,7 +94,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         )
 
         self._client = None
-        self.task: Optional["asyncio.Task[None]"] = None
+        self.task: Optional[asyncio.Task[None]] = None
 
     @override
     def setup(  # type: ignore[override]

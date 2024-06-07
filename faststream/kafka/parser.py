@@ -62,7 +62,7 @@ class AioKafkaBatchParser(AioKafkaParser):
 
         headers = next(iter(batch_headers), {})
 
-        handler: Optional["LogicSubscriber[Any]"] = context.get_local("handler_")
+        handler: Optional[LogicSubscriber[Any]] = context.get_local("handler_")
 
         return self.msg_class(
             body=body,

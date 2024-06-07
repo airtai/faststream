@@ -308,7 +308,7 @@ class SubscriberUsecase(
             await stack.enter_async_context(self._stop_scope())
 
             # enter all middlewares
-            middlewares: List["BaseMiddleware"] = []
+            middlewares: List[BaseMiddleware] = []
             for base_m in self._broker_middlewares:
                 middleware = base_m(msg)
                 middlewares.append(middleware)
@@ -412,7 +412,7 @@ class SubscriberUsecase(
 
     def get_payloads(self) -> List[Tuple["AnyDict", str]]:
         """Get the payloads of the handler."""
-        payloads: List[Tuple["AnyDict", str]] = []
+        payloads: List[Tuple[AnyDict, str]] = []
 
         for h in self.calls:
             if h.dependant is None:

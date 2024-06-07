@@ -161,7 +161,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
         f: Callable[..., Awaitable[Any]] = to_async(call)
 
-        dependent: Optional["CallModel[..., Any]"] = None
+        dependent: Optional[CallModel[..., Any]] = None
         if _get_dependant is None:
             dependent = build_call_model(
                 f,
