@@ -39,16 +39,16 @@ class KafkaMessage(
         self,
         *args: Any,
         consumer: ConsumerProtocol,
-        is_manual: bool = False,
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
 
-        self.is_manual = is_manual
         self.consumer = consumer
 
+
+class KafkaAckableMessage(KafkaMessage):
     async def ack(self) -> None:
         """Acknowledge the Kafka message."""
-        if self.is_manual and not self.committed:
+        if not self.committed:
             await self.consumer.commit()
             await super().ack()

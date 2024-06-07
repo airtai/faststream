@@ -620,6 +620,9 @@ class NatsBroker(
         assert self.stream, "Broker should be started already"  # nosec B101
         assert self._producer, "Broker should be started already"  # nosec B101
 
+        from loguru import logger
+
+        logger.debug(self._stream_builder.objects)
         for stream in filter(
             lambda x: x.declare,
             self._stream_builder.objects.values(),

@@ -13,9 +13,10 @@ from faststream.nats.subscriber.factory import create_subscriber
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
-    from nats.aio.msg import Msg  # noqa: F401
+    from nats.aio.msg import Msg
 
     from faststream.broker.types import (
+        BrokerMiddleware,
         CustomCallable,
         Filter,
         PublisherMiddleware,
@@ -348,3 +349,23 @@ class NatsRegistrator(ABCBroker["Msg"]):
             ),
         )
         return publisher
+
+    @override
+    def include_router(  # type: ignore[override]
+        self,
+        router: "NatsRegistrator",
+        *,
+        prefix: str = "",
+        dependencies: Iterable["Depends"] = (),
+        middlewares: Iterable["BrokerMiddleware[Msg]"] = (),
+        include_in_schema: Optional[bool] = None,
+    ) -> None:
+        self._stream_builder.objects.update(router._stream_builder.objects)
+
+        return super().include_router(
+            router,
+            prefix=prefix,
+            dependencies=dependencies,
+            middlewares=middlewares,
+            include_in_schema=include_in_schema,
+        )

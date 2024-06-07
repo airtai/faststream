@@ -29,8 +29,8 @@ class BaseNatsTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: kwargs["correlation_id"],
         }
 
-    @staticmethod
     def get_publish_destination_name(
+        self,
         kwargs: "AnyDict",
     ) -> str:
         subject: str = kwargs.get("subject", SERVICE_NAME)
@@ -50,8 +50,8 @@ class NatsTelemetrySettingsProvider(BaseNatsTelemetrySettingsProvider["Msg"]):
             MESSAGING_DESTINATION_PUBLISH_NAME: msg.raw_message.subject,
         }
 
-    @staticmethod
     def get_consume_destination_name(
+        self,
         msg: "StreamMessage[Msg]",
     ) -> str:
         return msg.raw_message.subject
@@ -73,8 +73,8 @@ class NatsBatchTelemetrySettingsProvider(
             MESSAGING_DESTINATION_PUBLISH_NAME: msg.raw_message[0].subject,
         }
 
-    @staticmethod
     def get_consume_destination_name(
+        self,
         msg: "StreamMessage[List[Msg]]",
     ) -> str:
         return msg.raw_message[0].subject

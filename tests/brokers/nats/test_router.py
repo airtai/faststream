@@ -3,7 +3,7 @@ import asyncio
 import pytest
 
 from faststream import Path
-from faststream.nats import NatsPublisher, NatsRoute, NatsRouter
+from faststream.nats import NatsBroker, NatsPublisher, NatsRoute, NatsRouter
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
@@ -136,3 +136,15 @@ class TestRouterLocal(RouterLocalTestcase):
     broker_class = NatsRouter
     route_class = NatsRoute
     publisher_class = NatsPublisher
+
+    def test_include_stream(
+        self,
+        router: NatsRouter,
+        pub_broker: NatsBroker,
+    ):
+        @router.subscriber("test", stream="stream")
+        async def handler(): ...
+
+        pub_broker.include_router(router)
+
+        assert next(iter(pub_broker._stream_builder.objects.keys())) == "stream"

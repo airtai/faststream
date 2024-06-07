@@ -37,8 +37,8 @@ class BaseKafkaTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
 
         return attrs
 
-    @staticmethod
     def get_publish_destination_name(
+        self,
         kwargs: "AnyDict",
     ) -> str:
         return cast(str, kwargs["topic"])
@@ -66,8 +66,8 @@ class KafkaTelemetrySettingsProvider(
 
         return attrs
 
-    @staticmethod
     def get_consume_destination_name(
+        self,
         msg: "StreamMessage[ConsumerRecord]",
     ) -> str:
         return cast(str, msg.raw_message.topic)
@@ -96,8 +96,8 @@ class BatchKafkaTelemetrySettingsProvider(
 
         return attrs
 
-    @staticmethod
     def get_consume_destination_name(
+        self,
         msg: "StreamMessage[Tuple[ConsumerRecord, ...]]",
     ) -> str:
         return cast(str, msg.raw_message[0].topic)
