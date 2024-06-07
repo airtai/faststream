@@ -341,3 +341,4 @@ omit = [
 [tool.codespell]
 skip = "./venv,./docs/site/*"
 ignore-words = ".codespell-whitelist.txt"
+
