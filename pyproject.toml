@@ -58,8 +58,7 @@ dependencies = [
     "anyio>=3.7.1,<5",
     "fast-depends>=2.4.0b0,<2.5.0",
     "typer>=0.9,!=0.12,<1",
-    "typing-extensions>=4.8.0,<4.12.1; python_version < '3.9'",
-    "typing-extensions>=4.8.0; python_version >= '3.9'",
+    "typing-extensions>=4.8.0",
 ]
 
 [project.optional-dependencies]
@@ -112,7 +111,7 @@ types = [
 
 lint = [
     "faststream[types]",
-    "ruff==0.4.7",
+    "ruff==0.4.8",
     "bandit==1.7.8",
     "semgrep==1.74.0",
     "codespell==2.3.0",
@@ -123,6 +122,7 @@ test-core = [
     "pytest==8.2.1",
     "pytest-asyncio==0.23.7",
     "dirty-equals==0.7.1.post0",
+    "typing-extensions>=4.8.0,<4.12.1; python_version < '3.9'",  # to fix dirty-equals
 ]
 
 testing = [

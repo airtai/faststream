@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type
 
 from faststream.broker.message import decode_message, gen_cor_id
 from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
@@ -15,14 +15,17 @@ if TYPE_CHECKING:
 class AioKafkaParser:
     """A class to parse Kafka messages."""
 
-    @staticmethod
+    def __init__(self, msg_class: Type[KafkaMessage]) -> None:
+        self.msg_class = msg_class
+
     async def parse_message(
+        self,
         message: "ConsumerRecord",
     ) -> "StreamMessage[ConsumerRecord]":
         """Parses a Kafka message."""
         headers = {i: j.decode() for i, j in message.headers}
-        handler: Optional[LogicSubscriber[Any]] = context.get_local("handler_")
-        return KafkaMessage(
+        handler: Optional["LogicSubscriber[Any]"] = context.get_local("handler_")
+        return self.msg_class(
             body=message.value,
             headers=headers,
             reply_to=headers.get("reply_to", ""),
@@ -31,11 +34,19 @@ class AioKafkaParser:
             correlation_id=headers.get("correlation_id", gen_cor_id()),
             raw_message=message,
             consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
-            is_manual=getattr(handler, "is_manual", True),
         )
 
-    @staticmethod
-    async def parse_message_batch(
+    async def decode_message(
+        self,
+        msg: "StreamMessage[ConsumerRecord]",
+    ) -> "DecodedMessage":
+        """Decodes a message."""
+        return decode_message(msg)
+
+
+class AioKafkaBatchParser(AioKafkaParser):
+    async def parse_message(
+        self,
         message: Tuple["ConsumerRecord", ...],
     ) -> "StreamMessage[Tuple[ConsumerRecord, ...]]":
         """Parses a batch of messages from a Kafka consumer."""
@@ -53,7 +64,7 @@ class AioKafkaParser:
 
         handler: Optional[LogicSubscriber[Any]] = context.get_local("handler_")
 
-        return KafkaMessage(
+        return self.msg_class(
             body=body,
             headers=headers,
             batch_headers=batch_headers,
@@ -63,18 +74,14 @@ class AioKafkaParser:
             correlation_id=headers.get("correlation_id", gen_cor_id()),
             raw_message=message,
             consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
-            is_manual=getattr(handler, "is_manual", True),
         )
 
-    @staticmethod
-    async def decode_message(msg: "StreamMessage[ConsumerRecord]") -> "DecodedMessage":
-        """Decodes a message."""
-        return decode_message(msg)
-
-    @classmethod
-    async def decode_message_batch(
-        cls,
+    async def decode_message(
+        self,
         msg: "StreamMessage[Tuple[ConsumerRecord, ...]]",
     ) -> "DecodedMessage":
         """Decode a batch of messages."""
-        return [decode_message(await cls.parse_message(m)) for m in msg.raw_message]
+        return [
+            decode_message(await super(AioKafkaBatchParser, self).parse_message(m))
+            for m in msg.raw_message
+        ]

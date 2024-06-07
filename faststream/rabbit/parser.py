@@ -50,8 +50,8 @@ class AioPikaParser:
             raw_message=message,
         )
 
-    @staticmethod
     async def decode_message(
+        self,
         msg: StreamMessage["IncomingMessage"],
     ) -> "DecodedMessage":
         """Decode a message."""
