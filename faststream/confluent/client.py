@@ -117,7 +117,7 @@ class AsyncConfluentProducer:
     ) -> None:
         self.logger = logger
 
-        self.config = {} if config is None else config
+        self.config: Dict[str, Any] = {} if config is None else dict(config)
 
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
@@ -317,7 +317,7 @@ class AsyncConfluentConsumer:
     ) -> None:
         self.logger = logger
 
-        self.config = {} if config is None else config
+        self.config: Dict[str, Any] = {} if config is None else dict(config)
 
         if group_id is None:
             group_id = "confluent-kafka-consumer-group"
