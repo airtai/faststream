@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from docs.docs_src.confluent.security.ssl_warning import test_without_ssl_warning
+from faststream.exceptions import SetupError
 
 __all__ = ["test_without_ssl_warning"]
 
@@ -50,13 +51,16 @@ async def test_base_security_pass_ssl_context():
 
     basic_broker = KafkaBroker("localhost:9092", security=security)
 
+    with patch_aio_consumer_and_producer(), pytest.raises(
+        SetupError, match="not supported"
+    ) as e:
+        async with basic_broker:
+            pass
 
-    with patch_aio_consumer_and_producer() as producer:
-        with pytest.raises(ValueError) as e:
-            async with basic_broker:
-                pass
-
-    assert str(e.value) == "ssl_context in not supported by confluent-kafka-python, please use config instead."
+    assert (
+        str(e.value)
+        == "ssl_context in not supported by confluent-kafka-python, please use config instead."
+    )
 
 
 @pytest.mark.asyncio()

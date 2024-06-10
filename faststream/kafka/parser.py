@@ -24,7 +24,7 @@ class AioKafkaParser:
     ) -> "StreamMessage[ConsumerRecord]":
         """Parses a Kafka message."""
         headers = {i: j.decode() for i, j in message.headers}
-        handler: Optional["LogicSubscriber[Any]"] = context.get_local("handler_")
+        handler: Optional[LogicSubscriber[Any]] = context.get_local("handler_")
         return self.msg_class(
             body=message.value,
             headers=headers,

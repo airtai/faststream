@@ -2,6 +2,7 @@ import ssl
 import warnings
 from typing import TYPE_CHECKING, Optional
 
+from faststream.exceptions import SetupError
 from faststream.security import (
     BaseSecurity,
     SASLPlaintext,
@@ -16,7 +17,9 @@ if TYPE_CHECKING:
 
 def parse_security(security: Optional[BaseSecurity]) -> "AnyDict":
     if security and isinstance(security.ssl_context, ssl.SSLContext):
-        raise ValueError("ssl_context in not supported by confluent-kafka-python, please use config instead.")
+        raise SetupError(
+            "ssl_context in not supported by confluent-kafka-python, please use config instead."
+        )
 
     if security is None:
         return {}

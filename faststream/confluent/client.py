@@ -18,6 +18,7 @@ from confluent_kafka.admin import AdminClient, NewTopic
 from pydantic import BaseModel
 from typing_extensions import Annotated, Doc
 
+from faststream.confluent.config import ConfluentConfig
 from faststream.log import logger
 from faststream.utils.functions import call_or_await
 
@@ -108,7 +109,7 @@ class AsyncConfluentProducer:
         sasl_kerberos_service_name: str = "kafka",
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
-        config: Optional[Dict[str, Any]] = None,
+        config: Optional[ConfluentConfig] = None,
         logger: Annotated[
             Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
@@ -308,7 +309,7 @@ class AsyncConfluentConsumer:
         sasl_kerberos_service_name: str = "kafka",
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
-        config: Optional[Dict[str, Any]] = None,
+        config: Optional[ConfluentConfig] = None,
         logger: Annotated[
             Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),

@@ -28,6 +28,7 @@ from faststream.confluent.client import (
     AsyncConfluentProducer,
     _missing,
 )
+from faststream.confluent.config import ConfluentConfig
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
@@ -129,7 +130,7 @@ class KafkaBroker(
             ),
         ] = SERVICE_NAME,
         config: Annotated[
-            Optional[Dict[str, Any]],
+            Optional[ConfluentConfig],
             Doc("""
                 Extra configuration for the confluent-kafka-python
                 producer/consumer. See `confluent_kafka.Config <https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#kafka-client-configuration>`_.
