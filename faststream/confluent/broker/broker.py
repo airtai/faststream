@@ -111,11 +111,6 @@ class KafkaBroker(
             """
             ),
         ] = 9 * 60 * 1000,
-        sasl_kerberos_service_name: str = "kafka",
-        sasl_kerberos_domain_name: Optional[str] = None,
-        sasl_oauth_token_provider: Annotated[
-            Optional[str], Doc("OAuthBearer token provider.")
-        ] = None,
         loop: Optional[AbstractEventLoop] = None,
         client_id: Annotated[
             Optional[str],
@@ -168,14 +163,6 @@ class KafkaBroker(
             """
             ),
         ] = _missing,
-        key_serializer: Annotated[
-            Optional[Callable[[Any], bytes]],
-            Doc("Used to convert user-supplied keys to bytes."),
-        ] = None,
-        value_serializer: Annotated[
-            Optional[Callable[[Any], bytes]],
-            Doc("used to convert user-supplied message values to bytes."),
-        ] = None,
         compression_type: Annotated[
             Optional[Literal["gzip", "snappy", "lz4", "zstd"]],
             Doc(
@@ -187,15 +174,6 @@ class KafkaBroker(
             """
             ),
         ] = None,
-        max_batch_size: Annotated[
-            int,
-            Doc(
-                """
-            Maximum size of buffered data per partition.
-            After this amount `send` coroutine will block until batch is drained.
-            """
-            ),
-        ] = 16 * 1024,
         partitioner: Annotated[
             Union[
                 str,
@@ -244,7 +222,6 @@ class KafkaBroker(
             """
             ),
         ] = 0,
-        send_backoff_ms: int = 100,
         enable_idempotence: Annotated[
             bool,
             Doc(
@@ -370,25 +347,17 @@ class KafkaBroker(
             bootstrap_servers=servers,
             # both args
             client_id=client_id,
-            api_version=protocol_version,
             request_timeout_ms=request_timeout_ms,
             retry_backoff_ms=retry_backoff_ms,
             metadata_max_age_ms=metadata_max_age_ms,
             connections_max_idle_ms=connections_max_idle_ms,
-            sasl_kerberos_service_name=sasl_kerberos_service_name,
-            sasl_kerberos_domain_name=sasl_kerberos_domain_name,
-            sasl_oauth_token_provider=sasl_oauth_token_provider,
             loop=loop,
             # publisher args
             acks=acks,
-            key_serializer=key_serializer,
-            value_serializer=value_serializer,
             compression_type=compression_type,
-            max_batch_size=max_batch_size,
             partitioner=partitioner,
             max_request_size=max_request_size,
             linger_ms=linger_ms,
-            send_backoff_ms=send_backoff_ms,
             enable_idempotence=enable_idempotence,
             transactional_id=transactional_id,
             transaction_timeout_ms=transaction_timeout_ms,
