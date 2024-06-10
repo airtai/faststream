@@ -33,14 +33,30 @@ async def test_base_security():
             producer_call_kwargs = producer.call_args.kwargs
 
             call_kwargs = {}
-            call_kwargs["security_protocol"] = "SSL"
 
             assert call_kwargs.items() <= producer_call_kwargs.items()
 
-            assert (
-                producer_call_kwargs["security_protocol"]
-                == call_kwargs["security_protocol"]
-            )
+
+@pytest.mark.asyncio()
+@pytest.mark.confluent()
+async def test_base_security_pass_ssl_context():
+    import ssl
+
+    from faststream.confluent import KafkaBroker
+    from faststream.security import BaseSecurity
+
+    ssl_context = ssl.create_default_context()
+    security = BaseSecurity(ssl_context=ssl_context)
+
+    basic_broker = KafkaBroker("localhost:9092", security=security)
+
+
+    with patch_aio_consumer_and_producer() as producer:
+        with pytest.raises(ValueError) as e:
+            async with basic_broker:
+                pass
+
+    assert str(e.value) == "ssl_context in not supported by confluent-kafka-python, please use config instead."
 
 
 @pytest.mark.asyncio()

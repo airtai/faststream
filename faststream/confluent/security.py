@@ -1,3 +1,4 @@
+import ssl
 import warnings
 from typing import TYPE_CHECKING, Optional
 
@@ -14,6 +15,9 @@ if TYPE_CHECKING:
 
 
 def parse_security(security: Optional[BaseSecurity]) -> "AnyDict":
+    if security and isinstance(security.ssl_context, ssl.SSLContext):
+        raise ValueError("ssl_context in not supported by confluent-kafka-python, please use config instead.")
+
     if security is None:
         return {}
     elif type(security) == BaseSecurity:
@@ -35,7 +39,7 @@ def _parse_base_security(security: BaseSecurity) -> "AnyDict":
 
 
 def _parse_sasl_plaintext(security: SASLPlaintext) -> "AnyDict":
-    if security.ssl_context is None:
+    if not security.use_ssl:
         warnings.warn(
             message=ssl_not_set_error_msg,
             category=RuntimeWarning,
