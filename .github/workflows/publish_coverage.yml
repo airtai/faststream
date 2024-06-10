@@ -19,7 +19,7 @@ jobs:
 
       - run: pip install smokeshow
 
-      - uses: dawidd6/action-download-artifact@v3.1.4  # nosemgrep
+      - uses: dawidd6/action-download-artifact@v5  # nosemgrep
         with:
           workflow: pr_tests.yaml
           workflow_conclusion: success

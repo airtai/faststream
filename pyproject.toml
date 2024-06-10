@@ -79,7 +79,7 @@ otel = ["opentelemetry-sdk>=1.24.0,<2.0.0"]
 optionals = ["faststream[rabbit,kafka,confluent,nats,redis,otel]"]
 
 devdocs = [
-    "mkdocs-material==9.5.25",
+    "mkdocs-material==9.5.26",
     "mkdocs-static-i18n==1.2.3",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.25.1",
@@ -113,13 +113,13 @@ lint = [
     "faststream[types]",
     "ruff==0.4.8",
     "bandit==1.7.8",
-    "semgrep==1.74.0",
+    "semgrep==1.75.0",
     "codespell==2.3.0",
 ]
 
 test-core = [
     "coverage[toml]==7.5.3",
-    "pytest==8.2.1",
+    "pytest==8.2.2",
     "pytest-asyncio==0.23.7",
     "dirty-equals==0.7.1.post0",
     "typing-extensions>=4.8.0,<4.12.1; python_version < '3.9'",  # to fix dirty-equals
