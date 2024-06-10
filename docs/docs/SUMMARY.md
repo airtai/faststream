@@ -540,6 +540,7 @@ search:
                 - message
                     - [ConsumerProtocol](api/faststream/kafka/message/ConsumerProtocol.md)
                     - [FakeConsumer](api/faststream/kafka/message/FakeConsumer.md)
+                    - [KafkaAckableMessage](api/faststream/kafka/message/KafkaAckableMessage.md)
                     - [KafkaMessage](api/faststream/kafka/message/KafkaMessage.md)
                 - opentelemetry
                     - [KafkaTelemetryMiddleware](api/faststream/kafka/opentelemetry/KafkaTelemetryMiddleware.md)
@@ -551,6 +552,7 @@ search:
                         - [KafkaTelemetrySettingsProvider](api/faststream/kafka/opentelemetry/provider/KafkaTelemetrySettingsProvider.md)
                         - [telemetry_attributes_provider_factory](api/faststream/kafka/opentelemetry/provider/telemetry_attributes_provider_factory.md)
                 - parser
+                    - [AioKafkaBatchParser](api/faststream/kafka/parser/AioKafkaBatchParser.md)
                     - [AioKafkaParser](api/faststream/kafka/parser/AioKafkaParser.md)
                 - publisher
                     - asyncapi

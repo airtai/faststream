@@ -41,8 +41,8 @@ class NatsBaseParser:
 
         return path
 
-    @staticmethod
     async def decode_message(
+        self,
         msg: "StreamMessage[Any]",
     ) -> "DecodedMessage":
         return decode_message(msg)

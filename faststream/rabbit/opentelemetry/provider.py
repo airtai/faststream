@@ -32,8 +32,8 @@ class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage
             MESSAGING_DESTINATION_PUBLISH_NAME: msg.raw_message.exchange,
         }
 
-    @staticmethod
     def get_consume_destination_name(
+        self,
         msg: "StreamMessage[IncomingMessage]",
     ) -> str:
         exchange = msg.raw_message.exchange or "default"
@@ -53,8 +53,8 @@ class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: kwargs["correlation_id"],
         }
 
-    @staticmethod
     def get_publish_destination_name(
+        self,
         kwargs: "AnyDict",
     ) -> str:
         exchange: str = kwargs.get("exchange") or "default"

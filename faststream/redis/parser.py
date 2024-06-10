@@ -152,8 +152,8 @@ class SimpleParser:
             correlation_id=headers.get("correlation_id", id_),
         )
 
-    @staticmethod
     def _parse_data(
+        self,
         message: Mapping[str, Any],
     ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
         return (*RawMessage.parse(message["data"]), [])
@@ -169,8 +169,8 @@ class SimpleParser:
         else:
             return {}
 
-    @staticmethod
     async def decode_message(
+        self,
         msg: "StreamMessage[MsgType]",
     ) -> DecodedMessage:
         return decode_message(msg)
@@ -187,8 +187,8 @@ class RedisListParser(SimpleParser):
 class RedisBatchListParser(SimpleParser):
     msg_class = RedisBatchListMessage
 
-    @staticmethod
     def _parse_data(
+        self,
         message: Mapping[str, Any],
     ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
         body: List[Any] = []
@@ -225,8 +225,8 @@ class RedisStreamParser(SimpleParser):
 class RedisBatchStreamParser(SimpleParser):
     msg_class = RedisBatchStreamMessage
 
-    @staticmethod
     def _parse_data(
+        self,
         message: Mapping[str, Any],
     ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
         body: List[Any] = []

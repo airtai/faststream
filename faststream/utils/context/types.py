@@ -58,10 +58,6 @@ class Context(CustomField):
 
         Returns:
             A dictionary containing the updated keyword arguments
-
-        Raises:
-            KeyError: If the parameter name is not found in the keyword arguments
-            AttributeError: If the parameter name is not a valid attribute
         """
         name = f"{self.prefix}{self.name or self.param_name}"
 

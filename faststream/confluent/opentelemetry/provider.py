@@ -37,8 +37,8 @@ class BaseConfluentTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType])
 
         return attrs
 
-    @staticmethod
     def get_publish_destination_name(
+        self,
         kwargs: "AnyDict",
     ) -> str:
         return cast(str, kwargs["topic"])
@@ -66,8 +66,8 @@ class ConfluentTelemetrySettingsProvider(
 
         return attrs
 
-    @staticmethod
     def get_consume_destination_name(
+        self,
         msg: "StreamMessage[Message]",
     ) -> str:
         return cast(str, msg.raw_message.topic())
@@ -95,8 +95,8 @@ class BatchConfluentTelemetrySettingsProvider(
 
         return attrs
 
-    @staticmethod
     def get_consume_destination_name(
+        self,
         msg: "StreamMessage[Tuple[Message, ...]]",
     ) -> str:
         return cast(str, msg.raw_message[0].topic())
