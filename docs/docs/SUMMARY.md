@@ -65,6 +65,7 @@ search:
         - [Acknowledgement](confluent/ack.md)
         - [Message Information](confluent/message.md)
         - [Security Configuration](confluent/security.md)
+        - [Additional Configuration](confluent/additional-configuration.md)
 - [RabbitMQ](rabbit/index.md)
     - [Subscription](rabbit/examples/index.md)
         - [Direct](rabbit/examples/direct.md)
