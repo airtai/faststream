@@ -12,6 +12,28 @@ hide:
 ---
 
 # Release Notes
+## 0.5.12
+
+### What's Changed
+
+Now, `FastStream` provides users with the ability to pass the `config` dictionary to `confluent-kafka-python` for greater customizability. The following example sets the parameter `topic.metadata.refresh.fast.interval.ms`'s value to `300` instead of the default value `100` via the `config` parameter.
+
+```python
+from faststream import FastStream
+from faststream.confluent import KafkaBroker
+
+config = {"topic.metadata.refresh.fast.interval.ms": 300}
+broker = KafkaBroker("localhost:9092", config=config)
+app = FastStream(broker)
+```
+
+* Update Release Notes for 0.5.11 by @faststream-release-notes-updater in [#1511](https://github.com/airtai/faststream/pull/1511){.external-link target="_blank"}
+* docs: update filters example by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1516](https://github.com/airtai/faststream/pull/1516){.external-link target="_blank"}
+* Add config param to pass additional parameters to confluent-kafka-python by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1505](https://github.com/airtai/faststream/pull/1505){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.11...0.5.12](https://github.com/airtai/faststream/compare/0.5.11...0.5.12){.external-link target="_blank"}
+
 ## 0.5.11
 
 ### What's Changed
