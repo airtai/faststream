@@ -215,10 +215,12 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
                 for subject in (self.config.filter_subjects or ())
             ]
 
+    @cached_property
+    def _resolved_subject_string(self) -> str:
+        return self.subject or ", ".join(self.config.filter_subjects or ())
+
     def __hash__(self) -> int:
-        return self.get_routing_hash(
-            self.subject or "".join(self.config.filter_subjects or ())
-        )
+        return self.get_routing_hash(self._resolved_subject_string)
 
     @staticmethod
     def get_routing_hash(
@@ -558,7 +560,7 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
         """Log context factory using in `self.consume` scope."""
         return self.build_log_context(
             message=message,
-            subject=self.subject or ", ".join(self.config.filter_subjects or ()),
+            subject=self._resolved_subject_string,
             queue=self.queue,
             stream=self.stream.name,
         )

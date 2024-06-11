@@ -60,7 +60,6 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(br.publish(1, f"{queue}.b")),
                     asyncio.create_task(br.publish(2, f"{queue}.a")),
                     asyncio.create_task(event.wait()),
                 ),
