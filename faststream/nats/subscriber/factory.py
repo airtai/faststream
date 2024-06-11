@@ -80,6 +80,9 @@ def create_subscriber(
     if pull_sub is not None and stream is None:
         raise SetupError("Pull subscriber can be used only with a stream")
 
+    if not subject and not config:
+        raise SetupError("You must provide either `subject` or `config` option.")
+
     if stream:
         # TODO: pull & queue warning
         # TODO: push & durable warning
