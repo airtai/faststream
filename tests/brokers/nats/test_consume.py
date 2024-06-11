@@ -1,11 +1,11 @@
 import asyncio
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 from nats.aio.msg import Msg
 
 from faststream.exceptions import AckMessage
-from faststream.nats import JStream, NatsBroker, PullSub
+from faststream.nats import ConsumerConfig, JStream, NatsBroker, PullSub
 from faststream.nats.annotations import NatsMessage
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
@@ -39,6 +39,36 @@ class TestConsume(BrokerRealConsumeTestcase):
             )
 
         assert event.is_set()
+
+    async def test_consume_with_filter(
+        self,
+        queue,
+        mock: Mock,
+        event: asyncio.Event,
+    ):
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(
+            config=ConsumerConfig(filter_subjects=[f"{queue}.a"]),
+            stream=JStream(queue, subjects=[f"{queue}.*"]),
+        )
+        def subscriber(m):
+            mock(m)
+            event.set()
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish(1, f"{queue}.b")),
+                    asyncio.create_task(br.publish(2, f"{queue}.a")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_once_with(2)
 
     async def test_consume_pull(
         self,
