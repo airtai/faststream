@@ -4,6 +4,7 @@ from nats.aio.subscription import (
     DEFAULT_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_SUB_PENDING_MSGS_LIMIT,
 )
+from nats.js.api import ConsumerConfig
 from nats.js.client import (
     DEFAULT_JS_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
@@ -80,6 +81,11 @@ def create_subscriber(
     if pull_sub is not None and stream is None:
         raise SetupError("Pull subscriber can be used only with a stream")
 
+    if not subject and not config:
+        raise SetupError("You must provide either `subject` or `config` option.")
+
+    config = config or ConsumerConfig(filter_subjects=[])
+
     if stream:
         # TODO: pull & queue warning
         # TODO: push & durable warning
@@ -91,7 +97,6 @@ def create_subscriber(
             or DEFAULT_JS_SUB_PENDING_BYTES_LIMIT,
             "durable": durable,
             "stream": stream.name,
-            "config": config,
         }
 
         if pull_sub is not None:
@@ -120,6 +125,7 @@ def create_subscriber(
     if obj_watch is not None:
         return AsyncAPIObjStoreWatchSubscriber(
             subject=subject,
+            config=config,
             obj_watch=obj_watch,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -131,6 +137,7 @@ def create_subscriber(
     if kv_watch is not None:
         return AsyncAPIKeyValueWatchSubscriber(
             subject=subject,
+            config=config,
             kv_watch=kv_watch,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -144,6 +151,7 @@ def create_subscriber(
             return AsyncAPIConcurrentCoreSubscriber(
                 max_workers=max_workers,
                 subject=subject,
+                config=config,
                 queue=queue,
                 # basic args
                 extra_options=extra_options,
@@ -162,6 +170,7 @@ def create_subscriber(
         else:
             return AsyncAPICoreSubscriber(
                 subject=subject,
+                config=config,
                 queue=queue,
                 # basic args
                 extra_options=extra_options,
@@ -185,6 +194,7 @@ def create_subscriber(
                     pull_sub=pull_sub,
                     stream=stream,
                     subject=subject,
+                    config=config,
                     # basic args
                     extra_options=extra_options,
                     # Subscriber args
@@ -204,6 +214,7 @@ def create_subscriber(
                     max_workers=max_workers,
                     stream=stream,
                     subject=subject,
+                    config=config,
                     queue=queue,
                     # basic args
                     extra_options=extra_options,
@@ -226,6 +237,7 @@ def create_subscriber(
                         pull_sub=pull_sub,
                         stream=stream,
                         subject=subject,
+                        config=config,
                         # basic args
                         extra_options=extra_options,
                         # Subscriber args
@@ -245,6 +257,7 @@ def create_subscriber(
                         pull_sub=pull_sub,
                         stream=stream,
                         subject=subject,
+                        config=config,
                         # basic args
                         extra_options=extra_options,
                         # Subscriber args
@@ -264,6 +277,7 @@ def create_subscriber(
                     stream=stream,
                     subject=subject,
                     queue=queue,
+                    config=config,
                     # basic args
                     extra_options=extra_options,
                     # Subscriber args

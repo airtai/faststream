@@ -20,7 +20,7 @@ from typing import (
 import anyio
 from fast_depends.dependencies import Depends
 from nats.errors import ConnectionClosedError, TimeoutError
-from nats.js.api import ObjectInfo
+from nats.js.api import ConsumerConfig, ObjectInfo
 from nats.js.kv import KeyValue
 from typing_extensions import Annotated, Doc, override
 
@@ -73,6 +73,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         self,
         *,
         subject: str,
+        config: "ConsumerConfig",
         extra_options: Optional[AnyDict],
         # Subscriber args
         default_parser: "AsyncCallable",
@@ -88,6 +89,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         include_in_schema: bool,
     ) -> None:
         self.subject = subject
+        self.config = config
 
         self.extra_options = extra_options or {}
 
@@ -205,10 +207,20 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
 
     def add_prefix(self, prefix: str) -> None:
         """Include Subscriber in router."""
-        self.subject = "".join((prefix, self.subject))
+        if self.subject:
+            self.subject = "".join((prefix, self.subject))
+        else:
+            self.config.filter_subjects = [
+                "".join((prefix, subject))
+                for subject in (self.config.filter_subjects or ())
+            ]
+
+    @cached_property
+    def _resolved_subject_string(self) -> str:
+        return self.subject or ", ".join(self.config.filter_subjects or ())
 
     def __hash__(self) -> int:
-        return self.get_routing_hash(self.subject)
+        return self.get_routing_hash(self._resolved_subject_string)
 
     @staticmethod
     def get_routing_hash(
@@ -229,6 +241,7 @@ class _DefaultSubscriber(LogicSubscriber[MsgType]):
         self,
         *,
         subject: str,
+        config: "ConsumerConfig",
         # default args
         extra_options: Optional[AnyDict],
         # Subscriber args
@@ -246,6 +259,7 @@ class _DefaultSubscriber(LogicSubscriber[MsgType]):
     ) -> None:
         super().__init__(
             subject=subject,
+            config=config,
             extra_options=extra_options,
             # subscriber args
             default_parser=default_parser,
@@ -368,6 +382,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         *,
         # default args
         subject: str,
+        config: "ConsumerConfig",
         queue: str,
         extra_options: Optional[AnyDict],
         # Subscriber args
@@ -387,6 +402,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
 
         super().__init__(
             subject=subject,
+            config=config,
             extra_options=extra_options,
             # subscriber args
             default_parser=parser_.parse_message,
@@ -439,6 +455,7 @@ class ConcurrentCoreSubscriber(_ConcurrentMixin, CoreSubscriber):
         max_workers: int,
         # default args
         subject: str,
+        config: "ConsumerConfig",
         queue: str,
         extra_options: Optional[AnyDict],
         # Subscriber args
@@ -456,6 +473,7 @@ class ConcurrentCoreSubscriber(_ConcurrentMixin, CoreSubscriber):
             max_workers=max_workers,
             # basic args
             subject=subject,
+            config=config,
             queue=queue,
             extra_options=extra_options,
             # Propagated args
@@ -494,6 +512,7 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
         stream: "JStream",
         # default args
         subject: str,
+        config: "ConsumerConfig",
         queue: str,
         extra_options: Optional[AnyDict],
         # Subscriber args
@@ -514,6 +533,7 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
 
         super().__init__(
             subject=subject,
+            config=config,
             extra_options=extra_options,
             # subscriber args
             default_parser=parser_.parse_message,
@@ -540,7 +560,7 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
         """Log context factory using in `self.consume` scope."""
         return self.build_log_context(
             message=message,
-            subject=self.subject,
+            subject=self._resolved_subject_string,
             queue=self.queue,
             stream=self.stream.name,
         )
@@ -560,6 +580,7 @@ class PushStreamSubscription(_StreamSubscriber):
             subject=self.clear_subject,
             queue=self.queue,
             cb=self.consume,
+            config=self.config,
             **self.extra_options,
         )
 
@@ -574,6 +595,7 @@ class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
         stream: "JStream",
         # default args
         subject: str,
+        config: "ConsumerConfig",
         queue: str,
         extra_options: Optional[AnyDict],
         # Subscriber args
@@ -592,6 +614,7 @@ class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
             # basic args
             stream=stream,
             subject=subject,
+            config=config,
             queue=queue,
             extra_options=extra_options,
             # Propagated args
@@ -619,6 +642,7 @@ class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
             subject=self.clear_subject,
             queue=self.queue,
             cb=self._put_msg,
+            config=self.config,
             **self.extra_options,
         )
 
@@ -633,6 +657,7 @@ class PullStreamSubscriber(_TasksMixin, _StreamSubscriber):
         stream: "JStream",
         # default args
         subject: str,
+        config: "ConsumerConfig",
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
@@ -651,6 +676,7 @@ class PullStreamSubscriber(_TasksMixin, _StreamSubscriber):
             # basic args
             stream=stream,
             subject=subject,
+            config=config,
             extra_options=extra_options,
             queue="",
             # Propagated args
@@ -708,6 +734,7 @@ class ConcurrentPullStreamSubscriber(_ConcurrentMixin, PullStreamSubscriber):
         pull_sub: "PullSub",
         stream: "JStream",
         subject: str,
+        config: "ConsumerConfig",
         extra_options: Optional[AnyDict],
         # Subscriber args
         no_ack: bool,
@@ -726,6 +753,7 @@ class ConcurrentPullStreamSubscriber(_ConcurrentMixin, PullStreamSubscriber):
             pull_sub=pull_sub,
             stream=stream,
             subject=subject,
+            config=config,
             extra_options=extra_options,
             # Propagated args
             no_ack=no_ack,
@@ -765,6 +793,7 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
         *,
         # default args
         subject: str,
+        config: "ConsumerConfig",
         stream: "JStream",
         pull_sub: "PullSub",
         extra_options: Optional[AnyDict],
@@ -786,6 +815,7 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
 
         super().__init__(
             subject=subject,
+            config=config,
             extra_options=extra_options,
             # subscriber args
             default_parser=parser.parse_batch,
@@ -837,6 +867,7 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
         self,
         *,
         subject: str,
+        config: "ConsumerConfig",
         kv_watch: "KvWatch",
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[KeyValue.Entry]"],
@@ -850,6 +881,7 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
 
         super().__init__(
             subject=subject,
+            config=config,
             extra_options=None,
             no_ack=True,
             no_reply=True,
@@ -941,6 +973,7 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
         self,
         *,
         subject: str,
+        config: "ConsumerConfig",
         obj_watch: "ObjWatch",
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[List[Msg]]"],
@@ -955,6 +988,7 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
 
         super().__init__(
             subject=subject,
+            config=config,
             extra_options=None,
             no_ack=True,
             no_reply=True,

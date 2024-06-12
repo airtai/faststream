@@ -42,7 +42,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         subject: Annotated[
             str,
             Doc("NATS subject to subscribe."),
-        ],
+        ] = "",
         queue: Annotated[
             str,
             Doc(
@@ -209,7 +209,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
 
         You can use it as a handler decorator `@broker.subscriber(...)`.
         """
-        if stream := self._stream_builder.create(stream):
+        if (stream := self._stream_builder.create(stream)) and subject:
             stream.add_subject(subject)
 
         subscriber = cast(
@@ -323,7 +323,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
 
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
-        if stream := self._stream_builder.create(stream):
+        if (stream := self._stream_builder.create(stream)) and subject:
             stream.add_subject(subject)
 
         publisher = cast(
