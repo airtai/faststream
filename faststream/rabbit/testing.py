@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock
 
 import aiormq
 from aio_pika.message import IncomingMessage
+from aio_pika.pool import Pool
 from pamqp import commands as spec
 from pamqp.header import ContentHeader
 from typing_extensions import override
@@ -13,11 +14,7 @@ from faststream.rabbit.broker.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.asyncapi import AsyncAPIPublisher
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
-from faststream.rabbit.schemas import (
-    ExchangeType,
-    RabbitExchange,
-    RabbitQueue,
-)
+from faststream.rabbit.schemas import ExchangeType, RabbitExchange, RabbitQueue
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.testing.broker import TestBroker, call_handler
 
@@ -35,7 +32,7 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
 
     @classmethod
     def _patch_test_broker(cls, broker: RabbitBroker) -> None:
-        broker._channel = AsyncMock()
+        broker._channel_pool = AsyncMock(Pool)
         broker.declarer = AsyncMock()
         super()._patch_test_broker(broker)
 

@@ -8,5 +8,7 @@ from faststream.rabbit import RabbitBroker
 async def test_set_max():
     broker = RabbitBroker(logger=None, max_consumers=10)
     await broker.start()
-    assert broker._channel._prefetch_count == 10
+    assert broker._channel_pool
+    async with broker._channel_pool.acquire() as channel:
+        assert channel._prefetch_count == 10
     await broker.close()
