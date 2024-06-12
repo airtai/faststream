@@ -1,3 +1,4 @@
+from aiokafka import AIOKafkaConsumer
 from typing_extensions import Annotated
 
 from faststream.annotations import ContextRepo, Logger, NoCast
@@ -15,6 +16,7 @@ __all__ = (
     "KafkaProducer",
 )
 
+Consumer = Annotated[AIOKafkaConsumer, Context("handler_.consumer")]
 KafkaMessage = Annotated[KM, Context("message")]
 KafkaBroker = Annotated[KB, Context("broker")]
 KafkaProducer = Annotated[AioKafkaFastProducer, Context("broker._producer")]

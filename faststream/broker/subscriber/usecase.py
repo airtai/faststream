@@ -21,7 +21,7 @@ from typing_extensions import Self, override
 from faststream.asyncapi.abc import AsyncAPIOperation
 from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.utils import to_camelcase
-from faststream.broker.publisher.proto import ProducerProto
+from faststream.broker.response import Response
 from faststream.broker.subscriber.call_item import HandlerItem
 from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.types import (
@@ -40,6 +40,7 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.middlewares import BaseMiddleware
+    from faststream.broker.publisher.proto import BasePublisherProto, ProducerProto
     from faststream.broker.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -86,13 +87,14 @@ class SubscriberUsecase(
     extra_context: "AnyDict"
     graceful_timeout: Optional[float]
 
-    _broker_dependecies: Iterable["Depends"]
+    _broker_dependencies: Iterable["Depends"]
     _call_options: Optional["_CallOptions"]
 
     def __init__(
         self,
         *,
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
@@ -108,6 +110,7 @@ class SubscriberUsecase(
 
         self._default_parser = default_parser
         self._default_decoder = default_decoder
+        self._no_reply = no_reply
         # Watcher args
         self._no_ack = no_ack
         self._retry = retry
@@ -117,7 +120,7 @@ class SubscriberUsecase(
         self.lock = sync_fake_context()
 
         # Setup in include
-        self._broker_dependecies = broker_dependencies
+        self._broker_dependencies = broker_dependencies
         self._broker_middlewares = broker_middlewares
 
         # register in setup later
@@ -131,14 +134,17 @@ class SubscriberUsecase(
         self.description_ = description_
         self.include_in_schema = include_in_schema
 
+    def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
+        self._broker_middlewares = (*self._broker_middlewares, middleware)
+
     @override
     def setup(  # type: ignore[override]
         self,
         *,
         logger: Optional["LoggerProto"],
-        producer: Optional[ProducerProto],
+        producer: Optional["ProducerProto"],
         graceful_timeout: Optional[float],
-        extra_context: Optional["AnyDict"],
+        extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
@@ -152,7 +158,7 @@ class SubscriberUsecase(
 
         self._producer = producer
         self.graceful_timeout = graceful_timeout
-        self.extra_context = extra_context or {}
+        self.extra_context = extra_context
 
         self.watcher = get_watcher_context(logger, self._no_ack, self._retry)
 
@@ -178,7 +184,7 @@ class SubscriberUsecase(
                 is_validate=is_validate,
                 _get_dependant=_get_dependant,
                 _call_decorators=_call_decorators,
-                broker_dependencies=self._broker_dependecies,
+                broker_dependencies=self._broker_dependencies,
             )
 
             call.handler.refresh(with_mock=False)
@@ -302,7 +308,7 @@ class SubscriberUsecase(
             await stack.enter_async_context(self._stop_scope())
 
             # enter all middlewares
-            middlewares: List["BaseMiddleware"] = []
+            middlewares: List[BaseMiddleware] = []
             for base_m in self._broker_middlewares:
                 middleware = base_m(msg)
                 middlewares.append(middleware)
@@ -328,24 +334,29 @@ class SubscriberUsecase(
                     for m in middlewares:
                         stack.push_async_exit(m.__aexit__)
 
-                    result_msg = await h.call(
-                        message=message,
-                        # consumer middlewares
-                        _extra_middlewares=(m.consume_scope for m in middlewares),
+                    result_msg = Response(
+                        await h.call(
+                            message=message,
+                            # consumer middlewares
+                            _extra_middlewares=(m.consume_scope for m in middlewares),
+                        )
                     )
 
+                    if not result_msg.correlation_id:
+                        result_msg.correlation_id = message.correlation_id
+
                     for p in chain(
-                        self._make_response_publisher(message),
+                        self.__get_reponse_publisher(message),
                         h.handler._publishers,
                     ):
                         await p.publish(
-                            result_msg,
-                            correlation_id=message.correlation_id,
+                            result_msg.body,
+                            **result_msg.as_publish_kwargs(),
                             # publisher middlewares
                             _extra_middlewares=(m.publish_scope for m in middlewares),
                         )
 
-                    return result_msg
+                    return result_msg.body
 
             # Suitable handler is not founded
             for m in middlewares:
@@ -354,6 +365,16 @@ class SubscriberUsecase(
             raise AssertionError(f"There is no suitable handler for {msg=}")
 
         return None
+
+    def __get_reponse_publisher(
+        self,
+        message: "StreamMessage[MsgType]",
+    ) -> Iterable["BasePublisherProto"]:
+        if not message.reply_to or self._no_reply:
+            return ()
+
+        else:
+            return self._make_response_publisher(message)
 
     def get_log_context(
         self,
@@ -391,7 +412,7 @@ class SubscriberUsecase(
 
     def get_payloads(self) -> List[Tuple["AnyDict", str]]:
         """Get the payloads of the handler."""
-        payloads: List[Tuple["AnyDict", str]] = []
+        payloads: List[Tuple[AnyDict, str]] = []
 
         for h in self.calls:
             if h.dependant is None:

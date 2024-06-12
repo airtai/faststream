@@ -1,13 +1,15 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from unittest.mock import AsyncMock
 
 from nats.aio.msg import Msg
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
+from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.nats.broker import NatsBroker
 from faststream.nats.publisher.producer import NatsFastProducer
 from faststream.nats.schemas.js_stream import is_subject_match_wildcard
-from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.nats.subscriber.usecase import LogicSubscriber
 from faststream.testing.broker import TestBroker, call_handler
 
 if TYPE_CHECKING:
@@ -39,15 +41,21 @@ class TestNatsBroker(TestBroker[NatsBroker]):
         return sub.calls[0].handler
 
     @staticmethod
-    async def _fake_connect(broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
+    async def _fake_connect(  # type: ignore[override]
+        broker: NatsBroker,
+        *args: Any,
+        **kwargs: Any,
+    ) -> AsyncMock:
+        broker.stream = AsyncMock()  # type: ignore[assignment]
         broker._js_producer = broker._producer = FakeProducer(broker)  # type: ignore[assignment]
+        return AsyncMock()
 
     @staticmethod
     def remove_publisher_fake_subscriber(
         broker: NatsBroker, publisher: "AsyncAPIPublisher"
     ) -> None:
         broker._subscribers.pop(
-            AsyncAPISubscriber.get_routing_hash(publisher.subject), None
+            LogicSubscriber.get_routing_hash(publisher.subject), None
         )
 
 
@@ -71,6 +79,9 @@ class FakeProducer(NatsFastProducer):
         rpc_timeout: Optional[float] = None,
         raise_timeout: bool = False,
     ) -> Any:
+        if rpc and reply_to:
+            raise WRONG_PUBLISH_ARGS
+
         incoming = build_message(
             message=message,
             subject=subject,
@@ -80,12 +91,18 @@ class FakeProducer(NatsFastProducer):
         )
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if stream and getattr(handler.stream, "name", None) != stream:
+            if stream and (
+                not (handler_stream := getattr(handler, "stream", None))
+                or stream != handler_stream.name
+            ):
                 continue
 
-            if is_subject_match_wildcard(subject, handler.subject):
+            if is_subject_match_wildcard(subject, handler.clear_subject) or any(
+                is_subject_match_wildcard(subject, filter_subject)
+                for filter_subject in (handler.config.filter_subjects or ())
+            ):
                 msg: Union[List[PatchedMessage], PatchedMessage]
-                if getattr(handler.pull_sub, "batch", False):
+                if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
                     msg = [incoming]
                 else:
                     msg = incoming
@@ -131,7 +148,8 @@ class PatchedMessage(Msg):
         pass
 
     async def ack_sync(
-        self, timeout: float = 1
+        self,
+        timeout: float = 1,
     ) -> "PatchedMessage":  # pragma: no cover
         return self
 

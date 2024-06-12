@@ -39,7 +39,7 @@ class FakePublisher(BasePublisherProto):
             **kwargs,
         }
 
-        call: "AsyncFunc" = self.method
+        call: AsyncFunc = self.method
         for m in chain(_extra_middlewares, self.middlewares):
             call = partial(m, call)
 

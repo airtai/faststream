@@ -16,6 +16,7 @@ from typing import (
 from unittest.mock import AsyncMock, MagicMock
 
 from faststream.broker.core.usecase import BrokerUsecase
+from faststream.broker.message import StreamMessage, decode_message, encode_message
 from faststream.broker.middlewares.logging import CriticalLogMiddleware
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.testing.app import TestApp
@@ -68,6 +69,8 @@ class TestBroker(Generic[Broker]):
         self.connect_only = connect_only
 
     async def __aenter__(self) -> Broker:
+        # TODO: remove useless middlewares filter
+
         middlewares = tuple(
             filter(
                 lambda x: not isinstance(x, CriticalLogMiddleware),
@@ -89,7 +92,8 @@ class TestBroker(Generic[Broker]):
     async def __aexit__(self, *args: Any) -> None:
         await self._ctx.__aexit__(*args)
 
-        middlewares: Tuple["BrokerMiddleware[Any]", ...] = (
+        # TODO: remove useless middlewares filter
+        middlewares: Tuple[BrokerMiddleware[Any], ...] = (
             CriticalLogMiddleware(  # type: ignore[arg-type]
                 logger=self.broker.logger,
                 log_level=self.broker._msg_log_level,
@@ -212,6 +216,11 @@ async def call_handler(
         result = await handler.consume(message)
 
         if rpc:
-            return result
+            message_body, content_type = encode_message(result)
+            msg_to_publish = StreamMessage(
+                raw_message=None, body=message_body, content_type=content_type
+            )
+            consumed_data = decode_message(msg_to_publish)
+            return consumed_data
 
     return None

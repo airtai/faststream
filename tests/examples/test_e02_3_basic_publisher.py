@@ -1,11 +1,14 @@
 import pytest
 
-from examples.e02_3_basic_publisher import app, broker, handle, handle_response
-from faststream.rabbit import TestApp, TestRabbitBroker
+from tests.marks import require_aiopika
 
 
 @pytest.mark.asyncio()
+@require_aiopika
 async def test_example():
+    from examples.e02_3_basic_publisher import app, broker, handle, handle_response
+    from faststream.rabbit import TestApp, TestRabbitBroker
+
     async with TestRabbitBroker(broker), TestApp(app):
         await handle.wait_call(3)
         await handle_response.wait_call(3)

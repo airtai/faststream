@@ -125,7 +125,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
     ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        kwargs: "AnyDict" = {
+        kwargs: AnyDict = {
             "subject": subject or self.subject,
             "headers": headers or self.headers,
             "reply_to": reply_to or self.reply_to,
@@ -139,7 +139,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         if stream := stream or getattr(self.stream, "name", None):
             kwargs.update({"stream": stream, "timeout": timeout or self.timeout})
 
-        call: "AsyncFunc" = self._producer.publish
+        call: AsyncFunc = self._producer.publish
 
         for m in chain(
             (

@@ -1,6 +1,4 @@
-from typing import TYPE_CHECKING, Dict, Iterable, Optional, Union
-
-from typing_extensions import override
+from typing import Dict
 
 from faststream.asyncapi.schema import (
     Channel,
@@ -12,25 +10,15 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import amqp
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.rabbit.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.rabbit.utils import is_routing_exchange
-
-if TYPE_CHECKING:
-    from aio_pika import IncomingMessage
-    from fast_depends.dependencies import Depends
-
-    from faststream.broker.types import BrokerMiddleware
-    from faststream.types import AnyDict
 
 
 class AsyncAPISubscriber(LogicSubscriber):
     """AsyncAPI-compatible Rabbit Subscriber class."""
 
     def get_name(self) -> str:
-        return (
-            f"{self.queue.name}:{getattr(self.exchange, 'name', '_')}:{self.call_name}"
-        )
+        return f"{self.queue.name}:{getattr(self.exchange, 'name', None) or '_'}:{self.call_name}"
 
     def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
@@ -69,7 +57,7 @@ class AsyncAPISubscriber(LogicSubscriber):
                             else None,
                             "exchange": (
                                 amqp.Exchange(type="default", vhost=self.virtual_host)
-                                if self.exchange is None
+                                if not self.exchange.name
                                 else amqp.Exchange(
                                     type=self.exchange.type.value,  # type: ignore
                                     name=self.exchange.name,
@@ -83,36 +71,3 @@ class AsyncAPISubscriber(LogicSubscriber):
                 ),
             )
         }
-
-    @override
-    @classmethod
-    def create(  # type: ignore[override]
-        cls,
-        *,
-        queue: RabbitQueue,
-        exchange: Optional["RabbitExchange"],
-        consume_args: Optional["AnyDict"],
-        reply_config: Optional["ReplyConfig"],
-        # Subscriber args
-        no_ack: bool,
-        retry: Union[bool, int],
-        broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
-    ) -> "AsyncAPISubscriber":
-        return cls(
-            queue=queue,
-            exchange=exchange,
-            consume_args=consume_args,
-            reply_config=reply_config,
-            no_ack=no_ack,
-            retry=retry,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )

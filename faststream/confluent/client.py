@@ -1,9 +1,8 @@
 import asyncio
-from ssl import SSLContext
 from time import time
 from typing import (
+    TYPE_CHECKING,
     Any,
-    Callable,
     Dict,
     Iterable,
     List,
@@ -16,9 +15,14 @@ from typing import (
 from confluent_kafka import Consumer, KafkaError, KafkaException, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 from pydantic import BaseModel
+from typing_extensions import Annotated, Doc
 
+from faststream.confluent.config import ConfluentConfig
 from faststream.log import logger
 from faststream.utils.functions import call_or_await
+
+if TYPE_CHECKING:
+    from faststream.types import LoggerProto
 
 _missing = object()
 
@@ -82,19 +86,13 @@ class AsyncConfluentProducer:
         client_id: Optional[str] = None,
         metadata_max_age_ms: int = 300000,
         request_timeout_ms: int = 40000,
-        api_version: str = "auto",
         acks: Any = _missing,
-        key_serializer: Optional[Callable[[bytes], bytes]] = None,
-        value_serializer: Optional[Callable[[bytes], bytes]] = None,
         compression_type: Optional[str] = None,
-        max_batch_size: int = 16384,
         partitioner: str = "consistent_random",
         max_request_size: int = 1048576,
         linger_ms: int = 0,
-        send_backoff_ms: int = 100,
         retry_backoff_ms: int = 100,
         security_protocol: str = "PLAINTEXT",
-        ssl_context: Optional[SSLContext] = None,
         connections_max_idle_ms: int = 540000,
         enable_idempotence: bool = False,
         transactional_id: Optional[Union[str, int]] = None,
@@ -102,10 +100,16 @@ class AsyncConfluentProducer:
         sasl_mechanism: Optional[str] = None,
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
-        sasl_kerberos_service_name: str = "kafka",
-        sasl_kerberos_domain_name: Optional[str] = None,
-        sasl_oauth_token_provider: Optional[str] = None,
+        config: Optional[ConfluentConfig] = None,
+        logger: Annotated[
+            Union["LoggerProto", None, object],
+            Doc("User specified logger to pass into Context and log service messages."),
+        ] = logger,
     ) -> None:
+        self.logger = logger
+
+        self.config: Dict[str, Any] = {} if config is None else dict(config)
+
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
         ):
@@ -117,7 +121,7 @@ class AsyncConfluentProducer:
         if acks is _missing or acks == "all":
             acks = -1
 
-        self.config = {
+        config_from_params = {
             # "topic.metadata.refresh.interval.ms": 1000,
             "bootstrap.servers": bootstrap_servers,
             "client.id": client_id,
@@ -134,8 +138,9 @@ class AsyncConfluentProducer:
             "retry.backoff.ms": retry_backoff_ms,
             "security.protocol": security_protocol.lower(),
             "connections.max.idle.ms": connections_max_idle_ms,
-            "sasl.kerberos.service.name": sasl_kerberos_service_name,
         }
+        self.config = {**self.config, **config_from_params}
+
         if sasl_mechanism:
             self.config.update(
                 {
@@ -145,7 +150,7 @@ class AsyncConfluentProducer:
                 }
             )
 
-        self.producer = Producer(self.config)
+        self.producer = Producer(self.config, logger=self.logger)
         # self.producer.init_transactions()
         self.producer.list_topics()
         self.loop = loop or asyncio.get_event_loop()
@@ -263,13 +268,10 @@ class AsyncConfluentConsumer:
         client_id: Optional[str] = "confluent-kafka-consumer",
         group_id: Optional[str] = None,
         group_instance_id: Optional[str] = None,
-        key_deserializer: Optional[Callable[[bytes], bytes]] = None,
-        value_deserializer: Optional[Callable[[bytes], bytes]] = None,
         fetch_max_wait_ms: int = 500,
         fetch_max_bytes: int = 52428800,
         fetch_min_bytes: int = 1,
         max_partition_fetch_bytes: int = 1 * 1024 * 1024,
-        request_timeout_ms: int = 40 * 1000,
         retry_backoff_ms: int = 100,
         auto_offset_reset: str = "latest",
         enable_auto_commit: bool = True,
@@ -278,24 +280,24 @@ class AsyncConfluentConsumer:
         metadata_max_age_ms: int = 5 * 60 * 1000,
         partition_assignment_strategy: Union[str, List[Any]] = "roundrobin",
         max_poll_interval_ms: int = 300000,
-        rebalance_timeout_ms: Optional[int] = None,
         session_timeout_ms: int = 10000,
         heartbeat_interval_ms: int = 3000,
-        consumer_timeout_ms: int = 200,
-        max_poll_records: Optional[int] = None,
-        ssl_context: Optional[SSLContext] = None,
         security_protocol: str = "PLAINTEXT",
-        api_version: str = "auto",
-        exclude_internal_topics: bool = True,
         connections_max_idle_ms: int = 540000,
         isolation_level: str = "read_uncommitted",
         sasl_mechanism: Optional[str] = None,
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
-        sasl_kerberos_service_name: str = "kafka",
-        sasl_kerberos_domain_name: Optional[str] = None,
-        sasl_oauth_token_provider: Optional[str] = None,
+        config: Optional[ConfluentConfig] = None,
+        logger: Annotated[
+            Union["LoggerProto", None, object],
+            Doc("User specified logger to pass into Context and log service messages."),
+        ] = logger,
     ) -> None:
+        self.logger = logger
+
+        self.config: Dict[str, Any] = {} if config is None else dict(config)
+
         if group_id is None:
             group_id = "confluent-kafka-consumer-group"
 
@@ -313,7 +315,7 @@ class AsyncConfluentConsumer:
                     for x in partition_assignment_strategy
                 ]
             )
-        self.config = {
+        config_from_params = {
             "allow.auto.create.topics": True,
             # "topic.metadata.refresh.interval.ms": 1000,
             "bootstrap.servers": bootstrap_servers,
@@ -338,8 +340,9 @@ class AsyncConfluentConsumer:
             "security.protocol": security_protocol.lower(),
             "connections.max.idle.ms": connections_max_idle_ms,
             "isolation.level": isolation_level,
-            "sasl.kerberos.service.name": sasl_kerberos_service_name,
         }
+        self.config = {**self.config, **config_from_params}
+
         if sasl_mechanism:
             self.config.update(
                 {
@@ -352,7 +355,7 @@ class AsyncConfluentConsumer:
         self.loop = loop or asyncio.get_event_loop()
 
         create_topics(topics=self.topics, config=self.config)
-        self.consumer = Consumer(self.config)
+        self.consumer = Consumer(self.config, logger=self.logger)
 
     async def start(self) -> None:
         """Starts the Kafka consumer and subscribes to the specified topics."""

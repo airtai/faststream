@@ -33,6 +33,7 @@ from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
 from faststream.nats.broker.logging import NatsLoggingBroker
 from faststream.nats.broker.registrator import NatsRegistrator
+from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.security import parse_security
 from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
@@ -51,7 +52,10 @@ if TYPE_CHECKING:
         SignatureCallback,
     )
     from nats.aio.msg import Msg
+    from nats.js.api import Placement, RePublish, StorageType
     from nats.js.client import JetStreamContext
+    from nats.js.kv import KeyValue
+    from nats.js.object_store import ObjectStore
     from typing_extensions import TypedDict, Unpack
 
     from faststream.asyncapi import schema as asyncapi
@@ -218,6 +222,8 @@ class NatsBroker(
 
     _producer: Optional["NatsFastProducer"]
     _js_producer: Optional["NatsJSFastProducer"]
+    _kv_declarer: Optional["KVBucketDeclarer"]
+    _os_declarer: Optional["OSBucketDeclarer"]
 
     def __init__(
         self,
@@ -541,6 +547,8 @@ class NatsBroker(
         # JS options
         self.stream = None
         self._js_producer = None
+        self._kv_declarer = None
+        self._os_declarer = None
 
     @override
     async def connect(  # type: ignore[override]
@@ -556,7 +564,7 @@ class NatsBroker(
         To startup subscribers too you should use `broker.start()` after/instead this method.
         """
         if servers is not Parameter.empty:
-            connect_kwargs: "AnyDict" = {
+            connect_kwargs: AnyDict = {
                 **kwargs,
                 "servers": servers,
             }
@@ -582,6 +590,9 @@ class NatsBroker(
             decoder=self._decoder,
             parser=self._parser,
         )
+
+        self._kv_declarer = KVBucketDeclarer(stream)
+        self._os_declarer = OSBucketDeclarer(stream)
 
         return connection
 
@@ -609,44 +620,50 @@ class NatsBroker(
         assert self.stream, "Broker should be started already"  # nosec B101
         assert self._producer, "Broker should be started already"  # nosec B101
 
-        # TODO: filter by already running handlers after TestClient refactor
-        for handler in self._subscribers.values():
-            stream = handler.stream
+        for stream in filter(
+            lambda x: x.declare,
+            self._stream_builder.objects.values(),
+        ):
+            try:
+                await self.stream.add_stream(
+                    config=stream.config,
+                    subjects=stream.subjects,
+                )
 
-            log_context = handler.get_log_context(None)
+            except BadRequestError as e:  # noqa: PERF203
+                log_context = AsyncAPISubscriber.build_log_context(
+                    message=None,
+                    subject="",
+                    queue="",
+                    stream=stream.name,
+                )
 
-            if stream is not None and stream.declare:
-                try:  # pragma: no branch
-                    await self.stream.add_stream(
-                        config=stream.config,
-                        subjects=stream.subjects,
-                    )
-
-                except BadRequestError as e:
+                if (
+                    e.description
+                    == "stream name already in use with a different configuration"
+                ):
                     old_config = (await self.stream.stream_info(stream.name)).config
 
-                    if (
-                        e.description
-                        == "stream name already in use with a different configuration"
-                    ):
-                        self._log(str(e), logging.WARNING, log_context)
-                        await self.stream.update_stream(
-                            config=stream.config,
-                            subjects=tuple(
-                                set(old_config.subjects or ()).union(stream.subjects)
-                            ),
-                        )
+                    self._log(str(e), logging.WARNING, log_context)
+                    await self.stream.update_stream(
+                        config=stream.config,
+                        subjects=tuple(
+                            set(old_config.subjects or ()).union(stream.subjects)
+                        ),
+                    )
 
-                    else:  # pragma: no cover
-                        self._log(str(e), logging.ERROR, log_context, exc_info=e)
+                else:  # pragma: no cover
+                    self._log(str(e), logging.ERROR, log_context, exc_info=e)
 
-                finally:
-                    # prevent from double declaration
-                    stream.declare = False
+            finally:
+                # prevent from double declaration
+                stream.declare = False
 
+        # TODO: filter by already running handlers after TestClient refactor
+        for handler in self._subscribers.values():
             self._log(
                 f"`{handler.call_name}` waiting for messages",
-                extra=log_context,
+                extra=handler.get_log_context(None),
             )
             await handler.start()
 
@@ -717,7 +734,7 @@ class NatsBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        publihs_kwargs = {
+        publish_kwargs = {
             "subject": subject,
             "headers": headers,
             "reply_to": reply_to,
@@ -732,7 +749,7 @@ class NatsBroker(
             producer = self._producer
         else:
             producer = self._js_producer
-            publihs_kwargs.update(
+            publish_kwargs.update(
                 {
                     "stream": stream,
                     "timeout": timeout,
@@ -742,7 +759,7 @@ class NatsBroker(
         return await super().publish(
             message,
             producer=producer,
-            **publihs_kwargs,
+            **publish_kwargs,
         )
 
     @override
@@ -750,11 +767,30 @@ class NatsBroker(
         self,
         subscriber: "AsyncAPISubscriber",
     ) -> None:
-        connection: Union["Client", "JetStreamContext", None] = None
+        connection: Union[
+            Client,
+            JetStreamContext,
+            KVBucketDeclarer,
+            OSBucketDeclarer,
+            None,
+        ] = None
 
-        connection = self._connection if subscriber.stream is None else self.stream
+        if getattr(subscriber, "kv_watch", None):
+            connection = self._kv_declarer
 
-        return super().setup_subscriber(subscriber, connection=connection)
+        elif getattr(subscriber, "obj_watch", None):
+            connection = self._os_declarer
+
+        elif getattr(subscriber, "stream", None):
+            connection = self.stream
+
+        else:
+            connection = self._connection
+
+        return super().setup_subscriber(
+            subscriber,
+            connection=connection,
+        )
 
     @override
     def setup_publisher(  # type: ignore[override]
@@ -770,9 +806,66 @@ class NatsBroker(
         elif self._producer is not None:
             producer = self._producer
 
-        publisher.setup(
-            producer=producer,
-            **self._publisher_setup_extra,
+        super().setup_publisher(publisher, producer=producer)
+
+    async def key_value(
+        self,
+        bucket: str,
+        *,
+        description: Optional[str] = None,
+        max_value_size: Optional[int] = None,
+        history: int = 1,
+        ttl: Optional[float] = None,  # in seconds
+        max_bytes: Optional[int] = None,
+        storage: Optional["StorageType"] = None,
+        replicas: int = 1,
+        placement: Optional["Placement"] = None,
+        republish: Optional["RePublish"] = None,
+        direct: Optional[bool] = None,
+        # custom
+        declare: bool = True,
+    ) -> "KeyValue":
+        assert self._kv_declarer, "Broker should be connected already."  # nosec B101
+
+        return await self._kv_declarer.create_key_value(
+            bucket=bucket,
+            description=description,
+            max_value_size=max_value_size,
+            history=history,
+            ttl=ttl,
+            max_bytes=max_bytes,
+            storage=storage,
+            replicas=replicas,
+            placement=placement,
+            republish=republish,
+            direct=direct,
+            declare=declare,
+        )
+
+    async def object_storage(
+        self,
+        bucket: str,
+        *,
+        description: Optional[str] = None,
+        ttl: Optional[float] = None,
+        max_bytes: Optional[int] = None,
+        storage: Optional["StorageType"] = None,
+        replicas: int = 1,
+        placement: Optional["Placement"] = None,
+        # custom
+        declare: bool = True,
+    ) -> "ObjectStore":
+        assert self._os_declarer, "Broker should be connected already."  # nosec B101
+
+        return await self._os_declarer.create_object_store(
+            bucket=bucket,
+            description=description,
+            ttl=ttl,
+            max_bytes=max_bytes,
+            storage=storage,
+            replicas=replicas,
+            placement=placement,
+            declare=declare,
         )
 
     def _log_connection_broken(

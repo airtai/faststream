@@ -19,7 +19,6 @@ from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
-from faststream.confluent.schemas.params import ConsumerConnectionParams
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -41,7 +40,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     topics: Sequence[str]
     group_id: Optional[str]
 
+    builder: Optional[Callable[..., "AsyncConfluentConsumer"]]
     consumer: Optional["AsyncConfluentConsumer"]
+
     task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
 
@@ -50,12 +51,13 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         *topics: str,
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., "AsyncConfluentConsumer"],
+        connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
@@ -69,6 +71,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             default_decoder=default_decoder,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -81,25 +84,25 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.group_id = group_id
         self.topics = topics
         self.is_manual = is_manual
-        self.builder = builder
+        self.builder = None
         self.consumer = None
         self.task = None
 
         # Setup it later
         self.client_id = ""
-        self.__connection_data = ConsumerConnectionParams()
+        self.__connection_data = connection_data
 
     @override
     def setup(  # type: ignore[override]
         self,
         *,
         client_id: Optional[str],
-        connection_data: "ConsumerConnectionParams",
+        builder: Callable[..., "AsyncConfluentConsumer"],
         # basic args
         logger: Optional["LoggerProto"],
         producer: Optional["ProducerProto"],
         graceful_timeout: Optional[float],
-        extra_context: Optional["AnyDict"],
+        extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
@@ -110,7 +113,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         _call_decorators: Iterable["Decorator"],
     ) -> None:
         self.client_id = client_id
-        self.__connection_data = connection_data
+        self.builder = builder
 
         super().setup(
             logger=logger,
@@ -128,6 +131,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     @override
     async def start(self) -> None:
         """Start the consumer."""
+        assert self.builder, "You should setup subscriber at first."  # nosec B101
+
         self.consumer = consumer = self.builder(
             *self.topics,
             group_id=self.group_id,
@@ -153,9 +158,10 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.task = None
 
     def _make_response_publisher(
-        self, message: "StreamMessage[Any]"
+        self,
+        message: "StreamMessage[Any]",
     ) -> Sequence[FakePublisher]:
-        if not message.reply_to or self._producer is None:
+        if self._producer is None:
             return ()
 
         return (
@@ -172,7 +178,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         raise NotImplementedError()
 
     async def _consume(self) -> None:
-        assert self.consumer, "You need to start handler first"  # nosec B101
+        assert self.consumer, "You should start subscriber at first."  # nosec B101
 
         connected = True
         while self.running:
@@ -219,10 +225,11 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         *topics: str,
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., "AsyncConfluentConsumer"],
+        connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[Message]"],
@@ -234,13 +241,14 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         super().__init__(
             *topics,
             group_id=group_id,
-            builder=builder,
+            connection_data=connection_data,
             is_manual=is_manual,
             # subscriber args
             default_parser=AsyncConfluentParser.parse_message,
             default_decoder=AsyncConfluentParser.decode_message,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -278,10 +286,11 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., "AsyncConfluentConsumer"],
+        connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[Tuple[Message, ...]]"],
@@ -296,13 +305,14 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
         super().__init__(
             *topics,
             group_id=group_id,
-            builder=builder,
+            connection_data=connection_data,
             is_manual=is_manual,
             # subscriber args
             default_parser=AsyncConfluentParser.parse_message_batch,
             default_decoder=AsyncConfluentParser.decode_message_batch,
             # Propagated args
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,

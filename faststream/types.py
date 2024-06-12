@@ -63,22 +63,16 @@ class StandardDataclass(Protocol):
     """Protocol to check type is dataclass."""
 
     __dataclass_fields__: ClassVar[Dict[str, Any]]
-    __dataclass_params__: ClassVar[Any]
-    __post_init__: ClassVar[Callable[..., None]]
-
-    def __init__(self, *args: object, **kwargs: object) -> None:
-        """Interface method."""
-        ...
 
 
 BaseSendableMessage: TypeAlias = Union[
     JsonDecodable,
     Decimal,
     datetime,
-    None,
     StandardDataclass,
     SendableTable,
     SendableArray,
+    None,
 ]
 
 try:

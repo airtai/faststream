@@ -1,10 +1,12 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
+from unittest.mock import AsyncMock, MagicMock
 
 from aiokafka import ConsumerRecord
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
+from faststream.kafka import TopicPartition
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.publisher.asyncapi import AsyncAPIBatchPublisher
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
@@ -23,18 +25,30 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     """A class to test Kafka brokers."""
 
     @staticmethod
-    async def _fake_connect(broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
+    async def _fake_connect(  # type: ignore[override]
+        broker: KafkaBroker,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Callable[..., AsyncMock]:
         broker._producer = FakeProducer(broker)
+        return _fake_connection
 
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
         publisher: "AsyncAPIPublisher[Any]",
     ) -> "HandlerCallWrapper[Any, Any, Any]":
-        sub = broker.subscriber(
-            publisher.topic,
-            batch=isinstance(publisher, AsyncAPIBatchPublisher),
-        )
+        if publisher.partition:
+            tp = TopicPartition(topic=publisher.topic, partition=publisher.partition)
+            sub = broker.subscriber(
+                partitions=[tp],
+                batch=isinstance(publisher, AsyncAPIBatchPublisher),
+            )
+        else:
+            sub = broker.subscriber(
+                publisher.topic,
+                batch=isinstance(publisher, AsyncAPIBatchPublisher),
+            )
 
         if not sub.calls:
 
@@ -91,9 +105,17 @@ class FakeProducer(AioKafkaFastProducer):
             reply_to=reply_to,
         )
 
+        return_value = None
+
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if topic in handler.topics:
-                return await call_handler(
+            if (
+                any(
+                    p.topic == topic and (partition is None or p.partition == partition)
+                    for p in handler.partitions
+                )
+                or topic in handler.topics
+            ):
+                handle_value = await call_handler(
                     handler=handler,
                     message=[incoming]
                     if isinstance(handler, AsyncAPIBatchSubscriber)
@@ -103,7 +125,9 @@ class FakeProducer(AioKafkaFastProducer):
                     raise_timeout=raise_timeout,
                 )
 
-        return None
+                return_value = return_value or handle_value
+
+        return return_value
 
     async def publish_batch(
         self,
@@ -184,3 +208,10 @@ def build_message(
         offset=0,
         headers=[(i, j.encode()) for i, j in headers.items()],
     )
+
+
+def _fake_connection(*args: Any, **kwargs: Any) -> AsyncMock:
+    mock = AsyncMock()
+    mock.subscribe = MagicMock
+    mock.assign = MagicMock
+    return mock

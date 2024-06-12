@@ -1,5 +1,4 @@
 import asyncio
-from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -162,7 +161,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
         f: Callable[..., Awaitable[Any]] = to_async(call)
 
-        dependent: Optional["CallModel[..., Any]"] = None
+        dependent: Optional[CallModel[..., Any]] = None
         if _get_dependant is None:
             dependent = build_call_model(
                 f,
@@ -186,13 +185,9 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 def _wrap_decode_message(
     func: Callable[..., Awaitable[T_HandlerReturn]],
     params_ln: int,
-) -> Callable[
-    ["StreamMessage[MsgType]"],
-    Awaitable[T_HandlerReturn],
-]:
+) -> Callable[["StreamMessage[MsgType]"], Awaitable[T_HandlerReturn]]:
     """Wraps a function to decode a message and pass it as an argument to the wrapped function."""
 
-    @wraps(func)
     async def decode_wrapper(message: "StreamMessage[MsgType]") -> T_HandlerReturn:
         """A wrapper function to decode and handle a message."""
         msg = message.decoded_body

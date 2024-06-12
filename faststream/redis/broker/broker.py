@@ -13,7 +13,6 @@ from typing import (
 )
 from urllib.parse import urlparse
 
-from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import (
     Connection,
@@ -258,12 +257,12 @@ class RedisBroker(
     ) -> "Redis[bytes]":
         """Connect to the Redis server."""
         if url is not Parameter.empty:
-            connect_kwargs: "AnyDict" = {
+            connect_kwargs: AnyDict = {
                 "url": url,
                 **kwargs,
             }
         else:
-            connect_kwargs = {**kwargs}
+            connect_kwargs = dict(kwargs).copy()
 
         return await super().connect(**connect_kwargs)
 
@@ -292,7 +291,7 @@ class RedisBroker(
         parser_class: Type["BaseParser"],
         encoder_class: Type["Encoder"],
     ) -> "Redis[bytes]":
-        url_options: "AnyDict" = {
+        url_options: AnyDict = {
             **dict(parse_url(url)),
             **parse_security(self.security),
             "client_name": client_name,
@@ -359,6 +358,7 @@ class RedisBroker(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
+            **super()._subscriber_setup_extra,
             "connection": self._connection,
         }
 
@@ -467,7 +467,7 @@ class RedisBroker(
 
         correlation_id = correlation_id or gen_cor_id()
 
-        call: "AsyncFunc" = self._producer.publish_batch
+        call: AsyncFunc = self._producer.publish_batch
 
         for m in self._middlewares:
             call = partial(m(None).publish_scope, call)

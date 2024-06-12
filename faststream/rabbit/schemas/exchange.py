@@ -1,7 +1,7 @@
 import warnings
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional, Union
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.schemas import NameRequired
 from faststream.rabbit.schemas.constants import ExchangeType
@@ -39,12 +39,17 @@ class RabbitExchange(NameRequired):
             )
         )
 
+    @property
+    def routing(self) -> str:
+        """Return real routing_key of object."""
+        return self.routing_key or self.name
+
     def __init__(
         self,
         name: Annotated[
             str,
             Doc("RabbitMQ exchange name."),
-        ],
+        ] = "",
         type: Annotated[
             ExchangeType,
             Doc(
@@ -125,3 +130,15 @@ class RabbitExchange(NameRequired):
         self.bind_to = bind_to
         self.bind_arguments = bind_arguments
         self.routing_key = routing_key
+
+    @override
+    @classmethod
+    def validate(  # type: ignore[override]
+        cls,
+        value: Union[str, "RabbitExchange", None],
+        **kwargs: Any,
+    ) -> "RabbitExchange":
+        exch = super().validate(value, **kwargs)
+        if exch is None:
+            exch = RabbitExchange()
+        return exch

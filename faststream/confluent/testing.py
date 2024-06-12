@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
+from unittest.mock import AsyncMock, MagicMock
 
 from typing_extensions import override
 
@@ -22,8 +23,13 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     """A class to test Kafka brokers."""
 
     @staticmethod
-    async def _fake_connect(broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
+    async def _fake_connect(  # type: ignore[override]
+        broker: KafkaBroker,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Callable[..., AsyncMock]:
         broker._producer = FakeProducer(broker)
+        return _fake_connection
 
     @staticmethod
     def create_publisher_fake_subscriber(
@@ -92,9 +98,11 @@ class FakeProducer(AsyncConfluentFastProducer):
             reply_to=reply_to,
         )
 
+        return_value = None
+
         for handler in self.broker._subscribers.values():  # pragma: no branch
             if topic in handler.topics:
-                return await call_handler(
+                handle_value = await call_handler(
                     handler=handler,
                     message=[incoming]
                     if isinstance(handler, AsyncAPIBatchSubscriber)
@@ -104,7 +112,9 @@ class FakeProducer(AsyncConfluentFastProducer):
                     raise_timeout=raise_timeout,
                 )
 
-        return None
+                return_value = return_value or handle_value
+
+        return return_value
 
     async def publish_batch(
         self,
@@ -231,3 +241,10 @@ def build_message(
         timestamp_type=0 + 1,
         timestamp_ms=timestamp_ms or int(datetime.now().timestamp()),
     )
+
+
+def _fake_connection(*args: Any, **kwargs: Any) -> AsyncMock:
+    mock = AsyncMock()
+    mock.getone.return_value = MagicMock()
+    mock.getmany.return_value = [MagicMock()]
+    return mock

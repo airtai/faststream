@@ -159,7 +159,7 @@ class ChannelPublisher(LogicPublisher):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        call: "AsyncFunc" = self._producer.publish
+        call: AsyncFunc = self._producer.publish
 
         for m in chain(
             (
@@ -282,10 +282,9 @@ class ListPublisher(LogicPublisher):
 
         list_sub = ListSub.validate(list or self.list)
         reply_to = reply_to or self.reply_to
-        headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        call: "AsyncFunc" = self._producer.publish
+        call: AsyncFunc = self._producer.publish
 
         for m in chain(
             (
@@ -301,7 +300,7 @@ class ListPublisher(LogicPublisher):
             list=list_sub.name,
             # basic args
             reply_to=reply_to,
-            headers=headers,
+            headers=headers or self.headers,
             correlation_id=correlation_id,
             # RPC args
             rpc=rpc,
@@ -327,6 +326,10 @@ class ListBatchPublisher(ListPublisher):
             Optional[str],
             Doc("Has no real effect. Option to be compatible with original protocol."),
         ] = None,
+        headers: Annotated[
+            Optional["AnyDict"],
+            Doc("Message headers to store metainformation."),
+        ] = None,
         # publisher specific
         _extra_middlewares: Annotated[
             Iterable["PublisherMiddleware"],
@@ -338,7 +341,7 @@ class ListBatchPublisher(ListPublisher):
         list_sub = ListSub.validate(list or self.list)
         correlation_id = correlation_id or gen_cor_id()
 
-        call: "AsyncFunc" = self._producer.publish_batch
+        call: AsyncFunc = self._producer.publish_batch
 
         for m in chain(
             (
@@ -353,6 +356,7 @@ class ListBatchPublisher(ListPublisher):
             *message,
             list=list_sub.name,
             correlation_id=correlation_id,
+            headers=headers or self.headers,
         )
 
 
@@ -461,7 +465,7 @@ class StreamPublisher(LogicPublisher):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        call: "AsyncFunc" = self._producer.publish
+        call: AsyncFunc = self._producer.publish
 
         for m in chain(
             (

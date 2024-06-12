@@ -11,4 +11,4 @@ async def test_basic():
 
     async with TestNatsBroker(broker, with_real=True), TestApp(app):
         await handler.wait_call(3.0)
-        handler.mock.assert_called_once_with("Hi!")
+        handler.mock.assert_called_once_with(b"Hello!")

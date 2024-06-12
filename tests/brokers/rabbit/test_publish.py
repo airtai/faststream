@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -11,15 +11,21 @@ from tests.tools import spy_decorator
 
 @pytest.mark.rabbit()
 class TestPublish(BrokerPublishTestcase):
+    def get_broker(self, apply_types: bool = False) -> RabbitBroker:
+        return RabbitBroker(apply_types=apply_types)
+
     @pytest.mark.asyncio()
     async def test_reply_config(
         self,
-        pub_broker: RabbitBroker,
         queue: str,
-        event,
-        mock,
+        event: asyncio.Event,
+        mock: Mock,
     ):
-        @pub_broker.subscriber(queue + "reply")
+        pub_broker = self.get_broker()
+
+        reply_queue = queue + "reply"
+
+        @pub_broker.subscriber(reply_queue)
         async def reply_handler(m):
             event.set()
             mock(m)
@@ -28,20 +34,18 @@ class TestPublish(BrokerPublishTestcase):
         async def handler(m):
             return m
 
-        async with pub_broker:
+        async with self.patch_broker(pub_broker) as br:
             with patch.object(
                 AioPikaFastProducer,
                 "publish",
                 spy_decorator(AioPikaFastProducer.publish),
             ) as m:
-                await pub_broker.start()
+                await br.start()
 
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            pub_broker.publish(
-                                "Hello!", queue, reply_to=queue + "reply"
-                            )
+                            br.publish("Hello!", queue, reply_to=reply_queue)
                         ),
                         asyncio.create_task(event.wait()),
                     ),

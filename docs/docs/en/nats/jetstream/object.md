@@ -22,45 +22,47 @@ The main difference between *KV* and *Object* storages is that in the *Object* s
 
 ## FastStream Details
 
-**FastStream** has no native interfaces to this *NatsJS* functionality (yet), but it allows you to access the inner `JetStream` object to create in manually.
+**FastStream** has some useful methods to help you with **Object Storage NATS** feature interacting.
 
-First of all, you need to create an *Object* storage object and pass in to the context:
+First of all, you need to create a *Object Storage* object and put some value to it:
 
-```python linenums="1" hl_lines="12-13"
-{! docs_src/nats/js/object.py [ln:7-10,13-15,24-29] !}
+```python linenums="1" hl_lines="11-12"
+{! docs_src/nats/js/object.py [ln:1-2,3,5,7-10,23-26] !}
 ```
 
 !!! tip
-    We placed this code in the `#!python @app.on_startup` hook because `#!python @app.after_startup` will be triggered **AFTER** your handlers start consuming messages. So, if you need to have access to any custom context objects, you should set them up in the `#!python @app.on_startup` hook.
+    * [`BytesIO`](https://docs.python.org/3/library/io.html#binary-i-o){.external-link target="_blank"} - is a *Readable* object used to emulate a file opened for reading.
 
-    Also, we call `#!python await broker.connect()` method manually to establish the connection to be able to create a storage.
+    * `#!python broker.object_storage(bucket="example-bucket")` is an idempotent method. It means that it stores all already created storages in memory and do not make new request to **NATS** if your are trying to call it for the same bucket.
 
 ---
 
-Next, we are ready to use this object right in the our handlers.
+Then we are able to use returned `object_storage` object as a regular NATS one. But, if you want to watch by any new files in the bucket, **FastStream** allows you to make it via regular `@broker.subscriber` interface:
 
-Let's create an Annotated object to shorten `Context` object access:
-
-```python linenums="1" hl_lines="4"
-{! docs_src/nats/js/object.py [ln:3-5,11] !}
+```python linenums="1" hl_lines="1"
+@broker.subscriber("example-bucket", obj_watch=True)
+async def handler(filename: str):
+    assert filename == "file.txt"
 ```
 
-And just use it in a handler:
+**NATS** deliveres you just a filename (and some more metainformation you can get access via `message.raw_message`) because files can be any size. The framework should protect your service from memory overflow, so we can't upload whole file content right to the memo. By you can make it manually the following way:
 
-```python linenums="1" hl_lines="6 8-9"
-{! docs_src/nats/js/object.py [ln:1-2,6,16-21] !}
+```python linenums="1" hl_lines="1 6 10-11"
+{! docs_src/nats/js/object.py [ln:6-7,12-20] !}
 ```
 
-Finally, let's test our code behavior by putting something into the *Object storage* and sending a message:
+!!! note
+    `faststream.nats.annotations.ObjectStorage` is a your current bucket, so you need no to put it to context manually.
 
-```python linenums="1" hl_lines="3-4"
-{! docs_src/nats/js/object.py [ln:32-35] !}
+Also, if you want more detail settings for you **Object Storage**, we have `ObjWatch` object for it:
+
+```python linenums="1" hl_lines="5"
+from faststream.nats import NatsBroker, ObjWatch
+
+@broker.subscriber(
+    "example-bucket",
+    obj_watch=ObjWatch(declare=False),
+)
+async def handler(filename: str):
+    ...
 ```
-
-!!! tip
-    [`BytesIO`](https://docs.python.org/3/library/io.html#binary-i-o){.external-link target="_blank"} - is a *Readable* object used to emulate a file opened for reading.
-
-??? example "Full listing"
-    ```python linenums="1"
-    {!> docs_src/nats/js/object.py !}
-    ```

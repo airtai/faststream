@@ -1,0 +1,495 @@
+name: Run all tests
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  pull_request:
+    types:
+      - opened
+      - synchronize
+  # https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue#triggering-merge-group-checks-with-github-actions
+  merge_group:
+    types:
+      - checks_requested
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static_analysis:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+      - name: Install Dependencies and library
+        shell: bash
+        run: |
+          set -ux
+          python -m pip install --upgrade pip
+          pip install -e ".[lint]"
+
+      - name: Run ruff
+        shell: bash
+        run: ruff check
+
+      - name: Run mypy
+        shell: bash
+        run: mypy
+
+      - name: Run bandit
+        shell: bash
+        run: bandit -c pyproject.toml -r faststream
+
+      - name: Run Semgrep
+        shell: bash
+        run: semgrep scan --config auto --error
+
+  test-basic:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        pydantic-version: ["pydantic-v1", "pydantic-v2"]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-test-v03
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[optionals,testing]
+      - name: Install Pydantic v1
+        if: matrix.pydantic-version == 'pydantic-v1'
+        run: pip install "pydantic>=1.10.0,<2.0.0"
+      - name: Install Pydantic v2
+        if: matrix.pydantic-version == 'pydantic-v2'
+        run: pip install --pre "pydantic>=2.0.0b2,<3.0.0"
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
+        env:
+          COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
+          CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
+      - name: Store coverage files
+        uses: actions/upload-artifact@v4
+        with:
+          name: .coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
+          path: coverage
+          if-no-files-found: error
+
+  test-orjson:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[optionals,testing] orjson
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m"(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
+        env:
+          COVERAGE_FILE: coverage/.coverage.orjson
+          CONTEXT: orjson
+      - name: Store coverage files
+        uses: actions/upload-artifact@v4
+        with:
+          name: .coverage.orjson
+          path: coverage
+          if-no-files-found: error
+
+  test-macos-latest:
+    if: github.event.pull_request.draft == false
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[optionals,testing]
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
+
+  test-windows-latest:
+    if: github.event.pull_request.draft == false
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[optionals,testing]
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
+
+  test-kafka-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[kafka,test-core]
+      - name: Test
+        run: bash scripts/test.sh -m "not kafka" tests/brokers/kafka/test_test_client.py
+
+  test-kafka-real:
+    if: github.event.pull_request.draft == false
+    needs:
+      - test-basic
+      - test-kafka-smoke
+    runs-on: ubuntu-latest
+    services:
+      kafka:
+        image: bitnami/kafka:3.5.0
+        ports:
+          - 9092:9092
+        env:
+          KAFKA_ENABLE_KRAFT: "true"
+          KAFKA_CFG_NODE_ID: "1"
+          KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+          KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+          KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+          KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+          KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://127.0.0.1:9092"
+          KAFKA_BROKER_ID: "1"
+          KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+          ALLOW_PLAINTEXT_LISTENER: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[optionals,testing]
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and kafka) or kafka"
+        env:
+          COVERAGE_FILE: coverage/.coverage.kafka-py
+          CONTEXT: kafka-py
+      - name: Store coverage files
+        uses: actions/upload-artifact@v4
+        with:
+          name: .coverage.kafka-py
+          path: coverage
+          if-no-files-found: error
+
+  test-confluent-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[confluent,test-core]
+      - name: Test
+        run: bash scripts/test.sh -m "not confluent" tests/brokers/confluent/test_test_client.py
+
+  test-confluent-real:
+    if: github.event.pull_request.draft == false
+    needs:
+      - test-basic
+      - test-confluent-smoke
+    runs-on: ubuntu-latest
+    services:
+      kafka:
+        image: bitnami/kafka:3.5.0
+        ports:
+          - 9092:9092
+        env:
+          KAFKA_ENABLE_KRAFT: "true"
+          KAFKA_CFG_NODE_ID: "1"
+          KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+          KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+          KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+          KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+          KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://127.0.0.1:9092"
+          KAFKA_BROKER_ID: "1"
+          KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+          ALLOW_PLAINTEXT_LISTENER: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[optionals,testing]
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and confluent) or confluent"
+        env:
+          COVERAGE_FILE: coverage/.coverage.confluent-py
+          CONTEXT: confluent-py
+      - name: Store coverage files
+        uses: actions/upload-artifact@v4
+        with:
+          name: .coverage.confluent-py
+          path: coverage
+          if-no-files-found: error
+
+  test-rabbit-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[rabbit,test-core]
+      - name: Test
+        run: bash scripts/test.sh -m "not rabbit" tests/brokers/rabbit/test_test_client.py
+
+  test-rabbit-real:
+    if: github.event.pull_request.draft == false
+    needs:
+      - test-basic
+      - test-rabbit-smoke
+    runs-on: ubuntu-latest
+    services:
+      rabbitmq:
+        image: rabbitmq:alpine
+        ports:
+          - 5672:5672
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[optionals,testing]
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and rabbit) or rabbit"
+        env:
+          COVERAGE_FILE: coverage/.coverage.rabbit-py
+          CONTEXT: rabbit-py
+      - name: Store coverage files
+        uses: actions/upload-artifact@v4
+        with:
+          name: .coverage.rabbit-py
+          path: coverage
+          if-no-files-found: error
+
+  test-nats-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[nats,test-core]
+      - name: Test
+        run: bash scripts/test.sh -m "not nats" tests/brokers/nats/test_test_client.py
+
+  test-nats-real:
+    if: github.event.pull_request.draft == false
+    needs:
+      - test-basic
+      - test-nats-smoke
+    runs-on: ubuntu-latest
+    services:
+      nats:
+        image: diementros/nats:js
+        ports:
+          - 4222:4222
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[optionals,testing]
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and nats) or nats"
+        env:
+          COVERAGE_FILE: coverage/.coverage.nats-py
+          CONTEXT: nats-py
+      - name: Store coverage files
+        uses: actions/upload-artifact@v4
+        with:
+          name: .coverage.nats-py
+          path: coverage
+          if-no-files-found: error
+
+  test-redis-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[redis,test-core]
+      - name: Test
+        run: bash scripts/test.sh -m "not redis" tests/brokers/redis/test_test_client.py
+
+  test-redis-real:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    needs:
+      - test-basic
+      - test-redis-smoke
+    services:
+      nats:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[optionals,testing]
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and redis) or redis"
+        env:
+          COVERAGE_FILE: coverage/.coverage.redis-py
+          CONTEXT: redis-py
+      - name: Store coverage files
+        uses: actions/upload-artifact@v4
+        with:
+          name: .coverage.redis-py
+          path: coverage
+          if-no-files-found: error
+
+  coverage-combine:
+    if: github.event.pull_request.draft == false
+    needs:
+      - test-basic
+      - test-kafka-real
+      - test-confluent-real
+      - test-rabbit-real
+      - test-nats-real
+      - test-redis-real
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+
+      - name: Get coverage files
+        uses: actions/download-artifact@v4
+        with:
+          pattern: .coverage*
+          path: coverage
+          merge-multiple: true
+
+      - run: pip install coverage[toml]
+
+      - run: ls -la coverage
+      - run: coverage combine coverage
+      - run: coverage report
+      - run: coverage html --show-contexts --title "FastStream coverage for ${{ github.sha }}"
+
+      - name: Store coverage html
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: htmlcov
+
+  # https://github.com/marketplace/actions/alls-green#why
+  check: # This job does nothing and is only used for the branch protection
+    if: github.event.pull_request.draft == false
+
+    needs:
+      - static_analysis
+      - coverage-combine
+      - test-macos-latest
+      - test-windows-latest
+      - test-orjson
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1 # nosemgrep
+        with:
+          jobs: ${{ toJSON(needs) }}

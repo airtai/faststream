@@ -113,7 +113,7 @@ class DefaultPublisher(LogicPublisher[Message]):
     ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        kwargs: "AnyDict" = {
+        kwargs: AnyDict = {
             "key": key or self.key,
             # basic args
             "topic": topic or self.topic,
@@ -124,7 +124,7 @@ class DefaultPublisher(LogicPublisher[Message]):
             "correlation_id": correlation_id or gen_cor_id(),
         }
 
-        call: "AsyncFunc" = self._producer.publish
+        call: AsyncFunc = self._producer.publish
 
         for m in chain(
             (
@@ -155,13 +155,13 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        msgs: Iterable["SendableMessage"]
+        msgs: Iterable[SendableMessage]
         if extra_messages:
             msgs = (cast("SendableMessage", message), *extra_messages)
         else:
             msgs = cast(Iterable["SendableMessage"], message)
 
-        kwargs: "AnyDict" = {
+        kwargs: AnyDict = {
             "topic": topic or self.topic,
             "partition": partition or self.partition,
             "timestamp_ms": timestamp_ms,
@@ -170,7 +170,7 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
             "correlation_id": correlation_id or gen_cor_id(),
         }
 
-        call: "AsyncFunc" = self._producer.publish_batch
+        call: AsyncFunc = self._producer.publish_batch
 
         for m in chain(
             (

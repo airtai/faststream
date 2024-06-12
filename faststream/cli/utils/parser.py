@@ -7,10 +7,10 @@ if TYPE_CHECKING:
 
 def parse_cli_args(*args: str) -> Tuple[str, Dict[str, "SettingField"]]:
     """Parses command line arguments."""
-    extra_kwargs: Dict[str, "SettingField"] = {}
+    extra_kwargs: Dict[str, SettingField] = {}
 
     k: str = ""
-    v: "SettingField"
+    v: SettingField
 
     field_args: List[str] = []
     app = ""

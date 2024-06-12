@@ -189,7 +189,7 @@ class StreamMessage(Request):  # type: ignore[misc]
             """An asynchronous function that processes an incoming message and returns a sendable message."""
             body = message.decoded_body
 
-            fastapi_body: Union["AnyDict", List[Any]]
+            fastapi_body: Union[AnyDict, List[Any]]
             if first_arg is not None:
                 if isinstance(body, dict):
                     path = fastapi_body = body or {}

@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     import aiormq
-    from aio_pika import IncomingMessage, RobustChannel, RobustQueue
+    from aio_pika import IncomingMessage, RobustQueue
     from aio_pika.abc import DateType, HeadersType, TimeoutType
     from anyio.streams.memory import MemoryObjectReceiveStream
 
@@ -31,8 +31,8 @@ if TYPE_CHECKING:
         AsyncCallable,
         CustomCallable,
     )
+    from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.types import AioPikaSendableMessage
-    from faststream.rabbit.utils import RabbitDeclarer
     from faststream.types import SendableMessage
 
 
@@ -45,12 +45,10 @@ class AioPikaFastProducer(ProducerProto):
     def __init__(
         self,
         *,
-        channel: "RobustChannel",
         declarer: "RabbitDeclarer",
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
-        self._channel = channel
         self.declarer = declarer
 
         self._rpc_lock = anyio.Lock()
@@ -88,7 +86,7 @@ class AioPikaFastProducer(ProducerProto):
     ) -> Optional[Any]:
         """Publish a message to a RabbitMQ queue."""
         context: AsyncContextManager[
-            Optional["MemoryObjectReceiveStream[IncomingMessage]"]
+            Optional[MemoryObjectReceiveStream[IncomingMessage]]
         ]
         if rpc:
             if reply_to is not None:
@@ -128,7 +126,7 @@ class AioPikaFastProducer(ProducerProto):
                 return r
 
             else:
-                msg: Optional["IncomingMessage"] = None
+                msg: Optional[IncomingMessage] = None
                 with timeout_scope(rpc_timeout, raise_timeout):
                     msg = await response_queue.receive()
 
@@ -161,14 +159,6 @@ class AioPikaFastProducer(ProducerProto):
         app_id: Optional[str],
     ) -> Union["aiormq.abc.ConfirmationFrameType", "SendableMessage"]:
         """Publish a message to a RabbitMQ exchange."""
-        p_exchange = RabbitExchange.validate(exchange)
-
-        if p_exchange is None:
-            exchange_obj = self._channel.default_exchange
-        else:
-            p_exchange.passive = True
-            exchange_obj = await self.declarer.declare_exchange(p_exchange)
-
         message = AioPikaParser.encode_message(
             message=message,
             persist=persist,
@@ -184,6 +174,11 @@ class AioPikaFastProducer(ProducerProto):
             message_type=message_type,
             user_id=user_id,
             app_id=app_id,
+        )
+
+        exchange_obj = await self.declarer.declare_exchange(
+            exchange=RabbitExchange.validate(exchange),
+            passive=True,
         )
 
         return await exchange_obj.publish(

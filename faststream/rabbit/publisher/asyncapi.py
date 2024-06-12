@@ -32,7 +32,6 @@ class AsyncAPIPublisher(LogicPublisher):
     # or
     publisher: AsyncAPIPublisher = router.publisher(...)
     ```
-
     """
 
     def get_name(self) -> str:
@@ -41,7 +40,8 @@ class AsyncAPIPublisher(LogicPublisher):
             or (self.queue.routing if is_routing_exchange(self.exchange) else None)
             or "_"
         )
-        return f"{routing}:{getattr(self.exchange, 'name', '_')}:Publisher"
+
+        return f"{routing}:{getattr(self.exchange, 'name', None) or '_'}:Publisher"
 
     def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
@@ -88,7 +88,7 @@ class AsyncAPIPublisher(LogicPublisher):
                             else None,
                             "exchange": (
                                 amqp.Exchange(type="default", vhost=self.virtual_host)
-                                if self.exchange is None
+                                if not self.exchange.name
                                 else amqp.Exchange(
                                     type=self.exchange.type.value,  # type: ignore
                                     name=self.exchange.name,
@@ -110,7 +110,7 @@ class AsyncAPIPublisher(LogicPublisher):
         *,
         routing_key: str,
         queue: "RabbitQueue",
-        exchange: Optional["RabbitExchange"],
+        exchange: "RabbitExchange",
         message_kwargs: "PublishKwargs",
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],

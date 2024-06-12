@@ -17,10 +17,6 @@ class RedisAsyncAPIProtocol(AsyncAPIOperation):
     @abstractmethod
     def get_payloads(self) -> Any: ...
 
-    @staticmethod
-    @abstractmethod
-    def create() -> Any: ...
-
 
 def validate_options(
     *,

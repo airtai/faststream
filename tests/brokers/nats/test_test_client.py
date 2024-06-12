@@ -3,19 +3,68 @@ import asyncio
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.nats import JStream, NatsBroker, PullSub, TestNatsBroker
+from faststream.exceptions import SetupError
+from faststream.nats import ConsumerConfig, JStream, NatsBroker, PullSub, TestNatsBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
 @pytest.mark.asyncio()
 class TestTestclient(BrokerTestclientTestcase):
+    test_class = TestNatsBroker
+
+    def get_broker(self, apply_types: bool = False) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types)
+
+    def patch_broker(self, broker: NatsBroker) -> TestNatsBroker:
+        return TestNatsBroker(broker)
+
+    @pytest.mark.asyncio()
+    async def test_stream_publish(
+        self,
+        queue: str,
+    ):
+        pub_broker = NatsBroker(apply_types=False)
+
+        @pub_broker.subscriber(queue, stream="test")
+        async def m(msg): ...
+
+        async with TestNatsBroker(pub_broker) as br:
+            await br.publish("Hi!", queue, stream="test")
+            m.mock.assert_called_once_with("Hi!")
+
+    @pytest.mark.asyncio()
+    async def test_wrong_stream_publish(
+        self,
+        queue: str,
+    ):
+        pub_broker = NatsBroker(apply_types=False)
+
+        @pub_broker.subscriber(queue)
+        async def m(msg): ...
+
+        async with TestNatsBroker(pub_broker) as br:
+            await br.publish("Hi!", queue, stream="test")
+            assert not m.mock.called
+
+    @pytest.mark.asyncio()
+    async def test_rpc_conflicts_reply(self, queue):
+        async with TestNatsBroker(NatsBroker()) as br:
+            with pytest.raises(SetupError):
+                await br.publish(
+                    "",
+                    queue,
+                    rpc=True,
+                    reply_to="response",
+                )
+
     @pytest.mark.nats()
     async def test_with_real_testclient(
         self,
-        broker: NatsBroker,
         queue: str,
         event: asyncio.Event,
     ):
+        broker = self.get_broker()
+
         @broker.subscriber(queue)
         def subscriber(m):
             event.set()
@@ -79,84 +128,115 @@ class TestTestclient(BrokerTestclientTestcase):
         assert len(routes) == 2
 
     async def test_js_subscriber_mock(
-        self, queue: str, test_broker: NatsBroker, stream: JStream
+        self,
+        queue: str,
+        stream: JStream,
     ):
-        @test_broker.subscriber(queue, stream=stream)
-        async def m():
+        broker = self.get_broker()
+
+        @broker.subscriber(queue, stream=stream)
+        async def m(msg):
             pass
 
-        await test_broker.start()
-        await test_broker.publish("hello", queue, stream=stream.name)
-        m.mock.assert_called_once_with("hello")
+        async with TestNatsBroker(broker) as br:
+            await br.publish("hello", queue, stream=stream.name)
+            m.mock.assert_called_once_with("hello")
 
     async def test_js_publisher_mock(
-        self, queue: str, test_broker: NatsBroker, stream: JStream
+        self,
+        queue: str,
+        stream: JStream,
     ):
-        publisher = test_broker.publisher(queue + "resp")
+        broker = self.get_broker()
+
+        publisher = broker.publisher(queue + "resp")
 
         @publisher
-        @test_broker.subscriber(queue, stream=stream)
-        async def m():
+        @broker.subscriber(queue, stream=stream)
+        async def m(msg):
             return "response"
 
-        await test_broker.start()
-        await test_broker.publish("hello", queue, stream=stream.name)
-        publisher.mock.assert_called_with("response")
+        async with TestNatsBroker(broker) as br:
+            await br.publish("hello", queue, stream=stream.name)
+            publisher.mock.assert_called_with("response")
 
-    async def test_any_subject_routing(self, test_broker: NatsBroker):
-        @test_broker.subscriber("test.*.subj.*")
-        def subscriber(): ...
+    async def test_any_subject_routing(self):
+        broker = self.get_broker()
 
-        await test_broker.start()
-        await test_broker.publish("hello", "test.a.subj.b")
-        subscriber.mock.assert_called_once_with("hello")
+        @broker.subscriber("test.*.subj.*")
+        def subscriber(msg): ...
 
-    async def test_ending_subject_routing(self, test_broker: NatsBroker):
-        @test_broker.subscriber("test.>")
-        def subscriber(): ...
+        async with TestNatsBroker(broker) as br:
+            await br.publish("hello", "test.a.subj.b")
+            subscriber.mock.assert_called_once_with("hello")
 
-        await test_broker.start()
-        await test_broker.publish("hello", "test.a.subj.b")
-        subscriber.mock.assert_called_once_with("hello")
+    async def test_ending_subject_routing(self):
+        broker = self.get_broker()
 
-    async def test_mixed_subject_routing(self, test_broker: NatsBroker):
-        @test_broker.subscriber("*.*.subj.>")
-        def subscriber(): ...
+        @broker.subscriber("test.>")
+        def subscriber(msg): ...
 
-        await test_broker.start()
-        await test_broker.publish("hello", "test.a.subj.b.c")
-        subscriber.mock.assert_called_once_with("hello")
+        async with TestNatsBroker(broker) as br:
+            await br.publish("hello", "test.a.subj.b")
+            subscriber.mock.assert_called_once_with("hello")
+
+    async def test_mixed_subject_routing(self):
+        broker = self.get_broker()
+
+        @broker.subscriber("*.*.subj.>")
+        def subscriber(msg): ...
+
+        async with TestNatsBroker(broker) as br:
+            await br.publish("hello", "test.a.subj.b.c")
+            subscriber.mock.assert_called_once_with("hello")
 
     async def test_consume_pull(
         self,
         queue: str,
-        test_broker: NatsBroker,
         stream: JStream,
     ):
-        @test_broker.subscriber(queue, stream=stream, pull_sub=PullSub(1))
+        broker = self.get_broker()
+
+        @broker.subscriber(queue, stream=stream, pull_sub=PullSub(1))
         def subscriber(m): ...
 
-        await test_broker.start()
-        await test_broker.publish("hello", queue)
-        subscriber.mock.assert_called_once_with("hello")
+        async with TestNatsBroker(broker) as br:
+            await br.publish("hello", queue)
+            subscriber.mock.assert_called_once_with("hello")
 
     async def test_consume_batch(
         self,
         queue: str,
-        test_broker: NatsBroker,
         stream: JStream,
-        event: asyncio.Event,
-        mock,
     ):
-        @test_broker.subscriber(
+        broker = self.get_broker()
+
+        @broker.subscriber(
             queue,
             stream=stream,
             pull_sub=PullSub(1, batch=True),
         )
         def subscriber(m):
-            mock(m)
-            event.set()
+            pass
 
-        await test_broker.start()
-        await test_broker.publish("hello", queue)
-        subscriber.mock.assert_called_once_with(["hello"])
+        async with TestNatsBroker(broker) as br:
+            await br.publish("hello", queue)
+            subscriber.mock.assert_called_once_with(["hello"])
+
+    async def test_consume_with_filter(
+        self,
+        queue,
+    ):
+        broker = self.get_broker()
+
+        @broker.subscriber(
+            config=ConsumerConfig(filter_subjects=[f"{queue}.a"]),
+            stream=JStream(queue, subjects=[f"{queue}.*"]),
+        )
+        def subscriber(m):
+            pass
+
+        async with TestNatsBroker(broker) as br:
+            await br.publish(1, f"{queue}.b")
+            await br.publish(2, f"{queue}.a")
+            subscriber.mock.assert_called_once_with(2)

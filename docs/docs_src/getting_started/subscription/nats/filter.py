@@ -4,19 +4,19 @@ from faststream.nats import NatsBroker
 broker = NatsBroker("nats://localhost:4222")
 app = FastStream(broker)
 
+subscriber = broker.subscriber("test-subject")
 
-@broker.subscriber(
-    "test-subject",
+@subscriber(
     filter=lambda msg: msg.content_type == "application/json",
 )
 async def handle(name: str, user_id: int):
     assert name == "John"
     assert user_id == 1
 
-
-@broker.subscriber("test-subject")
+@subscriber
 async def default_handler(msg: str):
     assert msg == "Hello, FastStream!"
+
 
 
 @app.after_startup

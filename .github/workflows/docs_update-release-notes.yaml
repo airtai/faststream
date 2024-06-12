@@ -1,0 +1,67 @@
+name: Create PR with updated Release Notes
+
+on:
+  workflow_dispatch: null
+  release:
+    types:
+      - published
+
+jobs:
+  update-release-notes:
+    runs-on: ubuntu-latest
+    permissions:
+        contents: write
+        pull-requests: write
+    env:
+      TAG_NAME: ${{ github.ref_name }}
+      BRANCH_NAME: update-release-notes-${{ github.ref_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git user
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - uses: tibdex/github-app-token@v2
+        id: generate-token
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run update_releases.py script
+        run: python ./docs/update_releases.py
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --quiet || echo "::set-output name=changes_detected::true"
+
+      - name: Show git diff
+        run: git diff
+
+      - name: Create Pull Request
+        if: steps.git-check.outputs.changes_detected
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          branch: ${{ env.BRANCH_NAME }}
+          base: "main" # The branch you want to merge into
+          title: "Update Release Notes for ${{ env.TAG_NAME }}"
+          commit-message: "Update Release Notes for ${{ env.TAG_NAME }}"
+          body: "This is an automated pull request to update the release notes for ${{ env.TAG_NAME }}"
+          labels: documentation
+          reviewers: davorrunje, Lancetnik, kumaranvpl, sternakt

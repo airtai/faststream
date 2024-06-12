@@ -1,3 +1,11 @@
-from examples.e09_testing_mocks import test_handle
+import pytest
 
-__all__ = ("test_handle",)
+from tests.marks import require_aiopika
+
+
+@pytest.mark.asyncio()
+@require_aiopika
+async def test_handle():
+    from examples.e09_testing_mocks import test_handle as _test
+
+    await _test()

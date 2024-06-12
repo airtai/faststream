@@ -1,4 +1,3 @@
-from copy import deepcopy
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -24,13 +23,13 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import BrokerMiddleware, CustomCallable
+    from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas import (
         RabbitExchange,
         RabbitQueue,
         ReplyConfig,
     )
-    from faststream.rabbit.utils import RabbitDeclarer
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
@@ -51,11 +50,12 @@ class LogicSubscriber(
         self,
         *,
         queue: "RabbitQueue",
-        exchange: Optional["RabbitExchange"],
+        exchange: "RabbitExchange",
         consume_args: Optional["AnyDict"],
         reply_config: Optional["ReplyConfig"],
         # Subscriber args
         no_ack: bool,
+        no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
@@ -71,6 +71,7 @@ class LogicSubscriber(
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
+            no_reply=no_reply,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -105,7 +106,7 @@ class LogicSubscriber(
         logger: Optional["LoggerProto"],
         producer: Optional["AioPikaFastProducer"],
         graceful_timeout: Optional[float],
-        extra_context: Optional["AnyDict"],
+        extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
@@ -140,16 +141,20 @@ class LogicSubscriber(
 
         self._queue_obj = queue = await self.declarer.declare_queue(self.queue)
 
-        if self.exchange is not None:
+        if (
+            self.exchange is not None
+            and not queue.passive  # queue just getted from RMQ
+            and self.exchange.name  # check Exchange is not default
+        ):
             exchange = await self.declarer.declare_exchange(self.exchange)
-            if not queue.passive:
-                await queue.bind(
-                    exchange,
-                    routing_key=self.queue.routing,
-                    arguments=self.queue.bind_arguments,
-                    timeout=self.queue.timeout,
-                    robust=self.queue.robust,
-                )
+
+            await queue.bind(
+                exchange,
+                routing_key=self.queue.routing,
+                arguments=self.queue.bind_arguments,
+                timeout=self.queue.timeout,
+                robust=self.queue.robust,
+            )
 
         self._consumer_tag = await queue.consume(
             # NOTE: aio-pika expects AbstractIncomingMessage, not IncomingMessage
@@ -174,7 +179,7 @@ class LogicSubscriber(
         self,
         message: "StreamMessage[Any]",
     ) -> Sequence["FakePublisher"]:
-        if not message.reply_to or self._producer is None:
+        if self._producer is None:
             return ()
 
         return (
@@ -223,6 +228,4 @@ class LogicSubscriber(
 
     def add_prefix(self, prefix: str) -> None:
         """Include Subscriber in router."""
-        new_q = deepcopy(self.queue)
-        new_q.name = "".join((prefix, new_q.name))
-        self.queue = new_q
+        self.queue = self.queue.add_prefix(prefix)

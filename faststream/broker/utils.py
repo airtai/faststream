@@ -50,6 +50,7 @@ def get_watcher_context(
         return partial(
             WatcherContext,
             watcher=get_watcher(logger, retry),
+            logger=logger,
             **extra_options,
         )
 
@@ -59,7 +60,7 @@ class MultiLock:
 
     def __init__(self) -> None:
         """Initialize a new instance of the class."""
-        self.queue: "asyncio.Queue[None]" = asyncio.Queue()
+        self.queue: asyncio.Queue[None] = asyncio.Queue()
 
     def __enter__(self) -> Self:
         """Enter the context."""

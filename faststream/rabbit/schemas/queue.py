@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import TYPE_CHECKING, Optional
 
 from typing_extensions import Annotated, Doc
@@ -115,3 +116,13 @@ class RabbitQueue(NameRequired):
         self.auto_delete = auto_delete
         self.arguments = arguments
         self.timeout = timeout
+
+    def add_prefix(self, prefix: str) -> "RabbitQueue":
+        new_q: RabbitQueue = deepcopy(self)
+
+        new_q.name = "".join((prefix, new_q.name))
+
+        if new_q.routing_key:
+            new_q.routing_key = "".join((prefix, new_q.routing_key))
+
+        return new_q

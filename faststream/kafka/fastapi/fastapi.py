@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
     from enum import Enum
 
+    from aiokafka import TopicPartition
     from aiokafka.abc import AbstractTokenProvider, ConsumerRebalanceListener
     from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
     from fastapi import params
@@ -889,7 +890,8 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         ] = False,
         listener: Annotated[
             Optional["ConsumerRebalanceListener"],
-            Doc("""
+            Doc(
+                """
             Optionally include listener
                callback, which will be called before and after each rebalance
                operation.
@@ -911,14 +913,26 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                to subscribe. It is guaranteed, however, that the partitions
                revoked/assigned
                through this interface are from topics subscribed in this call.
-            """),
+            """
+            ),
         ] = None,
         pattern: Annotated[
             Optional[str],
-            Doc("""
+            Doc(
+                """
             Pattern to match available topics. You must provide either topics or pattern, but not both.
-            """),
+            """
+            ),
         ] = None,
+        partitions: Annotated[
+            Iterable["TopicPartition"],
+            Doc(
+                """
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
+            """
+            ),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -954,6 +968,12 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         no_ack: Annotated[
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
         ] = False,
         # AsyncAPI information
         title: Annotated[
@@ -1371,7 +1391,8 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         ],
         listener: Annotated[
             Optional["ConsumerRebalanceListener"],
-            Doc("""
+            Doc(
+                """
             Optionally include listener
                callback, which will be called before and after each rebalance
                operation.
@@ -1393,14 +1414,26 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                to subscribe. It is guaranteed, however, that the partitions
                revoked/assigned
                through this interface are from topics subscribed in this call.
-            """),
+            """
+            ),
         ] = None,
         pattern: Annotated[
             Optional[str],
-            Doc("""
+            Doc(
+                """
             Pattern to match available topics. You must provide either topics or pattern, but not both.
-            """),
+            """
+            ),
         ] = None,
+        partitions: Annotated[
+            Iterable["TopicPartition"],
+            Doc(
+                """
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
+            """
+            ),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -1436,6 +1469,12 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         no_ack: Annotated[
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
         ] = False,
         # AsyncAPI information
         title: Annotated[
@@ -1853,7 +1892,8 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         ] = False,
         listener: Annotated[
             Optional["ConsumerRebalanceListener"],
-            Doc("""
+            Doc(
+                """
             Optionally include listener
                callback, which will be called before and after each rebalance
                operation.
@@ -1875,14 +1915,26 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                to subscribe. It is guaranteed, however, that the partitions
                revoked/assigned
                through this interface are from topics subscribed in this call.
-            """),
+            """
+            ),
         ] = None,
         pattern: Annotated[
             Optional[str],
-            Doc("""
+            Doc(
+                """
             Pattern to match available topics. You must provide either topics or pattern, but not both.
-            """),
+            """
+            ),
         ] = None,
+        partitions: Annotated[
+            Iterable["TopicPartition"],
+            Doc(
+                """
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
+            """
+            ),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -1918,6 +1970,12 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         no_ack: Annotated[
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
         ] = False,
         # AsyncAPI information
         title: Annotated[
@@ -2338,7 +2396,8 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         ] = False,
         listener: Annotated[
             Optional["ConsumerRebalanceListener"],
-            Doc("""
+            Doc(
+                """
             Optionally include listener
                callback, which will be called before and after each rebalance
                operation.
@@ -2360,14 +2419,26 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                to subscribe. It is guaranteed, however, that the partitions
                revoked/assigned
                through this interface are from topics subscribed in this call.
-            """),
+            """
+            ),
         ] = None,
         pattern: Annotated[
             Optional[str],
-            Doc("""
+            Doc(
+                """
             Pattern to match available topics. You must provide either topics or pattern, but not both.
-            """),
+            """
+            ),
         ] = None,
+        partitions: Annotated[
+            Iterable["TopicPartition"],
+            Doc(
+                """
+            An explicit partitions list to assign.
+            You can't use 'topics' and 'partitions' in the same time.
+            """
+            ),
+        ] = (),
         # broker args
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -2403,6 +2474,12 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         no_ack: Annotated[
             bool,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        no_reply: Annotated[
+            bool,
+            Doc(
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+            ),
         ] = False,
         # AsyncAPI information
         title: Annotated[
@@ -2575,6 +2652,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             batch_timeout_ms=batch_timeout_ms,
             listener=listener,
             pattern=pattern,
+            partitions=partitions,
             # broker args
             dependencies=dependencies,
             parser=parser,
@@ -2583,6 +2661,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             filter=filter,
             retry=retry,
             no_ack=no_ack,
+            no_reply=no_reply,
             title=title,
             description=description,
             include_in_schema=include_in_schema,

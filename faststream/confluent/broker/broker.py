@@ -23,7 +23,12 @@ from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
 from faststream.confluent.broker.logging import KafkaLoggingBroker
 from faststream.confluent.broker.registrator import KafkaRegistrator
-from faststream.confluent.client import AsyncConfluentProducer, _missing
+from faststream.confluent.client import (
+    AsyncConfluentConsumer,
+    AsyncConfluentProducer,
+    _missing,
+)
+from faststream.confluent.config import ConfluentConfig
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
@@ -106,11 +111,6 @@ class KafkaBroker(
             """
             ),
         ] = 9 * 60 * 1000,
-        sasl_kerberos_service_name: str = "kafka",
-        sasl_kerberos_domain_name: Optional[str] = None,
-        sasl_oauth_token_provider: Annotated[
-            Optional[str], Doc("OAuthBearer token provider.")
-        ] = None,
         loop: Optional[AbstractEventLoop] = None,
         client_id: Annotated[
             Optional[str],
@@ -124,6 +124,13 @@ class KafkaBroker(
             """
             ),
         ] = SERVICE_NAME,
+        config: Annotated[
+            Optional[ConfluentConfig],
+            Doc("""
+                Extra configuration for the confluent-kafka-python
+                producer/consumer. See `confluent_kafka.Config <https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#kafka-client-configuration>`_.
+                """),
+        ] = None,
         # publisher args
         acks: Annotated[
             Union[Literal[0, 1, -1, "all"], object],
@@ -156,14 +163,6 @@ class KafkaBroker(
             """
             ),
         ] = _missing,
-        key_serializer: Annotated[
-            Optional[Callable[[Any], bytes]],
-            Doc("Used to convert user-supplied keys to bytes."),
-        ] = None,
-        value_serializer: Annotated[
-            Optional[Callable[[Any], bytes]],
-            Doc("used to convert user-supplied message values to bytes."),
-        ] = None,
         compression_type: Annotated[
             Optional[Literal["gzip", "snappy", "lz4", "zstd"]],
             Doc(
@@ -175,15 +174,6 @@ class KafkaBroker(
             """
             ),
         ] = None,
-        max_batch_size: Annotated[
-            int,
-            Doc(
-                """
-            Maximum size of buffered data per partition.
-            After this amount `send` coroutine will block until batch is drained.
-            """
-            ),
-        ] = 16 * 1024,
         partitioner: Annotated[
             Union[
                 str,
@@ -232,7 +222,6 @@ class KafkaBroker(
             """
             ),
         ] = 0,
-        send_backoff_ms: int = 100,
         enable_idempotence: Annotated[
             bool,
             Doc(
@@ -358,25 +347,17 @@ class KafkaBroker(
             bootstrap_servers=servers,
             # both args
             client_id=client_id,
-            api_version=protocol_version,
             request_timeout_ms=request_timeout_ms,
             retry_backoff_ms=retry_backoff_ms,
             metadata_max_age_ms=metadata_max_age_ms,
             connections_max_idle_ms=connections_max_idle_ms,
-            sasl_kerberos_service_name=sasl_kerberos_service_name,
-            sasl_kerberos_domain_name=sasl_kerberos_domain_name,
-            sasl_oauth_token_provider=sasl_oauth_token_provider,
             loop=loop,
             # publisher args
             acks=acks,
-            key_serializer=key_serializer,
-            value_serializer=value_serializer,
             compression_type=compression_type,
-            max_batch_size=max_batch_size,
             partitioner=partitioner,
             max_request_size=max_request_size,
             linger_ms=linger_ms,
-            send_backoff_ms=send_backoff_ms,
             enable_idempotence=enable_idempotence,
             transactional_id=transactional_id,
             transaction_timeout_ms=transaction_timeout_ms,
@@ -405,6 +386,7 @@ class KafkaBroker(
         )
         self.client_id = client_id
         self._producer = None
+        self.config = config
 
     async def _close(
         self,
@@ -425,7 +407,7 @@ class KafkaBroker(
             Doc("Kafka addresses to connect."),
         ] = Parameter.empty,
         **kwargs: Any,
-    ) -> ConsumerConnectionParams:
+    ) -> Callable[..., AsyncConfluentConsumer]:
         if bootstrap_servers is not Parameter.empty:
             kwargs["bootstrap_servers"] = bootstrap_servers
 
@@ -437,17 +419,27 @@ class KafkaBroker(
         *,
         client_id: str,
         **kwargs: Any,
-    ) -> ConsumerConnectionParams:
+    ) -> Callable[..., AsyncConfluentConsumer]:
         security_params = parse_security(self.security)
+        kwargs.update(security_params)
+
         producer = AsyncConfluentProducer(
             **kwargs,
-            **security_params,
             client_id=client_id,
+            logger=self.logger,
+            config=self.config,
         )
+
         self._producer = AsyncConfluentFastProducer(
             producer=producer,
         )
-        return filter_by_dict(ConsumerConnectionParams, {**kwargs, **security_params})
+
+        return partial(
+            AsyncConfluentConsumer,
+            **filter_by_dict(ConsumerConnectionParams, kwargs),
+            logger=self.logger,
+            config=self.config,
+        )
 
     async def start(self) -> None:
         await super().start()
@@ -461,7 +453,11 @@ class KafkaBroker(
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
-        return {"client_id": self.client_id, "connection_data": self._connection or {}}
+        return {
+            **super()._subscriber_setup_extra,
+            "client_id": self.client_id,
+            "builder": self._connection,
+        }
 
     @override
     async def publish(  # type: ignore[override]
@@ -507,7 +503,7 @@ class KafkaBroker(
 
         correlation_id = correlation_id or gen_cor_id()
 
-        call: "AsyncFunc" = self._producer.publish_batch
+        call: AsyncFunc = self._producer.publish_batch
         for m in self._middlewares:
             call = partial(m(None).publish_scope, call)
 

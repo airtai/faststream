@@ -1,11 +1,18 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
-from faststream.nats.message import NatsBatchMessage, NatsMessage
+from faststream.nats.message import (
+    NatsBatchMessage,
+    NatsKvMessage,
+    NatsMessage,
+    NatsObjMessage,
+)
 from faststream.nats.schemas.js_stream import compile_nats_wildcard
 
 if TYPE_CHECKING:
     from nats.aio.msg import Msg
+    from nats.js.api import ObjectInfo
+    from nats.js.kv import KeyValue
 
     from faststream.types import AnyDict, DecodedMessage
 
@@ -25,7 +32,7 @@ class NatsBaseParser:
         self,
         subject: str,
     ) -> Optional["AnyDict"]:
-        path: Optional["AnyDict"] = None
+        path: Optional[AnyDict] = None
 
         if (path_re := self.__path_re) is not None and (
             match := path_re.match(subject)
@@ -34,9 +41,9 @@ class NatsBaseParser:
 
         return path
 
-    @staticmethod
     async def decode_message(
-        msg: "StreamMessage[Msg]",
+        self,
+        msg: "StreamMessage[Any]",
     ) -> "DecodedMessage":
         return decode_message(msg)
 
@@ -102,24 +109,36 @@ class BatchParser(JsParser):
         self,
         message: List["Msg"],
     ) -> "StreamMessage[List[Msg]]":
-        if first_msg := next(iter(message), None):
-            path = self.get_path(first_msg.subject)
+        body: List[bytes] = []
+        batch_headers: List[Dict[str, str]] = []
+
+        if message:
+            path = self.get_path(message[0].subject)
+
+            for m in message:
+                batch_headers.append(m.headers or {})
+                body.append(m.data)
+
         else:
             path = None
 
+        headers = next(iter(batch_headers), {})
+
         return NatsBatchMessage(
             raw_message=message,
-            body=[m.data for m in message],
+            body=body,
             path=path or {},
+            headers=headers,
+            batch_headers=batch_headers,
         )
 
     async def decode_batch(
         self,
         msg: "StreamMessage[List[Msg]]",
     ) -> List["DecodedMessage"]:
-        data: List["DecodedMessage"] = []
+        data: List[DecodedMessage] = []
 
-        path: Optional["AnyDict"] = None
+        path: Optional[AnyDict] = None
         for m in msg.raw_message:
             one_msg = await self.parse_message(m, path=path)
             path = one_msg.path
@@ -127,3 +146,22 @@ class BatchParser(JsParser):
             data.append(decode_message(one_msg))
 
         return data
+
+
+class KvParser(NatsBaseParser):
+    async def parse_message(
+        self, msg: "KeyValue.Entry"
+    ) -> StreamMessage["KeyValue.Entry"]:
+        return NatsKvMessage(
+            raw_message=msg,
+            body=msg.value,
+            path=self.get_path(msg.key) or {},
+        )
+
+
+class ObjParser(NatsBaseParser):
+    async def parse_message(self, msg: "ObjectInfo") -> StreamMessage["ObjectInfo"]:
+        return NatsObjMessage(
+            raw_message=msg,
+            body=msg.name,
+        )
