@@ -2,16 +2,17 @@ import logging
 from inspect import Parameter
 from typing import TYPE_CHECKING, Any, ClassVar, Optional, Union
 
-from aio_pika import IncomingMessage, RobustConnection
+from aio_pika import IncomingMessage
 
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.log.logging import get_broker_logger
+from faststream.rabbit.broker.connection import ConnectionManager
 
 if TYPE_CHECKING:
     from faststream.types import LoggerProto
 
 
-class RabbitLoggingBroker(BrokerUsecase[IncomingMessage, RobustConnection]):
+class RabbitLoggingBroker(BrokerUsecase[IncomingMessage, ConnectionManager]):
     """A class that extends the LoggingMixin class and adds additional functionality for logging RabbitMQ related information."""
 
     _max_queue_len: int

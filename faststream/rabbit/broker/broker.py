@@ -3,7 +3,6 @@ from inspect import Parameter
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Type, Union, cast
 from urllib.parse import urlparse
 
-from aio_pika.pool import Pool
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
@@ -14,7 +13,7 @@ from faststream.rabbit.broker.logging import RabbitLoggingBroker
 from faststream.rabbit.broker.registrator import RabbitRegistrator
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
-from faststream.rabbit.schemas import RABBIT_REPLY, RabbitExchange, RabbitQueue
+from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.rabbit.utils import build_url
@@ -25,8 +24,6 @@ if TYPE_CHECKING:
 
     from aio_pika import (
         IncomingMessage,
-        RobustChannel,
-        RobustConnection,
         RobustExchange,
         RobustQueue,
     )
@@ -52,7 +49,6 @@ class RabbitBroker(
     _producer: Optional["AioPikaFastProducer"]
 
     declarer: Optional[RabbitDeclarer]
-    _connection_manager: Optional["ConnectionManager"]
 
     def __init__(
         self,
@@ -268,14 +264,13 @@ class RabbitBroker(
 
         self.app_id = app_id
 
-        self._channel = None
-        self._connection_manager = None
         self.declarer = None
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
             **super()._subscriber_setup_extra,
+            "max_consumers": self._max_consumers,
             "app_id": self.app_id,
             "virtual_host": self.virtual_host,
             "declarer": self.declarer,
@@ -346,7 +341,7 @@ class RabbitBroker(
                 "when mandatory message will be returned"
             ),
         ] = Parameter.empty,
-    ) -> "RobustConnection":
+    ) -> "ConnectionManager":
         """Connect broker object to RabbitMQ.
 
         To startup subscribers too you should use `broker.start()` after/instead this method.
@@ -401,38 +396,37 @@ class RabbitBroker(
         channel_number: Optional[int],
         publisher_confirms: bool,
         on_return_raises: bool,
-    ) -> "RobustConnection":
-        if self._connection_manager is None:
-            self._connection_manager = ConnectionManager(
-                url=url,
-                timeout=timeout,
-                ssl_context=ssl_context,
-                connection_pool_size=self.max_connection_pool_size,
-                channel_pool_size=self.max_channel_pool_size,
+    ) -> "ConnectionManager":
+        if self._max_consumers:
+            c = AsyncAPISubscriber.build_log_context(
+                None,
+                RabbitQueue(""),
+                RabbitExchange(""),
             )
+            self._log(f"Set max consumers to {self._max_consumers}", extra=c)
 
-        async with self._connection_manager.acquire_channel() as channel:
-            max_consumers = self._max_consumers
+        connection_manager = ConnectionManager(
+            url=url,
+            timeout=timeout,
+            ssl_context=ssl_context,
+            connection_pool_size=self.max_connection_pool_size,
+            channel_pool_size=self.max_channel_pool_size,
+            channel_number=channel_number,
+            publisher_confirms=publisher_confirms,
+            on_return_raises=on_return_raises,
+        )
 
-            declarer = self.declarer = RabbitDeclarer(channel)
-            await declarer.declare_queue(RABBIT_REPLY)
+        if self.declarer is None:
+            self.declarer = RabbitDeclarer(connection_manager)
 
+        if self._producer is None:
             self._producer = AioPikaFastProducer(
-                declarer=declarer,
+                declarer=self.declarer,
                 decoder=self._decoder,
                 parser=self._parser,
             )
 
-            if max_consumers:
-                c = AsyncAPISubscriber.build_log_context(
-                    None,
-                    RabbitQueue(""),
-                    RabbitExchange(""),
-                )
-                self._log(f"Set max consumers to {max_consumers}", extra=c)
-                await channel.set_qos(prefetch_count=int(max_consumers))
-
-            return cast("RobustConnection", channel._connection)
+        return connection_manager
 
     async def _close(
         self,
@@ -440,9 +434,8 @@ class RabbitBroker(
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
-        if self._connection_manager is not None:
-            await self._connection_manager.close()
-            self._connection_manager = None
+        if self._connection is not None:
+            await self._connection.close()
 
         self.declarer = None
         self._producer = None
