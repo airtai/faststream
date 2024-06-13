@@ -65,6 +65,7 @@ search:
         - [Acknowledgement](confluent/ack.md)
         - [Message Information](confluent/message.md)
         - [Security Configuration](confluent/security.md)
+        - [Additional Configuration](confluent/additional-configuration.md)
 - [RabbitMQ](rabbit/index.md)
     - [Subscription](rabbit/examples/index.md)
         - [Direct](rabbit/examples/direct.md)
@@ -443,6 +444,19 @@ search:
                     - [TopicPartition](api/faststream/confluent/client/TopicPartition.md)
                     - [check_msg_error](api/faststream/confluent/client/check_msg_error.md)
                     - [create_topics](api/faststream/confluent/client/create_topics.md)
+                - config
+                    - [BrokerAddressFamily](api/faststream/confluent/config/BrokerAddressFamily.md)
+                    - [BuiltinFeatures](api/faststream/confluent/config/BuiltinFeatures.md)
+                    - [ClientDNSLookup](api/faststream/confluent/config/ClientDNSLookup.md)
+                    - [CompressionCodec](api/faststream/confluent/config/CompressionCodec.md)
+                    - [CompressionType](api/faststream/confluent/config/CompressionType.md)
+                    - [ConfluentConfig](api/faststream/confluent/config/ConfluentConfig.md)
+                    - [Debug](api/faststream/confluent/config/Debug.md)
+                    - [GroupProtocol](api/faststream/confluent/config/GroupProtocol.md)
+                    - [IsolationLevel](api/faststream/confluent/config/IsolationLevel.md)
+                    - [OffsetStoreMethod](api/faststream/confluent/config/OffsetStoreMethod.md)
+                    - [SASLOAUTHBearerMethod](api/faststream/confluent/config/SASLOAUTHBearerMethod.md)
+                    - [SecurityProtocol](api/faststream/confluent/config/SecurityProtocol.md)
                 - fastapi
                     - [Context](api/faststream/confluent/fastapi/Context.md)
                     - [KafkaRouter](api/faststream/confluent/fastapi/KafkaRouter.md)
@@ -540,6 +554,7 @@ search:
                 - message
                     - [ConsumerProtocol](api/faststream/kafka/message/ConsumerProtocol.md)
                     - [FakeConsumer](api/faststream/kafka/message/FakeConsumer.md)
+                    - [KafkaAckableMessage](api/faststream/kafka/message/KafkaAckableMessage.md)
                     - [KafkaMessage](api/faststream/kafka/message/KafkaMessage.md)
                 - opentelemetry
                     - [KafkaTelemetryMiddleware](api/faststream/kafka/opentelemetry/KafkaTelemetryMiddleware.md)
@@ -551,6 +566,7 @@ search:
                         - [KafkaTelemetrySettingsProvider](api/faststream/kafka/opentelemetry/provider/KafkaTelemetrySettingsProvider.md)
                         - [telemetry_attributes_provider_factory](api/faststream/kafka/opentelemetry/provider/telemetry_attributes_provider_factory.md)
                 - parser
+                    - [AioKafkaBatchParser](api/faststream/kafka/parser/AioKafkaBatchParser.md)
                     - [AioKafkaParser](api/faststream/kafka/parser/AioKafkaParser.md)
                 - publisher
                     - asyncapi
@@ -765,6 +781,9 @@ search:
                     - [RabbitRouter](api/faststream/rabbit/fastapi/RabbitRouter.md)
                     - router
                         - [RabbitRouter](api/faststream/rabbit/fastapi/router/RabbitRouter.md)
+                - helpers
+                    - declarer
+                        - [RabbitDeclarer](api/faststream/rabbit/helpers/declarer/RabbitDeclarer.md)
                 - message
                     - [RabbitMessage](api/faststream/rabbit/message/RabbitMessage.md)
                 - opentelemetry
@@ -821,7 +840,6 @@ search:
                     - [apply_pattern](api/faststream/rabbit/testing/apply_pattern.md)
                     - [build_message](api/faststream/rabbit/testing/build_message.md)
                 - utils
-                    - [RabbitDeclarer](api/faststream/rabbit/utils/RabbitDeclarer.md)
                     - [build_url](api/faststream/rabbit/utils/build_url.md)
                     - [is_routing_exchange](api/faststream/rabbit/utils/is_routing_exchange.md)
             - redis

@@ -97,7 +97,10 @@ class FakeProducer(NatsFastProducer):
             ):
                 continue
 
-            if is_subject_match_wildcard(subject, handler.clear_subject):
+            if is_subject_match_wildcard(subject, handler.clear_subject) or any(
+                is_subject_match_wildcard(subject, filter_subject)
+                for filter_subject in (handler.config.filter_subjects or ())
+            ):
                 msg: Union[List[PatchedMessage], PatchedMessage]
                 if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
                     msg = [incoming]

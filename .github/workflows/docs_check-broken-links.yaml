@@ -2,8 +2,10 @@ name: Check docs for broken links
 
 on:
   workflow_run:
-    workflows: ["pages-build-deployment"]
-    types: [completed]
+    types:
+      - completed
+    workflows:
+      - Deploy Docs to GitHub Pages
 
 jobs:
   check-broken-link:

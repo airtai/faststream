@@ -106,7 +106,7 @@ class LogicPublisher(
         *,
         routing_key: str,
         queue: "RabbitQueue",
-        exchange: Optional["RabbitExchange"],
+        exchange: "RabbitExchange",
         message_kwargs: "PublishKwargs",
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
@@ -221,11 +221,11 @@ class LogicPublisher(
     ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        kwargs: "AnyDict" = {
+        kwargs: AnyDict = {
             "routing_key": routing_key
             or self.routing_key
             or RabbitQueue.validate(queue or self.queue).routing,
-            "exchange": exchange or self.exchange,
+            "exchange": exchange or self.exchange.name,
             "app_id": self.app_id,
             "correlation_id": correlation_id or gen_cor_id(),
             "message_id": message_id,
@@ -238,7 +238,7 @@ class LogicPublisher(
             **publish_kwargs,
         }
 
-        call: "AsyncFunc" = self._producer.publish
+        call: AsyncFunc = self._producer.publish
 
         for m in chain(
             (

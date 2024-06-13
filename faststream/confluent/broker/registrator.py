@@ -1,7 +1,6 @@
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Dict,
     Iterable,
     Literal,
@@ -73,20 +72,6 @@ class KafkaRegistrator(
             committing offsets. If `None`, auto-partition assignment (via
             group coordinator) and offset commits are disabled.
             """
-            ),
-        ] = None,
-        key_deserializer: Annotated[
-            Optional[Callable[[bytes], Any]],
-            Doc(
-                "Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."
-            ),
-        ] = None,
-        value_deserializer: Annotated[
-            Optional[Callable[[bytes], Any]],
-            Doc(
-                "Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."
             ),
         ] = None,
         fetch_max_wait_ms: Annotated[
@@ -209,20 +194,6 @@ class KafkaRegistrator(
             """
             ),
         ] = 5 * 60 * 1000,
-        rebalance_timeout_ms: Annotated[
-            Optional[int],
-            Doc(
-                """
-            The maximum time server will wait for this
-            consumer to rejoin the group in a case of rebalance. In Java client
-            this behaviour is bound to `max.poll.interval.ms` configuration,
-            but as ``aiokafka`` will rejoin the group in the background, we
-            decouple this setting to allow finer tuning by users that use
-            `ConsumerRebalanceListener` to delay rebalacing. Defaults
-            to ``session_timeout_ms``
-            """
-            ),
-        ] = None,
         session_timeout_ms: Annotated[
             int,
             Doc(
@@ -254,36 +225,6 @@ class KafkaRegistrator(
             """
             ),
         ] = 3 * 1000,
-        consumer_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Maximum wait timeout for background fetching
-            routine. Mostly defines how fast the system will see rebalance and
-            request new data for new partitions.
-            """
-            ),
-        ] = 200,
-        max_poll_records: Annotated[
-            Optional[int],
-            Doc(
-                """
-            The maximum number of records returned in a
-            single call by batch consumer. Has no limit by default.
-            """
-            ),
-        ] = None,
-        exclude_internal_topics: Annotated[
-            bool,
-            Doc(
-                """
-            Whether records from internal topics
-            (such as offsets) should be exposed to the consumer. If set to True
-            the only way to receive records from an internal topic is
-            subscribing to it.
-            """
-            ),
-        ] = True,
         isolation_level: Annotated[
             Literal["read_uncommitted", "read_committed"],
             Doc(
@@ -411,20 +352,6 @@ class KafkaRegistrator(
             """
             ),
         ] = None,
-        key_deserializer: Annotated[
-            Optional[Callable[[bytes], Any]],
-            Doc(
-                "Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."
-            ),
-        ] = None,
-        value_deserializer: Annotated[
-            Optional[Callable[[bytes], Any]],
-            Doc(
-                "Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."
-            ),
-        ] = None,
         fetch_max_wait_ms: Annotated[
             int,
             Doc(
@@ -545,20 +472,6 @@ class KafkaRegistrator(
             """
             ),
         ] = 5 * 60 * 1000,
-        rebalance_timeout_ms: Annotated[
-            Optional[int],
-            Doc(
-                """
-            The maximum time server will wait for this
-            consumer to rejoin the group in a case of rebalance. In Java client
-            this behaviour is bound to `max.poll.interval.ms` configuration,
-            but as ``aiokafka`` will rejoin the group in the background, we
-            decouple this setting to allow finer tuning by users that use
-            `ConsumerRebalanceListener` to delay rebalacing. Defaults
-            to ``session_timeout_ms``
-            """
-            ),
-        ] = None,
         session_timeout_ms: Annotated[
             int,
             Doc(
@@ -590,36 +503,6 @@ class KafkaRegistrator(
             """
             ),
         ] = 3 * 1000,
-        consumer_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Maximum wait timeout for background fetching
-            routine. Mostly defines how fast the system will see rebalance and
-            request new data for new partitions.
-            """
-            ),
-        ] = 200,
-        max_poll_records: Annotated[
-            Optional[int],
-            Doc(
-                """
-            The maximum number of records returned in a
-            single call by batch consumer. Has no limit by default.
-            """
-            ),
-        ] = None,
-        exclude_internal_topics: Annotated[
-            bool,
-            Doc(
-                """
-            Whether records from internal topics
-            (such as offsets) should be exposed to the consumer. If set to True
-            the only way to receive records from an internal topic is
-            subscribing to it.
-            """
-            ),
-        ] = True,
         isolation_level: Annotated[
             Literal["read_uncommitted", "read_committed"],
             Doc(
@@ -747,20 +630,6 @@ class KafkaRegistrator(
             """
             ),
         ] = None,
-        key_deserializer: Annotated[
-            Optional[Callable[[bytes], Any]],
-            Doc(
-                "Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."
-            ),
-        ] = None,
-        value_deserializer: Annotated[
-            Optional[Callable[[bytes], Any]],
-            Doc(
-                "Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."
-            ),
-        ] = None,
         fetch_max_wait_ms: Annotated[
             int,
             Doc(
@@ -881,20 +750,6 @@ class KafkaRegistrator(
             """
             ),
         ] = 5 * 60 * 1000,
-        rebalance_timeout_ms: Annotated[
-            Optional[int],
-            Doc(
-                """
-            The maximum time server will wait for this
-            consumer to rejoin the group in a case of rebalance. In Java client
-            this behaviour is bound to `max.poll.interval.ms` configuration,
-            but as ``aiokafka`` will rejoin the group in the background, we
-            decouple this setting to allow finer tuning by users that use
-            `ConsumerRebalanceListener` to delay rebalacing. Defaults
-            to ``session_timeout_ms``
-            """
-            ),
-        ] = None,
         session_timeout_ms: Annotated[
             int,
             Doc(
@@ -926,36 +781,6 @@ class KafkaRegistrator(
             """
             ),
         ] = 3 * 1000,
-        consumer_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Maximum wait timeout for background fetching
-            routine. Mostly defines how fast the system will see rebalance and
-            request new data for new partitions.
-            """
-            ),
-        ] = 200,
-        max_poll_records: Annotated[
-            Optional[int],
-            Doc(
-                """
-            The maximum number of records returned in a
-            single call by batch consumer. Has no limit by default.
-            """
-            ),
-        ] = None,
-        exclude_internal_topics: Annotated[
-            bool,
-            Doc(
-                """
-            Whether records from internal topics
-            (such as offsets) should be exposed to the consumer. If set to True
-            the only way to receive records from an internal topic is
-            subscribing to it.
-            """
-            ),
-        ] = True,
         isolation_level: Annotated[
             Literal["read_uncommitted", "read_committed"],
             Doc(
@@ -1086,20 +911,6 @@ class KafkaRegistrator(
             """
             ),
         ] = None,
-        key_deserializer: Annotated[
-            Optional[Callable[[bytes], Any]],
-            Doc(
-                "Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."
-            ),
-        ] = None,
-        value_deserializer: Annotated[
-            Optional[Callable[[bytes], Any]],
-            Doc(
-                "Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."
-            ),
-        ] = None,
         fetch_max_wait_ms: Annotated[
             int,
             Doc(
@@ -1220,20 +1031,6 @@ class KafkaRegistrator(
             """
             ),
         ] = 5 * 60 * 1000,
-        rebalance_timeout_ms: Annotated[
-            Optional[int],
-            Doc(
-                """
-            The maximum time server will wait for this
-            consumer to rejoin the group in a case of rebalance. In Java client
-            this behaviour is bound to `max.poll.interval.ms` configuration,
-            but as ``aiokafka`` will rejoin the group in the background, we
-            decouple this setting to allow finer tuning by users that use
-            `ConsumerRebalanceListener` to delay rebalacing. Defaults
-            to ``session_timeout_ms``
-            """
-            ),
-        ] = None,
         session_timeout_ms: Annotated[
             int,
             Doc(
@@ -1265,36 +1062,6 @@ class KafkaRegistrator(
             """
             ),
         ] = 3 * 1000,
-        consumer_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Maximum wait timeout for background fetching
-            routine. Mostly defines how fast the system will see rebalance and
-            request new data for new partitions.
-            """
-            ),
-        ] = 200,
-        max_poll_records: Annotated[
-            Optional[int],
-            Doc(
-                """
-            The maximum number of records returned in a
-            single call by batch consumer. Has no limit by default.
-            """
-            ),
-        ] = None,
-        exclude_internal_topics: Annotated[
-            bool,
-            Doc(
-                """
-            Whether records from internal topics
-            (such as offsets) should be exposed to the consumer. If set to True
-            the only way to receive records from an internal topic is
-            subscribing to it.
-            """
-            ),
-        ] = True,
         isolation_level: Annotated[
             Literal["read_uncommitted", "read_committed"],
             Doc(
@@ -1417,8 +1184,6 @@ class KafkaRegistrator(
                 max_records=max_records,
                 group_id=group_id,
                 connection_data={
-                    "key_deserializer": key_deserializer,
-                    "value_deserializer": value_deserializer,
                     "fetch_max_wait_ms": fetch_max_wait_ms,
                     "fetch_max_bytes": fetch_max_bytes,
                     "fetch_min_bytes": fetch_min_bytes,
@@ -1429,12 +1194,8 @@ class KafkaRegistrator(
                     "check_crcs": check_crcs,
                     "partition_assignment_strategy": partition_assignment_strategy,
                     "max_poll_interval_ms": max_poll_interval_ms,
-                    "rebalance_timeout_ms": rebalance_timeout_ms,
                     "session_timeout_ms": session_timeout_ms,
                     "heartbeat_interval_ms": heartbeat_interval_ms,
-                    "consumer_timeout_ms": consumer_timeout_ms,
-                    "max_poll_records": max_poll_records,
-                    "exclude_internal_topics": exclude_internal_topics,
                     "isolation_level": isolation_level,
                 },
                 is_manual=not auto_commit,

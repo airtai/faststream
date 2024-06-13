@@ -4,7 +4,7 @@ import pytest
 
 from faststream import BaseMiddleware
 from faststream.exceptions import SetupError
-from faststream.nats import JStream, NatsBroker, PullSub, TestNatsBroker
+from faststream.nats import ConsumerConfig, JStream, NatsBroker, PullSub, TestNatsBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -220,8 +220,6 @@ class TestTestclient(BrokerTestclientTestcase):
         self,
         queue: str,
         stream: JStream,
-        event: asyncio.Event,
-        mock,
     ):
         broker = self.get_broker()
 
@@ -231,9 +229,26 @@ class TestTestclient(BrokerTestclientTestcase):
             pull_sub=PullSub(1, batch=True),
         )
         def subscriber(m):
-            mock(m)
-            event.set()
+            pass
 
         async with TestNatsBroker(broker) as br:
             await br.publish("hello", queue)
             subscriber.mock.assert_called_once_with(["hello"])
+
+    async def test_consume_with_filter(
+        self,
+        queue,
+    ):
+        broker = self.get_broker()
+
+        @broker.subscriber(
+            config=ConsumerConfig(filter_subjects=[f"{queue}.a"]),
+            stream=JStream(queue, subjects=[f"{queue}.*"]),
+        )
+        def subscriber(m):
+            pass
+
+        async with TestNatsBroker(broker) as br:
+            await br.publish(1, f"{queue}.b")
+            await br.publish(2, f"{queue}.a")
+            subscriber.mock.assert_called_once_with(2)

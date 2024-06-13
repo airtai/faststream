@@ -12,6 +12,45 @@ hide:
 ---
 
 # Release Notes
+## 0.5.12
+
+### What's Changed
+
+Now, `FastStream` provides users with the ability to pass the `config` dictionary to `confluent-kafka-python` for greater customizability. The following example sets the parameter `topic.metadata.refresh.fast.interval.ms`'s value to `300` instead of the default value `100` via the `config` parameter.
+
+```python
+from faststream import FastStream
+from faststream.confluent import KafkaBroker
+
+config = {"topic.metadata.refresh.fast.interval.ms": 300}
+broker = KafkaBroker("localhost:9092", config=config)
+app = FastStream(broker)
+```
+
+* Update Release Notes for 0.5.11 by @faststream-release-notes-updater in [#1511](https://github.com/airtai/faststream/pull/1511){.external-link target="_blank"}
+* docs: update filters example by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1516](https://github.com/airtai/faststream/pull/1516){.external-link target="_blank"}
+* Add config param to pass additional parameters to confluent-kafka-python by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1505](https://github.com/airtai/faststream/pull/1505){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.11...0.5.12](https://github.com/airtai/faststream/compare/0.5.11...0.5.12){.external-link target="_blank"}
+
+## 0.5.11
+
+### What's Changed
+* Update Release Notes for 0.5.10 by @faststream-release-notes-updater in [#1482](https://github.com/airtai/faststream/pull/1482){.external-link target="_blank"}
+* feat: provide with an ability to create default RMQ Exchange by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1485](https://github.com/airtai/faststream/pull/1485){.external-link target="_blank"}
+* docs: fix typos by [@crazymidnight](https://github.com/crazymidnight){.external-link target="_blank"} in [#1489](https://github.com/airtai/faststream/pull/1489){.external-link target="_blank"}
+* chore: update CI triggers to minify useless runs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1483](https://github.com/airtai/faststream/pull/1483){.external-link target="_blank"}
+* Update link to badges by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1496](https://github.com/airtai/faststream/pull/1496){.external-link target="_blank"}
+* Run tests every day at 12:00 AM by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1497](https://github.com/airtai/faststream/pull/1497){.external-link target="_blank"}
+* Chore: update deps by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1503](https://github.com/airtai/faststream/pull/1503){.external-link target="_blank"}
+* fix: include NatsRouter streams to original broker by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1509](https://github.com/airtai/faststream/pull/1509){.external-link target="_blank"}
+
+### New Contributors
+* [@crazymidnight](https://github.com/crazymidnight){.external-link target="_blank"} made their first contribution in [#1489](https://github.com/airtai/faststream/pull/1489){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.10...0.5.11](https://github.com/airtai/faststream/compare/0.5.10...0.5.11){.external-link target="_blank"}
+
 ## 0.5.10
 
 ### What's Changed

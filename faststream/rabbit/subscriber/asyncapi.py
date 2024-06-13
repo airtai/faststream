@@ -18,9 +18,7 @@ class AsyncAPISubscriber(LogicSubscriber):
     """AsyncAPI-compatible Rabbit Subscriber class."""
 
     def get_name(self) -> str:
-        return (
-            f"{self.queue.name}:{getattr(self.exchange, 'name', '_')}:{self.call_name}"
-        )
+        return f"{self.queue.name}:{getattr(self.exchange, 'name', None) or '_'}:{self.call_name}"
 
     def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
@@ -59,7 +57,7 @@ class AsyncAPISubscriber(LogicSubscriber):
                             else None,
                             "exchange": (
                                 amqp.Exchange(type="default", vhost=self.virtual_host)
-                                if self.exchange is None
+                                if not self.exchange.name
                                 else amqp.Exchange(
                                     type=self.exchange.type.value,  # type: ignore
                                     name=self.exchange.name,

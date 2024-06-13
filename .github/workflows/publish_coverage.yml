@@ -1,18 +1,15 @@
-name: Smokeshow
+name: Publish tests coverage to Smokeshow and set coverage % status to commit
 
 on:
-  workflow_run:
-    workflows: [Test]
-    types: [completed]
-
+  push:
+    branches:
+      - main
 
 permissions:
   statuses: write
 
-
 jobs:
   smokeshow:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -22,15 +19,16 @@ jobs:
 
       - run: pip install smokeshow
 
-      - uses: dawidd6/action-download-artifact@v3.1.4 # nosemgrep
+      - uses: dawidd6/action-download-artifact@v4  # nosemgrep
         with:
-          workflow: test.yaml
-          commit: ${{ github.event.workflow_run.head_sha }}
+          workflow: pr_tests.yaml
+          workflow_conclusion: success
+          if_no_artifact_found: fail
 
       - run: smokeshow upload coverage-html
         env:
           SMOKESHOW_GITHUB_STATUS_DESCRIPTION: Coverage {coverage-percentage}
-          SMOKESHOW_GITHUB_COVERAGE_THRESHOLD: 70
+          SMOKESHOW_GITHUB_COVERAGE_THRESHOLD: 90
           SMOKESHOW_GITHUB_CONTEXT: coverage
           SMOKESHOW_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SMOKESHOW_GITHUB_PR_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}

@@ -1,4 +1,3 @@
-import ssl
 from contextlib import contextmanager
 from typing import Tuple
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -6,6 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from docs.docs_src.confluent.security.ssl_warning import test_without_ssl_warning
+from faststream.exceptions import SetupError
 
 __all__ = ["test_without_ssl_warning"]
 
@@ -34,16 +34,33 @@ async def test_base_security():
             producer_call_kwargs = producer.call_args.kwargs
 
             call_kwargs = {}
-            call_kwargs["security_protocol"] = "SSL"
 
             assert call_kwargs.items() <= producer_call_kwargs.items()
 
-            assert (
-                producer_call_kwargs["security_protocol"]
-                == call_kwargs["security_protocol"]
-            )
 
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+@pytest.mark.asyncio()
+@pytest.mark.confluent()
+async def test_base_security_pass_ssl_context():
+    import ssl
+
+    from faststream.confluent import KafkaBroker
+    from faststream.security import BaseSecurity
+
+    ssl_context = ssl.create_default_context()
+    security = BaseSecurity(ssl_context=ssl_context)
+
+    basic_broker = KafkaBroker("localhost:9092", security=security)
+
+    with patch_aio_consumer_and_producer(), pytest.raises(
+        SetupError, match="not supported"
+    ) as e:
+        async with basic_broker:
+            pass
+
+    assert (
+        str(e.value)
+        == "ssl_context in not supported by confluent-kafka-python, please use config instead."
+    )
 
 
 @pytest.mark.asyncio()
@@ -70,8 +87,6 @@ async def test_scram256():
                 == call_kwargs["security_protocol"]
             )
 
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
-
 
 @pytest.mark.asyncio()
 @pytest.mark.confluent()
@@ -97,8 +112,6 @@ async def test_scram512():
                 == call_kwargs["security_protocol"]
             )
 
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
-
 
 @pytest.mark.asyncio()
 @pytest.mark.confluent()
@@ -123,5 +136,3 @@ async def test_plaintext():
                 producer_call_kwargs["security_protocol"]
                 == call_kwargs["security_protocol"]
             )
-
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext

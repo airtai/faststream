@@ -26,7 +26,8 @@ from faststream.broker.types import (
     CustomCallable,
     MsgType,
 )
-from faststream.kafka.parser import AioKafkaParser
+from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
+from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer, ConsumerRecord
@@ -60,7 +61,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         listener: Optional["ConsumerRebalanceListener"],
         pattern: Optional[str],
         partitions: Iterable["TopicPartition"],
-        is_manual: bool,
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
@@ -93,7 +93,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.partitions = partitions
         self.group_id = group_id
 
-        self.is_manual = is_manual
         self.builder = None
         self.consumer = None
         self.task = None
@@ -306,6 +305,10 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
+        parser = AioKafkaParser(
+            msg_class=KafkaAckableMessage if is_manual else KafkaMessage
+        )
+
         super().__init__(
             *topics,
             group_id=group_id,
@@ -313,10 +316,9 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             pattern=pattern,
             connection_args=connection_args,
             partitions=partitions,
-            is_manual=is_manual,
             # subscriber args
-            default_parser=AioKafkaParser.parse_message,
-            default_decoder=AioKafkaParser.decode_message,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
             # Propagated args
             no_ack=no_ack,
             no_reply=no_reply,
@@ -363,6 +365,10 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         self.batch_timeout_ms = batch_timeout_ms
         self.max_records = max_records
 
+        parser = AioKafkaBatchParser(
+            msg_class=KafkaAckableMessage if is_manual else KafkaMessage
+        )
+
         super().__init__(
             *topics,
             group_id=group_id,
@@ -370,10 +376,9 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             pattern=pattern,
             connection_args=connection_args,
             partitions=partitions,
-            is_manual=is_manual,
             # subscriber args
-            default_parser=AioKafkaParser.parse_message_batch,
-            default_decoder=AioKafkaParser.decode_message_batch,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
             # Propagated args
             no_ack=no_ack,
             no_reply=no_reply,

@@ -97,7 +97,7 @@ class BaseMiddleware:
         **kwargs: Any,
     ) -> Any:
         """Publish a message and return an async iterator."""
-        err: Optional[Exception]
+        err: Optional[Exception] = None
         try:
             result = await call_next(
                 await self.on_publish(msg, *args, **kwargs),
@@ -109,7 +109,6 @@ class BaseMiddleware:
             err = e
 
         else:
-            err = None
             return result
 
         finally:
