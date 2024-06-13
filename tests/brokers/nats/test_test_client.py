@@ -80,6 +80,18 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert event.is_set()
 
+    @pytest.mark.nats()
+    async def test_inbox_prefix_with_real(
+        self,
+        queue: str,
+    ):
+        broker = NatsBroker(inbox_prefix="test")
+
+        async with TestNatsBroker(broker, with_real=True) as br:
+            assert br._connection._inbox_prefix == "test"
+            assert "test" in str(br._connection.new_inbox)
+
+
     async def test_respect_middleware(self, queue):
         routes = []
 
