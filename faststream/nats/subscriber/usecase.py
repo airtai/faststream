@@ -1014,20 +1014,19 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
             declare=self.obj_watch.declare,
         )
 
-        self.subscription = UnsubscribeAdapter["ObjectStore.ObjectWatcher"](
-            await self.bucket.watch(
-                ignore_deletes=self.obj_watch.ignore_deletes,
-                include_history=self.obj_watch.include_history,
-                meta_only=self.obj_watch.meta_only,
-            )
-        )
-
         self.add_task(self._consume_watch())
 
     async def _consume_watch(self) -> None:
-        assert self.subscription, "You should call `create_subscription` at first."  # nosec B101
+        assert self.bucket, "You should call `create_subscription` at first."  # nosec B101
 
-        obj_watch = self.subscription.obj
+        # Should be created inside task to avoid nats-py lock
+        obj_watch = await self.bucket.watch(
+            ignore_deletes=self.obj_watch.ignore_deletes,
+            include_history=self.obj_watch.include_history,
+            meta_only=self.obj_watch.meta_only,
+        )
+
+        self.subscription = UnsubscribeAdapter["ObjectStore.ObjectWatcher"](obj_watch)
 
         while self.running:
             with suppress(TimeoutError):
