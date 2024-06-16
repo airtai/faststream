@@ -1,14 +1,21 @@
 import time
+from collections import Counter
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, Optional, Type
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Type
 
-from opentelemetry import context, metrics, propagate, trace
+from opentelemetry import baggage, context, metrics, trace
+from opentelemetry.baggage.propagation import W3CBaggagePropagator
 from opentelemetry.semconv.trace import SpanAttributes
+from opentelemetry.trace import Link, Span
+from opentelemetry.context import Context
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
 from faststream import BaseMiddleware
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
     MESSAGING_DESTINATION_PUBLISH_NAME,
+    OTEL_SCHEMA,
+    WITH_BATCH,
     MessageAction,
 )
 from faststream.opentelemetry.provider import TelemetrySettingsProvider
@@ -16,19 +23,53 @@ from faststream.opentelemetry.provider import TelemetrySettingsProvider
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from opentelemetry.context import Context
     from opentelemetry.metrics import Meter, MeterProvider
-    from opentelemetry.trace import Span, Tracer, TracerProvider
+    from opentelemetry.trace import Tracer, TracerProvider
 
     from faststream.broker.message import StreamMessage
     from faststream.types import AnyDict, AsyncFunc, AsyncFuncAny
 
 
-_OTEL_SCHEMA = "https://opentelemetry.io/schemas/1.11.0"
+_BAGGAGE_PROPAGATOR = W3CBaggagePropagator()
+_TRACE_PROPAGATOR = TraceContextTextMapPropagator()
 
 
 def _create_span_name(destination: str, action: str) -> str:
     return f"{destination} {action}"
+
+
+def _is_batch_message(msg: "StreamMessage[Any]") -> bool:
+    with_batch = baggage.get_baggage(WITH_BATCH, _BAGGAGE_PROPAGATOR.extract(msg.headers))
+    return bool(msg.batch_headers or with_batch)
+
+
+def _get_span_link(headers: "AnyDict", count: int) -> Optional[Link]:
+    trace_context = _TRACE_PROPAGATOR.extract(headers)
+    if not len(trace_context):
+        return None
+    span_context = next(iter(trace_context.values()))
+    if not isinstance(span_context, Span):
+        return None
+    attributes = {SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: count} if count > 1 else None
+    return Link(span_context.get_span_context(), attributes=attributes)
+
+
+def _get_span_links(msg: "StreamMessage[Any]") -> Optional[List[Link]]:
+    if not msg.batch_headers:
+        link = _get_span_link(msg.headers, 1)
+        return [link] if link else None
+
+    links = []
+    all_headers = {h["correlation_id"]: h for h in msg.batch_headers}
+    counted_links = Counter([h["correlation_id"] for h in msg.batch_headers]).most_common()
+
+    for correlation_id, count in counted_links:
+        link = _get_span_link(all_headers[correlation_id], count)
+        if link is None:
+            continue
+        links.append(link)
+
+    return links if links else None
 
 
 class _MetricsContainer:
@@ -139,12 +180,13 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         # NOTE: if batch with single message?
         if (msg_count := len((msg, *args))) > 1:
             trace_attributes[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = msg_count
+            _BAGGAGE_PROPAGATOR.inject(headers, baggage.set_baggage(WITH_BATCH, True, context=current_context))
 
         if self._current_span and self._current_span.is_recording():
             current_context = trace.set_span_in_context(
                 self._current_span, current_context
             )
-            propagate.inject(headers, context=self._origin_context)
+            _TRACE_PROPAGATOR.inject(headers, context=self._origin_context)
 
         else:
             create_span = self._tracer.start_span(
@@ -153,7 +195,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 attributes=trace_attributes,
             )
             current_context = trace.set_span_in_context(create_span)
-            propagate.inject(headers, context=current_context)
+            _TRACE_PROPAGATOR.inject(headers, context=current_context)
             create_span.end()
 
         start_time = time.perf_counter()
@@ -188,9 +230,14 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         if (provider := self.__settings_provider) is None:
             return await call_next(msg)
 
-        current_context = propagate.extract(msg.headers)
-        destination_name = provider.get_consume_destination_name(msg)
+        if _is_batch_message(msg):
+            links = _get_span_links(msg)
+            current_context = Context()
+        else:
+            links = None
+            current_context = _TRACE_PROPAGATOR.extract(msg.headers)
 
+        destination_name = provider.get_consume_destination_name(msg)
         trace_attributes = provider.get_consume_attrs_from_message(msg)
         metrics_attributes = {
             SpanAttributes.MESSAGING_SYSTEM: provider.messaging_system,
@@ -202,6 +249,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 name=_create_span_name(destination_name, MessageAction.CREATE),
                 kind=trace.SpanKind.CONSUMER,
                 attributes=trace_attributes,
+                links=links,
             )
             current_context = trace.set_span_in_context(create_span)
             create_span.end()
@@ -292,7 +340,7 @@ def _get_meter(
         return metrics.get_meter(
             __name__,
             meter_provider=meter_provider,
-            schema_url=_OTEL_SCHEMA,
+            schema_url=OTEL_SCHEMA,
         )
     return meter
 
@@ -301,5 +349,5 @@ def _get_tracer(tracer_provider: Optional["TracerProvider"] = None) -> "Tracer":
     return trace.get_tracer(
         __name__,
         tracer_provider=tracer_provider,
-        schema_url=_OTEL_SCHEMA,
+        schema_url=OTEL_SCHEMA,
     )

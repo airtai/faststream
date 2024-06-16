@@ -42,6 +42,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         )
         broker = self.broker_class(middlewares=(mid,))
         expected_msg_count = 3
+        expected_link_count = 1
 
         @broker.subscriber(list=ListSub(queue, batch=True), **self.subscriber_kwargs)
         async def handler(m):
@@ -60,7 +61,7 @@ class TestTelemetry(LocalTelemetryTestcase):
 
         metrics = self.get_metrics(metric_reader)
         spans = self.get_spans(trace_exporter)
-        _, publish, process = spans
+        _, publish, create_process, process = spans
 
         assert (
             publish.attributes[SpanAttr.MESSAGING_BATCH_MESSAGE_COUNT]
@@ -70,6 +71,7 @@ class TestTelemetry(LocalTelemetryTestcase):
             process.attributes[SpanAttr.MESSAGING_BATCH_MESSAGE_COUNT]
             == expected_msg_count
         )
+        assert len(create_process.links) == expected_link_count
         self.assert_metrics(metrics, count=expected_msg_count)
 
         assert event.is_set()

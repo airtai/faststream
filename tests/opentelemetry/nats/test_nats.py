@@ -44,6 +44,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         )
         broker = self.broker_class(middlewares=(mid,))
         expected_msg_count = 3
+        expected_span_count = 8
 
         @broker.subscriber(
             queue,
@@ -71,7 +72,10 @@ class TestTelemetry(LocalTelemetryTestcase):
         proc_dur, proc_msg, pub_dur, pub_msg = metrics
         spans = self.get_spans(trace_exporter)
         process = spans[-1]
+        create_batch = spans[-2]
 
+        assert len(create_batch.links) == expected_msg_count
+        assert len(spans) == expected_span_count
         assert (
             process.attributes[SpanAttr.MESSAGING_BATCH_MESSAGE_COUNT]
             == expected_msg_count
