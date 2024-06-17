@@ -1,7 +1,7 @@
 import time
-from collections import Counter
+from collections import defaultdict
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Type
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Type
 
 from opentelemetry import baggage, context, metrics, trace
 from opentelemetry.baggage.propagation import W3CBaggagePropagator
@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 
     from opentelemetry.metrics import Meter, MeterProvider
     from opentelemetry.trace import Tracer, TracerProvider
+    from opentelemetry.util.types import Attributes
 
     from faststream.broker.message import StreamMessage
     from faststream.types import AnyDict, AsyncFunc, AsyncFuncAny
@@ -45,40 +46,42 @@ def _is_batch_message(msg: "StreamMessage[Any]") -> bool:
     return bool(msg.batch_headers or with_batch)
 
 
-def _get_span_link(headers: "AnyDict", count: int) -> Optional[Link]:
+def _get_span_link(headers: "AnyDict", attributes: "Attributes") -> Optional[Link]:
     trace_context = _TRACE_PROPAGATOR.extract(headers)
     if not len(trace_context):
         return None
     span_context = next(iter(trace_context.values()))
     if not isinstance(span_context, Span):
         return None
-    attributes = (
-        {SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: count} if count > 1 else None
-    )
     return Link(span_context.get_span_context(), attributes=attributes)
 
 
-def _get_span_links(msg: "StreamMessage[Any]") -> Optional[List[Link]]:
-    if not msg.batch_headers:
-        link = _get_span_link(msg.headers, 1)
-        return [link] if link else None
+def _get_link_attributes(message_count: int) -> "Attributes":
+    if message_count <= 1:
+        return {}
+    return {SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: message_count}
 
-    links, headers_by_correlation, all_correlations = [], {}, []
+
+def _get_span_links(msg: "StreamMessage[Any]") -> List[Link]:
+    if not msg.batch_headers:
+        link = _get_span_link(msg.headers, {})
+        return [link] if link else []
+
+    links = {}
+    counter: Dict[str, int] = defaultdict(lambda: 0)
 
     for headers in msg.batch_headers:
         correlation_id = headers.get("correlation_id")
         if correlation_id is None:
             continue
-        headers_by_correlation[correlation_id] = headers
-        all_correlations.append(correlation_id)
-
-    for correlation_id, count in Counter(all_correlations).most_common():
-        link = _get_span_link(headers_by_correlation[correlation_id], count)
+        counter[correlation_id] += 1
+        attributes = _get_link_attributes(counter[correlation_id])
+        link = _get_span_link(headers, attributes)
         if link is None:
             continue
-        links.append(link)
+        links[correlation_id] = link
 
-    return links if links else None
+    return list(links.values())
 
 
 class _MetricsContainer:
