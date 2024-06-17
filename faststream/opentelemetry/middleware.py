@@ -59,12 +59,17 @@ def _get_span_links(msg: "StreamMessage[Any]") -> Optional[List[Link]]:
         link = _get_span_link(msg.headers, 1)
         return [link] if link else None
 
-    links = []
-    all_headers = {h["correlation_id"]: h for h in msg.batch_headers}
-    counted_links = Counter([h["correlation_id"] for h in msg.batch_headers]).most_common()
+    links, headers_by_correlation, all_correlations = [], {}, []
 
-    for correlation_id, count in counted_links:
-        link = _get_span_link(all_headers[correlation_id], count)
+    for headers in msg.batch_headers:
+        correlation_id = headers.get("correlation_id")
+        if correlation_id is None:
+            continue
+        headers_by_correlation[correlation_id] = headers
+        all_correlations.append(correlation_id)
+
+    for correlation_id, count in Counter(all_correlations).most_common():
+        link = _get_span_link(headers_by_correlation[correlation_id], count)
         if link is None:
             continue
         links.append(link)
