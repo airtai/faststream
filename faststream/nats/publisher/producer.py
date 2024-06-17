@@ -1,7 +1,5 @@
 import asyncio
-from secrets import token_hex
 from typing import TYPE_CHECKING, Any, Dict, Optional
-from uuid import uuid4
 
 import nats
 from typing_extensions import override
@@ -71,9 +69,7 @@ class NatsFastProducer(ProducerProto):
             if reply_to:
                 raise WRONG_PUBLISH_ARGS
 
-            token = client._nuid.next()
-            token.extend(token_hex(2).encode())
-            reply_to = token.decode()
+            reply_to = client.new_inbox()
 
             future: asyncio.Future[Msg] = asyncio.Future()
             sub = await client.subscribe(reply_to, future=future, max_msgs=1)
@@ -148,8 +144,7 @@ class NatsJSFastProducer(ProducerProto):
         if rpc:
             if reply_to:
                 raise WRONG_PUBLISH_ARGS
-
-            reply_to = str(uuid4())
+            reply_to = self._connection._nc.new_inbox()
             future: asyncio.Future[Msg] = asyncio.Future()
             sub = await self._connection._nc.subscribe(
                 reply_to, future=future, max_msgs=1

@@ -1007,6 +1007,8 @@ search:
                     - [to_async](api/faststream/utils/functions/to_async.md)
                 - no_cast
                     - [NoCast](api/faststream/utils/no_cast/NoCast.md)
+                - nuid
+                    - [NUID](api/faststream/utils/nuid/NUID.md)
                 - path
                     - [compile_path](api/faststream/utils/path/compile_path.md)
 - Contributing
