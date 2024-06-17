@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from opentelemetry.semconv.trace import SpanAttributes
 
@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from aio_pika import IncomingMessage
 
     from faststream.broker.message import StreamMessage
+    from faststream.rabbit.schemas.exchange import RabbitExchange
     from faststream.types import AnyDict
 
 
@@ -44,9 +45,12 @@ class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage
         self,
         kwargs: "AnyDict",
     ) -> "AnyDict":
+        exchange: Union[None, str, RabbitExchange] = kwargs.get("exchange")
         return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
-            SpanAttributes.MESSAGING_DESTINATION_NAME: kwargs.get("exchange") or "",
+            SpanAttributes.MESSAGING_DESTINATION_NAME: getattr(
+                exchange, "name", exchange or ""
+            ),
             SpanAttributes.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY: kwargs[
                 "routing_key"
             ],

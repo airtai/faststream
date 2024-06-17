@@ -48,7 +48,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         @broker.subscriber(
             queue,
             stream=stream,
-            pull_sub=PullSub(3, batch=True),
+            pull_sub=PullSub(3, batch=True, timeout=30.0),
             **self.subscriber_kwargs,
         )
         async def handler(m):
