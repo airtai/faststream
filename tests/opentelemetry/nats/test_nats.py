@@ -45,6 +45,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         broker = self.broker_class(middlewares=(mid,))
         expected_msg_count = 3
         expected_span_count = 8
+        expected_proc_batch_count = 1
 
         @broker.subscriber(
             queue,
@@ -82,7 +83,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         )
         assert proc_msg.data.data_points[0].value == expected_msg_count
         assert pub_msg.data.data_points[0].value == expected_msg_count
-        assert proc_dur.data.data_points[0].count == 1
+        assert proc_dur.data.data_points[0].count == expected_proc_batch_count
         assert pub_dur.data.data_points[0].count == expected_msg_count
 
         assert event.is_set()

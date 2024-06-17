@@ -43,6 +43,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         broker = self.broker_class(middlewares=(mid,))
         expected_msg_count = 3
         expected_link_count = 1
+        expected_link_attrs = {"messaging.batch.message_count": 3}
 
         @broker.subscriber(list=ListSub(queue, batch=True), **self.subscriber_kwargs)
         async def handler(m):
@@ -72,10 +73,121 @@ class TestTelemetry(LocalTelemetryTestcase):
             == expected_msg_count
         )
         assert len(create_process.links) == expected_link_count
+        assert create_process.links[0].attributes == expected_link_attrs
         self.assert_metrics(metrics, count=expected_msg_count)
 
         assert event.is_set()
         mock.assert_called_once_with([1, "hi", 3])
+
+    async def test_batch_publish_with_single_consume(
+        self,
+        queue: str,
+        meter_provider: MeterProvider,
+        metric_reader: InMemoryMetricReader,
+        tracer_provider: TracerProvider,
+        trace_exporter: InMemorySpanExporter,
+    ):
+        mid = self.telemetry_middleware_class(
+            meter_provider=meter_provider, tracer_provider=tracer_provider
+        )
+        broker = self.broker_class(middlewares=(mid,))
+        msgs_queue = asyncio.Queue(maxsize=3)
+        expected_msg_count = 3
+        expected_link_count = 1
+        expected_span_count = 8
+        expected_pub_batch_count = 1
+
+        @broker.subscriber(list=ListSub(queue), **self.subscriber_kwargs)
+        async def handler(msg):
+            await msgs_queue.put(msg)
+
+        broker = self.patch_broker(broker)
+
+        async with broker:
+            await broker.start()
+            await broker.publish_batch(1, "hi", 3, list=queue)
+            result, _ = await asyncio.wait(
+                (
+                    asyncio.create_task(msgs_queue.get()),
+                    asyncio.create_task(msgs_queue.get()),
+                    asyncio.create_task(msgs_queue.get()),
+                ),
+                timeout=3,
+            )
+
+        metrics = self.get_metrics(metric_reader)
+        proc_dur, proc_msg, pub_dur, pub_msg = metrics
+        spans = self.get_spans(trace_exporter)
+        publish = spans[1]
+        create_processes = [spans[2], spans[4], spans[6]]
+
+        assert len(spans) == expected_span_count
+        assert (
+            publish.attributes[SpanAttr.MESSAGING_BATCH_MESSAGE_COUNT]
+            == expected_msg_count
+        )
+        for cp in create_processes:
+            assert len(cp.links) == expected_link_count
+
+        assert proc_msg.data.data_points[0].value == expected_msg_count
+        assert pub_msg.data.data_points[0].value == expected_msg_count
+        assert proc_dur.data.data_points[0].count == expected_msg_count
+        assert pub_dur.data.data_points[0].count == expected_pub_batch_count
+
+        assert {1, "hi", 3} == {r.result() for r in result}
+
+    async def test_single_publish_with_batch_consume(
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+        meter_provider: MeterProvider,
+        metric_reader: InMemoryMetricReader,
+        tracer_provider: TracerProvider,
+        trace_exporter: InMemorySpanExporter,
+    ):
+        mid = self.telemetry_middleware_class(
+            meter_provider=meter_provider, tracer_provider=tracer_provider
+        )
+        broker = self.broker_class(middlewares=(mid,))
+        expected_msg_count = 2
+        expected_link_count = 2
+        expected_span_count = 6
+        expected_process_batch_count = 1
+
+        @broker.subscriber(list=ListSub(queue, batch=True), **self.subscriber_kwargs)
+        async def handler(m):
+            m.sort()
+            mock(m)
+            event.set()
+
+        broker = self.patch_broker(broker)
+
+        async with broker:
+            tasks = (
+                asyncio.create_task(broker.publish("hi", list=queue)),
+                asyncio.create_task(broker.publish("buy", list=queue)),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
+            await broker.start()
+            await asyncio.wait(
+                (asyncio.create_task(event.wait()),), timeout=self.timeout
+            )
+
+        metrics = self.get_metrics(metric_reader)
+        proc_dur, proc_msg, pub_dur, pub_msg = metrics
+        spans = self.get_spans(trace_exporter)
+        create_process = spans[-2]
+
+        assert len(spans) == expected_span_count
+        assert len(create_process.links) == expected_link_count
+        assert proc_msg.data.data_points[0].value == expected_msg_count
+        assert pub_msg.data.data_points[0].value == expected_msg_count
+        assert proc_dur.data.data_points[0].count == expected_process_batch_count
+        assert pub_dur.data.data_points[0].count == expected_msg_count
+
+        assert event.is_set()
+        mock.assert_called_once_with(["buy", "hi"])
 
 
 @pytest.mark.redis()

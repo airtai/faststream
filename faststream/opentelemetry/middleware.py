@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, Any, Callable, List, Optional, Type
 
 from opentelemetry import baggage, context, metrics, trace
 from opentelemetry.baggage.propagation import W3CBaggagePropagator
+from opentelemetry.context import Context
 from opentelemetry.semconv.trace import SpanAttributes
 from opentelemetry.trace import Link, Span
-from opentelemetry.context import Context
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
 from faststream import BaseMiddleware
@@ -39,7 +39,9 @@ def _create_span_name(destination: str, action: str) -> str:
 
 
 def _is_batch_message(msg: "StreamMessage[Any]") -> bool:
-    with_batch = baggage.get_baggage(WITH_BATCH, _BAGGAGE_PROPAGATOR.extract(msg.headers))
+    with_batch = baggage.get_baggage(
+        WITH_BATCH, _BAGGAGE_PROPAGATOR.extract(msg.headers)
+    )
     return bool(msg.batch_headers or with_batch)
 
 
@@ -50,7 +52,9 @@ def _get_span_link(headers: "AnyDict", count: int) -> Optional[Link]:
     span_context = next(iter(trace_context.values()))
     if not isinstance(span_context, Span):
         return None
-    attributes = {SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: count} if count > 1 else None
+    attributes = (
+        {SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: count} if count > 1 else None
+    )
     return Link(span_context.get_span_context(), attributes=attributes)
 
 
@@ -185,7 +189,9 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         # NOTE: if batch with single message?
         if (msg_count := len((msg, *args))) > 1:
             trace_attributes[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = msg_count
-            _BAGGAGE_PROPAGATOR.inject(headers, baggage.set_baggage(WITH_BATCH, True, context=current_context))
+            _BAGGAGE_PROPAGATOR.inject(
+                headers, baggage.set_baggage(WITH_BATCH, True, context=current_context)
+            )
 
         if self._current_span and self._current_span.is_recording():
             current_context = trace.set_span_in_context(
