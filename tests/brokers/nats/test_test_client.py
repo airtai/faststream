@@ -88,7 +88,7 @@ class TestTestclient(BrokerTestclientTestcase):
         broker = NatsBroker(inbox_prefix="test")
 
         async with TestNatsBroker(broker, with_real=True) as br:
-            assert br._connection._inbox_prefix == b'test'
+            assert br._connection._inbox_prefix == b"test"
             assert "test" in str(br._connection.new_inbox())
 
 
