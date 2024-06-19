@@ -358,7 +358,7 @@ def _get_msg_links(msg: "StreamMessage[Any]") -> List[Link]:
     return list(links.values())
 
 
-def _get_span_from_headers(headers: "AnyDict", attributes: "Attributes") -> Optional[Span]:
+def _get_span_from_headers(headers: "AnyDict") -> Optional[Span]:
     trace_context = _TRACE_PROPAGATOR.extract(headers)
     if not len(trace_context):
         return None
@@ -369,4 +369,6 @@ def _get_span_from_headers(headers: "AnyDict", attributes: "Attributes") -> Opti
 def _get_link_attributes(message_count: int) -> "Attributes":
     if message_count <= 1:
         return {}
-    return {SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: message_count}
+    return {
+        SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: message_count,
+    }
