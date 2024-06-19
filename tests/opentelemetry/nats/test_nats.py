@@ -43,12 +43,14 @@ class TestTelemetry(LocalTelemetryTestcase):
             meter_provider=meter_provider, tracer_provider=tracer_provider
         )
         broker = self.broker_class(middlewares=(mid,))
-        expected_msg_count = 3
+        expected_msg_count = 1
+        expected_span_count = 4
+        expected_proc_batch_count = 1
 
         @broker.subscriber(
             queue,
             stream=stream,
-            pull_sub=PullSub(3, batch=True, timeout=30.0),
+            pull_sub=PullSub(1, batch=True, timeout=30.0),
             **self.subscriber_kwargs,
         )
         async def handler(m):
@@ -60,9 +62,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         async with broker:
             await broker.start()
             tasks = (
-                asyncio.create_task(broker.publish(1, queue)),
                 asyncio.create_task(broker.publish("hi", queue)),
-                asyncio.create_task(broker.publish(3, queue)),
                 asyncio.create_task(event.wait()),
             )
             await asyncio.wait(tasks, timeout=self.timeout)
@@ -71,18 +71,21 @@ class TestTelemetry(LocalTelemetryTestcase):
         proc_dur, proc_msg, pub_dur, pub_msg = metrics
         spans = self.get_spans(trace_exporter)
         process = spans[-1]
+        create_batch = spans[-2]
 
+        assert len(create_batch.links) == expected_msg_count
+        assert len(spans) == expected_span_count
         assert (
             process.attributes[SpanAttr.MESSAGING_BATCH_MESSAGE_COUNT]
             == expected_msg_count
         )
         assert proc_msg.data.data_points[0].value == expected_msg_count
         assert pub_msg.data.data_points[0].value == expected_msg_count
-        assert proc_dur.data.data_points[0].count == 1
+        assert proc_dur.data.data_points[0].count == expected_proc_batch_count
         assert pub_dur.data.data_points[0].count == expected_msg_count
 
         assert event.is_set()
-        mock.assert_called_once_with([1, "hi", 3])
+        mock.assert_called_once_with(["hi"])
 
 
 @pytest.mark.nats()

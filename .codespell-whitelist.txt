@@ -1,2 +1,3 @@
 dependant
 unsecure
+socio-economic

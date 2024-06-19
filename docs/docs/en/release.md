@@ -324,7 +324,7 @@ You can find more information about it in the official [**aiokafka** doc](https:
 
 `pattern` option was added too, but it is still experimental and does not support `Path`
 
-3. [`Path`](https://faststream.airt.ai/latest/nats/message/#subject-pattern-access) feature performance was increased. Also, `Path` is suitable for NATS `PullSub` batch subscribtion as well now.
+3. [`Path`](https://faststream.airt.ai/latest/nats/message/#subject-pattern-access) feature performance was increased. Also, `Path` is suitable for NATS `PullSub` batch subscription as well now.
 
 ```python
 from faststream import NatsBroker, PullSub
