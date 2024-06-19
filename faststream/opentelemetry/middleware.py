@@ -1,7 +1,7 @@
 import time
 from collections import defaultdict
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Type, cast
 
 from opentelemetry import baggage, context, metrics, trace
 from opentelemetry.baggage.propagation import W3CBaggagePropagator
@@ -363,7 +363,10 @@ def _get_span_from_headers(headers: "AnyDict") -> Optional[Span]:
     if not len(trace_context):
         return None
 
-    return next(iter(trace_context.values()))
+    return cast(
+        Optional[Span],
+        next(iter(trace_context.values())),
+    )
 
 
 def _get_link_attributes(message_count: int) -> "Attributes":
