@@ -909,7 +909,6 @@ class NatsBroker(
 
         [1] https://nats-io.github.io/nats.py/modules.html#nats.aio.client.Client.new_inbox
         """
-        if not self._connection:
-            raise RuntimeError("Broker needs to be started before calling this method.")
+        assert self._connection  # nosec B101
 
         return self._connection.new_inbox()
