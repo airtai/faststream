@@ -7,10 +7,12 @@ def spy_decorator(method):
     mock = MagicMock()
 
     if inspect.iscoroutinefunction(method):
+
         async def wrapper(*args, **kwargs):
             mock(*args, **kwargs)
             return await method(*args, **kwargs)
     else:
+
         def wrapper(*args, **kwargs):
             mock(*args, **kwargs)
             return method(*args, **kwargs)
