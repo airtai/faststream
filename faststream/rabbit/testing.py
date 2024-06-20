@@ -13,11 +13,7 @@ from faststream.rabbit.broker.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.asyncapi import AsyncAPIPublisher
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
-from faststream.rabbit.schemas import (
-    ExchangeType,
-    RabbitExchange,
-    RabbitQueue,
-)
+from faststream.rabbit.schemas import ExchangeType, RabbitExchange, RabbitQueue
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.testing.broker import TestBroker, call_handler
 
@@ -35,7 +31,6 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
 
     @classmethod
     def _patch_test_broker(cls, broker: RabbitBroker) -> None:
-        broker._channel = AsyncMock()
         broker.declarer = AsyncMock()
         super()._patch_test_broker(broker)
 

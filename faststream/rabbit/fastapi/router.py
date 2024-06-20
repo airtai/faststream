@@ -26,10 +26,7 @@ from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.rabbit.broker.broker import RabbitBroker as RB
 from faststream.rabbit.publisher.asyncapi import AsyncAPIPublisher
-from faststream.rabbit.schemas import (
-    RabbitExchange,
-    RabbitQueue,
-)
+from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 
 if TYPE_CHECKING:
@@ -414,6 +411,14 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 """
             ),
         ] = Default(generate_unique_id),
+        max_connection_pool_size: Annotated[
+            int,
+            Doc("Max connection pool size"),
+        ] = 1,
+        max_channel_pool_size: Annotated[
+            int,
+            Doc("Max channel pool size"),
+        ] = 1,
     ) -> None:
         super().__init__(
             url,
@@ -424,6 +429,8 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             client_properties=client_properties,
             timeout=timeout,
             max_consumers=max_consumers,
+            max_connection_pool_size=max_connection_pool_size,
+            max_channel_pool_size=max_channel_pool_size,
             app_id=app_id,
             graceful_timeout=graceful_timeout,
             decoder=decoder,

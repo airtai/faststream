@@ -1,59 +1,73 @@
+from contextlib import asynccontextmanager
+from typing import AsyncIterator
+from unittest.mock import AsyncMock
+
 import pytest
 
 from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
 
 
+class FakeConnectionManage:
+    def __init__(self) -> None:
+        self.mock = AsyncMock()
+
+    @asynccontextmanager
+    async def acquire_channel(self) -> AsyncIterator[AsyncMock]:
+        yield self.mock
+
+
 @pytest.mark.asyncio()
-async def test_declare_queue(async_mock, queue: str):
-    declarer = RabbitDeclarer(async_mock)
+async def test_declare_queue(queue: str):
+    manager = FakeConnectionManage()
+    declarer = RabbitDeclarer(manager)
 
     q1 = await declarer.declare_queue(RabbitQueue(queue))
     q2 = await declarer.declare_queue(RabbitQueue(queue))
 
     assert q1 is q2
-    async_mock.declare_queue.assert_awaited_once()
+    manager.mock.declare_queue.assert_awaited_once()
 
 
 @pytest.mark.asyncio()
 async def test_declare_exchange(
-    async_mock,
     queue: str,
 ):
-    declarer = RabbitDeclarer(async_mock)
+    manager = FakeConnectionManage()
+    declarer = RabbitDeclarer(manager)
 
     ex1 = await declarer.declare_exchange(RabbitExchange(queue))
     ex2 = await declarer.declare_exchange(RabbitExchange(queue))
 
     assert ex1 is ex2
-    async_mock.declare_exchange.assert_awaited_once()
+    manager.mock.declare_exchange.assert_awaited_once()
 
 
 @pytest.mark.asyncio()
 async def test_declare_nested_exchange_cash_nested(
-    async_mock,
     queue: str,
 ):
-    declarer = RabbitDeclarer(async_mock)
+    manager = FakeConnectionManage()
+    declarer = RabbitDeclarer(manager)
 
     exchange = RabbitExchange(queue)
 
     await declarer.declare_exchange(RabbitExchange(queue + "1", bind_to=exchange))
-    assert async_mock.declare_exchange.await_count == 2
+    assert manager.mock.declare_exchange.await_count == 2
 
     await declarer.declare_exchange(exchange)
-    assert async_mock.declare_exchange.await_count == 2
+    assert manager.mock.declare_exchange.await_count == 2
 
 
 @pytest.mark.asyncio()
 async def test_publisher_declare(
-    async_mock,
     queue: str,
 ):
-    declarer = RabbitDeclarer(async_mock)
+    manager = FakeConnectionManage()
+    declarer = RabbitDeclarer(manager)
 
     broker = RabbitBroker()
-    broker._connection = async_mock
+    broker._connection = manager.mock
     broker.declarer = declarer
 
     @broker.publisher(queue, queue)
@@ -61,5 +75,5 @@ async def test_publisher_declare(
 
     await broker.start()
 
-    assert not async_mock.declare_queue.await_count
-    async_mock.declare_exchange.assert_awaited_once()
+    assert not manager.mock.declare_queue.await_count
+    manager.mock.declare_exchange.assert_awaited_once()

@@ -772,6 +772,8 @@ search:
                     - [RabbitBroker](api/faststream/rabbit/broker/RabbitBroker.md)
                     - broker
                         - [RabbitBroker](api/faststream/rabbit/broker/broker/RabbitBroker.md)
+                    - connection
+                        - [ConnectionManager](api/faststream/rabbit/broker/connection/ConnectionManager.md)
                     - logging
                         - [RabbitLoggingBroker](api/faststream/rabbit/broker/logging/RabbitLoggingBroker.md)
                     - registrator
