@@ -130,6 +130,22 @@ class _RedisStreamMessageMixin(BrokerStreamMessage[_StreamMsgType]):
             await redis.xack(channel, group, *ids)  # type: ignore[no-untyped-call]
             await super().ack()
 
+    @override
+    async def nack(
+        self,
+        redis: Optional["Redis[bytes]"] = None,
+        group: Optional[str] = None,
+    ) -> None:
+        await super().nack()
+
+    @override
+    async def reject(
+        self,
+        redis: Optional["Redis[bytes]"] = None,
+        group: Optional[str] = None,
+    ) -> None:
+        await super().reject()
+
 
 class RedisStreamMessage(_RedisStreamMessageMixin[DefaultStreamMessage]):
     pass
