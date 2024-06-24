@@ -154,8 +154,8 @@ class AsyncConfluentProducer:
 
         self.producer = Producer(self.config, logger=self.logger)
         # self.producer.init_transactions()
-        self.producer.list_topics()
         self.loop = loop or asyncio.get_event_loop()
+        self.loop.run_in_executor(None, self.producer.list_topics)
 
     async def stop(self) -> None:
         """Stop the Kafka producer and flush remaining messages."""
@@ -359,7 +359,9 @@ class AsyncConfluentConsumer:
         self.loop = loop or asyncio.get_event_loop()
 
         if allow_auto_create_topics:
-            create_topics(topics=self.topics, config=self.config, logger=logger)
+            self.loop.run_in_executor(
+                None, create_topics, self.topics, self.config, logger
+            )
         else:
             logger.warning(  # type: ignore[union-attr]
                 "Auto create topics is disabled. Make sure the topics exist."
