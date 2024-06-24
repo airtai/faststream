@@ -91,7 +91,6 @@ class TestTestclient(BrokerTestclientTestcase):
             assert br._connection._inbox_prefix == b"test"
             assert "test" in str(br._connection.new_inbox())
 
-
     async def test_respect_middleware(self, queue):
         routes = []
 

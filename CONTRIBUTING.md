@@ -86,7 +86,7 @@ pytest -m 'all'
 If you don't have a local broker instance running, you can run tests without those dependencies:
 
 ```bash
-pytest -m 'not rabbit and not kafka and not nats and not redis'
+pytest -m 'not rabbit and not kafka and not nats and not redis and not confluent'
 ```
 
 To run tests based on RabbitMQ, Kafka, or other dependencies, the following dependencies are needed to be started as docker containers:

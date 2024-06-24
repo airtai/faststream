@@ -1,3 +1,4 @@
+import inspect
 from typing import Any, Iterable
 from unittest.mock import MagicMock
 
@@ -5,9 +6,16 @@ from unittest.mock import MagicMock
 def spy_decorator(method):
     mock = MagicMock()
 
-    async def wrapper(*args, **kwargs):
-        mock(*args, **kwargs)
-        return await method(*args, **kwargs)
+    if inspect.iscoroutinefunction(method):
+
+        async def wrapper(*args, **kwargs):
+            mock(*args, **kwargs)
+            return await method(*args, **kwargs)
+    else:
+
+        def wrapper(*args, **kwargs):
+            mock(*args, **kwargs)
+            return method(*args, **kwargs)
 
     wrapper.mock = mock
     return wrapper

@@ -901,3 +901,16 @@ class NatsBroker(
                 self.__is_connected = True
 
         return wrapper
+
+    async def new_inbox(self) -> str:
+        """Return a unique inbox that can be used for NATS requests or subscriptions.
+
+        The inbox prefix can be customised by passing `inbox_prefix` when creating your `NatsBroker`.
+
+        This method calls `nats.aio.client.Client.new_inbox` [1] under the hood.
+
+        [1] https://nats-io.github.io/nats.py/modules.html#nats.aio.client.Client.new_inbox
+        """
+        assert self._connection  # nosec B101
+
+        return self._connection.new_inbox()

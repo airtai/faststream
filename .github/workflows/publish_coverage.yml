@@ -13,13 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.9"
 
       - run: pip install smokeshow
 
-      - uses: dawidd6/action-download-artifact@v4  # nosemgrep
+      - uses: dawidd6/action-download-artifact@v6  # nosemgrep
         with:
           workflow: pr_tests.yaml
           workflow_conclusion: success
