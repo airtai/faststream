@@ -17,6 +17,7 @@ class ConsumerConnectionParams(TypedDict, total=False):
         "PLAINTEXT",
     ]
     connections_max_idle_ms: int
+    allow_auto_create_topics: bool
     sasl_mechanism: Literal[
         "PLAIN",
         "GSSAPI",
