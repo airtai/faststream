@@ -97,6 +97,7 @@ class AsyncConfluentProducer:
         enable_idempotence: bool = False,
         transactional_id: Optional[Union[str, int]] = None,
         transaction_timeout_ms: int = 60000,
+        allow_auto_create_topics: bool = True,
         sasl_mechanism: Optional[str] = None,
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
@@ -138,6 +139,7 @@ class AsyncConfluentProducer:
             "retry.backoff.ms": retry_backoff_ms,
             "security.protocol": security_protocol.lower(),
             "connections.max.idle.ms": connections_max_idle_ms,
+            "allow.auto.create.topics": allow_auto_create_topics,
         }
         self.config = {**self.config, **config_from_params}
 
@@ -152,8 +154,8 @@ class AsyncConfluentProducer:
 
         self.producer = Producer(self.config, logger=self.logger)
         # self.producer.init_transactions()
-        self.producer.list_topics()
         self.loop = loop or asyncio.get_event_loop()
+        self.loop.run_in_executor(None, self.producer.list_topics)
 
     async def stop(self) -> None:
         """Stop the Kafka producer and flush remaining messages."""
@@ -223,6 +225,7 @@ class TopicPartition(NamedTuple):
 def create_topics(
     topics: List[str],
     config: Dict[str, Optional[Union[str, int, float, bool, Any]]],
+    logger: Union["LoggerProto", None, object] = logger,
 ) -> None:
     """Creates Kafka topics using the provided configuration."""
     required_config_params = (
@@ -252,9 +255,9 @@ def create_topics(
             f.result()  # The result itself is None
         except Exception as e:  # noqa: PERF203
             if "TOPIC_ALREADY_EXISTS" not in str(e):
-                logger.warning(f"Failed to create topic {topic}: {e}")
+                logger.warning(f"Failed to create topic {topic}: {e}")  # type: ignore[union-attr]
         else:
-            logger.info(f"Topic `{topic}` created.")
+            logger.info(f"Topic `{topic}` created.")  # type: ignore[union-attr]
 
 
 class AsyncConfluentConsumer:
@@ -285,6 +288,7 @@ class AsyncConfluentConsumer:
         security_protocol: str = "PLAINTEXT",
         connections_max_idle_ms: int = 540000,
         isolation_level: str = "read_uncommitted",
+        allow_auto_create_topics: bool = True,
         sasl_mechanism: Optional[str] = None,
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
@@ -316,7 +320,7 @@ class AsyncConfluentConsumer:
                 ]
             )
         config_from_params = {
-            "allow.auto.create.topics": True,
+            "allow.auto.create.topics": allow_auto_create_topics,
             # "topic.metadata.refresh.interval.ms": 1000,
             "bootstrap.servers": bootstrap_servers,
             "client.id": client_id,
@@ -354,7 +358,14 @@ class AsyncConfluentConsumer:
 
         self.loop = loop or asyncio.get_event_loop()
 
-        create_topics(topics=self.topics, config=self.config)
+        if allow_auto_create_topics:
+            self.loop.run_in_executor(
+                None, create_topics, self.topics, self.config, logger
+            )
+        else:
+            logger.warning(  # type: ignore[union-attr]
+                "Auto create topics is disabled. Make sure the topics exist."
+            )
         self.consumer = Consumer(self.config, logger=self.logger)
 
     async def start(self) -> None:

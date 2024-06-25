@@ -124,6 +124,12 @@ class KafkaBroker(
             """
             ),
         ] = SERVICE_NAME,
+        allow_auto_create_topics: Annotated[
+            bool,
+            Doc("""
+            Allow automatic topic creation on the broker when subscribing to or assigning non-existent topics.
+            """),
+        ] = True,
         config: Annotated[
             Optional[ConfluentConfig],
             Doc("""
@@ -350,6 +356,7 @@ class KafkaBroker(
             request_timeout_ms=request_timeout_ms,
             retry_backoff_ms=retry_backoff_ms,
             metadata_max_age_ms=metadata_max_age_ms,
+            allow_auto_create_topics=allow_auto_create_topics,
             connections_max_idle_ms=connections_max_idle_ms,
             loop=loop,
             # publisher args
