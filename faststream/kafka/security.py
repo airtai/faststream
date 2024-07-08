@@ -6,7 +6,6 @@ from faststream.security import (
     SASLPlaintext,
     SASLScram256,
     SASLScram512,
-    ssl_not_set_error_msg,
 )
 
 if TYPE_CHECKING:
@@ -36,13 +35,6 @@ def _parse_base_security(security: BaseSecurity) -> "AnyDict":
 
 
 def _parse_sasl_plaintext(security: SASLPlaintext) -> "AnyDict":
-    if security.ssl_context is None:
-        warnings.warn(
-            message=ssl_not_set_error_msg,
-            category=RuntimeWarning,
-            stacklevel=1,
-        )
-
     return {
         "security_protocol": "SASL_SSL" if security.use_ssl else "SASL_PLAINTEXT",
         "ssl_context": security.ssl_context,

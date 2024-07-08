@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from contextlib import AsyncExitStack, asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager, suppress
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
@@ -296,6 +296,26 @@ class SubscriberUsecase(
         if not self.running:
             return None
 
+        try:
+            return await self.process_message(msg)
+
+        except StopConsume:
+            # Stop handler at StopConsume exception
+            await self.close()
+
+        except SystemExit:
+            # Stop handler at `exit()` call
+            await self.close()
+
+            if app := context.get("app"):
+                app.exit()
+
+        except Exception:
+            # All other exceptions were logged by CriticalLogMiddleware
+            pass
+
+    async def process_message(self, msg: MsgType) -> Any:
+        """Execute all message processing stages."""
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
 
@@ -304,8 +324,6 @@ class SubscriberUsecase(
                 stack.enter_context(context.scope(k, v))
 
             stack.enter_context(context.scope("handler_", self))
-            # Stop handler at StopConsume exception
-            await stack.enter_async_context(self._stop_scope())
 
             # enter all middlewares
             middlewares: List[BaseMiddleware] = []
@@ -385,21 +403,12 @@ class SubscriberUsecase(
             "message_id": getattr(message, "message_id", ""),
         }
 
-    @asynccontextmanager
-    async def _stop_scope(self) -> AsyncIterator[None]:
-        try:
-            yield
-        except StopConsume:
-            await self.close()
-        except SystemExit:
-            await self.close()
-            context.get("app").exit()
-
     # AsyncAPI methods
 
     @property
     def call_name(self) -> str:
         """Returns the name of the handler call."""
+        # TODO: default call_name
         return to_camelcase(self.calls[0].call_name)
 
     def get_description(self) -> Optional[str]:
