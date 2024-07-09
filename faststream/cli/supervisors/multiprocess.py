@@ -66,6 +66,4 @@ class Multiprocess(BaseReload):
         self.processes = active_processes
 
     def should_restart(self) -> bool:
-        return next(
-            (True for process in self.processes if not process.is_alive()), False
-        )
+        return not all(p.is_alive() for p in self.processes)
