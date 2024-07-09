@@ -1,4 +1,3 @@
-import warnings
 from typing import TYPE_CHECKING, Optional
 
 from faststream.security import (

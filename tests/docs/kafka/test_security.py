@@ -5,10 +5,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from docs.docs_src.kafka.security.ssl_warning import test_without_ssl_warning
-
-__all__ = ["test_without_ssl_warning"]
-
 
 @contextmanager
 def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
@@ -35,7 +31,7 @@ async def test_base_security():
 
             assert call_kwargs.items() <= producer_call_kwargs.items()
 
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+            assert type(producer_call_kwargs["ssl_context"]) is ssl.SSLContext
 
 
 @pytest.mark.asyncio()
@@ -57,7 +53,7 @@ async def test_scram256():
 
             assert call_kwargs.items() <= producer_call_kwargs.items()
 
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+            assert type(producer_call_kwargs["ssl_context"]) is ssl.SSLContext
 
 
 @pytest.mark.asyncio()
@@ -79,7 +75,7 @@ async def test_scram512():
 
             assert call_kwargs.items() <= producer_call_kwargs.items()
 
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+            assert type(producer_call_kwargs["ssl_context"]) is ssl.SSLContext
 
 
 @pytest.mark.asyncio()
@@ -101,4 +97,4 @@ async def test_plaintext():
 
             assert call_kwargs.items() <= producer_call_kwargs.items()
 
-            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+            assert type(producer_call_kwargs["ssl_context"]) is ssl.SSLContext
