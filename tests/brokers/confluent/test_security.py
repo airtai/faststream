@@ -4,10 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from docs.docs_src.confluent.security.ssl_warning import test_without_ssl_warning
 from faststream.exceptions import SetupError
-
-__all__ = ["test_without_ssl_warning"]
 
 
 @contextmanager

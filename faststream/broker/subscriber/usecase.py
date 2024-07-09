@@ -309,7 +309,7 @@ class SubscriberUsecase(
             if app := context.get("app"):
                 app.exit()
 
-        except Exception:
+        except Exception:  # nosec B110
             # All other exceptions were logged by CriticalLogMiddleware
             pass
 
