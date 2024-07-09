@@ -1,5 +1,7 @@
 from enum import Enum
-from typing import Any, Callable, TypedDict
+from typing import Any, Callable
+
+from typing_extensions import TypedDict
 
 
 class BuiltinFeatures(Enum):
