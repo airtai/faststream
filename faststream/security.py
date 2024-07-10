@@ -5,11 +5,6 @@ if TYPE_CHECKING:
 
     from faststream.types import AnyDict
 
-ssl_not_set_error_msg = """
-SSL context is not set; if you don't want to use SSL encryption without sseing this warning, set use_ssl to False.
-Warning: This will send your data to the broker unencrypted!
-"""
-
 
 class BaseSecurity:
     """Base class for defining security configurations.

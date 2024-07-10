@@ -70,4 +70,5 @@ class CriticalLogMiddleware(BaseMiddleware):
 
         await super().after_processed(exc_type, exc_val, exc_tb)
 
+        # Exception was not processed
         return False
