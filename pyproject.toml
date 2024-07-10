@@ -113,7 +113,7 @@ lint = [
     "faststream[types]",
     "ruff==0.5.1",
     "bandit==1.7.9",
-    "semgrep==1.78.0",
+    "semgrep==1.79.0",
     "codespell==2.3.0",
 ]
 
