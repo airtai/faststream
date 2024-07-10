@@ -90,6 +90,13 @@ class SubscriberNaming(BaseNaming):
             "custom:Message:Payload"
         ]
 
+    def test_subscriber_naming_manual2(self):
+        broker = self.broker_class()
+
+        subscriber = broker.subscriber("test")
+
+        assert subscriber.call_name == "Subscriber"
+
 
 class FilterNaming(BaseNaming):
     def test_subscriber_filter_base(self):

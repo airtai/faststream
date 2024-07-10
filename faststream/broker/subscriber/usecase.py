@@ -407,7 +407,9 @@ class SubscriberUsecase(
     @property
     def call_name(self) -> str:
         """Returns the name of the handler call."""
-        # TODO: default call_name
+        if not self.calls:
+            return "Subscriber"
+
         return to_camelcase(self.calls[0].call_name)
 
     def get_description(self) -> Optional[str]:
