@@ -26,12 +26,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.9
+      - uses: yezz123/setup-uv@v4
       - name: Install Dependencies and library
         shell: bash
         run: |
           set -ux
-          python -m pip install --upgrade pip
-          pip install -e ".[lint]"
+          uv pip install -e ".[lint]"
 
       - name: Run ruff
         shell: bash
