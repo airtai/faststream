@@ -156,27 +156,28 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         start_signal = anyio.Event()
         self.task = asyncio.create_task(self._consume(*args, start_signal=start_signal))
 
-        await start_signal.wait()
+        with anyio.fail_after(3.0):
+            await start_signal.wait()
 
     async def _consume(self, *args: Any, start_signal: anyio.Event) -> None:
         connected = True
 
         while self.running:
-            with suppress(Exception):
-                try:
-                    await self._get_msgs(*args)
+            try:
+                await self._get_msgs(*args)
 
-                except Exception:
-                    if connected:
-                        connected = False
-                    await anyio.sleep(5)
+            except Exception:  # noqa: PERF203
+                if connected:
+                    connected = False
+                await anyio.sleep(5)
 
-                else:
-                    if not connected:
-                        connected = True
+            else:
+                if not connected:
+                    connected = True
 
-                finally:
-                    if not start_signal.is_set():
+            finally:
+                if not start_signal.is_set():
+                    with suppress(Exception):
                         start_signal.set()
 
     @abstractmethod
@@ -397,13 +398,13 @@ class ListSubscriber(_ListHandlerMixin):
         raw_msg = await client.lpop(name=self.list_sub.name)
 
         if raw_msg:
-            message = DefaultListMessage(
+            msg = DefaultListMessage(
                 type="list",
                 data=raw_msg,
                 channel=self.list_sub.name,
             )
 
-            await self.consume(message)  # type: ignore[arg-type]
+            await self.consume(msg)  # type: ignore[arg-type]
 
         else:
             await anyio.sleep(self.list_sub.polling_interval)
