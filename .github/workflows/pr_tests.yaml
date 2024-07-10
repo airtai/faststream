@@ -26,12 +26,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.9
-      - uses: yezz123/setup-uv@v4
-      - name: Install Dependencies and library
-        shell: bash
+
+      - name: Install dependencies
         run: |
           set -ux
+          python -m pip install uv
+          uv venv
           uv pip install -e ".[lint]"
+      
+      - name: Activate virtualenv
+        run: |
+          . .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
 
       - name: Run ruff
         shell: bash
