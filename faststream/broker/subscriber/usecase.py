@@ -435,4 +435,13 @@ class SubscriberUsecase(
 
             payloads.append((body, to_camelcase(h.call_name)))
 
+        if not self.calls:
+            payloads.append((  # TODO: fix
+                {
+                    "title": to_camelcase("Subscriber:Message:Payload"),
+                    "empty": True,
+                },
+                "",
+            ))
+
         return payloads

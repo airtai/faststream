@@ -22,7 +22,7 @@ def resolve_payloads(
             title = body["title"]
             words = title.split(":")
 
-            if len(words) > 1:  # not pydantic model case
+            if len(words) > 1 and not body.get("empty", False):  # not pydantic model case
                 body["title"] = title = ":".join(
                     filter(
                         lambda x: bool(x),

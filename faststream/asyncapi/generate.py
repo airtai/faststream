@@ -37,13 +37,12 @@ def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
         ch.servers = list(servers.keys())
 
         if ch.subscribe is not None:
-            first_subscriber, *_ = broker._subscribers.values()
             m = ch.subscribe.message
 
             if isinstance(m, Message):  # pragma: no branch
                 ch.subscribe.message = _resolve_msg_payloads(
                     m,
-                    first_subscriber.call_name,
+                    channel_name,
                     payloads,
                     messages,
                 )
@@ -142,7 +141,7 @@ def get_broker_channels(
 
 def _resolve_msg_payloads(
     m: Message,
-    default_payload_title: str,
+    channel_name: str,
     payloads: Dict[str, Any],
     messages: Dict[str, Any],
 ) -> Reference:
@@ -157,29 +156,30 @@ def _resolve_msg_payloads(
         for p_title, p in one_of.items():
             payloads.update(p.pop(DEF_KEY, {}))
             if p_title not in payloads:
-                payloads[p_title] = p
+                if p.pop("empty", False):
+                    payloads[p_title] = {}
+                else:
+                    payloads[p_title] = p
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
 
     elif one_of is not None:
         for p in one_of:
             p_title = next(iter(p.values())).split("/")[-1]
             if p_title not in payloads:
-                payloads[p_title] = p
+                if p.pop("empty", False):
+                    payloads[p_title] = {}
+                else:
+                    payloads[p_title] = p
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
 
     if not one_of_list:
         payloads.update(m.payload.pop(DEF_KEY, {}))
-
-        p_title = m.payload.get("title", None)
-
-        if not p_title:
-            if ":" in default_payload_title:
-                p_title = f"{default_payload_title}Payload"
-            else:
-                p_title = f"{default_payload_title}:Message:Payload"
-
+        p_title = m.payload.get("title", f"{channel_name}Payload")
         if p_title not in payloads:
-            payloads[p_title] = m.payload
+            if m.payload.pop("empty", False):
+                payloads[p_title] = {}
+            else:
+                payloads[p_title] = m.payload
         m.payload = {"$ref": f"#/components/schemas/{p_title}"}
 
     else:

@@ -34,7 +34,6 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         channels = {}
 
         payloads = self.get_payloads()
-
         for t in self.topics:
             handler_name = self.title_ or f"{t}:{self.call_name}"
 
