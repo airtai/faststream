@@ -112,8 +112,10 @@ def get_model_schema(
         param_body = param_body[name]
 
         if defs := body.get(DEF_KEY):
+            # single argument with useless refference
             if param_body.get("$ref"):
-                return next(iter(defs.values()))
+                ref_obj: Dict[str, Any] = next(iter(defs.values()))
+                return ref_obj
             else:
                 param_body[DEF_KEY] = defs
 
