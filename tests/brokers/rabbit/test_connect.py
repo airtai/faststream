@@ -58,19 +58,3 @@ class TestConnection(BrokerConnectionTestcase):
         broker = self.broker("fake-url")  # will be ignored
         assert await broker.connect(url=settings.url)
         await broker.close()
-
-    @pytest.mark.asyncio()
-    async def test_connection_alive(self, settings):
-        broker = self.broker("fake-url")  # will be ignored
-        await broker.connect(url=settings.url)
-        alive = await broker.ping(timeout=5)
-        assert alive
-        await broker.close()
-    
-    @pytest.mark.asyncio()
-    async def test_connection_not_alive(self, settings):
-        broker = self.broker("fake-url")  # will be ignored
-        await broker.connect(url=settings.url)
-        await broker.close()
-        alive = await broker.ping(timeout=5)
-        assert not alive

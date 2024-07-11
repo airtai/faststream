@@ -12,6 +12,7 @@ from typing import (
 )
 from urllib.parse import urlparse
 
+import anyio
 from aio_pika import connect_robust
 from typing_extensions import Annotated, Doc, override
 
@@ -655,13 +656,12 @@ class RabbitBroker(
         """Declares exchange object in **RabbitMQ**."""
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_exchange(exchange)
-    
-    async def ping(self, timeout: int | None) -> bool:
-        await super().ping(timeout)
-        try:
-            channel = await self._connection.channel()
-            await channel.declare_queue(name='test_queue', durable=True)
-            await channel.close()
-            return True
-        except Exception:
-            return False
+
+    async def ping(self, timeout: Optional[float]) -> bool:
+        with anyio.move_on_after(timeout) as cancel_scope:
+            if cancel_scope.cancel_called:
+                return False
+            if not self._connection or self._connection.is_closed or not self._connection.transport:
+                return False
+        return True
+
