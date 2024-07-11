@@ -655,3 +655,13 @@ class RabbitBroker(
         """Declares exchange object in **RabbitMQ**."""
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_exchange(exchange)
+    
+    async def ping(self, timeout: int | None) -> bool:
+        await super().ping(timeout)
+        try:
+            channel = await self._connection.channel()
+            await channel.declare_queue(name='test_queue', durable=True)
+            await channel.close()
+            return True
+        except Exception:
+            return False

@@ -46,3 +46,21 @@ class BrokerConnectionTestcase:
         await broker.connect(**kwargs)
         assert await self.ping(broker)
         await broker.close()
+
+    @pytest.mark.asyncio()
+    async def test_connection_alive(self, settings):
+        kwargs = self.get_broker_args(settings)
+        broker = self.broker()
+        await broker.connect(**kwargs)
+        alive = await broker.ping(timeout=5)
+        assert alive
+        await broker.close()
+    
+    @pytest.mark.asyncio()
+    async def test_connection_not_alive(self, settings):
+        kwargs = self.get_broker_args(settings)
+        broker = self.broker()
+        await broker.connect(**kwargs)
+        await broker.close()
+        alive = await broker.ping(timeout=5)
+        assert not alive
