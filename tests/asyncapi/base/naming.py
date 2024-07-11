@@ -109,6 +109,34 @@ class SubscriberNaming(BaseNaming):
             "Subscriber:Message:Payload"
         ]
 
+    def test_multi_subscribers_naming_default(self):
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle_user_created(msg: str): ...
+
+        broker.subscriber("test2")
+        broker.subscriber("test3")
+
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
+
+        assert list(schema["channels"].keys()) == [
+            IsStr(regex=r"test[\w:]*:HandleUserCreated"),
+            IsStr(regex=r"test2[\w:]*:Subscriber"),
+            IsStr(regex=r"test3[\w:]*:Subscriber"),
+        ]
+
+        assert list(schema["components"]["messages"].keys()) == [
+            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message"),
+            IsStr(regex=r"test2[\w:]*:Subscriber:Message"),
+            IsStr(regex=r"test3[\w:]*:Subscriber:Message"),
+        ]
+
+        assert list(schema["components"]["schemas"].keys()) == [
+            "HandleUserCreated:Message:Payload",
+            "Subscriber:Message:Payload",
+        ]
+
 
 class FilterNaming(BaseNaming):
     def test_subscriber_filter_base(self):
