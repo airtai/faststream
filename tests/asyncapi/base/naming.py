@@ -99,7 +99,7 @@ class SubscriberNaming(BaseNaming):
 
         assert list(schema["channels"].keys()) == [
             IsStr(regex=r"test[\w:]*:Subscriber")
-        ], list(schema["channels"].keys())
+        ]
 
         assert list(schema["components"]["messages"].keys()) == [
             IsStr(regex=r"test[\w:]*:Subscriber:Message")
@@ -107,7 +107,7 @@ class SubscriberNaming(BaseNaming):
 
         assert list(schema["components"]["schemas"].keys()) == [
             "Subscriber:Message:Payload"
-        ], list(schema["components"]["schemas"].keys())
+        ]
 
 
 class FilterNaming(BaseNaming):
