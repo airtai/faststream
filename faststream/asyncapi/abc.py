@@ -11,6 +11,7 @@ class AsyncAPIOperation(AsyncAPIProto):
     @property
     def name(self) -> str:
         """Returns the name of the API operation."""
+        # assert False, self.get_name()
         return self.title_ or self.get_name()
 
     @abstractmethod

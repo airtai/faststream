@@ -37,12 +37,13 @@ def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
         ch.servers = list(servers.keys())
 
         if ch.subscribe is not None:
+            first_subscriber, *_ = broker._subscribers.values()
             m = ch.subscribe.message
 
             if isinstance(m, Message):  # pragma: no branch
                 ch.subscribe.message = _resolve_msg_payloads(
                     m,
-                    channel_name,
+                    first_subscriber.call_name,
                     payloads,
                     messages,
                 )
@@ -57,7 +58,6 @@ def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
                     payloads,
                     messages,
                 )
-
     schema = Schema(
         info=Info(
             title=app.title,
@@ -142,13 +142,13 @@ def get_broker_channels(
 
 def _resolve_msg_payloads(
     m: Message,
-    channel_name: str,
+    default_payload_title: str,
     payloads: Dict[str, Any],
     messages: Dict[str, Any],
 ) -> Reference:
     one_of_list: List[Reference] = []
-
     m.payload = _move_pydantic_refs(m.payload, DEF_KEY)
+
     if DEF_KEY in m.payload:
         payloads.update(m.payload.pop(DEF_KEY))
 
@@ -169,7 +169,15 @@ def _resolve_msg_payloads(
 
     if not one_of_list:
         payloads.update(m.payload.pop(DEF_KEY, {}))
-        p_title = m.payload.get("title", f"{channel_name}Payload")
+
+        p_title = m.payload.get("title", None)
+
+        if not p_title:
+            if ":" in default_payload_title:
+                p_title = f"{default_payload_title}Payload"
+            else:
+                p_title = f"{default_payload_title}:Message:Payload"
+
         if p_title not in payloads:
             payloads[p_title] = m.payload
         m.payload = {"$ref": f"#/components/schemas/{p_title}"}
