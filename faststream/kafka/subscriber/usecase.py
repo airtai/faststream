@@ -149,7 +149,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             **self.__connection_args,
         )
 
-        if self.topics:
+        if self.topics or self.__pattern:
             consumer.subscribe(
                 topics=self.topics,
                 pattern=self.__pattern,
