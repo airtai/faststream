@@ -90,12 +90,24 @@ class SubscriberNaming(BaseNaming):
             "custom:Message:Payload"
         ]
 
-    def test_subscriber_naming_manual2(self):
+    def test_subscriber_naming_default(self):
         broker = self.broker_class()
 
-        subscriber = broker.subscriber("test")
+        broker.subscriber("test")
 
-        assert subscriber.call_name == "Subscriber"
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
+
+        assert list(schema["channels"].keys()) == [
+            IsStr(regex=r"test[\w:]*:Subscriber")
+        ], list(schema["channels"].keys())
+
+        assert list(schema["components"]["messages"].keys()) == [
+            IsStr(regex=r"test[\w:]*:Subscriber:Message")
+        ]
+
+        assert list(schema["components"]["schemas"].keys()) == [
+            "Subscriber:Message:Payload"
+        ], list(schema["components"]["schemas"].keys())
 
 
 class FilterNaming(BaseNaming):
