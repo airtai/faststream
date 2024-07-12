@@ -657,6 +657,7 @@ class RabbitBroker(
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_exchange(exchange)
 
+    @override
     async def ping(self, timeout: Optional[float]) -> bool:
         with anyio.move_on_after(timeout) as cancel_scope:
             if cancel_scope.cancel_called:

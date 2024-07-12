@@ -342,7 +342,7 @@ class BrokerUsecase(
             publish = partial(m(None).publish_scope, publish)
 
         return await publish(msg, **kwargs)
-    
+
     @abstractmethod
     async def ping(self, timeout: Optional[float]) -> bool:
         """Check connection alive."""
