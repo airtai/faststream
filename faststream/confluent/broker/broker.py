@@ -17,6 +17,7 @@ from typing import (
     Union,
 )
 
+from anyio import move_on_after
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
@@ -526,4 +527,8 @@ class KafkaBroker(
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
-        pass
+        with move_on_after(timeout) as cancel_scope:
+            await self.close()
+            if cancel_scope.cancel_called or not self._producer:
+                return False
+            return True
