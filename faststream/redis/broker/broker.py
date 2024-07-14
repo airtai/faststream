@@ -13,7 +13,7 @@ from typing import (
 )
 from urllib.parse import urlparse
 
-import anyio
+from anyio import move_on_after
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import (
     Connection,
@@ -481,7 +481,7 @@ class RedisBroker(
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
-        with anyio.move_on_after(timeout) as cancel_scope:
+        with move_on_after(timeout) as cancel_scope:
             if cancel_scope.cancel_called:
                 return False
             else:

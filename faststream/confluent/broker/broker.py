@@ -523,3 +523,7 @@ class KafkaBroker(
             reply_to=reply_to,
             correlation_id=correlation_id,
         )
+
+    @override
+    async def ping(self, timeout: Optional[float]) -> bool:
+        pass
