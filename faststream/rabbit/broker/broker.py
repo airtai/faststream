@@ -662,6 +662,6 @@ class RabbitBroker(
         with move_on_after(timeout) as cancel_scope:
             if cancel_scope.cancel_called:
                 return False
-            if not self._connection or self._connection.is_closed or not self._connection.transport:
+            if not self._connection or self._connection.is_closed:
                 return False
         return True
