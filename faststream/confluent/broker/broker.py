@@ -528,4 +528,8 @@ class KafkaBroker(
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
         with move_on_after(timeout) as cancel_scope:
-            return not (cancel_scope.cancel_called or self._producer is None)
+            if cancel_scope.cancel_called:
+                return False
+
+            if self._producer is None:
+                return False
