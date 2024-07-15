@@ -921,5 +921,8 @@ class NatsBroker(
         with move_on_after(timeout) as cancel_scope:
             if cancel_scope.cancel_called:
                 return False
-            else:
-                return self._connection.is_connected
+
+            if self._connection is None:
+                return False
+
+            return self._connection.is_connected

@@ -484,5 +484,8 @@ class RedisBroker(
         with move_on_after(timeout) as cancel_scope:
             if cancel_scope.cancel_called:
                 return False
-            else:
-                return await self._connection.ping()
+
+            if self._connection is None:
+                return False
+
+            return await self._connection.ping()
