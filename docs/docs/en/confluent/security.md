@@ -36,20 +36,6 @@ This chapter discusses the security options available in **FastStream** and how 
 {! docs_src/confluent/security/plaintext.py !}
 ```
 
-**Using any SASL authentication without SSL:**
-
-The following example will log a **RuntimeWarning**:
-
-```python linenums="1"
-{! docs_src/confluent/security/ssl_warning.py [ln:8.16] !}
-```
-
-If the user does not want to use SSL encryption without the warning getting logged, they must explicitly set the `use_ssl` parameter to `False` when creating a SASL object.
-
-```python linenums="1"
-{! docs_src/confluent/security/ssl_warning.py [ln:12.5-12.72] !}
-```
-
 ### 3. SASLScram256/512 Object with SSL/TLS
 
 **Purpose:** The `SASLScram256` and `SASLScram512` objects are used for authentication using the Salted Challenge Response Authentication Mechanism (SCRAM).

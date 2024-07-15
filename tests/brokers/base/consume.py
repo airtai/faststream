@@ -3,6 +3,7 @@ from abc import abstractmethod
 from typing import Any, ClassVar, Dict
 from unittest.mock import MagicMock
 
+import anyio
 import pytest
 from pydantic import BaseModel
 
@@ -238,7 +239,7 @@ class BrokerConsumeTestcase:
     ):
         consume_broker = self.get_broker()
 
-        def subscriber(m):
+        async def subscriber(m):
             event.set()
 
         async with self.patch_broker(consume_broker) as br:
@@ -249,13 +250,10 @@ class BrokerConsumeTestcase:
             br.setup_subscriber(sub)
             await sub.start()
 
-            await asyncio.wait(
-                (
-                    asyncio.create_task(br.publish("hello", queue)),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=self.timeout,
-            )
+            await br.publish("hello", queue)
+
+            with anyio.move_on_after(self.timeout):
+                await event.wait()
 
             await sub.close()
 

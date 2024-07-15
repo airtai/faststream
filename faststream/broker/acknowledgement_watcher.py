@@ -4,7 +4,6 @@ from collections import Counter
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 from typing import Counter as CounterType
 
-from faststream._compat import is_test_env
 from faststream.exceptions import (
     AckMessage,
     HandlerException,
@@ -163,6 +162,7 @@ class WatcherContext:
             elif isinstance(exc_val, RejectMessage):  # pragma: no branch
                 await self.__reject()
 
+            # Exception was processed and suppressed
             return True
 
         elif self.watcher.is_max(self.message.message_id):
@@ -171,7 +171,8 @@ class WatcherContext:
         else:
             await self.__nack()
 
-        return not is_test_env()
+        # Exception was not processed
+        return False
 
     async def __ack(self) -> None:
         try:

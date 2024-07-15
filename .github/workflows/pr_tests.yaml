@@ -7,6 +7,7 @@ on:
     types:
       - opened
       - synchronize
+      - ready_for_review
   # https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue#triggering-merge-group-checks-with-github-actions
   merge_group:
     types:
@@ -29,8 +30,8 @@ jobs:
         shell: bash
         run: |
           set -ux
-          python -m pip install --upgrade pip
-          pip install -e ".[lint]"
+          python -m pip install uv
+          uv pip install --system -e ".[lint]"
 
       - name: Run ruff
         shell: bash

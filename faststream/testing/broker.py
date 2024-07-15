@@ -213,12 +213,14 @@ async def call_handler(
 ) -> Any:
     """Asynchronously call a handler function."""
     with timeout_scope(rpc_timeout, raise_timeout):
-        result = await handler.consume(message)
+        result = await handler.process_message(message)
 
         if rpc:
             message_body, content_type = encode_message(result)
             msg_to_publish = StreamMessage(
-                raw_message=None, body=message_body, content_type=content_type
+                raw_message=None,
+                body=message_body,
+                content_type=content_type,
             )
             consumed_data = decode_message(msg_to_publish)
             return consumed_data

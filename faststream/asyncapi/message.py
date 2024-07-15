@@ -112,7 +112,12 @@ def get_model_schema(
         param_body = param_body[name]
 
         if defs := body.get(DEF_KEY):
-            param_body[DEF_KEY] = defs
+            # single argument with useless reference
+            if param_body.get("$ref"):
+                ref_obj: Dict[str, Any] = next(iter(defs.values()))
+                return ref_obj
+            else:
+                param_body[DEF_KEY] = defs
 
         original_title = param.title if PYDANTIC_V2 else param.field_info.title  # type: ignore[attr-defined]
 
