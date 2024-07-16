@@ -145,6 +145,10 @@ def _resolve_msg_payloads(
     payloads: Dict[str, Any],
     messages: Dict[str, Any],
 ) -> Reference:
+    """Replace message payload by reference and normalize payloads.
+
+    Payloads and messages are editable dicts to store schemas for reference in AsyncAPI.
+    """
     one_of_list: List[Reference] = []
     m.payload = _move_pydantic_refs(m.payload, DEF_KEY)
 
@@ -156,30 +160,21 @@ def _resolve_msg_payloads(
         for p_title, p in one_of.items():
             payloads.update(p.pop(DEF_KEY, {}))
             if p_title not in payloads:
-                if p.pop("empty", False):
-                    payloads[p_title] = {}
-                else:
-                    payloads[p_title] = p
+                payloads[p_title] = p
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
 
     elif one_of is not None:
         for p in one_of:
             p_title = next(iter(p.values())).split("/")[-1]
             if p_title not in payloads:
-                if p.pop("empty", False):
-                    payloads[p_title] = {}
-                else:
-                    payloads[p_title] = p
+                payloads[p_title] = p
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
 
     if not one_of_list:
         payloads.update(m.payload.pop(DEF_KEY, {}))
         p_title = m.payload.get("title", f"{channel_name}Payload")
         if p_title not in payloads:
-            if m.payload.pop("empty", False):
-                payloads[p_title] = {}
-            else:
-                payloads[p_title] = m.payload
+            payloads[p_title] = m.payload
         m.payload = {"$ref": f"#/components/schemas/{p_title}"}
 
     else:
@@ -194,6 +189,7 @@ def _move_pydantic_refs(
     original: Any,
     key: str,
 ) -> Any:
+    """Remove pydantic references and replacem them by real schemas."""
     if not isinstance(original, Dict):
         return original
 

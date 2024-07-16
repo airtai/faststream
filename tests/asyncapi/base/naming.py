@@ -105,9 +105,28 @@ class SubscriberNaming(BaseNaming):
             IsStr(regex=r"test[\w:]*:Subscriber:Message")
         ]
 
+        for key, v in schema["components"]["schemas"].items():
+            assert key == "Subscriber:Message:Payload"
+            assert v == {"title": key}
+
+    def test_subscriber_naming_default_with_title(self):
+        broker = self.broker_class()
+
+        broker.subscriber("test", title="custom")
+
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
+
+        assert list(schema["channels"].keys()) == ["custom"]
+
+        assert list(schema["components"]["messages"].keys()) == ["custom:Message"]
+
         assert list(schema["components"]["schemas"].keys()) == [
-            "Subscriber:Message:Payload"
+            "custom:Message:Payload"
         ]
+
+        assert schema["components"]["schemas"]["custom:Message:Payload"] == {
+            "title": "custom:Message:Payload"
+        }
 
     def test_multi_subscribers_naming_default(self):
         broker = self.broker_class()
@@ -136,6 +155,10 @@ class SubscriberNaming(BaseNaming):
             "HandleUserCreated:Message:Payload",
             "Subscriber:Message:Payload",
         ]
+
+        assert schema["components"]["schemas"]["Subscriber:Message:Payload"] == {
+            "title": "Subscriber:Message:Payload"
+        }
 
 
 class FilterNaming(BaseNaming):
