@@ -14,6 +14,7 @@ from typing import (
 )
 
 import nats
+from anyio import move_on_after
 from nats.aio.client import (
     DEFAULT_CONNECT_TIMEOUT,
     DEFAULT_DRAIN_TIMEOUT,
@@ -914,3 +915,14 @@ class NatsBroker(
         assert self._connection  # nosec B101
 
         return self._connection.new_inbox()
+
+    @override
+    async def ping(self, timeout: Optional[float]) -> bool:
+        with move_on_after(timeout) as cancel_scope:
+            if cancel_scope.cancel_called:
+                return False
+
+            if self._connection is None:
+                return False
+
+            return self._connection.is_connected
