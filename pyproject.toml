@@ -69,7 +69,7 @@ kafka = ["aiokafka>=0.9,<0.12"]
 
 confluent = ["confluent-kafka>=2,<3"]
 
-nats = ["nats-py>=2.3.1,<=3.0.0"]
+nats = ["nats-py>=2.7.0,<=3.0.0"]
 
 redis = ["redis>=5.0.0,<6.0.0"]
 
