@@ -527,13 +527,6 @@ class KafkaBroker(
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
-        random_topic: Optional[str]
-
-        if sub := next(iter(self._subscribers.values()), None):
-            random_topic = next(iter(sub.topics), None)
-        else:
-            random_topic = None
-
         with move_on_after(timeout) as cancel_scope:
             if cancel_scope.cancel_called:
                 return False
@@ -541,7 +534,4 @@ class KafkaBroker(
             if self._producer is None:
                 return False
 
-            return await self._producer._producer.ping(
-                timeout=timeout,
-                topic=random_topic,
-            )
+            return await self._producer._producer.ping(timeout=timeout)

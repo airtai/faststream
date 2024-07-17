@@ -230,20 +230,15 @@ class AsyncConfluentProducer:
     async def ping(
         self,
         timeout: Optional[float] = 5.0,
-        topic: Optional[str] = None,
     ) -> bool:
         """Implement ping using `list_topics` information request."""
         if timeout is None:
             timeout = -1
 
-        kwargs: Dict[str, Any] = {"timeout": timeout}
-        if topic:
-            kwargs["topic"] = topic
-
         try:
             cluster_metadata = await call_or_await(
                 self.producer.list_topics,
-                **kwargs,
+                timeout=timeout,
             )
 
             return bool(cluster_metadata)
