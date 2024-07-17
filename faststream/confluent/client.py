@@ -236,7 +236,7 @@ class AsyncConfluentProducer:
         if timeout is None:
             timeout = -1
 
-        kwargs = {"timeout": timeout}
+        kwargs: Dict[str, Any] = {"timeout": timeout}
         if topic:
             kwargs["topic"] = topic
 
