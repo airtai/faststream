@@ -533,3 +533,5 @@ class KafkaBroker(
 
             if self._producer is None:
                 return False
+
+            return await self._producer._producer.ping(timeout=timeout)
