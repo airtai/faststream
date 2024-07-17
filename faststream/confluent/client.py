@@ -227,21 +227,27 @@ class AsyncConfluentProducer:
         ]
         await asyncio.gather(*tasks)
 
-    async def ping(self, timeout: Optional[float] = 5.0) -> bool:
-        """Implement ping using AdminClient."""
+    async def ping(
+        self,
+        timeout: Optional[float] = 5.0,
+        topic: Optional[str] = None,
+    ) -> bool:
+        """Implement ping using `list_topics` information request."""
+        if timeout is None:
+            timeout = -1
+
+        kwargs = {"timeout": timeout}
+        if topic:
+            kwargs["topic"] = topic
+
         try:
-            admin_client = AdminClient(
-                {
-                    x: self.config[x]
-                    for x in ADMINCLIENT_CONFIG_PARAMS
-                    if x in self.config
-                }
-            )
             cluster_metadata = await call_or_await(
-                admin_client.list_topics, timeout=timeout
+                self.producer.list_topics,
+                **kwargs,
             )
 
             return bool(cluster_metadata)
+
         except Exception:
             return False
 
