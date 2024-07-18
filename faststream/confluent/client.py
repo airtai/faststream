@@ -26,6 +26,19 @@ if TYPE_CHECKING:
 
 _missing = object()
 
+ADMINCLIENT_CONFIG_PARAMS = (
+    "allow.auto.create.topics",
+    "bootstrap.servers",
+    "client.id",
+    "request.timeout.ms",
+    "metadata.max.age.ms",
+    "security.protocol",
+    "connections.max.idle.ms",
+    "sasl.mechanism",
+    "sasl.username",
+    "sasl.password",
+)
+
 
 class MsgToSend(BaseModel):
     """A Pydantic model representing a message to be sent to Kafka.
@@ -214,6 +227,25 @@ class AsyncConfluentProducer:
         ]
         await asyncio.gather(*tasks)
 
+    async def ping(
+        self,
+        timeout: Optional[float] = 5.0,
+    ) -> bool:
+        """Implement ping using `list_topics` information request."""
+        if timeout is None:
+            timeout = -1
+
+        try:
+            cluster_metadata = await call_or_await(
+                self.producer.list_topics,
+                timeout=timeout,
+            )
+
+            return bool(cluster_metadata)
+
+        except Exception:
+            return False
+
 
 class TopicPartition(NamedTuple):
     """A named tuple representing a Kafka topic and partition."""
@@ -228,22 +260,8 @@ def create_topics(
     logger: Union["LoggerProto", None, object] = logger,
 ) -> None:
     """Creates Kafka topics using the provided configuration."""
-    required_config_params = (
-        "allow.auto.create.topics",
-        "bootstrap.servers",
-        "client.id",
-        "request.timeout.ms",
-        "metadata.max.age.ms",
-        "security.protocol",
-        "connections.max.idle.ms",
-        "sasl.mechanism",
-        "sasl.username",
-        "sasl.password",
-        "sasl.kerberos.service.name",
-    )
-
     admin_client = AdminClient(
-        {x: config[x] for x in required_config_params if x in config}
+        {x: config[x] for x in ADMINCLIENT_CONFIG_PARAMS if x in config}
     )
 
     fs = admin_client.create_topics(

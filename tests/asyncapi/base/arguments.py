@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, Type, Union
 
@@ -212,6 +213,33 @@ class FastAPICompatible:
                     "msg": {"title": "Msg", "type": "string"},
                 },
                 "required": ["msg"],
+                "title": key,
+                "type": "object",
+            }
+
+    def test_dataclass(self):
+        @dataclass
+        class User:
+            id: int
+            name: str = ""
+
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle(user: User): ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        for key, v in payload.items():
+            assert key == "User"
+            assert v == {
+                "properties": {
+                    "id": {"title": "Id", "type": "integer"},
+                    "name": {"default": "", "title": "Name", "type": "string"},
+                },
+                "required": ["id"],
                 "title": key,
                 "type": "object",
             }
