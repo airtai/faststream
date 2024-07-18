@@ -4,7 +4,35 @@ from unittest.mock import Mock
 import pytest
 
 from faststream import Path
-from tests.marks import require_aiopika, require_nats, require_redis
+from tests.marks import require_aiokafka, require_aiopika, require_nats, require_redis
+
+
+@pytest.mark.asyncio()
+@require_aiokafka
+async def test_aiokafka_path():
+    from faststream.kafka import KafkaBroker, TestKafkaBroker
+
+    broker = KafkaBroker()
+
+    @broker.subscriber(pattern="in.{name}.{id}")
+    async def h(
+        name: str = Path(),
+        id_: int = Path("id"),
+    ):
+        assert name == "john"
+        assert id_ == 1
+        return 1
+
+    async with TestKafkaBroker(broker) as br:
+        assert (
+            await br.publish(
+                "",
+                "in.john.1",
+                rpc=True,
+                rpc_timeout=1.0,
+            )
+            == 1
+        )
 
 
 @pytest.mark.asyncio()
