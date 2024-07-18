@@ -12,6 +12,35 @@ hide:
 ---
 
 # Release Notes
+## 0.5.14
+
+### What's Changed
+* Update Release Notes for 0.5.13 by @faststream-release-notes-updater in [#1548](https://github.com/airtai/faststream/pull/1548){.external-link target="_blank"}
+* Add allow_auto_create_topics to make automatic topic creation configurable by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1556](https://github.com/airtai/faststream/pull/1556){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.13...0.5.14](https://github.com/airtai/faststream/compare/0.5.13...0.5.14){.external-link target="_blank"}
+
+## 0.5.13
+
+### What's Changed
+
+* feat: nats filter JS subscription support by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1519](https://github.com/airtai/faststream/pull/1519){.external-link target="_blank"}
+* fix: correct RabbitExchange processing by OTEL in broker.publish case by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1521](https://github.com/airtai/faststream/pull/1521){.external-link target="_blank"}
+* fix: correct Nats ObjectStorage get file behavior inside watch subscriber by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1523](https://github.com/airtai/faststream/pull/1523){.external-link target="_blank"}
+* Resolve Issue 1386, Add rpc_prefix by [@aKardasz](https://github.com/aKardasz){.external-link target="_blank"} in [#1484](https://github.com/airtai/faststream/pull/1484){.external-link target="_blank"}
+* fix: correct spans linking in batches case by [@draincoder](https://github.com/draincoder){.external-link target="_blank"} in [#1532](https://github.com/airtai/faststream/pull/1532){.external-link target="_blank"}
+* fix (#1539): correct anyio.create_memory_object_stream annotation by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1541](https://github.com/airtai/faststream/pull/1541){.external-link target="_blank"}
+* fix: correct publish_coverage CI by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1536](https://github.com/airtai/faststream/pull/1536){.external-link target="_blank"}
+* Add NatsBroker.new_inbox() by [@maxalbert](https://github.com/maxalbert){.external-link target="_blank"} in [#1543](https://github.com/airtai/faststream/pull/1543){.external-link target="_blank"}
+* fix (#1544): correct Redis message nack & reject signature by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1546](https://github.com/airtai/faststream/pull/1546){.external-link target="_blank"}
+
+### New Contributors
+* [@aKardasz](https://github.com/aKardasz){.external-link target="_blank"} made their first contribution in [#1484](https://github.com/airtai/faststream/pull/1484){.external-link target="_blank"}
+* [@maxalbert](https://github.com/maxalbert){.external-link target="_blank"} made their first contribution in [#1543](https://github.com/airtai/faststream/pull/1543){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.12...0.5.13](https://github.com/airtai/faststream/compare/0.5.12...0.5.13){.external-link target="_blank"}
+
 ## 0.5.12
 
 ### What's Changed
@@ -324,7 +353,7 @@ You can find more information about it in the official [**aiokafka** doc](https:
 
 `pattern` option was added too, but it is still experimental and does not support `Path`
 
-3. [`Path`](https://faststream.airt.ai/latest/nats/message/#subject-pattern-access) feature performance was increased. Also, `Path` is suitable for NATS `PullSub` batch subscribtion as well now.
+3. [`Path`](https://faststream.airt.ai/latest/nats/message/#subject-pattern-access) feature performance was increased. Also, `Path` is suitable for NATS `PullSub` batch subscription as well now.
 
 ```python
 from faststream import NatsBroker, PullSub
