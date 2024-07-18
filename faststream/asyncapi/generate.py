@@ -57,7 +57,6 @@ def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
                     payloads,
                     messages,
                 )
-
     schema = Schema(
         info=Info(
             title=app.title,
@@ -146,9 +145,13 @@ def _resolve_msg_payloads(
     payloads: Dict[str, Any],
     messages: Dict[str, Any],
 ) -> Reference:
-    one_of_list: List[Reference] = []
+    """Replace message payload by reference and normalize payloads.
 
+    Payloads and messages are editable dicts to store schemas for reference in AsyncAPI.
+    """
+    one_of_list: List[Reference] = []
     m.payload = _move_pydantic_refs(m.payload, DEF_KEY)
+
     if DEF_KEY in m.payload:
         payloads.update(m.payload.pop(DEF_KEY))
 
@@ -186,6 +189,7 @@ def _move_pydantic_refs(
     original: Any,
     key: str,
 ) -> Any:
+    """Remove pydantic references and replacem them by real schemas."""
     if not isinstance(original, Dict):
         return original
 

@@ -21,14 +21,14 @@ def parse_security(security: Optional[BaseSecurity]) -> "AnyDict":
 
     if security is None:
         return {}
-    elif type(security) == BaseSecurity:
-        return _parse_base_security(security)
-    elif type(security) == SASLPlaintext:
+    elif isinstance(security, SASLPlaintext):
         return _parse_sasl_plaintext(security)
-    elif type(security) == SASLScram256:
+    elif isinstance(security, SASLScram256):
         return _parse_sasl_scram256(security)
-    elif type(security) == SASLScram512:
+    elif isinstance(security, SASLScram512):
         return _parse_sasl_scram512(security)
+    elif isinstance(security, BaseSecurity):
+        return _parse_base_security(security)
     else:
         raise NotImplementedError(f"KafkaBroker does not support `{type(security)}`.")
 
