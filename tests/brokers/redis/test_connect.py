@@ -15,10 +15,6 @@ class TestConnection(BrokerConnectionTestcase):
             "port": settings.port,
         }
 
-    async def ping(self, broker: RedisBroker) -> bool:
-        await broker._connection.ping()
-        return True
-
     @pytest.mark.asyncio()
     async def test_init_connect_by_raw_data(self, settings):
         async with RedisBroker(
