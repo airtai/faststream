@@ -12,6 +12,53 @@ hide:
 ---
 
 # Release Notes
+## 0.5.15
+
+### What's Changed
+
+Finally, **FastStream** has a Kafka pattern subscription! This is another step forward in our [**Roadmap**](https://github.com/airtai/faststream/issues/1510) moving us to **0.6.0** and futher!
+
+```python
+from faststream import Path
+from faststream.kafka import KafkaBroker
+
+broker = KafkaBroker()
+
+@broker.subscriber(pattern="logs.{level}")
+async def base_handler(
+    body: str,
+    level: str = Path(),
+):
+    ...
+```
+
+Also, all brokers now supports a new `ping` method to check real broker connection
+
+```python
+is_connected: bool = await broker.ping()
+```
+
+This is a little, but important change for [K8S probes](https://github.com/airtai/faststream/issues/1181) support
+
+More other there are a lot of bugfixes and improvements from our contributors! Thanks to all of these amazing people!
+
+* feat(multiprocess): restart child processes if they are not alive by @gostilovichd in https://github.com/airtai/faststream/pull/1550
+* fix: use typing_extensions.TypedDict import by @Lancetnik in https://github.com/airtai/faststream/pull/1575
+* fix: correct single dataclass argument AsyncAPI payload generation by @Lancetnik in https://github.com/airtai/faststream/pull/1591
+* fix (#1598): use config with NATS PullSub by @Lancetnik in https://github.com/airtai/faststream/pull/1599
+* feat: default call_name for broker.subscriber by @KrySeyt in https://github.com/airtai/faststream/pull/1589
+* Feat: init ping method by @Flosckow in https://github.com/airtai/faststream/pull/1592
+* chore: bump nats-py requirement by @Lancetnik in https://github.com/airtai/faststream/pull/1600
+* fix: add pattern checking by @spataphore1337 in https://github.com/airtai/faststream/pull/1590
+
+### New Contributors
+
+* @gostilovichd made their first contribution in https://github.com/airtai/faststream/pull/1550
+* @KrySeyt made their first contribution in https://github.com/airtai/faststream/pull/1589
+* @Flosckow made their first contribution in https://github.com/airtai/faststream/pull/1592
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.14...0.5.15
+
 ## 0.5.14
 
 ### What's Changed
