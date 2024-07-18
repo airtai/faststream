@@ -700,6 +700,7 @@ class PullStreamSubscriber(_TasksMixin, _StreamSubscriber):
         """Create NATS subscription and start consume task."""
         self.subscription = await connection.pull_subscribe(
             subject=self.clear_subject,
+            config=self.config,
             **self.extra_options,
         )
         self.add_task(self._consume_pull(cb=self.consume))
@@ -778,6 +779,7 @@ class ConcurrentPullStreamSubscriber(_ConcurrentMixin, PullStreamSubscriber):
 
         self.subscription = await connection.pull_subscribe(
             subject=self.clear_subject,
+            config=self.config,
             **self.extra_options,
         )
         self.add_task(self._consume_pull(cb=self._put_msg))
@@ -841,6 +843,7 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
         """Create NATS subscription and start consume task."""
         self.subscription = await connection.pull_subscribe(
             subject=self.clear_subject,
+            config=self.config,
             **self.extra_options,
         )
         self.add_task(self._consume_pull())

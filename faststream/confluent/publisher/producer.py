@@ -4,7 +4,6 @@ from typing_extensions import override
 
 from faststream.broker.message import encode_message
 from faststream.broker.publisher.proto import ProducerProto
-from faststream.exceptions import NOT_CONNECTED_YET
 
 if TYPE_CHECKING:
     from faststream.confluent.client import AsyncConfluentProducer
@@ -13,8 +12,6 @@ if TYPE_CHECKING:
 
 class AsyncConfluentFastProducer(ProducerProto):
     """A class to represent Kafka producer."""
-
-    _producer: Optional["AsyncConfluentProducer"]
 
     def __init__(
         self,
@@ -36,8 +33,6 @@ class AsyncConfluentFastProducer(ProducerProto):
         reply_to: str = "",
     ) -> None:
         """Publish a message to a topic."""
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
         message, content_type = encode_message(message)
 
         headers_to_send = {
@@ -62,8 +57,7 @@ class AsyncConfluentFastProducer(ProducerProto):
         )
 
     async def stop(self) -> None:
-        if self._producer is not None:  # pragma: no branch
-            await self._producer.stop()
+        await self._producer.stop()
 
     async def publish_batch(
         self,
@@ -76,8 +70,6 @@ class AsyncConfluentFastProducer(ProducerProto):
         correlation_id: str = "",
     ) -> None:
         """Publish a batch of messages to a topic."""
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
         batch = self._producer.create_batch()
 
         headers_to_send = {"correlation_id": correlation_id, **(headers or {})}
