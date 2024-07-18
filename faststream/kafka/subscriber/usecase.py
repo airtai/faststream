@@ -28,6 +28,7 @@ from faststream.broker.types import (
 )
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
+from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer, ConsumerRecord
@@ -93,15 +94,16 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.partitions = partitions
         self.group_id = group_id
 
-        self.builder = None
-        self.consumer = None
-        self.task = None
+        self._pattern = pattern
+        self.__listener = listener
+        self.__connection_args = connection_args
 
         # Setup it later
         self.client_id = ""
-        self.__pattern = pattern
-        self.__listener = listener
-        self.__connection_args = connection_args
+        self.builder = None
+
+        self.consumer = None
+        self.task = None
 
     @override
     def setup(  # type: ignore[override]
@@ -149,10 +151,10 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             **self.__connection_args,
         )
 
-        if self.topics or self.__pattern:
+        if self.topics or self._pattern:
             consumer.subscribe(
                 topics=self.topics,
-                pattern=self.__pattern,
+                pattern=self._pattern,
                 listener=self.__listener,
             )
 
@@ -229,8 +231,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
     @property
     def topic_names(self) -> List[str]:
-        if self.__pattern:
-            return [self.__pattern]
+        if self._pattern:
+            return [self._pattern]
         elif self.topics:
             return list(self.topics)
         else:
@@ -305,8 +307,19 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
+        if pattern:
+            reg, pattern = compile_path(
+                pattern,
+                replace_symbol=".*",
+                patch_regex=lambda x: x.replace(r"\*", ".*"),
+            )
+
+        else:
+            reg = None
+
         parser = AioKafkaParser(
-            msg_class=KafkaAckableMessage if is_manual else KafkaMessage
+            msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
+            regex=reg,
         )
 
         super().__init__(
@@ -365,8 +378,19 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         self.batch_timeout_ms = batch_timeout_ms
         self.max_records = max_records
 
+        if pattern:
+            reg, pattern = compile_path(
+                pattern,
+                replace_symbol=".*",
+                patch_regex=lambda x: x.replace(r"\*", ".*"),
+            )
+
+        else:
+            reg = None
+
         parser = AioKafkaBatchParser(
-            msg_class=KafkaAckableMessage if is_manual else KafkaMessage
+            msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
+            regex=reg,
         )
 
         super().__init__(
