@@ -1,5 +1,5 @@
-from contextlib import AsyncExitStack
-from typing import TYPE_CHECKING, Dict, Optional, cast
+from contextlib import AsyncExitStack, asynccontextmanager
+from typing import TYPE_CHECKING, AsyncGenerator, Dict, Optional, Tuple, cast
 
 if TYPE_CHECKING:
     import aio_pika
@@ -12,8 +12,13 @@ class RabbitDeclarer:
     """An utility class to declare RabbitMQ queues and exchanges."""
 
     __connection_manager: "ConnectionManager"
-    __queues: Dict["RabbitQueue", "aio_pika.RobustQueue"]
-    __exchanges: Dict["RabbitExchange", "aio_pika.RobustExchange"]
+    __queues: Dict[
+        Tuple[Optional["aio_pika.RobustChannel"], "RabbitQueue"], "aio_pika.RobustQueue"
+    ]
+    __exchanges: Dict[
+        Tuple[Optional["aio_pika.RobustChannel"], "RabbitExchange"],
+        "aio_pika.RobustExchange",
+    ]
 
     def __init__(self, connection_manager: "ConnectionManager") -> None:
         self.__connection_manager = connection_manager
@@ -28,14 +33,18 @@ class RabbitDeclarer:
         channel: Optional["aio_pika.RobustChannel"] = None,
     ) -> "aio_pika.RobustQueue":
         """Declare a queue."""
-        if (queue_obj := self.__queues.get(queue)) is None:
+        # NOTE: It would return the queue linked to another channel if it was already declared
+        # unless the channel is part of the key
+        if (queue_obj := self.__queues.get((channel, queue))) is None:
             async with AsyncExitStack() as stack:
                 if channel is None:
                     channel = await stack.enter_async_context(
                         self.__connection_manager.acquire_channel()
                     )
+                    if (channel, queue) in self.__queues:
+                        return self.__queues[(channel, queue)]
 
-                self.__queues[queue] = queue_obj = cast(
+                self.__queues[(channel, queue)] = queue_obj = cast(
                     "aio_pika.RobustQueue",
                     await channel.declare_queue(
                         name=queue.name,
@@ -59,7 +68,9 @@ class RabbitDeclarer:
         channel: Optional["aio_pika.RobustChannel"] = None,
     ) -> "aio_pika.RobustExchange":
         """Declare an exchange, parent exchanges and bind them each other."""
-        if exch := self.__exchanges.get(exchange):
+        # NOTE: It would return the queue linked to another channel if it was already declared
+        # unless the channel is part of the key
+        if exch := self.__exchanges.get((channel, exchange)):
             return exch
 
         async with AsyncExitStack() as stack:
@@ -67,12 +78,14 @@ class RabbitDeclarer:
                 channel = await stack.enter_async_context(
                     self.__connection_manager.acquire_channel()
                 )
+                if (channel, exchange) in self.__exchanges:
+                    return self.__exchanges[(channel, exchange)]
 
             if not exchange.name:
                 return channel.default_exchange
 
             else:
-                self.__exchanges[exchange] = exch = cast(
+                self.__exchanges[(channel, exchange)] = exch = cast(
                     "aio_pika.RobustExchange",
                     await channel.declare_exchange(
                         name=exchange.name,
@@ -102,3 +115,22 @@ class RabbitDeclarer:
                     )
 
         return exch  # type: ignore[return-value]
+
+    @asynccontextmanager
+    async def declare_queue_scope(
+        self,
+        queue: "RabbitQueue",
+        passive: bool = False,
+        *,
+        channel: Optional["aio_pika.RobustChannel"] = None,
+    ) -> AsyncGenerator["aio_pika.RobustQueue", None]:
+        """Declare a queue and return it with a context manager."""
+        async with AsyncExitStack() as stack:
+            if channel is None:
+                channel = await stack.enter_async_context(
+                    self.__connection_manager.acquire_channel()
+                )
+
+            yield await self.declare_queue(
+                queue=queue, passive=passive, channel=channel
+            )

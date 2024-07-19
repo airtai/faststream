@@ -27,7 +27,7 @@ class ConnectionManager:
         publisher_confirms: bool,
         on_return_raises: bool,
     ) -> None:
-        self._connection_pool: "Pool[RobustConnection]" = Pool(
+        self._connection_pool: Pool[RobustConnection] = Pool(
             lambda: connect_robust(
                 url=url,
                 timeout=timeout,
@@ -36,7 +36,7 @@ class ConnectionManager:
             max_size=connection_pool_size,
         )
 
-        self._channel_pool: "Pool[RobustChannel]" = Pool(
+        self._channel_pool: Pool[RobustChannel] = Pool(
             lambda: self._get_channel(
                 channel_number=channel_number,
                 publisher_confirms=publisher_confirms,

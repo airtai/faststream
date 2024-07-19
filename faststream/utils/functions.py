@@ -70,6 +70,15 @@ async def fake_context(*args: Any, **kwargs: Any) -> AsyncIterator[None]:
     yield None
 
 
+@asynccontextmanager
+async def fake_context_yielding(
+    *args: Any,
+    with_yield: F_Return = None,  # type: ignore[assignment]
+    **kwargs: Any,
+) -> AsyncIterator[F_Return]:
+    yield with_yield
+
+
 @contextmanager
 def sync_fake_context(*args: Any, **kwargs: Any) -> Iterator[None]:
     yield None

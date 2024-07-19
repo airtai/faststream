@@ -201,7 +201,7 @@ class RabbitBroker(
         max_channel_pool_size: Annotated[
             int,
             Doc("Max channel pool size"),
-        ] = 1,
+        ] = 2,  # NOTE: because we're sharing channels between consumers and producers
     ) -> None:
         security_args = parse_security(security)
 

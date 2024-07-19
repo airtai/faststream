@@ -1,9 +1,11 @@
+from contextlib import asynccontextmanager
 from typing import (
     TYPE_CHECKING,
     Any,
     AsyncContextManager,
+    AsyncGenerator,
     Optional,
-    Type,
+    Tuple,
     Union,
     cast,
 )
@@ -17,13 +19,15 @@ from faststream.broker.utils import resolve_custom_func
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import RABBIT_REPLY, RabbitExchange
-from faststream.utils.functions import fake_context, timeout_scope
+from faststream.utils.classes import Singleton
+from faststream.utils.functions import (
+    fake_context_yielding,
+    timeout_scope,
+)
 
 if TYPE_CHECKING:
-    from types import TracebackType
-
     import aiormq
-    from aio_pika import IncomingMessage, RobustChannel, RobustQueue
+    from aio_pika import IncomingMessage, RobustChannel
     from aio_pika.abc import DateType, HeadersType, TimeoutType
     from anyio.streams.memory import MemoryObjectReceiveStream
 
@@ -50,8 +54,7 @@ class AioPikaFastProducer(ProducerProto):
         decoder: Optional["CustomCallable"],
     ) -> None:
         self.declarer = declarer
-
-        self._rpc_lock = anyio.Lock()
+        self.rpc_manager = _RPCManager(declarer=declarer)
 
         default_parser = AioPikaParser()
         self._parser = resolve_custom_func(parser, default_parser.parse_message)
@@ -86,24 +89,25 @@ class AioPikaFastProducer(ProducerProto):
     ) -> Optional[Any]:
         """Publish a message to a RabbitMQ queue."""
         context: AsyncContextManager[
-            Optional[MemoryObjectReceiveStream[IncomingMessage]]
+            Union[
+                Tuple[MemoryObjectReceiveStream[IncomingMessage], RobustChannel],
+                Tuple[None, None],
+            ]
         ]
-        channel: Optional["RobustChannel"]
+        channel: Optional[RobustChannel]
+        response_queue: Optional[MemoryObjectReceiveStream[IncomingMessage]]
 
         if rpc:
             if reply_to is not None:
                 raise WRONG_PUBLISH_ARGS
 
-            rmq_queue = await self.declarer.declare_queue(RABBIT_REPLY)
-            channel = cast("RobustChannel", rmq_queue.channel)
-            context = _RPCCallback(self._rpc_lock, rmq_queue)
+            context = self.rpc_manager()
             reply_to = RABBIT_REPLY.name
 
         else:
-            channel = None
-            context = fake_context()
+            context = fake_context_yielding(with_yield=(None, None))
 
-        async with context as response_queue:
+        async with context as (response_queue, channel):
             r = await self._publish(
                 message=message,
                 exchange=exchange,
@@ -197,37 +201,45 @@ class AioPikaFastProducer(ProducerProto):
         )
 
 
-class _RPCCallback:
-    """A class provides an RPC lock."""
+class _RPCManager(Singleton):
+    """A class that provides an RPC lock."""
 
-    def __init__(self, lock: "anyio.Lock", callback_queue: "RobustQueue") -> None:
-        self.lock = lock
-        self.queue = callback_queue
+    def __init__(self, declarer: "RabbitDeclarer") -> None:
+        self.declarer = declarer
 
-    async def __aenter__(self) -> "MemoryObjectReceiveStream[IncomingMessage]":
-        (
-            send_response_stream,
-            receive_response_stream,
-        ) = anyio.create_memory_object_stream[AbstractIncomingMessage](
-            max_buffer_size=1
-        )
-        await self.lock.acquire()
-
-        self.consumer_tag = await self.queue.consume(
-            callback=send_response_stream.send,
-            no_ack=True,
-        )
-
-        return cast(
-            "MemoryObjectReceiveStream[IncomingMessage]",
-            receive_response_stream,
-        )
-
-    async def __aexit__(
+    @asynccontextmanager
+    async def __call__(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
-        exc_val: Optional[BaseException] = None,
-        exc_tb: Optional["TracebackType"] = None,
-    ) -> None:
-        self.lock.release()
-        await self.queue.cancel(self.consumer_tag)
+    ) -> AsyncGenerator[
+        Tuple[
+            "MemoryObjectReceiveStream[IncomingMessage]",
+            "RobustChannel",
+        ],
+        None,
+    ]:
+        # NOTE: this allows us to make sure the channel is only used by a single
+        # RPC call at a time, however, if the channel pool is used for both consuming
+        # and producing, they will be blocked by each other
+        async with self.declarer.declare_queue_scope(RABBIT_REPLY) as queue:
+            consumer_tag = None
+            try:
+                (
+                    send_response_stream,
+                    receive_response_stream,
+                ) = anyio.create_memory_object_stream[AbstractIncomingMessage](
+                    max_buffer_size=1
+                )
+                consumer_tag = await queue.consume(
+                    callback=send_response_stream.send,  # type: ignore[arg-type]
+                    no_ack=True,
+                )
+                yield (
+                    cast(
+                        "MemoryObjectReceiveStream[IncomingMessage]",
+                        receive_response_stream,
+                    ),
+                    cast("RobustChannel", queue.channel),
+                )
+            finally:
+                if consumer_tag is not None:
+                    await queue.cancel(consumer_tag)  # type: ignore[index]
