@@ -11,11 +11,11 @@ class NatsResponse(Response):
     def __init__(
         self,
         message: "SendableMessage",
-        subject: str = "",
         *,
         headers: Optional["AnyDict"] = None,
-        reply_to: str = "",
         correlation_id: Optional[str] = None,
+        subject: str = "",
+        reply_to: str = "",
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
         rpc: bool = False,

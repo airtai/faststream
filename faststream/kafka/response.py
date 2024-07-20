@@ -15,7 +15,6 @@ class KafkaResponse(Response):
         headers: Optional["AnyDict"] = None,
         correlation_id: Optional[str] = None,
         partition: Optional[int] = None,
-        # Kafka specific
         timestamp_ms: Optional[int] = None,
         key: Optional[bytes] = None,
         topic: str = "",

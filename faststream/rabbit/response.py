@@ -16,11 +16,11 @@ class RabbitResponse(Response):
     def __init__(
         self,
         message: "AioPikaSendableMessage",
+        *,
+        correlation_id: Optional[str] = None,
         queue: Optional["RabbitQueue"] = None,
         exchange: Optional["RabbitExchange"] = None,
-        *,
         routing_key: str = "",
-        correlation_id: Optional[str] = None,
         message_id: Optional[str] = None,
         timestamp: Optional["DateType"] = None,
         rpc: bool = False,
