@@ -18,7 +18,7 @@ class NatsResponse(Response):
         correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
-        rpc: Optional[bool] = False,
+        rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
