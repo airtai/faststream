@@ -81,4 +81,4 @@ It can be very helpful to set the `with_real` flag using an environment variable
 WITH_REAL=True/False pytest ...
 ```
 
-To learn more about managing your application configiruation visit [this page](../config/index.md){.internal-link}.
+To learn more about managing your application configuration visit [this page](../config/index.md){.internal-link}.

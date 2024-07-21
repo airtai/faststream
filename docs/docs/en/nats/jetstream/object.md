@@ -10,7 +10,7 @@ search:
 
 # Object Storage
 
-Object storage is almost identical to the [*Key-Value*](./key-value.md) stroge concept, so you can reuse the guide.
+Object storage is almost identical to the [*Key-Value*](./key-value.md) storage concept, so you can reuse the guide.
 
 ## Overview
 
@@ -45,7 +45,7 @@ async def handler(filename: str):
     assert filename == "file.txt"
 ```
 
-**NATS** deliveres you just a filename (and some more metainformation you can get access via `message.raw_message`) because files can be any size. The framework should protect your service from memory overflow, so we can't upload whole file content right to the memo. By you can make it manually the following way:
+**NATS** delivers you just a filename (and some more metainformation you can get access via `message.raw_message`) because files can be any size. The framework should protect your service from memory overflow, so we can't upload whole file content right to the memo. By you can make it manually the following way:
 
 ```python linenums="1" hl_lines="1 6 10-11"
 {! docs_src/nats/js/object.py [ln:6-7,12-20] !}

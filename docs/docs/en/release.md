@@ -16,7 +16,7 @@ hide:
 
 ### What's Changed
 
-Finally, **FastStream** has a Kafka pattern subscription! This is another step forward in our [**Roadmap**](https://github.com/airtai/faststream/issues/1510) moving us to **0.6.0** and futher!
+Finally, **FastStream** has a Kafka pattern subscription! This is another step forward in our [**Roadmap**](https://github.com/airtai/faststream/issues/1510) moving us to **0.6.0** and further!
 
 ```python
 from faststream import Path
@@ -170,7 +170,7 @@ async def handler():
 
 ### What's Changed
 
-This is the time for a new **NATS** features! **FastStream** supports **NATS Key-Value** and **Object Storage** subscribption features in a native way now (big thx for @sheldygg)!
+This is the time for a new **NATS** features! **FastStream** supports **NATS Key-Value** and **Object Storage** subscription features in a native way now (big thx for @sheldygg)!
 
 1. KeyValue creation and watching API added (you can read updated [documentation section](https://faststream.airt.ai/latest/nats/jetstream/key-value/) for changes):
 
@@ -271,7 +271,7 @@ broker = NatsBroker(
 app = FastStream(broker)
 ```
 
-To find detailt information just visit our documentation about [telemetry](https://faststream.airt.ai/latest/getting-started/opentelemetry/)
+To find detail information just visit our documentation about [telemetry](https://faststream.airt.ai/latest/getting-started/opentelemetry/)
 
 P.S. The release includes basic OpenTelemetry support - messages tracing & basic metrics. Baggage support and correct spans linking in batch processing case will be added soon.
 
@@ -313,10 +313,10 @@ from faststream.kafka import KafkaBroker, TopicPartition
 
 broker = KafkaBroker()
 
-topic_partition_fisrt = TopicPartition("my_topic", 1)
+topic_partition_first = TopicPartition("my_topic", 1)
 topic_partition_second = TopicPartition("my_topic", 2)
 
-@broker.subscribe(partitions=[topic_partition_fisrt, topic_partition_second])
+@broker.subscribe(partitions=[topic_partition_first, topic_partition_second])
 async def some_consumer(msg):
    ...
 ```
@@ -528,7 +528,7 @@ await subscriber.close()
 * docs: fix typos by @omahs in https://github.com/airtai/faststream/pull/1309
 * chore: update dependencies by @Lancetnik in https://github.com/airtai/faststream/pull/1323
 * docs: fix misc by @Lancetnik in https://github.com/airtai/faststream/pull/1324
-* docs (#1327): correct RMQ exhcanges behavior by @Lancetnik in https://github.com/airtai/faststream/pull/1328
+* docs (#1327): correct RMQ exchanges behavior by @Lancetnik in https://github.com/airtai/faststream/pull/1328
 * fix: typer 0.12 exclude by @Lancetnik in https://github.com/airtai/faststream/pull/1341
 * 0.5.0 by @Lancetnik in https://github.com/airtai/faststream/pull/1326
   * close #1103
@@ -560,7 +560,7 @@ This is the final API change before stable `0.5.0` release
 
 ⚠️ HAS BREAKING CHANGE
 
-In it, we stabilize the behavior of publihsers & subscribers middlewares
+In it, we stabilize the behavior of publishers & subscribers middlewares
 
 ```python
 async def subscriber_middleware(call_next, msg):
@@ -704,7 +704,7 @@ await subscriber.close()
 * docs: fix typos by @omahs in https://github.com/airtai/faststream/pull/1309
 * chore: update dependencies by @Lancetnik in https://github.com/airtai/faststream/pull/1323
 * docs: fix misc by @Lancetnik in https://github.com/airtai/faststream/pull/1324
-* docs (#1327): correct RMQ exhcanges behavior by @Lancetnik in https://github.com/airtai/faststream/pull/1328
+* docs (#1327): correct RMQ exchanges behavior by @Lancetnik in https://github.com/airtai/faststream/pull/1328
 * fix: typer 0.12 exclude by @Lancetnik in https://github.com/airtai/faststream/pull/1341
 * 0.5.0 by @Lancetnik in https://github.com/airtai/faststream/pull/1326
 * close #1103
@@ -730,7 +730,7 @@ await subscriber.close()
 ### What's Changed
 
 * Update Release Notes for 0.4.6 by @faststream-release-notes-updater in [#1286](https://github.com/airtai/faststream/pull/1286){.external-link target="_blank"}
-* fix (#1263): correct nested descriminator msg type AsyncAPI schema by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1288](https://github.com/airtai/faststream/pull/1288){.external-link target="_blank"}
+* fix (#1263): correct nested discriminator msg type AsyncAPI schema by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1288](https://github.com/airtai/faststream/pull/1288){.external-link target="_blank"}
 * docs: add `apply_types` warning notice to subscription/index.md by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1291](https://github.com/airtai/faststream/pull/1291){.external-link target="_blank"}
 * chore: fixed nats-py version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1294](https://github.com/airtai/faststream/pull/1294){.external-link target="_blank"}
 
@@ -752,7 +752,7 @@ await subscriber.close()
 * Update Release Notes for 0.4.4 by @faststream-release-notes-updater in [#1260](https://github.com/airtai/faststream/pull/1260){.external-link target="_blank"}
 * Removed unused pytest dependency from redis/schemas.py by [@ashambalev](https://github.com/ashambalev){.external-link target="_blank"} in [#1261](https://github.com/airtai/faststream/pull/1261){.external-link target="_blank"}
 * chore: bumped package versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1270](https://github.com/airtai/faststream/pull/1270){.external-link target="_blank"}
-* fix (#1263): correct AsyncAPI schema in descriminator case by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1272](https://github.com/airtai/faststream/pull/1272){.external-link target="_blank"}
+* fix (#1263): correct AsyncAPI schema in discriminator case by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1272](https://github.com/airtai/faststream/pull/1272){.external-link target="_blank"}
 
 ### New Contributors
 * [@ashambalev](https://github.com/ashambalev){.external-link target="_blank"} made their first contribution in [#1261](https://github.com/airtai/faststream/pull/1261){.external-link target="_blank"}
@@ -1547,7 +1547,7 @@ Also, the original message `Context` annotation was copied from `faststream.[bro
 
 ### What's Changed
 
-* Remove faststream_gen docs and remove code to generate fastream_gen docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/824](https://github.com/airtai/faststream/pull/824){.external-link target="_blank"}
+* Remove faststream_gen docs and remove code to generate faststream_gen docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/824](https://github.com/airtai/faststream/pull/824){.external-link target="_blank"}
 * Update docs article to use cookiecutter template by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/828](https://github.com/airtai/faststream/pull/828){.external-link target="_blank"}
 * Split real broker tests to independent runs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/825](https://github.com/airtai/faststream/pull/825){.external-link target="_blank"}
 * Remove unused docs/docs_src/kafka examples and its tests by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/829](https://github.com/airtai/faststream/pull/829){.external-link target="_blank"}
@@ -1652,7 +1652,7 @@ Also, the original message `Context` annotation was copied from `faststream.[bro
 * Polish contributing file and remove duplicate docker compose file by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/734](https://github.com/airtai/faststream/pull/734){.external-link target="_blank"}
 * Bump dawidd6/action-download-artifact from 2.26.0 to 2.28.0 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/731](https://github.com/airtai/faststream/pull/731){.external-link target="_blank"}
 * Bump actions/checkout from 3 to 4 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/730](https://github.com/airtai/faststream/pull/730){.external-link target="_blank"}
-* Pydantiv2.4.0 compat by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/738](https://github.com/airtai/faststream/pull/738){.external-link target="_blank"}
+* Pydantic2.4.0 compat by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/738](https://github.com/airtai/faststream/pull/738){.external-link target="_blank"}
 * fix: add url option to _connection_args by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/739](https://github.com/airtai/faststream/pull/739){.external-link target="_blank"}
 * Fix typos and grammar in Kafka and RabbitMQ articles in the docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/736](https://github.com/airtai/faststream/pull/736){.external-link target="_blank"}
 

@@ -10,7 +10,7 @@ search:
 
 # RabbitMQ Streams
 
-*RabbitMQ* has a [Streams](https://www.rabbitmq.com/streams.html){.exteranl-link target="_blank"} feature, which is closely related to *Kafka* topics.
+*RabbitMQ* has a [Streams](https://www.rabbitmq.com/streams.html){.external-link target="_blank"} feature, which is closely related to *Kafka* topics.
 
 The main difference from regular *RabbitMQ* queues is that the messages are not deleted after consuming.
 
