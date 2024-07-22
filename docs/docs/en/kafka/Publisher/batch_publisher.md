@@ -50,7 +50,7 @@ Or you can decorate your processing function and return a batch of messages, as 
 {! docs_src/kafka/publish_batch/app.py [ln:22-26] !}
 ```
 
-The application in the example imelements both of these ways, so feel free to use whichever option fits your needs better.
+The application in the example implements both of these ways, so feel free to use whichever option fits your needs better.
 
 !!! note
     Also, you can publishes messages in batches right from a `broker` object: just call
