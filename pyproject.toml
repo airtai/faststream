@@ -119,7 +119,7 @@ lint = [
 
 test-core = [
     "coverage[toml]==7.6.0",
-    "pytest==8.2.2",
+    "pytest==8.3.1",
     "pytest-asyncio==0.23.7",
     "dirty-equals==0.7.1.post0",
     "typing-extensions>=4.8.0,<4.12.1; python_version < '3.9'",  # to fix dirty-equals
