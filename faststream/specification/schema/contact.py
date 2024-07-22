@@ -3,7 +3,8 @@ from typing import (
     Callable,
     Iterable,
     Optional,
-    Type,
+    Type
+
 )
 
 from pydantic import AnyHttpUrl, BaseModel
@@ -17,6 +18,7 @@ from faststream._compat import (
     with_info_plain_validator_function,
 )
 from faststream.log import logger
+
 
 try:
     import email_validator
