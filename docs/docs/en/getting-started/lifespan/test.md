@@ -20,7 +20,7 @@ For this reason, **FastStream** has a special **TestApp** patcher working as a r
 
 If you want to use In-Memory patched broker in your tests, it's advisable to patch the broker first (before applying the application patch).
 
-Also, **TestApp** and **TestBroker** are calling `broker.start()` both. According to the original logic, broker should be started in the `FastStream` application, but **TestBroker** applied first breaks this behavior. This reason **TestApp** prevents **TestBroker** `broker.start()` call if it placed incide **TestBroker** context.
+Also, **TestApp** and **TestBroker** are calling `broker.start()` both. According to the original logic, broker should be started in the `FastStream` application, but **TestBroker** applied first breaks this behavior. This reason **TestApp** prevents **TestBroker** `broker.start()` call if it placed inside **TestBroker** context.
 
 This behavior is ruled by `connect_only` **TestBroker** argument. By default it has `None` value, but **TestApp** can set it to `True/False` by inner logic. To prevent this "magic", just setup `connect_only` argument manually.
 
