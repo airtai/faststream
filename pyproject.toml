@@ -97,7 +97,7 @@ devdocs = [
 
 types = [
     "faststream[optionals]",
-    "mypy==1.10.1",
+    "mypy==1.11.0",
     # mypy extensions
     "types-Deprecated",
     "types-PyYAML",
