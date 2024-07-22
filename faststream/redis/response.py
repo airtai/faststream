@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
+from typing_extensions import override
+
 from faststream.broker.response import Response
 
 if TYPE_CHECKING:
@@ -13,7 +15,17 @@ class RedisResponse(Response):
         *,
         headers: Optional["AnyDict"] = None,
         correlation_id: Optional[str] = None,
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
-    ) -> None: ...
+    ) -> None:
+        super().__init__(
+            body=body,
+            headers=headers,
+            correlation_id=correlation_id,
+        )
+
+    @override
+    def as_publish_kwargs(self) -> "AnyDict":
+        publish_options = {
+            "headers": self.headers,
+            "correlation_id": self.correlation_id,
+        }
+        return publish_options
