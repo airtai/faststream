@@ -10,7 +10,7 @@ from faststream.asyncapi.schema import (
     Schema,
     Server,
 )
-from faststream.constants import ContentTypes
+from faststream.constants import AsyncAPIVersion, ContentTypes
 
 if TYPE_CHECKING:
     from faststream.app import FastStream
@@ -22,6 +22,15 @@ if TYPE_CHECKING:
 
 
 def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
+    if app.asyncapi_version == AsyncAPIVersion.v2_6:
+        return _get_app_schema_2_6(app)
+    if app.asyncapi_version == AsyncAPIVersion.v3_0:
+        raise NotImplementedError
+    else:
+        raise NotImplementedError(f"Async API version not supported: {app.asyncapi_version}")
+
+
+def _get_app_schema_2_6(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
