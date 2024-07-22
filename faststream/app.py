@@ -1,4 +1,3 @@
-import logging
 import logging.config
 from typing import (
     TYPE_CHECKING,
@@ -19,6 +18,7 @@ from typing_extensions import ParamSpec
 from faststream._compat import ExceptionGroup
 from faststream.asyncapi.proto import AsyncAPIApplication
 from faststream.cli.supervisors.utils import set_exit
+from faststream.constants import AsyncAPIVersion
 from faststream.exceptions import ValidationError
 from faststream.log.logging import logger
 from faststream.utils import apply_types, context
@@ -68,6 +68,7 @@ class FastStream(AsyncAPIApplication):
         title: str = "FastStream",
         version: str = "0.1.0",
         description: str = "",
+        asyncapi_version: AsyncAPIVersion = AsyncAPIVersion.v2_6,
         terms_of_service: Optional["AnyHttpUrl"] = None,
         license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
         contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
@@ -87,6 +88,7 @@ class FastStream(AsyncAPIApplication):
         self.broker = broker
         self.logger = logger
         self.context = context
+        self.asyncapi_version = asyncapi_version
 
         self._on_startup_calling = [apply_types(to_async(x)) for x in on_startup]
         self._after_startup_calling = [apply_types(to_async(x)) for x in after_startup]
