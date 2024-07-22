@@ -32,6 +32,7 @@ from starlette.routing import BaseRoute, _DefaultLifespan
 
 from faststream.asyncapi.proto import AsyncAPIApplication
 from faststream.asyncapi.site import get_asyncapi_html
+from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.broker.fastapi.get_dependant import get_fastapi_dependant
 from faststream.broker.fastapi.route import wrap_callable_to_fastapi_compatible
 from faststream.broker.middlewares import BaseMiddleware
@@ -126,6 +127,7 @@ class StreamRouter(
             generate_unique_id
         ),
         # AsyncAPI information
+        asyncapi_version: AsyncAPIVersion = AsyncAPIVersion.v2_6,
         asyncapi_tags: Optional[
             Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]
         ] = None,
@@ -163,6 +165,7 @@ class StreamRouter(
         self.description = ""
         self.license = None
         self.contact = None
+        self.asyncapi_version = asyncapi_version
 
         self.schema = None
 
