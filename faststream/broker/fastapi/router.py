@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp, AppType, Lifespan
 
     from faststream.asyncapi import schema as asyncapi
-    from faststream.asyncapi.schema import Schema
+    from faststream.asyncapi.schema import BaseSchema
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.publisher.proto import PublisherProto
     from faststream.broker.schemas import NameRequired
@@ -89,7 +89,7 @@ class StreamRouter(
     docs_router: Optional[APIRouter]
     _after_startup_hooks: List[Callable[[Any], Awaitable[Optional[Mapping[str, Any]]]]]
     _on_shutdown_hooks: List[Callable[[Any], Awaitable[None]]]
-    schema: Optional["Schema"]
+    schema: Optional["BaseSchema"]
 
     title: str
     description: str

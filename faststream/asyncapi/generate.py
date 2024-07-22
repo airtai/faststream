@@ -2,15 +2,21 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from faststream._compat import DEF_KEY, HAS_FASTAPI
 from faststream.asyncapi.schema import (
+    BaseSchema,
     Channel,
     Components,
-    Info,
     Message,
     Reference,
-    Schema,
+    SchemaV2_6,
+    SchemaV3_0,
     Server,
 )
-from faststream.constants import AsyncAPIVersion, ContentTypes
+from faststream.asyncapi.schema.info import (
+    InfoV2_6,
+    InfoV3_0,
+)
+from faststream.asyncapi.version import AsyncAPIVersion
+from faststream.constants import ContentTypes
 
 if TYPE_CHECKING:
     from faststream.app import FastStream
@@ -21,8 +27,8 @@ if TYPE_CHECKING:
         from faststream.broker.fastapi.router import StreamRouter
 
 
-def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
-    if app.asyncapi_version == AsyncAPIVersion.v2_6:
+def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> BaseSchema:
+    if app.asyncapi_version == AsyncAPIVersion.v2_6:  # TODO: fix for StreamRouter
         return _get_app_schema_2_6(app)
     if app.asyncapi_version == AsyncAPIVersion.v3_0:
         raise NotImplementedError
@@ -30,7 +36,7 @@ def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
         raise NotImplementedError(f"Async API version not supported: {app.asyncapi_version}")
 
 
-def _get_app_schema_2_6(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
+def _get_app_schema_3_0(app: Union["FastStream", "StreamRouter[Any]"]) -> SchemaV3_0:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
@@ -66,8 +72,70 @@ def _get_app_schema_2_6(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema
                     payloads,
                     messages,
                 )
-    schema = Schema(
-        info=Info(
+    schema = SchemaV3_0(
+        info=InfoV3_0(
+            title=app.title,
+            version=app.version,
+            description=app.description,
+            termsOfService=app.terms_of_service,
+            contact=app.contact,
+            license=app.license,
+            tags=list(app.asyncapi_tags) if app.asyncapi_tags else None,
+            externalDocs=app.external_docs,
+        ),
+        defaultContentType=ContentTypes.json.value,
+        id=app.identifier,
+        servers=servers,
+        channels=channels,
+        components=Components(
+            messages=messages,
+            schemas=payloads,
+            securitySchemes=None
+            if broker.security is None
+            else broker.security.get_schema(),
+        ),
+    )
+    return schema
+
+
+def _get_app_schema_2_6(app: Union["FastStream", "StreamRouter[Any]"]) -> SchemaV2_6:
+    """Get the application schema."""
+    broker = app.broker
+    if broker is None:  # pragma: no cover
+        raise RuntimeError()
+    broker.setup()
+
+    servers = get_broker_server(broker)
+    channels = get_broker_channels(broker)
+
+    messages: Dict[str, Message] = {}
+    payloads: Dict[str, Dict[str, Any]] = {}
+    for channel_name, ch in channels.items():
+        ch.servers = list(servers.keys())
+
+        if ch.subscribe is not None:
+            m = ch.subscribe.message
+
+            if isinstance(m, Message):  # pragma: no branch
+                ch.subscribe.message = _resolve_msg_payloads(
+                    m,
+                    channel_name,
+                    payloads,
+                    messages,
+                )
+
+        if ch.publish is not None:
+            m = ch.publish.message
+
+            if isinstance(m, Message):  # pragma: no branch
+                ch.publish.message = _resolve_msg_payloads(
+                    m,
+                    channel_name,
+                    payloads,
+                    messages,
+                )
+    schema = SchemaV2_6(
+        info=InfoV2_6(
             title=app.title,
             version=app.version,
             description=app.description,
