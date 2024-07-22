@@ -7,7 +7,7 @@ from faststream._compat import json_dumps
 from faststream.log import logger
 
 if TYPE_CHECKING:
-    from faststream.asyncapi.schema import Schema
+    from faststream.asyncapi.schema import BaseSchema
 
 
 ASYNCAPI_JS_DEFAULT_URL = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.54/browser/standalone/index.js"
@@ -18,7 +18,7 @@ ASYNCAPI_CSS_DEFAULT_URL = (
 
 
 def get_asyncapi_html(
-    schema: "Schema",
+    schema: "BaseSchema",
     sidebar: bool = True,
     info: bool = True,
     servers: bool = True,
@@ -103,7 +103,7 @@ def get_asyncapi_html(
 
 
 def serve_app(
-    schema: "Schema",
+    schema: "BaseSchema",
     host: str,
     port: int,
 ) -> None:
@@ -121,7 +121,7 @@ class _Handler(server.BaseHTTPRequestHandler):
     def __init__(
         self,
         *args: Any,
-        schema: "Schema",
+        schema: "BaseSchema",
         **kwargs: Any,
     ) -> None:
         self.schema = schema

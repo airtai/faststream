@@ -7,13 +7,20 @@ from faststream.asyncapi.schema.bindings import (
 )
 from faststream.asyncapi.schema.channels import Channel
 from faststream.asyncapi.schema.info import (
+    BaseInfo,
     Contact,
     ContactDict,
-    Info,
+    InfoV2_6,
+    InfoV3_0,
     License,
     LicenseDict,
 )
-from faststream.asyncapi.schema.main import ASYNC_API_VERSION, Components, Schema
+from faststream.asyncapi.schema.main import (
+    BaseSchema,
+    Components,
+    SchemaV2_6,
+    SchemaV3_0,
+)
 from faststream.asyncapi.schema.message import CorrelationId, Message
 from faststream.asyncapi.schema.operations import Operation
 from faststream.asyncapi.schema.security import SecuritySchemaComponent
@@ -25,14 +32,19 @@ from faststream.asyncapi.schema.utils import (
     Tag,
     TagDict,
 )
+from faststream.asyncapi.version import AsyncAPIVersion
 
 __all__ = (
     # main
-    "ASYNC_API_VERSION",
-    "Schema",
+    "AsyncAPIVersion",
+    "BaseSchema",
+    "SchemaV2_6",
+    "SchemaV3_0",
     "Components",
     # info
-    "Info",
+    "BaseInfo",
+    "InfoV2_6",
+    "InfoV3_0",
     "Contact",
     "ContactDict",
     "License",

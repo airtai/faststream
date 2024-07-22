@@ -1,16 +1,19 @@
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING
 
+from faststream._compat import HAS_FASTAPI
 from faststream.asyncapi.base import BaseSchema
+from faststream.asyncapi.schema import (
+    BaseSchema,
+)
 from faststream.asyncapi.v2_6_0.generate import get_app_schema as get_app_schema_v2_6
 from faststream.asyncapi.v3_0_0.generate import get_app_schema as get_app_schema_v3
 from faststream.asyncapi.version import AsyncAPIVersion
 
 if TYPE_CHECKING:
     from faststream._compat import HAS_FASTAPI
-    from faststream.app import FastStream
 
     if HAS_FASTAPI:
-        from faststream.broker.fastapi.router import StreamRouter
+        pass
 
 
 def get_app_schema(app: "AsyncAPIApplication") -> BaseSchema:

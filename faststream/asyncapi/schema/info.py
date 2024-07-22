@@ -1,4 +1,14 @@
-from typing import Any, Callable, Dict, Iterable, Optional, Type, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Type,
+    Union,
+)
 
 from pydantic import AnyHttpUrl, BaseModel
 from typing_extensions import Required, TypedDict
@@ -11,6 +21,17 @@ from faststream._compat import (
     with_info_plain_validator_function,
 )
 from faststream.log import logger
+
+if TYPE_CHECKING:
+    from faststream.asyncapi.schema import (
+        ExternalDocs,
+        ExternalDocsDict,
+        Tag,
+        TagDict,
+    )
+    from faststream.types import (
+        AnyDict,
+    )
 
 try:
     import email_validator
@@ -156,7 +177,31 @@ class License(BaseModel):
             extra = "allow"
 
 
-class Info(BaseModel):
+class BaseInfo(BaseModel):
+    """A class to represent information.
+
+    Attributes:
+        title : title of the information
+        version : version of the information (default: "1.0.0")
+        description : description of the information (default: "")
+
+    """
+
+    title: str
+    version: str = "1.0.0"
+    description: str = ""
+
+    if PYDANTIC_V2:
+        model_config = {"extra": "allow"}
+
+    else:
+
+        class Config:
+            extra = "allow"
+
+
+
+class InfoV2_6(BaseInfo):  # noqa: N801
     """A class to represent information.
 
     Attributes:
@@ -169,17 +214,28 @@ class Info(BaseModel):
 
     """
 
-    title: str
-    version: str = "1.0.0"
-    description: str = ""
     termsOfService: Optional[AnyHttpUrl] = None
     contact: Optional[Union[Contact, ContactDict, Dict[str, Any]]] = None
     license: Optional[Union[License, LicenseDict, Dict[str, Any]]] = None
 
-    if PYDANTIC_V2:
-        model_config = {"extra": "allow"}
 
-    else:
+class InfoV3_0(BaseInfo):  # noqa: N801
+    """A class to represent information.
 
-        class Config:
-            extra = "allow"
+    Attributes:
+        termsOfService : terms of service for the information (default: None)
+        contact : contact information for the information (default: None)
+        license : license information for the information (default: None)
+        tags : optional list of tags
+        externalDocs : optional external documentation
+
+    """
+
+    termsOfService: Optional[AnyHttpUrl] = None
+    contact: Optional[Union[Contact, ContactDict, Dict[str, Any]]] = None
+    license: Optional[Union[License, LicenseDict, Dict[str, Any]]] = None
+    tags: Optional[List[Union["Tag", "TagDict", "AnyDict"]]] = None
+    externalDocs: Optional[
+            Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
+    ] = None
+
