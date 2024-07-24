@@ -1,4 +1,4 @@
-from typing import Any, ClassVar, Optional, cast
+from typing import Any, ClassVar, Optional
 
 from typing_extensions import Self
 
@@ -28,7 +28,7 @@ class Singleton:
         """
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-        return cast(Self, cls._instance)
+        return cls._instance
 
     @classmethod
     def _drop(cls) -> None:
