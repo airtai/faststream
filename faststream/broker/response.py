@@ -8,8 +8,8 @@ class Response:
     def __new__(
         cls,
         body: Union[
-            "SendableMessage",
             "Response",
+            "Any",
         ],
         **kwargs: Any,
     ) -> "Response":

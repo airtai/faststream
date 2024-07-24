@@ -15,17 +15,19 @@ class NatsResponse(Response):
         *,
         headers: Optional["AnyDict"] = None,
         correlation_id: Optional[str] = None,
+        stream: Optional[str] = None,
     ) -> None:
         super().__init__(
             body=body,
             headers=headers,
             correlation_id=correlation_id,
         )
+        self.stream = stream
 
     @override
     def as_publish_kwargs(self) -> "AnyDict":
         publish_options = {
-            "headers": self.headers,
-            "correlation_id": self.correlation_id,
+            **super().as_publish_kwargs,
+            "stream": self.stream,
         }
         return publish_options

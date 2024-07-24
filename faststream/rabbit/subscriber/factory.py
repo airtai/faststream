@@ -1,3 +1,4 @@
+import warnings
 from typing import TYPE_CHECKING, Iterable, Optional, Union
 
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
@@ -28,6 +29,17 @@ def create_subscriber(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> AsyncAPISubscriber:
+    if reply_config:  # pragma: no cover
+        warnings.warn(
+            (
+                "\n`reply_config` was deprecated in **FastStream 0.5.16**."
+                "\nPlease, use `RabbitResponse` object as a handler return instead."
+                "\nArgument will be removed in **FastStream 0.6.0**."
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
     return AsyncAPISubscriber(
         queue=queue,
         exchange=exchange,

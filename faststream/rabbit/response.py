@@ -27,7 +27,7 @@ class RabbitResponse(Response):
         message_type: Optional[str] = None,
         content_type: Optional[str] = None,
         expiration: Optional["DateType"] = None,
-        content_encoding: Optional[str] = None
+        content_encoding: Optional[str] = None,
     ) -> None:
         super().__init__(
             body=body,
@@ -49,8 +49,7 @@ class RabbitResponse(Response):
     @override
     def as_publish_kwargs(self) -> "AnyDict":
         publish_options = {
-            "headers": self.headers,
-            "correlation_id": self.correlation_id,
+            **super().as_publish_kwargs,
             "message_id": self.message_id,
             "mandatory": self.mandatory,
             "immediate": self.immediate,
@@ -60,6 +59,6 @@ class RabbitResponse(Response):
             "message_type": self.message_type,
             "content_type": self.content_type,
             "expiration": self.expiration,
-            "content_encoding": self.content_encoding
+            "content_encoding": self.content_encoding,
         }
         return publish_options

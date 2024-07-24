@@ -15,17 +15,19 @@ class RedisResponse(Response):
         *,
         headers: Optional["AnyDict"] = None,
         correlation_id: Optional[str] = None,
+        maxlen: Optional[int] = None,
     ) -> None:
         super().__init__(
             body=body,
             headers=headers,
             correlation_id=correlation_id,
         )
+        self.maxlen = maxlen
 
     @override
     def as_publish_kwargs(self) -> "AnyDict":
         publish_options = {
-            "headers": self.headers,
-            "correlation_id": self.correlation_id,
+            **super().as_publish_kwargs,
+            "maxlen": self.maxlen,
         }
         return publish_options
