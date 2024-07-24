@@ -1,16 +1,13 @@
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 if TYPE_CHECKING:
-    from faststream.types import AnyDict, SendableMessage
+    from faststream.types import AnyDict
 
 
 class Response:
     def __new__(
         cls,
-        body: Union[
-            "Response",
-            "Any",
-        ],
+        body: Union["Response", "Any"],
         **kwargs: Any,
     ) -> "Response":
         """Create a new instance of the class."""
@@ -22,7 +19,7 @@ class Response:
 
     def __init__(
         self,
-        body: "SendableMessage",
+        body: "Any",
         *,
         headers: Optional["AnyDict"] = None,
         correlation_id: Optional[str] = None,

@@ -27,7 +27,7 @@ class NatsResponse(Response):
     @override
     def as_publish_kwargs(self) -> "AnyDict":
         publish_options = {
-            **super().as_publish_kwargs,
+            **super().as_publish_kwargs(),
             "stream": self.stream,
         }
         return publish_options

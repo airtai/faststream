@@ -31,6 +31,7 @@ class TestPublish(BrokerPublishTestcase):
             mock(m)
 
         with pytest.warns(DeprecationWarning):
+
             @pub_broker.subscriber(queue, reply_config=ReplyConfig(persist=True))
             async def handler(m):
                 return m

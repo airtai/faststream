@@ -27,7 +27,7 @@ class RedisResponse(Response):
     @override
     def as_publish_kwargs(self) -> "AnyDict":
         publish_options = {
-            **super().as_publish_kwargs,
+            **super().as_publish_kwargs(),
             "maxlen": self.maxlen,
         }
         return publish_options
