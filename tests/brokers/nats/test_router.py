@@ -137,7 +137,7 @@ class TestRouterLocal(RouterLocalTestcase):
     route_class = NatsRoute
     publisher_class = NatsPublisher
 
-    def test_include_stream(
+    async def test_include_stream(
         self,
         router: NatsRouter,
         pub_broker: NatsBroker,
