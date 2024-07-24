@@ -296,6 +296,10 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
+    @pytest.mark.rabbit()
+    async def test_broker_gets_patched_attrs_within_cm(self):
+        await super().test_broker_gets_patched_attrs_within_cm()
+
 
 @pytest.mark.parametrize(
     ("pattern", "current", "result"),

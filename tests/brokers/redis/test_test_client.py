@@ -230,3 +230,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async with self.patch_broker(broker) as br:
             with pytest.raises(ValueError):  # noqa: PT011
                 await br.publish("hello")
+
+    @pytest.mark.redis()
+    async def test_broker_gets_patched_attrs_within_cm(self):
+        await super().test_broker_gets_patched_attrs_within_cm()

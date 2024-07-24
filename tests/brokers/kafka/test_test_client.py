@@ -254,3 +254,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert subscriber1.mock.call_count == 1
         assert subscriber2.mock.call_count == 0
+
+    @pytest.mark.kafka()
+    async def test_broker_gets_patched_attrs_within_cm(self):
+        await super().test_broker_gets_patched_attrs_within_cm()
