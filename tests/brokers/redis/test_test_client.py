@@ -5,6 +5,7 @@ import pytest
 from faststream import BaseMiddleware
 from faststream.exceptions import SetupError
 from faststream.redis import ListSub, RedisBroker, StreamSub, TestRedisBroker
+from faststream.redis.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -17,6 +18,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     def patch_broker(self, broker: RedisBroker) -> TestRedisBroker:
         return TestRedisBroker(broker)
+
+    def get_fake_producer_class(self) -> type:
+        return FakeProducer
 
     async def test_rpc_conflicts_reply(self, queue):
         async with TestRedisBroker(RedisBroker()) as br:

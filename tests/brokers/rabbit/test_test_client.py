@@ -12,7 +12,7 @@ from faststream.rabbit import (
     TestRabbitBroker,
 )
 from faststream.rabbit.annotations import RabbitMessage
-from faststream.rabbit.testing import apply_pattern
+from faststream.rabbit.testing import FakeProducer, apply_pattern
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -25,6 +25,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     def patch_broker(self, broker: RabbitBroker) -> RabbitBroker:
         return TestRabbitBroker(broker)
+
+    def get_fake_producer_class(self) -> type:
+        return FakeProducer
 
     async def test_rpc_conflicts_reply(self, queue):
         broker = self.get_broker()

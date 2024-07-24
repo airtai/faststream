@@ -5,6 +5,7 @@ import pytest
 from faststream import BaseMiddleware
 from faststream.exceptions import SetupError
 from faststream.nats import ConsumerConfig, JStream, NatsBroker, PullSub, TestNatsBroker
+from faststream.nats.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -17,6 +18,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     def patch_broker(self, broker: NatsBroker) -> TestNatsBroker:
         return TestNatsBroker(broker)
+
+    def get_fake_producer_class(self) -> type:
+        return FakeProducer
 
     @pytest.mark.asyncio()
     async def test_stream_publish(

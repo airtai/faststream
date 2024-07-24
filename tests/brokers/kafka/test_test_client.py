@@ -4,6 +4,7 @@ import pytest
 
 from faststream import BaseMiddleware
 from faststream.kafka import KafkaBroker, TestKafkaBroker, TopicPartition
+from faststream.kafka.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -16,6 +17,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     def patch_broker(self, broker: KafkaBroker) -> TestKafkaBroker:
         return TestKafkaBroker(broker)
+
+    def get_fake_producer_class(self) -> type:
+        return FakeProducer
 
     async def test_partition_match(
         self,

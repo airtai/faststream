@@ -4,6 +4,7 @@ import pytest
 
 from faststream import BaseMiddleware
 from faststream.confluent import KafkaBroker, TestKafkaBroker
+from faststream.confluent.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -18,6 +19,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     def patch_broker(self, broker: KafkaBroker) -> TestKafkaBroker:
         return TestKafkaBroker(broker)
+
+    def get_fake_producer_class(self) -> type:
+        return FakeProducer
 
     @pytest.mark.confluent()
     async def test_with_real_testclient(
