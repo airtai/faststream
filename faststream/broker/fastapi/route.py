@@ -72,7 +72,7 @@ class StreamRoute(
         if isinstance(endpoint, HandlerCallWrapper):
             orig_call = endpoint._original_call
             while hasattr(orig_call, "__consumer__"):
-                orig_call = orig_call.__wrapped__  # type: ignore[attr-defined]
+                orig_call = orig_call.__wrapped__  # type: ignore[union-attr]
 
         else:
             orig_call = endpoint
@@ -106,12 +106,13 @@ class StreamRoute(
             )
         )
 
+        handler: HandlerCallWrapper[Any, Any, Any]
         if isinstance(endpoint, HandlerCallWrapper):
             endpoint._original_call = call
             handler = endpoint
 
         else:
-            handler = call
+            handler = call  # type: ignore[assignment]
 
         self.handler = broker.subscriber(  # type: ignore[assignment,call-arg]
             *extra,
