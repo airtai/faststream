@@ -1,4 +1,3 @@
-import asyncio
 from abc import abstractmethod
 from unittest.mock import Mock
 
@@ -110,22 +109,22 @@ class BrokerTestclientTestcase(
             assert br._producer is not None
 
     async def test_broker_with_real_patches_subscribers_and_subscribers(
-        self, event: asyncio.Event
+        self, queue: str
     ):
         test_broker = self.get_broker()
 
-        @test_broker.subscriber("subscriber")
+        publisher = test_broker.publisher(f"{queue}1")
+
+        @test_broker.subscriber(queue)
         async def m(msg):
-            event.set()
-            return f"response: {msg}"
+            await publisher.publish(f"response: {msg}")
 
         await test_broker.start()
-        publisher = test_broker.publisher("publisher")
 
         async with self.test_class(test_broker, with_real=True) as br:
-            await br.publish("hello", "subscriber")
+            await br.publish("hello", queue)
 
-            await asyncio.wait((event.wait(),), timeout=3)
+            await m.wait_call(3.0)
 
             m.mock.assert_called_once_with("hello")
             publisher.mock.assert_called_once_with("response: hello")

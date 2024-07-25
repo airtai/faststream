@@ -306,9 +306,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     @pytest.mark.rabbit()
     async def test_broker_with_real_patches_subscribers_and_subscribers(
-        self, event: asyncio.Event
+        self, queue: str
     ):
-        await super().test_broker_with_real_patches_subscribers_and_subscribers(event)
+        await super().test_broker_with_real_patches_subscribers_and_subscribers(queue)
 
 
 @pytest.mark.parametrize(
