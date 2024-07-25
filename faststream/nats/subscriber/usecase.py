@@ -426,12 +426,13 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         connection: "Client",
     ) -> None:
         """Create NATS subscription and start consume task."""
-        self.subscription = await connection.subscribe(
-            subject=self.clear_subject,
-            queue=self.queue,
-            cb=self.consume,
-            **self.extra_options,
-        )
+        if not self.subscription:
+            self.subscription = await connection.subscribe(
+                subject=self.clear_subject,
+                queue=self.queue,
+                cb=self.consume,
+                **self.extra_options,
+            )
 
     def get_log_context(
         self,

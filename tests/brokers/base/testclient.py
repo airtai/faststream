@@ -1,6 +1,8 @@
+import asyncio
 from abc import abstractmethod
 from unittest.mock import Mock
 
+import anyio
 import pytest
 
 from faststream.testing.broker import TestBroker
@@ -127,4 +129,7 @@ class BrokerTestclientTestcase(
             await m.wait_call(3.0)
 
             m.mock.assert_called_once_with("hello")
-            publisher.mock.assert_called_once_with("response: hello")
+            with anyio.fail_after(3.0):
+                while not publisher.mock.called:
+                    await asyncio.sleep(0.1)
+                publisher.mock.assert_called_once_with("response: hello")

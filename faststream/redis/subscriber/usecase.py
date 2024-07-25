@@ -151,13 +151,16 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         self,
         *args: Any,
     ) -> None:
-        await super().start()
+        if not self.task:
+            await super().start()
 
-        start_signal = anyio.Event()
-        self.task = asyncio.create_task(self._consume(*args, start_signal=start_signal))
+            start_signal = anyio.Event()
+            self.task = asyncio.create_task(
+                self._consume(*args, start_signal=start_signal)
+            )
 
-        with anyio.fail_after(3.0):
-            await start_signal.wait()
+            with anyio.fail_after(3.0):
+                await start_signal.wait()
 
     async def _consume(self, *args: Any, start_signal: anyio.Event) -> None:
         connected = True
