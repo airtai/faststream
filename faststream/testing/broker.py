@@ -22,7 +22,7 @@ from faststream.broker.middlewares.logging import CriticalLogMiddleware
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.testing.app import TestApp
 from faststream.utils.ast import is_contains_context_name
-from faststream.utils.functions import timeout_scope
+from faststream.utils.functions import sync_fake_context, timeout_scope
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -111,10 +111,16 @@ class TestBroker(Generic[Broker]):
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator[Broker, None]:
-        with self._patch_broker(self.broker):
+        if self.with_real:
+            self._fake_start(self.broker)
+            context = sync_fake_context()
+        else:
+            context = self._patch_broker(self.broker)
+
+        with context:
             async with self.broker:
                 try:
-                    if not self.connect_only or self.with_real:
+                    if not self.connect_only:
                         await self.broker.start()
                     yield self.broker
                 finally:
@@ -128,7 +134,8 @@ class TestBroker(Generic[Broker]):
         ), mock.patch.object(
             broker, "_connect", wraps=partial(cls._fake_connect, broker)
         ), mock.patch.object(
-            broker, "close", wraps=partial(cls._fake_close, broker)
+            broker,
+            "close",
         ), mock.patch.object(broker, "_connection", new=None), mock.patch.object(
             broker, "_producer", new=None
         ):

@@ -258,3 +258,13 @@ class TestTestclient(BrokerTestclientTestcase):
     @pytest.mark.kafka()
     async def test_broker_gets_patched_attrs_within_cm(self):
         await super().test_broker_gets_patched_attrs_within_cm()
+
+    @pytest.mark.kafka()
+    async def test_broker_with_real_doesnt_get_patched(self):
+        await super().test_broker_with_real_doesnt_get_patched()
+
+    @pytest.mark.kafka()
+    async def test_broker_with_real_patches_subscribers_and_subscribers(
+        self, event: asyncio.Event
+    ):
+        await super().test_broker_with_real_patches_subscribers_and_subscribers(event)

@@ -1,3 +1,4 @@
+import asyncio
 from abc import abstractmethod
 from unittest.mock import Mock
 
@@ -89,7 +90,6 @@ class BrokerTestclientTestcase(
             assert isinstance(br.start, Mock)
             assert isinstance(br._connect, Mock)
             assert isinstance(br.close, Mock)
-            assert br._connection is None
             assert isinstance(br._producer, fake_producer_class)
 
         assert not isinstance(br.start, Mock)
@@ -97,3 +97,35 @@ class BrokerTestclientTestcase(
         assert not isinstance(br.close, Mock)
         assert br._connection is not None
         assert not isinstance(br._producer, fake_producer_class)
+
+    async def test_broker_with_real_doesnt_get_patched(self):
+        test_broker = self.get_broker()
+        await test_broker.start()
+
+        async with self.test_class(test_broker, with_real=True) as br:
+            assert not isinstance(br.start, Mock)
+            assert not isinstance(br._connect, Mock)
+            assert not isinstance(br.close, Mock)
+            assert br._connection is not None
+            assert br._producer is not None
+
+    async def test_broker_with_real_patches_subscribers_and_subscribers(
+        self, event: asyncio.Event
+    ):
+        test_broker = self.get_broker()
+
+        @test_broker.subscriber("subscriber")
+        async def m(msg):
+            event.set()
+            return f"response: {msg}"
+
+        await test_broker.start()
+        publisher = test_broker.publisher("publisher")
+
+        async with self.test_class(test_broker, with_real=True) as br:
+            await br.publish("hello", "subscriber")
+
+            await asyncio.wait((event.wait(),), timeout=3)
+
+            m.mock.assert_called_once_with("hello")
+            publisher.mock.assert_called_once_with("response: hello")
