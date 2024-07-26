@@ -57,3 +57,18 @@ The function decorated with the `#!python @broker.subscriber(...)` decorator wil
 The message will then be injected into the typed `msg` argument of the function, and its type will be used to parse the message.
 
 In this example case, when the message is sent to a `#!python "hello_world"` topic, it will be parsed into a `HelloWorld` class, and the `on_hello_world` function will be called with the parsed class as the `msg` argument value.
+
+### Pattern data access
+
+You can also use pattern subscription feature to encode some data directly in the topic name. With **FastStream** you can easily access this data using the following code:
+
+```python hl_lines="3 6"
+from faststream import Path
+
+@broker.subscriber(pattern="logs.{level}")
+async def base_handler(
+    body: str,
+    level: str = Path(),
+):
+    ...
+```

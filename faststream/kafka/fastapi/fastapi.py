@@ -244,7 +244,6 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             """
             ),
         ] = 0,
-        send_backoff_ms: int = 100,
         enable_idempotence: Annotated[
             bool,
             Doc(
@@ -573,7 +572,6 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             partitioner=partitioner,
             max_request_size=max_request_size,
             linger_ms=linger_ms,
-            send_backoff_ms=send_backoff_ms,
             enable_idempotence=enable_idempotence,
             transactional_id=transactional_id,
             transaction_timeout_ms=transaction_timeout_ms,

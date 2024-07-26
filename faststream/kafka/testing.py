@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 from unittest.mock import AsyncMock, MagicMock
@@ -16,6 +17,7 @@ from faststream.testing.broker import TestBroker, call_handler
 if TYPE_CHECKING:
     from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.kafka.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.kafka.subscriber.usecase import LogicSubscriber
     from faststream.types import SendableMessage
 
 __all__ = ("TestKafkaBroker",)
@@ -108,13 +110,7 @@ class FakeProducer(AioKafkaFastProducer):
         return_value = None
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if (
-                any(
-                    p.topic == topic and (partition is None or p.partition == partition)
-                    for p in handler.partitions
-                )
-                or topic in handler.topics
-            ):
+            if _is_handler_matches(handler, topic, partition):
                 handle_value = await call_handler(
                     handler=handler,
                     message=[incoming]
@@ -141,7 +137,7 @@ class FakeProducer(AioKafkaFastProducer):
     ) -> None:
         """Publish a batch of messages to the Kafka broker."""
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if topic in handler.topics:
+            if _is_handler_matches(handler, topic, partition):
                 messages = (
                     build_message(
                         message=message,
@@ -215,3 +211,18 @@ def _fake_connection(*args: Any, **kwargs: Any) -> AsyncMock:
     mock.subscribe = MagicMock
     mock.assign = MagicMock
     return mock
+
+
+def _is_handler_matches(
+    handler: "LogicSubscriber[Any]",
+    topic: str,
+    partition: Optional[int],
+) -> bool:
+    return bool(
+        any(
+            p.topic == topic and (partition is None or p.partition == partition)
+            for p in handler.partitions
+        )
+        or topic in handler.topics
+        or (handler._pattern and re.match(handler._pattern, topic))
+    )

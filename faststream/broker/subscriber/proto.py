@@ -83,6 +83,9 @@ class SubscriberProto(
     async def consume(self, msg: MsgType) -> Any: ...
 
     @abstractmethod
+    async def process_message(self, msg: MsgType) -> Any: ...
+
+    @abstractmethod
     def add_call(
         self,
         *,

@@ -13,6 +13,7 @@ from typing import (
 from urllib.parse import urlparse
 
 from aio_pika import connect_robust
+from anyio import move_on_after
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
@@ -655,3 +656,14 @@ class RabbitBroker(
         """Declares exchange object in **RabbitMQ**."""
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_exchange(exchange)
+
+    @override
+    async def ping(self, timeout: Optional[float]) -> bool:
+        with move_on_after(timeout) as cancel_scope:
+            if cancel_scope.cancel_called:
+                return False
+
+            if self._connection is None:
+                return False
+
+            return not self._connection.is_closed

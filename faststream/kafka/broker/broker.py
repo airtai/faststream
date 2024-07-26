@@ -19,6 +19,7 @@ from typing import (
 import aiokafka
 from aiokafka.partitioner import DefaultPartitioner
 from aiokafka.producer.producer import _missing
+from anyio import move_on_after
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
@@ -210,7 +211,6 @@ if TYPE_CHECKING:
             """
             ),
         ]
-        send_backoff_ms: int
         enable_idempotence: Annotated[
             bool,
             Doc(
@@ -405,7 +405,6 @@ class KafkaBroker(
             """
             ),
         ] = 0,
-        send_backoff_ms: int = 100,
         enable_idempotence: Annotated[
             bool,
             Doc(
@@ -549,7 +548,6 @@ class KafkaBroker(
             partitioner=partitioner,
             max_request_size=max_request_size,
             linger_ms=linger_ms,
-            send_backoff_ms=send_backoff_ms,
             enable_idempotence=enable_idempotence,
             transactional_id=transactional_id,
             transaction_timeout_ms=transaction_timeout_ms,
@@ -806,3 +804,14 @@ class KafkaBroker(
             reply_to=reply_to,
             correlation_id=correlation_id,
         )
+
+    @override
+    async def ping(self, timeout: Optional[float]) -> bool:
+        with move_on_after(timeout) as cancel_scope:
+            if cancel_scope.cancel_called:
+                return False
+
+            if self._producer is None:
+                return False
+
+            return not self._producer._producer._closed

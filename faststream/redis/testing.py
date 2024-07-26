@@ -2,6 +2,7 @@ import re
 from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
 from unittest.mock import AsyncMock, MagicMock
 
+import anyio
 from typing_extensions import override
 
 from faststream.broker.message import gen_cor_id
@@ -57,7 +58,16 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     ) -> AsyncMock:
         broker._producer = FakeProducer(broker)  # type: ignore[assignment]
         connection = MagicMock()
-        connection.pubsub.side_effect = AsyncMock
+
+        pub_sub = AsyncMock()
+
+        async def get_msg(*args: Any, timeout: float, **kwargs: Any) -> None:
+            await anyio.sleep(timeout)
+            return None
+
+        pub_sub.get_message = get_msg
+
+        connection.pubsub.side_effect = lambda: pub_sub
         return connection
 
     @staticmethod

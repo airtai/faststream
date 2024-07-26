@@ -1,15 +1,13 @@
 import ssl
-import warnings
 from typing import TYPE_CHECKING, Optional
 
 from faststream.exceptions import SetupError
 from faststream.security import (
     BaseSecurity,
+    SASLOAuthBearer,
     SASLPlaintext,
     SASLScram256,
     SASLScram512,
-    SASLOAuthBearer,
-    ssl_not_set_error_msg,
 )
 
 if TYPE_CHECKING:
@@ -24,16 +22,16 @@ def parse_security(security: Optional[BaseSecurity]) -> "AnyDict":
 
     if security is None:
         return {}
-    elif type(security) == BaseSecurity:
-        return _parse_base_security(security)
-    elif type(security) == SASLPlaintext:
+    elif isinstance(security, SASLPlaintext):
         return _parse_sasl_plaintext(security)
-    elif type(security) == SASLScram256:
+    elif isinstance(security, SASLScram256):
         return _parse_sasl_scram256(security)
-    elif type(security) == SASLScram512:
+    elif isinstance(security, SASLScram512):
         return _parse_sasl_scram512(security)
-    elif type(security) == SASLOAuthBearer:
+    elif isinstance(security, SASLOAuthBearer):
         return _parse_sasl_oauthbearer(security)
+    elif isinstance(security, BaseSecurity):
+        return _parse_base_security(security)
     else:
         raise NotImplementedError(f"KafkaBroker does not support `{type(security)}`.")
 
@@ -45,13 +43,6 @@ def _parse_base_security(security: BaseSecurity) -> "AnyDict":
 
 
 def _parse_sasl_plaintext(security: SASLPlaintext) -> "AnyDict":
-    if not security.use_ssl:
-        warnings.warn(
-            message=ssl_not_set_error_msg,
-            category=RuntimeWarning,
-            stacklevel=1,
-        )
-
     return {
         "security_protocol": "SASL_SSL" if security.use_ssl else "SASL_PLAINTEXT",
         "sasl_mechanism": "PLAIN",

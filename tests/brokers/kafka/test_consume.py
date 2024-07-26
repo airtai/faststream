@@ -17,6 +17,41 @@ class TestConsume(BrokerRealConsumeTestcase):
         return KafkaBroker(apply_types=apply_types)
 
     @pytest.mark.asyncio()
+    async def test_consume_by_pattern(
+        self,
+        queue: str,
+        event: asyncio.Event,
+    ):
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(queue)
+        async def handler(msg):
+            event.set()
+
+        pattern_event = asyncio.Event()
+
+        @consume_broker.subscriber(pattern=f"{queue[:-1]}*")
+        async def pattern_handler(msg):
+            pattern_event.set()
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            await br.publish(1, topic=queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish(1, topic=queue)),
+                    asyncio.create_task(event.wait()),
+                    asyncio.create_task(pattern_event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        assert pattern_event.is_set()
+
+    @pytest.mark.asyncio()
     async def test_consume_batch(self, queue: str):
         consume_broker = self.get_broker()
 

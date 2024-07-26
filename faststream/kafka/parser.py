@@ -5,6 +5,8 @@ from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
+    from re import Pattern
+
     from aiokafka import ConsumerRecord
 
     from faststream.broker.message import StreamMessage
@@ -15,8 +17,13 @@ if TYPE_CHECKING:
 class AioKafkaParser:
     """A class to parse Kafka messages."""
 
-    def __init__(self, msg_class: Type[KafkaMessage]) -> None:
+    def __init__(
+        self,
+        msg_class: Type[KafkaMessage],
+        regex: Optional["Pattern[str]"],
+    ) -> None:
         self.msg_class = msg_class
+        self.regex = regex
 
     async def parse_message(
         self,
@@ -25,6 +32,7 @@ class AioKafkaParser:
         """Parses a Kafka message."""
         headers = {i: j.decode() for i, j in message.headers}
         handler: Optional[LogicSubscriber[Any]] = context.get_local("handler_")
+
         return self.msg_class(
             body=message.value,
             headers=headers,
@@ -33,6 +41,7 @@ class AioKafkaParser:
             message_id=f"{message.offset}-{message.timestamp}",
             correlation_id=headers.get("correlation_id", gen_cor_id()),
             raw_message=message,
+            path=self.get_path(message.topic),
             consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
         )
 
@@ -42,6 +51,12 @@ class AioKafkaParser:
     ) -> "DecodedMessage":
         """Decodes a message."""
         return decode_message(msg)
+
+    def get_path(self, topic: str) -> Dict[str, str]:
+        if self.regex and (match := self.regex.match(topic)):
+            return match.groupdict()
+        else:
+            return {}
 
 
 class AioKafkaBatchParser(AioKafkaParser):
@@ -73,6 +88,7 @@ class AioKafkaBatchParser(AioKafkaParser):
             message_id=f"{first.offset}-{last.offset}-{first.timestamp}",
             correlation_id=headers.get("correlation_id", gen_cor_id()),
             raw_message=message,
+            path=self.get_path(first.topic),
             consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
         )
 

@@ -30,7 +30,7 @@ We have a helpful project to provide you with this feature - [**Taskiq-FastStrea
     pip install taskiq-faststream
     ```
 
-It has two hepful classes `BrokerWrapper` and `AppWrapper` to make your **FastStream** App and Broker objects *taskiq-compatible*.
+It has two helpful classes `BrokerWrapper` and `AppWrapper` to make your **FastStream** App and Broker objects *taskiq-compatible*.
 
 Let's take a look at the code example.
 
