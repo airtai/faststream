@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Union
+from urllib.parse import urlparse
 
 from faststream._compat import DEF_KEY, HAS_FASTAPI
 from faststream.asyncapi.schema import (
@@ -6,6 +7,7 @@ from faststream.asyncapi.schema import (
     Channel,
     Components,
     Message,
+    OperationV3_0,
     Reference,
     SchemaV2_6,
     SchemaV3_0,
@@ -15,6 +17,8 @@ from faststream.asyncapi.schema.info import (
     InfoV2_6,
     InfoV3_0,
 )
+from faststream.asyncapi.schema.v3.channels import ChannelV3_0
+from faststream.asyncapi.schema.v3.servers import ServerV3_0
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.constants import ContentTypes
 
@@ -28,10 +32,10 @@ if TYPE_CHECKING:
 
 
 def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> BaseSchema:
-    if app.asyncapi_version == AsyncAPIVersion.v2_6:  # TODO: fix for StreamRouter
+    if app.asyncapi_version == AsyncAPIVersion.v2_6:
         return _get_app_schema_2_6(app)
     if app.asyncapi_version == AsyncAPIVersion.v3_0:
-        raise NotImplementedError
+        return _get_app_schema_3_0(app)
     else:
         raise NotImplementedError(f"Async API version not supported: {app.asyncapi_version}")
 
@@ -43,35 +47,30 @@ def _get_app_schema_3_0(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema
         raise RuntimeError()
     broker.setup()
 
-    servers = get_broker_server(broker)
-    channels = get_broker_channels(broker)
+    servers = get_broker_server_3_0(broker)
+    channels = get_broker_channels_3_0(broker)
+    operations = get_broker_operations_3_0(broker)
 
     messages: Dict[str, Message] = {}
     payloads: Dict[str, Dict[str, Any]] = {}
-    for channel_name, ch in channels.items():
-        ch.servers = list(servers.keys())
 
-        if ch.subscribe is not None:
-            m = ch.subscribe.message
+    for channel_name, channel in channels.items():
+        msgs: Dict[str, Union[Message, Reference]] = {}
+        for message_name, message in channel.messages.items():
+            assert isinstance(message, Message)
 
-            if isinstance(m, Message):  # pragma: no branch
-                ch.subscribe.message = _resolve_msg_payloads(
-                    m,
-                    channel_name,
-                    payloads,
-                    messages,
-                )
+            msgs[message_name] = _resolve_msg_payloads_3_0(
+                message_name,
+                message,
+                channel_name,
+                payloads,
+                messages
+            )
 
-        if ch.publish is not None:
-            m = ch.publish.message
+        channel.messages = msgs
 
-            if isinstance(m, Message):  # pragma: no branch
-                ch.publish.message = _resolve_msg_payloads(
-                    m,
-                    channel_name,
-                    payloads,
-                    messages,
-                )
+        channel.servers = list(servers.keys())
+
     schema = SchemaV3_0(
         info=InfoV3_0(
             title=app.title,
@@ -87,6 +86,7 @@ def _get_app_schema_3_0(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema
         id=app.identifier,
         servers=servers,
         channels=channels,
+        operations=operations,
         components=Components(
             messages=messages,
             schemas=payloads,
@@ -106,7 +106,7 @@ def _get_app_schema_2_6(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema
     broker.setup()
 
     servers = get_broker_server(broker)
-    channels = get_broker_channels(broker)
+    channels = get_broker_channels_2_6(broker)
 
     messages: Dict[str, Message] = {}
     payloads: Dict[str, Dict[str, Any]] = {}
@@ -134,6 +134,7 @@ def _get_app_schema_2_6(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema
                     payloads,
                     messages,
                 )
+
     schema = SchemaV2_6(
         info=InfoV2_6(
             title=app.title,
@@ -160,8 +161,55 @@ def _get_app_schema_2_6(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema
     return schema
 
 
+def get_broker_server_3_0(
+        broker: "BrokerUsecase[MsgType, ConnectionType]",
+) -> Dict[str, ServerV3_0]:
+    """Get the broker server for an application."""
+    servers = {}
+
+    broker_meta: Dict[str, Any] = {
+        "protocol": broker.protocol,
+        "protocolVersion": broker.protocol_version,
+        "description": broker.description,
+        "tags": broker.tags,
+        # TODO
+        # "variables": "",
+        # "bindings": "",
+    }
+
+    if broker.security is not None:
+        broker_meta["security"] = broker.security.get_requirement()
+
+    if isinstance(broker.url, str):
+        url = urlparse(broker.url)
+        servers["development"] = ServerV3_0(
+            host=url.netloc,
+            pathname=url.path,
+            **broker_meta,
+        )
+
+    elif len(broker.url) == 1:
+        url = urlparse(broker.url[0])
+        servers["development"] = ServerV3_0(
+            host=url.netloc,
+            pathname=url.path,
+            **broker_meta,
+        )
+
+    else:
+        for i, broker_url in enumerate(broker.url, 1):
+            parsed_url = urlparse(broker_url)
+            servers[f"Server{i}"] = ServerV3_0(
+                host=parsed_url.netloc,
+                pathname=parsed_url.path,
+                **broker_meta,
+            )
+
+    return servers
+
+
 def get_broker_server(
-    broker: "BrokerUsecase[MsgType, ConnectionType]",
+        broker: "BrokerUsecase[MsgType, ConnectionType]",
 ) -> Dict[str, Server]:
     """Get the broker server for an application."""
     servers = {}
@@ -201,8 +249,135 @@ def get_broker_server(
     return servers
 
 
-def get_broker_channels(
-    broker: "BrokerUsecase[MsgType, ConnectionType]",
+def get_broker_operations_3_0(
+        broker: "BrokerUsecase[MsgType, ConnectionType]",
+) -> Dict[str, OperationV3_0]:
+    """Get the broker operations for an application."""
+    operations = {}
+
+    for h in broker._subscribers.values():
+        for channel_name, channel_2_6 in h.schema().items():
+            if channel_2_6.subscribe is not None:
+                op = OperationV3_0(
+                    action="receive",
+                    summary=channel_2_6.subscribe.summary,
+                    description=channel_2_6.subscribe.description,
+                    bindings=channel_2_6.subscribe.bindings,
+                    messages=[
+                        Reference(
+                            **{"$ref": f"#/channels/{channel_name}/messages/SubscribeMessage"},
+                        )
+                    ],
+                    channel=Reference(
+                        **{"$ref": f"#/channels/{channel_name}"},
+                    ),
+                    security=channel_2_6.subscribe.security,
+                )
+                operations[f"{channel_name}.subscribe"] = op
+
+            elif channel_2_6.publish is not None:
+                op = OperationV3_0(
+                    action="send",
+                    summary=channel_2_6.publish.summary,
+                    description=channel_2_6.publish.description,
+                    bindings=channel_2_6.publish.bindings,
+                    messages=[
+                        Reference(
+                            **{"$ref": f"#/channels/{channel_name}/messages/PublishMessage"},
+                        )],
+                    channel=Reference(
+                        **{"$ref": f"#/channels/{channel_name}"},
+                    ),
+                    security=channel_2_6.publish.bindings,
+                )
+                operations[f"{channel_name}.publish"] = op
+
+    for p in broker._publishers.values():
+        for channel_name, channel_2_6 in p.schema().items():
+            if channel_2_6.subscribe is not None:
+                op = OperationV3_0(
+                    action="send",
+                    summary=channel_2_6.subscribe.summary,
+                    description=channel_2_6.subscribe.description,
+                    bindings=channel_2_6.subscribe.bindings,
+                    messages=Reference(
+                        **{"$ref": f"#/channels/{channel_name}/messages/SubscribeMessage"},
+                    ),
+                    channel=Reference(
+                        **{"$ref": f"#/channels/{channel_name}"},
+                    ),
+                    security=channel_2_6.subscribe.bindings,
+                )
+                operations[f"{channel_name}.subscribe"] = op
+
+            elif channel_2_6.publish is not None:
+                op = OperationV3_0(
+                    action="send",
+                    summary=channel_2_6.publish.summary,
+                    description=channel_2_6.publish.description,
+                    bindings=channel_2_6.publish.bindings,
+                    messages=Reference(
+                        **{"$ref": f"#/channels/{channel_name}/messages/PublishMessage"},
+                    ),
+                    channel=Reference(
+                        **{"$ref": f"#/channels/{channel_name}"},
+                    ),
+                    security=channel_2_6.publish.bindings,
+                )
+                operations[f"{channel_name}.publish"] = op
+
+    return operations
+
+
+def get_broker_channels_3_0(
+        broker: "BrokerUsecase[MsgType, ConnectionType]",
+) -> Dict[str, ChannelV3_0]:
+    """Get the broker channels for an application."""
+    channels = {}
+
+    for h in broker._subscribers.values():
+        channels_schema_v3_0 = {}
+        for channel_name, channel_v2_6 in h.schema().items():
+            if channel_v2_6.subscribe:
+                channel_v3_0 = ChannelV3_0(
+                    address=channel_name,
+                    messages={
+                        "SubscribeMessage": channel_v2_6.subscribe.message,
+                    },
+                    description=channel_v2_6.description,
+                    servers=channel_v2_6.servers,
+                    bindings=channel_v2_6.bindings,
+                    parameters=channel_v2_6.parameters
+                )
+
+                channels_schema_v3_0[channel_name] = channel_v3_0
+
+        channels.update(channels_schema_v3_0)
+
+    for p in broker._publishers.values():
+        channels_schema_v3_0 = {}
+        for channel_name, channel_v2_6 in p.schema().items():
+            if channel_v2_6.publish:
+                channel_v3_0 = ChannelV3_0(
+                    address=channel_name,
+                    messages={
+                        "PublishMessage": channel_v2_6.publish.message,
+                    },
+                    description=channel_v2_6.description,
+                    servers=channel_v2_6.servers,
+                    bindings=channel_v2_6.bindings,
+                    parameters=channel_v2_6.parameters
+                )
+
+                channels_schema_v3_0[channel_name] = channel_v3_0
+
+        channels.update(channels_schema_v3_0)
+
+    return channels
+
+
+def get_broker_channels_2_6(
+        broker: "BrokerUsecase[MsgType, ConnectionType]",
 ) -> Dict[str, Channel]:
     """Get the broker channels for an application."""
     channels = {}
@@ -216,11 +391,25 @@ def get_broker_channels(
     return channels
 
 
+def _resolve_msg_payloads_3_0(
+        message_name: str,
+        m: Message,
+        channel_name: str,
+        payloads: Dict[str, Any],
+        messages: Dict[str, Any],
+) -> Reference:
+    payload_name = f"{message_name}Payload"
+    payloads[payload_name] = m.payload
+    m.payload = Reference(**{"$ref": f"#/components/schemas/{payload_name}"})
+    messages[message_name] = m
+    return Reference(**{"$ref": f"#/components/messages/{channel_name}:{message_name}"})
+
+
 def _resolve_msg_payloads(
-    m: Message,
-    channel_name: str,
-    payloads: Dict[str, Any],
-    messages: Dict[str, Any],
+        m: Message,
+        channel_name: str,
+        payloads: Dict[str, Any],
+        messages: Dict[str, Any],
 ) -> Reference:
     """Replace message payload by reference and normalize payloads.
 
@@ -263,8 +452,8 @@ def _resolve_msg_payloads(
 
 
 def _move_pydantic_refs(
-    original: Any,
-    key: str,
+        original: Any,
+        key: str,
 ) -> Any:
     """Remove pydantic references and replacem them by real schemas."""
     if not isinstance(original, Dict):

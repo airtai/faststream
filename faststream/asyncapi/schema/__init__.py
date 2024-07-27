@@ -32,6 +32,7 @@ from faststream.asyncapi.schema.utils import (
     Tag,
     TagDict,
 )
+from faststream.asyncapi.schema.v3.operations import OperationV3_0
 from faststream.asyncapi.version import AsyncAPIVersion
 
 __all__ = (
@@ -70,4 +71,5 @@ __all__ = (
     "SecuritySchemaComponent",
     # subscription
     "Operation",
+    "OperationV3_0",
 )
