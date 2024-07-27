@@ -13,12 +13,64 @@ from faststream.asyncapi.schema.utils import (
     Tag,
     TagDict,
 )
+from faststream.asyncapi.schema.v3.channels import ChannelV3_0
+from faststream.asyncapi.schema.v3.operations import OperationV3_0
+from faststream.asyncapi.schema.v3.servers import ServerV3_0
 from faststream.asyncapi.version import AsyncAPIVersion
 
 ASYNC_API_VERSION = "2.6.0"
 
 
 class Components(BaseModel):
+    # TODO
+    # servers
+    # serverVariables
+    # channels
+    """A class to represent components in a system.
+
+    Attributes:
+        messages : Optional dictionary of messages
+        schemas : Optional dictionary of schemas
+
+    Note:
+        The following attributes are not implemented yet:
+        - servers
+        - serverVariables
+        - channels
+        - securitySchemes
+        - parameters
+        - correlationIds
+        - operationTraits
+        - messageTraits
+        - serverBindings
+        - channelBindings
+        - operationBindings
+        - messageBindings
+
+    """
+
+    messages: Optional[Dict[str, Message]] = None
+    schemas: Optional[Dict[str, Dict[str, Any]]] = None
+    securitySchemes: Optional[Dict[str, Dict[str, Any]]] = None
+    # parameters
+    # correlationIds
+    # operationTraits
+    # messageTraits
+    # serverBindings
+    # channelBindings
+    # operationBindings
+    # messageBindings
+
+    if PYDANTIC_V2:
+        model_config = {"extra": "allow"}
+
+    else:
+
+        class Config:
+            extra = "allow"
+
+
+class ComponentsV3_0(BaseModel):
     # TODO
     # servers
     # serverVariables
@@ -190,8 +242,9 @@ class SchemaV3_0(BaseSchema):  # noqa: N801
     id: Optional[str] = None
     defaultContentType: Optional[str] = None
     info: InfoV3_0
-    servers: Optional[Dict[str, Server]] = None
-    channels: Dict[str, Channel]
+    servers: Optional[Dict[str, ServerV3_0]] = None
+    channels: Dict[str, ChannelV3_0]
+    operations: Dict[str, OperationV3_0]
     components: Optional[Components] = None
 
     def to_jsonable(self) -> Any:

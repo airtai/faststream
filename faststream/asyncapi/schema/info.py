@@ -1,5 +1,4 @@
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -20,18 +19,16 @@ from faststream._compat import (
     JsonSchemaValue,
     with_info_plain_validator_function,
 )
+from faststream.asyncapi.schema.utils import (  # noqa: TCH001
+    ExternalDocs,
+    ExternalDocsDict,
+    Tag,
+    TagDict,
+)
 from faststream.log import logger
-
-if TYPE_CHECKING:
-    from faststream.asyncapi.schema import (
-        ExternalDocs,
-        ExternalDocsDict,
-        Tag,
-        TagDict,
-    )
-    from faststream.types import (
-        AnyDict,
-    )
+from faststream.types import (  # noqa: TCH001
+    AnyDict,
+)
 
 try:
     import email_validator
