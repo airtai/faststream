@@ -69,7 +69,7 @@ def _get_app_schema_3_0(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema
 
         channel.messages = msgs
 
-        channel.servers = list(servers.keys())
+        channel.servers = [{"$ref": f"#/servers/{server_name}"} for server_name in list(servers.keys())]
 
     schema = SchemaV3_0(
         info=InfoV3_0(
@@ -273,7 +273,7 @@ def get_broker_operations_3_0(
                     ),
                     security=channel_2_6.subscribe.security,
                 )
-                operations[f"{channel_name}.subscribe"] = op
+                operations[f"{channel_name}Subscribe"] = op
 
             elif channel_2_6.publish is not None:
                 op = OperationV3_0(
@@ -284,13 +284,14 @@ def get_broker_operations_3_0(
                     messages=[
                         Reference(
                             **{"$ref": f"#/channels/{channel_name}/messages/PublishMessage"},
-                        )],
+                        )]
+                    ,
                     channel=Reference(
                         **{"$ref": f"#/channels/{channel_name}"},
                     ),
                     security=channel_2_6.publish.bindings,
                 )
-                operations[f"{channel_name}.publish"] = op
+                operations[f"{channel_name}Publish"] = op
 
     for p in broker._publishers.values():
         for channel_name, channel_2_6 in p.schema().items():
@@ -300,15 +301,17 @@ def get_broker_operations_3_0(
                     summary=channel_2_6.subscribe.summary,
                     description=channel_2_6.subscribe.description,
                     bindings=channel_2_6.subscribe.bindings,
-                    messages=Reference(
-                        **{"$ref": f"#/channels/{channel_name}/messages/SubscribeMessage"},
-                    ),
+                    messages=[
+                        Reference(
+                            **{"$ref": f"#/channels/{channel_name}/messages/SubscribeMessage"},
+                        )
+                    ],
                     channel=Reference(
                         **{"$ref": f"#/channels/{channel_name}"},
                     ),
-                    security=channel_2_6.subscribe.bindings,
+                    security=channel_2_6.subscribe.security,
                 )
-                operations[f"{channel_name}.subscribe"] = op
+                operations[f"{channel_name}Subscribe"] = op
 
             elif channel_2_6.publish is not None:
                 op = OperationV3_0(
@@ -316,15 +319,17 @@ def get_broker_operations_3_0(
                     summary=channel_2_6.publish.summary,
                     description=channel_2_6.publish.description,
                     bindings=channel_2_6.publish.bindings,
-                    messages=Reference(
-                        **{"$ref": f"#/channels/{channel_name}/messages/PublishMessage"},
-                    ),
+                    messages=[
+                        Reference(
+                            **{"$ref": f"#/channels/{channel_name}/messages/PublishMessage"},
+                        )
+                    ],
                     channel=Reference(
                         **{"$ref": f"#/channels/{channel_name}"},
                     ),
-                    security=channel_2_6.publish.bindings,
+                    security=channel_2_6.publish.security,
                 )
-                operations[f"{channel_name}.publish"] = op
+                operations[f"{channel_name}Publish"] = op
 
     return operations
 
@@ -401,7 +406,7 @@ def _resolve_msg_payloads_3_0(
     payload_name = f"{message_name}Payload"
     payloads[payload_name] = m.payload
     m.payload = Reference(**{"$ref": f"#/components/schemas/{payload_name}"})
-    messages[message_name] = m
+    messages[f"{channel_name}:{message_name}"] = m
     return Reference(**{"$ref": f"#/components/messages/{channel_name}:{message_name}"})
 
 
