@@ -1,6 +1,3 @@
-from typing import TYPE_CHECKING
-
-from faststream.asyncapi.base import BaseSchema
 from faststream.asyncapi.schema import (
     BaseSchema,
 
