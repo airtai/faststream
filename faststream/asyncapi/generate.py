@@ -424,7 +424,7 @@ def _resolve_msg_payloads_3_0(
         payloads[payload_name] = m.payload
         m.payload = Reference(**{"$ref": f"#/components/schemas/{payload_name}"})
         messages[m.title] = m
-        return Reference(**{"$ref": f"#/compZonents/messages/{channel_name}:{message_name}"})
+        return Reference(**{"$ref": f"#/components/messages/{channel_name}:{message_name}"})
 
 
 def _resolve_msg_payloads(
