@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from redis.asyncio import Redis
 
+from faststream import Context, Response
 from faststream.redis import ListSub, RedisBroker, StreamSub
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
@@ -144,3 +145,39 @@ class TestPublish(BrokerPublishTestcase):
         mock.assert_called_once_with("hi")
 
         assert m.mock.call_args_list[-1].kwargs["maxlen"] == 1
+
+    async def test_response(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        mock: MagicMock,
+    ):
+        pub_broker = self.get_broker(apply_types=True)
+
+        @pub_broker.subscriber(list=queue)
+        @pub_broker.publisher(list=queue + "resp")
+        async def m():
+            return Response(1)
+
+        @pub_broker.subscriber(list=queue + "resp")
+        async def resp(msg=Context("message")):
+            event.set()
+            mock(
+                body=msg.body
+            )
+
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish("", list=queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_once_with(
+            body=b"1"
+        )
