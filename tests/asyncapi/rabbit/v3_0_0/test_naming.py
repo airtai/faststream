@@ -1,8 +1,13 @@
 from typing import Type
 
 from faststream import FastStream
+<<<<<<< HEAD
 from faststream.rabbit import RabbitBroker
 from faststream.specification.asyncapi.generate import get_app_schema
+=======
+from faststream.asyncapi.generate import get_app_schema
+from faststream.rabbit import RabbitBroker
+>>>>>>> d8eb3497 (AsyncAPI rabbit naming test)
 from tests.asyncapi.base.v3_0_0.naming import NamingTestCase
 
 
@@ -123,4 +128,3 @@ class TestNaming(NamingTestCase):
                         },
                     },
                 }
-        )
