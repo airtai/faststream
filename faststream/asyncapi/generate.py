@@ -13,5 +13,3 @@ def get_app_schema(app: "AsyncAPIApplication") -> BaseSchema:
 
     if app.asyncapi_version == AsyncAPIVersion.v2_6:
         return get_app_schema_v2_6(app)
-
-    raise NotImplementedError(f"Async API version not supported: {app.asyncapi_version}")
