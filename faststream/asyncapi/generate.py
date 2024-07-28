@@ -283,7 +283,7 @@ def get_broker_operations_3_0(
                     bindings=channel_2_6.publish.bindings,
                     messages=[
                         Reference(
-                            **{"$ref": f"#/channels/{channel_name}/messages/PublishMessage"},
+                            **{"$ref": f"#/channels/{channel_name}/messages/Message"},
                         )]
                     ,
                     channel=Reference(
@@ -291,7 +291,7 @@ def get_broker_operations_3_0(
                     ),
                     security=channel_2_6.publish.bindings,
                 )
-                operations[f"{channel_name}Publish"] = op
+                operations[f"{channel_name}"] = op
 
     for p in broker._publishers.values():
         for channel_name, channel_2_6 in p.schema().items():
@@ -329,7 +329,7 @@ def get_broker_operations_3_0(
                     ),
                     security=channel_2_6.publish.security,
                 )
-                operations[f"{channel_name}Publish"] = op
+                operations[f"{channel_name}"] = op
 
     return operations
 
@@ -366,7 +366,7 @@ def get_broker_channels_3_0(
                 channel_v3_0 = ChannelV3_0(
                     address=channel_name,
                     messages={
-                        "PublishMessage": channel_v2_6.publish.message,
+                        "Message": channel_v2_6.publish.message,
                     },
                     description=channel_v2_6.description,
                     servers=channel_v2_6.servers,
@@ -403,7 +403,7 @@ def _resolve_msg_payloads_3_0(
         payloads: Dict[str, Any],
         messages: Dict[str, Any],
 ) -> Reference:
-    payload_name = f"{message_name}Payload"
+    payload_name = m.payload.get("title", f"{channel_name}:{message_name}:Payload")
     payloads[payload_name] = m.payload
     m.payload = Reference(**{"$ref": f"#/components/schemas/{payload_name}"})
     messages[f"{channel_name}:{message_name}"] = m
