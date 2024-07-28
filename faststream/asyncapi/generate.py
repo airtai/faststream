@@ -403,11 +403,28 @@ def _resolve_msg_payloads_3_0(
         payloads: Dict[str, Any],
         messages: Dict[str, Any],
 ) -> Reference:
-    payload_name = m.payload.get("title", f"{channel_name}:{message_name}:Payload")
-    payloads[payload_name] = m.payload
-    m.payload = Reference(**{"$ref": f"#/components/schemas/{payload_name}"})
-    messages[f"{channel_name}:{message_name}"] = m
-    return Reference(**{"$ref": f"#/components/messages/{channel_name}:{message_name}"})
+
+    one_of = m.payload.get("oneOf", None)
+    if isinstance(one_of, dict):
+        one_of_list = []
+        p = {}
+        for name, payload in one_of.items():
+            p[name] = payload
+            one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{name}"}))
+
+        payloads.update(p)
+        m.payload["oneOf"] = one_of_list
+        messages[m.title] = m
+
+    # elif one_of is not None:
+    #     ...
+
+    else:
+        payload_name = m.payload.get("title", f"{channel_name}:{message_name}:Payload")
+        payloads[payload_name] = m.payload
+        m.payload = Reference(**{"$ref": f"#/components/schemas/{payload_name}"})
+        messages[m.title] = m
+        return Reference(**{"$ref": f"#/compZonents/messages/{channel_name}:{message_name}"})
 
 
 def _resolve_msg_payloads(
