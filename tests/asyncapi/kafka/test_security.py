@@ -188,6 +188,8 @@ def test_gssapi_security_schema():
 
     gssapi_security_schema = deepcopy(basic_schema)
     gssapi_security_schema["servers"]["development"]["security"] = [{"gssapi": []}]
-    gssapi_security_schema["components"]["securitySchemes"] = {"gssapi": {"type": "gssapi"}}
+    gssapi_security_schema["components"]["securitySchemes"] = {
+        "gssapi": {"type": "gssapi"}
+    }
 
     assert schema == gssapi_security_schema
