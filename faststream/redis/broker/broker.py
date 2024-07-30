@@ -13,6 +13,7 @@ from typing import (
 )
 from urllib.parse import urlparse
 
+import anyio
 from anyio import move_on_after
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import (
@@ -22,6 +23,7 @@ from redis.asyncio.connection import (
     Encoder,
     parse_url,
 )
+from redis.exceptions import ConnectionError
 from typing_extensions import Annotated, Doc, TypeAlias, override
 
 from faststream.__about__ import __version__
@@ -488,4 +490,8 @@ class RedisBroker(
             if self._connection is None:
                 return False
 
-            return await self._connection.ping()
+            while True:
+                try:
+                    return await self._connection.ping()
+                except ConnectionError:  # noqa: PERF203
+                    await anyio.sleep(0.1)

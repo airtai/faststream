@@ -35,7 +35,7 @@ async def test_base_security():
         from docs.docs_src.redis.security.basic import broker
 
         async with broker:
-            await broker._connection.ping()
+            await broker.ping(3.0)
 
         assert connection.call_args.kwargs["ssl"]
 
