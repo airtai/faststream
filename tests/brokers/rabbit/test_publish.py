@@ -3,8 +3,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from faststream import Context, Response
-from faststream.rabbit import RabbitBroker, ReplyConfig
+from faststream import Context
+from faststream.rabbit import RabbitBroker, RabbitResponse, ReplyConfig
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
@@ -73,30 +73,34 @@ class TestPublish(BrokerPublishTestcase):
         @pub_broker.subscriber(queue)
         @pub_broker.publisher(queue + "1")
         async def handle():
-            return Response(1)
-
+            return RabbitResponse(
+                1,
+                persist=True,
+            )
 
         @pub_broker.subscriber(queue + "1")
         async def handle_next(msg=Context("message")):
+            mock(body=msg.body)
             event.set()
-            mock(
-                body=msg.body
-            )
 
         async with self.patch_broker(pub_broker) as br:
+            with patch.object(
+                AioPikaFastProducer,
+                "publish",
+                spy_decorator(AioPikaFastProducer.publish),
+            ) as m:
                 await br.start()
 
                 await asyncio.wait(
                     (
-                        asyncio.create_task(
-                            br.publish("", queue)
-                        ),
+                        asyncio.create_task(br.publish("", queue)),
                         asyncio.create_task(event.wait()),
                     ),
                     timeout=3,
                 )
 
-        assert event.is_set()
-        mock.assert_called_once_with(
-            body=b"1"
-        )
+                assert event.is_set()
+
+                assert m.mock.call_args.kwargs.get("persist")
+
+        mock.assert_called_once_with(body=b"1")

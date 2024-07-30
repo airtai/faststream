@@ -3,8 +3,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream import Context, Response
-from faststream.nats import NatsBroker
+from faststream import Context
+from faststream.nats import NatsBroker, NatsResponse
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 
@@ -27,30 +27,29 @@ class TestPublish(BrokerPublishTestcase):
         @pub_broker.subscriber(queue)
         @pub_broker.publisher(queue + "1")
         async def handle():
-            return Response(1)
-
+            return NatsResponse(1, correlation_id="1")
 
         @pub_broker.subscriber(queue + "1")
         async def handle_next(msg=Context("message")):
-            event.set()
             mock(
-                body=msg.body
+                body=msg.body,
+                correlation_id=msg.correlation_id,
             )
+            event.set()
 
         async with self.patch_broker(pub_broker) as br:
-                await br.start()
+            await br.start()
 
-                await asyncio.wait(
-                    (
-                        asyncio.create_task(
-                            br.publish("", queue)
-                        ),
-                        asyncio.create_task(event.wait()),
-                    ),
-                    timeout=3,
-                )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish("", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
         assert event.is_set()
         mock.assert_called_once_with(
-            body=b"1"
+            body=b"1",
+            correlation_id="1",
         )

@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from redis.asyncio import Redis
 
-from faststream import Context, Response
-from faststream.redis import ListSub, RedisBroker, StreamSub
+from faststream import Context
+from faststream.redis import ListSub, RedisBroker, RedisResponse, StreamSub
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
 
@@ -157,14 +157,15 @@ class TestPublish(BrokerPublishTestcase):
         @pub_broker.subscriber(list=queue)
         @pub_broker.publisher(list=queue + "resp")
         async def m():
-            return Response(1)
+            return RedisResponse(1, correlation_id="1")
 
         @pub_broker.subscriber(list=queue + "resp")
         async def resp(msg=Context("message")):
-            event.set()
             mock(
-                body=msg.body
+                body=msg.body,
+                correlation_id=msg.correlation_id,
             )
+            event.set()
 
         async with self.patch_broker(pub_broker) as br:
             await br.start()
@@ -179,5 +180,6 @@ class TestPublish(BrokerPublishTestcase):
 
         assert event.is_set()
         mock.assert_called_once_with(
-            body=b"1"
+            body=b"1",
+            correlation_id="1",
         )
