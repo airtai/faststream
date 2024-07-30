@@ -1,10 +1,10 @@
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 
 from faststream.broker.middlewares.base import BaseMiddleware
 
 if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
-    from faststream.types import AsyncFuncAny
+    from faststream.types import AsyncFuncAny, SendableMessage
 
 
 class BaseExceptionMiddleware(BaseMiddleware):
@@ -12,7 +12,7 @@ class BaseExceptionMiddleware(BaseMiddleware):
     def __init__(
         self,
         exception_handlers: Dict[
-            Exception, Callable[[Exception], Awaitable[None]]
+            Exception, Callable[[Exception], "SendableMessage"]
         ],
         msg: Optional[Any] = None,
     ) -> None:
@@ -24,22 +24,14 @@ class BaseExceptionMiddleware(BaseMiddleware):
         call_next: "AsyncFuncAny",
         msg: "StreamMessage[Any]",
     ) -> Any:
-        err: Optional[Exception] = None
         try:
-            result = await call_next(await self.on_consume(msg))
+            return await call_next(await self.on_consume(msg))
 
         except Exception as exc:
-            handler = self._exception_handlers.get(type(exc))
-            if handler:
-                await handler(exc)
-            else:
-                err = exc
+            if handler := self._exception_handlers.get(type(exc)):
+                return await handler(exc)
 
-        else:
-            return result
-
-        finally:
-            await self.after_consume(err)
+            raise
 
 
 class ExceptionMiddleware:
@@ -48,15 +40,15 @@ class ExceptionMiddleware:
     def __init__(
         self,
         exception_handlers: Optional[
-            Dict[Exception, Callable[[Exception], Awaitable[None]]]
+            Dict[Exception, Callable[[Exception], "SendableMessage"]]
         ] = None
     ) -> None:
         if not exception_handlers:
             exception_handlers = {}
         self._exception_handlers = exception_handlers
 
-    def add_handler(self, exc: Exception) -> Callable:
-        def wrapper(func: Callable) -> None:
+    def add_handler(self, exc: Exception) -> Callable[[Exception], None]:
+        def wrapper(func: Callable[[Exception], "SendableMessage"]) -> None:
             self._exception_handlers[exc] = func
 
         return wrapper
