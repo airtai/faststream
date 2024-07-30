@@ -123,6 +123,14 @@ search:
             - asyncapi
                 - [get_app_schema](public_api/faststream/asyncapi/get_app_schema.md)
                 - [get_asyncapi_html](public_api/faststream/asyncapi/get_asyncapi_html.md)
+            - confluent
+                - [KafkaBroker](public_api/faststream/confluent/KafkaBroker.md)
+                - [KafkaPublisher](public_api/faststream/confluent/KafkaPublisher.md)
+                - [KafkaResponse](public_api/faststream/confluent/KafkaResponse.md)
+                - [KafkaRoute](public_api/faststream/confluent/KafkaRoute.md)
+                - [KafkaRouter](public_api/faststream/confluent/KafkaRouter.md)
+                - [TestApp](public_api/faststream/confluent/TestApp.md)
+                - [TestKafkaBroker](public_api/faststream/confluent/TestKafkaBroker.md)
             - kafka
                 - [KafkaBroker](public_api/faststream/kafka/KafkaBroker.md)
                 - [KafkaPublisher](public_api/faststream/kafka/KafkaPublisher.md)
@@ -413,6 +421,101 @@ search:
                     - parser
                         - [parse_cli_args](api/faststream/cli/utils/parser/parse_cli_args.md)
                         - [remove_prefix](api/faststream/cli/utils/parser/remove_prefix.md)
+            - confluent
+                - [KafkaBroker](api/faststream/confluent/KafkaBroker.md)
+                - [KafkaPublisher](api/faststream/confluent/KafkaPublisher.md)
+                - [KafkaResponse](api/faststream/confluent/KafkaResponse.md)
+                - [KafkaRoute](api/faststream/confluent/KafkaRoute.md)
+                - [KafkaRouter](api/faststream/confluent/KafkaRouter.md)
+                - [TestApp](api/faststream/confluent/TestApp.md)
+                - [TestKafkaBroker](api/faststream/confluent/TestKafkaBroker.md)
+                - broker
+                    - [KafkaBroker](api/faststream/confluent/broker/KafkaBroker.md)
+                    - broker
+                        - [KafkaBroker](api/faststream/confluent/broker/broker/KafkaBroker.md)
+                    - logging
+                        - [KafkaLoggingBroker](api/faststream/confluent/broker/logging/KafkaLoggingBroker.md)
+                    - registrator
+                        - [KafkaRegistrator](api/faststream/confluent/broker/registrator/KafkaRegistrator.md)
+                - client
+                    - [AsyncConfluentConsumer](api/faststream/confluent/client/AsyncConfluentConsumer.md)
+                    - [AsyncConfluentProducer](api/faststream/confluent/client/AsyncConfluentProducer.md)
+                    - [BatchBuilder](api/faststream/confluent/client/BatchBuilder.md)
+                    - [MsgToSend](api/faststream/confluent/client/MsgToSend.md)
+                    - [TopicPartition](api/faststream/confluent/client/TopicPartition.md)
+                    - [check_msg_error](api/faststream/confluent/client/check_msg_error.md)
+                    - [create_topics](api/faststream/confluent/client/create_topics.md)
+                - config
+                    - [BrokerAddressFamily](api/faststream/confluent/config/BrokerAddressFamily.md)
+                    - [BuiltinFeatures](api/faststream/confluent/config/BuiltinFeatures.md)
+                    - [ClientDNSLookup](api/faststream/confluent/config/ClientDNSLookup.md)
+                    - [CompressionCodec](api/faststream/confluent/config/CompressionCodec.md)
+                    - [CompressionType](api/faststream/confluent/config/CompressionType.md)
+                    - [ConfluentConfig](api/faststream/confluent/config/ConfluentConfig.md)
+                    - [Debug](api/faststream/confluent/config/Debug.md)
+                    - [GroupProtocol](api/faststream/confluent/config/GroupProtocol.md)
+                    - [IsolationLevel](api/faststream/confluent/config/IsolationLevel.md)
+                    - [OffsetStoreMethod](api/faststream/confluent/config/OffsetStoreMethod.md)
+                    - [SASLOAUTHBearerMethod](api/faststream/confluent/config/SASLOAUTHBearerMethod.md)
+                    - [SecurityProtocol](api/faststream/confluent/config/SecurityProtocol.md)
+                - fastapi
+                    - [Context](api/faststream/confluent/fastapi/Context.md)
+                    - [KafkaRouter](api/faststream/confluent/fastapi/KafkaRouter.md)
+                    - fastapi
+                        - [KafkaRouter](api/faststream/confluent/fastapi/fastapi/KafkaRouter.md)
+                - message
+                    - [ConsumerProtocol](api/faststream/confluent/message/ConsumerProtocol.md)
+                    - [FakeConsumer](api/faststream/confluent/message/FakeConsumer.md)
+                    - [KafkaMessage](api/faststream/confluent/message/KafkaMessage.md)
+                - opentelemetry
+                    - [KafkaTelemetryMiddleware](api/faststream/confluent/opentelemetry/KafkaTelemetryMiddleware.md)
+                    - middleware
+                        - [KafkaTelemetryMiddleware](api/faststream/confluent/opentelemetry/middleware/KafkaTelemetryMiddleware.md)
+                    - provider
+                        - [BaseConfluentTelemetrySettingsProvider](api/faststream/confluent/opentelemetry/provider/BaseConfluentTelemetrySettingsProvider.md)
+                        - [BatchConfluentTelemetrySettingsProvider](api/faststream/confluent/opentelemetry/provider/BatchConfluentTelemetrySettingsProvider.md)
+                        - [ConfluentTelemetrySettingsProvider](api/faststream/confluent/opentelemetry/provider/ConfluentTelemetrySettingsProvider.md)
+                        - [telemetry_attributes_provider_factory](api/faststream/confluent/opentelemetry/provider/telemetry_attributes_provider_factory.md)
+                - parser
+                    - [AsyncConfluentParser](api/faststream/confluent/parser/AsyncConfluentParser.md)
+                - publisher
+                    - asyncapi
+                        - [AsyncAPIBatchPublisher](api/faststream/confluent/publisher/asyncapi/AsyncAPIBatchPublisher.md)
+                        - [AsyncAPIDefaultPublisher](api/faststream/confluent/publisher/asyncapi/AsyncAPIDefaultPublisher.md)
+                        - [AsyncAPIPublisher](api/faststream/confluent/publisher/asyncapi/AsyncAPIPublisher.md)
+                    - producer
+                        - [AsyncConfluentFastProducer](api/faststream/confluent/publisher/producer/AsyncConfluentFastProducer.md)
+                    - usecase
+                        - [BatchPublisher](api/faststream/confluent/publisher/usecase/BatchPublisher.md)
+                        - [DefaultPublisher](api/faststream/confluent/publisher/usecase/DefaultPublisher.md)
+                        - [LogicPublisher](api/faststream/confluent/publisher/usecase/LogicPublisher.md)
+                - response
+                    - [KafkaResponse](api/faststream/confluent/response/KafkaResponse.md)
+                - router
+                    - [KafkaPublisher](api/faststream/confluent/router/KafkaPublisher.md)
+                    - [KafkaRoute](api/faststream/confluent/router/KafkaRoute.md)
+                    - [KafkaRouter](api/faststream/confluent/router/KafkaRouter.md)
+                - schemas
+                    - params
+                        - [ConsumerConnectionParams](api/faststream/confluent/schemas/params/ConsumerConnectionParams.md)
+                - security
+                    - [parse_security](api/faststream/confluent/security/parse_security.md)
+                - subscriber
+                    - asyncapi
+                        - [AsyncAPIBatchSubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPIBatchSubscriber.md)
+                        - [AsyncAPIDefaultSubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPIDefaultSubscriber.md)
+                        - [AsyncAPISubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPISubscriber.md)
+                    - factory
+                        - [create_subscriber](api/faststream/confluent/subscriber/factory/create_subscriber.md)
+                    - usecase
+                        - [BatchSubscriber](api/faststream/confluent/subscriber/usecase/BatchSubscriber.md)
+                        - [DefaultSubscriber](api/faststream/confluent/subscriber/usecase/DefaultSubscriber.md)
+                        - [LogicSubscriber](api/faststream/confluent/subscriber/usecase/LogicSubscriber.md)
+                - testing
+                    - [FakeProducer](api/faststream/confluent/testing/FakeProducer.md)
+                    - [MockConfluentMessage](api/faststream/confluent/testing/MockConfluentMessage.md)
+                    - [TestKafkaBroker](api/faststream/confluent/testing/TestKafkaBroker.md)
+                    - [build_message](api/faststream/confluent/testing/build_message.md)
             - constants
                 - [ContentTypes](api/faststream/constants/ContentTypes.md)
             - exceptions
