@@ -126,7 +126,7 @@ class TestPublish(BrokerPublishTestcase):
                     asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout * 1.5,
             )
 
         assert event.is_set()
