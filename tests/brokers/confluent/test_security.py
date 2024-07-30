@@ -133,3 +133,26 @@ async def test_plaintext():
                 producer_call_kwargs["security_protocol"]
                 == call_kwargs["security_protocol"]
             )
+
+
+@pytest.mark.asyncio()
+@pytest.mark.confluent()
+async def test_oathbearer():
+    from docs.docs_src.confluent.security.sasl_oauthbearer import (
+        broker as oauthbearer_broker,
+    )
+
+    with patch_aio_consumer_and_producer() as producer:
+        async with oauthbearer_broker:
+            producer_call_kwargs = producer.call_args.kwargs
+
+            call_kwargs = {}
+            call_kwargs["sasl_mechanism"] = "OAUTHBEARER"
+            call_kwargs["security_protocol"] = "SASL_SSL"
+
+            assert call_kwargs.items() <= producer_call_kwargs.items()
+
+            assert (
+                producer_call_kwargs["security_protocol"]
+                == call_kwargs["security_protocol"]
+            )
