@@ -156,7 +156,7 @@ class AsyncConfluentProducer:
         }
         self.config = {**self.config, **config_from_params}
 
-        if sasl_mechanism:
+        if sasl_mechanism in ["PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512"]:
             self.config.update(
                 {
                     "sasl.mechanism": sasl_mechanism,
@@ -365,7 +365,7 @@ class AsyncConfluentConsumer:
         }
         self.config = {**self.config, **config_from_params}
 
-        if sasl_mechanism:
+        if sasl_mechanism in ["PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512"]:
             self.config.update(
                 {
                     "sasl.mechanism": sasl_mechanism,
