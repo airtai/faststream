@@ -29,8 +29,8 @@ class TestNaming(NamingTestCase):
                 }
             },
             "channels": {
-                "address": "test:Handle",
                 "test:Handle": {
+                    "address": "test:Handle",
                     "servers": [
                         {
                             "$ref": "#/servers/development",
