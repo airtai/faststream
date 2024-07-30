@@ -2,7 +2,7 @@ from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.confluent import KafkaBroker
-from tests.asyncapi.base.naming import NamingTestCase
+from tests.asyncapi.base.v3_0_0.naming import NamingTestCase
 
 
 class TestNaming(NamingTestCase):
