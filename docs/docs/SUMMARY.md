@@ -359,6 +359,7 @@ search:
                         - [PublisherUsecase](api/faststream/broker/publisher/usecase/PublisherUsecase.md)
                 - response
                     - [Response](api/faststream/broker/response/Response.md)
+                    - [ensure_response](api/faststream/broker/response/ensure_response.md)
                 - router
                     - [ArgsContainer](api/faststream/broker/router/ArgsContainer.md)
                     - [BrokerRouter](api/faststream/broker/router/BrokerRouter.md)
