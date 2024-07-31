@@ -267,7 +267,7 @@ class PublisherNaming(BaseNaming):
 
         assert list(schema["components"]["schemas"].keys()) == [
             "SimpleModel",
-        ]
+        ], list(schema["components"]["schemas"].keys())
 
     def test_publisher_manual_naming(self):
         broker = self.broker_class()
