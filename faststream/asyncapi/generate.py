@@ -321,7 +321,7 @@ def get_broker_operations_3_0(
                     bindings=channel_2_6.publish.bindings,
                     messages=[
                         Reference(
-                            **{"$ref": f"#/channels/{channel_name}/messages/PublishMessage"},
+                            **{"$ref": f"#/channels/{channel_name}/messages/Message"},
                         )
                     ],
                     channel=Reference(
