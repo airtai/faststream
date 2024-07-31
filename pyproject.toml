@@ -79,10 +79,10 @@ otel = ["opentelemetry-sdk>=1.24.0,<2.0.0"]
 optionals = ["faststream[rabbit,kafka,confluent,nats,redis,otel]"]
 
 devdocs = [
-    "mkdocs-material==9.5.29",
+    "mkdocs-material==9.5.30",
     "mkdocs-static-i18n==1.2.3",
     "mdx-include==1.4.2",
-    "mkdocstrings[python]==0.25.1",
+    "mkdocstrings[python]==0.25.2",
     "mkdocs-literate-nav==0.6.1",
     "mkdocs-git-revision-date-localized-plugin==1.2.6",
     "mike==2.1.2",                                      # versioning
@@ -111,7 +111,7 @@ types = [
 
 lint = [
     "faststream[types]",
-    "ruff==0.5.4",
+    "ruff==0.5.5",
     "bandit==1.7.9",
     "semgrep==1.81.0",
     "codespell==2.3.0",
@@ -119,7 +119,7 @@ lint = [
 
 test-core = [
     "coverage[toml]==7.6.0",
-    "pytest==8.3.1",
+    "pytest==8.3.2",
     "pytest-asyncio==0.23.8",
     "dirty-equals==0.7.1.post0",
     "typing-extensions>=4.8.0,<4.12.1; python_version < '3.9'",  # to fix dirty-equals
@@ -138,7 +138,7 @@ testing = [
 dev = [
     "faststream[optionals,lint,testing,devdocs]",
     "pre-commit==3.5.0; python_version < '3.9'",
-    "pre-commit==3.7.1; python_version >= '3.9'",
+    "pre-commit==3.8.0; python_version >= '3.9'",
     "detect-secrets==1.5.0",
 ]
 
