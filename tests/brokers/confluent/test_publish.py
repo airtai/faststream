@@ -108,12 +108,12 @@ class TestPublish(BrokerPublishTestcase):
     ):
         pub_broker = self.get_broker(apply_types=True)
 
-        @pub_broker.subscriber(queue)
-        @pub_broker.publisher(queue + "1")
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        @pub_broker.publisher(topic=queue + "1")
         async def handle():
             return KafkaResponse(1)
 
-        @pub_broker.subscriber(queue + "1")
+        @pub_broker.subscriber(queue + "1", **self.subscriber_kwargs)
         async def handle_next(msg=Context("message")):
             mock(body=msg.body)
             event.set()
