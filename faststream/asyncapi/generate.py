@@ -403,12 +403,17 @@ def _resolve_msg_payloads_3_0(
         payloads: Dict[str, Any],
         messages: Dict[str, Any],
 ) -> Reference:
+    m.payload = _move_pydantic_refs(m.payload, DEF_KEY)
+
+    if DEF_KEY in m.payload:
+        payloads.update(m.payload.pop(DEF_KEY))
 
     one_of = m.payload.get("oneOf", None)
     if isinstance(one_of, dict):
         one_of_list = []
         p = {}
         for name, payload in one_of.items():
+            payloads.update(p.pop(DEF_KEY, {}))
             p[name] = payload
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{name}"}))
 
@@ -416,10 +421,8 @@ def _resolve_msg_payloads_3_0(
         m.payload["oneOf"] = one_of_list
         messages[m.title] = m
 
-    # elif one_of is not None:
-    #     ...
-
     else:
+        payloads.update(m.payload.pop(DEF_KEY, {}))
         payload_name = m.payload.get("title", f"{channel_name}:{message_name}:Payload")
         payloads[payload_name] = m.payload
         m.payload = Reference(**{"$ref": f"#/components/schemas/{payload_name}"})
