@@ -953,6 +953,7 @@ search:
                     - [build_message](api/faststream/redis/testing/build_message.md)
             - security
                 - [BaseSecurity](api/faststream/security/BaseSecurity.md)
+                - [SASLGSSAPI](api/faststream/security/SASLGSSAPI.md)
                 - [SASLPlaintext](api/faststream/security/SASLPlaintext.md)
                 - [SASLScram256](api/faststream/security/SASLScram256.md)
                 - [SASLScram512](api/faststream/security/SASLScram512.md)
