@@ -35,8 +35,8 @@ class TestRouter(RouterTestcase):
                 "defaultContentType": "application/json",
                 "servers": {
                     "development": {
-                        "host": "",
-                        "pathname": "localhost",
+                        "host": "localhost",
+                        "pathname": "",
                         "protocol": "kafka",
                         "protocolVersion": "auto"
                     }
