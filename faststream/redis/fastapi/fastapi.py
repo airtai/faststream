@@ -27,6 +27,7 @@ from starlette.routing import BaseRoute
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
+from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.redis.broker.broker import RedisBroker as RB
@@ -129,6 +130,10 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Optional[str],
             Doc("AsyncAPI server description."),
         ] = None,
+        asyncapi_version: Annotated[
+            AsyncAPIVersion,
+            Doc("Version of AsyncAPI for schema generation")
+        ] = AsyncAPIVersion.v2_6,
         asyncapi_tags: Annotated[
             Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
             Doc("AsyncAPI server tags."),
@@ -410,6 +415,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             protocol=protocol,
             description=description,
             protocol_version=protocol_version,
+            asyncapi_version=asyncapi_version,
             asyncapi_tags=asyncapi_tags,
             asyncapi_url=asyncapi_url,
             # FastAPI kwargs
