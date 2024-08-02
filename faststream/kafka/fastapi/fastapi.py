@@ -29,6 +29,7 @@ from starlette.routing import BaseRoute
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
+from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.kafka.broker.broker import KafkaBroker as KB
@@ -306,6 +307,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Optional[str],
             Doc("AsyncAPI server description."),
         ] = None,
+        asyncapi_version: Annotated[
+            AsyncAPIVersion,
+            Doc("Version of AsyncAPI for schema generation")
+        ] = AsyncAPIVersion.v2_6,
         asyncapi_tags: Annotated[
             Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
             Doc("AsyncAPI server tags."),
@@ -591,6 +596,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             protocol=protocol,
             description=description,
             protocol_version=protocol_version,
+            asyncapi_version=asyncapi_version,
             asyncapi_tags=asyncapi_tags,
             asyncapi_url=asyncapi_url,
             # FastAPI args
