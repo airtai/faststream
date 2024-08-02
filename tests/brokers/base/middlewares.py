@@ -559,20 +559,17 @@ class ExceptionMiddlewareTestcase:
     async def test_exception_middleware_different_handler(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
     ):
+        mid = ExceptionMiddleware()
+
+        @mid.add_handler(ZeroDivisionError)
         async def zero_error_handler(exc):
             return "zero"
-
-        mid = ExceptionMiddleware(
-            exception_handlers={ZeroDivisionError: zero_error_handler}
-        )
 
         @mid.add_handler(ValueError)
         async def value_error_handler(exc):
             return "value"
 
-        broker = self.broker_class(
-            middlewares=(mid,),
-        )
+        broker = self.broker_class(middlewares=(mid,))
 
         @broker.subscriber(queue, **self.subscriber_kwargs)
         @broker.publisher(queue + "2")
@@ -606,3 +603,16 @@ class ExceptionMiddlewareTestcase:
         assert event.is_set()
         assert mock.call_count == 2
         mock.assert_has_calls([call("zero"), call("value")], any_order=True)
+
+    async def test_exception_middleware_init_decorator_same(self):
+        mid1 = ExceptionMiddleware()
+
+        @mid1.add_handler(ValueError)
+        async def value_error_handler(exc):
+            return "value"
+
+        mid2 = ExceptionMiddleware(
+            exception_handlers={ValueError: value_error_handler}
+        )
+
+        assert mid1._exception_handlers == mid2._exception_handlers

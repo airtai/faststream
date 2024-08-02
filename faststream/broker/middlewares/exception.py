@@ -49,9 +49,15 @@ class ExceptionMiddleware:
 
     def add_handler(
         self, exc: Exception
-    ) -> Callable[[Callable[[Exception], "SendableMessage"]], None]:
-        def wrapper(func: Callable[[Exception], "SendableMessage"]) -> None:
+    ) -> Callable[
+        [Callable[[Exception], "SendableMessage"]],
+        Callable[[Exception], "SendableMessage"]
+    ]:
+        def wrapper(
+            func: Callable[[Exception], "SendableMessage"]
+        ) -> Callable[[Exception], "SendableMessage"]:
             self._exception_handlers[exc] = func
+            return func
 
         return wrapper
 
