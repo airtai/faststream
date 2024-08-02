@@ -404,7 +404,6 @@ def _resolve_msg_payloads_3_0(
         messages: Dict[str, Any],
 ) -> Reference:
     m.payload = _move_pydantic_refs(m.payload, DEF_KEY)
-
     if DEF_KEY in m.payload:
         payloads.update(m.payload.pop(DEF_KEY))
 
