@@ -7,7 +7,7 @@ class TestArguments(PublisherTestcase):
     broker_factory = NatsBroker
 
     def test_publisher_bindings(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher("test")
         async def handle(msg): ...

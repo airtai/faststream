@@ -7,7 +7,7 @@ class TestArguments(ArgumentsTestcase):
     broker_factory = RedisBroker
 
     def test_channel_subscriber(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(msg): ...
@@ -24,7 +24,7 @@ class TestArguments(ArgumentsTestcase):
         }
 
     def test_channel_pattern_subscriber(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test.{path}")
         async def handle(msg): ...
@@ -41,7 +41,7 @@ class TestArguments(ArgumentsTestcase):
         }
 
     def test_list_subscriber(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber(list="test")
         async def handle(msg): ...
@@ -54,7 +54,7 @@ class TestArguments(ArgumentsTestcase):
         }
 
     def test_stream_subscriber(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber(stream="test")
         async def handle(msg): ...
@@ -67,7 +67,7 @@ class TestArguments(ArgumentsTestcase):
         }
 
     def test_stream_group_subscriber(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber(stream=StreamSub("test", group="group", consumer="consumer"))
         async def handle(msg): ...

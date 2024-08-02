@@ -7,7 +7,7 @@ class TestArguments(PublisherTestcase):
     broker_factory = RabbitBroker
 
     def test_just_exchange(self):
-        broker = self.broker_class("amqp://guest:guest@localhost:5672/vhost")
+        broker = self.broker_factory("amqp://guest:guest@localhost:5672/vhost")
 
         @broker.publisher(exchange="test-ex")
         async def handle(msg): ...
@@ -66,7 +66,7 @@ class TestArguments(PublisherTestcase):
         }
 
     def test_publisher_bindings(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher(
             RabbitQueue("test", auto_delete=True),
@@ -99,7 +99,7 @@ class TestArguments(PublisherTestcase):
         }
 
     def test_useless_queue_bindings(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher(
             RabbitQueue("test", auto_delete=True),
@@ -153,7 +153,7 @@ class TestArguments(PublisherTestcase):
         }
 
     def test_reusable_exchange(self):
-        broker = self.broker_class("amqp://guest:guest@localhost:5672/vhost")
+        broker = self.broker_factory("amqp://guest:guest@localhost:5672/vhost")
 
         @broker.publisher(exchange="test-ex", routing_key="key1")
         @broker.publisher(exchange="test-ex", routing_key="key2", priority=10)

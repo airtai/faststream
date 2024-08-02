@@ -7,7 +7,7 @@ class TestArguments(ArgumentsTestcase):
     broker_factory = NatsBroker
 
     def test_subscriber_bindings(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(msg): ...
