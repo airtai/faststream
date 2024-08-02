@@ -7,7 +7,7 @@ class TestArguments(ArgumentsTestcase):
     broker_factory = RabbitBroker
 
     def test_subscriber_bindings(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber(
             RabbitQueue("test", auto_delete=True),
@@ -40,7 +40,7 @@ class TestArguments(ArgumentsTestcase):
         }
 
     def test_subscriber_fanout_bindings(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber(
             RabbitQueue("test", auto_delete=True),

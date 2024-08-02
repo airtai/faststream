@@ -7,7 +7,7 @@ class TestArguments(PublisherTestcase):
     broker_factory = RedisBroker
 
     def test_channel_publisher(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher("test")
         async def handle(msg): ...
@@ -24,7 +24,7 @@ class TestArguments(PublisherTestcase):
         }
 
     def test_list_publisher(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher(list="test")
         async def handle(msg): ...
@@ -37,7 +37,7 @@ class TestArguments(PublisherTestcase):
         }
 
     def test_stream_publisher(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher(stream="test")
         async def handle(msg): ...
