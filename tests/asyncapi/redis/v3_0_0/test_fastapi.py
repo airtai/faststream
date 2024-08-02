@@ -1,5 +1,3 @@
-from typing import Type
-
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.redis import TestRedisBroker
 from faststream.redis.fastapi import RedisRouter
