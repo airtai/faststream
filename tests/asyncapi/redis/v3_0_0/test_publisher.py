@@ -4,7 +4,7 @@ from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 
 
 class TestArguments(PublisherTestcase):
-    broker_class = RedisBroker
+    broker_factory = RedisBroker
 
     def test_channel_publisher(self):
         broker = self.broker_class()

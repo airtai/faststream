@@ -4,7 +4,7 @@ from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 
 
 class TestArguments(PublisherTestcase):
-    broker_class = NatsBroker
+    broker_factory = NatsBroker
 
     def test_publisher_bindings(self):
         broker = self.broker_class()

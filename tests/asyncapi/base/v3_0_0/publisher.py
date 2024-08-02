@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, Callable, Union
 
 import pydantic
 
@@ -6,17 +6,18 @@ from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.broker.core.usecase import BrokerUsecase
+from faststream.broker.fastapi import StreamRouter
 
 
 class PublisherTestcase:
-    broker_class: Type[BrokerUsecase]
+    broker_factory: Callable[[], Union[BrokerUsecase, StreamRouter]]
 
     def build_app(self, broker):
         """Patch it to test FastAPI scheme generation too."""
         return FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)
 
     def test_publisher_with_description(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher("test", description="test description")
         async def handle(msg): ...
@@ -27,7 +28,7 @@ class PublisherTestcase:
         assert schema["channels"][key]["description"] == "test description"
 
     def test_basic_publisher(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher("test")
         async def handle(msg): ...
@@ -43,7 +44,7 @@ class PublisherTestcase:
             assert v == {}
 
     def test_none_publisher(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher("test")
         async def handle(msg): ...
@@ -55,7 +56,7 @@ class PublisherTestcase:
             assert v == {}
 
     def test_typed_publisher(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher("test")
         async def handle(msg) -> int: ...
@@ -71,7 +72,7 @@ class PublisherTestcase:
             name: str = ""
             id: int
 
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher("test")
         async def handle(msg) -> User: ...
@@ -92,7 +93,7 @@ class PublisherTestcase:
             }
 
     def test_delayed(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         pub = broker.publisher("test")
 
@@ -106,7 +107,7 @@ class PublisherTestcase:
             assert v["type"] == "integer"
 
     def test_with_schema(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         broker.publisher("test", title="Custom", schema=int)
 
@@ -117,7 +118,7 @@ class PublisherTestcase:
             assert v["type"] == "integer"
 
     def test_not_include(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.publisher("test", include_in_schema=False)
         @broker.subscriber("in-test", include_in_schema=False)
