@@ -450,6 +450,115 @@ class ExceptionMiddlewareTestcase:
     async def test_exception_middleware_default_msg(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
     ):
+        mid = ExceptionMiddleware()
+
+        @mid.add_handler(ValueError)
+        async def value_error_handler(exc):
+            return "value"
+
+        broker = self.broker_class(middlewares=(mid,))
+
+        @broker.subscriber(queue, **self.subscriber_kwargs)
+        @broker.publisher(queue + "1")
+        async def subscriber1(m):
+            raise ValueError
+
+        @broker.subscriber(queue + "1", **self.subscriber_kwargs)
+        async def subscriber2(msg=Context("message")):
+            mock(msg.decoded_body)
+            event.set()
+
+        broker = self.patch_broker(raw_broker, broker)
+
+        async with broker:
+            await broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
+
+        assert event.is_set()
+        assert mock.call_count == 1
+        mock.assert_called_once_with("value")
+
+    async def test_exception_middleware_skip_msg(
+        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+    ):
+        mid = ExceptionMiddleware()
+
+        @mid.add_handler(ValueError)
+        async def value_error_handler(exc):
+            event.set()
+            raise SkipMessage()
+
+        broker = self.broker_class(middlewares=(mid,))
+
+        @broker.subscriber(queue, **self.subscriber_kwargs)
+        @broker.publisher(queue + "1")
+        async def subscriber1(m):
+            raise ValueError
+
+        @broker.subscriber(queue + "1", **self.subscriber_kwargs)
+        async def subscriber2(msg=Context("message")):
+            mock(msg.decoded_body)
+
+        broker = self.patch_broker(raw_broker, broker)
+
+        async with broker:
+            await broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
+
+        assert event.is_set()
+        assert mock.call_count == 0
+
+    async def test_exception_middleware_reraise(
+        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+    ):
+        mid = ExceptionMiddleware()
+
+        @mid.add_handler(ValueError)
+        async def value_error_handler(exc):
+            event.set()
+            raise exc
+
+        broker = self.broker_class(middlewares=(mid,))
+
+        @broker.subscriber(queue, **self.subscriber_kwargs)
+        @broker.publisher(queue + "1")
+        async def subscriber1(m):
+            raise ValueError
+
+        @broker.subscriber(queue + "1", **self.subscriber_kwargs)
+        async def subscriber2(msg=Context("message")):
+            mock(msg.decoded_body)
+
+        broker = self.patch_broker(raw_broker, broker)
+
+        async with broker:
+            await broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
+
+        assert event.is_set()
+        assert mock.call_count == 0
+
+    async def test_exception_middleware_different_handler(
+        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+    ):
         async def zero_error_handler(exc):
             return "zero"
 
@@ -497,52 +606,3 @@ class ExceptionMiddlewareTestcase:
         assert event.is_set()
         assert mock.call_count == 2
         mock.assert_has_calls([call("zero"), call("value")], any_order=True)
-
-    async def test_exception_middleware_skip_msg(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
-    ):
-        async def zero_error_handler(exc):
-            raise SkipMessage()
-
-        mid = ExceptionMiddleware(
-            exception_handlers={ZeroDivisionError: zero_error_handler}
-        )
-
-        @mid.add_handler(ValueError)
-        async def value_error_handler(exc):
-            event.set()
-            return SkipMessage()
-
-        broker = self.broker_class(
-            middlewares=(mid,),
-        )
-
-        @broker.subscriber(queue, **self.subscriber_kwargs)
-        @broker.publisher(queue + "2")
-        async def subscriber1(m):
-            raise ZeroDivisionError
-
-        @broker.subscriber(queue + "1", **self.subscriber_kwargs)
-        @broker.publisher(queue + "2")
-        async def subscriber2(m):
-            raise ValueError
-
-        @broker.subscriber(queue + "2", **self.subscriber_kwargs)
-        async def subscriber3(msg=Context("message")):
-            mock(msg.decoded_body)
-
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
-            await asyncio.wait(
-                (
-                    asyncio.create_task(broker.publish("", queue)),
-                    asyncio.create_task(broker.publish("", queue + "1")),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=self.timeout,
-            )
-
-        assert event.is_set()
-        assert mock.call_count == 0
