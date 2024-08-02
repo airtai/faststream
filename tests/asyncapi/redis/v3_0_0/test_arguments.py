@@ -4,7 +4,7 @@ from tests.asyncapi.base.v3_0_0.arguments import ArgumentsTestcase
 
 
 class TestArguments(ArgumentsTestcase):
-    broker_class = RedisBroker
+    broker_factory = RedisBroker
 
     def test_channel_subscriber(self):
         broker = self.broker_class()

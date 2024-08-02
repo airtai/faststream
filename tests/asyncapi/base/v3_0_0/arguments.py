@@ -1,8 +1,7 @@
 import json
-import pprint
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Type, Union
+from typing import Optional, Union, Callable
 
 import pydantic
 from dirty_equals import IsDict, IsPartialDict, IsStr
@@ -15,11 +14,12 @@ from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.broker.core.usecase import BrokerUsecase
+from faststream.broker.fastapi import StreamRouter
 from tests.marks import pydantic_v2
 
 
 class FastAPICompatible:
-    broker_class: Type[BrokerUsecase]
+    broker_factory: Callable[[], Union[BrokerUsecase, StreamRouter]]
     dependency_builder = staticmethod(APIDepends)
 
     def build_app(self, broker):
@@ -27,7 +27,7 @@ class FastAPICompatible:
         return FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)
 
     def test_custom_naming(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test", title="custom_name", description="test description")
         async def handle(msg): ...
@@ -39,7 +39,7 @@ class FastAPICompatible:
         assert schema["channels"][key]["description"] == "test description"
 
     def test_docstring_description(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test", title="custom_name")
         async def handle(msg):
@@ -54,7 +54,7 @@ class FastAPICompatible:
         ][key]["description"]
 
     def test_empty(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(): ...
@@ -71,7 +71,7 @@ class FastAPICompatible:
             }
 
     def test_no_type(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(msg): ...
@@ -85,7 +85,7 @@ class FastAPICompatible:
             assert v == {"title": key}
 
     def test_simple_type(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(msg: int): ...
@@ -100,7 +100,7 @@ class FastAPICompatible:
             assert v == {"title": key, "type": "integer"}
 
     def test_simple_optional_type(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(msg: Optional[int]): ...
@@ -124,7 +124,7 @@ class FastAPICompatible:
             ), v
 
     def test_simple_type_with_default(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(msg: int = 1): ...
@@ -142,7 +142,7 @@ class FastAPICompatible:
             }
 
     def test_multi_args_no_type(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(msg, another): ...
@@ -164,7 +164,7 @@ class FastAPICompatible:
             }
 
     def test_multi_args_with_type(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(msg: str, another: int): ...
@@ -186,7 +186,7 @@ class FastAPICompatible:
             }
 
     def test_multi_args_with_default(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(msg: str, another: Optional[int] = None): ...
@@ -226,7 +226,7 @@ class FastAPICompatible:
             id: int
             name: str = ""
 
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(user: User): ...
@@ -252,7 +252,7 @@ class FastAPICompatible:
             name: str = ""
             id: int
 
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(user: User): ...
@@ -283,7 +283,7 @@ class FastAPICompatible:
             id: int
             status: Status
 
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(user: User): ...
@@ -321,7 +321,7 @@ class FastAPICompatible:
             id: int
             email: Email
 
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(user: User, description: str = ""): ...
@@ -377,7 +377,7 @@ class FastAPICompatible:
                 class Config:
                     schema_extra = {"examples": [{"name": "john", "id": 1}]}  # noqa: RUF012
 
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(user: User): ...
@@ -404,7 +404,7 @@ class FastAPICompatible:
             name: str = ""
             id: int
 
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber(  # pragma: no branch
             "test",
@@ -432,7 +432,7 @@ class FastAPICompatible:
         assert "HandleDefault:Message:Payload" in list(payload.keys())
 
     def test_ignores_depends(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         def dep(name: str = ""):
             return name
@@ -475,7 +475,7 @@ class FastAPICompatible:
             Union[Sub2, Sub], pydantic.Field(discriminator="type")
         ]
 
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(user: descriminator): ...
@@ -484,6 +484,9 @@ class FastAPICompatible:
         key = next(iter(schema["components"]["messages"].keys()))
         assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
 
+        with open("schema5.json", "w") as file:
+            json.dump(schema["components"], file, indent=4)
+        # TODO: payload are not moved
         assert schema["components"] == {
             "messages": {
                 key: {
@@ -533,7 +536,7 @@ class FastAPICompatible:
         class Model(pydantic.BaseModel):
             msg: Union[Sub2, Sub] = pydantic.Field(..., discriminator="type")
 
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(user: Model): ...
@@ -590,7 +593,7 @@ class ArgumentsTestcase(FastAPICompatible):
     dependency_builder = staticmethod(Depends)
 
     def test_pydantic_field(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("msg")
         async def msg(
@@ -619,7 +622,7 @@ class ArgumentsTestcase(FastAPICompatible):
             }
 
     def test_ignores_custom_field(self):
-        broker = self.broker_class()
+        broker = self.broker_factory()
 
         @broker.subscriber("test")
         async def handle(id: int, user: Optional[str] = None, message=Context()): ...

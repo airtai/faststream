@@ -4,7 +4,7 @@ from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 
 
 class TestArguments(PublisherTestcase):
-    broker_class = RabbitBroker
+    broker_factory = RabbitBroker
 
     def test_just_exchange(self):
         broker = self.broker_class("amqp://guest:guest@localhost:5672/vhost")
