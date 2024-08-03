@@ -24,17 +24,19 @@ class AsgiTestcase:
     def test_ws_not_found(self):
         app = AsgiFastStream()
 
-        with (
-            TestClient(app) as client,
-            pytest.raises(WebSocketDisconnect),
-            client.websocket_connect("/ws"),  # raises error
-        ):
-            pass
+        with TestClient(app) as client:  # noqa: SIM117
+            with pytest.raises(WebSocketDisconnect):
+                with client.websocket_connect("/ws"):  # raises error
+                    pass
 
     def test_asgi_ping_unhealthy(self):
         broker = self.get_broker()
 
-        app = AsgiFastStream(asgi_routes=[("/health", make_ping_asgi(broker))])
+        app = AsgiFastStream(
+            asgi_routes=[
+                ("/health", make_ping_asgi(broker, timeout=5.0)),
+            ]
+        )
 
         with TestClient(app) as client:
             response = client.get("/health")
@@ -46,7 +48,7 @@ class AsgiTestcase:
 
         app = AsgiFastStream(
             broker,
-            asgi_routes=[("/health", make_ping_asgi(broker))],
+            asgi_routes=[("/health", make_ping_asgi(broker, timeout=5.0))],
         )
 
         async with self.get_test_broker(broker):

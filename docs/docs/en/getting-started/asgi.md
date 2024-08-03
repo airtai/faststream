@@ -10,9 +10,9 @@ search:
 
 # ASGI support
 
-Often you need to not just run your application to consume messages, but make it the real part of your services ecosystem: with *Prometheus metrics*, K8S *leviness* and *readyness probes*, *traces* and other observability staff.
+Often you need to not just run your application to consume messages, but make it the real part of your services ecosystem: with *Prometheus metrics*, K8S *leviness* and *readiness probes*, *traces* and other observability staff.
 
-Unfortunatelly, such functional can't be implemented by broker-features only and you have to provide several **HTTP** endpoints in your app.
+Unfortunately, such functional can't be implemented by broker-features only and you have to provide several **HTTP** endpoints in your app.
 
 For sure, you can use **FastStream** as a part of your any **ASGI** frameworks ([integrations](./integrations/frameworks/index.md){.internal-link}), but the fewer dependencies, the better, right?
 
@@ -64,9 +64,9 @@ app = AsgiFastStream(
   
 ### Custom ASGI routes
 
-**AsgiFastStream** is able to call any **ASGI**-compatible callable objects, so you can use any enpoints from other libraries if they are compatible with the protocol.
+**AsgiFastStream** is able to call any **ASGI**-compatible callable objects, so you can use any endpoints from other libraries if they are compatible with the protocol.
 
-But, if you need to write you own simple **HTTP**-enpoint you can use our `#!python @get` decorater as in the following example:
+But, if you need to write you own simple **HTTP**-endpoint you can use our `#!python @get` decorator as in the following example:
 
 ```python linenums="1" hl_lines="2 6-8 12"
 from faststream.nats import NatsBroker
@@ -97,7 +97,7 @@ async def liveness_ping(scope, receive, send):
 
 ### AsyncAPI documentation
 
-Also, you can host your **AsyncAPI** documentation without new process, runned by [`#!shell faststream docs serve ...`](./asyncapi/hosting.md){.internal-link}, but in the same container and runtime.
+Also, you can host your **AsyncAPI** documentation without new process, run by [`#!shell faststream docs serve ...`](./asyncapi/hosting.md){.internal-link}, but in the same container and runtime.
 
 Just create `AsgiFastStream` object with a special option:
 
