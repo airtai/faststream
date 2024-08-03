@@ -11,7 +11,6 @@ from faststream.asyncapi.schema.info import (
     Contact,
     ContactDict,
     InfoV2_6,
-    InfoV3_0,
     License,
     LicenseDict,
 )
@@ -19,7 +18,6 @@ from faststream.asyncapi.schema.main import (
     BaseSchema,
     Components,
     SchemaV2_6,
-    SchemaV3_0,
 )
 from faststream.asyncapi.schema.message import CorrelationId, Message
 from faststream.asyncapi.schema.operations import Operation
@@ -32,20 +30,18 @@ from faststream.asyncapi.schema.utils import (
     Tag,
     TagDict,
 )
-from faststream.asyncapi.schema.v3.operations import OperationV3_0
 from faststream.asyncapi.version import AsyncAPIVersion
+from . import v3_0_0
 
 __all__ = (
     # main
     "AsyncAPIVersion",
     "BaseSchema",
     "SchemaV2_6",
-    "SchemaV3_0",
     "Components",
     # info
     "BaseInfo",
     "InfoV2_6",
-    "InfoV3_0",
     "Contact",
     "ContactDict",
     "License",
@@ -71,5 +67,5 @@ __all__ = (
     "SecuritySchemaComponent",
     # subscription
     "Operation",
-    "OperationV3_0",
+    "v3_0_0",
 )

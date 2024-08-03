@@ -1,6 +1,5 @@
 from faststream.asyncapi.schema import (
     BaseSchema,
-
 )
 from faststream.asyncapi.v2_6_0.generate import get_app_schema as get_app_schema_v2_6
 from faststream.asyncapi.v3_0_0.generate import get_app_schema as get_app_schema_v3

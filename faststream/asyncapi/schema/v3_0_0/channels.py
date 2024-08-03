@@ -8,7 +8,7 @@ from faststream.asyncapi.schema.message import Message
 from faststream.asyncapi.schema.utils import Parameter, Reference
 
 
-class ChannelV3_0(BaseModel):
+class Channel(BaseModel):
     """A class to represent a channel.
 
     Attributes:

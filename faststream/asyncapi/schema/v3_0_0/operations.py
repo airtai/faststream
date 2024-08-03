@@ -11,10 +11,10 @@ from faststream.asyncapi.schema.utils import (
     Tag,
     TagDict,
 )
-from faststream.asyncapi.schema.v3.channels import ChannelV3_0
+from faststream.asyncapi.schema.v3_0_0.channels import Channel
 
 
-class OperationV3_0(BaseModel):
+class Operation(BaseModel):
     """A class to represent an operation.
 
     Attributes:
@@ -35,7 +35,7 @@ class OperationV3_0(BaseModel):
     bindings: Optional[OperationBinding] = None
 
     messages: List[Reference]
-    channel: Union[ChannelV3_0, Reference]
+    channel: Union[Channel, Reference]
 
     security: Optional[Dict[str, List[str]]] = None
 
