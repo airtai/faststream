@@ -5,8 +5,6 @@ if TYPE_CHECKING:
 
 
 class AsgiResponse:
-    charset = "utf-8"
-
     def __init__(
         self,
         body: bytes,
