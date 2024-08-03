@@ -121,6 +121,12 @@ search:
             - [Response](public_api/faststream/Response.md)
             - [TestApp](public_api/faststream/TestApp.md)
             - [apply_types](public_api/faststream/apply_types.md)
+            - asgi
+                - [AsgiFastStream](public_api/faststream/asgi/AsgiFastStream.md)
+                - [AsgiResponse](public_api/faststream/asgi/AsgiResponse.md)
+                - [get](public_api/faststream/asgi/get.md)
+                - [make_asyncapi_asgi](public_api/faststream/asgi/make_asyncapi_asgi.md)
+                - [make_ping_asgi](public_api/faststream/asgi/make_ping_asgi.md)
             - asyncapi
                 - [get_app_schema](public_api/faststream/asyncapi/get_app_schema.md)
                 - [get_asyncapi_html](public_api/faststream/asyncapi/get_asyncapi_html.md)
@@ -165,6 +171,9 @@ search:
                 - [StreamSource](public_api/faststream/nats/StreamSource.md)
                 - [TestApp](public_api/faststream/nats/TestApp.md)
                 - [TestNatsBroker](public_api/faststream/nats/TestNatsBroker.md)
+            - opentelemetry
+                - [TelemetryMiddleware](public_api/faststream/opentelemetry/TelemetryMiddleware.md)
+                - [TelemetrySettingsProvider](public_api/faststream/opentelemetry/TelemetrySettingsProvider.md)
             - rabbit
                 - [ExchangeType](public_api/faststream/rabbit/ExchangeType.md)
                 - [RabbitBroker](public_api/faststream/rabbit/RabbitBroker.md)
