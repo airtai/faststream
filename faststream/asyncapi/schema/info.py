@@ -3,7 +3,6 @@ from typing import (
     Callable,
     Dict,
     Iterable,
-    List,
     Optional,
     Type,
     Union,
@@ -19,16 +18,7 @@ from faststream._compat import (
     JsonSchemaValue,
     with_info_plain_validator_function,
 )
-from faststream.asyncapi.schema.utils import (  # noqa: TCH001
-    ExternalDocs,
-    ExternalDocsDict,
-    Tag,
-    TagDict,
-)
 from faststream.log import logger
-from faststream.types import (  # noqa: TCH001
-    AnyDict,
-)
 
 try:
     import email_validator
@@ -214,25 +204,3 @@ class InfoV2_6(BaseInfo):  # noqa: N801
     termsOfService: Optional[AnyHttpUrl] = None
     contact: Optional[Union[Contact, ContactDict, Dict[str, Any]]] = None
     license: Optional[Union[License, LicenseDict, Dict[str, Any]]] = None
-
-
-class InfoV3_0(BaseInfo):  # noqa: N801
-    """A class to represent information.
-
-    Attributes:
-        termsOfService : terms of service for the information (default: None)
-        contact : contact information for the information (default: None)
-        license : license information for the information (default: None)
-        tags : optional list of tags
-        externalDocs : optional external documentation
-
-    """
-
-    termsOfService: Optional[AnyHttpUrl] = None
-    contact: Optional[Union[Contact, ContactDict, Dict[str, Any]]] = None
-    license: Optional[Union[License, LicenseDict, Dict[str, Any]]] = None
-    tags: Optional[List[Union["Tag", "TagDict", "AnyDict"]]] = None
-    externalDocs: Optional[
-            Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
-    ] = None
-
