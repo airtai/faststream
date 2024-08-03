@@ -177,7 +177,11 @@ def get_broker_server_3_0(
         broker_meta["security"] = broker.security.get_requirement()
 
     if isinstance(broker.url, str):
-        url = urlparse(broker.url)
+        broker_url = broker.url
+        if "://" not in broker_url:
+            broker_url = "//" + broker_url
+
+        url = urlparse(broker_url)
         servers["development"] = v3_0_0.Server(
             host=url.netloc,
             pathname=url.path,
@@ -185,7 +189,11 @@ def get_broker_server_3_0(
         )
 
     elif len(broker.url) == 1:
-        url = urlparse(broker.url[0])
+        broker_url = broker.url[0]
+        if "://" not in broker_url:
+            broker_url = "//" + broker_url
+
+        url = urlparse(broker_url)
         servers["development"] = v3_0_0.Server(
             host=url.netloc,
             pathname=url.path,
@@ -194,6 +202,9 @@ def get_broker_server_3_0(
 
     else:
         for i, broker_url in enumerate(broker.url, 1):
+            if "://" not in broker_url:
+                broker_url = "//" + broker_url
+                
             parsed_url = urlparse(broker_url)
             servers[f"Server{i}"] = v3_0_0.Server(
                 host=parsed_url.netloc,
