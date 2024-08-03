@@ -1,6 +1,6 @@
 import traceback
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Any, AsyncIterator, Optional, Sequence, Tuple, Union
 
 from faststream.app import FastStream
 from faststream.asgi.response import AsgiResponse
@@ -67,14 +67,14 @@ class AsgiFastStream(FastStream):
         )
 
     def mount(self, path: str, route: "ASGIApp") -> None:
-        self.routes.append(route)
+        self.routes.append((path, route))
 
     async def __call__(self, scope: "Scope", receive: "Receive", send: "Send") -> None:
         if scope["type"] == "lifespan":
             await self.lifespan(scope, receive, send)
             return
 
-        if scope["type"] == "http" and scope["method"] == "GET":
+        if scope["type"] == "http":
             for path, app in self.routes:
                 if scope["path"] == path:
                     await app(scope, receive, send)
@@ -84,7 +84,7 @@ class AsgiFastStream(FastStream):
         return
 
     @asynccontextmanager
-    async def started_lifespan_context(self) -> None:
+    async def started_lifespan_context(self) -> AsyncIterator[None]:
         async with self.lifespan_context():
             await self._startup()
             try:

@@ -1,26 +1,47 @@
-from typing import TYPE_CHECKING, Any, Optional
+from functools import wraps
+from typing import (
+    TYPE_CHECKING,
+    Sequence,
+)
 
 from faststream.asgi.response import AsgiResponse
 
 if TYPE_CHECKING:
-    from faststream.asgi.types import ASGIApp, Receive, Scope, Send
-    from faststream.broker.core.usecase import BrokerUsecase
+    from faststream.asgi.types import ASGIApp, Receive, Scope, Send, UserApp
 
 
-def make_ping_asgi(
-    broker: "BrokerUsecase[Any, Any]",
-    /,
-    timeout: Optional[float] = None,
-) -> "ASGIApp":
-    async def ping(
+def get(func: "UserApp") -> "ASGIApp":
+    methods = ("GET", "HEAD")
+
+    method_now_allowed_response = _get_method_not_allowed_response(methods)
+    error_response = AsgiResponse(body=b"Internal Server Error", status_code=500)
+
+    @wraps(func)
+    async def asgi_wrapper(
         scope: "Scope",
         receive: "Receive",
         send: "Send",
     ) -> None:
-        if await broker.ping(timeout):
-            response = AsgiResponse(b"", status_code=204)
-        else:
-            response = AsgiResponse(b"", status_code=500)
-        await response(scope, receive, send)
+        if scope["method"] not in methods:
+            response: ASGIApp = method_now_allowed_response
 
-    return ping
+        else:
+            try:
+                response = await func(scope)
+            except Exception:
+                response = error_response
+
+        await response(scope, receive, send)
+        return
+
+    return asgi_wrapper
+
+
+def _get_method_not_allowed_response(methods: Sequence[str]) -> AsgiResponse:
+    return AsgiResponse(
+        body=b"Method Not Allowed",
+        status_code=405,
+        headers={
+            "Allow": ", ".join(methods),
+        },
+    )

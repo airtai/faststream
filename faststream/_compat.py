@@ -45,8 +45,6 @@ except ImportError:
 try:
     from fastapi import __version__ as FASTAPI_VERSION  # noqa: N812
 
-    HAS_FASTAPI = True
-
     major, minor, *_ = map(int, FASTAPI_VERSION.split("."))
     FASTAPI_V2 = major > 0 or minor > 100
     FASTAPI_V106 = major > 0 or minor >= 106
@@ -70,7 +68,7 @@ try:
             raise RequestValidationError(errors, ROUTER_VALIDATION_ERROR_MODEL)  # type: ignore[misc]
 
 except ImportError:
-    HAS_FASTAPI = False
+    pass
 
 JsonSchemaValue = Mapping[str, Any]
 
