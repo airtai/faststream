@@ -22,8 +22,8 @@ basic_schema = {
     "defaultContentType": "application/json",
     "servers": {
         "development": {
-            "host": "",
-            "pathname": "9092",
+            "host": "localhost:9092",
+            "pathname": "",
             "protocol": "kafka-secure",
             "protocolVersion": "auto",
             "security": []
