@@ -93,12 +93,14 @@ def test_custom():
             "Server1": {
                 "protocol": "kafka",
                 "protocolVersion": "auto",
-                "url": "kafka:9094",
+                "host": "kafka:9094",
+                "pathname": "",
             },
             "Server2": {
                 "protocol": "kafka",
                 "protocolVersion": "auto",
-                "url": "kafka:9095",
+                "host": "kafka:9095",
+                "pathname": "",
             },
         },
     }
