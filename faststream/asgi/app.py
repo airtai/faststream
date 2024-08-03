@@ -68,7 +68,7 @@ class AsgiFastStream(FastStream):
 
         self.routes = list(asgi_routes)
         if asyncapi_path:
-            self.routes.append((asyncapi_path, make_asyncapi_asgi(self)))
+            self.mount(asyncapi_path, make_asyncapi_asgi(self))
 
     def mount(self, path: str, route: "ASGIApp") -> None:
         self.routes.append((path, route))
