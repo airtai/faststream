@@ -36,6 +36,7 @@ class AsgiFastStream(FastStream):
         /,
         asgi_routes: Sequence[Tuple[str, "ASGIApp"]] = (),
         asyncapi_path: Optional[str] = None,
+        # regular broker args
         logger: Optional["LoggerProto"] = logger,
         lifespan: Optional["Lifespan"] = None,
         # AsyncAPI args,
