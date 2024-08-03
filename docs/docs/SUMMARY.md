@@ -200,6 +200,17 @@ search:
             - [apply_types](api/faststream/apply_types.md)
             - app
                 - [FastStream](api/faststream/app/FastStream.md)
+            - asgi
+                - [AsgiFastStream](api/faststream/asgi/AsgiFastStream.md)
+                - [make_ping_asgi](api/faststream/asgi/make_ping_asgi.md)
+                - app
+                    - [AsgiFastStream](api/faststream/asgi/app/AsgiFastStream.md)
+                - handlers
+                    - [make_ping_asgi](api/faststream/asgi/handlers/make_ping_asgi.md)
+                - response
+                    - [AsgiResponse](api/faststream/asgi/response/AsgiResponse.md)
+                - websocket
+                    - [WebSocketClose](api/faststream/asgi/websocket/WebSocketClose.md)
             - asyncapi
                 - [get_app_schema](api/faststream/asyncapi/get_app_schema.md)
                 - [get_asyncapi_html](api/faststream/asyncapi/get_asyncapi_html.md)
