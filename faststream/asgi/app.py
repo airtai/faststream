@@ -89,7 +89,7 @@ class AsgiFastStream(FastStream):
         return
 
     @asynccontextmanager
-    async def started_lifespan_context(self) -> AsyncIterator[None]:
+    async def start_lifespan_context(self) -> AsyncIterator[None]:
         async with self.lifespan_context():
             await self._startup()
             try:
@@ -103,7 +103,7 @@ class AsgiFastStream(FastStream):
         await receive()  # handle `lifespan.startup` event
 
         try:
-            async with self.started_lifespan_context():
+            async with self.start_lifespan_context():
                 await send({"type": "lifespan.startup.complete"})
                 started = True
                 await receive()  # handle `lifespan.shutdown` event
