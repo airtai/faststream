@@ -56,15 +56,17 @@ class AsgiTestcase:
                 response = client.get("/health")
                 assert response.status_code == 204
 
-    def test_asyncapi_asgi(self):
+    @pytest.mark.asyncio()
+    async def test_asyncapi_asgi(self):
         broker = self.get_broker()
 
         app = AsgiFastStream(broker, asyncapi_path="/docs")
 
-        with TestClient(app) as client:
-            response = client.get("/docs")
-            assert response.status_code == 200
-            assert response.text
+        async with self.get_test_broker(broker):
+            with TestClient(app) as client:
+                response = client.get("/docs")
+                assert response.status_code == 200
+                assert response.text
 
     def test_get_decorator(self):
         @get
