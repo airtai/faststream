@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.asgi.handlers.make_ping_asgi
+::: faststream.asgi.get

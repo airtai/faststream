@@ -41,6 +41,7 @@ search:
         - [FastAPI Plugin](getting-started/integrations/fastapi/index.md)
         - [Django](getting-started/integrations/django/index.md)
     - [CLI commands](getting-started/cli/index.md)
+    - [ASGI](getting-started/asgi.md)
     - [OpenTelemetry](getting-started/opentelemetry/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
@@ -202,11 +203,17 @@ search:
                 - [FastStream](api/faststream/app/FastStream.md)
             - asgi
                 - [AsgiFastStream](api/faststream/asgi/AsgiFastStream.md)
+                - [AsgiResponse](api/faststream/asgi/AsgiResponse.md)
+                - [get](api/faststream/asgi/get.md)
+                - [make_asyncapi_asgi](api/faststream/asgi/make_asyncapi_asgi.md)
                 - [make_ping_asgi](api/faststream/asgi/make_ping_asgi.md)
                 - app
                     - [AsgiFastStream](api/faststream/asgi/app/AsgiFastStream.md)
+                - factories
+                    - [make_asyncapi_asgi](api/faststream/asgi/factories/make_asyncapi_asgi.md)
+                    - [make_ping_asgi](api/faststream/asgi/factories/make_ping_asgi.md)
                 - handlers
-                    - [make_ping_asgi](api/faststream/asgi/handlers/make_ping_asgi.md)
+                    - [get](api/faststream/asgi/handlers/get.md)
                 - response
                     - [AsgiResponse](api/faststream/asgi/response/AsgiResponse.md)
                 - websocket
@@ -225,6 +232,7 @@ search:
                     - [get_response_schema](api/faststream/asyncapi/message/get_response_schema.md)
                     - [parse_handler_params](api/faststream/asyncapi/message/parse_handler_params.md)
                 - proto
+                    - [AsyncAPIApplication](api/faststream/asyncapi/proto/AsyncAPIApplication.md)
                     - [AsyncAPIProto](api/faststream/asyncapi/proto/AsyncAPIProto.md)
                 - schema
                     - [Channel](api/faststream/asyncapi/schema/Channel.md)
