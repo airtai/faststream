@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, AsyncIterator, Optional, Sequence, Tuple, Union
 
 from faststream.app import FastStream
+from faststream.asgi.factories import make_asyncapi_asgi
 from faststream.asgi.response import AsgiResponse
 from faststream.asgi.websocket import WebSocketClose
 from faststream.log.logging import logger
@@ -34,6 +35,7 @@ class AsgiFastStream(FastStream):
         broker: Optional["BrokerUsecase[Any, Any]"] = None,
         /,
         asgi_routes: Sequence[Tuple[str, "ASGIApp"]] = (),
+        asyncapi_path: Optional[str] = None,
         logger: Optional["LoggerProto"] = logger,
         lifespan: Optional["Lifespan"] = None,
         # AsyncAPI args,
@@ -49,8 +51,6 @@ class AsgiFastStream(FastStream):
         ] = None,
         identifier: Optional[str] = None,
     ) -> None:
-        self.routes = list(asgi_routes)
-
         super().__init__(
             broker=broker,
             logger=logger,
@@ -65,6 +65,10 @@ class AsgiFastStream(FastStream):
             external_docs=external_docs,
             identifier=identifier,
         )
+
+        self.routes = list(asgi_routes)
+        if asyncapi_path:
+            self.routes.append((asyncapi_path, make_asyncapi_asgi(self)))
 
     def mount(self, path: str, route: "ASGIApp") -> None:
         self.routes.append((path, route))
