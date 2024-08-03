@@ -129,6 +129,7 @@ class TestBroker(Generic[Broker]):
         broker.start = AsyncMock(wraps=partial(cls._fake_start, broker))  # type: ignore[method-assign]
         broker._connect = MethodType(cls._fake_connect, broker)  # type: ignore[method-assign]
         broker.close = AsyncMock()  # type: ignore[method-assign]
+        broker.ping = AsyncMock(return_value=True)  # type: ignore[method-assign]
 
     @classmethod
     def _fake_start(cls, broker: Broker, *args: Any, **kwargs: Any) -> None:
