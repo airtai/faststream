@@ -151,16 +151,18 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         self,
         *args: Any,
     ) -> None:
-        if not self.task:
-            await super().start()
+        if self.task:
+            return
 
-            start_signal = anyio.Event()
-            self.task = asyncio.create_task(
-                self._consume(*args, start_signal=start_signal)
-            )
+        await super().start()
 
-            with anyio.fail_after(3.0):
-                await start_signal.wait()
+        start_signal = anyio.Event()
+        self.task = asyncio.create_task(
+            self._consume(*args, start_signal=start_signal)
+        )
+
+        with anyio.fail_after(3.0):
+            await start_signal.wait()
 
     async def _consume(self, *args: Any, start_signal: anyio.Event) -> None:
         connected = True
@@ -256,6 +258,9 @@ class ChannelSubscriber(LogicSubscriber):
 
     @override
     async def start(self) -> None:
+        if self.subscription:
+            return
+
         assert self._client, "You should setup subscriber at first."  # nosec B101
 
         self.subscription = psub = self._client.pubsub()
@@ -355,6 +360,9 @@ class _ListHandlerMixin(LogicSubscriber):
 
     @override
     async def start(self) -> None:
+        if self.task:
+            return
+
         assert self._client, "You should setup subscriber at first."  # nosec B101
         await super().start(self._client)
 
@@ -515,7 +523,11 @@ class _StreamHandlerMixin(LogicSubscriber):
 
     @override
     async def start(self) -> None:
+        if self.task:
+            return
+
         assert self._client, "You should setup subscriber at first."  # nosec B101
+
         client = self._client
 
         self.extra_watcher_options.update(

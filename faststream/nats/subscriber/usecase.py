@@ -426,13 +426,15 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         connection: "Client",
     ) -> None:
         """Create NATS subscription and start consume task."""
-        if self.subscription is None:
-            self.subscription = await connection.subscribe(
-                subject=self.clear_subject,
-                queue=self.queue,
-                cb=self.consume,
-                **self.extra_options,
-            )
+        if self.subscription:
+            return
+
+        self.subscription = await connection.subscribe(
+            subject=self.clear_subject,
+            queue=self.queue,
+            cb=self.consume,
+            **self.extra_options,
+        )
 
     def get_log_context(
         self,
@@ -496,15 +498,17 @@ class ConcurrentCoreSubscriber(_ConcurrentMixin, CoreSubscriber):
         connection: "Client",
     ) -> None:
         """Create NATS subscription and start consume task."""
-        if self.subscription is None:
-            self.start_consume_task()
+        if self.subscription:
+            return
 
-            self.subscription = await connection.subscribe(
-                subject=self.clear_subject,
-                queue=self.queue,
-                cb=self._put_msg,
-                **self.extra_options,
-            )
+        self.start_consume_task()
+
+        self.subscription = await connection.subscribe(
+            subject=self.clear_subject,
+            queue=self.queue,
+            cb=self._put_msg,
+            **self.extra_options,
+        )
 
 
 class _StreamSubscriber(_DefaultSubscriber["Msg"]):
@@ -578,14 +582,16 @@ class PushStreamSubscription(_StreamSubscriber):
         connection: "JetStreamContext",
     ) -> None:
         """Create NATS subscription and start consume task."""
-        if self.subscription is None:
-            self.subscription = await connection.subscribe(
-                subject=self.clear_subject,
-                queue=self.queue,
-                cb=self.consume,
-                config=self.config,
-                **self.extra_options,
-            )
+        if self.subscription:
+            return
+
+        self.subscription = await connection.subscribe(
+            subject=self.clear_subject,
+            queue=self.queue,
+            cb=self.consume,
+            config=self.config,
+            **self.extra_options,
+        )
 
 
 class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
@@ -639,16 +645,18 @@ class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
         connection: "JetStreamContext",
     ) -> None:
         """Create NATS subscription and start consume task."""
-        if self.subscription is None:
-            self.start_consume_task()
+        if self.subscription:
+            return
 
-            self.subscription = await connection.subscribe(
-                subject=self.clear_subject,
-                queue=self.queue,
-                cb=self._put_msg,
-                config=self.config,
-                **self.extra_options,
-            )
+        self.start_consume_task()
+
+        self.subscription = await connection.subscribe(
+            subject=self.clear_subject,
+            queue=self.queue,
+            cb=self._put_msg,
+            config=self.config,
+            **self.extra_options,
+        )
 
 
 class PullStreamSubscriber(_TasksMixin, _StreamSubscriber):
@@ -702,13 +710,15 @@ class PullStreamSubscriber(_TasksMixin, _StreamSubscriber):
         connection: "JetStreamContext",
     ) -> None:
         """Create NATS subscription and start consume task."""
-        if self.subscription is None:
-            self.subscription = await connection.pull_subscribe(
-                subject=self.clear_subject,
-                config=self.config,
-                **self.extra_options,
-            )
-            self.add_task(self._consume_pull(cb=self.consume))
+        if self.subscription:
+            return
+
+        self.subscription = await connection.pull_subscribe(
+            subject=self.clear_subject,
+            config=self.config,
+            **self.extra_options,
+        )
+        self.add_task(self._consume_pull(cb=self.consume))
 
     async def _consume_pull(
         self,
@@ -780,15 +790,17 @@ class ConcurrentPullStreamSubscriber(_ConcurrentMixin, PullStreamSubscriber):
         connection: "JetStreamContext",
     ) -> None:
         """Create NATS subscription and start consume task."""
-        if self.subscription is None:
-            self.start_consume_task()
+        if self.subscription:
+            return
 
-            self.subscription = await connection.pull_subscribe(
-                subject=self.clear_subject,
-                config=self.config,
-                **self.extra_options,
-            )
-            self.add_task(self._consume_pull(cb=self._put_msg))
+        self.start_consume_task()
+
+        self.subscription = await connection.pull_subscribe(
+            subject=self.clear_subject,
+            config=self.config,
+            **self.extra_options,
+        )
+        self.add_task(self._consume_pull(cb=self._put_msg))
 
 
 class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
@@ -847,13 +859,15 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
         connection: "JetStreamContext",
     ) -> None:
         """Create NATS subscription and start consume task."""
-        if self.subscription is None:
-            self.subscription = await connection.pull_subscribe(
-                subject=self.clear_subject,
-                config=self.config,
-                **self.extra_options,
-            )
-            self.add_task(self._consume_pull())
+        if self.subscription:
+            return
+
+        self.subscription = await connection.pull_subscribe(
+            subject=self.clear_subject,
+            config=self.config,
+            **self.extra_options,
+        )
+        self.add_task(self._consume_pull())
 
     async def _consume_pull(self) -> None:
         """Endless task consuming messages using NATS Pull subscriber."""
@@ -912,24 +926,26 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
         *,
         connection: "KVBucketDeclarer",
     ) -> None:
-        if self.subscription is None:
-            bucket = await connection.create_key_value(
-                bucket=self.kv_watch.name,
-                declare=self.kv_watch.declare,
-            )
+        if self.subscription:
+            return
 
-            self.subscription = UnsubscribeAdapter["KeyValue.KeyWatcher"](
-                await bucket.watch(
-                    keys=self.clear_subject,
-                    headers_only=self.kv_watch.headers_only,
-                    include_history=self.kv_watch.include_history,
-                    ignore_deletes=self.kv_watch.ignore_deletes,
-                    meta_only=self.kv_watch.meta_only,
-                    # inactive_threshold=self.kv_watch.inactive_threshold
-                )
-            )
+        bucket = await connection.create_key_value(
+            bucket=self.kv_watch.name,
+            declare=self.kv_watch.declare,
+        )
 
-            self.add_task(self._consume_watch())
+        self.subscription = UnsubscribeAdapter["KeyValue.KeyWatcher"](
+            await bucket.watch(
+                keys=self.clear_subject,
+                headers_only=self.kv_watch.headers_only,
+                include_history=self.kv_watch.include_history,
+                ignore_deletes=self.kv_watch.ignore_deletes,
+                meta_only=self.kv_watch.meta_only,
+                # inactive_threshold=self.kv_watch.inactive_threshold
+            )
+        )
+
+        self.add_task(self._consume_watch())
 
     async def _consume_watch(self) -> None:
         assert self.subscription, "You should call `create_subscription` at first."  # nosec B101
@@ -1020,13 +1036,15 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
         *,
         connection: "OSBucketDeclarer",
     ) -> None:
-        if self.subscription is None:
-            self.bucket = await connection.create_object_store(
-                bucket=self.subject,
-                declare=self.obj_watch.declare,
-            )
+        if self.subscription:
+            return
 
-            self.add_task(self._consume_watch())
+        self.bucket = await connection.create_object_store(
+            bucket=self.subject,
+            declare=self.obj_watch.declare,
+        )
+
+        self.add_task(self._consume_watch())
 
     async def _consume_watch(self) -> None:
         assert self.bucket, "You should call `create_subscription` at first."  # nosec B101
