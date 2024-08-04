@@ -6,10 +6,10 @@ from faststream.asyncapi.generate import get_app_schema
 from faststream.confluent import KafkaBroker
 from faststream.security import (
     BaseSecurity,
+    SASLOAuthBearer,
     SASLPlaintext,
     SASLScram256,
     SASLScram512,
-    SASLOAuthBearer,
 )
 
 basic_schema = {
