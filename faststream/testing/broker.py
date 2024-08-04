@@ -126,6 +126,7 @@ class TestBroker(Generic[Broker]):
                 finally:
                     self._fake_close(self.broker)
 
+    @classmethod
     @contextmanager
     def _patch_broker(cls, broker: Broker) -> Generator[None, None, None]:
         with mock.patch.object(
