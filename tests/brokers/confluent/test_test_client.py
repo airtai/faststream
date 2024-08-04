@@ -13,6 +13,7 @@ class TestTestclient(BrokerTestclientTestcase):
     """A class to represent a test Kafka broker."""
 
     test_class = TestKafkaBroker
+    timeout = 10
 
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(apply_types=apply_types)
