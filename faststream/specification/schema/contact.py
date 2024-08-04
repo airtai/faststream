@@ -3,8 +3,7 @@ from typing import (
     Callable,
     Iterable,
     Optional,
-    Type
-
+    Type,
 )
 
 from pydantic import AnyHttpUrl, BaseModel

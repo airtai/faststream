@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 from typing_extensions import TypeAlias, override
 
+from faststream.specification.asyncapi.v2_6_0 import schema as v2_6_0
 from faststream.exceptions import SetupError
 from faststream.redis.publisher.usecase import (
     ChannelPublisher,
@@ -34,13 +35,13 @@ PublisherType: TypeAlias = Union[
 class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
     """A class to represent a Redis publisher."""
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
         payloads = self.get_payloads()
 
         return {
-            self.name: Channel(
+            self.name: v2_6_0.Channel(
                 description=self.description,
-                publish=Operation(
+                publish=v2_6_0.Operation(
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads, "Publisher"),

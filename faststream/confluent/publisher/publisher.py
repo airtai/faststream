@@ -19,6 +19,7 @@ from faststream.confluent.publisher.usecase import (
     LogicPublisher,
 )
 from faststream.exceptions import SetupError
+from faststream.specification.asyncapi.v2_6_0 import schema as v2_6_0
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import ChannelBinding, kafka
 from faststream.specification.schema.channel import Channel
@@ -37,13 +38,13 @@ class SpecificationPublisher(LogicPublisher[MsgType]):
     def get_name(self) -> str:
         return f"{self.topic}:Publisher"
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
         payloads = self.get_payloads()
 
         return {
-            self.name: Channel(
+            self.name: v2_6_0.Channel(
                 description=self.description,
-                publish=Operation(
+                publish=v2_6_0.Operation(
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads, "Publisher"),

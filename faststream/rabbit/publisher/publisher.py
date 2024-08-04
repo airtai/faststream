@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional
 
 from typing_extensions import override
 
+from faststream.specification.asyncapi.v2_6_0 import schema as v2_6_0
 from faststream.rabbit.publisher.usecase import LogicPublisher, PublishKwargs
 from faststream.rabbit.utils import is_routing_exchange
 from faststream.specification.asyncapi.utils import resolve_payloads
@@ -42,13 +43,13 @@ class SpecificationPublisher(LogicPublisher):
 
         return f"{routing}:{getattr(self.exchange, 'name', None) or '_'}:Publisher"
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
         payloads = self.get_payloads()
 
         return {
-            self.name: Channel(
-                description=self.description,
-                publish=Operation(
+            self.name: v2_6_0.Channel(
+                description=self.description,  # type: ignore[attr-defined]
+                publish=v2_6_0.Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
                             cc=self.routing or None,
