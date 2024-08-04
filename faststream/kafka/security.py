@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 from faststream.security import (
+    SASLGSSAPI,
     BaseSecurity,
     SASLPlaintext,
     SASLScram256,
@@ -20,6 +21,8 @@ def parse_security(security: Optional[BaseSecurity]) -> "AnyDict":
         return _parse_sasl_scram256(security)
     elif isinstance(security, SASLScram512):
         return _parse_sasl_scram512(security)
+    elif isinstance(security, SASLGSSAPI):
+        return _parse_sasl_gssapi(security)
     elif isinstance(security, BaseSecurity):
         return _parse_base_security(security)
     else:
@@ -60,4 +63,12 @@ def _parse_sasl_scram512(security: SASLScram512) -> "AnyDict":
         "sasl_mechanism": "SCRAM-SHA-512",
         "sasl_plain_username": security.username,
         "sasl_plain_password": security.password,
+    }
+
+
+def _parse_sasl_gssapi(security: SASLGSSAPI) -> "AnyDict":
+    return {
+        "security_protocol": "SASL_SSL" if security.use_ssl else "SASL_PLAINTEXT",
+        "ssl_context": security.ssl_context,
+        "sasl_mechanism": "GSSAPI",
     }

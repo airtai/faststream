@@ -3,7 +3,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from faststream.rabbit import RabbitBroker, ReplyConfig
+from faststream import Context
+from faststream.rabbit import RabbitBroker, RabbitResponse, ReplyConfig
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
@@ -30,9 +31,11 @@ class TestPublish(BrokerPublishTestcase):
             event.set()
             mock(m)
 
-        @pub_broker.subscriber(queue, reply_config=ReplyConfig(persist=True))
-        async def handler(m):
-            return m
+        with pytest.warns(DeprecationWarning):
+
+            @pub_broker.subscriber(queue, reply_config=ReplyConfig(persist=True))
+            async def handler(m):
+                return m
 
         async with self.patch_broker(pub_broker) as br:
             with patch.object(
@@ -57,3 +60,47 @@ class TestPublish(BrokerPublishTestcase):
 
         assert event.is_set()
         mock.assert_called_with("Hello!")
+
+    @pytest.mark.asyncio()
+    async def test_response(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        mock: Mock,
+    ):
+        pub_broker = self.get_broker(apply_types=True)
+
+        @pub_broker.subscriber(queue)
+        @pub_broker.publisher(queue + "1")
+        async def handle():
+            return RabbitResponse(
+                1,
+                persist=True,
+            )
+
+        @pub_broker.subscriber(queue + "1")
+        async def handle_next(msg=Context("message")):
+            mock(body=msg.body)
+            event.set()
+
+        async with self.patch_broker(pub_broker) as br:
+            with patch.object(
+                AioPikaFastProducer,
+                "publish",
+                spy_decorator(AioPikaFastProducer.publish),
+            ) as m:
+                await br.start()
+
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(br.publish("", queue)),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=3,
+                )
+
+                assert event.is_set()
+
+                assert m.mock.call_args.kwargs.get("persist")
+
+        mock.assert_called_once_with(body=b"1")

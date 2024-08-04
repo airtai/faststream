@@ -151,6 +151,7 @@ class ChannelPublisher(LogicPublisher):
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
+        **kwargs: Any,  # option to suppress maxlen
     ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -277,6 +278,7 @@ class ListPublisher(LogicPublisher):
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
+        **kwargs: Any,  # option to suppress maxlen
     ) -> Any:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -335,6 +337,7 @@ class ListBatchPublisher(ListPublisher):
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
+        **kwargs: Any,  # option to suppress maxlen
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 

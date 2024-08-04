@@ -98,3 +98,24 @@ async def test_plaintext():
             assert call_kwargs.items() <= producer_call_kwargs.items()
 
             assert type(producer_call_kwargs["ssl_context"]) is ssl.SSLContext
+
+
+@pytest.mark.kafka()
+@pytest.mark.asyncio()
+async def test_gssapi():
+    from docs.docs_src.kafka.security.sasl_gssapi import (
+        broker as gssapi_broker,
+    )
+
+    with patch_aio_consumer_and_producer() as producer:
+        async with gssapi_broker:
+            producer_call_kwargs = producer.call_args.kwargs
+
+            call_kwargs = {
+                "sasl_mechanism": "GSSAPI",
+                "security_protocol": "SASL_SSL",
+            }
+
+            assert call_kwargs.items() <= producer_call_kwargs.items()
+
+            assert type(producer_call_kwargs["ssl_context"]) is ssl.SSLContext
