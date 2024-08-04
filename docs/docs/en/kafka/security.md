@@ -51,3 +51,13 @@ This chapter discusses the security options available in **FastStream** and how 
     ```python linenums="1"
     {!> docs_src/kafka/security/sasl_scram512.py [ln:1-10.25,11-] !}
     ```
+
+### 4. SASLGSSAPI Object with SSL/TLS
+
+**Purpose:** The `SASLGSSAPI` object is used for authentication using Kerberos.
+
+**Usage:**
+
+```python linenums="1"
+{!> docs_src/kafka/security/sasl_gssapi.py [ln:1-10.25,11-] !}
+```

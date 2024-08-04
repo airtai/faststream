@@ -1,37 +1,21 @@
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 if TYPE_CHECKING:
-    from faststream.types import AnyDict, SendableMessage
+    from faststream.types import AnyDict
 
 
 class Response:
-    def __new__(
-        cls,
-        body: Union[
-            "SendableMessage",
-            "Response",
-        ],
-        **kwargs: Any,
-    ) -> "Response":
-        """Create a new instance of the class."""
-        if isinstance(body, cls):
-            return body
-
-        else:
-            return super().__new__(cls)
-
     def __init__(
         self,
-        body: "SendableMessage",
+        body: "Any",
         *,
         headers: Optional["AnyDict"] = None,
         correlation_id: Optional[str] = None,
     ) -> None:
         """Initialize a handler."""
-        if not isinstance(body, Response):
-            self.body = body
-            self.headers = headers or {}
-            self.correlation_id = correlation_id
+        self.body = body
+        self.headers = headers or {}
+        self.correlation_id = correlation_id
 
     def add_headers(
         self,
@@ -50,3 +34,10 @@ class Response:
             "correlation_id": self.correlation_id,
         }
         return publish_options
+
+
+def ensure_response(response: Union["Response", "Any"]) -> "Response":
+    if isinstance(response, Response):
+        return response
+
+    return Response(response)

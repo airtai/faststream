@@ -159,18 +159,10 @@ class SASLOAuthBearer(BaseSecurity):
     This class defines basic security configuration for SASL/OAUTHBEARER authentication.
     """
 
-    # TODO: mv to SecretStr
-    __slots__ = ("use_ssl", "ssl_context")
-
-    def __init__(
-        self,
-        ssl_context: Optional["SSLContext"] = None,
-        use_ssl: Optional[bool] = None,
-    ) -> None:
-        super().__init__(
-            ssl_context=ssl_context,
-            use_ssl=use_ssl,
-        )
+    __slots__ = (
+        "use_ssl",
+        "ssl_context"
+    )
 
     def get_requirement(self) -> List["AnyDict"]:
         """Get the security requirements for SASL/OAUTHBEARER authentication."""
@@ -179,3 +171,23 @@ class SASLOAuthBearer(BaseSecurity):
     def get_schema(self) -> Dict[str, Dict[str, str]]:
         """Get the security schema for SASL/OAUTHBEARER authentication."""
         return {"oauthbearer": {"type": "oauthBearer"}}
+
+
+class SASLGSSAPI(BaseSecurity):
+    """Security configuration for SASL/GSSAPI authentication.
+
+    This class defines security configuration for SASL/GSSAPI authentication.
+    """
+
+    __slots__ = (
+        "use_ssl",
+        "ssl_context"
+    )
+
+    def get_requirement(self) -> List["AnyDict"]:
+        """Get the security requirements for SASL/GSSAPI authentication."""
+        return [{"gssapi": []}]
+
+    def get_schema(self) -> Dict[str, Dict[str, str]]:
+        """Get the security schema for SASL/GSSAPI authentication."""
+        return {"gssapi": {"type": "gssapi"}}

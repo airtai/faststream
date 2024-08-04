@@ -20,7 +20,7 @@ from typing_extensions import Self, override
 from faststream.asyncapi.abc import AsyncAPIOperation
 from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.utils import to_camelcase
-from faststream.broker.response import Response
+from faststream.broker.response import ensure_response
 from faststream.broker.subscriber.call_item import HandlerItem
 from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.types import (
@@ -351,7 +351,7 @@ class SubscriberUsecase(
                     for m in middlewares:
                         stack.push_async_exit(m.__aexit__)
 
-                    result_msg = Response(
+                    result_msg = ensure_response(
                         await h.call(
                             message=message,
                             # consumer middlewares

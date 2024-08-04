@@ -61,6 +61,11 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         reply_config: Annotated[
             Optional["ReplyConfig"],
             Doc("Extra options to use at replies publishing."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.16**. "
+                "Please, use `RabbitResponse` object as a handler return instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = None,
         # broker arguments
         dependencies: Annotated[
