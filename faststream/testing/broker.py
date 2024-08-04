@@ -129,15 +129,34 @@ class TestBroker(Generic[Broker]):
     @classmethod
     @contextmanager
     def _patch_broker(cls, broker: Broker) -> Generator[None, None, None]:
-        with mock.patch.object(
-            broker, "start", wraps=partial(cls._fake_start, broker)
-        ), mock.patch.object(
-            broker, "_connect", wraps=partial(cls._fake_connect, broker)
-        ), mock.patch.object(
-            broker,
-            "close",
-        ), mock.patch.object(broker, "_connection", new=None), mock.patch.object(
-            broker, "_producer", new=None
+        with (
+            mock.patch.object(
+                broker,
+                "start",
+                wraps=partial(cls._fake_start, broker),
+            ),
+            mock.patch.object(
+                broker,
+                "_connect",
+                wraps=partial(
+                    cls._fake_connect,
+                    broker,
+                ),
+            ),
+            mock.patch.object(
+                broker,
+                "close",
+            ),
+            mock.patch.object(
+                broker,
+                "_connection",
+                new=None,
+            ),
+            mock.patch.object(
+                broker,
+                "_producer",
+                new=None,
+            ),
         ):
             yield
 
