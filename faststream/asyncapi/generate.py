@@ -4,17 +4,12 @@ from urllib.parse import urlparse
 from faststream._compat import DEF_KEY, HAS_FASTAPI
 from faststream.asyncapi.schema import (
     BaseSchema,
-    Channel,
-    Components,
     Message,
     Reference,
-    SchemaV2_6,
     Server,
+    v2_6_0,
+    v3_0_0,
 )
-from faststream.asyncapi.schema.info import (
-    InfoV2_6,
-)
-from faststream.asyncapi.schema import v3_0_0
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.constants import ContentTypes
 
@@ -83,7 +78,7 @@ def _get_app_schema_3_0(app: Union["FastStream", "StreamRouter[Any]"]) -> v3_0_0
         servers=servers,
         channels=channels,
         operations=operations,
-        components=Components(
+        components=v3_0_0.Components(
             messages=messages,
             schemas=payloads,
             securitySchemes=None
@@ -94,7 +89,7 @@ def _get_app_schema_3_0(app: Union["FastStream", "StreamRouter[Any]"]) -> v3_0_0
     return schema
 
 
-def _get_app_schema_2_6(app: Union["FastStream", "StreamRouter[Any]"]) -> SchemaV2_6:
+def _get_app_schema_2_6(app: Union["FastStream", "StreamRouter[Any]"]) -> v2_6_0.Schema:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
@@ -131,8 +126,8 @@ def _get_app_schema_2_6(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema
                     messages,
                 )
 
-    schema = SchemaV2_6(
-        info=InfoV2_6(
+    schema = v2_6_0.Schema(
+        info=v2_6_0.Info(
             title=app.title,
             version=app.version,
             description=app.description,
@@ -146,7 +141,7 @@ def _get_app_schema_2_6(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema
         externalDocs=app.external_docs,
         servers=servers,
         channels=channels,
-        components=Components(
+        components=v2_6_0.Components(
             messages=messages,
             schemas=payloads,
             securitySchemes=None
@@ -204,7 +199,7 @@ def get_broker_server_3_0(
         for i, broker_url in enumerate(broker.url, 1):
             if "://" not in broker_url:
                 broker_url = "//" + broker_url
-                
+
             parsed_url = urlparse(broker_url)
             servers[f"Server{i}"] = v3_0_0.Server(
                 host=parsed_url.netloc,
@@ -390,7 +385,7 @@ def get_broker_channels_3_0(
 
 def get_broker_channels_2_6(
         broker: "BrokerUsecase[MsgType, ConnectionType]",
-) -> Dict[str, Channel]:
+) -> Dict[str, v2_6_0.Channel]:
     """Get the broker channels for an application."""
     channels = {}
 
@@ -410,6 +405,8 @@ def _resolve_msg_payloads_3_0(
         payloads: Dict[str, Any],
         messages: Dict[str, Any],
 ) -> Reference:
+    assert isinstance(m.payload, dict)
+
     m.payload = _move_pydantic_refs(m.payload, DEF_KEY)
     if DEF_KEY in m.payload:
         payloads.update(m.payload.pop(DEF_KEY))
@@ -417,7 +414,7 @@ def _resolve_msg_payloads_3_0(
     one_of = m.payload.get("oneOf", None)
     if isinstance(one_of, dict):
         one_of_list = []
-        p = {}
+        p: Dict[str, Dict[str, Any]] = {}
         for name, payload in one_of.items():
             payloads.update(p.pop(DEF_KEY, {}))
             p[name] = payload
@@ -425,13 +422,16 @@ def _resolve_msg_payloads_3_0(
 
         payloads.update(p)
         m.payload["oneOf"] = one_of_list
+        assert m.title
         messages[m.title] = m
+        return Reference(**{"$ref": f"#/components/messages/{channel_name}:{message_name}"})
 
     else:
         payloads.update(m.payload.pop(DEF_KEY, {}))
         payload_name = m.payload.get("title", f"{channel_name}:{message_name}:Payload")
         payloads[payload_name] = m.payload
-        m.payload = Reference(**{"$ref": f"#/components/schemas/{payload_name}"})
+        m.payload = {"$ref": f"#/components/schemas/{payload_name}"}
+        assert m.title
         messages[m.title] = m
         return Reference(**{"$ref": f"#/components/messages/{channel_name}:{message_name}"})
 
