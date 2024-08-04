@@ -110,6 +110,83 @@ search:
     - [Security Configuration](redis/security.md)
 - [Reference - Code API](api/index.md)
     - Public API
+        - faststream
+            - [BaseMiddleware](public_api/faststream/BaseMiddleware.md)
+            - [Context](public_api/faststream/Context.md)
+            - [Depends](public_api/faststream/Depends.md)
+            - [FastStream](public_api/faststream/FastStream.md)
+            - [Header](public_api/faststream/Header.md)
+            - [Path](public_api/faststream/Path.md)
+            - [Response](public_api/faststream/Response.md)
+            - [TestApp](public_api/faststream/TestApp.md)
+            - [apply_types](public_api/faststream/apply_types.md)
+            - asyncapi
+                - [get_app_schema](public_api/faststream/asyncapi/get_app_schema.md)
+                - [get_asyncapi_html](public_api/faststream/asyncapi/get_asyncapi_html.md)
+            - confluent
+                - [KafkaBroker](public_api/faststream/confluent/KafkaBroker.md)
+                - [KafkaPublisher](public_api/faststream/confluent/KafkaPublisher.md)
+                - [KafkaResponse](public_api/faststream/confluent/KafkaResponse.md)
+                - [KafkaRoute](public_api/faststream/confluent/KafkaRoute.md)
+                - [KafkaRouter](public_api/faststream/confluent/KafkaRouter.md)
+                - [TestApp](public_api/faststream/confluent/TestApp.md)
+                - [TestKafkaBroker](public_api/faststream/confluent/TestKafkaBroker.md)
+            - kafka
+                - [KafkaBroker](public_api/faststream/kafka/KafkaBroker.md)
+                - [KafkaPublisher](public_api/faststream/kafka/KafkaPublisher.md)
+                - [KafkaResponse](public_api/faststream/kafka/KafkaResponse.md)
+                - [KafkaRoute](public_api/faststream/kafka/KafkaRoute.md)
+                - [KafkaRouter](public_api/faststream/kafka/KafkaRouter.md)
+                - [TestApp](public_api/faststream/kafka/TestApp.md)
+                - [TestKafkaBroker](public_api/faststream/kafka/TestKafkaBroker.md)
+                - [TopicPartition](public_api/faststream/kafka/TopicPartition.md)
+            - nats
+                - [AckPolicy](public_api/faststream/nats/AckPolicy.md)
+                - [ConsumerConfig](public_api/faststream/nats/ConsumerConfig.md)
+                - [DeliverPolicy](public_api/faststream/nats/DeliverPolicy.md)
+                - [DiscardPolicy](public_api/faststream/nats/DiscardPolicy.md)
+                - [ExternalStream](public_api/faststream/nats/ExternalStream.md)
+                - [JStream](public_api/faststream/nats/JStream.md)
+                - [KvWatch](public_api/faststream/nats/KvWatch.md)
+                - [NatsBroker](public_api/faststream/nats/NatsBroker.md)
+                - [NatsPublisher](public_api/faststream/nats/NatsPublisher.md)
+                - [NatsResponse](public_api/faststream/nats/NatsResponse.md)
+                - [NatsRoute](public_api/faststream/nats/NatsRoute.md)
+                - [NatsRouter](public_api/faststream/nats/NatsRouter.md)
+                - [ObjWatch](public_api/faststream/nats/ObjWatch.md)
+                - [Placement](public_api/faststream/nats/Placement.md)
+                - [PullSub](public_api/faststream/nats/PullSub.md)
+                - [RePublish](public_api/faststream/nats/RePublish.md)
+                - [ReplayPolicy](public_api/faststream/nats/ReplayPolicy.md)
+                - [RetentionPolicy](public_api/faststream/nats/RetentionPolicy.md)
+                - [StorageType](public_api/faststream/nats/StorageType.md)
+                - [StreamConfig](public_api/faststream/nats/StreamConfig.md)
+                - [StreamSource](public_api/faststream/nats/StreamSource.md)
+                - [TestApp](public_api/faststream/nats/TestApp.md)
+                - [TestNatsBroker](public_api/faststream/nats/TestNatsBroker.md)
+            - rabbit
+                - [ExchangeType](public_api/faststream/rabbit/ExchangeType.md)
+                - [RabbitBroker](public_api/faststream/rabbit/RabbitBroker.md)
+                - [RabbitExchange](public_api/faststream/rabbit/RabbitExchange.md)
+                - [RabbitPublisher](public_api/faststream/rabbit/RabbitPublisher.md)
+                - [RabbitQueue](public_api/faststream/rabbit/RabbitQueue.md)
+                - [RabbitResponse](public_api/faststream/rabbit/RabbitResponse.md)
+                - [RabbitRoute](public_api/faststream/rabbit/RabbitRoute.md)
+                - [RabbitRouter](public_api/faststream/rabbit/RabbitRouter.md)
+                - [ReplyConfig](public_api/faststream/rabbit/ReplyConfig.md)
+                - [TestApp](public_api/faststream/rabbit/TestApp.md)
+                - [TestRabbitBroker](public_api/faststream/rabbit/TestRabbitBroker.md)
+            - redis
+                - [ListSub](public_api/faststream/redis/ListSub.md)
+                - [PubSub](public_api/faststream/redis/PubSub.md)
+                - [RedisBroker](public_api/faststream/redis/RedisBroker.md)
+                - [RedisPublisher](public_api/faststream/redis/RedisPublisher.md)
+                - [RedisResponse](public_api/faststream/redis/RedisResponse.md)
+                - [RedisRoute](public_api/faststream/redis/RedisRoute.md)
+                - [RedisRouter](public_api/faststream/redis/RedisRouter.md)
+                - [StreamSub](public_api/faststream/redis/StreamSub.md)
+                - [TestApp](public_api/faststream/redis/TestApp.md)
+                - [TestRedisBroker](public_api/faststream/redis/TestRedisBroker.md)
     - All API
         - faststream
             - [BaseMiddleware](api/faststream/BaseMiddleware.md)
@@ -123,23 +200,6 @@ search:
             - [apply_types](api/faststream/apply_types.md)
             - app
                 - [FastStream](api/faststream/app/FastStream.md)
-            - asgi
-                - [AsgiFastStream](api/faststream/asgi/AsgiFastStream.md)
-                - [AsgiResponse](api/faststream/asgi/AsgiResponse.md)
-                - [get](api/faststream/asgi/get.md)
-                - [make_asyncapi_asgi](api/faststream/asgi/make_asyncapi_asgi.md)
-                - [make_ping_asgi](api/faststream/asgi/make_ping_asgi.md)
-                - app
-                    - [AsgiFastStream](api/faststream/asgi/app/AsgiFastStream.md)
-                - factories
-                    - [make_asyncapi_asgi](api/faststream/asgi/factories/make_asyncapi_asgi.md)
-                    - [make_ping_asgi](api/faststream/asgi/factories/make_ping_asgi.md)
-                - handlers
-                    - [get](api/faststream/asgi/handlers/get.md)
-                - response
-                    - [AsgiResponse](api/faststream/asgi/response/AsgiResponse.md)
-                - websocket
-                    - [WebSocketClose](api/faststream/asgi/websocket/WebSocketClose.md)
             - asyncapi
                 - [get_app_schema](api/faststream/asyncapi/get_app_schema.md)
                 - [get_asyncapi_html](api/faststream/asyncapi/get_asyncapi_html.md)
@@ -154,7 +214,6 @@ search:
                     - [get_response_schema](api/faststream/asyncapi/message/get_response_schema.md)
                     - [parse_handler_params](api/faststream/asyncapi/message/parse_handler_params.md)
                 - proto
-                    - [AsyncAPIApplication](api/faststream/asyncapi/proto/AsyncAPIApplication.md)
                     - [AsyncAPIProto](api/faststream/asyncapi/proto/AsyncAPIProto.md)
                 - schema
                     - [Channel](api/faststream/asyncapi/schema/Channel.md)
@@ -896,6 +955,7 @@ search:
             - security
                 - [BaseSecurity](api/faststream/security/BaseSecurity.md)
                 - [SASLGSSAPI](api/faststream/security/SASLGSSAPI.md)
+                - [SASLOAuthBearer](api/faststream/security/SASLOAuthBearer.md)
                 - [SASLPlaintext](api/faststream/security/SASLPlaintext.md)
                 - [SASLScram256](api/faststream/security/SASLScram256.md)
                 - [SASLScram512](api/faststream/security/SASLScram512.md)
