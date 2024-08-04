@@ -30,7 +30,11 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install -e ".[dev]"
+        shell: bash
+        run: |
+          set -ux
+          python -m pip install uv
+          uv pip install --system ".[dev]"
       - name: Run build docs
         run: bash scripts/build-docs.sh
       - name: Commit
