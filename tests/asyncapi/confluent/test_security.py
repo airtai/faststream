@@ -6,10 +6,10 @@ from faststream.asyncapi.generate import get_app_schema
 from faststream.confluent import KafkaBroker
 from faststream.security import (
     BaseSecurity,
+    SASLOAuthBearer,
     SASLPlaintext,
     SASLScram256,
     SASLScram512,
-    SASLOAuthBearer,
 )
 
 basic_schema = {
@@ -187,7 +187,9 @@ def test_oauthbearer_security_schema():
     schema = get_app_schema(app).to_jsonable()
 
     sasl_oauthbearer_security_schema = deepcopy(basic_schema)
-    sasl_oauthbearer_security_schema["servers"]["development"]["security"] = [{"oauthbearer": []}]
+    sasl_oauthbearer_security_schema["servers"]["development"]["security"] = [
+        {"oauthbearer": []}
+    ]
     sasl_oauthbearer_security_schema["components"]["securitySchemes"] = {
         "oauthbearer": {"type": "oauthBearer"}
     }
