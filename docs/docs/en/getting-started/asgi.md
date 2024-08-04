@@ -8,17 +8,17 @@ search:
   boost: 10
 ---
 
-# ASGI support
+# ASGI Support
 
-Often you need to not just run your application to consume messages, but make it the real part of your services ecosystem: with *Prometheus metrics*, K8S *leviness* and *readiness probes*, *traces* and other observability staff.
+Often you need to not just run your application to consume messages, but make it an actual part of your services ecosystem with *Prometheus metrics*, K8S *liveness* and *readiness probes*, *traces* and other observability features.
 
-Unfortunately, such functional can't be implemented by broker-features only and you have to provide several **HTTP** endpoints in your app.
+Unfortunately, such functionalilty can't be implemented by broker features alone, and you have to provide several **HTTP** endpoints in your app.
 
-For sure, you can use **FastStream** as a part of your any **ASGI** frameworks ([integrations](./integrations/frameworks/index.md){.internal-link}), but the fewer dependencies, the better, right?
+Of course, you can use **FastStream** as a part of any **ASGI** frameworks ([integrations](./integrations/frameworks/index.md){.internal-link}), but fewer the dependencies, the better, right?
 
 ## AsgiFastStream
 
-Helpfully, we have built-in **ASGI** support. It is very limited, but good enough to provides you with basic functional for metrics and healthcheks endpoints implementation.
+Fortunately, we have built-in **ASGI** support. It is very limited but good enough to provide you with basic functionality for metrics and healthcheck endpoint implementation.
 
 Let's take a look at the following example:
 
@@ -30,20 +30,19 @@ broker = NatsBroker()
 app = AsgiFastStream(broker)
 ```
 
-This simple example just provides you with an ability to run the app using regular **ASGI** servers:
+This simple example allows you to run the app using regular **ASGI** servers:
 
 ```shell
 uvicorn main:app
 ```
 
-Now it does nothing but launches the app itself as a **ASGI lifespan**.
+It does nothing but launching the app itself as an **ASGI lifespan**.
 
+### ASGI Routes
 
-### ASGI routes
+It doesn't look very helpful, so let's add some **HTTP** endpoints.
 
-It doesn't look really helpful, so let's add some **HTTP** endpoints.
-
-At first, we have already written wrapper on top of broker to make ready-to-use **ASGI** healthcheck endpoint for you
+First, we have already written a wrapper on top of the broker to make a ready-to-use **ASGI** healthcheck endpoint for you:
 
 ```python linenums="1" hl_lines="2 9"
 from faststream.nats import NatsBroker
@@ -60,13 +59,13 @@ app = AsgiFastStream(
 ```
 
 !!! note
-    This `/health` endpoint calls `#!python broker.ping()` method and return **HTTP 204** or **HTTP 500** statuses.
-  
-### Custom ASGI routes
+    This `/health` endpoint calls the `#!python broker.ping()` method and returns **HTTP 204** or **HTTP 500** statuses.
+
+### Custom ASGI Routes
 
 **AsgiFastStream** is able to call any **ASGI**-compatible callable objects, so you can use any endpoints from other libraries if they are compatible with the protocol.
 
-But, if you need to write you own simple **HTTP**-endpoint you can use our `#!python @get` decorator as in the following example:
+If you want to write your own simple **HTTP**-endpoint, you can use our `#!python @get` decorator as in the following example:
 
 ```python linenums="1" hl_lines="2 6-8 12"
 from faststream.nats import NatsBroker
@@ -84,7 +83,7 @@ app = AsgiFastStream(
 )
 ```
 
-Or you can write **ASGI** endpoint by yourself
+Or you can write the **ASGI** endpoint yourself:
 
 ```python
 async def liveness_ping(scope, receive, send):
@@ -92,14 +91,14 @@ async def liveness_ping(scope, receive, send):
 ```
 
 !!! tip
-    You need no to setup all routes by `asgi_routes=[]` initial option.<br/>
-    You can use `#!python app.mount("/healh", asgi_endpoint)` method instead.
+    You do not need to setup all routes using the `asgi_routes=[]` parameter.<br/>
+    You can use the `#!python app.mount("/healh", asgi_endpoint)` method also.
 
-### AsyncAPI documentation
+### AsyncAPI Documentation
 
-Also, you can host your **AsyncAPI** documentation without new process, run by [`#!shell faststream docs serve ...`](./asyncapi/hosting.md){.internal-link}, but in the same container and runtime.
+You can also host your **AsyncAPI** documentation in the same process, by running [`#!shell faststream docs serve ...`](./asyncapi/hosting.md){.internal-link}, in the same container and runtime.
 
-Just create `AsgiFastStream` object with a special option:
+Just create an `AsgiFastStream` object with a special option:
 
 ```python linenums="1" hl_lines="8"
 from faststream.nats import NatsBroker
@@ -113,13 +112,13 @@ app = AsgiFastStream(
 )
 ```
 
-Now, your **AsyncAPI HTML** representation can be founded in the net by `/docs` url.
+Now, your **AsyncAPI HTML** representation can be found by the `/docs` url.
 
-## Another ASGI compatibility
+## Other ASGI Compatibility
 
-Moreover, our wrappers can be used as a ready-to-use endpoins for other **ASGI** frameworks. It can be very helpful in cases, then you are running **FastStream** in the same runtime with any **ASGI** framework.
+Moreover, our wrappers can be used as ready-to-use endpoins for other **ASGI** frameworks. This can be very helpful When you are running **FastStream** in the same runtime as any other **ASGI** frameworks.
 
-Just follow the example in such cases:
+Just follow the following example in such cases:
 
 ```python linenums="1" hl_lines="6 19-20"
 from contextlib import asynccontextmanager
