@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING, Any, Optional, Union
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Any, Generator, Optional, Union
+from unittest import mock
 from unittest.mock import AsyncMock
 
 import aiormq
@@ -34,10 +36,18 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
     """A class to test RabbitMQ brokers."""
 
     @classmethod
-    def _patch_test_broker(cls, broker: RabbitBroker) -> None:
-        broker._channel = AsyncMock()
-        broker.declarer = AsyncMock()
-        super()._patch_test_broker(broker)
+    @contextmanager
+    def _patch_broker(cls, broker: RabbitBroker) -> Generator[None, None, None]:
+        with mock.patch.object(
+            broker,
+            "_channel",
+            new_callable=AsyncMock,
+        ), mock.patch.object(
+            broker,
+            "declarer",
+            new_callable=AsyncMock,
+        ), super()._patch_broker(broker):
+            yield
 
     @staticmethod
     async def _fake_connect(broker: RabbitBroker, *args: Any, **kwargs: Any) -> None:

@@ -5,6 +5,7 @@ import pytest
 from faststream import BaseMiddleware
 from faststream.exceptions import SetupError
 from faststream.redis import ListSub, RedisBroker, StreamSub, TestRedisBroker
+from faststream.redis.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -17,6 +18,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     def patch_broker(self, broker: RedisBroker) -> TestRedisBroker:
         return TestRedisBroker(broker)
+
+    def get_fake_producer_class(self) -> type:
+        return FakeProducer
 
     async def test_rpc_conflicts_reply(self, queue):
         async with TestRedisBroker(RedisBroker()) as br:
@@ -226,3 +230,17 @@ class TestTestclient(BrokerTestclientTestcase):
         async with self.patch_broker(broker) as br:
             with pytest.raises(ValueError):  # noqa: PT011
                 await br.publish("hello")
+
+    @pytest.mark.redis()
+    async def test_broker_gets_patched_attrs_within_cm(self):
+        await super().test_broker_gets_patched_attrs_within_cm()
+
+    @pytest.mark.redis()
+    async def test_broker_with_real_doesnt_get_patched(self):
+        await super().test_broker_with_real_doesnt_get_patched()
+
+    @pytest.mark.redis()
+    async def test_broker_with_real_patches_subscribers_and_subscribers(
+        self, queue: str
+    ):
+        await super().test_broker_with_real_patches_subscribers_and_subscribers(queue)

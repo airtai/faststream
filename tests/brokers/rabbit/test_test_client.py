@@ -12,7 +12,7 @@ from faststream.rabbit import (
     TestRabbitBroker,
 )
 from faststream.rabbit.annotations import RabbitMessage
-from faststream.rabbit.testing import apply_pattern
+from faststream.rabbit.testing import FakeProducer, apply_pattern
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -25,6 +25,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     def patch_broker(self, broker: RabbitBroker) -> RabbitBroker:
         return TestRabbitBroker(broker)
+
+    def get_fake_producer_class(self) -> type:
+        return FakeProducer
 
     async def test_rpc_conflicts_reply(self, queue):
         broker = self.get_broker()
@@ -292,6 +295,20 @@ class TestTestclient(BrokerTestclientTestcase):
             await h2.wait_call(3)
 
         assert len(routes) == 2
+
+    @pytest.mark.rabbit()
+    async def test_broker_gets_patched_attrs_within_cm(self):
+        await super().test_broker_gets_patched_attrs_within_cm()
+
+    @pytest.mark.rabbit()
+    async def test_broker_with_real_doesnt_get_patched(self):
+        await super().test_broker_with_real_doesnt_get_patched()
+
+    @pytest.mark.rabbit()
+    async def test_broker_with_real_patches_subscribers_and_subscribers(
+        self, queue: str
+    ):
+        await super().test_broker_with_real_patches_subscribers_and_subscribers(queue)
 
 
 @pytest.mark.parametrize(
