@@ -5,6 +5,7 @@ import pytest
 from faststream import BaseMiddleware
 from faststream.exceptions import SetupError
 from faststream.nats import ConsumerConfig, JStream, NatsBroker, PullSub, TestNatsBroker
+from faststream.nats.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -17,6 +18,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     def patch_broker(self, broker: NatsBroker) -> TestNatsBroker:
         return TestNatsBroker(broker)
+
+    def get_fake_producer_class(self) -> type:
+        return FakeProducer
 
     @pytest.mark.asyncio()
     async def test_stream_publish(
@@ -251,3 +255,17 @@ class TestTestclient(BrokerTestclientTestcase):
             await br.publish(1, f"{queue}.b")
             await br.publish(2, f"{queue}.a")
             subscriber.mock.assert_called_once_with(2)
+
+    @pytest.mark.nats()
+    async def test_broker_gets_patched_attrs_within_cm(self):
+        await super().test_broker_gets_patched_attrs_within_cm()
+
+    @pytest.mark.nats()
+    async def test_broker_with_real_doesnt_get_patched(self):
+        await super().test_broker_with_real_doesnt_get_patched()
+
+    @pytest.mark.nats()
+    async def test_broker_with_real_patches_subscribers_and_subscribers(
+        self, queue: str
+    ):
+        await super().test_broker_with_real_patches_subscribers_and_subscribers(queue)

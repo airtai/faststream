@@ -1,19 +1,20 @@
 import warnings
 from abc import abstractmethod
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, contextmanager
 from functools import partial
-from types import MethodType
 from typing import (
     TYPE_CHECKING,
     Any,
     AsyncGenerator,
+    Generator,
     Generic,
     Optional,
     Tuple,
     Type,
     TypeVar,
 )
-from unittest.mock import AsyncMock, MagicMock
+from unittest import mock
+from unittest.mock import MagicMock
 
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.message import StreamMessage, decode_message, encode_message
@@ -21,14 +22,13 @@ from faststream.broker.middlewares.logging import CriticalLogMiddleware
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.testing.app import TestApp
 from faststream.utils.ast import is_contains_context_name
-from faststream.utils.functions import timeout_scope
+from faststream.utils.functions import sync_fake_context, timeout_scope
 
 if TYPE_CHECKING:
     from types import TracebackType
 
     from faststream.broker.subscriber.proto import SubscriberProto
     from faststream.broker.types import BrokerMiddleware
-
 
 Broker = TypeVar("Broker", bound=BrokerUsecase[Any, Any])
 
@@ -113,23 +113,46 @@ class TestBroker(Generic[Broker]):
     async def _create_ctx(self) -> AsyncGenerator[Broker, None]:
         if self.with_real:
             self._fake_start(self.broker)
+            context = sync_fake_context()
         else:
-            self._patch_test_broker(self.broker)
+            context = self._patch_broker(self.broker)
 
-        async with self.broker:
-            try:
-                if not self.connect_only:
-                    await self.broker.start()
-                yield self.broker
-            finally:
-                self._fake_close(self.broker)
+        with context:
+            async with self.broker:
+                try:
+                    if not self.connect_only:
+                        await self.broker.start()
+                    yield self.broker
+                finally:
+                    self._fake_close(self.broker)
 
-    @classmethod
-    def _patch_test_broker(cls, broker: Broker) -> None:
-        broker.start = AsyncMock(wraps=partial(cls._fake_start, broker))  # type: ignore[method-assign]
-        broker._connect = MethodType(cls._fake_connect, broker)  # type: ignore[method-assign]
-        broker.close = AsyncMock()  # type: ignore[method-assign]
-        broker.ping = AsyncMock(return_value=True)  # type: ignore[method-assign]
+    @contextmanager
+    def _patch_broker(cls, broker: Broker) -> Generator[None, None, None]:
+        with mock.patch.object(
+            broker,
+            "start",
+            wraps=partial(cls._fake_start, broker),
+        ), mock.patch.object(
+            broker,
+            "_connect",
+            wraps=partial(cls._fake_connect, broker),
+        ), mock.patch.object(
+            broker,
+            "close",
+        ), mock.patch.object(
+            broker,
+            "_connection",
+            new=None,
+        ), mock.patch.object(
+            broker,
+            "_producer",
+            new=None,
+        ), mock.patch.object(
+            broker,
+            "ping",
+            return_value=True,
+        ):
+            yield
 
     @classmethod
     def _fake_start(cls, broker: Broker, *args: Any, **kwargs: Any) -> None:

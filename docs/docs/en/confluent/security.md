@@ -52,19 +52,31 @@ This chapter discusses the security options available in **FastStream** and how 
     {!> docs_src/confluent/security/sasl_scram512.py [ln:1-6.25,7-] !}
     ```
 
-### 4. Other security related usecases
+### 4. SASLOAuthBearer Object with SSL/TLS
+
+**Purpose:** The `SASLOAuthBearer` is used for authentication using the Oauth sasl.mechanism. While using it you additionaly need to provide necessary `sasl.oauthbearer.*` values in config and provide it to `KafkaBroker`, eg. `sasl.oauthbearer.client.id`, `sasl.oauthbearer.client.secret`. Full list is available in the [confluent doc](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md){.external-link target="_blank"}
+
+**Usage:**
+
+=== "OauthBearer"
+    ```python linenums="1"
+    {!> docs_src/confluent/security/sasl_oauthbearer.py [ln:1-8] !}
+    ```
+
+
+### 5. Other security related usecases
 
 **Purpose**: If you want to pass additional values to `confluent-kafka-python`, you can pass a dictionary called `config` to `KafkaBroker`. For example, to pass your own certificate file:
 
 **Usage:**
 
-```python
+```python linenums="1"
 from faststream.confluent import KafkaBroker
 from faststream.security import SASLPlaintext
 
 security = SASLPlaintext(
     username="admin",
-    password="password", # pragma: allowlist secret
+    password="password",
 )
 
 config = {"ssl.ca.location": "~/my_certs/CRT_cacerts.pem"}

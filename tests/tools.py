@@ -1,4 +1,5 @@
 import inspect
+from functools import wraps
 from typing import Any, Iterable
 from unittest.mock import MagicMock
 
@@ -8,11 +9,13 @@ def spy_decorator(method):
 
     if inspect.iscoroutinefunction(method):
 
+        @wraps(method)
         async def wrapper(*args, **kwargs):
             mock(*args, **kwargs)
             return await method(*args, **kwargs)
     else:
 
+        @wraps(method)
         def wrapper(*args, **kwargs):
             mock(*args, **kwargs)
             return method(*args, **kwargs)

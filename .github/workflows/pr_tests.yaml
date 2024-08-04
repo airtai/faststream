@@ -31,7 +31,7 @@ jobs:
         run: |
           set -ux
           python -m pip install uv
-          uv pip install --system -e ".[lint]"
+          uv pip install --system ".[lint]"
 
       - name: Run ruff
         shell: bash

@@ -53,5 +53,5 @@ class BrokerConnectionTestcase:
         kwargs = self.get_broker_args(settings)
         broker = self.broker("wrong_url")
         await broker.connect(**kwargs)
-        assert not await broker.ping(timeout=0.00001)
+        assert not await broker.ping(timeout=1e-24)
         await broker.close()

@@ -426,6 +426,9 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         connection: "Client",
     ) -> None:
         """Create NATS subscription and start consume task."""
+        if self.subscription:
+            return
+
         self.subscription = await connection.subscribe(
             subject=self.clear_subject,
             queue=self.queue,
@@ -495,6 +498,9 @@ class ConcurrentCoreSubscriber(_ConcurrentMixin, CoreSubscriber):
         connection: "Client",
     ) -> None:
         """Create NATS subscription and start consume task."""
+        if self.subscription:
+            return
+
         self.start_consume_task()
 
         self.subscription = await connection.subscribe(
@@ -576,6 +582,9 @@ class PushStreamSubscription(_StreamSubscriber):
         connection: "JetStreamContext",
     ) -> None:
         """Create NATS subscription and start consume task."""
+        if self.subscription:
+            return
+
         self.subscription = await connection.subscribe(
             subject=self.clear_subject,
             queue=self.queue,
@@ -636,6 +645,9 @@ class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
         connection: "JetStreamContext",
     ) -> None:
         """Create NATS subscription and start consume task."""
+        if self.subscription:
+            return
+
         self.start_consume_task()
 
         self.subscription = await connection.subscribe(
@@ -698,6 +710,9 @@ class PullStreamSubscriber(_TasksMixin, _StreamSubscriber):
         connection: "JetStreamContext",
     ) -> None:
         """Create NATS subscription and start consume task."""
+        if self.subscription:
+            return
+
         self.subscription = await connection.pull_subscribe(
             subject=self.clear_subject,
             config=self.config,
@@ -775,6 +790,9 @@ class ConcurrentPullStreamSubscriber(_ConcurrentMixin, PullStreamSubscriber):
         connection: "JetStreamContext",
     ) -> None:
         """Create NATS subscription and start consume task."""
+        if self.subscription:
+            return
+
         self.start_consume_task()
 
         self.subscription = await connection.pull_subscribe(
@@ -841,6 +859,9 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
         connection: "JetStreamContext",
     ) -> None:
         """Create NATS subscription and start consume task."""
+        if self.subscription:
+            return
+
         self.subscription = await connection.pull_subscribe(
             subject=self.clear_subject,
             config=self.config,
@@ -905,6 +926,9 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
         *,
         connection: "KVBucketDeclarer",
     ) -> None:
+        if self.subscription:
+            return
+
         bucket = await connection.create_key_value(
             bucket=self.kv_watch.name,
             declare=self.kv_watch.declare,
@@ -1012,6 +1036,9 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
         *,
         connection: "OSBucketDeclarer",
     ) -> None:
+        if self.subscription:
+            return
+
         self.bucket = await connection.create_object_store(
             bucket=self.subject,
             declare=self.obj_watch.declare,

@@ -4,6 +4,7 @@ import pytest
 
 from faststream import BaseMiddleware
 from faststream.confluent import KafkaBroker, TestKafkaBroker
+from faststream.confluent.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -18,6 +19,9 @@ class TestTestclient(BrokerTestclientTestcase):
 
     def patch_broker(self, broker: KafkaBroker) -> TestKafkaBroker:
         return TestKafkaBroker(broker)
+
+    def get_fake_producer_class(self) -> type:
+        return FakeProducer
 
     @pytest.mark.confluent()
     async def test_with_real_testclient(
@@ -202,3 +206,17 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert subscriber1.mock.call_count == 1
         assert subscriber2.mock.call_count == 0
+
+    @pytest.mark.confluent()
+    async def test_broker_gets_patched_attrs_within_cm(self):
+        await super().test_broker_gets_patched_attrs_within_cm()
+
+    @pytest.mark.confluent()
+    async def test_broker_with_real_doesnt_get_patched(self):
+        await super().test_broker_with_real_doesnt_get_patched()
+
+    @pytest.mark.confluent()
+    async def test_broker_with_real_patches_subscribers_and_subscribers(
+        self, queue: str
+    ):
+        await super().test_broker_with_real_patches_subscribers_and_subscribers(queue)
