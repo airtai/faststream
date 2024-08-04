@@ -99,6 +99,5 @@ class AioKafkaBatchParser(AioKafkaParser):
         """Decode a batch of messages."""
         super_obj = super()  # should be here due python can't find it in comprehension
         return [
-            decode_message(await super_obj.parse_message(m))
-            for m in msg.raw_message
+            decode_message(await super_obj.parse_message(m)) for m in msg.raw_message
         ]
