@@ -150,7 +150,7 @@
 <a id=__codelineno-0-156 name=__codelineno-0-156></a>    <span class=p>}</span>
 <a id=__codelineno-0-157 name=__codelineno-0-157></a>    <span class=bp>self</span><span class=o>.</span><span class=n>config</span> <span class=o>=</span> <span class=p>{</span><span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=p>,</span> <span class=o>**</span><span class=n>config_from_params</span><span class=p>}</span>
 <a id=__codelineno-0-158 name=__codelineno-0-158></a>
-<a id=__codelineno-0-159 name=__codelineno-0-159></a>    <span class=k>if</span> <span class=n>sasl_mechanism</span><span class=p>:</span>
+<a id=__codelineno-0-159 name=__codelineno-0-159></a>    <span class=k>if</span> <span class=n>sasl_mechanism</span> <span class=ow>in</span> <span class=p>[</span><span class=s2>&quot;PLAIN&quot;</span><span class=p>,</span> <span class=s2>&quot;SCRAM-SHA-256&quot;</span><span class=p>,</span> <span class=s2>&quot;SCRAM-SHA-512&quot;</span><span class=p>]:</span>
 <a id=__codelineno-0-160 name=__codelineno-0-160></a>        <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>update</span><span class=p>(</span>
 <a id=__codelineno-0-161 name=__codelineno-0-161></a>            <span class=p>{</span>
 <a id=__codelineno-0-162 name=__codelineno-0-162></a>                <span class=s2>&quot;sasl.mechanism&quot;</span><span class=p>:</span> <span class=n>sasl_mechanism</span><span class=p>,</span>
