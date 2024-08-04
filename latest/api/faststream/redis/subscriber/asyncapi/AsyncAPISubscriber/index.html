@@ -201,30 +201,40 @@
 <span class=normal><a href=#__codelineno-0-157>157</a></span>
 <span class=normal><a href=#__codelineno-0-158>158</a></span>
 <span class=normal><a href=#__codelineno-0-159>159</a></span>
-<span class=normal><a href=#__codelineno-0-160>160</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-149 name=__codelineno-0-149></a><span class=nd>@override</span>
+<span class=normal><a href=#__codelineno-0-160>160</a></span>
+<span class=normal><a href=#__codelineno-0-161>161</a></span>
+<span class=normal><a href=#__codelineno-0-162>162</a></span>
+<span class=normal><a href=#__codelineno-0-163>163</a></span>
+<span class=normal><a href=#__codelineno-0-164>164</a></span>
+<span class=normal><a href=#__codelineno-0-165>165</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-149 name=__codelineno-0-149></a><span class=nd>@override</span>
 <a id=__codelineno-0-150 name=__codelineno-0-150></a><span class=k>async</span> <span class=k>def</span> <span class=nf>start</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-151 name=__codelineno-0-151></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-152 name=__codelineno-0-152></a>    <span class=o>*</span><span class=n>args</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
 <a id=__codelineno-0-153 name=__codelineno-0-153></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-154 name=__codelineno-0-154></a>    <span class=k>await</span> <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
-<a id=__codelineno-0-155 name=__codelineno-0-155></a>
-<a id=__codelineno-0-156 name=__codelineno-0-156></a>    <span class=n>start_signal</span> <span class=o>=</span> <span class=n>anyio</span><span class=o>.</span><span class=n>Event</span><span class=p>()</span>
-<a id=__codelineno-0-157 name=__codelineno-0-157></a>    <span class=bp>self</span><span class=o>.</span><span class=n>task</span> <span class=o>=</span> <span class=n>asyncio</span><span class=o>.</span><span class=n>create_task</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_consume</span><span class=p>(</span><span class=o>*</span><span class=n>args</span><span class=p>,</span> <span class=n>start_signal</span><span class=o>=</span><span class=n>start_signal</span><span class=p>))</span>
+<a id=__codelineno-0-154 name=__codelineno-0-154></a>    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>task</span><span class=p>:</span>
+<a id=__codelineno-0-155 name=__codelineno-0-155></a>        <span class=k>return</span>
+<a id=__codelineno-0-156 name=__codelineno-0-156></a>
+<a id=__codelineno-0-157 name=__codelineno-0-157></a>    <span class=k>await</span> <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
 <a id=__codelineno-0-158 name=__codelineno-0-158></a>
-<a id=__codelineno-0-159 name=__codelineno-0-159></a>    <span class=k>with</span> <span class=n>anyio</span><span class=o>.</span><span class=n>fail_after</span><span class=p>(</span><span class=mf>3.0</span><span class=p>):</span>
-<a id=__codelineno-0-160 name=__codelineno-0-160></a>        <span class=k>await</span> <span class=n>start_signal</span><span class=o>.</span><span class=n>wait</span><span class=p>()</span>
+<a id=__codelineno-0-159 name=__codelineno-0-159></a>    <span class=n>start_signal</span> <span class=o>=</span> <span class=n>anyio</span><span class=o>.</span><span class=n>Event</span><span class=p>()</span>
+<a id=__codelineno-0-160 name=__codelineno-0-160></a>    <span class=bp>self</span><span class=o>.</span><span class=n>task</span> <span class=o>=</span> <span class=n>asyncio</span><span class=o>.</span><span class=n>create_task</span><span class=p>(</span>
+<a id=__codelineno-0-161 name=__codelineno-0-161></a>        <span class=bp>self</span><span class=o>.</span><span class=n>_consume</span><span class=p>(</span><span class=o>*</span><span class=n>args</span><span class=p>,</span> <span class=n>start_signal</span><span class=o>=</span><span class=n>start_signal</span><span class=p>)</span>
+<a id=__codelineno-0-162 name=__codelineno-0-162></a>    <span class=p>)</span>
+<a id=__codelineno-0-163 name=__codelineno-0-163></a>
+<a id=__codelineno-0-164 name=__codelineno-0-164></a>    <span class=k>with</span> <span class=n>anyio</span><span class=o>.</span><span class=n>fail_after</span><span class=p>(</span><span class=mf>3.0</span><span class=p>):</span>
+<a id=__codelineno-0-165 name=__codelineno-0-165></a>        <span class=k>await</span> <span class=n>start_signal</span><span class=o>.</span><span class=n>wait</span><span class=p>()</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.redis.subscriber.asyncapi.AsyncAPISubscriber.close class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">close</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.redis.subscriber.asyncapi.AsyncAPISubscriber.close class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>close</span><span class=p>()</span>
-</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/redis/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-187>187</a></span>
-<span class=normal><a href=#__codelineno-0-188>188</a></span>
-<span class=normal><a href=#__codelineno-0-189>189</a></span>
-<span class=normal><a href=#__codelineno-0-190>190</a></span>
-<span class=normal><a href=#__codelineno-0-191>191</a></span>
-<span class=normal><a href=#__codelineno-0-192>192</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-187 name=__codelineno-0-187></a><span class=k>async</span> <span class=k>def</span> <span class=nf>close</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-188 name=__codelineno-0-188></a>    <span class=k>await</span> <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
-<a id=__codelineno-0-189 name=__codelineno-0-189></a>
-<a id=__codelineno-0-190 name=__codelineno-0-190></a>    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>task</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span> <span class=ow>and</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>task</span><span class=o>.</span><span class=n>done</span><span class=p>():</span>
-<a id=__codelineno-0-191 name=__codelineno-0-191></a>        <span class=bp>self</span><span class=o>.</span><span class=n>task</span><span class=o>.</span><span class=n>cancel</span><span class=p>()</span>
-<a id=__codelineno-0-192 name=__codelineno-0-192></a>    <span class=bp>self</span><span class=o>.</span><span class=n>task</span> <span class=o>=</span> <span class=kc>None</span>
+</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/redis/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-192>192</a></span>
+<span class=normal><a href=#__codelineno-0-193>193</a></span>
+<span class=normal><a href=#__codelineno-0-194>194</a></span>
+<span class=normal><a href=#__codelineno-0-195>195</a></span>
+<span class=normal><a href=#__codelineno-0-196>196</a></span>
+<span class=normal><a href=#__codelineno-0-197>197</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-192 name=__codelineno-0-192></a><span class=k>async</span> <span class=k>def</span> <span class=nf>close</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-193 name=__codelineno-0-193></a>    <span class=k>await</span> <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+<a id=__codelineno-0-194 name=__codelineno-0-194></a>
+<a id=__codelineno-0-195 name=__codelineno-0-195></a>    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>task</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span> <span class=ow>and</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>task</span><span class=o>.</span><span class=n>done</span><span class=p>():</span>
+<a id=__codelineno-0-196 name=__codelineno-0-196></a>        <span class=bp>self</span><span class=o>.</span><span class=n>task</span><span class=o>.</span><span class=n>cancel</span><span class=p>()</span>
+<a id=__codelineno-0-197 name=__codelineno-0-197></a>    <span class=bp>self</span><span class=o>.</span><span class=n>task</span> <span class=o>=</span> <span class=kc>None</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.redis.subscriber.asyncapi.AsyncAPISubscriber.consume class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">consume</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.redis.subscriber.asyncapi.AsyncAPISubscriber.consume class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>consume</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <p>Consume a message asynchronously.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-293>293</a></span>
 <span class=normal><a href=#__codelineno-0-294>294</a></span>
@@ -516,23 +526,23 @@
 <a id=__codelineno-0-447 name=__codelineno-0-447></a>
 <a id=__codelineno-0-448 name=__codelineno-0-448></a>    <span class=k>return</span> <span class=n>payloads</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.redis.subscriber.asyncapi.AsyncAPISubscriber.build_log_context class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">build_log_context</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small> </span> <a href=#faststream.redis.subscriber.asyncapi.AsyncAPISubscriber.build_log_context class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>build_log_context</span><span class=p>(</span><span class=n>message</span><span class=p>,</span> <span class=n>channel</span><span class=o>=</span><span class=s1>&#39;&#39;</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/redis/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-194>194</a></span>
-<span class=normal><a href=#__codelineno-0-195>195</a></span>
-<span class=normal><a href=#__codelineno-0-196>196</a></span>
-<span class=normal><a href=#__codelineno-0-197>197</a></span>
-<span class=normal><a href=#__codelineno-0-198>198</a></span>
-<span class=normal><a href=#__codelineno-0-199>199</a></span>
+</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/redis/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-199>199</a></span>
 <span class=normal><a href=#__codelineno-0-200>200</a></span>
 <span class=normal><a href=#__codelineno-0-201>201</a></span>
-<span class=normal><a href=#__codelineno-0-202>202</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-194 name=__codelineno-0-194></a><span class=nd>@staticmethod</span>
-<a id=__codelineno-0-195 name=__codelineno-0-195></a><span class=k>def</span> <span class=nf>build_log_context</span><span class=p>(</span>
-<a id=__codelineno-0-196 name=__codelineno-0-196></a>    <span class=n>message</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;BrokerStreamMessage[Any]&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-197 name=__codelineno-0-197></a>    <span class=n>channel</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-198 name=__codelineno-0-198></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=nb>str</span><span class=p>]:</span>
-<a id=__codelineno-0-199 name=__codelineno-0-199></a>    <span class=k>return</span> <span class=p>{</span>
-<a id=__codelineno-0-200 name=__codelineno-0-200></a>        <span class=s2>&quot;channel&quot;</span><span class=p>:</span> <span class=n>channel</span><span class=p>,</span>
-<a id=__codelineno-0-201 name=__codelineno-0-201></a>        <span class=s2>&quot;message_id&quot;</span><span class=p>:</span> <span class=nb>getattr</span><span class=p>(</span><span class=n>message</span><span class=p>,</span> <span class=s2>&quot;message_id&quot;</span><span class=p>,</span> <span class=s2>&quot;&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-202 name=__codelineno-0-202></a>    <span class=p>}</span>
+<span class=normal><a href=#__codelineno-0-202>202</a></span>
+<span class=normal><a href=#__codelineno-0-203>203</a></span>
+<span class=normal><a href=#__codelineno-0-204>204</a></span>
+<span class=normal><a href=#__codelineno-0-205>205</a></span>
+<span class=normal><a href=#__codelineno-0-206>206</a></span>
+<span class=normal><a href=#__codelineno-0-207>207</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-199 name=__codelineno-0-199></a><span class=nd>@staticmethod</span>
+<a id=__codelineno-0-200 name=__codelineno-0-200></a><span class=k>def</span> <span class=nf>build_log_context</span><span class=p>(</span>
+<a id=__codelineno-0-201 name=__codelineno-0-201></a>    <span class=n>message</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;BrokerStreamMessage[Any]&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-202 name=__codelineno-0-202></a>    <span class=n>channel</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-203 name=__codelineno-0-203></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=nb>str</span><span class=p>]:</span>
+<a id=__codelineno-0-204 name=__codelineno-0-204></a>    <span class=k>return</span> <span class=p>{</span>
+<a id=__codelineno-0-205 name=__codelineno-0-205></a>        <span class=s2>&quot;channel&quot;</span><span class=p>:</span> <span class=n>channel</span><span class=p>,</span>
+<a id=__codelineno-0-206 name=__codelineno-0-206></a>        <span class=s2>&quot;message_id&quot;</span><span class=p>:</span> <span class=nb>getattr</span><span class=p>(</span><span class=n>message</span><span class=p>,</span> <span class=s2>&quot;message_id&quot;</span><span class=p>,</span> <span class=s2>&quot;&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-207 name=__codelineno-0-207></a>    <span class=p>}</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.redis.subscriber.asyncapi.AsyncAPISubscriber.get_schema class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_schema</span> <a href=#faststream.redis.subscriber.asyncapi.AsyncAPISubscriber.get_schema class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_schema</span><span class=p>()</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/redis/subscriber/asyncapi.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-27>27</a></span>
 <span class=normal><a href=#__codelineno-0-28>28</a></span>

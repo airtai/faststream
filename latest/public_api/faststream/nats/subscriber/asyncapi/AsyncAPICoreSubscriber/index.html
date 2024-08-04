@@ -209,10 +209,7 @@
 <span class=normal><a href=#__codelineno-0-137>137</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-136 name=__codelineno-0-136></a><span class=k>def</span> <span class=nf>add_middleware</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>middleware</span><span class=p>:</span> <span class=s2>&quot;BrokerMiddleware[MsgType]&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-137 name=__codelineno-0-137></a>    <span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span> <span class=o>=</span> <span class=p>(</span><span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>,</span> <span class=n>middleware</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_log_context class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_log_context</span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_log_context class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_log_context</span><span class=p>(</span><span class=n>message</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Log context factory using in <code>self.consume</code> scope.</p> <details class=quote> <summary>Source code in <code>faststream/nats/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-436>436</a></span>
-<span class=normal><a href=#__codelineno-0-437>437</a></span>
-<span class=normal><a href=#__codelineno-0-438>438</a></span>
-<span class=normal><a href=#__codelineno-0-439>439</a></span>
+</code></pre></div> <div class="doc doc-contents "> <p>Log context factory using in <code>self.consume</code> scope.</p> <details class=quote> <summary>Source code in <code>faststream/nats/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-439>439</a></span>
 <span class=normal><a href=#__codelineno-0-440>440</a></span>
 <span class=normal><a href=#__codelineno-0-441>441</a></span>
 <span class=normal><a href=#__codelineno-0-442>442</a></span>
@@ -221,19 +218,22 @@
 <span class=normal><a href=#__codelineno-0-445>445</a></span>
 <span class=normal><a href=#__codelineno-0-446>446</a></span>
 <span class=normal><a href=#__codelineno-0-447>447</a></span>
-<span class=normal><a href=#__codelineno-0-448>448</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-436 name=__codelineno-0-436></a><span class=k>def</span> <span class=nf>get_log_context</span><span class=p>(</span>
-<a id=__codelineno-0-437 name=__codelineno-0-437></a>    <span class=bp>self</span><span class=p>,</span>
-<a id=__codelineno-0-438 name=__codelineno-0-438></a>    <span class=n>message</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-439 name=__codelineno-0-439></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;StreamMessage[Msg]&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-440 name=__codelineno-0-440></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Message which we are building context for&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-441 name=__codelineno-0-441></a>    <span class=p>],</span>
-<a id=__codelineno-0-442 name=__codelineno-0-442></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=nb>str</span><span class=p>]:</span>
-<a id=__codelineno-0-443 name=__codelineno-0-443></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Log context factory using in `self.consume` scope.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-444 name=__codelineno-0-444></a>    <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>build_log_context</span><span class=p>(</span>
-<a id=__codelineno-0-445 name=__codelineno-0-445></a>        <span class=n>message</span><span class=o>=</span><span class=n>message</span><span class=p>,</span>
-<a id=__codelineno-0-446 name=__codelineno-0-446></a>        <span class=n>subject</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>subject</span><span class=p>,</span>
-<a id=__codelineno-0-447 name=__codelineno-0-447></a>        <span class=n>queue</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>queue</span><span class=p>,</span>
-<a id=__codelineno-0-448 name=__codelineno-0-448></a>    <span class=p>)</span>
+<span class=normal><a href=#__codelineno-0-448>448</a></span>
+<span class=normal><a href=#__codelineno-0-449>449</a></span>
+<span class=normal><a href=#__codelineno-0-450>450</a></span>
+<span class=normal><a href=#__codelineno-0-451>451</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-439 name=__codelineno-0-439></a><span class=k>def</span> <span class=nf>get_log_context</span><span class=p>(</span>
+<a id=__codelineno-0-440 name=__codelineno-0-440></a>    <span class=bp>self</span><span class=p>,</span>
+<a id=__codelineno-0-441 name=__codelineno-0-441></a>    <span class=n>message</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-442 name=__codelineno-0-442></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;StreamMessage[Msg]&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-443 name=__codelineno-0-443></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Message which we are building context for&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-444 name=__codelineno-0-444></a>    <span class=p>],</span>
+<a id=__codelineno-0-445 name=__codelineno-0-445></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=nb>str</span><span class=p>]:</span>
+<a id=__codelineno-0-446 name=__codelineno-0-446></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Log context factory using in `self.consume` scope.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-447 name=__codelineno-0-447></a>    <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>build_log_context</span><span class=p>(</span>
+<a id=__codelineno-0-448 name=__codelineno-0-448></a>        <span class=n>message</span><span class=o>=</span><span class=n>message</span><span class=p>,</span>
+<a id=__codelineno-0-449 name=__codelineno-0-449></a>        <span class=n>subject</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>subject</span><span class=p>,</span>
+<a id=__codelineno-0-450 name=__codelineno-0-450></a>        <span class=n>queue</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>queue</span><span class=p>,</span>
+<a id=__codelineno-0-451 name=__codelineno-0-451></a>    <span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.start class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">start</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.start class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>start</span><span class=p>()</span>
 </code></pre></div> <div class="doc doc-contents "> <p>Create NATS subscription and start consume tasks.</p> <details class=quote> <summary>Source code in <code>faststream/nats/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-155>155</a></span>
 <span class=normal><a href=#__codelineno-0-156>156</a></span>
