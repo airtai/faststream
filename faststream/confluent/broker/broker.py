@@ -359,7 +359,6 @@ class KafkaBroker(
             metadata_max_age_ms=metadata_max_age_ms,
             allow_auto_create_topics=allow_auto_create_topics,
             connections_max_idle_ms=connections_max_idle_ms,
-            loop=loop,
             # publisher args
             acks=acks,
             compression_type=compression_type,

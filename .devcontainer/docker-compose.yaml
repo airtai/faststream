@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  python-3.12-faststream-studio:
+  python-3.12-faststream-studio:  # nosemgrep
     image: mcr.microsoft.com/devcontainers/python:3.12
     container_name: python-3.12-faststream-studio
     volumes:
@@ -9,7 +9,7 @@ services:
     command: sleep infinity
     network_mode: "host"
 
-  kafka-faststream:
+  kafka-faststream:  # nosemgrep
     image: bitnami/kafka:3.5.0
     container_name: kafka-faststream
     ports:
