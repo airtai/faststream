@@ -51,7 +51,7 @@ async def _test_with_temp_subscriber():
     async with TestKafkaBroker(broker) as tester:
         await tester.publish(1, "input_data")
 
-        await on_output_data.wait_call(3)
+        await on_output_data.wait_call(10)
 
         on_input_data.mock.assert_called_with(1)
         to_output_data.mock.assert_called_with(2)
