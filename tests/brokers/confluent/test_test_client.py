@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any, ClassVar, Dict
 
 import pytest
 
@@ -14,6 +15,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
     test_class = TestKafkaBroker
     timeout = 10
+    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
 
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(apply_types=apply_types)
