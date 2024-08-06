@@ -28,7 +28,9 @@ class BrokerTestclientTestcase(
     async def test_subscriber_mock(self, queue: str):
         test_broker = self.get_broker()
 
-        @test_broker.subscriber(queue)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @test_broker.subscriber(*args, **kwargs)
         async def m(msg):
             pass
 
@@ -43,8 +45,10 @@ class BrokerTestclientTestcase(
 
         publisher = test_broker.publisher(queue + "resp")
 
+        args, kwargs = self.get_subscriber_params(queue)
+
         @publisher
-        @test_broker.subscriber(queue)
+        @test_broker.subscriber(*args, **kwargs)
         async def m(msg):
             return "response"
 
@@ -59,7 +63,9 @@ class BrokerTestclientTestcase(
 
         publisher = test_broker.publisher(queue + "resp")
 
-        @test_broker.subscriber(queue)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @test_broker.subscriber(*args, **kwargs)
         async def m(msg):
             await publisher.publish("response")
 
@@ -72,7 +78,9 @@ class BrokerTestclientTestcase(
     async def test_exception_raises(self, queue: str):
         test_broker = self.get_broker()
 
-        @test_broker.subscriber(queue)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @test_broker.subscriber(*args, **kwargs)
         async def m(msg):  # pragma: no cover
             raise ValueError()
 
@@ -117,7 +125,9 @@ class BrokerTestclientTestcase(
 
         publisher = test_broker.publisher(f"{queue}1")
 
-        @test_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @test_broker.subscriber(*args, **kwargs)
         async def m(msg):
             await publisher.publish(f"response: {msg}")
 

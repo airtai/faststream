@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import Any, Callable, ClassVar, Dict, Type, TypeVar
+from typing import Callable, Type, TypeVar
 from unittest.mock import Mock
 
 import pytest
@@ -14,20 +14,21 @@ from faststream.broker.fastapi.context import Context
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.types import AnyCallable
 
+from .basic import BaseTestcaseConfig
+
 Broker = TypeVar("Broker", bound=BrokerUsecase)
 
 
 @pytest.mark.asyncio()
-class FastAPITestcase:
+class FastAPITestcase(BaseTestcaseConfig):
     router_class: Type[StreamRouter[BrokerUsecase]]
-
-    timeout: int = 3
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
 
     async def test_base_real(self, mock: Mock, queue: str, event: asyncio.Event):
         router = self.router_class()
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello(msg):
             event.set()
             return mock(msg)
@@ -52,7 +53,9 @@ class FastAPITestcase:
             event.set()
             return mock(msg)
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello(msg, tasks: BackgroundTasks):
             tasks.add_task(task, msg)
 
@@ -74,7 +77,9 @@ class FastAPITestcase:
 
         context_key = "message.headers"
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello(msg=Context(context_key)):
             event.set()
             return mock(msg == context.resolve(context_key))
@@ -95,7 +100,9 @@ class FastAPITestcase:
     async def test_initial_context(self, queue: str, event: asyncio.Event):
         router = self.router_class()
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello(msg: int, data=Context(queue, initial=set)):
             data.add(msg)
             if len(data) == 2:
@@ -120,8 +127,11 @@ class FastAPITestcase:
         event2 = asyncio.Event()
         router = self.router_class()
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
-        @router.subscriber(queue + "2", **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+        args2, kwargs2 = self.get_subscriber_params(queue + "2")
+
+        @router.subscriber(*args, **kwargs)
+        @router.subscriber(*args2, **kwargs2)
         async def hello(msg: str):
             if event.is_set():
                 event2.set()
@@ -153,12 +163,16 @@ class FastAPITestcase:
     ):
         router = self.router_class()
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         @router.publisher(queue + "resp")
         async def m():
             return "hi"
 
-        @router.subscriber(queue + "resp", **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue + "resp")
+
+        @router.subscriber(*args2, **kwargs2)
         async def resp(msg):
             event.set()
             mock(msg)
@@ -179,20 +193,19 @@ class FastAPITestcase:
 
 
 @pytest.mark.asyncio()
-class FastAPILocalTestcase:
+class FastAPILocalTestcase(BaseTestcaseConfig):
     router_class: Type[StreamRouter[BrokerUsecase]]
     broker_test: Callable[[Broker], Broker]
     build_message: AnyCallable
-
-    timeout: int = 3
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
 
     async def test_base(self, queue: str):
         router = self.router_class()
 
         app = FastAPI(lifespan=router.lifespan_context)
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello():
             return "hi"
 
@@ -213,7 +226,9 @@ class FastAPILocalTestcase:
 
         app = FastAPI(lifespan=router.lifespan_context)
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello():
             return "hi"
 
@@ -234,7 +249,9 @@ class FastAPILocalTestcase:
 
         app = FastAPI(lifespan=router.lifespan_context)
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello(msg: int): ...
 
         app.include_router(router)
@@ -247,7 +264,9 @@ class FastAPILocalTestcase:
     async def test_headers(self, queue: str):
         router = self.router_class()
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello(w=Header()):
             return w
 
@@ -268,7 +287,9 @@ class FastAPILocalTestcase:
             mock(a)
             return a
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello(a, w=Depends(dep)):
             return w
 
@@ -291,7 +312,9 @@ class FastAPILocalTestcase:
             yield a
             mock.close()
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello(a, w=Depends(dep)):
             mock.start.assert_called_once()
             assert not mock.close.call_count
@@ -315,7 +338,9 @@ class FastAPILocalTestcase:
 
         router = self.router_class(dependencies=(Depends(mock_dep, use_cache=False),))
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello(a):
             return a
 
@@ -331,11 +356,12 @@ class FastAPILocalTestcase:
 
         router = self.router_class()
 
-        @router.subscriber(
+        args, kwargs = self.get_subscriber_params(
             queue,
             dependencies=(Depends(mock_dep, use_cache=False),),
-            **self.subscriber_kwargs,
         )
+
+        @router.subscriber(*args, **kwargs)
         async def hello(a):
             return a
 
@@ -408,7 +434,9 @@ class FastAPILocalTestcase:
     async def test_subscriber_mock(self, queue: str):
         router = self.router_class()
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def m():
             return "hi"
 
@@ -421,8 +449,10 @@ class FastAPILocalTestcase:
 
         publisher = router.publisher(queue + "resp")
 
+        args, kwargs = self.get_subscriber_params(queue)
+
         @publisher
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        @router.subscriber(*args, **kwargs)
         async def m():
             return "response"
 
@@ -436,11 +466,15 @@ class FastAPILocalTestcase:
 
         app = FastAPI(lifespan=router.lifespan_context)
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def hello():
             return "hi"
 
-        @router2.subscriber(queue + "1", **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
+
+        @router2.subscriber(*args2, **kwargs2)
         async def hello_router2():
             return "hi"
 
@@ -477,7 +511,9 @@ class FastAPILocalTestcase:
         app = FastAPI(lifespan=router.lifespan_context)
         app.dependency_overrides[dep1] = lambda: mock()
 
-        @router2.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router2.subscriber(*args, **kwargs)
         async def hello_router2(dep=Depends(dep1)):
             return "hi"
 

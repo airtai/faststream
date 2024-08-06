@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, ClassVar, Dict, Type
+from typing import Type
 from unittest.mock import Mock
 
 import pytest
@@ -7,12 +7,12 @@ import pytest
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.middlewares import BaseMiddleware
 
+from .basic import BaseTestcaseConfig
+
 
 @pytest.mark.asyncio()
-class LocalMiddlewareTestcase:
+class LocalMiddlewareTestcase(BaseTestcaseConfig):
     broker_class: Type[BrokerUsecase]
-    timeout: int = 3
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
 
     @pytest.fixture()
     def raw_broker(self):
@@ -39,7 +39,9 @@ class LocalMiddlewareTestcase:
 
         broker = self.broker_class()
 
-        @broker.subscriber(queue, middlewares=(mid,), **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue, middlewares=(mid,))
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             mock.inner(m)
             return "end"
@@ -79,7 +81,9 @@ class LocalMiddlewareTestcase:
 
         broker = self.broker_class()
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1", middlewares=(mid,))
         @broker.publisher(queue + "2", middlewares=(mid,))
         async def handler(m):
@@ -117,8 +121,14 @@ class LocalMiddlewareTestcase:
 
         broker = self.broker_class()
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
-        @broker.subscriber(queue + "1", middlewares=(mid,), **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+        args2, kwargs2 = self.get_subscriber_params(
+            queue + "1",
+            middlewares=(mid,),
+        )
+
+        @broker.subscriber(*args, **kwargs)
+        @broker.subscriber(*args2, **kwargs2)
         async def handler(m):
             if event1.is_set():
                 event2.set()
@@ -161,17 +171,20 @@ class LocalMiddlewareTestcase:
 
         broker = self.broker_class()
 
-        @broker.subscriber(
+        args, kwargs = self.get_subscriber_params(
             queue,
             filter=lambda m: m.content_type == "application/json",
-            **self.subscriber_kwargs,
         )
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             event2.set()
             mock()
             return ""
 
-        @broker.subscriber(queue, middlewares=(mid,), **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue, middlewares=(mid,))
+
+        @broker.subscriber(*args2, **kwargs2)
         async def handler2(m):
             event1.set()
             mock()
@@ -209,7 +222,9 @@ class LocalMiddlewareTestcase:
 
         broker = self.broker_class()
 
-        @broker.subscriber(queue, middlewares=(mid,), **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue, middlewares=(mid,))
+
+        @broker.subscriber(*args, **kwargs)
         async def handler2(m):
             event.set()
             raise ValueError()
@@ -249,7 +264,9 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
             middlewares=(mid,),
         )
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             event.set()
             return ""
@@ -289,7 +306,9 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         broker = self.broker_class()
 
         # already registered subscriber
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             event.set()
             return ""
@@ -300,7 +319,9 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         event2 = asyncio.Event()
 
         # new subscriber
-        @broker.subscriber(f"{queue}1", **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
+
+        @broker.subscriber(*args2, **kwargs2)
         async def handler2(m):
             event2.set()
             return ""
@@ -330,11 +351,15 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
 
         broker = self.broker_class(middlewares=(Mid,))
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             return m
 
-        @broker.subscriber(queue + "r", **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue + "r")
+
+        @broker.subscriber(*args2, **kwargs2)
         async def handler_resp(m):
             mock(m)
             event.set()
@@ -378,7 +403,9 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
 
         broker = self.broker_class(middlewares=(Mid,))
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1")
         @broker.publisher(queue + "2")
         async def handler(m):
