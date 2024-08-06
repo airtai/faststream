@@ -269,7 +269,7 @@ jobs:
         run: pip install .[optionals,testing]
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -m "(slow and confluent) or confluent"
+        run: bash scripts/test.sh -vv -m "(slow and confluent) or confluent"
         env:
           COVERAGE_FILE: coverage/.coverage.confluent-py
           CONTEXT: confluent-py
