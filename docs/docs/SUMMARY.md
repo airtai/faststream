@@ -469,8 +469,6 @@ search:
                     - [AsyncConfluentConsumer](api/faststream/confluent/client/AsyncConfluentConsumer.md)
                     - [AsyncConfluentProducer](api/faststream/confluent/client/AsyncConfluentProducer.md)
                     - [BatchBuilder](api/faststream/confluent/client/BatchBuilder.md)
-                    - [MsgToSend](api/faststream/confluent/client/MsgToSend.md)
-                    - [TopicPartition](api/faststream/confluent/client/TopicPartition.md)
                     - [check_msg_error](api/faststream/confluent/client/check_msg_error.md)
                     - [create_topics](api/faststream/confluent/client/create_topics.md)
                 - config

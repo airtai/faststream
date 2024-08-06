@@ -18,6 +18,7 @@ from typing import (
 
 import aiokafka
 from aiokafka.partitioner import DefaultPartitioner
+from aiokafka.producer.producer import _missing
 from anyio import move_on_after
 from typing_extensions import Annotated, Doc, override
 
@@ -330,7 +331,7 @@ class KafkaBroker(
             :data:`True` defaults to ``acks=all``.
             """
             ),
-        ] = Parameter.empty,
+        ] = _missing,
         key_serializer: Annotated[
             Optional[Callable[[Any], bytes]],
             Doc("Used to convert user-supplied keys to bytes."),

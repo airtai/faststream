@@ -21,6 +21,7 @@ from typing import (
 from aiokafka import ConsumerRecord
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from aiokafka.partitioner import DefaultPartitioner
+from aiokafka.producer.producer import _missing
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
@@ -169,7 +170,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             :data:`True` defaults to ``acks=all``.
             """
             ),
-        ] = Parameter.empty,
+        ] = _missing,
         key_serializer: Annotated[
             Optional[Callable[[Any], bytes]],
             Doc("Used to convert user-supplied keys to bytes."),
