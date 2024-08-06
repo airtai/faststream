@@ -159,10 +159,7 @@ class SASLOAuthBearer(BaseSecurity):
     This class defines basic security configuration for SASL/OAUTHBEARER authentication.
     """
 
-    __slots__ = (
-        "use_ssl",
-        "ssl_context"
-    )
+    __slots__ = ("use_ssl", "ssl_context")
 
     def get_requirement(self) -> List["AnyDict"]:
         """Get the security requirements for SASL/OAUTHBEARER authentication."""
@@ -179,10 +176,7 @@ class SASLGSSAPI(BaseSecurity):
     This class defines security configuration for SASL/GSSAPI authentication.
     """
 
-    __slots__ = (
-        "use_ssl",
-        "ssl_context"
-    )
+    __slots__ = ("use_ssl", "ssl_context")
 
     def get_requirement(self) -> List["AnyDict"]:
         """Get the security requirements for SASL/GSSAPI authentication."""

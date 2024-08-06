@@ -4,7 +4,7 @@ from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Iterable, Optional
 
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
@@ -14,6 +14,7 @@ from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream.redis.message import RedisMessage
     from faststream.redis.publisher.producer import RedisFastProducer
     from faststream.types import AnyDict, AsyncFunc, SendableMessage
 
@@ -134,16 +135,31 @@ class ChannelPublisher(LogicPublisher):
         rpc: Annotated[
             bool,
             Doc("Whether to wait for reply in blocking mode."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = False,
         rpc_timeout: Annotated[
             Optional[float],
             Doc("RPC reply waiting time."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method with `timeout` instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = 30.0,
         raise_timeout: Annotated[
             bool,
             Doc(
                 "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
                 "RPC request returns `None` at timeout by default."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "`request` always raises TimeoutError instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
             ),
         ] = False,
         # publisher specific
@@ -183,6 +199,62 @@ class ChannelPublisher(LogicPublisher):
             rpc_timeout=rpc_timeout,
             raise_timeout=raise_timeout,
         )
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: Annotated[
+            "SendableMessage",
+            Doc("Message body to send."),
+        ] = None,
+        channel: Annotated[
+            Optional[str],
+            Doc("Redis PubSub object name to send message."),
+        ] = None,
+        *,
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        headers: Annotated[
+            Optional["AnyDict"],
+            Doc("Message headers to store metainformation."),
+        ] = None,
+        timeout: Annotated[
+            Optional[float],
+            Doc("RPC reply waiting time."),
+        ] = 30.0,
+        # publisher specific
+        _extra_middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Extra middlewares to wrap publishing process."),
+        ] = (),
+    ) -> "RedisMessage":
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        call: AsyncFunc = self._producer.request
+
+        for m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
+
+        msg: RedisMessage = await call(
+            message,
+            channel=PubSub.validate(channel or self.channel).name,
+            # basic args
+            headers=headers or self.headers,
+            correlation_id=correlation_id or gen_cor_id(),
+            timeout=timeout,
+        )
+        return msg
 
 
 class ListPublisher(LogicPublisher):
@@ -261,16 +333,31 @@ class ListPublisher(LogicPublisher):
         rpc: Annotated[
             bool,
             Doc("Whether to wait for reply in blocking mode."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = False,
         rpc_timeout: Annotated[
             Optional[float],
             Doc("RPC reply waiting time."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method with `timeout` instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = 30.0,
         raise_timeout: Annotated[
             bool,
             Doc(
                 "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
                 "RPC request returns `None` at timeout by default."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "`request` always raises TimeoutError instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
             ),
         ] = False,
         # publisher specific
@@ -309,6 +396,62 @@ class ListPublisher(LogicPublisher):
             rpc_timeout=rpc_timeout,
             raise_timeout=raise_timeout,
         )
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: Annotated[
+            "SendableMessage",
+            Doc("Message body to send."),
+        ] = None,
+        list: Annotated[
+            Optional[str],
+            Doc("Redis List object name to send message."),
+        ] = None,
+        *,
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        headers: Annotated[
+            Optional["AnyDict"],
+            Doc("Message headers to store metainformation."),
+        ] = None,
+        timeout: Annotated[
+            Optional[float],
+            Doc("RPC reply waiting time."),
+        ] = 30.0,
+        # publisher specific
+        _extra_middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Extra middlewares to wrap publishing process."),
+        ] = (),
+    ) -> "RedisMessage":
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        call: AsyncFunc = self._producer.request
+
+        for m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
+
+        msg: RedisMessage = await call(
+            message,
+            list=ListSub.validate(list or self.list).name,
+            # basic args
+            headers=headers or self.headers,
+            correlation_id=correlation_id or gen_cor_id(),
+            timeout=timeout,
+        )
+        return msg
 
 
 class ListBatchPublisher(ListPublisher):
@@ -442,16 +585,31 @@ class StreamPublisher(LogicPublisher):
         rpc: Annotated[
             bool,
             Doc("Whether to wait for reply in blocking mode."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = False,
         rpc_timeout: Annotated[
             Optional[float],
             Doc("RPC reply waiting time."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method with `timeout` instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = 30.0,
         raise_timeout: Annotated[
             bool,
             Doc(
                 "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
                 "RPC request returns `None` at timeout by default."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "`request` always raises TimeoutError instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
             ),
         ] = False,
         # publisher specific
@@ -492,3 +650,67 @@ class StreamPublisher(LogicPublisher):
             rpc_timeout=rpc_timeout,
             raise_timeout=raise_timeout,
         )
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: Annotated[
+            "SendableMessage",
+            Doc("Message body to send."),
+        ] = None,
+        stream: Annotated[
+            Optional[str],
+            Doc("Redis Stream object name to send message."),
+        ] = None,
+        *,
+        maxlen: Annotated[
+            Optional[int],
+            Doc(
+                "Redis Stream maxlen publish option. "
+                "Remove eldest message if maxlen exceeded."
+            ),
+        ] = None,
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        headers: Annotated[
+            Optional["AnyDict"],
+            Doc("Message headers to store metainformation."),
+        ] = None,
+        timeout: Annotated[
+            Optional[float],
+            Doc("RPC reply waiting time."),
+        ] = 30.0,
+        # publisher specific
+        _extra_middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Extra middlewares to wrap publishing process."),
+        ] = (),
+    ) -> "RedisMessage":
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        call: AsyncFunc = self._producer.request
+
+        for m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            call = partial(m, call)
+
+        msg: RedisMessage = await call(
+            message,
+            stream=StreamSub.validate(stream or self.stream).name,
+            maxlen=maxlen,
+            # basic args
+            headers=headers or self.headers,
+            correlation_id=correlation_id or gen_cor_id(),
+            timeout=timeout,
+        )
+        return msg

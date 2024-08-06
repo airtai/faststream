@@ -30,7 +30,7 @@ from faststream.broker.types import (
 )
 from faststream.broker.utils import MultiLock, get_watcher_context, resolve_custom_func
 from faststream.broker.wrapper.call import HandlerCallWrapper
-from faststream.exceptions import SetupError, StopConsume
+from faststream.exceptions import SetupError, StopConsume, SubscriberNotFound
 from faststream.utils.context.repository import context
 from faststream.utils.functions import sync_fake_context, to_async
 
@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.middlewares import BaseMiddleware
     from faststream.broker.publisher.proto import BasePublisherProto, ProducerProto
+    from faststream.broker.response import Response
     from faststream.broker.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -313,7 +314,7 @@ class SubscriberUsecase(
             # All other exceptions were logged by CriticalLogMiddleware
             pass
 
-    async def process_message(self, msg: MsgType) -> Any:
+    async def process_message(self, msg: MsgType) -> "Response":
         """Execute all message processing stages."""
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
@@ -373,15 +374,16 @@ class SubscriberUsecase(
                             _extra_middlewares=(m.publish_scope for m in middlewares),
                         )
 
-                    return result_msg.body
+                    # Return data for tests
+                    return result_msg
 
             # Suitable handler is not founded
             for m in middlewares:
                 stack.push_async_exit(m.__aexit__)
 
-            raise AssertionError(f"There is no suitable handler for {msg=}")
+            raise SubscriberNotFound(f"There is no suitable handler for {msg!r}")
 
-        return None
+        raise AssertionError
 
     def __get_reponse_publisher(
         self,

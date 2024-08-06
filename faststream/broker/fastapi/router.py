@@ -30,6 +30,7 @@ from fastapi.utils import generate_unique_id
 from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute, _DefaultLifespan
 
+from faststream.asyncapi.proto import AsyncAPIApplication
 from faststream.asyncapi.site import get_asyncapi_html
 from faststream.broker.fastapi.get_dependant import get_fastapi_dependant
 from faststream.broker.fastapi.route import StreamRoute
@@ -80,6 +81,7 @@ class _BackgroundMiddleware(BaseMiddleware):
 
 class StreamRouter(
     APIRouter,  # type: ignore[misc]
+    AsyncAPIApplication,
     Generic[MsgType],
 ):
     """A class to route streams."""
