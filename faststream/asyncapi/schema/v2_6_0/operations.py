@@ -3,8 +3,8 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
-from faststream.asyncapi.schema.message import Message
 from faststream.asyncapi.schema.bindings import OperationBinding
+from faststream.asyncapi.schema.message import Message
 from faststream.asyncapi.schema.utils import (
     ExternalDocs,
     ExternalDocsDict,

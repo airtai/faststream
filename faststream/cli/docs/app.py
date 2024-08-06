@@ -183,7 +183,6 @@ def _parse_and_serve(
                 f"Unknown extension given - {app}; Please provide app in format [python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation"
             )
 
-        # TODO: add schema choosing based on FastStream.asyncapi_version
         raw_schema = model_parse(Schema, data)
 
     serve_app(raw_schema, host, port)

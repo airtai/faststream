@@ -13,7 +13,7 @@ from faststream.asyncapi.schema.info import (
     License,
     LicenseDict,
 )
-from faststream.asyncapi.schema.main import (
+from faststream.asyncapi.schema.schema import (
     BaseSchema,
 )
 from faststream.asyncapi.schema.message import CorrelationId, Message

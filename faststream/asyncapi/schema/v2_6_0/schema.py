@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional, Union
 
 from faststream._compat import model_to_json, model_to_jsonable
-from faststream.asyncapi.schema.main import BaseSchema
+from faststream.asyncapi.schema.schema import BaseSchema
 from faststream.asyncapi.schema.servers import Server
 from faststream.asyncapi.schema.utils import (
     ExternalDocs,
