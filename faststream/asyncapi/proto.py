@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Dict, Optional, Protocol
 from typing_extensions import Annotated, Doc
 
 if TYPE_CHECKING:
-    from faststream.asyncapi.schema.channels import Channel
+    from faststream.asyncapi.schema.v2_6_0.channels import Channel
 
 
 class AsyncAPIProto(Protocol):
