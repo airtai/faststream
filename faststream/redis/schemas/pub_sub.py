@@ -30,7 +30,7 @@ class PubSub(NameRequired):
         super().__init__(path)
 
         self.path_regex = reg
-        self.pattern = pattern
+        self.pattern = channel if pattern else None
         self.polling_interval = polling_interval
 
     def __hash__(self) -> int:

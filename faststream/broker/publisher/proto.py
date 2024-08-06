@@ -29,6 +29,17 @@ class ProducerProto(Protocol):
         """Publishes a message asynchronously."""
         ...
 
+    @abstractmethod
+    async def request(
+        self,
+        message: "SendableMessage",
+        /,
+        *,
+        correlation_id: Optional[str] = None,
+    ) -> Optional[Any]:
+        """Publishes a message synchronously."""
+        ...
+
 
 class BasePublisherProto(Protocol):
     @abstractmethod
@@ -41,6 +52,18 @@ class BasePublisherProto(Protocol):
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
         """Publishes a message asynchronously."""
+        ...
+
+    @abstractmethod
+    async def request(
+        self,
+        message: "SendableMessage",
+        /,
+        *,
+        correlation_id: Optional[str] = None,
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+    ) -> Optional[Any]:
+        """Publishes a message synchronously."""
         ...
 
 

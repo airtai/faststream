@@ -10,6 +10,13 @@ if TYPE_CHECKING:
     from faststream.asyncapi.schema import Schema
 
 
+ASYNCAPI_JS_DEFAULT_URL = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.54/browser/standalone/index.js"
+
+ASYNCAPI_CSS_DEFAULT_URL = (
+    "https://unpkg.com/@asyncapi/react-component@1.0.0-next.54/styles/default.min.css"
+)
+
+
 def get_asyncapi_html(
     schema: "Schema",
     sidebar: bool = True,
@@ -21,8 +28,8 @@ def get_asyncapi_html(
     errors: bool = True,
     expand_message_examples: bool = True,
     title: str = "FastStream",
-    asyncapi_js_url: str = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.47/browser/standalone/index.js",
-    asyncapi_css_url: str = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.46/styles/default.min.css",
+    asyncapi_js_url: str = ASYNCAPI_JS_DEFAULT_URL,
+    asyncapi_css_url: str = ASYNCAPI_CSS_DEFAULT_URL,
 ) -> str:
     """Generate HTML for displaying an AsyncAPI document."""
     schema_json = schema.to_json()

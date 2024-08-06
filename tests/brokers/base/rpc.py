@@ -23,14 +23,14 @@ class BrokerRPCTestcase:
         rpc_broker = self.get_broker()
 
         @rpc_broker.subscriber(queue)
-        async def m(m):  # pragma: no cover
-            return "1"
+        async def m(m):
+            return "Hi!"
 
         async with self.patch_broker(rpc_broker) as br:
             await br.start()
             r = await br.publish("hello", queue, rpc_timeout=3, rpc=True)
 
-        assert r == "1"
+        assert r == "Hi!"
 
     @pytest.mark.asyncio()
     async def test_rpc_timeout_raises(self, queue: str):
@@ -89,7 +89,7 @@ class BrokerRPCTestcase:
             event.set()
 
         @rpc_broker.subscriber(queue)
-        async def m(m):  # pragma: no cover
+        async def m(m):
             return "1"
 
         async with self.patch_broker(rpc_broker) as br:

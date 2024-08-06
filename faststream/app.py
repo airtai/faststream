@@ -16,6 +16,7 @@ import anyio
 from typing_extensions import ParamSpec
 
 from faststream._compat import ExceptionGroup
+from faststream.asyncapi.proto import AsyncAPIApplication
 from faststream.cli.supervisors.utils import set_exit
 from faststream.exceptions import ValidationError
 from faststream.log.logging import logger
@@ -48,7 +49,7 @@ if TYPE_CHECKING:
     )
 
 
-class FastStream:
+class FastStream(AsyncAPIApplication):
     """A class representing a FastStream application."""
 
     _on_startup_calling: List["AsyncFunc"]

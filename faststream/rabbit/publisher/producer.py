@@ -31,6 +31,7 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
+    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import SendableMessage
 
@@ -133,6 +134,61 @@ class AioPikaFastProducer(ProducerProto):
                     return await self._decoder(await self._parser(msg))
 
         return None
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: "AioPikaSendableMessage",
+        exchange: Union["RabbitExchange", str, None] = None,
+        *,
+        correlation_id: str = "",
+        routing_key: str = "",
+        mandatory: bool = True,
+        immediate: bool = False,
+        timeout: Optional[float] = None,
+        persist: bool = False,
+        headers: Optional["HeadersType"] = None,
+        content_type: Optional[str] = None,
+        content_encoding: Optional[str] = None,
+        priority: Optional[int] = None,
+        expiration: Optional["DateType"] = None,
+        message_id: Optional[str] = None,
+        timestamp: Optional["DateType"] = None,
+        message_type: Optional[str] = None,
+        user_id: Optional[str] = None,
+        app_id: Optional[str] = None,
+    ) -> "RabbitMessage":
+        """Publish a message to a RabbitMQ queue."""
+        async with _RPCCallback(
+            self._rpc_lock,
+            await self.declarer.declare_queue(RABBIT_REPLY),
+        ) as response_queue:
+            with anyio.fail_after(timeout):
+                await self._publish(
+                    message=message,
+                    exchange=exchange,
+                    routing_key=routing_key,
+                    mandatory=mandatory,
+                    immediate=immediate,
+                    timeout=timeout,
+                    persist=persist,
+                    reply_to=RABBIT_REPLY.name,
+                    headers=headers,
+                    content_type=content_type,
+                    content_encoding=content_encoding,
+                    priority=priority,
+                    correlation_id=correlation_id,
+                    expiration=expiration,
+                    message_id=message_id,
+                    timestamp=timestamp,
+                    message_type=message_type,
+                    user_id=user_id,
+                    app_id=app_id,
+                )
+
+                msg: RabbitMessage = await self._parser(await response_queue.receive())
+                msg.decoded_body = await self._decoder(msg)
+                return msg
 
     async def _publish(
         self,

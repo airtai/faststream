@@ -200,6 +200,23 @@ search:
             - [apply_types](api/faststream/apply_types.md)
             - app
                 - [FastStream](api/faststream/app/FastStream.md)
+            - asgi
+                - [AsgiFastStream](api/faststream/asgi/AsgiFastStream.md)
+                - [AsgiResponse](api/faststream/asgi/AsgiResponse.md)
+                - [get](api/faststream/asgi/get.md)
+                - [make_asyncapi_asgi](api/faststream/asgi/make_asyncapi_asgi.md)
+                - [make_ping_asgi](api/faststream/asgi/make_ping_asgi.md)
+                - app
+                    - [AsgiFastStream](api/faststream/asgi/app/AsgiFastStream.md)
+                - factories
+                    - [make_asyncapi_asgi](api/faststream/asgi/factories/make_asyncapi_asgi.md)
+                    - [make_ping_asgi](api/faststream/asgi/factories/make_ping_asgi.md)
+                - handlers
+                    - [get](api/faststream/asgi/handlers/get.md)
+                - response
+                    - [AsgiResponse](api/faststream/asgi/response/AsgiResponse.md)
+                - websocket
+                    - [WebSocketClose](api/faststream/asgi/websocket/WebSocketClose.md)
             - asyncapi
                 - [get_app_schema](api/faststream/asyncapi/get_app_schema.md)
                 - [get_asyncapi_html](api/faststream/asyncapi/get_asyncapi_html.md)
@@ -214,6 +231,7 @@ search:
                     - [get_response_schema](api/faststream/asyncapi/message/get_response_schema.md)
                     - [parse_handler_params](api/faststream/asyncapi/message/parse_handler_params.md)
                 - proto
+                    - [AsyncAPIApplication](api/faststream/asyncapi/proto/AsyncAPIApplication.md)
                     - [AsyncAPIProto](api/faststream/asyncapi/proto/AsyncAPIProto.md)
                 - schema
                     - [Channel](api/faststream/asyncapi/schema/Channel.md)
@@ -529,6 +547,7 @@ search:
                 - [SkipMessage](api/faststream/exceptions/SkipMessage.md)
                 - [StopApplication](api/faststream/exceptions/StopApplication.md)
                 - [StopConsume](api/faststream/exceptions/StopConsume.md)
+                - [SubscriberNotFound](api/faststream/exceptions/SubscriberNotFound.md)
                 - [ValidationError](api/faststream/exceptions/ValidationError.md)
             - kafka
                 - [KafkaBroker](api/faststream/kafka/KafkaBroker.md)
@@ -803,6 +822,7 @@ search:
                     - usecase
                         - [LogicPublisher](api/faststream/rabbit/publisher/usecase/LogicPublisher.md)
                         - [PublishKwargs](api/faststream/rabbit/publisher/usecase/PublishKwargs.md)
+                        - [RequestPublishKwargs](api/faststream/rabbit/publisher/usecase/RequestPublishKwargs.md)
                 - response
                     - [RabbitResponse](api/faststream/rabbit/response/RabbitResponse.md)
                 - router
@@ -949,8 +969,12 @@ search:
                         - [LogicSubscriber](api/faststream/redis/subscriber/usecase/LogicSubscriber.md)
                         - [StreamSubscriber](api/faststream/redis/subscriber/usecase/StreamSubscriber.md)
                 - testing
+                    - [ChannelVisitor](api/faststream/redis/testing/ChannelVisitor.md)
                     - [FakeProducer](api/faststream/redis/testing/FakeProducer.md)
+                    - [ListVisitor](api/faststream/redis/testing/ListVisitor.md)
+                    - [StreamVisitor](api/faststream/redis/testing/StreamVisitor.md)
                     - [TestRedisBroker](api/faststream/redis/testing/TestRedisBroker.md)
+                    - [Visitor](api/faststream/redis/testing/Visitor.md)
                     - [build_message](api/faststream/redis/testing/build_message.md)
             - security
                 - [BaseSecurity](api/faststream/security/BaseSecurity.md)

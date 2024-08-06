@@ -5,6 +5,10 @@ class FastStreamException(Exception):  # noqa: N818
     """Basic FastStream exception class."""
 
 
+class SubscriberNotFound(FastStreamException):
+    """Raises as a service message or in tests."""
+
+
 class IgnoredException(FastStreamException):
     """Basic Exception class ignoring by watcher context and log middleware."""
 

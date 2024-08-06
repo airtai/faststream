@@ -148,6 +148,10 @@ class TestBroker(Generic[Broker]):
             broker,
             "_producer",
             new=None,
+        ), mock.patch.object(
+            broker,
+            "ping",
+            return_value=True,
         ):
             yield
 
@@ -231,19 +235,27 @@ async def call_handler(
     rpc: bool = False,
     rpc_timeout: Optional[float] = 30.0,
     raise_timeout: bool = False,
+    raw: bool = False,
 ) -> Any:
     """Asynchronously call a handler function."""
     with timeout_scope(rpc_timeout, raise_timeout):
         result = await handler.process_message(message)
-
         if rpc:
-            message_body, content_type = encode_message(result)
-            msg_to_publish = StreamMessage(
+            message_body, content_type = encode_message(result.body)
+
+            response_msg = StreamMessage(
                 raw_message=None,
                 body=message_body,
                 content_type=content_type,
+                headers=result.headers,
+                correlation_id=result.correlation_id or "",
             )
-            consumed_data = decode_message(msg_to_publish)
-            return consumed_data
+            decoded_data = decode_message(response_msg)
+
+            if raw:
+                response_msg.decoded_body = decoded_data
+                return response_msg
+            else:
+                return decoded_data
 
     return None

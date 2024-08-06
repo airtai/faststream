@@ -1,6 +1,7 @@
 import asyncio
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
+import anyio
 import nats
 from typing_extensions import override
 
@@ -20,6 +21,7 @@ if TYPE_CHECKING:
         AsyncCallable,
         CustomCallable,
     )
+    from faststream.nats import NatsMessage
     from faststream.types import SendableMessage
 
 
@@ -37,10 +39,10 @@ class NatsFastProducer(ProducerProto):
         decoder: Optional["CustomCallable"],
     ) -> None:
         self._connection = connection
-        self._parser = resolve_custom_func(parser, NatsParser(pattern="").parse_message)
-        self._decoder = resolve_custom_func(
-            decoder, NatsParser(pattern="").decode_message
-        )
+
+        default = NatsParser(pattern="")
+        self._parser = resolve_custom_func(parser, default.parse_message)
+        self._decoder = resolve_custom_func(decoder, default.decode_message)
 
     @override
     async def publish(  # type: ignore[override]
@@ -98,6 +100,32 @@ class NatsFastProducer(ProducerProto):
 
         return None
 
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: "SendableMessage",
+        subject: str,
+        *,
+        correlation_id: str,
+        headers: Optional[Dict[str, str]] = None,
+        timeout: float = 0.5,
+    ) -> Optional[Any]:
+        payload, content_type = encode_message(message)
+
+        headers_to_send = {
+            "content-type": content_type or "",
+            "correlation_id": correlation_id,
+            **(headers or {}),
+        }
+
+        msg = await self._connection.request(
+            subject=subject, payload=payload, headers=headers_to_send, timeout=timeout
+        )
+
+        parsed_msg = await self._parser(msg)
+        parsed_msg.decoded_body = await self._decoder(parsed_msg)
+        return parsed_msg
+
 
 class NatsJSFastProducer(ProducerProto):
     """A class to represent a NATS JetStream producer."""
@@ -113,10 +141,10 @@ class NatsJSFastProducer(ProducerProto):
         decoder: Optional["CustomCallable"],
     ) -> None:
         self._connection = connection
-        self._parser = resolve_custom_func(parser, NatsParser(pattern="").parse_message)
-        self._decoder = resolve_custom_func(
-            decoder, NatsParser(pattern="").decode_message
-        )
+
+        default = NatsParser(pattern="")
+        self._parser = resolve_custom_func(parser, default.parse_message)
+        self._decoder = resolve_custom_func(decoder, default.decode_message)
 
     @override
     async def publish(  # type: ignore[override]
@@ -177,3 +205,52 @@ class NatsJSFastProducer(ProducerProto):
                 return await self._decoder(await self._parser(msg))
 
         return None
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: "SendableMessage",
+        subject: str,
+        *,
+        correlation_id: str,
+        headers: Optional[Dict[str, str]] = None,
+        stream: Optional[str] = None,
+        timeout: float = 0.5,
+    ) -> "NatsMessage":
+        payload, content_type = encode_message(message)
+
+        reply_to = self._connection._nc.new_inbox()
+        future: asyncio.Future[Msg] = asyncio.Future()
+        sub = await self._connection._nc.subscribe(reply_to, future=future, max_msgs=1)
+        await sub.unsubscribe(limit=1)
+
+        headers_to_send = {
+            "content-type": content_type or "",
+            "correlation_id": correlation_id,
+            "reply_to": reply_to,
+            **(headers or {}),
+        }
+
+        with anyio.fail_after(timeout):
+            await self._connection.publish(
+                subject=subject,
+                payload=payload,
+                headers=headers_to_send,
+                stream=stream,
+                timeout=timeout,
+            )
+
+            msg = await future
+
+            if (  # pragma: no cover
+                msg.headers
+                and (
+                    msg.headers.get(nats.js.api.Header.STATUS)
+                    == nats.aio.client.NO_RESPONDERS_STATUS
+                )
+            ):
+                raise nats.errors.NoRespondersError
+
+            parsed_msg: NatsMessage = await self._parser(msg)
+            parsed_msg.decoded_body = await self._decoder(parsed_msg)
+            return parsed_msg

@@ -157,9 +157,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         await super().start()
 
         start_signal = anyio.Event()
-        self.task = asyncio.create_task(
-            self._consume(*args, start_signal=start_signal)
-        )
+        self.task = asyncio.create_task(self._consume(*args, start_signal=start_signal))
 
         with anyio.fail_after(3.0):
             await start_signal.wait()

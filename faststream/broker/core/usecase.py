@@ -331,6 +331,7 @@ class BrokerUsecase(
         msg: Any,
         *,
         producer: Optional["ProducerProto"],
+        correlation_id: Optional[str] = None,
         **kwargs: Any,
     ) -> Optional[Any]:
         """Publish message directly."""
@@ -341,7 +342,25 @@ class BrokerUsecase(
         for m in self._middlewares:
             publish = partial(m(None).publish_scope, publish)
 
-        return await publish(msg, **kwargs)
+        return await publish(msg, correlation_id=correlation_id, **kwargs)
+
+    async def request(
+        self,
+        msg: Any,
+        *,
+        producer: Optional["ProducerProto"],
+        correlation_id: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Publish message directly."""
+        assert producer, NOT_CONNECTED_YET  # nosec B101
+
+        publish = producer.request
+
+        for m in self._middlewares:
+            publish = partial(m(None).publish_scope, publish)
+
+        return await publish(msg, correlation_id=correlation_id, **kwargs)
 
     @abstractmethod
     async def ping(self, timeout: Optional[float]) -> bool:

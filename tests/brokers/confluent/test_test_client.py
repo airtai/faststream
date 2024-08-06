@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any, ClassVar, Dict
 
 import pytest
 
@@ -13,6 +14,8 @@ class TestTestclient(BrokerTestclientTestcase):
     """A class to represent a test Kafka broker."""
 
     test_class = TestKafkaBroker
+    timeout: int = 10
+    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
 
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(apply_types=apply_types)
@@ -31,7 +34,7 @@ class TestTestclient(BrokerTestclientTestcase):
     ):
         broker = self.get_broker()
 
-        @broker.subscriber(queue, auto_offset_reset="earliest")
+        @broker.subscriber(queue, **self.subscriber_kwargs)
         def subscriber(m):
             event.set()
 
@@ -52,7 +55,7 @@ class TestTestclient(BrokerTestclientTestcase):
     ):
         broker = self.get_broker()
 
-        @broker.subscriber(queue, batch=True, auto_offset_reset="earliest")
+        @broker.subscriber(queue, batch=True, **self.subscriber_kwargs)
         async def m(msg):
             pass
 
@@ -66,7 +69,7 @@ class TestTestclient(BrokerTestclientTestcase):
     ):
         broker = self.get_broker()
 
-        @broker.subscriber(queue, batch=True, auto_offset_reset="earliest")
+        @broker.subscriber(queue, batch=True, **self.subscriber_kwargs)
         async def m(msg):
             pass
 
@@ -83,7 +86,7 @@ class TestTestclient(BrokerTestclientTestcase):
         publisher = broker.publisher(queue + "1", batch=True)
 
         @publisher
-        @broker.subscriber(queue, auto_offset_reset="earliest")
+        @broker.subscriber(queue, **self.subscriber_kwargs)
         async def m(msg):
             return 1, 2, 3
 
@@ -102,10 +105,10 @@ class TestTestclient(BrokerTestclientTestcase):
 
         broker = KafkaBroker(middlewares=(Middleware,))
 
-        @broker.subscriber(queue, auto_offset_reset="earliest")
+        @broker.subscriber(queue, **self.subscriber_kwargs)
         async def h1(): ...
 
-        @broker.subscriber(queue + "1", auto_offset_reset="earliest")
+        @broker.subscriber(queue + "1", **self.subscriber_kwargs)
         async def h2(): ...
 
         async with TestKafkaBroker(broker) as br:
@@ -125,10 +128,10 @@ class TestTestclient(BrokerTestclientTestcase):
 
         broker = KafkaBroker(middlewares=(Middleware,))
 
-        @broker.subscriber(queue, auto_offset_reset="earliest")
+        @broker.subscriber(queue, **self.subscriber_kwargs)
         async def h1(): ...
 
-        @broker.subscriber(queue + "1", auto_offset_reset="earliest")
+        @broker.subscriber(queue + "1", **self.subscriber_kwargs)
         async def h2(): ...
 
         async with TestKafkaBroker(broker, with_real=True) as br:

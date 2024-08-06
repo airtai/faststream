@@ -117,7 +117,7 @@ class BrokerTestclientTestcase(
 
         publisher = test_broker.publisher(f"{queue}1")
 
-        @test_broker.subscriber(queue)
+        @test_broker.subscriber(queue, **self.subscriber_kwargs)
         async def m(msg):
             await publisher.publish(f"response: {msg}")
 
