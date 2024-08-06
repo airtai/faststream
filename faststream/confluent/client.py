@@ -1,4 +1,5 @@
-import asyncio
+import logging
+from inspect import Parameter
 from time import time
 from typing import (
     TYPE_CHECKING,
@@ -6,24 +7,22 @@ from typing import (
     Dict,
     Iterable,
     List,
-    NamedTuple,
     Optional,
     Tuple,
     Union,
 )
 
+import anyio
 from confluent_kafka import Consumer, KafkaError, KafkaException, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
-from typing_extensions import Annotated, Doc
 
 from faststream.confluent.config import ConfluentConfig
-from faststream.log import logger
+from faststream.log import logger as faststream_logger
 from faststream.utils.functions import call_or_await
 
 if TYPE_CHECKING:
     from faststream.types import AnyDict, LoggerProto
 
-_missing = object()
 
 ADMINCLIENT_CONFIG_PARAMS = (
     "allow.auto.create.topics",
@@ -39,46 +38,18 @@ ADMINCLIENT_CONFIG_PARAMS = (
 )
 
 
-class BatchBuilder:
-    """A helper class to build a batch of messages to send to Kafka."""
-
-    def __init__(self) -> None:
-        """Initializes a new BatchBuilder instance."""
-        self._builder: List[AnyDict] = []
-
-    def append(
-        self,
-        *,
-        timestamp: Optional[int] = None,
-        key: Optional[Union[str, bytes]] = None,
-        value: Optional[Union[str, bytes]] = None,
-        headers: Optional[List[Tuple[str, bytes]]] = None,
-    ) -> None:
-        """Appends a message to the batch with optional timestamp, key, value, and headers."""
-        if key is None and value is None:
-            raise KafkaException(
-                KafkaError(40, reason="Both key and value can't be None")
-            )
-
-        self._builder.append({
-            "timestamp_ms": timestamp or round(time() * 1000),
-            "key": key,
-            "value": value,
-            "headers": headers or [],
-        })
-
-
 class AsyncConfluentProducer:
     """An asynchronous Python Kafka client using the "confluent-kafka" package."""
 
     def __init__(
         self,
         *,
+        logger: Optional["LoggerProto"],
         bootstrap_servers: Union[str, List[str]] = "localhost",
         client_id: Optional[str] = None,
         metadata_max_age_ms: int = 300000,
         request_timeout_ms: int = 40000,
-        acks: Any = _missing,
+        acks: Any = Parameter.empty,
         compression_type: Optional[str] = None,
         partitioner: str = "consistent_random",
         max_request_size: int = 1048576,
@@ -94,10 +65,6 @@ class AsyncConfluentProducer:
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
         config: Optional[ConfluentConfig] = None,
-        logger: Annotated[
-            Union["LoggerProto", None, object],
-            Doc("User specified logger to pass into Context and log service messages."),
-        ] = logger,
     ) -> None:
         self.logger = logger
 
@@ -111,7 +78,7 @@ class AsyncConfluentProducer:
         if compression_type is None:
             compression_type = "none"
 
-        if acks is _missing or acks == "all":
+        if acks is Parameter.empty or acks == "all":
             acks = -1
 
         config_from_params = {
@@ -172,6 +139,7 @@ class AsyncConfluentProducer:
         }
         if timestamp_ms is not None:
             kwargs["timestamp"] = timestamp_ms
+
         await call_or_await(
             self.producer.produce,
             topic,
@@ -179,27 +147,25 @@ class AsyncConfluentProducer:
         )
         await call_or_await(self.producer.poll, 0)
 
-    def create_batch(self) -> BatchBuilder:
-        """Creates a batch for sending multiple messages.
-
-        Returns:
-            BatchBuilder: An instance of BatchBuilder for building message batches.
-        """
+    def create_batch(self) -> "BatchBuilder":
+        """Creates a batch for sending multiple messages."""
         return BatchBuilder()
 
     async def send_batch(
-        self, batch: BatchBuilder, topic: str, *, partition: Optional[int]
+        self, batch: "BatchBuilder", topic: str, *, partition: Optional[int]
     ) -> None:
         """Sends a batch of messages to a Kafka topic."""
-        tasks = [
-            self.send(
-                topic=topic,
-                partition=partition,
-                **msg,
-            )
-            for msg in batch._builder
-        ]
-        await asyncio.gather(*tasks)
+        async with anyio.create_task_group() as tg:
+            for msg in batch._builder:
+                tg.start_soon(
+                    self.send,
+                    topic,
+                    msg["value"],
+                    msg["key"],
+                    partition,
+                    msg["timestamp_ms"],
+                    msg["headers"],
+                )
 
     async def ping(
         self,
@@ -221,47 +187,13 @@ class AsyncConfluentProducer:
             return False
 
 
-class TopicPartition(NamedTuple):
-    """A named tuple representing a Kafka topic and partition."""
-
-    topic: str
-    partition: int
-
-
-def create_topics(
-    topics: List[str],
-    config: Dict[str, Optional[Union[str, int, float, bool, Any]]],
-    logger: Union["LoggerProto", None, object] = logger,
-) -> None:
-    """Creates Kafka topics using the provided configuration."""
-    admin_client = AdminClient(
-        {x: config[x] for x in ADMINCLIENT_CONFIG_PARAMS if x in config}
-    )
-
-    fs = admin_client.create_topics(
-        [NewTopic(topic, num_partitions=1, replication_factor=1)
-         for topic in topics]
-    )
-
-    for topic, f in fs.items():
-        try:
-            f.result()  # The result itself is None
-        except Exception as e:  # noqa: PERF203
-            if "TOPIC_ALREADY_EXISTS" not in str(e):
-                logger.warning(  # type: ignore[union-attr]
-                    f"Failed to create topic {topic}: {e}"
-                )
-        else:
-            # type: ignore[union-attr]
-            logger.info(f"Topic `{topic}` created.")
-
-
 class AsyncConfluentConsumer:
     """An asynchronous Python Kafka client for consuming messages using the "confluent-kafka" package."""
 
     def __init__(
         self,
         *topics: str,
+        logger: Optional["LoggerProto"],
         bootstrap_servers: Union[str, List[str]] = "localhost",
         client_id: Optional[str] = "confluent-kafka-consumer",
         group_id: Optional[str] = None,
@@ -288,10 +220,6 @@ class AsyncConfluentConsumer:
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
         config: Optional[ConfluentConfig] = None,
-        logger: Annotated[
-            Union["LoggerProto", None, object],
-            Doc("User specified logger to pass into Context and log service messages."),
-        ] = logger,
     ) -> None:
         self.logger = logger
 
@@ -316,7 +244,7 @@ class AsyncConfluentConsumer:
             )
         config_from_params = {
             "allow.auto.create.topics": allow_auto_create_topics,
-            # "topic.metadata.refresh.interval.ms": 1000,
+            "topic.metadata.refresh.interval.ms": 1000,
             "bootstrap.servers": bootstrap_servers,
             "client.id": client_id,
             "group.id": group_id,
@@ -325,7 +253,7 @@ class AsyncConfluentConsumer:
             "fetch.max.bytes": fetch_max_bytes,
             "fetch.min.bytes": fetch_min_bytes,
             "max.partition.fetch.bytes": max_partition_fetch_bytes,
-            # "request.timeout.ms": request_timeout_ms,
+            # "request.timeout.ms": 1000,  # producer only
             "fetch.error.backoff.ms": retry_backoff_ms,
             "auto.offset.reset": auto_offset_reset,
             "enable.auto.commit": enable_auto_commit,
@@ -357,12 +285,11 @@ class AsyncConfluentConsumer:
     async def start(self) -> None:
         """Starts the Kafka consumer and subscribes to the specified topics."""
         if self.allow_auto_create_topics:
-            await call_or_await(
-                create_topics, self.topics, self.config, logger
-            )
-        else:
-            logger.warning(  # type: ignore[union-attr]
-                "Auto create topics is disabled. Make sure the topics exist."
+            await call_or_await(create_topics, self.topics, self.config, self.logger)
+        elif self.logger:
+            self.logger.log(
+                logging.WARNING,
+                "Auto create topics is disabled. Make sure the topics exist.",
             )
 
         await call_or_await(self.consumer.subscribe, self.topics)
@@ -416,3 +343,60 @@ def check_msg_error(msg: Optional[Message]) -> Optional[Message]:
         return None
 
     return msg
+
+
+class BatchBuilder:
+    """A helper class to build a batch of messages to send to Kafka."""
+
+    def __init__(self) -> None:
+        """Initializes a new BatchBuilder instance."""
+        self._builder: List[AnyDict] = []
+
+    def append(
+        self,
+        *,
+        timestamp: Optional[int] = None,
+        key: Optional[Union[str, bytes]] = None,
+        value: Optional[Union[str, bytes]] = None,
+        headers: Optional[List[Tuple[str, bytes]]] = None,
+    ) -> None:
+        """Appends a message to the batch with optional timestamp, key, value, and headers."""
+        if key is None and value is None:
+            raise KafkaException(
+                KafkaError(40, reason="Both key and value can't be None")
+            )
+
+        self._builder.append(
+            {
+                "timestamp_ms": timestamp or round(time() * 1000),
+                "key": key,
+                "value": value,
+                "headers": headers or [],
+            }
+        )
+
+
+def create_topics(
+    topics: List[str],
+    config: Dict[str, Optional[Union[str, int, float, bool, Any]]],
+    logger_: Optional["LoggerProto"] = None,
+) -> None:
+    logger_ = logger_ or faststream_logger
+
+    """Creates Kafka topics using the provided configuration."""
+    admin_client = AdminClient(
+        {x: config[x] for x in ADMINCLIENT_CONFIG_PARAMS if x in config}
+    )
+
+    fs = admin_client.create_topics(
+        [NewTopic(topic, num_partitions=1, replication_factor=1) for topic in topics]
+    )
+
+    for topic, f in fs.items():
+        try:
+            f.result()  # The result itself is None
+        except Exception as e:  # noqa: PERF203
+            if "TOPIC_ALREADY_EXISTS" not in str(e):
+                logger_.log(logging.WARN, f"Failed to create topic {topic}: {e}")
+        else:
+            logger_.log(logging.INFO, f"Topic `{topic}` created.")

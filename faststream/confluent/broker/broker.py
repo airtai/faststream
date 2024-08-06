@@ -1,5 +1,4 @@
 import logging
-from asyncio import AbstractEventLoop
 from functools import partial
 from inspect import Parameter
 from typing import (
@@ -27,7 +26,6 @@ from faststream.confluent.broker.registrator import KafkaRegistrator
 from faststream.confluent.client import (
     AsyncConfluentConsumer,
     AsyncConfluentProducer,
-    _missing,
 )
 from faststream.confluent.config import ConfluentConfig
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
@@ -112,7 +110,6 @@ class KafkaBroker(
             """
             ),
         ] = 9 * 60 * 1000,
-        loop: Optional[AbstractEventLoop] = None,
         client_id: Annotated[
             Optional[str],
             Doc(
@@ -127,16 +124,20 @@ class KafkaBroker(
         ] = SERVICE_NAME,
         allow_auto_create_topics: Annotated[
             bool,
-            Doc("""
+            Doc(
+                """
             Allow automatic topic creation on the broker when subscribing to or assigning non-existent topics.
-            """),
+            """
+            ),
         ] = True,
         config: Annotated[
             Optional[ConfluentConfig],
-            Doc("""
+            Doc(
+                """
                 Extra configuration for the confluent-kafka-python
                 producer/consumer. See `confluent_kafka.Config <https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#kafka-client-configuration>`_.
-                """),
+                """
+            ),
         ] = None,
         # publisher args
         acks: Annotated[
@@ -169,7 +170,7 @@ class KafkaBroker(
             :data:`True` defaults to ``acks=all``.
             """
             ),
-        ] = _missing,
+        ] = Parameter.empty,
         compression_type: Annotated[
             Optional[Literal["gzip", "snappy", "lz4", "zstd"]],
             Doc(
