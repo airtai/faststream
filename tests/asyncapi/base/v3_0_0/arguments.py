@@ -486,7 +486,7 @@ class FastAPICompatible:
 
         with open("schema5.json", "w") as file:
             json.dump(schema["components"], file, indent=4)
-        # TODO: payload are not moved
+
         assert schema["components"] == {
             "messages": {
                 key: {
