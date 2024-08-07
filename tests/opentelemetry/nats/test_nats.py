@@ -47,12 +47,13 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_span_count = 4
         expected_proc_batch_count = 1
 
-        @broker.subscriber(
+        args, kwargs = self.get_subscriber_params(
             queue,
             stream=stream,
             pull_sub=PullSub(1, batch=True, timeout=30.0),
-            **self.subscriber_kwargs,
         )
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             mock(m)
             event.set()

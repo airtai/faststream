@@ -45,7 +45,9 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_link_count = 1
         expected_link_attrs = {"messaging.batch.message_count": 3}
 
-        @broker.subscriber(list=ListSub(queue, batch=True), **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(list=ListSub(queue, batch=True))
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             mock(m)
             event.set()
@@ -97,7 +99,9 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_span_count = 8
         expected_pub_batch_count = 1
 
-        @broker.subscriber(list=ListSub(queue), **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(list=ListSub(queue))
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(msg):
             await msgs_queue.put(msg)
 
@@ -155,7 +159,9 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_span_count = 6
         expected_process_batch_count = 1
 
-        @broker.subscriber(list=ListSub(queue, batch=True), **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(list=ListSub(queue, batch=True))
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             m.sort()
             mock(m)

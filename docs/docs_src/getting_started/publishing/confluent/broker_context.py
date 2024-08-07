@@ -1,7 +1,7 @@
 from faststream import FastStream
 from faststream.confluent import KafkaBroker
 
-broker = KafkaBroker("localhost:9092")
+broker = KafkaBroker()
 app = FastStream(broker)
 
 
@@ -12,5 +12,5 @@ async def handle(msg: str):
 
 @app.after_startup
 async def test():
-    async with KafkaBroker("localhost:9092") as br:
+    async with KafkaBroker() as br:
         await br.publish("Hi!", topic="test-confluent-topic")

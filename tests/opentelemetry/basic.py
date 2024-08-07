@@ -29,8 +29,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
     messaging_system: str
     include_messages_counters: bool
     broker_class: Type[BrokerUsecase]
-    resource: Resource = Resource.create(
-        attributes={"service.name": "faststream.test"})
+    resource: Resource = Resource.create(attributes={"service.name": "faststream.test"})
 
     telemetry_middleware_class: TelemetryMiddleware
 
@@ -237,14 +236,10 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         parent_span_id = create.context.span_id
 
         self.assert_span(create, Action.CREATE, first_queue, msg)
-        self.assert_span(pub1, Action.PUBLISH,
-                         first_queue, msg, parent_span_id)
-        self.assert_span(proc1, Action.PROCESS,
-                         first_queue, msg, parent_span_id)
-        self.assert_span(pub2, Action.PUBLISH, second_queue,
-                         msg, proc1.context.span_id)
-        self.assert_span(proc2, Action.PROCESS,
-                         second_queue, msg, parent_span_id)
+        self.assert_span(pub1, Action.PUBLISH, first_queue, msg, parent_span_id)
+        self.assert_span(proc1, Action.PROCESS, first_queue, msg, parent_span_id)
+        self.assert_span(pub2, Action.PUBLISH, second_queue, msg, proc1.context.span_id)
+        self.assert_span(proc2, Action.PROCESS, second_queue, msg, parent_span_id)
 
         assert (
             create.start_time

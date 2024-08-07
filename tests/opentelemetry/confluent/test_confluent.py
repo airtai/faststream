@@ -79,6 +79,7 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
         expected_link_attrs = {"messaging.batch.message_count": 3}
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)
+
         @broker.subscriber(*args, **kwargs)
         async def handler(m):
             mock(m)
@@ -132,6 +133,7 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
         expected_pub_batch_count = 1
 
         args, kwargs = self.get_subscriber_params(queue)
+
         @broker.subscriber(*args, **kwargs)
         async def handler(msg):
             await msgs_queue.put(msg)
@@ -191,6 +193,7 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
         expected_process_batch_count = 1
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)
+
         @broker.subscriber(*args, **kwargs)
         async def handler(m):
             m.sort()
