@@ -138,6 +138,7 @@ search:
                 - [KafkaRouter](public_api/faststream/confluent/KafkaRouter.md)
                 - [TestApp](public_api/faststream/confluent/TestApp.md)
                 - [TestKafkaBroker](public_api/faststream/confluent/TestKafkaBroker.md)
+                - [TopicPartition](public_api/faststream/confluent/TopicPartition.md)
             - kafka
                 - [KafkaBroker](public_api/faststream/kafka/KafkaBroker.md)
                 - [KafkaPublisher](public_api/faststream/kafka/KafkaPublisher.md)
@@ -457,6 +458,7 @@ search:
                 - [KafkaRouter](api/faststream/confluent/KafkaRouter.md)
                 - [TestApp](api/faststream/confluent/TestApp.md)
                 - [TestKafkaBroker](api/faststream/confluent/TestKafkaBroker.md)
+                - [TopicPartition](api/faststream/confluent/TopicPartition.md)
                 - broker
                     - [KafkaBroker](api/faststream/confluent/broker/KafkaBroker.md)
                     - broker
@@ -522,8 +524,11 @@ search:
                     - [KafkaRoute](api/faststream/confluent/router/KafkaRoute.md)
                     - [KafkaRouter](api/faststream/confluent/router/KafkaRouter.md)
                 - schemas
+                    - [TopicPartition](api/faststream/confluent/schemas/TopicPartition.md)
                     - params
                         - [ConsumerConnectionParams](api/faststream/confluent/schemas/params/ConsumerConnectionParams.md)
+                    - partition
+                        - [TopicPartition](api/faststream/confluent/schemas/partition/TopicPartition.md)
                 - security
                     - [parse_security](api/faststream/confluent/security/parse_security.md)
                 - subscriber
