@@ -1,7 +1,6 @@
 import asyncio
 from abc import abstractmethod
 from contextlib import suppress
-from functools import cached_property
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -146,7 +145,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             _call_decorators=_call_decorators,
         )
 
-    @cached_property
+    @property
     def clear_subject(self) -> str:
         """Compile `test.{name}` to `test.*` subject."""
         _, path = compile_nats_wildcard(self.subject)
@@ -215,7 +214,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
                 for subject in (self.config.filter_subjects or ())
             ]
 
-    @cached_property
+    @property
     def _resolved_subject_string(self) -> str:
         return self.subject or ", ".join(self.config.filter_subjects or ())
 

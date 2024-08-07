@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, ClassVar, Dict, Optional
+from typing import Optional
 from unittest.mock import Mock
 
 import pytest
@@ -15,18 +15,15 @@ from faststream.confluent import KafkaBroker
 from faststream.confluent.opentelemetry import KafkaTelemetryMiddleware
 from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 from faststream.opentelemetry.middleware import MessageAction as Action
-from tests.brokers.confluent.test_consume import TestConsume
-from tests.brokers.confluent.test_publish import TestPublish
 
 from ..basic import LocalTelemetryTestcase
+from tests.brokers.confluent.basic import ConfluentTestcaseConfig
 
 
 @pytest.mark.confluent()
-class TestTelemetry(LocalTelemetryTestcase):
+class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
     messaging_system = "kafka"
     include_messages_counters = True
-    timeout: int = 10
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
     broker_class = KafkaBroker
     telemetry_middleware_class = KafkaTelemetryMiddleware
 
@@ -81,7 +78,8 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_link_count = 1
         expected_link_attrs = {"messaging.batch.message_count": 3}
 
-        @broker.subscriber(queue, batch=True, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue, batch=True)
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             mock(m)
             event.set()
@@ -133,7 +131,8 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_span_count = 8
         expected_pub_batch_count = 1
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+        @broker.subscriber(*args, **kwargs)
         async def handler(msg):
             await msgs_queue.put(msg)
 
@@ -191,7 +190,8 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_span_count = 6
         expected_process_batch_count = 1
 
-        @broker.subscriber(queue, batch=True, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue, batch=True)
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             m.sort()
             mock(m)
@@ -222,21 +222,3 @@ class TestTelemetry(LocalTelemetryTestcase):
 
         assert event.is_set()
         mock.assert_called_once_with(["buy", "hi"])
-
-
-@pytest.mark.confluent()
-class TestPublishWithTelemetry(TestPublish):
-    def get_broker(self, apply_types: bool = False):
-        return KafkaBroker(
-            middlewares=(KafkaTelemetryMiddleware(),),
-            apply_types=apply_types,
-        )
-
-
-@pytest.mark.confluent()
-class TestConsumeWithTelemetry(TestConsume):
-    def get_broker(self, apply_types: bool = False):
-        return KafkaBroker(
-            middlewares=(KafkaTelemetryMiddleware(),),
-            apply_types=apply_types,
-        )
