@@ -12,6 +12,91 @@ hide:
 ---
 
 # Release Notes
+## 0.5.16
+
+### What's Changed
+
+Well, seems like it is the biggest patch release ever 😃 
+
+#### Detail Reponses
+
+First of all, thanks to all new contributors, who helps us to improve the project! They made a huge impact to this release by adding new Kafka security machanisms and extend Response API - now you can use `broker.Response` to publish detailt information from handler
+
+```python
+@broker.subscriber("in")
+@broker.publisher("out")
+async def handler(msg):
+    return Response(msg, headers={"response_header": "Hi!"})   # or KafkaResponse, etc
+```
+
+#### ASGI
+
+Also, we added a new huge feature - [**ASGI** support](https://faststream.airt.ai/latest/getting-started/asgi/#other-asgi-compatibility)!
+
+Nope, we are not HTTP-framework now, but it is a little ASGI implemetnation to provide you with an ability to host documentation, use k8s http-probes and serve metrics in the same with you broker runtime without any dependencies.
+
+You just need to use **AsgiFastStream** class
+
+```python
+from faststream.nats import NatsBroker
+from faststream.asgi import AsgiFastStream, make_ping_asgi
+
+from prometheus_client import make_asgi_app
+from prometheus_client.registry import CollectorRegistry
+
+broker = NatsBroker()
+
+prometheus_registry = CollectorRegistry()
+
+app = AsgiFastStream(
+    broker,
+    asyncapi_path="/docs",
+    asgi_routes=[
+        ("/health", make_ping_asgi(broker, timeout=5.0)),
+        ("/metrics", make_asgi_app(registry=prometheus_registry))
+    ]
+)
+```
+
+And then you can run it like a regular ASGI app
+
+```shell
+uvicorn main:app
+```
+
+#### Confluent partitions
+
+One more thing - manual topic partition assignment for Confluent. We have it already for aiokafka, but missed it here... Now it was fixed!
+
+```python
+from faststream.confluent import TopicPartition
+
+@broker.subscriber(partitions=[
+    TopicPartition("test-topic", partition=0),
+])
+async def handler():
+    ...
+```
+
+#### Detail changes
+
+* feat: add RMQ `fail_fast` option in #1647
+* fix: correct nested `NatsRouter` subjects prefixes behavior
+* fix typos by @newonlynew in https://github.com/airtai/faststream/pull/1609
+* Feat: extend response api by @Flosckow in https://github.com/airtai/faststream/pull/1607
+* Feature: GSSAPI (Kerberos) support by @roma-frolov in https://github.com/airtai/faststream/pull/1633
+* feat: add oauth support by @filip-danieluk in https://github.com/airtai/faststream/pull/1632
+* fix: patch broker within testbroker context only by @sfran96 in https://github.com/airtai/faststream/pull/1619
+* feat: ASGI support by @Lancetnik in https://github.com/airtai/faststream/pull/1635
+
+### New Contributors
+* @newonlynew made their first contribution in https://github.com/airtai/faststream/pull/1609
+* @roma-frolov made their first contribution in https://github.com/airtai/faststream/pull/1633
+* @filip-danieluk made their first contribution in https://github.com/airtai/faststream/pull/1632
+* @sfran96 made their first contribution in https://github.com/airtai/faststream/pull/1619
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.15...0.5.16
+
 ## 0.5.15
 
 ### What's Changed
