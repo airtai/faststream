@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.schema.bindings import ChannelBinding
 from faststream.asyncapi.schema.utils import Parameter
-from faststream.asyncapi.schema.v2_6_0.operations import Operation
+from faststream.asyncapi.v2_6_0.schema.operations import Operation
 
 
 class Channel(BaseModel):
