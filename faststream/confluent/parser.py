@@ -18,7 +18,7 @@ class AsyncConfluentParser:
     @staticmethod
     async def parse_message(
         message: "Message",
-    ) -> "StreamMessage[Message]":
+    ) -> KafkaMessage:
         """Parses a Kafka message."""
         headers = _parse_msg_headers(message.headers() or ())
 
@@ -43,7 +43,7 @@ class AsyncConfluentParser:
     @staticmethod
     async def parse_message_batch(
         message: Tuple["Message", ...],
-    ) -> "StreamMessage[Tuple[Message, ...]]":
+    ) -> KafkaMessage:
         """Parses a batch of messages from a Kafka consumer."""
         body: List[Any] = []
         batch_headers: List[Dict[str, str]] = []

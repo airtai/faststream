@@ -173,18 +173,17 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
 
         args, kwargs = self.get_subscriber_params(
             queue,
-            filter=lambda m: m.content_type == "application/json",
         )
 
-        @broker.subscriber(*args, **kwargs)
+        sub = broker.subscriber(*args, **kwargs)
+
+        @sub(filter=lambda m: m.content_type == "application/json")
         async def handler(m):
             event2.set()
             mock()
             return ""
 
-        args2, kwargs2 = self.get_subscriber_params(queue, middlewares=(mid,))
-
-        @broker.subscriber(*args2, **kwargs2)
+        @sub(middlewares=(mid,))
         async def handler2(m):
             event1.set()
             mock()

@@ -43,7 +43,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         if not sub.calls:
 
             @sub
-            def f(msg: Any) -> None:
+            def publisher_response_subscriber(msg: Any) -> None:
                 pass
 
             broker.setup_subscriber(sub)

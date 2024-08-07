@@ -1,5 +1,4 @@
 import asyncio
-from typing import Any, ClassVar, Dict
 
 import pytest
 
@@ -8,14 +7,14 @@ from faststream.confluent import KafkaBroker, TestKafkaBroker
 from faststream.confluent.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
+from .basic import ConfluentTestcaseConfig
+
 
 @pytest.mark.asyncio()
-class TestTestclient(BrokerTestclientTestcase):
+class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     """A class to represent a test Kafka broker."""
 
     test_class = TestKafkaBroker
-    timeout = 10
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
 
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(apply_types=apply_types)
@@ -219,7 +218,7 @@ class TestTestclient(BrokerTestclientTestcase):
         await super().test_broker_with_real_doesnt_get_patched()
 
     @pytest.mark.confluent()
-    async def test_broker_with_real_patches_subscribers_and_subscribers(
+    async def test_broker_with_real_patches_publishers_and_subscribers(
         self, queue: str
     ):
-        await super().test_broker_with_real_patches_subscribers_and_subscribers(queue)
+        await super().test_broker_with_real_patches_publishers_and_subscribers(queue)

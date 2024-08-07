@@ -403,13 +403,14 @@ class FastAPICompatible:
 
         broker = self.broker_class()
 
-        @broker.subscriber(  # pragma: no branch
-            "test",
+        sub = broker.subscriber("test")
+
+        @sub(
             filter=lambda m: m.content_type == "application/json",
         )
         async def handle(id: int): ...
 
-        @broker.subscriber("test")
+        @sub
         async def handle_default(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()

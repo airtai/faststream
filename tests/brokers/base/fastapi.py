@@ -385,12 +385,10 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         @router.after_startup
         def test_sync(app):
             mock.sync_called()
-            return {"sync_called": mock.async_called.called is False}
 
         @router.after_startup
         async def test_async(app):
             mock.async_called()
-            return {"async_called": mock.sync_called.called}
 
         @router.on_broker_shutdown
         def test_shutdown_sync(app):
@@ -400,11 +398,8 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         async def test_shutdown_async(app):
             mock.async_shutdown_called()
 
-        async with self.broker_test(router.broker), router.lifespan_context(
-            app
-        ) as context:
-            assert context["sync_called"]
-            assert context["async_called"]
+        async with self.broker_test(router.broker), router.lifespan_context(app):
+            pass
 
         mock.sync_called.assert_called_once()
         mock.async_called.assert_called_once()

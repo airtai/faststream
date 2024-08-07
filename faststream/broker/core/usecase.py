@@ -87,7 +87,7 @@ class BrokerUsecase(
             Doc("Logger object to use if `logger` is not set."),
         ],
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
         ],
         log_level: Annotated[

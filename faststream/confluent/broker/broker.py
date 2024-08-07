@@ -1,6 +1,5 @@
 import logging
 from functools import partial
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -32,6 +31,7 @@ from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.types import EMPTY
 from faststream.utils.data import filter_by_dict
 
 if TYPE_CHECKING:
@@ -141,7 +141,7 @@ class KafkaBroker(
         ] = None,
         # publisher args
         acks: Annotated[
-            Union[Literal[0, 1, -1, "all"], object],
+            Literal[0, 1, -1, "all"],
             Doc(
                 """
             One of ``0``, ``1``, ``all``. The number of acknowledgments
@@ -170,7 +170,7 @@ class KafkaBroker(
             :data:`True` defaults to ``acks=all``.
             """
             ),
-        ] = Parameter.empty,
+        ] = EMPTY,
         compression_type: Annotated[
             Optional[Literal["gzip", "snappy", "lz4", "zstd"]],
             Doc(
@@ -302,9 +302,9 @@ class KafkaBroker(
         ] = None,
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         log_level: Annotated[
             int,
             Doc("Service messages log level."),
@@ -411,12 +411,12 @@ class KafkaBroker(
     async def connect(
         self,
         bootstrap_servers: Annotated[
-            Union[str, Iterable[str], object],
+            Union[str, Iterable[str]],
             Doc("Kafka addresses to connect."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         **kwargs: Any,
     ) -> Callable[..., AsyncConfluentConsumer]:
-        if bootstrap_servers is not Parameter.empty:
+        if bootstrap_servers is not EMPTY:
             kwargs["bootstrap_servers"] = bootstrap_servers
 
         return await super().connect(**kwargs)

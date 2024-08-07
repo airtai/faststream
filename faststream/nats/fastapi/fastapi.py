@@ -1,5 +1,4 @@
 import logging
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -39,6 +38,7 @@ from faststream.broker.utils import default_filter
 from faststream.nats.broker import NatsBroker
 from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
 from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     import ssl
@@ -265,9 +265,9 @@ class NatsRouter(StreamRouter["Msg"]):
         ] = None,
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         log_level: Annotated[
             int,
             Doc("Service messages log level."),

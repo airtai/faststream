@@ -259,7 +259,9 @@ class SubscriberUsecase(
         dependencies: Iterable["Depends"] = (),
     ) -> Any:
         if (options := self._call_options) is None:
-            raise SetupError("You can't create subscriber directly.")
+            raise SetupError(
+                "You can't create subscriber directly. Please, use `add_call` at first."
+            )
 
         total_deps = (*options.dependencies, *dependencies)
         total_middlewares = (*options.middlewares, *middlewares)

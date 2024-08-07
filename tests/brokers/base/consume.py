@@ -176,17 +176,16 @@ class BrokerConsumeTestcase(BaseTestcaseConfig):
 
         args, kwargs = self.get_subscriber_params(
             queue,
-            filter=lambda m: m.content_type == "application/json",
         )
 
-        @consume_broker.subscriber(*args, **kwargs)
+        sub = consume_broker.subscriber(*args, **kwargs)
+
+        @sub(filter=lambda m: m.content_type == "application/json")
         async def handler(m):
             mock.handler(m)
             consume.set()
 
-        args2, kwargs2 = self.get_subscriber_params(queue)
-
-        @consume_broker.subscriber(*args2, **kwargs2)
+        @sub
         async def handler2(m):
             mock.handler2(m)
             consume2.set()

@@ -3,6 +3,7 @@ from typing import (
     Iterable,
     Literal,
     Optional,
+    Sequence,
     Tuple,
     Union,
     overload,
@@ -18,14 +19,16 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import BrokerMiddleware
+    from faststream.confluent.schemas import TopicPartition
     from faststream.types import AnyDict
 
 
 @overload
 def create_subscriber(
     *topics: str,
+    partitions: Sequence["TopicPartition"],
+    polling_interval: float,
     batch: Literal[True],
-    batch_timeout_ms: int,
     max_records: Optional[int],
     # Kafka information
     group_id: Optional[str],
@@ -47,8 +50,9 @@ def create_subscriber(
 @overload
 def create_subscriber(
     *topics: str,
+    partitions: Sequence["TopicPartition"],
+    polling_interval: float,
     batch: Literal[False],
-    batch_timeout_ms: int,
     max_records: Optional[int],
     # Kafka information
     group_id: Optional[str],
@@ -70,8 +74,9 @@ def create_subscriber(
 @overload
 def create_subscriber(
     *topics: str,
+    partitions: Sequence["TopicPartition"],
+    polling_interval: float,
     batch: bool,
-    batch_timeout_ms: int,
     max_records: Optional[int],
     # Kafka information
     group_id: Optional[str],
@@ -97,8 +102,9 @@ def create_subscriber(
 
 def create_subscriber(
     *topics: str,
+    partitions: Sequence["TopicPartition"],
+    polling_interval: float,
     batch: bool,
-    batch_timeout_ms: int,
     max_records: Optional[int],
     # Kafka information
     group_id: Optional[str],
@@ -123,7 +129,8 @@ def create_subscriber(
     if batch:
         return AsyncAPIBatchSubscriber(
             *topics,
-            batch_timeout_ms=batch_timeout_ms,
+            partitions=partitions,
+            polling_interval=polling_interval,
             max_records=max_records,
             group_id=group_id,
             connection_data=connection_data,
@@ -140,6 +147,8 @@ def create_subscriber(
     else:
         return AsyncAPIDefaultSubscriber(
             *topics,
+            partitions=partitions,
+            polling_interval=polling_interval,
             group_id=group_id,
             connection_data=connection_data,
             is_manual=is_manual,

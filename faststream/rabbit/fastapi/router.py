@@ -1,5 +1,4 @@
 import logging
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -31,6 +30,7 @@ from faststream.rabbit.schemas import (
     RabbitQueue,
 )
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -96,6 +96,16 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             "TimeoutType",
             Doc("Connection establishement timeout."),
         ] = None,
+        fail_fast: Annotated[
+            bool,
+            Doc(
+                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable."
+            ),
+        ] = True,
+        reconnect_interval: Annotated[
+            "TimeoutType",
+            Doc("Time to sleep between reconnection attempts."),
+        ] = 5.0,
         # channel args
         channel_number: Annotated[
             Optional[int],
@@ -176,9 +186,9 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         ] = None,
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         log_level: Annotated[
             int,
             Doc("Service messages log level."),
@@ -423,6 +433,8 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             ssl_options=ssl_options,
             client_properties=client_properties,
             timeout=timeout,
+            fail_fast=fail_fast,
+            reconnect_interval=reconnect_interval,
             max_consumers=max_consumers,
             app_id=app_id,
             graceful_timeout=graceful_timeout,

@@ -118,7 +118,7 @@ class BrokerTestclientTestcase(
             assert br._connection is not None
             assert br._producer is not None
 
-    async def test_broker_with_real_patches_subscribers_and_subscribers(
+    async def test_broker_with_real_patches_publishers_and_subscribers(
         self, queue: str
     ):
         test_broker = self.get_broker()
@@ -136,9 +136,10 @@ class BrokerTestclientTestcase(
         async with self.test_class(test_broker, with_real=True) as br:
             await br.publish("hello", queue)
 
-            await m.wait_call(self.timeout * 3)
+            await m.wait_call(self.timeout)
 
             m.mock.assert_called_once_with("hello")
+
             with anyio.fail_after(self.timeout):
                 while not publisher.mock.called:
                     await asyncio.sleep(0.1)

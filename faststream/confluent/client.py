@@ -1,5 +1,4 @@
 import logging
-from inspect import Parameter
 from time import time
 from typing import (
     TYPE_CHECKING,
@@ -8,6 +7,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Sequence,
     Tuple,
     Union,
 )
@@ -17,25 +17,14 @@ from confluent_kafka import Consumer, KafkaError, KafkaException, Message, Produ
 from confluent_kafka.admin import AdminClient, NewTopic
 
 from faststream.confluent.config import ConfluentConfig
+from faststream.exceptions import SetupError
 from faststream.log import logger as faststream_logger
+from faststream.types import EMPTY
 from faststream.utils.functions import call_or_await
 
 if TYPE_CHECKING:
+    from faststream.confluent.schemas import TopicPartition
     from faststream.types import AnyDict, LoggerProto
-
-
-ADMINCLIENT_CONFIG_PARAMS = (
-    "allow.auto.create.topics",
-    "bootstrap.servers",
-    "client.id",
-    "request.timeout.ms",
-    "metadata.max.age.ms",
-    "security.protocol",
-    "connections.max.idle.ms",
-    "sasl.mechanism",
-    "sasl.username",
-    "sasl.password",
-)
 
 
 class AsyncConfluentProducer:
@@ -49,7 +38,7 @@ class AsyncConfluentProducer:
         client_id: Optional[str] = None,
         metadata_max_age_ms: int = 300000,
         request_timeout_ms: int = 40000,
-        acks: Any = Parameter.empty,
+        acks: Any = EMPTY,
         compression_type: Optional[str] = None,
         partitioner: str = "consistent_random",
         max_request_size: int = 1048576,
@@ -78,7 +67,7 @@ class AsyncConfluentProducer:
         if compression_type is None:
             compression_type = "none"
 
-        if acks is Parameter.empty or acks == "all":
+        if acks is EMPTY or acks == "all":
             acks = -1
 
         config_from_params = {
@@ -111,7 +100,7 @@ class AsyncConfluentProducer:
                 }
             )
 
-        self.producer = Producer(self.config, logger=self.logger)
+        self.producer = Producer(self.config, logger=self.logger)  # type: ignore[call-arg]
 
     async def stop(self) -> None:
         """Stop the Kafka producer and flush remaining messages."""
@@ -127,25 +116,21 @@ class AsyncConfluentProducer:
         headers: Optional[List[Tuple[str, Union[str, bytes]]]] = None,
     ) -> None:
         """Sends a single message to a Kafka topic."""
-        kwargs = {
-            k: v
-            for k, v in {
-                "value": value,
-                "key": key,
-                "partition": partition,
-                "headers": headers,
-            }.items()
-            if v is not None
+        kwargs: AnyDict = {
+            "value": value,
+            "key": key,
+            "headers": headers,
         }
+
+        if partition is not None:
+            kwargs["partition"] = partition
+
         if timestamp_ms is not None:
             kwargs["timestamp"] = timestamp_ms
 
-        await call_or_await(
-            self.producer.produce,
-            topic,
-            **kwargs,
-        )
-        await call_or_await(self.producer.poll, 0)
+        # should be sync to prevent segfault
+        self.producer.produce(topic, **kwargs)
+        self.producer.poll(0)
 
     def create_batch(self) -> "BatchBuilder":
         """Creates a batch for sending multiple messages."""
@@ -193,6 +178,7 @@ class AsyncConfluentConsumer:
     def __init__(
         self,
         *topics: str,
+        partitions: Sequence["TopicPartition"],
         logger: Optional["LoggerProto"],
         bootstrap_servers: Union[str, List[str]] = "localhost",
         client_id: Optional[str] = "confluent-kafka-consumer",
@@ -226,7 +212,7 @@ class AsyncConfluentConsumer:
         self.config: Dict[str, Any] = {} if config is None else dict(config)
 
         if group_id is None:
-            group_id = "confluent-kafka-consumer-group"
+            group_id = "faststream-consumer-group"
 
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
@@ -234,6 +220,7 @@ class AsyncConfluentConsumer:
             bootstrap_servers = ",".join(bootstrap_servers)
 
         self.topics = list(topics)
+        self.partitions = partitions
 
         if not isinstance(partition_assignment_strategy, str):
             partition_assignment_strategy = ",".join(
@@ -280,19 +267,35 @@ class AsyncConfluentConsumer:
                 }
             )
 
-        self.consumer = Consumer(self.config, logger=self.logger)
+        self.consumer = Consumer(self.config, logger=self.logger)  # type: ignore[call-arg]
+
+    @property
+    def topics_to_create(self) -> List[str]:
+        return list({*self.topics, *(p.topic for p in self.partitions)})
 
     async def start(self) -> None:
         """Starts the Kafka consumer and subscribes to the specified topics."""
         if self.allow_auto_create_topics:
-            await call_or_await(create_topics, self.topics, self.config, self.logger)
+            await call_or_await(
+                create_topics, self.topics_to_create, self.config, self.logger
+            )
+
         elif self.logger:
             self.logger.log(
                 logging.WARNING,
                 "Auto create topics is disabled. Make sure the topics exist.",
             )
 
-        await call_or_await(self.consumer.subscribe, self.topics)
+        if self.topics:
+            await call_or_await(self.consumer.subscribe, self.topics)
+
+        elif self.partitions:
+            await call_or_await(
+                self.consumer.assign, [p.to_confluent() for p in self.partitions]
+            )
+
+        else:
+            raise SetupError("You must provide either `topics` or `partitions` option.")
 
     async def commit(self, asynchronous: bool = True) -> None:
         """Commits the offsets of all messages returned by the last poll operation."""
@@ -311,27 +314,31 @@ class AsyncConfluentConsumer:
             # No offset stored issue is not a problem - https://github.com/confluentinc/confluent-kafka-python/issues/295#issuecomment-355907183
             if "No offset stored" in str(e):
                 pass
-            else:
-                raise e
+            elif self.logger:
+                self.logger.log(
+                    logging.ERROR,
+                    "Consumer closing error occurred.",
+                    exc_info=e,
+                )
 
         # Wrap calls to async to make method cancelable by timeout
         await call_or_await(self.consumer.close)
 
-    async def getone(self, timeout_ms: int = 1000) -> Optional[Message]:
+    async def getone(self, timeout: float = 0.1) -> Optional[Message]:
         """Consumes a single message from Kafka."""
-        msg = await call_or_await(self.consumer.poll, timeout_ms / 1000)
+        msg = await call_or_await(self.consumer.poll, timeout)
         return check_msg_error(msg)
 
     async def getmany(
         self,
-        timeout_ms: int = 0,
+        timeout: float = 0.1,
         max_records: Optional[int] = 10,
     ) -> Tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
         raw_messages: List[Optional[Message]] = await call_or_await(
-            self.consumer.consume,
+            self.consumer.consume,  # type: ignore[arg-type]
             num_messages=max_records or 10,
-            timeout=timeout_ms / 1000,
+            timeout=timeout,
         )
 
         return tuple(x for x in map(check_msg_error, raw_messages) if x is not None)
@@ -400,3 +407,17 @@ def create_topics(
                 logger_.log(logging.WARN, f"Failed to create topic {topic}: {e}")
         else:
             logger_.log(logging.INFO, f"Topic `{topic}` created.")
+
+
+ADMINCLIENT_CONFIG_PARAMS = (
+    "allow.auto.create.topics",
+    "bootstrap.servers",
+    "client.id",
+    "request.timeout.ms",
+    "metadata.max.age.ms",
+    "security.protocol",
+    "connections.max.idle.ms",
+    "sasl.mechanism",
+    "sasl.username",
+    "sasl.password",
+)

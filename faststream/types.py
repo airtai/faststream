@@ -107,3 +107,6 @@ class LoggerProto(Protocol):
         exc_info: Any = None,
         extra: Optional[Mapping[str, Any]] = None,
     ) -> None: ...
+
+
+EMPTY: Any = object()
