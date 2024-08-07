@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, ClassVar, Dict, List, Optional, Tuple, Type, cast
+from typing import List, Optional, Tuple, Type, cast
 from unittest.mock import Mock
 
 import pytest
@@ -21,7 +21,6 @@ from faststream.opentelemetry.consts import (
 )
 from faststream.opentelemetry.middleware import MessageAction as Action
 from faststream.opentelemetry.middleware import TelemetryMiddleware
-
 from tests.brokers.base.basic import BaseTestcaseConfig
 
 
@@ -97,8 +96,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         assert attrs[SpanAttr.MESSAGING_MESSAGE_CONVERSATION_ID] == IsUUID, attrs[
             SpanAttr.MESSAGING_MESSAGE_CONVERSATION_ID
         ]
-        assert span.name == f"{self.destination_name(queue)} {
-            action}", span.name
+        assert span.name == f"{self.destination_name(queue)} {action}", span.name
         assert span.kind in (SpanKind.CONSUMER, SpanKind.PRODUCER), span.kind
 
         if span.kind == SpanKind.PRODUCER and action in (Action.CREATE, Action.PUBLISH):

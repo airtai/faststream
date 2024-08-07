@@ -15,9 +15,9 @@ from faststream.confluent import KafkaBroker
 from faststream.confluent.opentelemetry import KafkaTelemetryMiddleware
 from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 from faststream.opentelemetry.middleware import MessageAction as Action
+from tests.brokers.confluent.basic import ConfluentTestcaseConfig
 
 from ..basic import LocalTelemetryTestcase
-from tests.brokers.confluent.basic import ConfluentTestcaseConfig
 
 
 @pytest.mark.confluent()
