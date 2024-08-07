@@ -1,6 +1,5 @@
 import logging
 from functools import partial
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -33,6 +32,7 @@ from faststream.redis.broker.logging import RedisLoggingBroker
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -94,12 +94,11 @@ class RedisBroker(
     def __init__(
         self,
         url: str = "redis://localhost:6379",
-        polling_interval: Optional[float] = None,
         *,
-        host: Union[str, object] = Parameter.empty,
-        port: Union[str, int, object] = Parameter.empty,
-        db: Union[str, int, object] = Parameter.empty,
-        connection_class: Union[Type["Connection"], object] = Parameter.empty,
+        host: str = EMPTY,
+        port: Union[str, int] = EMPTY,
+        db: Union[str, int] = EMPTY,
+        connection_class: Type["Connection"] = EMPTY,
         client_name: Optional[str] = None,
         health_check_interval: float = 0,
         max_connections: Optional[int] = None,
@@ -167,9 +166,9 @@ class RedisBroker(
         ] = None,
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         log_level: Annotated[
             int,
             Doc("Service messages log level."),
@@ -196,7 +195,6 @@ class RedisBroker(
             Doc("Any custom decorator to apply to wrapped functions."),
         ] = (),
     ) -> None:
-        self.global_polling_interval = polling_interval
         self._producer = None
 
         if asyncapi_url is None:
@@ -255,11 +253,11 @@ class RedisBroker(
     @override
     async def connect(  # type: ignore[override]
         self,
-        url: Union[str, None, object] = Parameter.empty,
+        url: Optional[str] = EMPTY,
         **kwargs: "Unpack[RedisInitKwargs]",
     ) -> "Redis[bytes]":
         """Connect to the Redis server."""
-        if url is not Parameter.empty:
+        if url is not EMPTY:
             connect_kwargs: AnyDict = {
                 "url": url,
                 **kwargs,
@@ -274,10 +272,10 @@ class RedisBroker(
         self,
         url: str,
         *,
-        host: Union[str, object],
-        port: Union[str, int, object],
-        db: Union[str, int, object],
-        connection_class: Union[Type["Connection"], object],
+        host: str,
+        port: Union[str, int],
+        db: Union[str, int],
+        connection_class: Type["Connection"],
         client_name: Optional[str],
         health_check_interval: float,
         max_connections: Optional[int],
@@ -314,13 +312,13 @@ class RedisBroker(
             "encoder_class": encoder_class,
         }
 
-        if port is not Parameter.empty:
+        if port is not EMPTY:
             url_options["port"] = port
-        if host is not Parameter.empty:
+        if host is not EMPTY:
             url_options["host"] = host
-        if db is not Parameter.empty:
+        if db is not EMPTY:
             url_options["db"] = db
-        if connection_class is not Parameter.empty:
+        if connection_class is not EMPTY:
             url_options["connection_class"] = connection_class
 
         pool = ConnectionPool(

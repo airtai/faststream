@@ -1,23 +1,19 @@
-from typing import Any, ClassVar, Dict
-
 import pytest
 
 from faststream.confluent import KafkaPublisher, KafkaRoute, KafkaRouter
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
+from .basic import ConfluentTestcaseConfig
+
 
 @pytest.mark.confluent()
-class TestRouter(RouterTestcase):
+class TestRouter(ConfluentTestcaseConfig, RouterTestcase):
     broker_class = KafkaRouter
     route_class = KafkaRoute
-    timeout: int = 10
     publisher_class = KafkaPublisher
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
 
 
-class TestRouterLocal(RouterLocalTestcase):
+class TestRouterLocal(ConfluentTestcaseConfig, RouterLocalTestcase):
     broker_class = KafkaRouter
     route_class = KafkaRoute
-    timeout: int = 10
     publisher_class = KafkaPublisher
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}

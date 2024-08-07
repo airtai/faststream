@@ -1,6 +1,5 @@
 import logging
 import warnings
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -38,6 +37,7 @@ from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.security import parse_security
 from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     import ssl
@@ -417,9 +417,9 @@ class NatsBroker(
         ] = None,
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         log_level: Annotated[
             int,
             Doc("Service messages log level."),
@@ -555,16 +555,16 @@ class NatsBroker(
     async def connect(  # type: ignore[override]
         self,
         servers: Annotated[
-            Union[str, Iterable[str], object],
+            Union[str, Iterable[str]],
             Doc("NATS cluster addresses to connect."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         **kwargs: "Unpack[NatsInitKwargs]",
     ) -> "Client":
         """Connect broker object to NATS cluster.
 
         To startup subscribers too you should use `broker.start()` after/instead this method.
         """
-        if servers is not Parameter.empty:
+        if servers is not EMPTY:
             connect_kwargs: AnyDict = {
                 **kwargs,
                 "servers": servers,

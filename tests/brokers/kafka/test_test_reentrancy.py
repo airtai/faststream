@@ -61,7 +61,7 @@ async def _test_with_temp_subscriber():
 @pytest.mark.asyncio()
 @pytest.mark.skip(
     reason=(
-        "Failed cuz `on_output_data` subscriber creates inside test and doesn't removed after"
+        "Failed due `on_output_data` subscriber creates inside test and doesn't removed after "
         "https://github.com/airtai/faststream/issues/556"
     )
 )

@@ -1,7 +1,6 @@
 import json
 from contextlib import suppress
 from dataclasses import dataclass, field
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -18,6 +17,7 @@ from uuid import uuid4
 
 from faststream._compat import dump_json, json_loads
 from faststream.constants import ContentTypes
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from faststream.types import AnyDict, DecodedMessage, SendableMessage
@@ -68,9 +68,7 @@ def decode_message(message: "StreamMessage[Any]") -> "DecodedMessage":
     body: Any = getattr(message, "body", message)
     m: DecodedMessage = body
 
-    if (
-        content_type := getattr(message, "content_type", Parameter.empty)
-    ) is not Parameter.empty:
+    if (content_type := getattr(message, "content_type", EMPTY)) is not EMPTY:
         content_type = cast(Optional[str], content_type)
 
         if not content_type:

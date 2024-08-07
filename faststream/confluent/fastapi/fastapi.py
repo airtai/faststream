@@ -1,5 +1,4 @@
 import logging
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -29,6 +28,7 @@ from faststream.__about__ import SERVICE_NAME
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.confluent.broker.broker import KafkaBroker as KB
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -50,6 +50,7 @@ if TYPE_CHECKING:
         AsyncAPIBatchPublisher,
         AsyncAPIDefaultPublisher,
     )
+    from faststream.confluent.schemas import TopicPartition
     from faststream.confluent.subscriber.asyncapi import (
         AsyncAPIBatchSubscriber,
         AsyncAPIDefaultSubscriber,
@@ -125,9 +126,9 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = None,
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         log_level: Annotated[
             int,
             Doc("Service messages log level."),
@@ -412,6 +413,8 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             str,
             Doc("Kafka topics to consume messages from."),
         ],
+        partitions: Sequence["TopicPartition"] = (),
+        polling_interval: float = 0.1,
         group_id: Annotated[
             Optional[str],
             Doc(
@@ -608,17 +611,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Literal[False],
             Doc("Whether to consume messages in batches or not."),
         ] = False,
-        batch_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Milliseconds spent waiting if
-            data is not available in the buffer. If 0, returns immediately
-            with any records that are available currently in the buffer,
-            else returns empty.
-            """
-            ),
-        ] = 200,
         max_records: Annotated[
             Optional[int],
             Doc("Number of messages to consume as one batch."),
@@ -813,6 +805,8 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             str,
             Doc("Kafka topics to consume messages from."),
         ],
+        partitions: Sequence["TopicPartition"] = (),
+        polling_interval: float = 0.1,
         group_id: Annotated[
             Optional[str],
             Doc(
@@ -1009,17 +1003,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Literal[True],
             Doc("Whether to consume messages in batches or not."),
         ],
-        batch_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Milliseconds spent waiting if
-            data is not available in the buffer. If 0, returns immediately
-            with any records that are available currently in the buffer,
-            else returns empty.
-            """
-            ),
-        ] = 200,
         max_records: Annotated[
             Optional[int],
             Doc("Number of messages to consume as one batch."),
@@ -1200,6 +1183,8 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             str,
             Doc("Kafka topics to consume messages from."),
         ],
+        partitions: Sequence["TopicPartition"] = (),
+        polling_interval: float = 0.1,
         group_id: Annotated[
             Optional[str],
             Doc(
@@ -1396,17 +1381,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             bool,
             Doc("Whether to consume messages in batches or not."),
         ] = False,
-        batch_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Milliseconds spent waiting if
-            data is not available in the buffer. If 0, returns immediately
-            with any records that are available currently in the buffer,
-            else returns empty.
-            """
-            ),
-        ] = 200,
         max_records: Annotated[
             Optional[int],
             Doc("Number of messages to consume as one batch."),
@@ -1604,6 +1578,8 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             str,
             Doc("Kafka topics to consume messages from."),
         ],
+        partitions: Sequence["TopicPartition"] = (),
+        polling_interval: float = 0.1,
         group_id: Annotated[
             Optional[str],
             Doc(
@@ -1800,17 +1776,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             bool,
             Doc("Whether to consume messages in batches or not."),
         ] = False,
-        batch_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Milliseconds spent waiting if
-            data is not available in the buffer. If 0, returns immediately
-            with any records that are available currently in the buffer,
-            else returns empty.
-            """
-            ),
-        ] = 200,
         max_records: Annotated[
             Optional[int],
             Doc("Number of messages to consume as one batch."),
@@ -2001,8 +1966,13 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         "AsyncAPIDefaultSubscriber",
     ]:
         subscriber = super().subscriber(
-            topics[0],  # path
+            (  # path
+                next(iter(topics), "")
+                or getattr(next(iter(partitions), None), "topic", "")
+            ),
             *topics,
+            polling_interval=polling_interval,
+            partitions=partitions,
             group_id=group_id,
             fetch_max_wait_ms=fetch_max_wait_ms,
             fetch_max_bytes=fetch_max_bytes,
@@ -2019,7 +1989,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             isolation_level=isolation_level,
             batch=batch,
             max_records=max_records,
-            batch_timeout_ms=batch_timeout_ms,
             # broker args
             dependencies=dependencies,
             parser=parser,

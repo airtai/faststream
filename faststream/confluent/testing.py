@@ -8,12 +8,14 @@ from faststream.broker.message import encode_message, gen_cor_id
 from faststream.confluent.broker import KafkaBroker
 from faststream.confluent.publisher.asyncapi import AsyncAPIBatchPublisher
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
+from faststream.confluent.schemas import TopicPartition
 from faststream.confluent.subscriber.asyncapi import AsyncAPIBatchSubscriber
 from faststream.testing.broker import TestBroker, call_handler
 
 if TYPE_CHECKING:
     from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.confluent.subscriber.usecase import LogicSubscriber
     from faststream.types import SendableMessage
 
 __all__ = ("TestKafkaBroker",)
@@ -36,18 +38,38 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         broker: KafkaBroker,
         publisher: "AsyncAPIPublisher[Any]",
     ) -> "HandlerCallWrapper[Any, Any, Any]":
-        sub = broker.subscriber(  # type: ignore[call-overload,misc]
-            publisher.topic,
-            batch=isinstance(publisher, AsyncAPIBatchPublisher),
-        )
+        sub: Optional[Any] = None
+        for handler in broker._subscribers.values():
+            if _is_handler_matches(
+                handler, topic=publisher.topic, partition=publisher.partition
+            ):
+                sub = handler
+                break
+
+        if sub is None:
+            if publisher.partition:
+                tp = TopicPartition(
+                    topic=publisher.topic, partition=publisher.partition
+                )
+                sub = broker.subscriber(
+                    partitions=[tp],
+                    batch=isinstance(publisher, AsyncAPIBatchPublisher),
+                    auto_offset_reset="earliest",
+                )
+            else:
+                sub = broker.subscriber(
+                    publisher.topic,
+                    batch=isinstance(publisher, AsyncAPIBatchPublisher),
+                    auto_offset_reset="earliest",
+                )
 
         if not sub.calls:
 
             @sub  # type: ignore[misc]
-            def f(msg: Any) -> None:
+            def publisher_response_subscriber(msg: Any) -> None:
                 pass
 
-            broker.setup_subscriber(sub)
+            broker.setup_subscriber(sub)  # type: ignore[arg-type]
 
         return sub.calls[0].handler
 
@@ -101,7 +123,7 @@ class FakeProducer(AsyncConfluentFastProducer):
         return_value = None
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if topic in handler.topics:
+            if _is_handler_matches(handler, topic, partition):
                 handle_value = await call_handler(
                     handler=handler,
                     message=[incoming]
@@ -130,7 +152,7 @@ class FakeProducer(AsyncConfluentFastProducer):
         correlation_id = correlation_id or gen_cor_id()
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if topic in handler.topics:
+            if _is_handler_matches(handler, topic, partition):
                 messages = (
                     build_message(
                         message=message,
@@ -248,3 +270,17 @@ def _fake_connection(*args: Any, **kwargs: Any) -> AsyncMock:
     mock.getone.return_value = MagicMock()
     mock.getmany.return_value = [MagicMock()]
     return mock
+
+
+def _is_handler_matches(
+    handler: "LogicSubscriber[Any]",
+    topic: str,
+    partition: Optional[int],
+) -> bool:
+    return bool(
+        any(
+            p.topic == topic and (partition is None or p.partition == partition)
+            for p in handler.partitions
+        )
+        or topic in handler.topics
+    )

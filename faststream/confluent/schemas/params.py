@@ -1,5 +1,4 @@
-from asyncio import AbstractEventLoop
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Union
 
 from typing_extensions import TypedDict
 
@@ -8,7 +7,6 @@ class ConsumerConnectionParams(TypedDict, total=False):
     """A class to represent the connection parameters for a consumer."""
 
     bootstrap_servers: Union[str, List[str]]
-    loop: Optional[AbstractEventLoop]
     client_id: str
     retry_backoff_ms: int
     metadata_max_age_ms: int

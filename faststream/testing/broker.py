@@ -70,7 +70,6 @@ class TestBroker(Generic[Broker]):
 
     async def __aenter__(self) -> Broker:
         # TODO: remove useless middlewares filter
-
         middlewares = tuple(
             filter(
                 lambda x: not isinstance(x, CriticalLogMiddleware),
@@ -148,6 +147,10 @@ class TestBroker(Generic[Broker]):
             broker,
             "_producer",
             new=None,
+        ), mock.patch.object(
+            broker,
+            "ping",
+            return_value=True,
         ):
             yield
 

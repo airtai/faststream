@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  python-3.12-faststream-studio:  # nosemgrep
+    image: mcr.microsoft.com/devcontainers/python:3.12
+    container_name: python-3.12-faststream-studio
+    volumes:
+      - ../:/workspaces/faststream:cached
+    command: sleep infinity
+    network_mode: "host"
+
+  kafka-faststream:  # nosemgrep
+    image: bitnami/kafka:3.5.0
+    container_name: kafka-faststream
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_ENABLE_KRAFT: "true"
+      KAFKA_CFG_NODE_ID: "1"
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://127.0.0.1:9092"
+      KAFKA_BROKER_ID: "1"
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka-faststream:9093"
+      ALLOW_PLAINTEXT_LISTENER: "true"
+    networks:
+      - faststream-network
+
+networks:
+  faststream-network:
+    name: "${USER}-faststream-network"

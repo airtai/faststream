@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, ClassVar, Dict, List, Optional, Tuple, Type, cast
+from typing import List, Optional, Tuple, Type, cast
 from unittest.mock import Mock
 
 import pytest
@@ -21,15 +21,14 @@ from faststream.opentelemetry.consts import (
 )
 from faststream.opentelemetry.middleware import MessageAction as Action
 from faststream.opentelemetry.middleware import TelemetryMiddleware
+from tests.brokers.base.basic import BaseTestcaseConfig
 
 
 @pytest.mark.asyncio()
-class LocalTelemetryTestcase:
+class LocalTelemetryTestcase(BaseTestcaseConfig):
     messaging_system: str
     include_messages_counters: bool
     broker_class: Type[BrokerUsecase]
-    timeout: int = 3
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
     resource: Resource = Resource.create(attributes={"service.name": "faststream.test"})
 
     telemetry_middleware_class: TelemetryMiddleware
@@ -165,7 +164,9 @@ class LocalTelemetryTestcase:
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.broker_class(middlewares=(mid,))
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             mock(m)
             event.set()
@@ -205,12 +206,16 @@ class LocalTelemetryTestcase:
         first_queue = queue
         second_queue = queue + "2"
 
-        @broker.subscriber(first_queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(first_queue)
+
+        @broker.subscriber(*args, **kwargs)
         @broker.publisher(second_queue)
         async def handler1(m):
             return m
 
-        @broker.subscriber(second_queue, **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(second_queue)
+
+        @broker.subscriber(*args2, **kwargs2)
         async def handler2(m):
             mock(m)
             event.set()
@@ -258,7 +263,9 @@ class LocalTelemetryTestcase:
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.broker_class(middlewares=(mid,))
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             mock(m)
             event.set()
@@ -295,7 +302,9 @@ class LocalTelemetryTestcase:
         mid = self.telemetry_middleware_class(meter_provider=meter_provider)
         broker = self.broker_class(middlewares=(mid,))
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             mock(m)
             event.set()
@@ -330,7 +339,9 @@ class LocalTelemetryTestcase:
         broker = self.broker_class(middlewares=(mid,))
         expected_value_type = "ValueError"
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(m):
             try:
                 raise ValueError

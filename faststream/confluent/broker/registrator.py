@@ -35,6 +35,7 @@ if TYPE_CHECKING:
         AsyncAPIBatchPublisher,
         AsyncAPIDefaultPublisher,
     )
+    from faststream.confluent.schemas import TopicPartition
     from faststream.confluent.subscriber.asyncapi import (
         AsyncAPIBatchSubscriber,
         AsyncAPIDefaultSubscriber,
@@ -63,6 +64,8 @@ class KafkaRegistrator(
             str,
             Doc("Kafka topics to consume messages from."),
         ],
+        partitions: Sequence["TopicPartition"] = (),
+        polling_interval: float = 0.1,
         group_id: Annotated[
             Optional[str],
             Doc(
@@ -259,17 +262,6 @@ class KafkaRegistrator(
             Literal[True],
             Doc("Whether to consume messages in batches or not."),
         ],
-        batch_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Milliseconds spent waiting if
-            data is not available in the buffer. If 0, returns immediately
-            with any records that are available currently in the buffer,
-            else returns empty.
-            """
-            ),
-        ] = 200,
         max_records: Annotated[
             Optional[int],
             Doc("Number of messages to consume as one batch."),
@@ -341,6 +333,8 @@ class KafkaRegistrator(
             str,
             Doc("Kafka topics to consume messages from."),
         ],
+        partitions: Sequence["TopicPartition"] = (),
+        polling_interval: float = 0.1,
         group_id: Annotated[
             Optional[str],
             Doc(
@@ -537,17 +531,6 @@ class KafkaRegistrator(
             Literal[False],
             Doc("Whether to consume messages in batches or not."),
         ] = False,
-        batch_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Milliseconds spent waiting if
-            data is not available in the buffer. If 0, returns immediately
-            with any records that are available currently in the buffer,
-            else returns empty.
-            """
-            ),
-        ] = 200,
         max_records: Annotated[
             Optional[int],
             Doc("Number of messages to consume as one batch."),
@@ -619,6 +602,8 @@ class KafkaRegistrator(
             str,
             Doc("Kafka topics to consume messages from."),
         ],
+        partitions: Sequence["TopicPartition"] = (),
+        polling_interval: float = 0.1,
         group_id: Annotated[
             Optional[str],
             Doc(
@@ -815,17 +800,6 @@ class KafkaRegistrator(
             bool,
             Doc("Whether to consume messages in batches or not."),
         ] = False,
-        batch_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Milliseconds spent waiting if
-            data is not available in the buffer. If 0, returns immediately
-            with any records that are available currently in the buffer,
-            else returns empty.
-            """
-            ),
-        ] = 200,
         max_records: Annotated[
             Optional[int],
             Doc("Number of messages to consume as one batch."),
@@ -900,6 +874,8 @@ class KafkaRegistrator(
             str,
             Doc("Kafka topics to consume messages from."),
         ],
+        partitions: Sequence["TopicPartition"] = (),
+        polling_interval: float = 0.1,
         group_id: Annotated[
             Optional[str],
             Doc(
@@ -1096,17 +1072,6 @@ class KafkaRegistrator(
             bool,
             Doc("Whether to consume messages in batches or not."),
         ] = False,
-        batch_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Milliseconds spent waiting if
-            data is not available in the buffer. If 0, returns immediately
-            with any records that are available currently in the buffer,
-            else returns empty.
-            """
-            ),
-        ] = 200,
         max_records: Annotated[
             Optional[int],
             Doc("Number of messages to consume as one batch."),
@@ -1179,8 +1144,9 @@ class KafkaRegistrator(
         subscriber = super().subscriber(
             create_subscriber(
                 *topics,
+                polling_interval=polling_interval,
+                partitions=partitions,
                 batch=batch,
-                batch_timeout_ms=batch_timeout_ms,
                 max_records=max_records,
                 group_id=group_id,
                 connection_data={

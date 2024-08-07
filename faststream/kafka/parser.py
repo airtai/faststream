@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, cast
 
 from faststream.broker.message import decode_message, gen_cor_id
 from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
@@ -97,7 +97,9 @@ class AioKafkaBatchParser(AioKafkaParser):
         msg: "StreamMessage[Tuple[ConsumerRecord, ...]]",
     ) -> "DecodedMessage":
         """Decode a batch of messages."""
+        # super() should be here due python can't find it in comprehension
+        super_obj = cast(AioKafkaParser, super())
+
         return [
-            decode_message(await super(AioKafkaBatchParser, self).parse_message(m))
-            for m in msg.raw_message
+            decode_message(await super_obj.parse_message(m)) for m in msg.raw_message
         ]
