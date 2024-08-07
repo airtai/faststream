@@ -47,7 +47,7 @@
 <a id=__codelineno-0-34 name=__codelineno-0-34></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Logger object to use if `logger` is not set.&quot;</span><span class=p>),</span>
 <a id=__codelineno-0-35 name=__codelineno-0-35></a>    <span class=p>],</span>
 <a id=__codelineno-0-36 name=__codelineno-0-36></a>    <span class=n>logger</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-37 name=__codelineno-0-37></a>        <span class=n>Union</span><span class=p>[</span><span class=s2>&quot;LoggerProto&quot;</span><span class=p>,</span> <span class=kc>None</span><span class=p>,</span> <span class=nb>object</span><span class=p>],</span>
+<a id=__codelineno-0-37 name=__codelineno-0-37></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;LoggerProto&quot;</span><span class=p>],</span>
 <a id=__codelineno-0-38 name=__codelineno-0-38></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;User specified logger to pass into Context and log service messages.&quot;</span><span class=p>),</span>
 <a id=__codelineno-0-39 name=__codelineno-0-39></a>    <span class=p>],</span>
 <a id=__codelineno-0-40 name=__codelineno-0-40></a>    <span class=n>log_level</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
@@ -60,8 +60,8 @@
 <a id=__codelineno-0-47 name=__codelineno-0-47></a>    <span class=p>],</span>
 <a id=__codelineno-0-48 name=__codelineno-0-48></a>    <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
 <a id=__codelineno-0-49 name=__codelineno-0-49></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-50 name=__codelineno-0-50></a>    <span class=k>if</span> <span class=n>logger</span> <span class=ow>is</span> <span class=ow>not</span> <span class=n>Parameter</span><span class=o>.</span><span class=n>empty</span><span class=p>:</span>
-<a id=__codelineno-0-51 name=__codelineno-0-51></a>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span> <span class=o>=</span> <span class=n>cast</span><span class=p>(</span><span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;LoggerProto&quot;</span><span class=p>],</span> <span class=n>logger</span><span class=p>)</span>
+<a id=__codelineno-0-50 name=__codelineno-0-50></a>    <span class=k>if</span> <span class=n>logger</span> <span class=ow>is</span> <span class=ow>not</span> <span class=n>EMPTY</span><span class=p>:</span>
+<a id=__codelineno-0-51 name=__codelineno-0-51></a>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span> <span class=o>=</span> <span class=n>logger</span>
 <a id=__codelineno-0-52 name=__codelineno-0-52></a>        <span class=bp>self</span><span class=o>.</span><span class=n>use_custom</span> <span class=o>=</span> <span class=kc>True</span>
 <a id=__codelineno-0-53 name=__codelineno-0-53></a>    <span class=k>else</span><span class=p>:</span>
 <a id=__codelineno-0-54 name=__codelineno-0-54></a>        <span class=bp>self</span><span class=o>.</span><span class=n>logger</span> <span class=o>=</span> <span class=n>default_logger</span>
