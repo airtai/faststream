@@ -22,7 +22,6 @@ from typing import (
 )
 from weakref import WeakSet
 
-import anyio
 from fastapi.background import BackgroundTasks
 from fastapi.datastructures import Default
 from fastapi.responses import HTMLResponse
@@ -41,7 +40,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.log import logger as faststream_logger
 from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
 
@@ -91,8 +89,8 @@ class StreamRouter(
     broker_class: Type["BrokerUsecase[MsgType, Any]"]
     broker: "BrokerUsecase[MsgType, Any]"
     docs_router: Optional[APIRouter]
-    _after_startup_hooks: List[Callable[[Any], Awaitable[Any]]]
-    _on_shutdown_hooks: List[Callable[[Any], Awaitable[Any]]]
+    _after_startup_hooks: List[Callable[[Any], Awaitable[Optional[Mapping[str, Any]]]]]
+    _on_shutdown_hooks: List[Callable[[Any], Awaitable[None]]]
     schema: Optional["Schema"]
 
     title: str
@@ -308,16 +306,19 @@ class StreamRouter(
             if not len(self.weak_dependencies_provider):
                 self.weak_dependencies_provider.add(app)
 
-            async with anyio.create_task_group() as tg, lifespan_context(
-                app
-            ) as maybe_context:
+            async with lifespan_context(app) as maybe_context:
                 if maybe_context is None:
                     context: AnyDict = {}
                 else:
                     context = dict(maybe_context)
 
                 context.update({"broker": self.broker})
-                tg.start_soon(self.__startup, app)
+                await self.broker.start()
+
+                for h in self._after_startup_hooks:
+                    h_context = await h(app)
+                    if h_context:  # pragma: no branch
+                        context.update(h_context)
 
                 try:
                     if self.setup_state:
@@ -326,50 +327,51 @@ class StreamRouter(
                         # NOTE: old asgi compatibility
                         yield  # type: ignore
 
-                    faststream_logger.info(
-                        f"{self.__class__.__name__} shutting down..."
-                    )
                     for h in self._on_shutdown_hooks:
                         await h(app)
 
                 finally:
                     await self.broker.close()
-                    faststream_logger.info(
-                        f"{self.__class__.__name__} shut down gracefully."
-                    )
-                    tg.cancel_scope.cancel()
 
         return start_broker_lifespan
 
-    async def __startup(self, app: "FastAPI") -> None:
-        faststream_logger.info(f"{self.__class__.__name__} starting...")
-        await self.broker.start()
-        faststream_logger.info(f"{self.__class__.__name__} started successfully!")
-
-        for h in self._after_startup_hooks:
-            await h(app)
+    @overload
+    def after_startup(
+        self,
+        func: Callable[["AppType"], Mapping[str, Any]],
+    ) -> Callable[["AppType"], Mapping[str, Any]]: ...
 
     @overload
     def after_startup(
         self,
-        func: Callable[["AppType"], Any],
-    ) -> Callable[["AppType"], Any]: ...
+        func: Callable[["AppType"], Awaitable[Mapping[str, Any]]],
+    ) -> Callable[["AppType"], Awaitable[Mapping[str, Any]]]: ...
 
     @overload
     def after_startup(
         self,
-        func: Callable[["AppType"], Awaitable[Any]],
-    ) -> Callable[["AppType"], Awaitable[Any]]: ...
+        func: Callable[["AppType"], None],
+    ) -> Callable[["AppType"], None]: ...
+
+    @overload
+    def after_startup(
+        self,
+        func: Callable[["AppType"], Awaitable[None]],
+    ) -> Callable[["AppType"], Awaitable[None]]: ...
 
     def after_startup(
         self,
         func: Union[
-            Callable[["AppType"], Any],
-            Callable[["AppType"], Awaitable[Any]],
+            Callable[["AppType"], Mapping[str, Any]],
+            Callable[["AppType"], Awaitable[Mapping[str, Any]]],
+            Callable[["AppType"], None],
+            Callable[["AppType"], Awaitable[None]],
         ],
     ) -> Union[
-        Callable[["AppType"], Any],
-        Callable[["AppType"], Awaitable[Any]],
+        Callable[["AppType"], Mapping[str, Any]],
+        Callable[["AppType"], Awaitable[Mapping[str, Any]]],
+        Callable[["AppType"], None],
+        Callable[["AppType"], Awaitable[None]],
     ]:
         """Register a function to be executed after startup."""
         self._after_startup_hooks.append(to_async(func))  # type: ignore
@@ -378,24 +380,24 @@ class StreamRouter(
     @overload
     def on_broker_shutdown(
         self,
-        func: Callable[["AppType"], Any],
-    ) -> Callable[["AppType"], Any]: ...
+        func: Callable[["AppType"], None],
+    ) -> Callable[["AppType"], None]: ...
 
     @overload
     def on_broker_shutdown(
         self,
-        func: Callable[["AppType"], Awaitable[Any]],
-    ) -> Callable[["AppType"], Awaitable[Any]]: ...
+        func: Callable[["AppType"], Awaitable[None]],
+    ) -> Callable[["AppType"], Awaitable[None]]: ...
 
     def on_broker_shutdown(
         self,
         func: Union[
-            Callable[["AppType"], Any],
-            Callable[["AppType"], Awaitable[Any]],
+            Callable[["AppType"], None],
+            Callable[["AppType"], Awaitable[None]],
         ],
     ) -> Union[
-        Callable[["AppType"], Any],
-        Callable[["AppType"], Awaitable[Any]],
+        Callable[["AppType"], None],
+        Callable[["AppType"], Awaitable[None]],
     ]:
         """Register a function to be executed before broker stop."""
         self._on_shutdown_hooks.append(to_async(func))  # type: ignore
