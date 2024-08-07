@@ -12,9 +12,10 @@ from opentelemetry.sdk.trace import Span, TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
-from opentelemetry.trace import SpanKind
+from opentelemetry.trace import SpanKind, get_current_span
 
 from faststream.broker.core.usecase import BrokerUsecase
+from faststream.opentelemetry import CurrentSpan
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
     MESSAGING_DESTINATION_PUBLISH_NAME,
@@ -363,6 +364,39 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         metrics = self.get_metrics(metric_reader)
 
         self.assert_metrics(metrics, error_type=expected_value_type)
+
+        assert event.is_set()
+        mock.assert_called_once_with(msg)
+
+    async def test_span_in_context(
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+        tracer_provider: TracerProvider,
+        trace_exporter: InMemorySpanExporter
+    ):
+        mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
+        broker = self.broker_class(middlewares=(mid,))
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
+        async def handler(m, span: CurrentSpan):
+            assert span is get_current_span()
+            mock(m)
+            event.set()
+
+        broker = self.patch_broker(broker)
+        msg = "start"
+
+        async with broker:
+            await broker.start()
+            tasks = (
+                asyncio.create_task(broker.publish(msg, queue)),
+                asyncio.create_task(event.wait()),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
 
         assert event.is_set()
         mock.assert_called_once_with(msg)

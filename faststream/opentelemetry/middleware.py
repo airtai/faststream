@@ -11,6 +11,7 @@ from opentelemetry.trace import Link, Span
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
 from faststream import BaseMiddleware
+from faststream import context as fs_context
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
     MESSAGING_DESTINATION_PUBLISH_NAME,
@@ -236,6 +237,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 self._current_span = span
                 new_context = trace.set_span_in_context(span, current_context)
                 token = context.attach(new_context)
+                fs_context.set_local("span", span)
                 result = await call_next(msg)
                 context.detach(token)
 
