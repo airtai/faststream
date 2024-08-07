@@ -12,7 +12,7 @@ from .basic import ConfluentTestcaseConfig
 
 
 @pytest.mark.confluent()
-class TestRabbitRouter(ConfluentTestcaseConfig, FastAPITestcase):
+class TestConfluentRouter(ConfluentTestcaseConfig, FastAPITestcase):
     router_class = KafkaRouter
 
     async def test_batch_real(

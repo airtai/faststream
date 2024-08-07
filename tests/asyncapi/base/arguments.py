@@ -396,39 +396,6 @@ class FastAPICompatible:
                 "type": "object",
             }
 
-    def test_with_filter(self):
-        class User(pydantic.BaseModel):
-            name: str = ""
-            id: int
-
-        broker = self.broker_class()
-
-        sub = broker.subscriber("test")
-
-        @sub(
-            filter=lambda m: m.content_type == "application/json",
-        )
-        async def handle(id: int): ...
-
-        @sub
-        async def handle_default(msg): ...
-
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
-
-        assert (
-            len(
-                next(iter(schema["components"]["messages"].values()))["payload"][
-                    "oneOf"
-                ]
-            )
-            == 2
-        )
-
-        payload = schema["components"]["schemas"]
-
-        assert "Handle:Message:Payload" in list(payload.keys())
-        assert "HandleDefault:Message:Payload" in list(payload.keys())
-
     def test_ignores_depends(self):
         broker = self.broker_class()
 
@@ -649,3 +616,37 @@ class ArgumentsTestcase(FastAPICompatible):
                     "type": "object",
                 }
             )
+
+    def test_with_filter(self):
+        # TODO: move it to FastAPICompatible with FastAPI refactore
+        class User(pydantic.BaseModel):
+            name: str = ""
+            id: int
+
+        broker = self.broker_class()
+
+        sub = broker.subscriber("test")
+
+        @sub(
+            filter=lambda m: m.content_type == "application/json",
+        )
+        async def handle(id: int): ...
+
+        @sub
+        async def handle_default(msg): ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        assert (
+            len(
+                next(iter(schema["components"]["messages"].values()))["payload"][
+                    "oneOf"
+                ]
+            )
+            == 2
+        )
+
+        payload = schema["components"]["schemas"]
+
+        assert "Handle:Message:Payload" in list(payload.keys())
+        assert "HandleDefault:Message:Payload" in list(payload.keys())
