@@ -8,14 +8,14 @@ from typing import (
 
 from pydantic import AnyHttpUrl
 
-from faststream.asyncapi.schema.info import (
-    BaseInfo,
+from faststream.asyncapi.base import BaseInfo
+from faststream.asyncapi.v2_6_0.schema.info import (
     Contact,
     ContactDict,
     License,
     LicenseDict,
 )
-from faststream.asyncapi.schema.utils import (  # noqa: TCH001
+from faststream.asyncapi.v2_6_0.schema.utils import (  # noqa: TCH001
     ExternalDocs,
     ExternalDocsDict,
     Tag,

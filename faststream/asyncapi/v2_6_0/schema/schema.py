@@ -1,17 +1,17 @@
 from typing import Any, Dict, List, Optional, Union
 
 from faststream._compat import model_to_json, model_to_jsonable
-from faststream.asyncapi.schema.schema import BaseSchema
-from faststream.asyncapi.schema.utils import (
+from faststream.asyncapi.base import BaseSchema
+from faststream.asyncapi.v2_6_0.schema.channels import Channel
+from faststream.asyncapi.v2_6_0.schema.components import Components
+from faststream.asyncapi.v2_6_0.schema.info import Info
+from faststream.asyncapi.v2_6_0.schema.servers import Server
+from faststream.asyncapi.v2_6_0.schema.utils import (
     ExternalDocs,
     ExternalDocsDict,
     Tag,
     TagDict,
 )
-from faststream.asyncapi.v2_6_0.schema.channels import Channel
-from faststream.asyncapi.v2_6_0.schema.components import Components
-from faststream.asyncapi.v2_6_0.schema.info import Info
-from faststream.asyncapi.v2_6_0.schema.servers import Server
 from faststream.asyncapi.version import AsyncAPIVersion
 
 

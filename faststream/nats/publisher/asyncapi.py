@@ -2,17 +2,13 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional
 
 from typing_extensions import override
 
-from faststream.asyncapi.schema import (
-    ChannelBinding,
-    CorrelationId,
-    Message,
-)
-from faststream.asyncapi.schema.bindings import nats
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.asyncapi.v2_6_0.schema import (
     Channel,
     Operation,
 )
+from faststream.asyncapi.v2_6_0.schema.bindings import ChannelBinding, nats
+from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
 from faststream.nats.publisher.usecase import LogicPublisher
 
 if TYPE_CHECKING:

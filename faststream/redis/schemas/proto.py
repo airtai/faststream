@@ -5,7 +5,7 @@ from faststream.asyncapi.abc import AsyncAPIOperation
 from faststream.exceptions import SetupError
 
 if TYPE_CHECKING:
-    from faststream.asyncapi.schema.bindings import redis
+    from faststream.asyncapi.v2_6_0.schema.bindings import redis
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 

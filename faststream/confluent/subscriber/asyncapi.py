@@ -4,17 +4,13 @@ from typing import (
     Tuple,
 )
 
-from faststream.asyncapi.schema import (
-    ChannelBinding,
-    CorrelationId,
-    Message,
-)
-from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.asyncapi.v2_6_0.schema import (
     Channel,
     Operation,
 )
+from faststream.asyncapi.v2_6_0.schema.bindings import ChannelBinding, kafka
+from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
 from faststream.broker.types import MsgType
 from faststream.confluent.subscriber.usecase import (
     BatchSubscriber,

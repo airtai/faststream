@@ -1,17 +1,15 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from faststream._compat import DEF_KEY, HAS_FASTAPI
-from faststream.asyncapi.schema import (
-    Message,
-    Reference,
-)
 from faststream.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
     Info,
+    Reference,
     Schema,
     Server,
 )
+from faststream.asyncapi.v2_6_0.schema.message import Message
 from faststream.constants import ContentTypes
 
 if TYPE_CHECKING:

@@ -3,11 +3,11 @@ from typing import Optional
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
-from faststream.asyncapi.schema.bindings import amqp as amqp_bindings
-from faststream.asyncapi.schema.bindings import kafka as kafka_bindings
-from faststream.asyncapi.schema.bindings import nats as nats_bindings
-from faststream.asyncapi.schema.bindings import redis as redis_bindings
-from faststream.asyncapi.schema.bindings import sqs as sqs_bindings
+from faststream.asyncapi.v2_6_0.schema.bindings import amqp as amqp_bindings
+from faststream.asyncapi.v2_6_0.schema.bindings import kafka as kafka_bindings
+from faststream.asyncapi.v2_6_0.schema.bindings import nats as nats_bindings
+from faststream.asyncapi.v2_6_0.schema.bindings import redis as redis_bindings
+from faststream.asyncapi.v2_6_0.schema.bindings import sqs as sqs_bindings
 
 
 class ServerBinding(BaseModel):

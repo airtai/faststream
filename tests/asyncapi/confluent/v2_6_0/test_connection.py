@@ -1,6 +1,6 @@
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.asyncapi.schema import Tag
+from faststream.asyncapi.v2_6_0.schema import Tag
 from faststream.confluent import KafkaBroker
 
 
