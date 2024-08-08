@@ -12,6 +12,28 @@ hide:
 ---
 
 # Release Notes
+## 0.5.17
+
+### What's Changed
+
+Just a hotfix for the following case:
+
+```python
+@broker.subscriber(...)
+async def handler():
+    return NatsResponse(...)
+    
+await broker.publish(..., rpc=True)
+```
+
+* chore(deps): bump semgrep from 1.83.0 to 1.84.0 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#1650](https://github.com/airtai/faststream/pull/1650){.external-link target="_blank"}
+* chore(deps): bump mkdocs-material from 9.5.30 to 9.5.31 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#1651](https://github.com/airtai/faststream/pull/1651){.external-link target="_blank"}
+* Update Release Notes for 0.5.16 by @faststream-release-notes-updater in [#1652](https://github.com/airtai/faststream/pull/1652){.external-link target="_blank"}
+* hotfix: correct NatsResponse processing in RPC case by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1654](https://github.com/airtai/faststream/pull/1654){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.16...0.5.17](https://github.com/airtai/faststream/compare/0.5.16...0.5.17){.external-link target="_blank"}
+
 ## 0.5.16
 
 ### What's Changed
