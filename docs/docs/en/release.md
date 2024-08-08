@@ -18,9 +18,9 @@ hide:
 
 Well, seems like it is the biggest patch release ever 😃 
 
-#### Detail Reponses
+#### Detail Responses
 
-First of all, thanks to all new contributors, who helps us to improve the project! They made a huge impact to this release by adding new Kafka security machanisms and extend Response API - now you can use `broker.Response` to publish detailt information from handler
+First of all, thanks to all new contributors, who helps us to improve the project! They made a huge impact to this release by adding new Kafka security mechanisms and extend Response API - now you can use `broker.Response` to publish detail information from handler
 
 ```python
 @broker.subscriber("in")
@@ -33,7 +33,7 @@ async def handler(msg):
 
 Also, we added a new huge feature - [**ASGI** support](https://faststream.airt.ai/latest/getting-started/asgi/#other-asgi-compatibility)!
 
-Nope, we are not HTTP-framework now, but it is a little ASGI implemetnation to provide you with an ability to host documentation, use k8s http-probes and serve metrics in the same with you broker runtime without any dependencies.
+Nope, we are not HTTP-framework now, but it is a little ASGI implementation to provide you with an ability to host documentation, use k8s http-probes and serve metrics in the same with you broker runtime without any dependencies.
 
 You just need to use **AsgiFastStream** class
 
