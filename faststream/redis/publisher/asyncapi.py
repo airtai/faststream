@@ -4,8 +4,6 @@ from typing_extensions import TypeAlias, override
 
 from faststream.asyncapi.schema import (
     ChannelBinding,
-    CorrelationId,
-    Message,
 )
 from faststream.asyncapi.schema.bindings import redis
 from faststream.asyncapi.utils import resolve_payloads
@@ -13,6 +11,7 @@ from faststream.asyncapi.v2_6_0.schema import (
     Channel,
     Operation,
 )
+from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
 from faststream.exceptions import SetupError
 from faststream.redis.publisher.usecase import (
     ChannelPublisher,

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.schema.bindings import ServerBinding
-from faststream.asyncapi.schema.utils import Reference, Tag, TagDict
+from faststream.asyncapi.v2_6_0.schema.utils import Reference, Tag, TagDict
 
 SecurityRequirement = List[Dict[str, List[str]]]
 

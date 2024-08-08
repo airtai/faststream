@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from faststream._compat import (
     PYDANTIC_V2,
 )
-from faststream.asyncapi.schema.message import Message
+from faststream.asyncapi.v2_6_0.schema.message import Message
 
 
 class Components(BaseModel):

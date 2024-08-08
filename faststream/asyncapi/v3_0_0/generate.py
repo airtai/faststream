@@ -3,9 +3,9 @@ from urllib.parse import urlparse
 
 from faststream._compat import DEF_KEY, HAS_FASTAPI
 from faststream.asyncapi.schema import (
-    Message,
     Reference,
 )
+from faststream.asyncapi.v2_6_0.schema.message import Message
 from faststream.asyncapi.v3_0_0.schema import (
     Channel,
     Components,

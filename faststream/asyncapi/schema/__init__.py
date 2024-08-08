@@ -7,17 +7,12 @@ from faststream.asyncapi.schema.bindings import (
 )
 from faststream.asyncapi.schema.info import (
     BaseInfo,
-    Contact,
-    ContactDict,
-    License,
-    LicenseDict,
 )
-from faststream.asyncapi.schema.message import CorrelationId, Message
 from faststream.asyncapi.schema.schema import (
     BaseSchema,
 )
-from faststream.asyncapi.schema.security import SecuritySchemaComponent
-from faststream.asyncapi.schema.utils import (
+from faststream.asyncapi.v2_6_0.schema.security import SecuritySchemaComponent
+from faststream.asyncapi.v2_6_0.schema.utils import (
     ExternalDocs,
     ExternalDocsDict,
     Reference,
@@ -32,10 +27,6 @@ __all__ = (
     "BaseSchema",
     # info
     "BaseInfo",
-    "Contact",
-    "ContactDict",
-    "License",
-    "LicenseDict",
     # servers
     # channels
     # utils
@@ -49,8 +40,6 @@ __all__ = (
     "ChannelBinding",
     "OperationBinding",
     # messages
-    "CorrelationId",
-    "Message",
     # security
     "SecuritySchemaComponent",
 )
