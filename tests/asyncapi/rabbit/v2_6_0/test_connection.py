@@ -1,4 +1,9 @@
 from faststream import FastStream
+<<<<<<< HEAD
+=======
+from faststream.asyncapi.generate import get_app_schema
+from faststream.asyncapi.v2_6_0.schema import Tag
+>>>>>>> 2711d41d (AsyncAPI generation refactoring)
 from faststream.rabbit import RabbitBroker
 from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.specification.schema.tag import Tag

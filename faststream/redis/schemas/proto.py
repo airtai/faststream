@@ -5,6 +5,10 @@ from faststream.exceptions import SetupError
 from faststream.specification.proto import SpecificationProto
 
 if TYPE_CHECKING:
+<<<<<<< HEAD
+=======
+    from faststream.asyncapi.v2_6_0.schema.bindings import redis
+>>>>>>> 2711d41d (AsyncAPI generation refactoring)
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
     from faststream.specification.schema.bindings import redis
 
