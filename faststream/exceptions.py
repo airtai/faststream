@@ -72,4 +72,15 @@ WRONG_PUBLISH_ARGS = SetupError(
 )
 
 
-NOT_CONNECTED_YET = "Please, `connect()` the broker first"
+NOT_CONNECTED_YET = "Please, `connect()` the broker first."
+
+
+INSTALL_YAML = """
+To generate YAML documentation, please install dependencies:\n
+pip install PyYAML
+"""
+
+INSTALL_WATCHFILES = """
+To use restart feature, please install dependencies:\n
+pip install watchfiles
+"""
