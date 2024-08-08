@@ -12,15 +12,12 @@ from typing import (
 
 from typing_extensions import override
 
-from faststream.asyncapi.schema import (
-    ChannelBinding,
-)
-from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.asyncapi.v2_6_0.schema import (
     Channel,
     Operation,
 )
+from faststream.asyncapi.v2_6_0.schema.bindings import ChannelBinding, kafka
 from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
 from faststream.broker.types import MsgType
 from faststream.confluent.publisher.usecase import (

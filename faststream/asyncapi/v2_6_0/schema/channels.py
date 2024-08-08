@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
-from faststream.asyncapi.schema.bindings import ChannelBinding
+from faststream.asyncapi.v2_6_0.schema.bindings import ChannelBinding
 from faststream.asyncapi.v2_6_0.schema.operations import Operation
 from faststream.asyncapi.v2_6_0.schema.utils import Parameter
 

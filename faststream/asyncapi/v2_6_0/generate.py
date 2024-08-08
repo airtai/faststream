@@ -1,13 +1,11 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from faststream._compat import DEF_KEY, HAS_FASTAPI
-from faststream.asyncapi.schema import (
-    Reference,
-)
 from faststream.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
     Info,
+    Reference,
     Schema,
     Server,
 )
