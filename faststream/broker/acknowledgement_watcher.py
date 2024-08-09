@@ -151,16 +151,16 @@ class WatcherContext:
                 self.watcher.remove(self.message.message_id)
 
             elif isinstance(exc_val, AckMessage):
-                await self.__ack()
+                await self.__ack(**exc_val.extra_options)
 
             elif isinstance(exc_val, NackMessage):
                 if self.watcher.is_max(self.message.message_id):
                     await self.__reject()
                 else:
-                    await self.__nack()
+                    await self.__nack(**exc_val.extra_options)
 
             elif isinstance(exc_val, RejectMessage):  # pragma: no branch
-                await self.__reject()
+                await self.__reject(**exc_val.extra_options)
 
             # Exception was processed and suppressed
             return True
@@ -174,25 +174,25 @@ class WatcherContext:
         # Exception was not processed
         return False
 
-    async def __ack(self) -> None:
+    async def __ack(self, **exc_extra_options: Any) -> None:
         try:
-            await self.message.ack(**self.extra_options)
+            await self.message.ack(**self.extra_options, **exc_extra_options)
         except Exception as er:
             if self.logger is not None:
                 self.logger.log(logging.ERROR, er, exc_info=er)
         else:
             self.watcher.remove(self.message.message_id)
 
-    async def __nack(self) -> None:
+    async def __nack(self, **exc_extra_options: Any) -> None:
         try:
-            await self.message.nack(**self.extra_options)
+            await self.message.nack(**self.extra_options, **exc_extra_options)
         except Exception as er:
             if self.logger is not None:
                 self.logger.log(logging.ERROR, er, exc_info=er)
 
-    async def __reject(self) -> None:
+    async def __reject(self, **exc_extra_options: Any) -> None:
         try:
-            await self.message.reject(**self.extra_options)
+            await self.message.reject(**self.extra_options, **exc_extra_options)
         except Exception as er:
             if self.logger is not None:
                 self.logger.log(logging.ERROR, er, exc_info=er)

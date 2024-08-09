@@ -125,3 +125,18 @@ async def test_ignore_skip(async_mock: AsyncMock, message):
     assert not message.nack.called
     assert not message.reject.called
     assert not message.ack.called
+
+
+@pytest.mark.asyncio()
+async def test_additional_params_with_handler_exception(async_mock: AsyncMock, message):
+    watcher = EndlessWatcher()
+
+    context = WatcherContext(
+        message=message,
+        watcher=watcher,
+    )
+
+    async with context:
+        raise NackMessage(delay=5)
+
+    message.nack.assert_called_with(delay=5)

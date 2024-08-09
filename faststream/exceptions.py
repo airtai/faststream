@@ -1,4 +1,5 @@
-from typing import Iterable
+from typing import Any, Iterable, Annotated
+from typing_extensions import Doc
 
 
 class FastStreamException(Exception):  # noqa: N818
@@ -25,6 +26,16 @@ class StopApplication(IgnoredException, SystemExit):
 
 class HandlerException(IgnoredException):
     """Base Handler Exception."""
+
+    def __init__(self, **kwargs: Annotated[
+        Any,
+        Doc(
+            "Additional parameters that will be "
+            "passed to message ack method call"
+        )
+    ]):
+        self.extra_options = kwargs
+        super().__init__()
 
 
 class SkipMessage(HandlerException):
