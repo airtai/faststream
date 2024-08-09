@@ -1,6 +1,6 @@
-from typing import Annotated, Any, Iterable
+from typing import Any, Iterable
 
-from typing_extensions import Doc
+from typing_extensions import Annotated, Doc
 
 
 class FastStreamException(Exception):  # noqa: N818
