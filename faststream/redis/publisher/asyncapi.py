@@ -3,12 +3,10 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 from typing_extensions import TypeAlias, override
 
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.asyncapi.v2_6_0.schema import (
-    Channel,
-    Operation,
-)
-from faststream.asyncapi.v2_6_0.schema.bindings import ChannelBinding, redis
-from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
+from faststream.broker.specification.bindings import ChannelBinding, redis
+from faststream.broker.specification.channel import Channel
+from faststream.broker.specification.message import CorrelationId, Message
+from faststream.broker.specification.operation import Operation
 from faststream.exceptions import SetupError
 from faststream.redis.publisher.usecase import (
     ChannelPublisher,
