@@ -15,6 +15,11 @@ class BaseMiddleware:
     def __init__(self, msg: Optional[Any] = None) -> None:
         self.msg = msg
 
+    def __call__(self, msg: Optional[Any]) -> Self:
+        """Call the object with a message."""
+        self.msg = msg
+        return self
+
     async def on_receive(self) -> None:
         """Hook to call on message receive."""
         pass
