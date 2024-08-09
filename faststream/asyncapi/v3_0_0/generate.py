@@ -242,7 +242,6 @@ def get_broker_channels(
                     description=channel_v2_6.description,
                     servers=channel_v2_6.servers,
                     bindings=channel_v2_6.bindings,
-                    parameters=channel_v2_6.parameters
                 )
 
                 channels_schema_v3_0[channel_name] = channel_v3_0
@@ -261,7 +260,6 @@ def get_broker_channels(
                     description=channel_v2_6.description,
                     servers=channel_v2_6.servers,
                     bindings=channel_v2_6.bindings,
-                    parameters=channel_v2_6.parameters
                 )
 
                 channels_schema_v3_0[channel_name] = channel_v3_0

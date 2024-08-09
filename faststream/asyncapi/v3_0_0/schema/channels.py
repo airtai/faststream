@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.v2_6_0.schema.bindings import ChannelBinding
 from faststream.asyncapi.v2_6_0.schema.message import Message
-from faststream.asyncapi.v2_6_0.schema.utils import Parameter, Reference
+from faststream.asyncapi.v2_6_0.schema.utils import Reference
 
 
 class Channel(BaseModel):
@@ -29,7 +29,9 @@ class Channel(BaseModel):
     servers: Optional[List[Dict[str, str]]] = None
     messages: Dict[str, Union[Message, Reference]]
     bindings: Optional[ChannelBinding] = None
-    parameters: Optional[Parameter] = None
+
+    # TODO:
+    # parameters: Optional[Parameter] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

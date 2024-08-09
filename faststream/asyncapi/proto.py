@@ -1,6 +1,8 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol, Sequence, Union
 
+from typing_extensions import Doc, Annotated
+
 if TYPE_CHECKING:
     from faststream.asyncapi.schema import (
         Contact,
@@ -37,14 +39,18 @@ class AsyncAPIApplication(Protocol):
 class AsyncAPIProto(Protocol):
     """A class representing an asynchronous API operation."""
 
-    title_: Optional[str]
-    """AsyncAPI object title."""
-
-    description_: Optional[str]
-    """AsyncAPI object description."""
-
-    include_in_schema: bool
-    """Whetever to include operation in AsyncAPI schema or not."""
+    title_: Annotated[
+        Optional[str],
+        Doc("AsyncAPI object title."),
+    ]
+    description_: Annotated[
+        Optional[str],
+        Doc("AsyncAPI object description."),
+    ]
+    include_in_schema: Annotated[
+        bool,
+        Doc("Whatever to include operation in AsyncAPI schema or not."),
+    ]
 
     @property
     @abstractmethod
