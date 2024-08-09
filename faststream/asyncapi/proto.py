@@ -14,7 +14,7 @@ if TYPE_CHECKING:
         Tag,
         TagDict,
     )
-    from faststream.asyncapi.schema.channels import Channel
+    from faststream.broker.specification.channel import Channel
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.types import (
         AnyDict,

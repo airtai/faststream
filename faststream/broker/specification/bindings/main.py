@@ -16,7 +16,7 @@ class ChannelBinding:
         amqp : AMQP channel binding (optional)
         kafka : Kafka channel binding (optional)
         sqs : SQS channel binding (optional)
-        nats : NATS channel binding (optional)
+        nats : NATS channel binding (optional)d
         redis : Redis channel binding (optional)
 
     """

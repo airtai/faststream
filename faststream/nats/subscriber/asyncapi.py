@@ -3,12 +3,10 @@ from typing import Any, Dict
 from typing_extensions import override
 
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.asyncapi.v2_6_0.schema import (
-    Channel,
-    Operation,
-)
-from faststream.asyncapi.v2_6_0.schema.bindings import ChannelBinding, nats
-from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
+from faststream.broker.specification.bindings import ChannelBinding, nats
+from faststream.broker.specification.channel import Channel
+from faststream.broker.specification.message import CorrelationId, Message
+from faststream.broker.specification.operation import Operation
 from faststream.nats.subscriber.usecase import (
     BatchPullStreamSubscriber,
     ConcurrentCoreSubscriber,

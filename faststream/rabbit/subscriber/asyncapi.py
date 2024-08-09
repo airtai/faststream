@@ -1,16 +1,14 @@
 from typing import Dict
 
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.asyncapi.v2_6_0.schema import (
-    Channel,
-    Operation,
-)
-from faststream.asyncapi.v2_6_0.schema.bindings import (
+from faststream.broker.specification.bindings import (
     ChannelBinding,
     OperationBinding,
     amqp,
 )
-from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
+from faststream.broker.specification.channel import Channel
+from faststream.broker.specification.message import CorrelationId, Message
+from faststream.broker.specification.operation import Operation
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.rabbit.utils import is_routing_exchange
 
@@ -46,7 +44,7 @@ class AsyncAPISubscriber(LogicSubscriber):
                 bindings=ChannelBinding(
                     amqp=amqp.ChannelBinding(
                         **{
-                            "is": "routingKey",
+                            "is_": "routingKey",  # type: ignore
                             "queue": amqp.Queue(
                                 name=self.queue.name,
                                 durable=self.queue.durable,
@@ -60,7 +58,7 @@ class AsyncAPISubscriber(LogicSubscriber):
                                 amqp.Exchange(type="default", vhost=self.virtual_host)
                                 if not self.exchange.name
                                 else amqp.Exchange(
-                                    type=self.exchange.type.value,
+                                    type=self.exchange.type.value,  # type: ignore
                                     name=self.exchange.name,
                                     durable=self.exchange.durable,
                                     autoDelete=self.exchange.auto_delete,

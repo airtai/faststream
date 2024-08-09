@@ -5,12 +5,10 @@ from typing import (
 )
 
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.asyncapi.v2_6_0.schema import (
-    Channel,
-    Operation,
-)
-from faststream.asyncapi.v2_6_0.schema.bindings import ChannelBinding, kafka
-from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
+from faststream.broker.specification.bindings import ChannelBinding, kafka
+from faststream.broker.specification.channel import Channel
+from faststream.broker.specification.message import CorrelationId, Message
+from faststream.broker.specification.operation import Operation
 from faststream.broker.types import MsgType
 from faststream.confluent.subscriber.usecase import (
     BatchSubscriber,
