@@ -1,7 +1,5 @@
 from typing import Any, Iterable
 
-from typing_extensions import Annotated, Doc
-
 
 class FastStreamException(Exception):  # noqa: N818
     """Basic FastStream exception class."""
