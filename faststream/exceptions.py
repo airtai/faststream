@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Any, Iterable
 
 
 class FastStreamException(Exception):  # noqa: N818
@@ -35,21 +35,57 @@ class SkipMessage(HandlerException):
 
 
 class AckMessage(HandlerException):
-    """Raise it to `ack` a message immediately."""
+    """Exception raised to acknowledge a message immediately.
+
+    This exception can be used to ack a message with additional options.
+    To watch all allowed parameters, please take a look at your broker `message.ack(**extra_options)` method
+    signature.
+
+    Args:
+        extra_options (Any): Additional parameters that will be passed to `message.ack(**extra_options)` method.
+    """
+
+    def __init__(self, **extra_options: Any):
+        self.extra_options = extra_options
+        super().__init__()
 
     def __str__(self) -> str:
         return "Message was acked"
 
 
 class NackMessage(HandlerException):
-    """Raise it to `nack` a message immediately."""
+    """Exception raised to negatively acknowledge a message immediately.
+
+    This exception can be used to nack a message with additional options.
+    To watch all allowed parameters, please take a look to your broker's `message.nack(**extra_options)` method
+    signature.
+
+    Args:
+        extra_options (Any): Additional parameters that will be passed to `message.nack(**extra_options)` method.
+    """
+
+    def __init__(self, **kwargs: Any):
+        self.extra_options = kwargs
+        super().__init__()
 
     def __str__(self) -> str:
         return "Message was nacked"
 
 
 class RejectMessage(HandlerException):
-    """Raise it to `reject` a message immediately."""
+    """Exception raised to reject a message immediately.
+
+    This exception can be used to reject a message with additional options.
+    To watch all allowed parameters, please take a look to your broker's `message.reject(**extra_options)` method
+    signature.
+
+    Args:
+        extra_options (Any): Additional parameters that will be passed to `message.reject(**extra_options)` method.
+    """
+
+    def __init__(self, **kwargs: Any):
+        self.extra_options = kwargs
+        super().__init__()
 
     def __str__(self) -> str:
         return "Message was rejected"

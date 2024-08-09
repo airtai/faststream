@@ -70,26 +70,6 @@ async def test_push_back_watcher(async_mock: AsyncMock, message):
 
 
 @pytest.mark.asyncio()
-async def test_push_back_watcher_with_nack_exception(async_mock: AsyncMock, message):
-    watcher = CounterWatcher(3)
-
-    context = WatcherContext(
-        message=message,
-        watcher=watcher,
-    )
-
-    async_mock.side_effect = NackMessage()
-
-    while not message.reject.called and message.nack.await_count < 5:
-        async with context:
-            await async_mock()
-
-    assert not message.ack.await_count
-    assert message.nack.await_count == 3
-    message.reject.assert_awaited_once()
-
-
-@pytest.mark.asyncio()
 async def test_push_endless_back_watcher(async_mock: AsyncMock, message):
     watcher = EndlessWatcher()
 
@@ -125,3 +105,18 @@ async def test_ignore_skip(async_mock: AsyncMock, message):
     assert not message.nack.called
     assert not message.reject.called
     assert not message.ack.called
+
+
+@pytest.mark.asyncio()
+async def test_additional_params_with_handler_exception(async_mock: AsyncMock, message):
+    watcher = EndlessWatcher()
+
+    context = WatcherContext(
+        message=message,
+        watcher=watcher,
+    )
+
+    async with context:
+        raise NackMessage(delay=5)
+
+    message.nack.assert_called_with(delay=5)
