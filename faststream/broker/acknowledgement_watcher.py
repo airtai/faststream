@@ -154,10 +154,7 @@ class WatcherContext:
                 await self.__ack(**exc_val.extra_options)
 
             elif isinstance(exc_val, NackMessage):
-                if self.watcher.is_max(self.message.message_id):
-                    await self.__reject()
-                else:
-                    await self.__nack(**exc_val.extra_options)
+                await self.__nack(**exc_val.extra_options)
 
             elif isinstance(exc_val, RejectMessage):  # pragma: no branch
                 await self.__reject(**exc_val.extra_options)
