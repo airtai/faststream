@@ -1,4 +1,5 @@
-from typing import Any, Iterable, Annotated
+from typing import Annotated, Any, Iterable
+
 from typing_extensions import Doc
 
 
