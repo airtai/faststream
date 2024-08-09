@@ -20,7 +20,7 @@ class AsyncAPIProto(Protocol):
     ]
     include_in_schema: Annotated[
         bool,
-        Doc("Whetever to include operation in AsyncAPI schema or not."),
+        Doc("Whatever to include operation in AsyncAPI schema or not."),
     ]
 
     @property

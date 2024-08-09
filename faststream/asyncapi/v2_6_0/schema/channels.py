@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.v2_6_0.schema.bindings import ChannelBinding
 from faststream.asyncapi.v2_6_0.schema.operations import Operation
-from faststream.asyncapi.v2_6_0.schema.utils import Parameter
 
 
 class Channel(BaseModel):
@@ -30,7 +29,9 @@ class Channel(BaseModel):
     bindings: Optional[ChannelBinding] = None
     subscribe: Optional[Operation] = None
     publish: Optional[Operation] = None
-    parameters: Optional[Parameter] = None
+
+    # TODO:
+    # parameters: Optional[Parameter] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}
