@@ -1,10 +1,16 @@
 from typing import Literal, Optional, Union, overload
 
-from typing_extensions import Annotated, Doc
-
-
 class ObjWatch:
-    """A class to represent a NATS object storage watch subscription."""
+    """A class to represent a NATS object storage watch subscription.
+
+    Args:
+        ignore_deletes (bool): Ignore delete events (default is `False`).
+        include_history (bool): Include history (default is `False`).
+        meta_only (bool): Only metadata. (default is `False`).
+        timeout (float): The timeout for the watch in seconds (default is `5.0`).
+        declare (bool): Whether to create object storage automatically or just connect to it (default is `True`).
+        
+    """
 
     __slots__ = (
         "ignore_deletes",
@@ -16,29 +22,12 @@ class ObjWatch:
 
     def __init__(
         self,
-        ignore_deletes: Annotated[
-            bool,
-            Doc("Ignore delete events."),
-        ] = False,
-        include_history: Annotated[
-            bool,
-            Doc("Include history."),
-        ] = False,
-        meta_only: Annotated[
-            bool,
-            Doc("Only metadata."),
-        ] = False,
-        timeout: Annotated[
-            float,
-            Doc("The timeout for the watch."),
-        ] = 5.0,
+        ignore_deletes: bool = False,
+        include_history: bool = False,
+        meta_only: bool= False,
+        timeout: float = 5.0,
         # custom
-        declare: Annotated[
-            bool,
-            Doc(
-                "Whether to create object storage automatically or just connect to it."
-            ),
-        ] = True,
+        declare: bool = True,
     ) -> None:
         self.ignore_deletes = ignore_deletes
         self.include_history = include_history

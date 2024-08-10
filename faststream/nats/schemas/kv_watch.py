@@ -1,12 +1,21 @@
 from typing import Optional
-
-from typing_extensions import Annotated, Doc
-
 from faststream.broker.schemas import NameRequired
 
 
 class KvWatch(NameRequired):
-    """A class to represent a NATS kv watch subscription."""
+    """A class to represent a NATS kv watch subscription.
+
+    Args:
+        bucket (str): Bucket name.
+        headers_only (bool): Whether to receive only headers (default is `False`).
+        include_history (bool): Whether to include history (default is `False`).
+        ignore_deletes (bool): Whether to ignore deletes (default is `False`).
+        meta_only (bool): Whether to receive only metadata (default is `False`).
+        inactive_threshold (:obj:`float`, optional): Inactivity threshold (default is `None`).
+        timeout (:obj:`float`, optional): Timeout in seconds (default is `5.0`).
+        declare (bool): Whether to create bucket automatically or just connect to it (default is `True`).
+        
+    """
 
     __slots__ = (
         "bucket",
@@ -21,39 +30,15 @@ class KvWatch(NameRequired):
 
     def __init__(
         self,
-        bucket: Annotated[
-            str,
-            Doc("Bucket name."),
-        ],
-        headers_only: Annotated[
-            bool,
-            Doc("Whether to receive only headers."),
-        ] = False,
-        include_history: Annotated[
-            bool,
-            Doc("Whether to include history."),
-        ] = False,
-        ignore_deletes: Annotated[
-            bool,
-            Doc("Whether to ignore deletes."),
-        ] = False,
-        meta_only: Annotated[
-            bool,
-            Doc("Whether to receive only metadata."),
-        ] = False,
-        inactive_threshold: Annotated[
-            Optional[float],
-            Doc("Inactivity threshold."),
-        ] = None,
-        timeout: Annotated[
-            Optional[float],
-            Doc("Timeout in seconds."),
-        ] = 5.0,
+        bucket: str,
+        headers_only: bool = False,
+        include_history: bool = False,
+        ignore_deletes: bool = False,
+        meta_only: bool= False,
+        inactive_threshold: Optional[float] = None,
+        timeout: Optional[float] = 5.0,
         # custom
-        declare: Annotated[
-            bool,
-            Doc("Whether to create bucket automatically or just connect to it."),
-        ] = True,
+        declare: bool = True,
     ) -> None:
         super().__init__(bucket)
 
