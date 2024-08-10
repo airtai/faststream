@@ -1,14 +1,14 @@
 from typing import Literal, Optional, Union, overload
 
+
 class PullSub:
     """A class to represent a NATS pull subscription.
 
     Args:
         batch_size (int): Consuming messages batch size. (default is `1`).
-        timeout (:obj:`float`, optional): Wait this time for required batch size will be accumulated in stream 
+        timeout (:obj:`float`, optional): Wait this time for required batch size will be accumulated in stream
             in seconds (default is `5.0`).
         batch (bool): Whether to propagate consuming batch as iterable object to your handler (default is `False`).
-        
     """
 
     __slots__ = (

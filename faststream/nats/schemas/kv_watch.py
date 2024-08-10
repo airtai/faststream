@@ -1,4 +1,5 @@
 from typing import Optional
+
 from faststream.broker.schemas import NameRequired
 
 
@@ -14,7 +15,6 @@ class KvWatch(NameRequired):
         inactive_threshold (:obj:`float`, optional): Inactivity threshold (default is `None`).
         timeout (:obj:`float`, optional): Timeout in seconds (default is `5.0`).
         declare (bool): Whether to create bucket automatically or just connect to it (default is `True`).
-        
     """
 
     __slots__ = (
@@ -34,7 +34,7 @@ class KvWatch(NameRequired):
         headers_only: bool = False,
         include_history: bool = False,
         ignore_deletes: bool = False,
-        meta_only: bool= False,
+        meta_only: bool = False,
         inactive_threshold: Optional[float] = None,
         timeout: Optional[float] = 5.0,
         # custom

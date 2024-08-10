@@ -1,5 +1,6 @@
 from typing import Literal, Optional, Union, overload
 
+
 class ObjWatch:
     """A class to represent a NATS object storage watch subscription.
 
@@ -9,7 +10,6 @@ class ObjWatch:
         meta_only (bool): Only metadata. (default is `False`).
         timeout (float): The timeout for the watch in seconds (default is `5.0`).
         declare (bool): Whether to create object storage automatically or just connect to it (default is `True`).
-        
     """
 
     __slots__ = (
@@ -24,7 +24,7 @@ class ObjWatch:
         self,
         ignore_deletes: bool = False,
         include_history: bool = False,
-        meta_only: bool= False,
+        meta_only: bool = False,
         timeout: float = 5.0,
         # custom
         declare: bool = True,
