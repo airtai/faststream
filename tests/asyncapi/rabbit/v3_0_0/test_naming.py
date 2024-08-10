@@ -123,3 +123,4 @@ class TestNaming(NamingTestCase):
                         },
                     },
                 }
+        )

@@ -163,6 +163,152 @@ def get_broker_channels(
     return channels
 
 
+def _specs_channel_to_asyncapi(channel: SpecChannel) -> Channel:
+    return Channel(
+        description=channel.description,
+        servers=channel.servers,
+
+        bindings=_specs_channel_binding_to_asyncapi(channel.bindings)
+        if channel.bindings else None,
+
+        subscribe=_specs_operation_to_asyncapi(channel.subscribe)
+        if channel.subscribe else None,
+
+        publish=_specs_operation_to_asyncapi(channel.publish)
+        if channel.publish else None,
+    )
+
+
+def _specs_channel_binding_to_asyncapi(binding: SpecChannelBinding) -> ChannelBinding:
+    return ChannelBinding(
+        amqp=amqp.ChannelBinding(**{
+            "is": binding.amqp.is_,
+            "bindingVersion": binding.amqp.bindingVersion,
+            "queue": amqp.Queue(
+                name=binding.amqp.queue.name,
+                durable=binding.amqp.queue.durable,
+                exclusive=binding.amqp.queue.exclusive,
+                autoDelete=binding.amqp.queue.autoDelete,
+                vhost=binding.amqp.queue.vhost,
+            )
+            if binding.amqp.queue else None,
+            "exchange": amqp.Exchange(
+                name=binding.amqp.exchange.name,
+                type=binding.amqp.exchange.type,
+                durable=binding.amqp.exchange.durable,
+                autoDelete=binding.amqp.exchange.autoDelete,
+                vhost=binding.amqp.exchange.vhost
+            )
+            if binding.amqp.exchange else None,
+        }
+                                 )
+        if binding.amqp else None,
+
+        kafka=kafka.ChannelBinding(**asdict(binding.kafka))
+        if binding.kafka else None,
+
+        sqs=sqs.ChannelBinding(**asdict(binding.sqs))
+        if binding.sqs else None,
+
+        nats=nats.ChannelBinding(**asdict(binding.nats))
+        if binding.nats else None,
+
+        redis=redis.ChannelBinding(**asdict(binding.redis))
+        if binding.redis else None,
+    )
+
+
+def _specs_operation_to_asyncapi(operation: SpecOperation) -> Operation:
+    return Operation(
+        operationId=operation.operationId,
+        summary=operation.summary,
+        description=operation.description,
+
+        bindings=_specs_operation_binding_to_asyncapi(operation.bindings)
+        if operation.bindings else None,
+
+        message=Message(
+            title=operation.message.title,
+            name=operation.message.name,
+            summary=operation.message.summary,
+            description=operation.message.description,
+            messageId=operation.message.messageId,
+            payload=operation.message.payload,
+
+            correlationId=CorrelationId(**asdict(operation.message.correlationId))
+            if operation.message.correlationId else None,
+
+            contentType=operation.message.contentType,
+
+            tags=_specs_tags_to_asyncapi(operation.tags)
+            if operation.tags else None,
+
+            externalDocs=_specs_external_docs_to_asyncapi(operation.externalDocs)
+            if operation.externalDocs else None,
+        ),
+
+        security=operation.security,
+
+        tags=_specs_tags_to_asyncapi(operation.tags)
+        if operation.tags else None,
+
+        externalDocs=_specs_external_docs_to_asyncapi(operation.externalDocs)
+        if operation.externalDocs else None,
+    )
+
+
+def _specs_operation_binding_to_asyncapi(binding: SpecOperationBinding) -> OperationBinding:
+    return OperationBinding(
+        amqp=amqp.OperationBinding(**asdict(binding.amqp))
+        if binding.amqp else None,
+
+        kafka=kafka.OperationBinding(**asdict(binding.kafka))
+        if binding.kafka else None,
+
+        sqs=kafka.OperationBinding(**asdict(binding.sqs))
+        if binding.sqs else None,
+
+        nats=kafka.OperationBinding(**asdict(binding.nats))
+        if binding.nats else None,
+
+        redis=kafka.OperationBinding(**asdict(binding.redis))
+        if binding.redis else None,
+    )
+
+
+def _specs_tags_to_asyncapi(
+        tags: List[Union[SpecTag, SpecTagDict, Dict[str, Any]]]
+) -> List[Union[Tag, TagDict, Dict[str, Any]]]:
+    asyncapi_tags = []
+
+    for tag in tags:
+        if isinstance(tag, SpecTag):
+            asyncapi_tags.append(Tag(
+                name=tag.name,
+                description=tag.description,
+
+                externalDocs=_specs_external_docs_to_asyncapi(tag.externalDocs)
+                if tag.externalDocs else None,
+            ))
+        elif isinstance(tag, dict):
+            asyncapi_tags.append(tag)
+        else:
+            raise NotImplementedError
+
+    return asyncapi_tags
+
+
+def _specs_external_docs_to_asyncapi(
+        externalDocs: Union[SpecExternalDocs, SpecExternalDocsDict, Dict[str, Any]]
+) -> Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]:
+    if isinstance(externalDocs, SpecExternalDocs):
+        return ExternalDocs(
+            **asdict(externalDocs)
+        )
+    else:
+        return externalDocs
+
+
 def _resolve_msg_payloads(
         m: Message,
         channel_name: str,
