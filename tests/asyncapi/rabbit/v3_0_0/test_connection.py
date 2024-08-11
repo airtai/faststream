@@ -1,8 +1,8 @@
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.specification.tag import Tag
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.rabbit import RabbitBroker
+from faststream.specification.tag import Tag
 
 
 def test_base():
@@ -66,7 +66,7 @@ def test_custom():
                 "asyncapi": "3.0.0",
                 "channels": {
                     "test:_:Publisher": {
-                        'address': 'test:_:Publisher',
+                        "address": "test:_:Publisher",
                         "bindings": {
                             "amqp": {
                                 "bindingVersion": "0.2.0",
@@ -83,34 +83,34 @@ def test_custom():
                         },
                         "servers": [
                             {
-                                '$ref': '#/servers/development',
+                                "$ref": "#/servers/development",
                             }
                         ],
-                        'messages': {
-                            'Message': {
-                                '$ref': '#/components/messages/test:_:Publisher:Message',
+                        "messages": {
+                            "Message": {
+                                "$ref": "#/components/messages/test:_:Publisher:Message",
                             },
                         }
                     }
                 },
-                'operations': {
-                    'test:_:Publisher': {
-                        'action': 'send',
-                        'bindings': {
-                            'amqp': {
-                                'ack': True,
-                                'bindingVersion': '0.2.0',
-                                'cc': 'test',
-                                'deliveryMode': 1,
-                                'mandatory': True,
+                "operations": {
+                    "test:_:Publisher": {
+                        "action": "send",
+                        "bindings": {
+                            "amqp": {
+                                "ack": True,
+                                "bindingVersion": "0.2.0",
+                                "cc": "test",
+                                "deliveryMode": 1,
+                                "mandatory": True,
                             },
                         },
-                        'channel': {
-                            '$ref': '#/channels/test:_:Publisher',
+                        "channel": {
+                            "$ref": "#/channels/test:_:Publisher",
                         },
-                        'messages': [
+                        "messages": [
                             {
-                                '$ref': '#/channels/test:_:Publisher/messages/Message',
+                                "$ref": "#/channels/test:_:Publisher/messages/Message",
                             },
                         ],
                     },
@@ -122,12 +122,12 @@ def test_custom():
                                 "location": "$message.header#/correlation_id"
                             },
                             "payload": {
-                                '$ref': '#/components/schemas/test:_:Publisher:Message:Payload'
+                                "$ref": "#/components/schemas/test:_:Publisher:Message:Payload"
                             },
                             "title": "test:_:Publisher:Message",
                         }
                     },
-                    "schemas": {'test:_:Publisher:Message:Payload': {}},
+                    "schemas": {"test:_:Publisher:Message:Payload": {}},
                 },
                 "defaultContentType": "application/json",
                 "info": {"description": "", "title": "FastStream", "version": "0.1.0"},

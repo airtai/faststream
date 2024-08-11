@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Union, Callable
+from typing import Callable, Optional, Union
 
 import pydantic
 from dirty_equals import IsDict, IsPartialDict, IsStr

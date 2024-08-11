@@ -1,4 +1,3 @@
-from typing import Type
 
 from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.version import AsyncAPIVersion

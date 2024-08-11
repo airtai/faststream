@@ -1,4 +1,3 @@
-from typing import Type
 
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.nats import TestNatsBroker

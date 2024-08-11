@@ -182,9 +182,9 @@ class TestArguments(PublisherTestcase):
                         "$ref": "#/servers/development",
                     }
                 ],
-                'messages': {
-                    'Message': {
-                        '$ref': '#/components/messages/key1:test-ex:Publisher:Message',
+                "messages": {
+                    "Message": {
+                        "$ref": "#/components/messages/key1:test-ex:Publisher:Message",
                     },
                 },
 
@@ -209,9 +209,9 @@ class TestArguments(PublisherTestcase):
                         "$ref": "#/servers/development",
                     }
                 ],
-                'messages': {
-                    'Message': {
-                        '$ref': '#/components/messages/key2:test-ex:Publisher:Message',
+                "messages": {
+                    "Message": {
+                        "$ref": "#/components/messages/key2:test-ex:Publisher:Message",
                     },
                 },
             },

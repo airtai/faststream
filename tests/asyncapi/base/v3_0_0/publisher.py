@@ -1,4 +1,4 @@
-from typing import Type, Callable, Union
+from typing import Callable, Union
 
 import pydantic
 

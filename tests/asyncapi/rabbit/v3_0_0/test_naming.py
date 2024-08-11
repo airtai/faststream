@@ -89,22 +89,22 @@ class TestNaming(NamingTestCase):
                             },
                         }
                     },
-                    'operations': {
-                        'test:_:HandleSubscribe': {
-                            'action': 'receive',
-                            'bindings': {
-                                'amqp': {
-                                    'ack': True,
-                                    'bindingVersion': '0.2.0',
-                                    'cc': 'test',
+                    "operations": {
+                        "test:_:HandleSubscribe": {
+                            "action": "receive",
+                            "bindings": {
+                                "amqp": {
+                                    "ack": True,
+                                    "bindingVersion": "0.2.0",
+                                    "cc": "test",
                                 },
                             },
-                            'channel': {
-                                '$ref': '#/channels/test:_:Handle',
+                            "channel": {
+                                "$ref": "#/channels/test:_:Handle",
                             },
-                            'messages': [
+                            "messages": [
                                 {
-                                    '$ref': '#/channels/test:_:Handle/messages/SubscribeMessage',
+                                    "$ref": "#/channels/test:_:Handle/messages/SubscribeMessage",
                                 },
                             ],
                         },
