@@ -149,26 +149,25 @@ class TestRouterLocal(RouterLocalTestcase):
 
         assert next(iter(pub_broker._stream_builder.objects.keys())) == "stream"
 
+    async def test_include_stream_with_subjects(self):
+        stream = JStream("test-stream")
 
-async def test_include_stream_with_subjects(self):
-    stream = JStream("test-stream")
+        sub_router = NatsRouter(prefix="client.")
 
-    sub_router = NatsRouter(prefix="client.")
+        sub_router.subscriber("1", stream=stream)
+        sub_router.subscriber("2", stream=stream)
 
-    sub_router.subscriber("1", stream=stream)
-    sub_router.subscriber("2", stream=stream)
+        router = NatsRouter(prefix="user.")
 
-    router = NatsRouter(prefix="user.")
+        router.subscriber("registered", stream=stream)
 
-    router.subscriber("registered", stream=stream)
+        router.include_router(sub_router)
 
-    router.include_router(sub_router)
+        broker = NatsBroker()
+        broker.include_router(router)
 
-    broker = NatsBroker()
-    broker.include_router(router)
-
-    assert set(stream.subjects) == {
-        "user.registered",
-        "user.client.1",
-        "user.client.2",
-    }
+        assert set(stream.subjects) == {
+            "user.registered",
+            "user.client.1",
+            "user.client.2",
+        }
