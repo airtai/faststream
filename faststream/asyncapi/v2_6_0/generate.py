@@ -1,27 +1,42 @@
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Any, Dict, List, Union, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from faststream._compat import DEF_KEY, HAS_FASTAPI
 from faststream.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
+    ExternalDocs,
+    ExternalDocsDict,
     Info,
+    Operation,
     Reference,
     Schema,
     Server,
     Tag,
-    TagDict, Operation, ExternalDocsDict, ExternalDocs,
+    TagDict,
 )
-from faststream.asyncapi.v2_6_0.schema.bindings import ChannelBinding, amqp, kafka, sqs, nats, redis, OperationBinding
-from faststream.asyncapi.v2_6_0.schema.message import Message, CorrelationId
+from faststream.asyncapi.v2_6_0.schema.bindings import (
+    ChannelBinding,
+    OperationBinding,
+    amqp,
+    kafka,
+    nats,
+    redis,
+    sqs,
+)
+from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
+from faststream.broker.specification.bindings import (
+    OperationBinding as SpecOperationBinding,
+)
 from faststream.broker.specification.channel import Channel as SpecChannel
-from faststream.broker.specification.operation import Operation as SpecOperation
-from faststream.broker.specification.bindings import OperationBinding as SpecOperationBinding
 from faststream.broker.specification.channel import ChannelBinding as SpecChannelBinding
+from faststream.broker.specification.docs import ExternalDocs as SpecExternalDocs
+from faststream.broker.specification.docs import (
+    ExternalDocsDict as SpecExternalDocsDict,
+)
+from faststream.broker.specification.operation import Operation as SpecOperation
 from faststream.broker.specification.tag import Tag as SpecTag
 from faststream.broker.specification.tag import TagDict as SpecTagDict
-from faststream.broker.specification.docs import ExternalDocs as SpecExternalDocs
-from faststream.broker.specification.docs import ExternalDocsDict as SpecExternalDocsDict
 from faststream.constants import ContentTypes
 
 if TYPE_CHECKING:
@@ -119,7 +134,7 @@ def get_broker_server(
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,
-        "tags": tags if tags else None,
+        "tags": tags,
         # TODO
         # "variables": "",
         # "bindings": "",
@@ -194,6 +209,7 @@ def _specs_channel_binding_to_asyncapi(binding: SpecChannelBinding) -> ChannelBi
         amqp=amqp.ChannelBinding(**{
             "is": binding.amqp.is_,
             "bindingVersion": binding.amqp.bindingVersion,
+
             "queue": amqp.Queue(
                 name=binding.amqp.queue.name,
                 durable=binding.amqp.queue.durable,
@@ -202,6 +218,7 @@ def _specs_channel_binding_to_asyncapi(binding: SpecChannelBinding) -> ChannelBi
                 vhost=binding.amqp.queue.vhost,
             )
             if binding.amqp.queue else None,
+
             "exchange": amqp.Exchange(
                 name=binding.amqp.exchange.name,
                 type=binding.amqp.exchange.type,
@@ -211,7 +228,7 @@ def _specs_channel_binding_to_asyncapi(binding: SpecChannelBinding) -> ChannelBi
             )
             if binding.amqp.exchange else None,
         }
-                                 )
+    )
         if binding.amqp else None,
 
         kafka=kafka.ChannelBinding(**asdict(binding.kafka))
@@ -389,7 +406,7 @@ def _move_pydantic_refs(
             for i in range(len(data[k])):
                 data[k][i] = _move_pydantic_refs(item[i], key)
 
-    if isinstance(desciminator := data.get("discriminator"), dict):
-        data["discriminator"] = desciminator["propertyName"]
+    if isinstance(discriminator := data.get("discriminator"), dict):
+        data["discriminator"] = discriminator["propertyName"]
 
     return data

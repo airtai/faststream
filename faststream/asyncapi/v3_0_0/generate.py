@@ -1,9 +1,11 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from dataclasses import asdict
+from typing import TYPE_CHECKING, Any, Dict, List, Union, Optional
 from urllib.parse import urlparse
 
 from faststream._compat import DEF_KEY, HAS_FASTAPI
-from faststream.asyncapi.v2_6_0.schema import Reference
-from faststream.asyncapi.v2_6_0.schema.message import Message
+from faststream.asyncapi.v2_6_0.generate import _specs_channel_binding_to_asyncapi, _specs_operation_binding_to_asyncapi
+from faststream.asyncapi.v2_6_0.schema import Reference, TagDict, Tag, ExternalDocsDict, ExternalDocs
+from faststream.asyncapi.v2_6_0.schema.message import Message, CorrelationId
 from faststream.asyncapi.v3_0_0.schema import (
     Channel,
     Components,
@@ -11,6 +13,14 @@ from faststream.asyncapi.v3_0_0.schema import (
     Operation,
     Schema,
     Server,
+)
+from faststream.broker.specification.tag import (
+    Tag as SpecTag,
+    TagDict as SpecTagDict,
+)
+from faststream.broker.specification.docs import (
+    ExternalDocs as SpecExternalDocs,
+    ExternalDocsDict as SpecExternalDocsDict,
 )
 from faststream.constants import ContentTypes
 
@@ -62,8 +72,8 @@ def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
             termsOfService=app.terms_of_service,
             contact=app.contact,
             license=app.license,
-            tags=list(app.asyncapi_tags) if app.asyncapi_tags else None,
-            externalDocs=app.external_docs,
+            tags=_specs_tags_to_asyncapi(list(app.asyncapi_tags)) if app.asyncapi_tags else None,
+            externalDocs=_specs_external_docs_to_asyncapi(app.external_docs),
         ),
         defaultContentType=ContentTypes.json.value,
         id=app.identifier,
@@ -87,11 +97,24 @@ def get_broker_server(
     """Get the broker server for an application."""
     servers = {}
 
+    if broker.tags:
+        tags: Optional[List[Union[Tag, TagDict, Dict[str, Any]]]] = []
+
+        for tag in broker.tags:
+            if isinstance(tag, SpecTag):
+                tags.append(Tag(**asdict(tag)))
+            elif isinstance(tag, dict):
+                tags.append(tag)
+            else:
+                raise NotImplementedError(f"Unsupported tag type: {tag}; {type(tag)}")
+    else:
+        tags = None
+
     broker_meta: Dict[str, Any] = {
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,
-        "tags": broker.tags,
+        "tags": tags,
         # TODO
         # "variables": "",
         # "bindings": "",
@@ -146,13 +169,14 @@ def get_broker_operations(
     operations = {}
 
     for h in broker._subscribers.values():
-        for channel_name, channel_2_6 in h.schema().items():
-            if channel_2_6.subscribe is not None:
+        for channel_name, specs_channel in h.schema().items():
+            if specs_channel.subscribe is not None:
                 op = Operation(
                     action="receive",
-                    summary=channel_2_6.subscribe.summary,
-                    description=channel_2_6.subscribe.description,
-                    bindings=channel_2_6.subscribe.bindings,
+                    summary=specs_channel.subscribe.summary,
+                    description=specs_channel.subscribe.description,
+                    bindings=_specs_operation_binding_to_asyncapi(specs_channel.subscribe.bindings)
+                    if specs_channel.subscribe.bindings else None,
                     messages=[
                         Reference(
                             **{"$ref": f"#/channels/{channel_name}/messages/SubscribeMessage"},
@@ -161,16 +185,17 @@ def get_broker_operations(
                     channel=Reference(
                         **{"$ref": f"#/channels/{channel_name}"},
                     ),
-                    security=channel_2_6.subscribe.security,
+                    security=specs_channel.subscribe.security,
                 )
                 operations[f"{channel_name}Subscribe"] = op
 
-            elif channel_2_6.publish is not None:
+            elif specs_channel.publish is not None:
                 op = Operation(
                     action="send",
-                    summary=channel_2_6.publish.summary,
-                    description=channel_2_6.publish.description,
-                    bindings=channel_2_6.publish.bindings,
+                    summary=specs_channel.publish.summary,
+                    description=specs_channel.publish.description,
+                    bindings=_specs_operation_binding_to_asyncapi(specs_channel.publish.bindings)
+                    if specs_channel.publish.bindings else None,
                     messages=[
                         Reference(
                             **{"$ref": f"#/channels/{channel_name}/messages/Message"},
@@ -179,18 +204,19 @@ def get_broker_operations(
                     channel=Reference(
                         **{"$ref": f"#/channels/{channel_name}"},
                     ),
-                    security=channel_2_6.publish.bindings,
+                    security=specs_channel.publish.bindings,
                 )
                 operations[f"{channel_name}"] = op
 
     for p in broker._publishers.values():
-        for channel_name, channel_2_6 in p.schema().items():
-            if channel_2_6.subscribe is not None:
+        for channel_name, specs_channel in p.schema().items():
+            if specs_channel.subscribe is not None:
                 op = Operation(
                     action="send",
-                    summary=channel_2_6.subscribe.summary,
-                    description=channel_2_6.subscribe.description,
-                    bindings=channel_2_6.subscribe.bindings,
+                    summary=specs_channel.subscribe.summary,
+                    description=specs_channel.subscribe.description,
+                    bindings=_specs_operation_binding_to_asyncapi(specs_channel.subscribe.bindings)
+                    if specs_channel.subscribe.bindings else None,
                     messages=[
                         Reference(
                             **{"$ref": f"#/channels/{channel_name}/messages/SubscribeMessage"},
@@ -199,16 +225,17 @@ def get_broker_operations(
                     channel=Reference(
                         **{"$ref": f"#/channels/{channel_name}"},
                     ),
-                    security=channel_2_6.subscribe.security,
+                    security=specs_channel.subscribe.security,
                 )
                 operations[f"{channel_name}Subscribe"] = op
 
-            elif channel_2_6.publish is not None:
+            elif specs_channel.publish is not None:
                 op = Operation(
                     action="send",
-                    summary=channel_2_6.publish.summary,
-                    description=channel_2_6.publish.description,
-                    bindings=channel_2_6.publish.bindings,
+                    summary=specs_channel.publish.summary,
+                    description=specs_channel.publish.description,
+                    bindings=_specs_operation_binding_to_asyncapi(specs_channel.publish.bindings)
+                    if specs_channel.publish.bindings else None,
                     messages=[
                         Reference(
                             **{"$ref": f"#/channels/{channel_name}/messages/Message"},
@@ -217,7 +244,7 @@ def get_broker_operations(
                     channel=Reference(
                         **{"$ref": f"#/channels/{channel_name}"},
                     ),
-                    security=channel_2_6.publish.security,
+                    security=specs_channel.publish.security,
                 )
                 operations[f"{channel_name}"] = op
 
@@ -232,16 +259,35 @@ def get_broker_channels(
 
     for h in broker._subscribers.values():
         channels_schema_v3_0 = {}
-        for channel_name, channel_v2_6 in h.schema().items():
-            if channel_v2_6.subscribe:
+        for channel_name, specs_channel in h.schema().items():
+            if specs_channel.subscribe:
                 channel_v3_0 = Channel(
                     address=channel_name,
                     messages={
-                        "SubscribeMessage": channel_v2_6.subscribe.message,
+                        "SubscribeMessage": Message(
+                            title=specs_channel.subscribe.message.title,
+                            name=specs_channel.subscribe.message.name,
+                            summary=specs_channel.subscribe.message.summary,
+                            description=specs_channel.subscribe.message.description,
+                            messageId=specs_channel.subscribe.message.messageId,
+                            payload=specs_channel.subscribe.message.payload,
+
+                            correlationId=CorrelationId(**asdict(specs_channel.subscribe.message.correlationId))
+                            if specs_channel.subscribe.message.correlationId else None,
+
+                            contentType=specs_channel.subscribe.message.contentType,
+
+                            tags=_specs_tags_to_asyncapi(specs_channel.subscribe.message.tags)
+                            if specs_channel.subscribe.message.tags else None,
+
+                            externalDocs=_specs_external_docs_to_asyncapi(specs_channel.subscribe.message.externalDocs)
+                            if specs_channel.subscribe.message.externalDocs else None,
+                        ),
                     },
-                    description=channel_v2_6.description,
-                    servers=channel_v2_6.servers,
-                    bindings=channel_v2_6.bindings,
+                    description=specs_channel.description,
+                    servers=specs_channel.servers,
+                    bindings=_specs_channel_binding_to_asyncapi(specs_channel.bindings)
+                    if specs_channel.bindings else None,
                 )
 
                 channels_schema_v3_0[channel_name] = channel_v3_0
@@ -250,16 +296,35 @@ def get_broker_channels(
 
     for p in broker._publishers.values():
         channels_schema_v3_0 = {}
-        for channel_name, channel_v2_6 in p.schema().items():
-            if channel_v2_6.publish:
+        for channel_name, specs_channel in p.schema().items():
+            if specs_channel.publish:
                 channel_v3_0 = Channel(
                     address=channel_name,
                     messages={
-                        "Message": channel_v2_6.publish.message,
+                        "Message": Message(
+                            title=specs_channel.publish.message.title,
+                            name=specs_channel.publish.message.name,
+                            summary=specs_channel.publish.message.summary,
+                            description=specs_channel.publish.message.description,
+                            messageId=specs_channel.publish.message.messageId,
+                            payload=specs_channel.publish.message.payload,
+
+                            correlationId=CorrelationId(**asdict(specs_channel.publish.message.correlationId))
+                            if specs_channel.publish.message.correlationId else None,
+
+                            contentType=specs_channel.publish.message.contentType,
+
+                            tags=_specs_tags_to_asyncapi(specs_channel.publish.message.tags)
+                            if specs_channel.publish.message.tags else None,
+
+                            externalDocs=_specs_external_docs_to_asyncapi(specs_channel.publish.message.externalDocs)
+                            if specs_channel.publish.message.externalDocs else None,
+                        ),
                     },
-                    description=channel_v2_6.description,
-                    servers=channel_v2_6.servers,
-                    bindings=channel_v2_6.bindings,
+                    description=specs_channel.description,
+                    servers=specs_channel.servers,
+                    bindings=_specs_channel_binding_to_asyncapi(specs_channel.bindings)
+                    if specs_channel.bindings else None,
                 )
 
                 channels_schema_v3_0[channel_name] = channel_v3_0
@@ -267,6 +332,39 @@ def get_broker_channels(
         channels.update(channels_schema_v3_0)
 
     return channels
+
+
+def _specs_tags_to_asyncapi(
+        tags: List[Union[SpecTag, SpecTagDict, Dict[str, Any]]]
+) -> List[Union[Tag, TagDict, Dict[str, Any]]]:
+    asyncapi_tags = []
+
+    for tag in tags:
+        if isinstance(tag, SpecTag):
+            asyncapi_tags.append(Tag(
+                name=tag.name,
+                description=tag.description,
+
+                externalDocs=_specs_external_docs_to_asyncapi(tag.externalDocs)
+                if tag.externalDocs else None,
+            ))
+        elif isinstance(tag, dict):
+            asyncapi_tags.append(tag)
+        else:
+            raise NotImplementedError
+
+    return asyncapi_tags
+
+
+def _specs_external_docs_to_asyncapi(
+        externalDocs: Union[SpecExternalDocs, SpecExternalDocsDict, Dict[str, Any]]
+) -> Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]:
+    if isinstance(externalDocs, SpecExternalDocs):
+        return ExternalDocs(
+            **asdict(externalDocs)
+        )
+    else:
+        return externalDocs
 
 
 def _resolve_msg_payloads(
@@ -331,7 +429,7 @@ def _move_pydantic_refs(
             for i in range(len(data[k])):
                 data[k][i] = _move_pydantic_refs(item[i], key)
 
-    if isinstance(desciminator := data.get("discriminator"), dict):
-        data["discriminator"] = desciminator["propertyName"]
+    if isinstance(discriminator := data.get("discriminator"), dict):
+        data["discriminator"] = discriminator["propertyName"]
 
     return data
