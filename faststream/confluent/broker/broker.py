@@ -26,7 +26,6 @@ from faststream.confluent.client import (
     AsyncConfluentConsumer,
     AsyncConfluentProducer,
 )
-from faststream.confluent.config import ConfluentConfig
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
@@ -45,6 +44,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         CustomCallable,
     )
+    from faststream.confluent.config import ConfluentConfig
     from faststream.security import BaseSecurity
     from faststream.types import (
         AnyDict,
@@ -131,7 +131,7 @@ class KafkaBroker(
             ),
         ] = True,
         config: Annotated[
-            Optional[ConfluentConfig],
+            Optional["ConfluentConfig"],
             Doc(
                 """
                 Extra configuration for the confluent-kafka-python
