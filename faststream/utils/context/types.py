@@ -66,8 +66,11 @@ class Context(CustomField):
                 default=self.default,
                 initial=self.initial,
             )
-        ) is not EMPTY:
+        ) != EMPTY:
             kwargs[self.param_name] = v
+
+        else:
+            kwargs.pop(self.param_name, None)
 
         return kwargs
 
@@ -83,7 +86,7 @@ def resolve_context_by_name(
         value = context.resolve(name)
 
     except (KeyError, AttributeError):
-        if default is not EMPTY:
+        if default != EMPTY:
             value = default
 
         elif initial is not None:
