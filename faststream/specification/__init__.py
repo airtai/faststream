@@ -1,4 +1,4 @@
-from . import bindings, channel, docs, message, operation, tag
+from . import bindings, channel, docs, message, operation, tag, info
 
 __all__ = (
     "bindings",
@@ -7,4 +7,5 @@ __all__ = (
     "message",
     "operation",
     "tag",
+    "info",
 )

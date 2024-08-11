@@ -7,8 +7,10 @@ from faststream.asyncapi.proto import AsyncAPIApplication
 from faststream.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
+    Contact,
     ExternalDocs,
     Info,
+    License,
     Operation,
     Reference,
     Schema,
@@ -29,9 +31,9 @@ from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
 from faststream.constants import ContentTypes
 
 if TYPE_CHECKING:
-    from faststream.asyncapi.proto import AsyncAPIApplication
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.types import ConnectionType, MsgType
+    from faststream.types import AnyDict
 
 
 def get_app_schema(app: AsyncAPIApplication) -> Schema:
@@ -77,8 +79,10 @@ def get_app_schema(app: AsyncAPIApplication) -> Schema:
             version=app.version,
             description=app.description,
             termsOfService=app.terms_of_service,
-            contact=app.contact,
-            license=app.license,
+            contact=_specs_contact_to_asyncapi(app.contact)
+            if app.contact else None,
+            license=_specs_license_to_asyncapi(app.license)
+            if app.license else None,
         ),
         defaultContentType=ContentTypes.json.value,
         id=app.identifier,
@@ -170,6 +174,25 @@ def get_broker_channels(
         })
 
     return channels
+
+
+def _specs_contact_to_asyncapi(
+        contact: Union["spec.info.Contact", "spec.info.ContactDict", "AnyDict"]
+) -> Union["Contact", "AnyDict"]:
+    if isinstance(contact, spec.info.Contact):
+        return Contact(**contact.dict())
+
+    return dict(contact)
+
+
+def _specs_license_to_asyncapi(
+        license: Union["spec.info.License", "spec.info.LicenseDict", "AnyDict"]
+) -> Union["License", "AnyDict"]:
+    if isinstance(license, spec.info.License):
+        return License(**license.dict())
+
+    return dict(license)
+
 
 
 def _specs_channel_to_asyncapi(channel: spec.channel.Channel) -> Channel:

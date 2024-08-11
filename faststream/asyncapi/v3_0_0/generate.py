@@ -7,6 +7,8 @@ from faststream._compat import DEF_KEY
 from faststream.asyncapi.proto import AsyncAPIApplication
 from faststream.asyncapi.v2_6_0.generate import (
     _specs_channel_binding_to_asyncapi,
+    _specs_contact_to_asyncapi,
+    _specs_license_to_asyncapi,
     _specs_operation_binding_to_asyncapi,
     _specs_tags_to_asyncapi,
 )
@@ -28,7 +30,6 @@ from faststream.asyncapi.v3_0_0.schema import (
 from faststream.constants import ContentTypes
 
 if TYPE_CHECKING:
-    from faststream.asyncapi.proto import AsyncAPIApplication
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.types import ConnectionType, MsgType
 
@@ -70,8 +71,10 @@ def get_app_schema(app: AsyncAPIApplication) -> Schema:
             version=app.version,
             description=app.description,
             termsOfService=app.terms_of_service,
-            contact=app.contact,
-            license=app.license,
+            contact=_specs_contact_to_asyncapi(app.contact)
+            if app.contact else None,
+            license=_specs_license_to_asyncapi(app.license)
+            if app.license else None,
             tags=_specs_tags_to_asyncapi(list(app.asyncapi_tags)) if app.asyncapi_tags else None,
             externalDocs=_specs_external_docs_to_asyncapi(app.external_docs) if app.external_docs else None,
         ),
