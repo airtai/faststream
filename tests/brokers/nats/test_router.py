@@ -149,6 +149,7 @@ class TestRouterLocal(RouterLocalTestcase):
 
         assert next(iter(pub_broker._stream_builder.objects.keys())) == "stream"
 
+
 async def test_include_stream_with_subjects(self):
     stream = JStream("test-stream")
 
