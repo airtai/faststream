@@ -119,7 +119,7 @@ def get_broker_server(
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,
-        "tags": tags,
+        "tags": tags if tags else None,
         # TODO
         # "variables": "",
         # "bindings": "",
@@ -163,7 +163,7 @@ def get_broker_channels(
     return channels
 
 
-def _specs_channel_to_asyncapi(channel: SpecChannel) -> Channel:
+def _specs_channel_to_asyncapi(channel: spec.channel.Channel) -> Channel:
     return Channel(
         description=channel.description,
         servers=channel.servers,
@@ -179,7 +179,7 @@ def _specs_channel_to_asyncapi(channel: SpecChannel) -> Channel:
     )
 
 
-def _specs_channel_binding_to_asyncapi(binding: SpecChannelBinding) -> ChannelBinding:
+def _specs_channel_binding_to_asyncapi(binding: spec.bindings.ChannelBinding) -> ChannelBinding:
     return ChannelBinding(
         amqp=amqp.ChannelBinding(**{
             "is": binding.amqp.is_,
@@ -218,7 +218,7 @@ def _specs_channel_binding_to_asyncapi(binding: SpecChannelBinding) -> ChannelBi
     )
 
 
-def _specs_operation_to_asyncapi(operation: SpecOperation) -> Operation:
+def _specs_operation_to_asyncapi(operation: spec.operation.Operation) -> Operation:
     return Operation(
         operationId=operation.operationId,
         summary=operation.summary,
@@ -257,7 +257,7 @@ def _specs_operation_to_asyncapi(operation: SpecOperation) -> Operation:
     )
 
 
-def _specs_operation_binding_to_asyncapi(binding: SpecOperationBinding) -> OperationBinding:
+def _specs_operation_binding_to_asyncapi(binding: spec.bindings.OperationBinding) -> OperationBinding:
     return OperationBinding(
         amqp=amqp.OperationBinding(**asdict(binding.amqp))
         if binding.amqp else None,
@@ -277,12 +277,12 @@ def _specs_operation_binding_to_asyncapi(binding: SpecOperationBinding) -> Opera
 
 
 def _specs_tags_to_asyncapi(
-        tags: List[Union[SpecTag, SpecTagDict, Dict[str, Any]]]
+        tags: List[Union[spec.tag.Tag, spec.tag.TagDict, Dict[str, Any]]]
 ) -> List[Union[Tag, TagDict, Dict[str, Any]]]:
-    asyncapi_tags = []
+    asyncapi_tags: List[Union[Tag, TagDict, Dict[str, Any]]] = []
 
     for tag in tags:
-        if isinstance(tag, SpecTag):
+        if isinstance(tag, spec.tag.Tag):
             asyncapi_tags.append(Tag(
                 name=tag.name,
                 description=tag.description,
@@ -291,7 +291,7 @@ def _specs_tags_to_asyncapi(
                 if tag.externalDocs else None,
             ))
         elif isinstance(tag, dict):
-            asyncapi_tags.append(tag)
+            asyncapi_tags.append(dict(tag))
         else:
             raise NotImplementedError
 
@@ -299,14 +299,14 @@ def _specs_tags_to_asyncapi(
 
 
 def _specs_external_docs_to_asyncapi(
-        externalDocs: Union[SpecExternalDocs, SpecExternalDocsDict, Dict[str, Any]]
-) -> Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]:
-    if isinstance(externalDocs, SpecExternalDocs):
+        externalDocs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, Dict[str, Any]]
+) -> Union[ExternalDocs, Dict[str, Any]]:
+    if isinstance(externalDocs, spec.docs.ExternalDocs):
         return ExternalDocs(
             **asdict(externalDocs)
         )
     else:
-        return externalDocs
+        return dict(externalDocs)
 
 
 def _resolve_msg_payloads(

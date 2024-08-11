@@ -6,11 +6,16 @@ from faststream.specification.proto import SpecificationProto
 
 if TYPE_CHECKING:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     from faststream.asyncapi.v2_6_0.schema.bindings import redis
 >>>>>>> 2711d41d (AsyncAPI generation refactoring)
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
     from faststream.specification.schema.bindings import redis
+=======
+    from faststream.redis.schemas import ListSub, PubSub, StreamSub
+    from faststream.specification.bindings import redis
+>>>>>>> 3361c325 (mypy satisfied)
 
 
 class RedisAsyncAPIProtocol(SpecificationProto):

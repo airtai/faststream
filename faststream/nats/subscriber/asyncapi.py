@@ -14,6 +14,10 @@ from faststream.nats.subscriber.usecase import (
     PullStreamSubscriber,
     PushStreamSubscription,
 )
+from faststream.specification.bindings import ChannelBinding, nats
+from faststream.specification.channel import Channel
+from faststream.specification.message import CorrelationId, Message
+from faststream.specification.operation import Operation
 
 
 class AsyncAPISubscriber(LogicSubscriber[Any]):

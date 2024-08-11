@@ -24,6 +24,7 @@ from faststream.broker.middlewares.logging import CriticalLogMiddleware
 from faststream.broker.proto import SetupAble
 from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.types import (
+    AsyncCustomCallable,
     BrokerMiddleware,
     ConnectionType,
     CustomCallable,
@@ -41,7 +42,6 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto, PublisherProto
-    from faststream.broker.specification.tag import Tag, TagDict
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import AnyDict, Decorator, LoggerProto

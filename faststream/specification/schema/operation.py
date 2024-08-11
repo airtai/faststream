@@ -1,9 +1,16 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
+<<<<<<<< HEAD:faststream/specification/schema/operation.py
 from faststream.specification.schema.bindings import OperationBinding
 from faststream.specification.schema.message import Message
 from faststream.specification.schema.tag import Tag
+========
+from faststream.specification.bindings import OperationBinding
+from faststream.specification.docs import ExternalDocs, ExternalDocsDict
+from faststream.specification.message import Message
+from faststream.specification.tag import Tag, TagDict
+>>>>>>>> 3361c325 (mypy satisfied):faststream/specification/operation.py
 
 
 @dataclass
