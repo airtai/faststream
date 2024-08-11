@@ -3,18 +3,13 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol, Sequence, Union
 
 from typing_extensions import Doc, Annotated
 
+from faststream.asyncapi.v2_6_0.schema.info import License, LicenseDict, Contact, ContactDict
+from faststream.asyncapi.version import AsyncAPIVersion
+from faststream.specification.docs import ExternalDocs, ExternalDocsDict
+from faststream.specification.tag import Tag, TagDict
+
 if TYPE_CHECKING:
-    from faststream.asyncapi.schema import (
-        Contact,
-        ContactDict,
-        ExternalDocs,
-        ExternalDocsDict,
-        License,
-        LicenseDict,
-        Tag,
-        TagDict,
-    )
-    from faststream.broker.specification.channel import Channel
+    from faststream.specification.channel import Channel
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.types import (
         AnyDict,
@@ -33,6 +28,7 @@ class AsyncAPIApplication(Protocol):
     contact: Optional[Union["Contact", "ContactDict", "AnyDict"]]
     asyncapi_tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]]
     external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]]
+    asyncapi_version: AsyncAPIVersion
     identifier: Optional[str]
 
 

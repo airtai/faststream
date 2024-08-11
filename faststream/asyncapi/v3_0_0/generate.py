@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 from urllib.parse import urlparse
 
 from faststream import specification as spec
-from faststream._compat import DEF_KEY, HAS_FASTAPI
+from faststream._compat import DEF_KEY
+from faststream.asyncapi.proto import AsyncAPIApplication
 from faststream.asyncapi.v2_6_0.generate import (
     _specs_channel_binding_to_asyncapi,
     _specs_operation_binding_to_asyncapi,
@@ -27,15 +28,12 @@ from faststream.asyncapi.v3_0_0.schema import (
 from faststream.constants import ContentTypes
 
 if TYPE_CHECKING:
-    from faststream.app import FastStream
+    from faststream.asyncapi.proto import AsyncAPIApplication
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.types import ConnectionType, MsgType
 
-    if HAS_FASTAPI:
-        from faststream.broker.fastapi.router import StreamRouter
 
-
-def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
+def get_app_schema(app: AsyncAPIApplication) -> Schema:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover

@@ -2,7 +2,8 @@ from dataclasses import asdict
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from faststream import specification as spec
-from faststream._compat import DEF_KEY, HAS_FASTAPI
+from faststream._compat import DEF_KEY
+from faststream.asyncapi.proto import AsyncAPIApplication
 from faststream.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
@@ -28,15 +29,12 @@ from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
 from faststream.constants import ContentTypes
 
 if TYPE_CHECKING:
-    from faststream.app import FastStream
+    from faststream.asyncapi.proto import AsyncAPIApplication
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.types import ConnectionType, MsgType
 
-    if HAS_FASTAPI:
-        from faststream.broker.fastapi.router import StreamRouter
 
-
-def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
+def get_app_schema(app: AsyncAPIApplication) -> Schema:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
