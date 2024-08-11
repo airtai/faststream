@@ -3,16 +3,16 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional
 from typing_extensions import override
 
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.specification.bindings import (
+from faststream.rabbit.publisher.usecase import LogicPublisher, PublishKwargs
+from faststream.rabbit.utils import is_routing_exchange
+from faststream.specification.bindings import (
     ChannelBinding,
     OperationBinding,
     amqp,
 )
-from faststream.broker.specification.channel import Channel
-from faststream.broker.specification.message import CorrelationId, Message
-from faststream.broker.specification.operation import Operation
-from faststream.rabbit.publisher.usecase import LogicPublisher, PublishKwargs
-from faststream.rabbit.utils import is_routing_exchange
+from faststream.specification.channel import Channel
+from faststream.specification.message import CorrelationId, Message
+from faststream.specification.operation import Operation
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage

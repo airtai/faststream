@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
-from faststream.broker.specification.docs import ExternalDocs
-from faststream.broker.specification.tag import Tag
+from faststream.specification.docs import ExternalDocs
+from faststream.specification.tag import Tag
 
 
 @dataclass

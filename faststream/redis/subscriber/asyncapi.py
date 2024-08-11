@@ -1,10 +1,6 @@
 from typing import Dict
 
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.specification.bindings import ChannelBinding, redis
-from faststream.broker.specification.channel import Channel
-from faststream.broker.specification.message import CorrelationId, Message
-from faststream.broker.specification.operation import Operation
 from faststream.redis.schemas import ListSub, StreamSub
 from faststream.redis.schemas.proto import RedisAsyncAPIProtocol
 from faststream.redis.subscriber.usecase import (
@@ -15,6 +11,10 @@ from faststream.redis.subscriber.usecase import (
     LogicSubscriber,
     StreamSubscriber,
 )
+from faststream.specification.bindings import ChannelBinding, redis
+from faststream.specification.channel import Channel
+from faststream.specification.message import CorrelationId, Message
+from faststream.specification.operation import Operation
 
 
 class AsyncAPISubscriber(LogicSubscriber, RedisAsyncAPIProtocol):

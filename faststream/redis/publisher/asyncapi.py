@@ -3,10 +3,6 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 from typing_extensions import TypeAlias, override
 
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.specification.bindings import ChannelBinding, redis
-from faststream.broker.specification.channel import Channel
-from faststream.broker.specification.message import CorrelationId, Message
-from faststream.broker.specification.operation import Operation
 from faststream.exceptions import SetupError
 from faststream.redis.publisher.usecase import (
     ChannelPublisher,
@@ -17,6 +13,10 @@ from faststream.redis.publisher.usecase import (
 )
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import RedisAsyncAPIProtocol, validate_options
+from faststream.specification.bindings import ChannelBinding, redis
+from faststream.specification.channel import Channel
+from faststream.specification.message import CorrelationId, Message
+from faststream.specification.operation import Operation
 
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware

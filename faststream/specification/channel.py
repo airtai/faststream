@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from faststream.broker.specification.bindings import ChannelBinding
-from faststream.broker.specification.operation import Operation
+from faststream.specification.bindings import ChannelBinding
+from faststream.specification.operation import Operation
 
 
 @dataclass

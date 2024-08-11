@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 from typing_extensions import Required, TypedDict
 
-from faststream.broker.specification.docs import ExternalDocs, ExternalDocsDict
+from faststream.specification.docs import ExternalDocs, ExternalDocsDict
 
 
 class TagDict(TypedDict, total=False):

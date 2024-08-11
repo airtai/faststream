@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import Any, Dict, Optional
 
 from faststream.asyncapi.proto import AsyncAPIProto
-from faststream.broker.specification.channel import Channel
+from faststream.specification.channel import Channel
 
 
 class AsyncAPIOperation(AsyncAPIProto):

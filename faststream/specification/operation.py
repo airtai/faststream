@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
-from faststream.broker.specification.bindings import OperationBinding
-from faststream.broker.specification.docs import ExternalDocs, ExternalDocsDict
-from faststream.broker.specification.message import Message
-from faststream.broker.specification.tag import Tag, TagDict
+from faststream.specification.bindings import OperationBinding
+from faststream.specification.docs import ExternalDocs, ExternalDocsDict
+from faststream.specification.message import Message
+from faststream.specification.tag import Tag, TagDict
 
 
 @dataclass

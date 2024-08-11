@@ -1,11 +1,21 @@
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Any, Dict, List, Union, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 from urllib.parse import urlparse
 
+from faststream import specification as spec
 from faststream._compat import DEF_KEY, HAS_FASTAPI
-from faststream.asyncapi.v2_6_0.generate import _specs_channel_binding_to_asyncapi, _specs_operation_binding_to_asyncapi
-from faststream.asyncapi.v2_6_0.schema import Reference, TagDict, Tag, ExternalDocsDict, ExternalDocs
-from faststream.asyncapi.v2_6_0.schema.message import Message, CorrelationId
+from faststream.asyncapi.v2_6_0.generate import (
+    _specs_channel_binding_to_asyncapi,
+    _specs_operation_binding_to_asyncapi,
+    _specs_tags_to_asyncapi,
+)
+from faststream.asyncapi.v2_6_0.schema import (
+    ExternalDocs,
+    ExternalDocsDict,
+    Reference,
+    Tag,
+)
+from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
 from faststream.asyncapi.v3_0_0.schema import (
     Channel,
     Components,
@@ -13,14 +23,6 @@ from faststream.asyncapi.v3_0_0.schema import (
     Operation,
     Schema,
     Server,
-)
-from faststream.broker.specification.tag import (
-    Tag as SpecTag,
-    TagDict as SpecTagDict,
-)
-from faststream.broker.specification.docs import (
-    ExternalDocs as SpecExternalDocs,
-    ExternalDocsDict as SpecExternalDocsDict,
 )
 from faststream.constants import ContentTypes
 
@@ -73,7 +75,7 @@ def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
             contact=app.contact,
             license=app.license,
             tags=_specs_tags_to_asyncapi(list(app.asyncapi_tags)) if app.asyncapi_tags else None,
-            externalDocs=_specs_external_docs_to_asyncapi(app.external_docs),
+            externalDocs=_specs_external_docs_to_asyncapi(app.external_docs) if app.external_docs else None,
         ),
         defaultContentType=ContentTypes.json.value,
         id=app.identifier,
@@ -97,24 +99,22 @@ def get_broker_server(
     """Get the broker server for an application."""
     servers = {}
 
+    tags: List[Union[Tag, Dict[str, Any]]] = []
     if broker.tags:
-        tags: Optional[List[Union[Tag, TagDict, Dict[str, Any]]]] = []
 
         for tag in broker.tags:
-            if isinstance(tag, SpecTag):
+            if isinstance(tag, spec.tag.Tag):
                 tags.append(Tag(**asdict(tag)))
             elif isinstance(tag, dict):
-                tags.append(tag)
+                tags.append(dict(tag))
             else:
                 raise NotImplementedError(f"Unsupported tag type: {tag}; {type(tag)}")
-    else:
-        tags = None
 
     broker_meta: Dict[str, Any] = {
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,
-        "tags": tags,
+        "tags": tags if tags else None,
         # TODO
         # "variables": "",
         # "bindings": "",
@@ -189,47 +189,9 @@ def get_broker_operations(
                 )
                 operations[f"{channel_name}Subscribe"] = op
 
-            elif specs_channel.publish is not None:
-                op = Operation(
-                    action="send",
-                    summary=specs_channel.publish.summary,
-                    description=specs_channel.publish.description,
-                    bindings=_specs_operation_binding_to_asyncapi(specs_channel.publish.bindings)
-                    if specs_channel.publish.bindings else None,
-                    messages=[
-                        Reference(
-                            **{"$ref": f"#/channels/{channel_name}/messages/Message"},
-                        )]
-                    ,
-                    channel=Reference(
-                        **{"$ref": f"#/channels/{channel_name}"},
-                    ),
-                    security=specs_channel.publish.bindings,
-                )
-                operations[f"{channel_name}"] = op
-
     for p in broker._publishers.values():
         for channel_name, specs_channel in p.schema().items():
-            if specs_channel.subscribe is not None:
-                op = Operation(
-                    action="send",
-                    summary=specs_channel.subscribe.summary,
-                    description=specs_channel.subscribe.description,
-                    bindings=_specs_operation_binding_to_asyncapi(specs_channel.subscribe.bindings)
-                    if specs_channel.subscribe.bindings else None,
-                    messages=[
-                        Reference(
-                            **{"$ref": f"#/channels/{channel_name}/messages/SubscribeMessage"},
-                        )
-                    ],
-                    channel=Reference(
-                        **{"$ref": f"#/channels/{channel_name}"},
-                    ),
-                    security=specs_channel.subscribe.security,
-                )
-                operations[f"{channel_name}Subscribe"] = op
-
-            elif specs_channel.publish is not None:
+            if specs_channel.publish is not None:
                 op = Operation(
                     action="send",
                     summary=specs_channel.publish.summary,
@@ -277,7 +239,7 @@ def get_broker_channels(
 
                             contentType=specs_channel.subscribe.message.contentType,
 
-                            tags=_specs_tags_to_asyncapi(specs_channel.subscribe.message.tags)
+                            tags=_specs_tags_to_asyncapi(specs_channel.subscribe.message.tags)  # type: ignore
                             if specs_channel.subscribe.message.tags else None,
 
                             externalDocs=_specs_external_docs_to_asyncapi(specs_channel.subscribe.message.externalDocs)
@@ -314,7 +276,7 @@ def get_broker_channels(
 
                             contentType=specs_channel.publish.message.contentType,
 
-                            tags=_specs_tags_to_asyncapi(specs_channel.publish.message.tags)
+                            tags=_specs_tags_to_asyncapi(specs_channel.publish.message.tags)  # type: ignore
                             if specs_channel.publish.message.tags else None,
 
                             externalDocs=_specs_external_docs_to_asyncapi(specs_channel.publish.message.externalDocs)
@@ -334,37 +296,15 @@ def get_broker_channels(
     return channels
 
 
-def _specs_tags_to_asyncapi(
-        tags: List[Union[SpecTag, SpecTagDict, Dict[str, Any]]]
-) -> List[Union[Tag, TagDict, Dict[str, Any]]]:
-    asyncapi_tags = []
-
-    for tag in tags:
-        if isinstance(tag, SpecTag):
-            asyncapi_tags.append(Tag(
-                name=tag.name,
-                description=tag.description,
-
-                externalDocs=_specs_external_docs_to_asyncapi(tag.externalDocs)
-                if tag.externalDocs else None,
-            ))
-        elif isinstance(tag, dict):
-            asyncapi_tags.append(tag)
-        else:
-            raise NotImplementedError
-
-    return asyncapi_tags
-
-
 def _specs_external_docs_to_asyncapi(
-        externalDocs: Union[SpecExternalDocs, SpecExternalDocsDict, Dict[str, Any]]
+        externalDocs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, Dict[str, Any]]
 ) -> Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]:
-    if isinstance(externalDocs, SpecExternalDocs):
+    if isinstance(externalDocs, spec.docs.ExternalDocs):
         return ExternalDocs(
             **asdict(externalDocs)
         )
     else:
-        return externalDocs
+        return dict(externalDocs)
 
 
 def _resolve_msg_payloads(
@@ -377,19 +317,19 @@ def _resolve_msg_payloads(
     assert isinstance(m.payload, dict)
 
     m.payload = _move_pydantic_refs(m.payload, DEF_KEY)
+
     if DEF_KEY in m.payload:
         payloads.update(m.payload.pop(DEF_KEY))
 
     one_of = m.payload.get("oneOf", None)
     if isinstance(one_of, dict):
         one_of_list = []
-        p: Dict[str, Dict[str, Any]] = {}
+        processed_payloads: Dict[str, Dict[str, Any]] = {}
         for name, payload in one_of.items():
-            payloads.update(p.pop(DEF_KEY, {}))
-            p[name] = payload
+            processed_payloads[name] = payload
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{name}"}))
 
-        payloads.update(p)
+        payloads.update(processed_payloads)
         m.payload["oneOf"] = one_of_list
         assert m.title
         messages[m.title] = m

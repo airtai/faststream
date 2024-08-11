@@ -3,10 +3,6 @@ from typing import Any, Dict
 from typing_extensions import override
 
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.specification.bindings import ChannelBinding, nats
-from faststream.broker.specification.channel import Channel
-from faststream.broker.specification.message import CorrelationId, Message
-from faststream.broker.specification.operation import Operation
 from faststream.nats.subscriber.usecase import (
     BatchPullStreamSubscriber,
     ConcurrentCoreSubscriber,
@@ -19,6 +15,10 @@ from faststream.nats.subscriber.usecase import (
     PullStreamSubscriber,
     PushStreamSubscription,
 )
+from faststream.specification.bindings import ChannelBinding, nats
+from faststream.specification.channel import Channel
+from faststream.specification.message import CorrelationId, Message
+from faststream.specification.operation import Operation
 
 
 class AsyncAPISubscriber(LogicSubscriber[Any]):

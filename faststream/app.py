@@ -29,12 +29,6 @@ T_HookReturn = TypeVar("T_HookReturn")
 
 
 if TYPE_CHECKING:
-    from faststream.asyncapi.schema import (
-        ExternalDocs,
-        ExternalDocsDict,
-        Tag,
-        TagDict,
-    )
     from faststream.asyncapi.v2_6_0.schema.info import (
         Contact,
         ContactDict,
@@ -42,6 +36,14 @@ if TYPE_CHECKING:
         LicenseDict,
     )
     from faststream.broker.core.usecase import BrokerUsecase
+    from faststream.specification.docs import (
+        ExternalDocs,
+        ExternalDocsDict,
+    )
+    from faststream.specification.tag import (
+        Tag,
+        TagDict,
+    )
     from faststream.types import (
         AnyCallable,
         AnyDict,
