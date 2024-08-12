@@ -131,7 +131,7 @@ testing = [
     "pydantic-settings>=2.0.0,<3.0.0",
     "httpx==0.27.0",
     "PyYAML==6.0.1",
-    "watchfiles==0.22.0",
+    "watchfiles==0.23.0",
     "email-validator==2.2.0",
 ]
 
