@@ -199,7 +199,8 @@ def test_oauthbearer_security_schema():
 
 
 def test_gssapi_security_schema():
-    security = SASLGSSAPI()
+    ssl_context = ssl.create_default_context()
+    security = SASLGSSAPI(ssl_context=ssl_context)
 
     broker = KafkaBroker("localhost:9092", security=security)
     app = FastStream(broker)
