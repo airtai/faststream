@@ -115,8 +115,8 @@ async def test_oathbearer():
             )
 
 
-@pytest.mark.asyncio
-@pytest.mark.confluent
+@pytest.mark.asyncio()
+@pytest.mark.confluent()
 async def test_gssapi():
     from docs.docs_src.confluent.security.sasl_gssapi import (
         broker as gssapi_broker,
