@@ -16,11 +16,11 @@ import anyio
 from typing_extensions import ParamSpec
 
 from faststream._compat import ExceptionGroup
-from faststream.asyncapi.proto import Application
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.cli.supervisors.utils import set_exit
 from faststream.exceptions import ValidationError
 from faststream.log.logging import logger
+from faststream.specification.proto import Application
 from faststream.utils import apply_types, context
 from faststream.utils.functions import drop_response_type, fake_context, to_async
 

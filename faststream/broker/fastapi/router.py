@@ -30,7 +30,6 @@ from fastapi.utils import generate_unique_id
 from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute, _DefaultLifespan
 
-from faststream.asyncapi.proto import Application
 from faststream.asyncapi.site import get_asyncapi_html
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.broker.fastapi.get_dependant import get_fastapi_dependant
@@ -42,6 +41,7 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
+from faststream.specification.proto import Application
 from faststream.utils.context.repository import context
 from faststream.utils.functions import fake_context, to_async
 

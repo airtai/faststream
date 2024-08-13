@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional
 
 from typing_extensions import Self, override
 
-from faststream.asyncapi.proto import SpecificationProto
 from faststream.broker.proto import EndpointProto
 from faststream.broker.types import MsgType
 from faststream.broker.wrapper.proto import WrapperProto
+from faststream.specification.proto import SpecificationProto
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
