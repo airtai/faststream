@@ -37,7 +37,17 @@ class Exchange:
         vhost : virtual host of the exchange, default is "/"
     """
 
-    type: Literal["default", "direct", "topic", "fanout", "headers"]
+    type: Literal[
+        "default",
+        "direct",
+        "topic",
+        "fanout",
+        "headers",
+        "x-delayed-message",
+        "x-consistent-hash",
+        "x-modulus-hash",
+    ]
+
     name: Optional[str] = None
     durable: Optional[bool] = None
     autoDelete: Optional[bool] = None
