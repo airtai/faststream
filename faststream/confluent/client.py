@@ -17,13 +17,13 @@ from confluent_kafka import Consumer, KafkaError, KafkaException, Message, Produ
 from confluent_kafka.admin import AdminClient, NewTopic
 
 from faststream.confluent.config import ConfluentConfig
+from faststream.confluent.schemas import TopicPartition
 from faststream.exceptions import SetupError
 from faststream.log import logger as faststream_logger
 from faststream.types import EMPTY
 from faststream.utils.functions import call_or_await
 
 if TYPE_CHECKING:
-    from faststream.confluent.schemas import TopicPartition
     from faststream.types import AnyDict, LoggerProto
 
 
@@ -342,6 +342,13 @@ class AsyncConfluentConsumer:
         )
 
         return tuple(x for x in map(check_msg_error, raw_messages) if x is not None)
+
+    async def seek(self, topic: str, partition: int, offset: int) -> None:
+        """Seeks to the specified offset in the specified topic and partition."""
+        topic_partition = TopicPartition(
+            topic=topic, partition=partition, offset=offset
+        )
+        await call_or_await(self.consumer.seek, topic_partition.to_confluent())
 
 
 def check_msg_error(msg: Optional[Message]) -> Optional[Message]:
