@@ -50,7 +50,6 @@ class KafkaMessage(
     async def nack(self) -> None:
         """Reject the Kafka message."""
         if not self.committed:
-            await self.consumer.commit()
             topic_partition = AIOKafkaTopicPartition(
                 self.raw_message.topic,  # type: ignore[union-attr]
                 self.raw_message.partition,  # type: ignore[union-attr]
