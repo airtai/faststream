@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from . import bindings
 from . import channel
 from . import docs
