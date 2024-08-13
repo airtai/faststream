@@ -6,11 +6,11 @@ from faststream import specification as spec
 from faststream._compat import DEF_KEY
 from faststream.asyncapi.proto import AsyncAPIApplication
 from faststream.asyncapi.v2_6_0.generate import (
-    _specs_channel_binding_to_asyncapi,
-    _specs_contact_to_asyncapi,
-    _specs_license_to_asyncapi,
-    _specs_operation_binding_to_asyncapi,
-    _specs_tags_to_asyncapi,
+    specs_channel_binding_to_asyncapi,
+    specs_contact_to_asyncapi,
+    specs_license_to_asyncapi,
+    specs_operation_binding_to_asyncapi,
+    specs_tags_to_asyncapi,
 )
 from faststream.asyncapi.v2_6_0.schema import (
     ExternalDocs,
@@ -71,12 +71,12 @@ def get_app_schema(app: AsyncAPIApplication) -> Schema:
             version=app.version,
             description=app.description,
             termsOfService=app.terms_of_service,
-            contact=_specs_contact_to_asyncapi(app.contact)
+            contact=specs_contact_to_asyncapi(app.contact)
             if app.contact else None,
-            license=_specs_license_to_asyncapi(app.license)
+            license=specs_license_to_asyncapi(app.license)
             if app.license else None,
-            tags=_specs_tags_to_asyncapi(list(app.asyncapi_tags)) if app.asyncapi_tags else None,
-            externalDocs=_specs_external_docs_to_asyncapi(app.external_docs) if app.external_docs else None,
+            tags=specs_tags_to_asyncapi(list(app.asyncapi_tags)) if app.asyncapi_tags else None,
+            externalDocs=specs_external_docs_to_asyncapi(app.external_docs) if app.external_docs else None,
         ),
         defaultContentType=ContentTypes.json.value,
         id=app.identifier,
@@ -176,7 +176,7 @@ def get_broker_operations(
                     action="receive",
                     summary=specs_channel.subscribe.summary,
                     description=specs_channel.subscribe.description,
-                    bindings=_specs_operation_binding_to_asyncapi(specs_channel.subscribe.bindings)
+                    bindings=specs_operation_binding_to_asyncapi(specs_channel.subscribe.bindings)
                     if specs_channel.subscribe.bindings else None,
                     messages=[
                         Reference(
@@ -197,7 +197,7 @@ def get_broker_operations(
                     action="send",
                     summary=specs_channel.publish.summary,
                     description=specs_channel.publish.description,
-                    bindings=_specs_operation_binding_to_asyncapi(specs_channel.publish.bindings)
+                    bindings=specs_operation_binding_to_asyncapi(specs_channel.publish.bindings)
                     if specs_channel.publish.bindings else None,
                     messages=[
                         Reference(
@@ -240,16 +240,16 @@ def get_broker_channels(
 
                             contentType=specs_channel.subscribe.message.contentType,
 
-                            tags=_specs_tags_to_asyncapi(specs_channel.subscribe.message.tags)  # type: ignore
+                            tags=specs_tags_to_asyncapi(specs_channel.subscribe.message.tags)  # type: ignore
                             if specs_channel.subscribe.message.tags else None,
 
-                            externalDocs=_specs_external_docs_to_asyncapi(specs_channel.subscribe.message.externalDocs)
+                            externalDocs=specs_external_docs_to_asyncapi(specs_channel.subscribe.message.externalDocs)
                             if specs_channel.subscribe.message.externalDocs else None,
                         ),
                     },
                     description=specs_channel.description,
                     servers=specs_channel.servers,
-                    bindings=_specs_channel_binding_to_asyncapi(specs_channel.bindings)
+                    bindings=specs_channel_binding_to_asyncapi(specs_channel.bindings)
                     if specs_channel.bindings else None,
                 )
 
@@ -277,16 +277,16 @@ def get_broker_channels(
 
                             contentType=specs_channel.publish.message.contentType,
 
-                            tags=_specs_tags_to_asyncapi(specs_channel.publish.message.tags)  # type: ignore
+                            tags=specs_tags_to_asyncapi(specs_channel.publish.message.tags)  # type: ignore
                             if specs_channel.publish.message.tags else None,
 
-                            externalDocs=_specs_external_docs_to_asyncapi(specs_channel.publish.message.externalDocs)
+                            externalDocs=specs_external_docs_to_asyncapi(specs_channel.publish.message.externalDocs)
                             if specs_channel.publish.message.externalDocs else None,
                         ),
                     },
                     description=specs_channel.description,
                     servers=specs_channel.servers,
-                    bindings=_specs_channel_binding_to_asyncapi(specs_channel.bindings)
+                    bindings=specs_channel_binding_to_asyncapi(specs_channel.bindings)
                     if specs_channel.bindings else None,
                 )
 
@@ -297,7 +297,7 @@ def get_broker_channels(
     return channels
 
 
-def _specs_external_docs_to_asyncapi(
+def specs_external_docs_to_asyncapi(
         externalDocs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, Dict[str, Any]]
 ) -> Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]:
     if isinstance(externalDocs, spec.docs.ExternalDocs):

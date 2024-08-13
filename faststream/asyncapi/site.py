@@ -7,7 +7,7 @@ from faststream._compat import json_dumps
 from faststream.log import logger
 
 if TYPE_CHECKING:
-    from faststream.asyncapi.schema import BaseSchema
+    from faststream.asyncapi.base.schema import BaseSchema
 
 
 ASYNCAPI_JS_DEFAULT_URL = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.54/browser/standalone/index.js"

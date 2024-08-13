@@ -5,7 +5,6 @@ from .info import Contact, ContactDict, Info, License, LicenseDict
 from .message import CorrelationId, Message
 from .operations import Operation
 from .schema import Schema
-from .security import OauthFlowObj, OauthFlows, SecuritySchemaComponent
 from .servers import Server, ServerVariable
 from .utils import ExternalDocs, ExternalDocsDict, Parameter, Reference, Tag, TagDict
 
@@ -19,9 +18,6 @@ __all__ = (
     "ContactDict",
     "Operation",
     "Schema",
-    "OauthFlowObj",
-    "OauthFlows",
-    "SecuritySchemaComponent",
     "Server",
     "ServerVariable",
     "Message",

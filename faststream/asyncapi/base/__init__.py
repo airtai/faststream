@@ -1,7 +1,5 @@
-from .info import BaseInfo
-from .schema import BaseSchema
+from faststream.asyncapi.base import schema
 
 __all__ = (
-    "BaseInfo",
-    "BaseSchema",
+    "schema",
 )

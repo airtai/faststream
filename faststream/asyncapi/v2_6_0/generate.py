@@ -79,15 +79,15 @@ def get_app_schema(app: AsyncAPIApplication) -> Schema:
             version=app.version,
             description=app.description,
             termsOfService=app.terms_of_service,
-            contact=_specs_contact_to_asyncapi(app.contact)
+            contact=specs_contact_to_asyncapi(app.contact)
             if app.contact else None,
-            license=_specs_license_to_asyncapi(app.license)
+            license=specs_license_to_asyncapi(app.license)
             if app.license else None,
         ),
         defaultContentType=ContentTypes.json.value,
         id=app.identifier,
-        tags=_specs_tags_to_asyncapi(list(app.asyncapi_tags)) if app.asyncapi_tags else None,
-        externalDocs=_specs_external_docs_to_asyncapi(app.external_docs) if app.external_docs else None,
+        tags=specs_tags_to_asyncapi(list(app.asyncapi_tags)) if app.asyncapi_tags else None,
+        externalDocs=specs_external_docs_to_asyncapi(app.external_docs) if app.external_docs else None,
         servers=servers,
         channels=channels,
         components=Components(
@@ -162,21 +162,21 @@ def get_broker_channels(
     for h in broker._subscribers.values():
         schema = h.schema()
         channels.update({
-            key: _specs_channel_to_asyncapi(channel)
+            key: specs_channel_to_asyncapi(channel)
             for key, channel in schema.items()
         })
 
     for p in broker._publishers.values():
         schema = p.schema()
         channels.update({
-            key: _specs_channel_to_asyncapi(channel)
+            key: specs_channel_to_asyncapi(channel)
             for key, channel in schema.items()
         })
 
     return channels
 
 
-def _specs_contact_to_asyncapi(
+def specs_contact_to_asyncapi(
         contact: Union["spec.info.Contact", "spec.info.ContactDict", "AnyDict"]
 ) -> Union["Contact", "AnyDict"]:
     if isinstance(contact, spec.info.Contact):
@@ -185,7 +185,7 @@ def _specs_contact_to_asyncapi(
     return dict(contact)
 
 
-def _specs_license_to_asyncapi(
+def specs_license_to_asyncapi(
         license: Union["spec.info.License", "spec.info.LicenseDict", "AnyDict"]
 ) -> Union["License", "AnyDict"]:
     if isinstance(license, spec.info.License):
@@ -195,23 +195,23 @@ def _specs_license_to_asyncapi(
 
 
 
-def _specs_channel_to_asyncapi(channel: spec.channel.Channel) -> Channel:
+def specs_channel_to_asyncapi(channel: spec.channel.Channel) -> Channel:
     return Channel(
         description=channel.description,
         servers=channel.servers,
 
-        bindings=_specs_channel_binding_to_asyncapi(channel.bindings)
+        bindings=specs_channel_binding_to_asyncapi(channel.bindings)
         if channel.bindings else None,
 
-        subscribe=_specs_operation_to_asyncapi(channel.subscribe)
+        subscribe=specs_operation_to_asyncapi(channel.subscribe)
         if channel.subscribe else None,
 
-        publish=_specs_operation_to_asyncapi(channel.publish)
+        publish=specs_operation_to_asyncapi(channel.publish)
         if channel.publish else None,
     )
 
 
-def _specs_channel_binding_to_asyncapi(binding: spec.bindings.ChannelBinding) -> ChannelBinding:
+def specs_channel_binding_to_asyncapi(binding: spec.bindings.ChannelBinding) -> ChannelBinding:
     return ChannelBinding(
         amqp=amqp.ChannelBinding(**{
             "is": binding.amqp.is_,
@@ -252,13 +252,13 @@ def _specs_channel_binding_to_asyncapi(binding: spec.bindings.ChannelBinding) ->
     )
 
 
-def _specs_operation_to_asyncapi(operation: spec.operation.Operation) -> Operation:
+def specs_operation_to_asyncapi(operation: spec.operation.Operation) -> Operation:
     return Operation(
         operationId=operation.operationId,
         summary=operation.summary,
         description=operation.description,
 
-        bindings=_specs_operation_binding_to_asyncapi(operation.bindings)
+        bindings=specs_operation_binding_to_asyncapi(operation.bindings)
         if operation.bindings else None,
 
         message=Message(
@@ -274,24 +274,24 @@ def _specs_operation_to_asyncapi(operation: spec.operation.Operation) -> Operati
 
             contentType=operation.message.contentType,
 
-            tags=_specs_tags_to_asyncapi(operation.tags)
+            tags=specs_tags_to_asyncapi(operation.tags)
             if operation.tags else None,
 
-            externalDocs=_specs_external_docs_to_asyncapi(operation.externalDocs)
+            externalDocs=specs_external_docs_to_asyncapi(operation.externalDocs)
             if operation.externalDocs else None,
         ),
 
         security=operation.security,
 
-        tags=_specs_tags_to_asyncapi(operation.tags)
+        tags=specs_tags_to_asyncapi(operation.tags)
         if operation.tags else None,
 
-        externalDocs=_specs_external_docs_to_asyncapi(operation.externalDocs)
+        externalDocs=specs_external_docs_to_asyncapi(operation.externalDocs)
         if operation.externalDocs else None,
     )
 
 
-def _specs_operation_binding_to_asyncapi(binding: spec.bindings.OperationBinding) -> OperationBinding:
+def specs_operation_binding_to_asyncapi(binding: spec.bindings.OperationBinding) -> OperationBinding:
     return OperationBinding(
         amqp=amqp.OperationBinding(**asdict(binding.amqp))
         if binding.amqp else None,
@@ -310,7 +310,7 @@ def _specs_operation_binding_to_asyncapi(binding: spec.bindings.OperationBinding
     )
 
 
-def _specs_tags_to_asyncapi(
+def specs_tags_to_asyncapi(
         tags: List[Union[spec.tag.Tag, spec.tag.TagDict, Dict[str, Any]]]
 ) -> List[Union[Tag, TagDict, Dict[str, Any]]]:
     asyncapi_tags: List[Union[Tag, TagDict, Dict[str, Any]]] = []
@@ -321,7 +321,7 @@ def _specs_tags_to_asyncapi(
                 name=tag.name,
                 description=tag.description,
 
-                externalDocs=_specs_external_docs_to_asyncapi(tag.externalDocs)
+                externalDocs=specs_external_docs_to_asyncapi(tag.externalDocs)
                 if tag.externalDocs else None,
             ))
         elif isinstance(tag, dict):
@@ -332,7 +332,7 @@ def _specs_tags_to_asyncapi(
     return asyncapi_tags
 
 
-def _specs_external_docs_to_asyncapi(
+def specs_external_docs_to_asyncapi(
         externalDocs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, Dict[str, Any]]
 ) -> Union[ExternalDocs, Dict[str, Any]]:
     if isinstance(externalDocs, spec.docs.ExternalDocs):

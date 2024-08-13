@@ -8,7 +8,7 @@ from typing import (
 
 from pydantic import AnyHttpUrl
 
-from faststream.asyncapi.base import BaseInfo
+from faststream.asyncapi.base.schema import BaseInfo
 from faststream.asyncapi.v2_6_0.schema.info import (
     Contact,
     ContactDict,

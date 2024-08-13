@@ -18,7 +18,7 @@ from faststream._compat import (
     JsonSchemaValue,
     with_info_plain_validator_function,
 )
-from faststream.asyncapi.base import BaseInfo
+from faststream.asyncapi.base.schema import BaseInfo
 from faststream.log import logger
 
 try:
