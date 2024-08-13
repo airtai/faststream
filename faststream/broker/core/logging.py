@@ -1,12 +1,12 @@
 import logging
 from abc import abstractmethod
-from inspect import Parameter
-from typing import TYPE_CHECKING, Any, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Optional
 
 from typing_extensions import Annotated, Doc
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.types import MsgType
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from faststream.types import AnyDict, LoggerProto
@@ -34,7 +34,7 @@ class LoggingBroker(ABCBroker[MsgType]):
             Doc("Logger object to use if `logger` is not set."),
         ],
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
         ],
         log_level: Annotated[
@@ -47,8 +47,8 @@ class LoggingBroker(ABCBroker[MsgType]):
         ],
         **kwargs: Any,
     ) -> None:
-        if logger is not Parameter.empty:
-            self.logger = cast(Optional["LoggerProto"], logger)
+        if logger is not EMPTY:
+            self.logger = logger
             self.use_custom = True
         else:
             self.logger = default_logger

@@ -260,7 +260,9 @@ class SubscriberUsecase(
         dependencies: Iterable["Depends"] = (),
     ) -> Any:
         if (options := self._call_options) is None:
-            raise SetupError("You can't create subscriber directly.")
+            raise SetupError(
+                "You can't create subscriber directly. Please, use `add_call` at first."
+            )
 
         total_deps = (*options.dependencies, *dependencies)
         total_middlewares = (*options.middlewares, *middlewares)
@@ -333,9 +335,17 @@ class SubscriberUsecase(
                 await middleware.__aenter__()
 
             cache: Dict[Any, Any] = {}
+            parsing_error: Optional[Exception] = None
             for h in self.calls:
-                if (message := await h.is_suitable(msg, cache)) is not None:
+                try:
+                    message = await h.is_suitable(msg, cache)
+                except Exception as e:
+                    parsing_error = e
+                    break
+
+                if message is not None:
                     # Acknowledgement scope
+                    # TODO: move it to scope enter at `retry` option deprecation
                     await stack.enter_async_context(
                         self.watcher(
                             message,
@@ -377,11 +387,16 @@ class SubscriberUsecase(
                     # Return data for tests
                     return result_msg
 
-            # Suitable handler is not founded
+            # Suitable handler was not found or
+            # parsing/decoding exception occurred
             for m in middlewares:
                 stack.push_async_exit(m.__aexit__)
 
-            raise SubscriberNotFound(f"There is no suitable handler for {msg!r}")
+            if parsing_error:
+                raise parsing_error
+
+            else:
+                raise AssertionError(f"There is no suitable handler for {msg=}")
 
         raise AssertionError
 

@@ -265,7 +265,7 @@ class TestTestclient(BrokerTestclientTestcase):
         await super().test_broker_with_real_doesnt_get_patched()
 
     @pytest.mark.nats()
-    async def test_broker_with_real_patches_subscribers_and_subscribers(
+    async def test_broker_with_real_patches_publishers_and_subscribers(
         self, queue: str
     ):
-        await super().test_broker_with_real_patches_subscribers_and_subscribers(queue)
+        await super().test_broker_with_real_patches_publishers_and_subscribers(queue)

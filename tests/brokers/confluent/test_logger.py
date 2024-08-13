@@ -1,19 +1,18 @@
 import asyncio
 import logging
-from typing import Any, ClassVar, Dict
+from typing import Any
 
 import pytest
 
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.confluent import KafkaBroker
 
+from .basic import ConfluentTestcaseConfig
+
 
 @pytest.mark.confluent()
-class TestLogger:
+class TestLogger(ConfluentTestcaseConfig):
     """A class to represent a test Kafka broker."""
-
-    timeout: int = 10
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
 
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(apply_types=apply_types)
@@ -30,7 +29,9 @@ class TestLogger:
         test_logger = logging.getLogger("test_logger")
         consume_broker = KafkaBroker(logger=test_logger)
 
-        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @consume_broker.subscriber(*args, **kwargs)
         def subscriber(m):
             event.set()
 
@@ -49,7 +50,7 @@ class TestLogger:
                     asyncio.create_task(br.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=self.timeout,
+                timeout=10,
             )
 
         assert event.is_set()

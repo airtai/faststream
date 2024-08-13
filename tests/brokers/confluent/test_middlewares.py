@@ -1,13 +1,11 @@
-from typing import Any, ClassVar, Dict
-
 import pytest
 
 from faststream.confluent import KafkaBroker
 from tests.brokers.base.middlewares import MiddlewareTestcase
 
+from .basic import ConfluentTestcaseConfig
+
 
 @pytest.mark.confluent()
-class TestMiddlewares(MiddlewareTestcase):
+class TestMiddlewares(ConfluentTestcaseConfig, MiddlewareTestcase):
     broker_class = KafkaBroker
-    timeout: int = 10
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}

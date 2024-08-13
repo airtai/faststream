@@ -56,15 +56,16 @@ async def async_filter(msg: NatsMessage) -> bool:
 broker = NatsBroker()
 
 
-@broker.subscriber(
-    "test",
+sub = broker.subscriber("test")
+
+
+@sub(
     filter=sync_filter,
 )
 async def handle() -> None: ...
 
 
-@broker.subscriber(
-    "test",
+@sub(
     filter=async_filter,
 )
 async def handle2() -> None: ...
@@ -120,15 +121,16 @@ NatsRouter(
 router = NatsRouter()
 
 
-@router.subscriber(
-    "test",
+router_sub = router.subscriber("test")
+
+
+@router_sub(
     filter=sync_filter,
 )
 async def handle8() -> None: ...
 
 
-@router.subscriber(
-    "test",
+@router_sub(
     filter=async_filter,
 )
 async def handle9() -> None: ...
@@ -215,16 +217,16 @@ FastAPIRouter(
 
 fastapi_router = FastAPIRouter()
 
+fastapi_sub = fastapi_router.subscriber("test")
 
-@fastapi_router.subscriber(
-    "test",
+
+@fastapi_sub(
     filter=sync_filter,
 )
 async def handle15() -> None: ...
 
 
-@fastapi_router.subscriber(
-    "test",
+@fastapi_sub(
     filter=async_filter,
 )
 async def handle16() -> None: ...

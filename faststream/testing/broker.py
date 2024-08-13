@@ -70,7 +70,6 @@ class TestBroker(Generic[Broker]):
 
     async def __aenter__(self) -> Broker:
         # TODO: remove useless middlewares filter
-
         middlewares = tuple(
             filter(
                 lambda x: not isinstance(x, CriticalLogMiddleware),

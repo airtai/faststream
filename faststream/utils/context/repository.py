@@ -1,9 +1,8 @@
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
-from inspect import Parameter
 from typing import Any, Dict, Iterator, Mapping
 
-from faststream.types import AnyDict
+from faststream.types import EMPTY, AnyDict
 from faststream.utils.classes import Singleton
 
 __all__ = ("ContextRepo", "context")
@@ -128,7 +127,7 @@ class ContextRepo(Singleton):
         Returns:
             The value associated with the key.
         """
-        if (glob := self._global_context.get(key, Parameter.empty)) is Parameter.empty:
+        if (glob := self._global_context.get(key, EMPTY)) is EMPTY:
             return self.get_local(key, default)
         else:
             return glob
@@ -158,7 +157,7 @@ class ContextRepo(Singleton):
         """
         first, *keys = argument.split(".")
 
-        if (v := self.get(first, Parameter.empty)) is Parameter.empty:
+        if (v := self.get(first, EMPTY)) is EMPTY:
             raise KeyError(f"`{self.context}` does not contains `{first}` key")
 
         for i in keys:

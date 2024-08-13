@@ -56,6 +56,7 @@ class NatsFastProducer(ProducerProto):
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
+        **kwargs: Any,  # suprress stream option
     ) -> Optional[Any]:
         payload, content_type = encode_message(message)
 

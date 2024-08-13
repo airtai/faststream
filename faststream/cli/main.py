@@ -10,12 +10,12 @@ from click.exceptions import MissingParameter
 from typer.core import TyperOption
 
 from faststream import FastStream
-from faststream.__about__ import INSTALL_WATCHFILES, __version__
+from faststream.__about__ import __version__
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
 from faststream.cli.utils.parser import parse_cli_args
-from faststream.exceptions import SetupError, ValidationError
+from faststream.exceptions import INSTALL_WATCHFILES, SetupError, ValidationError
 
 if TYPE_CHECKING:
     from faststream.broker.core.usecase import BrokerUsecase

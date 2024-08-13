@@ -41,6 +41,7 @@ search:
         - [FastAPI Plugin](getting-started/integrations/fastapi/index.md)
         - [Django](getting-started/integrations/django/index.md)
     - [CLI commands](getting-started/cli/index.md)
+    - [ASGI](getting-started/asgi.md)
     - [OpenTelemetry](getting-started/opentelemetry/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
@@ -120,6 +121,12 @@ search:
             - [Response](public_api/faststream/Response.md)
             - [TestApp](public_api/faststream/TestApp.md)
             - [apply_types](public_api/faststream/apply_types.md)
+            - asgi
+                - [AsgiFastStream](public_api/faststream/asgi/AsgiFastStream.md)
+                - [AsgiResponse](public_api/faststream/asgi/AsgiResponse.md)
+                - [get](public_api/faststream/asgi/get.md)
+                - [make_asyncapi_asgi](public_api/faststream/asgi/make_asyncapi_asgi.md)
+                - [make_ping_asgi](public_api/faststream/asgi/make_ping_asgi.md)
             - asyncapi
                 - [get_app_schema](public_api/faststream/asyncapi/get_app_schema.md)
                 - [get_asyncapi_html](public_api/faststream/asyncapi/get_asyncapi_html.md)
@@ -131,6 +138,7 @@ search:
                 - [KafkaRouter](public_api/faststream/confluent/KafkaRouter.md)
                 - [TestApp](public_api/faststream/confluent/TestApp.md)
                 - [TestKafkaBroker](public_api/faststream/confluent/TestKafkaBroker.md)
+                - [TopicPartition](public_api/faststream/confluent/TopicPartition.md)
             - kafka
                 - [KafkaBroker](public_api/faststream/kafka/KafkaBroker.md)
                 - [KafkaPublisher](public_api/faststream/kafka/KafkaPublisher.md)
@@ -164,6 +172,9 @@ search:
                 - [StreamSource](public_api/faststream/nats/StreamSource.md)
                 - [TestApp](public_api/faststream/nats/TestApp.md)
                 - [TestNatsBroker](public_api/faststream/nats/TestNatsBroker.md)
+            - opentelemetry
+                - [TelemetryMiddleware](public_api/faststream/opentelemetry/TelemetryMiddleware.md)
+                - [TelemetrySettingsProvider](public_api/faststream/opentelemetry/TelemetrySettingsProvider.md)
             - rabbit
                 - [ExchangeType](public_api/faststream/rabbit/ExchangeType.md)
                 - [RabbitBroker](public_api/faststream/rabbit/RabbitBroker.md)
@@ -447,6 +458,7 @@ search:
                 - [KafkaRouter](api/faststream/confluent/KafkaRouter.md)
                 - [TestApp](api/faststream/confluent/TestApp.md)
                 - [TestKafkaBroker](api/faststream/confluent/TestKafkaBroker.md)
+                - [TopicPartition](api/faststream/confluent/TopicPartition.md)
                 - broker
                     - [KafkaBroker](api/faststream/confluent/broker/KafkaBroker.md)
                     - broker
@@ -459,8 +471,6 @@ search:
                     - [AsyncConfluentConsumer](api/faststream/confluent/client/AsyncConfluentConsumer.md)
                     - [AsyncConfluentProducer](api/faststream/confluent/client/AsyncConfluentProducer.md)
                     - [BatchBuilder](api/faststream/confluent/client/BatchBuilder.md)
-                    - [MsgToSend](api/faststream/confluent/client/MsgToSend.md)
-                    - [TopicPartition](api/faststream/confluent/client/TopicPartition.md)
                     - [check_msg_error](api/faststream/confluent/client/check_msg_error.md)
                     - [create_topics](api/faststream/confluent/client/create_topics.md)
                 - config
@@ -514,8 +524,11 @@ search:
                     - [KafkaRoute](api/faststream/confluent/router/KafkaRoute.md)
                     - [KafkaRouter](api/faststream/confluent/router/KafkaRouter.md)
                 - schemas
+                    - [TopicPartition](api/faststream/confluent/schemas/TopicPartition.md)
                     - params
                         - [ConsumerConnectionParams](api/faststream/confluent/schemas/params/ConsumerConnectionParams.md)
+                    - partition
+                        - [TopicPartition](api/faststream/confluent/schemas/partition/TopicPartition.md)
                 - security
                     - [parse_security](api/faststream/confluent/security/parse_security.md)
                 - subscriber

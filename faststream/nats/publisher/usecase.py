@@ -62,83 +62,43 @@ class LogicPublisher(PublisherUsecase[Msg]):
     @override
     async def publish(
         self,
-        message: Annotated[
-            "SendableMessage",
-            Doc(
-                "Message body to send. "
-                "Can be any encodable object (native python types or `pydantic.BaseModel`)."
-            ),
-        ],
-        subject: Annotated[
-            str,
-            Doc("NATS subject to send message."),
-        ] = "",
+        message: "SendableMessage",
+        subject: str = "",
         *,
-        headers: Annotated[
-            Optional[Dict[str, str]],
-            Doc(
-                "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be set automatically by framework anyway."
-            ),
-        ] = None,
-        reply_to: Annotated[
-            str,
-            Doc("NATS subject name to send response."),
-        ] = "",
-        correlation_id: Annotated[
-            Optional[str],
-            Doc(
-                "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
-            ),
-        ] = None,
-        stream: Annotated[
-            Optional[str],
-            Doc(
-                "This option validates that the target subject is in presented stream. "
-                "Can be omitted without any effect."
-            ),
-        ] = None,
-        timeout: Annotated[
-            Optional[float],
-            Doc("Timeout to send message to NATS."),
-        ] = None,
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
+        headers: Optional[Dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        stream: Optional[str] = None,
+        timeout: Optional[float] = None,
+        rpc: bool = False,
+        rpc_timeout: Optional[float] = 30.0,
+        raise_timeout: bool = False,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
+        """Publish message directly.
+
+        Args:
+            message (SendableMessage): Message body to send.
+                Can be any encodable object (native python types or `pydantic.BaseModel`).
+            subject (str): NATS subject to send message (default is `''`).
+            headers (:obj:`dict` of :obj:`str`: :obj:`str`, optional): Message headers to store metainformation (default is `None`).
+                **content-type** and **correlation_id** will be set automatically by framework anyway.
+
+            reply_to (str): NATS subject name to send response (default is `None`).
+            correlation_id (str, optional): Manual message **correlation_id** setter (default is `None`).
+                **correlation_id** is a useful option to trace messages.
+
+            stream (str, optional): This option validates that the target subject is in presented stream (default is `None`).
+                Can be omitted without any effect.
+            timeout (float, optional): Timeout to send message to NATS in seconds (default is `None`).
+            rpc (bool): Whether to wait for reply in blocking mode (default is `False`).
+            rpc_timeout (float, optional): RPC reply waiting time (default is `30.0`).
+            raise_timeout (bool): Whetever to raise `TimeoutError` or return `None` at **rpc_timeout** (default is `False`).
+                RPC request returns `None` at timeout by default.
+
+            _extra_middlewares (:obj:`Iterable` of :obj:`PublisherMiddleware`): Extra middlewares to wrap publishing process (default is `()`).
+        """
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         kwargs: AnyDict = {

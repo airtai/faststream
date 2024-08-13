@@ -1,5 +1,4 @@
 import logging
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -33,6 +32,7 @@ from faststream.__about__ import SERVICE_NAME
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.kafka.broker.broker import KafkaBroker as KB
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
@@ -312,9 +312,9 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         ] = None,
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         log_level: Annotated[
             int,
             Doc("Service messages log level."),

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Optional
 
 from faststream.exceptions import SetupError
 from faststream.security import (
+    SASLGSSAPI,
     BaseSecurity,
     SASLOAuthBearer,
     SASLPlaintext,
@@ -30,6 +31,8 @@ def parse_security(security: Optional[BaseSecurity]) -> "AnyDict":
         return _parse_sasl_scram512(security)
     elif isinstance(security, SASLOAuthBearer):
         return _parse_sasl_oauthbearer(security)
+    elif isinstance(security, SASLGSSAPI):
+        return _parse_sasl_gssapi(security)
     elif isinstance(security, BaseSecurity):
         return _parse_base_security(security)
     else:
@@ -73,4 +76,11 @@ def _parse_sasl_oauthbearer(security: SASLOAuthBearer) -> "AnyDict":
     return {
         "security_protocol": "SASL_SSL" if security.use_ssl else "SASL_PLAINTEXT",
         "sasl_mechanism": "OAUTHBEARER",
+    }
+
+
+def _parse_sasl_gssapi(security: SASLGSSAPI) -> "AnyDict":
+    return {
+        "security_protocol": "SASL_SSL" if security.use_ssl else "SASL_PLAINTEXT",
+        "sasl_mechanism": "GSSAPI",
     }

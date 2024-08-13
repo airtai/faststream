@@ -4,13 +4,15 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream.kafka.fastapi import KafkaRouter
-from faststream.kafka.testing import TestKafkaBroker, build_message
+from faststream.confluent.fastapi import KafkaRouter
+from faststream.confluent.testing import TestKafkaBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
+
+from .basic import ConfluentTestcaseConfig
 
 
 @pytest.mark.confluent()
-class TestRabbitRouter(FastAPITestcase):
+class TestConfluentRouter(ConfluentTestcaseConfig, FastAPITestcase):
     router_class = KafkaRouter
 
     async def test_batch_real(
@@ -21,7 +23,9 @@ class TestRabbitRouter(FastAPITestcase):
     ):
         router = KafkaRouter()
 
-        @router.subscriber(queue, batch=True, auto_offset_reset="earliest")
+        args, kwargs = self.get_subscriber_params(queue, batch=True)
+
+        @router.subscriber(*args, **kwargs)
         async def hello(msg: List[str]):
             event.set()
             return mock(msg)
@@ -33,14 +37,14 @@ class TestRabbitRouter(FastAPITestcase):
                     asyncio.create_task(router.broker.publish("hi", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=10,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
         mock.assert_called_with(["hi"])
 
 
-class TestRouterLocal(FastAPILocalTestcase):
+class TestRouterLocal(ConfluentTestcaseConfig, FastAPILocalTestcase):
     router_class = KafkaRouter
     broker_test = staticmethod(TestKafkaBroker)
     build_message = staticmethod(build_message)
@@ -53,7 +57,9 @@ class TestRouterLocal(FastAPILocalTestcase):
     ):
         router = KafkaRouter()
 
-        @router.subscriber(queue, batch=True, auto_offset_reset="earliest")
+        args, kwargs = self.get_subscriber_params(queue, batch=True)
+
+        @router.subscriber(*args, **kwargs)
         async def hello(msg: List[str]):
             event.set()
             return mock(msg)
@@ -64,7 +70,7 @@ class TestRouterLocal(FastAPILocalTestcase):
                     asyncio.create_task(router.broker.publish("hi", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=10,
+                timeout=self.timeout,
             )
 
         assert event.is_set()

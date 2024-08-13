@@ -1,5 +1,4 @@
 import logging
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -31,6 +30,7 @@ from faststream.rabbit.schemas import (
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.rabbit.utils import build_url
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from ssl import SSLContext
@@ -103,6 +103,16 @@ class RabbitBroker(
             "TimeoutType",
             Doc("Connection establishement timeout."),
         ] = None,
+        fail_fast: Annotated[
+            bool,
+            Doc(
+                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable."
+            ),
+        ] = True,
+        reconnect_interval: Annotated[
+            "TimeoutType",
+            Doc("Time to sleep between reconnection attempts."),
+        ] = 5.0,
         # channel args
         channel_number: Annotated[
             Optional[int],
@@ -187,9 +197,9 @@ class RabbitBroker(
         ] = None,
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         log_level: Annotated[
             int,
             Doc("Service messages log level."),
@@ -243,6 +253,8 @@ class RabbitBroker(
             url=str(amqp_url),
             ssl_context=security_args.get("ssl_context"),
             timeout=timeout,
+            fail_fast=fail_fast,
+            reconnect_interval=reconnect_interval,
             # channel args
             channel_number=channel_number,
             publisher_confirms=publisher_confirms,
@@ -299,8 +311,9 @@ class RabbitBroker(
     async def connect(  # type: ignore[override]
         self,
         url: Annotated[
-            Union[str, "URL", object], Doc("RabbitMQ destination location to connect.")
-        ] = Parameter.empty,
+            Union[str, "URL", None],
+            Doc("RabbitMQ destination location to connect."),
+        ] = EMPTY,
         *,
         host: Annotated[
             Optional[str],
@@ -332,26 +345,36 @@ class RabbitBroker(
             "TimeoutType",
             Doc("Connection establishement timeout."),
         ] = None,
+        fail_fast: Annotated[
+            bool,
+            Doc(
+                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable."
+            ),
+        ] = EMPTY,
+        reconnect_interval: Annotated[
+            "TimeoutType",
+            Doc("Time to sleep between reconnection attempts."),
+        ] = EMPTY,
         # channel args
         channel_number: Annotated[
-            Union[int, None, object],
+            Optional[int],
             Doc("Specify the channel number explicit."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         publisher_confirms: Annotated[
-            Union[bool, object],
+            bool,
             Doc(
                 "if `True` the `publish` method will "
                 "return `bool` type after publish is complete."
                 "Otherwise it will returns `None`."
             ),
-        ] = Parameter.empty,
+        ] = EMPTY,
         on_return_raises: Annotated[
-            Union[bool, object],
+            bool,
             Doc(
                 "raise an :class:`aio_pika.exceptions.DeliveryError`"
                 "when mandatory message will be returned"
             ),
-        ] = Parameter.empty,
+        ] = EMPTY,
     ) -> "RobustConnection":
         """Connect broker object to RabbitMQ.
 
@@ -359,19 +382,25 @@ class RabbitBroker(
         """
         kwargs: AnyDict = {}
 
-        if channel_number is not Parameter.empty:
+        if channel_number is not EMPTY:
             kwargs["channel_number"] = channel_number
 
-        if publisher_confirms is not Parameter.empty:
+        if publisher_confirms is not EMPTY:
             kwargs["publisher_confirms"] = publisher_confirms
 
-        if on_return_raises is not Parameter.empty:
+        if on_return_raises is not EMPTY:
             kwargs["on_return_raises"] = on_return_raises
 
         if timeout:
             kwargs["timeout"] = timeout
 
-        url = None if url is Parameter.empty else cast(Union[str, "URL"], url)
+        if fail_fast is not EMPTY:
+            kwargs["fail_fast"] = fail_fast
+
+        if reconnect_interval is not EMPTY:
+            kwargs["reconnect_interval"] = reconnect_interval
+
+        url = None if url is EMPTY else url
 
         if url or any(
             (host, port, virtualhost, ssl_options, client_properties, security)
@@ -402,8 +431,11 @@ class RabbitBroker(
         self,
         url: str,
         *,
+        fail_fast: bool,
+        reconnect_interval: "TimeoutType",
         timeout: "TimeoutType",
         ssl_context: Optional["SSLContext"],
+        # channel args
         channel_number: Optional[int],
         publisher_confirms: bool,
         on_return_raises: bool,
@@ -414,6 +446,8 @@ class RabbitBroker(
                 url,
                 timeout=timeout,
                 ssl_context=ssl_context,
+                reconnect_interval=reconnect_interval,
+                fail_fast=fail_fast,
             ),
         )
 

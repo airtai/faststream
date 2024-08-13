@@ -1,6 +1,5 @@
 import logging
 from functools import partial
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -30,6 +29,7 @@ from faststream.kafka.broker.registrator import KafkaRegistrator
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.kafka.security import parse_security
+from faststream.types import EMPTY
 from faststream.utils.data import filter_by_dict
 
 Partition = TypeVar("Partition")
@@ -477,9 +477,9 @@ class KafkaBroker(
         ] = None,
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         log_level: Annotated[
             int,
             Doc("Service messages log level."),
@@ -594,9 +594,9 @@ class KafkaBroker(
     async def connect(  # type: ignore[override]
         self,
         bootstrap_servers: Annotated[
-            Union[str, Iterable[str], object],
+            Union[str, Iterable[str]],
             Doc("Kafka addresses to connect."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         **kwargs: "Unpack[KafkaInitKwargs]",
     ) -> Callable[..., aiokafka.AIOKafkaConsumer]:
         """Connect to Kafka servers manually.
@@ -604,7 +604,7 @@ class KafkaBroker(
         Consumes the same with `KafkaBroker.__init__` arguments and overrides them.
         To startup subscribers too you should use `broker.start()` after/instead this method.
         """
-        if bootstrap_servers is not Parameter.empty:
+        if bootstrap_servers is not EMPTY:
             connect_kwargs: AnyDict = {
                 **kwargs,
                 "bootstrap_servers": bootstrap_servers,
