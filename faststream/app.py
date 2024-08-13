@@ -12,7 +12,7 @@ from typing import (
 )
 
 import anyio
-from typing_extensions import Annotated, ParamSpec, deprecated
+from typing_extensions import Annotated, Literal, ParamSpec, deprecated
 
 from faststream._compat import ExceptionGroup
 from faststream.asyncapi.proto import AsyncAPIApplication
@@ -245,12 +245,10 @@ class FastStream(AsyncAPIApplication):
         return self._should_exit.is_set()
 
     @should_exit.setter
-    def should_exit(self, value: bool) -> None:
+    def should_exit(self, value: Literal[True]) -> None:
         """Set should exit flag state."""
-        if value is True:
-            self._should_exit.set()
-        elif value is False:
-            self._should_exit = anyio.Event()
-        else:
-            msg = "Value should be boolean"
+        if value is not True:
+            msg = "'should_exit' can receive only 'True' value"
             raise ValueError(msg)
+
+        self._should_exit.set()
