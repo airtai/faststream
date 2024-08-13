@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from typing_extensions import override
 
 from faststream.broker.message import encode_message
 from faststream.broker.publisher.proto import ProducerProto
+from faststream.exceptions import OperationForbiddenError
 
 if TYPE_CHECKING:
     from faststream.confluent.client import AsyncConfluentProducer
@@ -99,3 +100,9 @@ class AsyncConfluentFastProducer(ProducerProto):
             )
 
         await self._producer.send_batch(batch, topic, partition=partition)
+
+    @override
+    async def request(self, *args: Any, **kwargs: Any) -> Optional[Any]:
+        raise OperationForbiddenError(
+            "Kafka doesn't support `request` method without test client."
+        )

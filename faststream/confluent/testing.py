@@ -10,10 +10,12 @@ from faststream.confluent.publisher.asyncapi import AsyncAPIBatchPublisher
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.subscriber.asyncapi import AsyncAPIBatchSubscriber
 from faststream.testing.broker import TestBroker, call_handler
+from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
     from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.kafka.subscriber.usecase import LogicSubscriber
     from faststream.types import SendableMessage
 
 __all__ = ("TestKafkaBroker",)
