@@ -1,5 +1,4 @@
 import asyncio
-from typing import Any, ClassVar, Dict
 
 import pytest
 
@@ -16,8 +15,6 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     """A class to represent a test Kafka broker."""
 
     test_class = TestKafkaBroker
-    timeout: int = 10
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
 
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(apply_types=apply_types)
@@ -36,7 +33,9 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     ):
         broker = self.get_broker()
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         def subscriber(m):
             event.set()
 
@@ -57,7 +56,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     ):
         broker = self.get_broker()
 
-        @broker.subscriber(queue, batch=True, **self.subscriber_kwargs)
+        @broker.subscriber(queue, batch=True)
         async def m(msg):
             pass
 
@@ -71,7 +70,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     ):
         broker = self.get_broker()
 
-        @broker.subscriber(queue, batch=True, **self.subscriber_kwargs)
+        @broker.subscriber(queue, batch=True)
         async def m(msg):
             pass
 
@@ -88,7 +87,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
         publisher = broker.publisher(queue + "1", batch=True)
 
         @publisher
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        @broker.subscriber(queue)
         async def m(msg):
             return 1, 2, 3
 
@@ -107,10 +106,10 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
 
         broker = KafkaBroker(middlewares=(Middleware,))
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        @broker.subscriber(queue)
         async def h1(): ...
 
-        @broker.subscriber(queue + "1", **self.subscriber_kwargs)
+        @broker.subscriber(queue + "1")
         async def h2(): ...
 
         async with TestKafkaBroker(broker) as br:
@@ -130,10 +129,14 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
 
         broker = KafkaBroker(middlewares=(Middleware,))
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def h1(): ...
 
-        @broker.subscriber(queue + "1", **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
+
+        @broker.subscriber(*args2, **kwargs2)
         async def h2(): ...
 
         async with TestKafkaBroker(broker, with_real=True) as br:
