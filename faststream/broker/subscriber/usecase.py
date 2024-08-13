@@ -386,7 +386,7 @@ class SubscriberUsecase(
                     return result_msg.body
 
             # Suitable handler was not found or
-            # parsing/decoding exception occured
+            # parsing/decoding exception occurred
             for m in middlewares:
                 stack.push_async_exit(m.__aexit__)
 
