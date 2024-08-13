@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Any, Protocol, Tuple, Union
 
+from aiokafka import TopicPartition as AIOKafkaTopicPartition
+
 from faststream.broker.message import StreamMessage
 
 if TYPE_CHECKING:
@@ -44,6 +46,20 @@ class KafkaMessage(
         super().__init__(*args, **kwargs)
 
         self.consumer = consumer
+
+    async def nack(self) -> None:
+        """Reject the Kafka message."""
+        if not self.committed:
+            await self.consumer.commit()
+            topic_partition = AIOKafkaTopicPartition(
+                self.raw_message.topic,  # type: ignore[union-attr]
+                self.raw_message.partition,  # type: ignore[union-attr]
+            )
+            self.consumer.seek(  # type: ignore[attr-defined]
+                partition=topic_partition,
+                offset=self.raw_message.offset,  # type: ignore[union-attr]
+            )
+            await super().nack()
 
 
 class KafkaAckableMessage(KafkaMessage):

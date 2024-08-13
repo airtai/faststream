@@ -52,3 +52,14 @@ class KafkaMessage(
         if self.is_manual and not self.committed:
             await self.consumer.commit()
             await super().ack()
+
+    async def nack(self) -> None:
+        """Reject the Kafka message."""
+        if self.is_manual and not self.committed:
+            await self.consumer.commit()
+            await self.consumer.seek(  # type: ignore[attr-defined]
+                topic=self.raw_message.topic(),  # type: ignore[union-attr]
+                partition=self.raw_message.partition(),  # type: ignore[union-attr]
+                offset=self.raw_message.offset(),  # type: ignore[union-attr]
+            )
+            await super().nack()
