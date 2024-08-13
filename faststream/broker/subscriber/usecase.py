@@ -398,7 +398,8 @@ class SubscriberUsecase(
             else:
                 raise SubscriberNotFound(f"There is no suitable handler for {msg=}")
 
-        raise AssertionError
+        # An error was raised and processed by some middleware
+        return ensure_response(None)
 
     def __get_reponse_publisher(
         self,
