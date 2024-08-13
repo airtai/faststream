@@ -110,7 +110,7 @@ class FastStream(Application):
         self.license = license
         self.contact = contact
         self.identifier = identifier
-        self.tags = tags
+        self.specs_tags = tags
         self.external_docs = external_docs
 
     def set_broker(self, broker: "BrokerUsecase[Any, Any]") -> None:

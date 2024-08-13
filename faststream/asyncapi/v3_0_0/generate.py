@@ -4,7 +4,6 @@ from urllib.parse import urlparse
 
 from faststream import specification as spec
 from faststream._compat import DEF_KEY
-from faststream.asyncapi.proto import Application
 from faststream.asyncapi.v2_6_0.generate import (
     specs_channel_binding_to_asyncapi,
     specs_contact_to_asyncapi,
@@ -28,6 +27,7 @@ from faststream.asyncapi.v3_0_0.schema import (
     Server,
 )
 from faststream.constants import ContentTypes
+from faststream.specification.proto import Application
 
 if TYPE_CHECKING:
     from faststream.broker.core.usecase import BrokerUsecase

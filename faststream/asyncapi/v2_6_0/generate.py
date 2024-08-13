@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from faststream import specification as spec
 from faststream._compat import DEF_KEY
-from faststream.asyncapi.proto import Application
 from faststream.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
@@ -29,6 +28,7 @@ from faststream.asyncapi.v2_6_0.schema.bindings import (
 )
 from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
 from faststream.constants import ContentTypes
+from faststream.specification.proto import Application
 
 if TYPE_CHECKING:
     from faststream.broker.core.usecase import BrokerUsecase
