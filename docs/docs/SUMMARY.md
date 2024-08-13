@@ -555,6 +555,7 @@ search:
                 - [HandlerException](api/faststream/exceptions/HandlerException.md)
                 - [IgnoredException](api/faststream/exceptions/IgnoredException.md)
                 - [NackMessage](api/faststream/exceptions/NackMessage.md)
+                - [OperationForbiddenError](api/faststream/exceptions/OperationForbiddenError.md)
                 - [RejectMessage](api/faststream/exceptions/RejectMessage.md)
                 - [SetupError](api/faststream/exceptions/SetupError.md)
                 - [SkipMessage](api/faststream/exceptions/SkipMessage.md)
