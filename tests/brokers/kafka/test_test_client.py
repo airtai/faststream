@@ -1,11 +1,15 @@
 import asyncio
+from unittest.mock import patch
 
 import pytest
 
 from faststream import BaseMiddleware
 from faststream.kafka import KafkaBroker, TestKafkaBroker, TopicPartition
+from faststream.kafka.annotations import KafkaMessage
+from faststream.kafka.message import FAKE_CONSUMER
 from faststream.kafka.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
+from tests.tools import spy_decorator
 
 
 @pytest.mark.asyncio()
@@ -70,6 +74,23 @@ class TestTestclient(BrokerTestclientTestcase):
 
             assert not m.mock.called
             m2.mock.assert_called_once_with("hello")
+
+    async def test_message_nack_seek(
+        self,
+        queue: str,
+    ):
+        broker = self.get_broker(apply_types=True)
+
+        @broker.subscriber(queue)
+        async def m(msg: KafkaMessage):
+            await msg.nack()
+
+        async with self.patch_broker(broker) as br:
+            with patch.object(
+                FAKE_CONSUMER, "seek", spy_decorator(FAKE_CONSUMER.seek)
+            ) as mocked:
+                await br.publish("hello", queue)
+                mocked.mock.assert_called_once()
 
     @pytest.mark.kafka()
     async def test_with_real_testclient(
