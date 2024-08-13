@@ -125,13 +125,13 @@ class FakeProducer(AioKafkaFastProducer):
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
             if _is_handler_matches(handler, topic, partition):
-                with timeout_scope(rpc_timeout, raise_timeout):
-                    msg_to_send = (
-                        [incoming]
-                        if isinstance(handler, AsyncAPIBatchSubscriber)
-                        else incoming
-                    )
+                msg_to_send = (
+                    [incoming]
+                    if isinstance(handler, AsyncAPIBatchSubscriber)
+                    else incoming
+                )
 
+                with timeout_scope(rpc_timeout, raise_timeout):
                     response_msg = await self._execute_handler(
                         msg_to_send, topic, handler
                     )

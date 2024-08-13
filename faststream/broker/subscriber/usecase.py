@@ -396,7 +396,7 @@ class SubscriberUsecase(
                 raise parsing_error
 
             else:
-                raise AssertionError(f"There is no suitable handler for {msg=}")
+                raise SubscriberNotFound(f"There is no suitable handler for {msg=}")
 
         raise AssertionError
 

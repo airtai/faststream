@@ -17,7 +17,9 @@ class NatsRequestsTestcase(RequestsTestcase):
 
         stream_name = f"{queue}st"
 
-        @broker.subscriber(queue, stream=stream_name, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue, stream=stream_name)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(msg):
             return "Response"
 
@@ -41,7 +43,9 @@ class NatsRequestsTestcase(RequestsTestcase):
         stream_name = f"{queue}st"
         publisher = broker.publisher(queue, stream=stream_name)
 
-        @broker.subscriber(queue, stream=stream_name, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue, stream=stream_name)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(msg):
             return "Response"
 

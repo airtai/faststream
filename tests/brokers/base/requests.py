@@ -1,13 +1,10 @@
-from typing import Any, ClassVar, Mapping
-
 import anyio
 import pytest
 
+from .basic import BaseTestcaseConfig
 
-class RequestsTestcase:
-    timeout: float = 3.0
-    subscriber_kwargs: ClassVar[Mapping[str, Any]] = {}
 
+class RequestsTestcase(BaseTestcaseConfig):
     def get_broker(self):
         raise NotImplementedError
 
@@ -20,7 +17,9 @@ class RequestsTestcase:
     async def test_request_timeout(self, queue: str):
         broker = self.get_broker()
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(msg):
             await anyio.sleep(1.0)
             return "Response"
@@ -38,7 +37,9 @@ class RequestsTestcase:
     async def test_broker_base_request(self, queue: str):
         broker = self.get_broker()
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(msg):
             return "Response"
 
@@ -60,7 +61,9 @@ class RequestsTestcase:
 
         publisher = broker.publisher(queue)
 
-        @broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def handler(msg):
             return "Response"
 
@@ -81,7 +84,9 @@ class RequestsTestcase:
 
         publisher = router.publisher(queue)
 
-        @router.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
         async def handler(msg):
             return "Response"
 

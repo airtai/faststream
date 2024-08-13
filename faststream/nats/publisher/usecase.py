@@ -3,7 +3,7 @@ from itertools import chain
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 from nats.aio.msg import Msg
-from typing_extensions import Annotated, Doc, deprecated, override
+from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
