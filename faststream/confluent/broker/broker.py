@@ -1,7 +1,5 @@
 import logging
-from asyncio import AbstractEventLoop
 from functools import partial
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -27,13 +25,12 @@ from faststream.confluent.broker.registrator import KafkaRegistrator
 from faststream.confluent.client import (
     AsyncConfluentConsumer,
     AsyncConfluentProducer,
-    _missing,
 )
-from faststream.confluent.config import ConfluentConfig
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.types import EMPTY
 from faststream.utils.data import filter_by_dict
 
 if TYPE_CHECKING:
@@ -47,6 +44,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         CustomCallable,
     )
+    from faststream.confluent.config import ConfluentConfig
     from faststream.security import BaseSecurity
     from faststream.types import (
         AnyDict,
@@ -112,7 +110,6 @@ class KafkaBroker(
             """
             ),
         ] = 9 * 60 * 1000,
-        loop: Optional[AbstractEventLoop] = None,
         client_id: Annotated[
             Optional[str],
             Doc(
@@ -134,7 +131,7 @@ class KafkaBroker(
             ),
         ] = True,
         config: Annotated[
-            Optional[ConfluentConfig],
+            Optional["ConfluentConfig"],
             Doc(
                 """
                 Extra configuration for the confluent-kafka-python
@@ -144,7 +141,7 @@ class KafkaBroker(
         ] = None,
         # publisher args
         acks: Annotated[
-            Union[Literal[0, 1, -1, "all"], object],
+            Literal[0, 1, -1, "all"],
             Doc(
                 """
             One of ``0``, ``1``, ``all``. The number of acknowledgments
@@ -173,7 +170,7 @@ class KafkaBroker(
             :data:`True` defaults to ``acks=all``.
             """
             ),
-        ] = _missing,
+        ] = EMPTY,
         compression_type: Annotated[
             Optional[Literal["gzip", "snappy", "lz4", "zstd"]],
             Doc(
@@ -305,9 +302,9 @@ class KafkaBroker(
         ] = None,
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         log_level: Annotated[
             int,
             Doc("Service messages log level."),
@@ -363,7 +360,6 @@ class KafkaBroker(
             metadata_max_age_ms=metadata_max_age_ms,
             allow_auto_create_topics=allow_auto_create_topics,
             connections_max_idle_ms=connections_max_idle_ms,
-            loop=loop,
             # publisher args
             acks=acks,
             compression_type=compression_type,
@@ -415,12 +411,12 @@ class KafkaBroker(
     async def connect(
         self,
         bootstrap_servers: Annotated[
-            Union[str, Iterable[str], object],
+            Union[str, Iterable[str]],
             Doc("Kafka addresses to connect."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         **kwargs: Any,
     ) -> Callable[..., AsyncConfluentConsumer]:
-        if bootstrap_servers is not Parameter.empty:
+        if bootstrap_servers is not EMPTY:
             kwargs["bootstrap_servers"] = bootstrap_servers
 
         return await super().connect(**kwargs)

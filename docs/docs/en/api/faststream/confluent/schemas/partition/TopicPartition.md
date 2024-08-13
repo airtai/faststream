@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.confluent.client.TopicPartition
+::: faststream.confluent.schemas.partition.TopicPartition

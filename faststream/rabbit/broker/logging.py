@@ -1,11 +1,11 @@
 import logging
-from inspect import Parameter
-from typing import TYPE_CHECKING, Any, ClassVar, Optional, Union
+from typing import TYPE_CHECKING, Any, ClassVar, Optional
 
 from aio_pika import IncomingMessage, RobustConnection
 
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.log.logging import get_broker_logger
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from faststream.types import LoggerProto
@@ -21,7 +21,7 @@ class RabbitLoggingBroker(BrokerUsecase[IncomingMessage, RobustConnection]):
     def __init__(
         self,
         *args: Any,
-        logger: Union["LoggerProto", object, None] = Parameter.empty,
+        logger: Optional["LoggerProto"] = EMPTY,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = None,
         **kwargs: Any,

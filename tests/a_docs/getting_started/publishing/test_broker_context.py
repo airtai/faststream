@@ -38,7 +38,7 @@ async def test_broker_context_confluent():
     from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
     async with TestConfluentKafkaBroker(broker, with_real=True), TestApp(app):
-        await handle.wait_call(5)
+        await handle.wait_call(30)
         handle.mock.assert_called_once_with("Hi!")
 
 

@@ -107,3 +107,17 @@ class LoggerProto(Protocol):
         exc_info: Any = None,
         extra: Optional[Mapping[str, Any]] = None,
     ) -> None: ...
+
+
+class _EmptyPlaceholder:
+    def __repr__(self) -> str:
+        return "EMPTY"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, _EmptyPlaceholder):
+            return NotImplemented
+
+        return True
+
+
+EMPTY: Any = _EmptyPlaceholder()

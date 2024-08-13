@@ -2,7 +2,7 @@ import asyncio
 from abc import abstractmethod
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Any, ClassVar, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 from unittest.mock import Mock
 
 import anyio
@@ -12,6 +12,8 @@ from pydantic import BaseModel
 from faststream import BaseMiddleware, Context, Response
 from faststream._compat import dump_json, model_to_json
 from faststream.broker.core.usecase import BrokerUsecase
+
+from .basic import BaseTestcaseConfig
 
 
 class SimpleModel(BaseModel):
@@ -26,10 +28,7 @@ class SimpleDataclass:
 now = datetime.now()
 
 
-class BrokerPublishTestcase:
-    timeout: int = 3
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
-
+class BrokerPublishTestcase(BaseTestcaseConfig):
     @abstractmethod
     def get_broker(self, apply_types: bool = False) -> BrokerUsecase[Any, Any]:
         raise NotImplementedError
@@ -156,7 +155,9 @@ class BrokerPublishTestcase:
     ):
         pub_broker = self.get_broker(apply_types=True)
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)
         async def handler(m: message_type):
             event.set()
             mock(m)
@@ -184,12 +185,16 @@ class BrokerPublishTestcase:
     ):
         pub_broker = self.get_broker(apply_types=True)
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)
         @pub_broker.publisher(queue + "1")
         async def m():
             return Response(1, headers={"custom": "1"}, correlation_id="1")
 
-        @pub_broker.subscriber(queue + "1", **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
+
+        @pub_broker.subscriber(*args2, **kwargs2)
         async def m_next(msg=Context("message")):
             event.set()
             mock(
@@ -224,7 +229,9 @@ class BrokerPublishTestcase:
     ):
         pub_broker = self.get_broker(apply_types=True)
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)
         async def m(a: int, b: int):
             event.set()
             mock({"a": a, "b": b})
@@ -256,7 +263,9 @@ class BrokerPublishTestcase:
     ):
         pub_broker = self.get_broker(apply_types=True)
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)
         async def m(a: int, b: int, *args: Tuple[int, ...]):
             event.set()
             mock({"a": a, "b": b, "args": args})
@@ -283,12 +292,16 @@ class BrokerPublishTestcase:
     ):
         pub_broker = self.get_broker(apply_types=True)
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)
         @pub_broker.publisher(queue + "resp")
         async def m():
             return ""
 
-        @pub_broker.subscriber(queue + "resp", **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue + "resp")
+
+        @pub_broker.subscriber(*args2, **kwargs2)
         async def resp(msg):
             event.set()
             mock(msg)
@@ -317,12 +330,16 @@ class BrokerPublishTestcase:
 
         publisher = pub_broker.publisher(queue + "resp")
 
+        args, kwargs = self.get_subscriber_params(queue)
+
         @publisher
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        @pub_broker.subscriber(*args, **kwargs)
         async def m():
             return ""
 
-        @pub_broker.subscriber(queue + "resp", **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue + "resp")
+
+        @pub_broker.subscriber(*args, **kwargs)
         async def resp(msg):
             event.set()
             mock(msg)
@@ -351,11 +368,15 @@ class BrokerPublishTestcase:
 
         publisher = pub_broker.publisher(queue + "resp")
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)
         async def m():
             await publisher.publish("")
 
-        @pub_broker.subscriber(queue + "resp", **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue + "resp")
+
+        @pub_broker.subscriber(*args2, **kwargs2)
         async def resp(msg):
             event.set()
             mock(msg)
@@ -384,18 +405,24 @@ class BrokerPublishTestcase:
         event = anyio.Event()
         event2 = anyio.Event()
 
+        args, kwargs = self.get_subscriber_params(queue)
+
         @pub_broker.publisher(queue + "resp2")
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        @pub_broker.subscriber(*args, **kwargs)
         @pub_broker.publisher(queue + "resp")
         async def m():
             return ""
 
-        @pub_broker.subscriber(queue + "resp", **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue + "resp")
+
+        @pub_broker.subscriber(*args2, **kwargs2)
         async def resp(msg):
             event.set()
             mock.resp1(msg)
 
-        @pub_broker.subscriber(queue + "resp2", **self.subscriber_kwargs)
+        args3, kwargs3 = self.get_subscriber_params(queue + "resp2")
+
+        @pub_broker.subscriber(*args3, **kwargs3)
         async def resp2(msg):
             event2.set()
             mock.resp2(msg)
@@ -429,17 +456,23 @@ class BrokerPublishTestcase:
 
         pub = pub_broker.publisher(queue + "resp")
 
+        args, kwargs = self.get_subscriber_params(queue)
+
         @pub
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        @pub_broker.subscriber(*args, **kwargs)
         async def m():
             return ""
 
+        args2, kwargs2 = self.get_subscriber_params(queue + "2")
+
         @pub
-        @pub_broker.subscriber(queue + "2", **self.subscriber_kwargs)
+        @pub_broker.subscriber(*args2, **kwargs2)
         async def m2():
             return ""
 
-        @pub_broker.subscriber(queue + "resp", **self.subscriber_kwargs)
+        args3, kwargs3 = self.get_subscriber_params(queue + "resp")
+
+        @pub_broker.subscriber(*args3, **kwargs3)
         async def resp():
             if not consume.is_set():
                 consume.set()
@@ -472,12 +505,16 @@ class BrokerPublishTestcase:
     ):
         pub_broker = self.get_broker(apply_types=True)
 
-        @pub_broker.subscriber(queue + "reply", **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue + "reply")
+
+        @pub_broker.subscriber(*args, **kwargs)
         async def reply_handler(m):
             event.set()
             mock(m)
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args2, **kwargs2)
         async def handler(m):
             return m
 
@@ -513,11 +550,15 @@ class BrokerPublishTestcase:
         pub_broker = self.get_broker(apply_types=True)
         pub_broker.add_middleware(Mid)
 
-        @pub_broker.subscriber(queue + "reply", **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue + "reply")
+
+        @pub_broker.subscriber(*args, **kwargs)
         async def reply_handler(m):
             mock(m)
 
-        @pub_broker.subscriber(queue, no_reply=True, **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue, no_reply=True)
+
+        @pub_broker.subscriber(*args2, **kwargs2)
         async def handler(m):
             return m
 
@@ -546,7 +587,9 @@ class BrokerPublishTestcase:
     ):
         pub_broker = self.get_broker(apply_types=True)
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)
         async def handler(m):
             event.set()
             mock(m)

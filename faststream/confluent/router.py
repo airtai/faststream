@@ -30,6 +30,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.confluent.message import KafkaMessage
+    from faststream.confluent.schemas import TopicPartition
     from faststream.types import SendableMessage
 
 
@@ -148,6 +149,8 @@ class KafkaRoute(SubscriberRoute):
             Iterable[KafkaPublisher],
             Doc("Kafka publishers to broadcast the handler result."),
         ] = (),
+        partitions: Sequence["TopicPartition"] = (),
+        polling_interval: float = 0.1,
         group_id: Annotated[
             Optional[str],
             Doc(
@@ -344,17 +347,6 @@ class KafkaRoute(SubscriberRoute):
             bool,
             Doc("Whether to consume messages in batches or not."),
         ] = False,
-        batch_timeout_ms: Annotated[
-            int,
-            Doc(
-                """
-            Milliseconds spent waiting if
-            data is not available in the buffer. If 0, returns immediately
-            with any records that are available currently in the buffer,
-            else returns empty.
-            """
-            ),
-        ] = 200,
         max_records: Annotated[
             Optional[int],
             Doc("Number of messages to consume as one batch."),
@@ -422,6 +414,8 @@ class KafkaRoute(SubscriberRoute):
             call,
             *topics,
             publishers=publishers,
+            partitions=partitions,
+            polling_interval=polling_interval,
             group_id=group_id,
             fetch_max_wait_ms=fetch_max_wait_ms,
             fetch_max_bytes=fetch_max_bytes,
@@ -437,7 +431,6 @@ class KafkaRoute(SubscriberRoute):
             heartbeat_interval_ms=heartbeat_interval_ms,
             isolation_level=isolation_level,
             max_records=max_records,
-            batch_timeout_ms=batch_timeout_ms,
             batch=batch,
             # basic args
             dependencies=dependencies,

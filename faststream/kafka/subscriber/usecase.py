@@ -256,23 +256,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             "message_id": getattr(message, "message_id", ""),
         }
 
-    def get_log_context(
-        self,
-        message: Optional["StreamMessage[ConsumerRecord]"],
-    ) -> Dict[str, str]:
-        if message is None:
-            topic = ",".join(self.topic_names)
-        elif isinstance(message.raw_message, Sequence):
-            topic = message.raw_message[0].topic
-        else:
-            topic = message.raw_message.topic
-
-        return self.build_log_context(
-            message=message,
-            topic=topic,
-            group_id=self.group_id,
-        )
-
     def add_prefix(self, prefix: str) -> None:
         self.topics = tuple("".join((prefix, t)) for t in self.topics)
 
@@ -347,6 +330,21 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
     async def get_msg(self) -> "ConsumerRecord":
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
         return await self.consumer.getone()
+
+    def get_log_context(
+        self,
+        message: Optional["StreamMessage[ConsumerRecord]"],
+    ) -> Dict[str, str]:
+        if message is None:
+            topic = ",".join(self.topic_names)
+        else:
+            topic = message.raw_message.topic
+
+        return self.build_log_context(
+            message=message,
+            topic=topic,
+            group_id=self.group_id,
+        )
 
 
 class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
@@ -428,3 +426,18 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             return ()
 
         return tuple(chain(*messages.values()))
+
+    def get_log_context(
+        self,
+        message: Optional["StreamMessage[Tuple[ConsumerRecord, ...]]"],
+    ) -> Dict[str, str]:
+        if message is None:
+            topic = ",".join(self.topic_names)
+        else:
+            topic = message.raw_message[0].topic
+
+        return self.build_log_context(
+            message=message,
+            topic=topic,
+            group_id=self.group_id,
+        )

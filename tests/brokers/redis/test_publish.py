@@ -183,3 +183,25 @@ class TestPublish(BrokerPublishTestcase):
             body=b"1",
             correlation_id="1",
         )
+
+    @pytest.mark.asyncio()
+    async def test_response_for_rpc(
+        self,
+        queue: str,
+        event: asyncio.Event,
+    ):
+        pub_broker = self.get_broker(apply_types=True)
+
+        @pub_broker.subscriber(queue)
+        async def handle():
+            return RedisResponse("Hi!", correlation_id="1")
+
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
+
+            response = await asyncio.wait_for(
+                br.publish("", queue, rpc=True),
+                timeout=3,
+            )
+
+            assert response == "Hi!", response

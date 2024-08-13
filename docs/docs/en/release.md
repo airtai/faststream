@@ -12,6 +12,133 @@ hide:
 ---
 
 # Release Notes
+## 0.5.18
+
+### What's Changed
+
+* Added additional parameters to HandlerException by [@ulbwa](https://github.com/ulbwa){.external-link target="_blank"} in [#1659](https://github.com/airtai/faststream/pull/1659){.external-link target="_blank"}
+* Removed Doc and Added docstrings instead by @Kirill-Stepankov in [#1662](https://github.com/airtai/faststream/pull/1662){.external-link target="_blank"}
+* feat (#1663): support default values for Header by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1667](https://github.com/airtai/faststream/pull/1667){.external-link target="_blank"}
+* fix (#1660): correct patch nested JStream subjects by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1666](https://github.com/airtai/faststream/pull/1666){.external-link target="_blank"}
+* fix: add ConfluentRouter FastAPI missed  init options by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1664](https://github.com/airtai/faststream/pull/1664){.external-link target="_blank"}
+* Add kerberos support for confluent broker by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1670](https://github.com/airtai/faststream/pull/1670){.external-link target="_blank"}
+* Fix nack for kafka and confluent brokers by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1678](https://github.com/airtai/faststream/pull/1678){.external-link target="_blank"}
+* fix: support all RMQ exchanges in AsyncAPI by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1679](https://github.com/airtai/faststream/pull/1679){.external-link target="_blank"}
+* fix: catch parser errors by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1680](https://github.com/airtai/faststream/pull/1680){.external-link target="_blank"}
+
+### New Contributors
+* [@ulbwa](https://github.com/ulbwa){.external-link target="_blank"} made their first contribution in [#1659](https://github.com/airtai/faststream/pull/1659){.external-link target="_blank"}
+* @Kirill-Stepankov made their first contribution in [#1662](https://github.com/airtai/faststream/pull/1662){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.17...0.5.18](https://github.com/airtai/faststream/compare/0.5.17...0.5.18){.external-link target="_blank"}
+
+## 0.5.17
+
+### What's Changed
+
+Just a hotfix for the following case:
+
+```python
+@broker.subscriber(...)
+async def handler():
+    return NatsResponse(...)
+    
+await broker.publish(..., rpc=True)
+```
+
+* chore(deps): bump semgrep from 1.83.0 to 1.84.0 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#1650](https://github.com/airtai/faststream/pull/1650){.external-link target="_blank"}
+* chore(deps): bump mkdocs-material from 9.5.30 to 9.5.31 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#1651](https://github.com/airtai/faststream/pull/1651){.external-link target="_blank"}
+* Update Release Notes for 0.5.16 by @faststream-release-notes-updater in [#1652](https://github.com/airtai/faststream/pull/1652){.external-link target="_blank"}
+* hotfix: correct NatsResponse processing in RPC case by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1654](https://github.com/airtai/faststream/pull/1654){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.16...0.5.17](https://github.com/airtai/faststream/compare/0.5.16...0.5.17){.external-link target="_blank"}
+
+## 0.5.16
+
+### What's Changed
+
+Well, seems like it is the biggest patch release ever 😃 
+
+#### Detail Responses
+
+First of all, thanks to all new contributors, who helps us to improve the project! They made a huge impact to this release by adding new Kafka security mechanisms and extend Response API - now you can use `broker.Response` to publish detail information from handler
+
+```python
+@broker.subscriber("in")
+@broker.publisher("out")
+async def handler(msg):
+    return Response(msg, headers={"response_header": "Hi!"})   # or KafkaResponse, etc
+```
+
+#### ASGI
+
+Also, we added a new huge feature - [**ASGI** support](https://faststream.airt.ai/latest/getting-started/asgi/#other-asgi-compatibility)!
+
+Nope, we are not HTTP-framework now, but it is a little ASGI implementation to provide you with an ability to host documentation, use k8s http-probes and serve metrics in the same with you broker runtime without any dependencies.
+
+You just need to use **AsgiFastStream** class
+
+```python
+from faststream.nats import NatsBroker
+from faststream.asgi import AsgiFastStream, make_ping_asgi
+
+from prometheus_client import make_asgi_app
+from prometheus_client.registry import CollectorRegistry
+
+broker = NatsBroker()
+
+prometheus_registry = CollectorRegistry()
+
+app = AsgiFastStream(
+    broker,
+    asyncapi_path="/docs",
+    asgi_routes=[
+        ("/health", make_ping_asgi(broker, timeout=5.0)),
+        ("/metrics", make_asgi_app(registry=prometheus_registry))
+    ]
+)
+```
+
+And then you can run it like a regular ASGI app
+
+```shell
+uvicorn main:app
+```
+
+#### Confluent partitions
+
+One more thing - manual topic partition assignment for Confluent. We have it already for aiokafka, but missed it here... Now it was fixed!
+
+```python
+from faststream.confluent import TopicPartition
+
+@broker.subscriber(partitions=[
+    TopicPartition("test-topic", partition=0),
+])
+async def handler():
+    ...
+```
+
+#### Detail changes
+
+* feat: add RMQ `fail_fast` option in #1647
+* fix: correct nested `NatsRouter` subjects prefixes behavior
+* fix typos by @newonlynew in https://github.com/airtai/faststream/pull/1609
+* Feat: extend response api by @Flosckow in https://github.com/airtai/faststream/pull/1607
+* Feature: GSSAPI (Kerberos) support by @roma-frolov in https://github.com/airtai/faststream/pull/1633
+* feat: add oauth support by @filip-danieluk in https://github.com/airtai/faststream/pull/1632
+* fix: patch broker within testbroker context only by @sfran96 in https://github.com/airtai/faststream/pull/1619
+* feat: ASGI support by @Lancetnik in https://github.com/airtai/faststream/pull/1635
+
+### New Contributors
+* @newonlynew made their first contribution in https://github.com/airtai/faststream/pull/1609
+* @roma-frolov made their first contribution in https://github.com/airtai/faststream/pull/1633
+* @filip-danieluk made their first contribution in https://github.com/airtai/faststream/pull/1632
+* @sfran96 made their first contribution in https://github.com/airtai/faststream/pull/1619
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.15...0.5.16
+
 ## 0.5.15
 
 ### What's Changed

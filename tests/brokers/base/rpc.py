@@ -9,8 +9,10 @@ import pytest
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.utils.functions import timeout_scope
 
+from .basic import BaseTestcaseConfig
 
-class BrokerRPCTestcase:
+
+class BrokerRPCTestcase(BaseTestcaseConfig):
     @abstractstaticmethod
     def get_broker(self, apply_types: bool = False) -> BrokerUsecase[Any, Any]:
         raise NotImplementedError
@@ -22,7 +24,9 @@ class BrokerRPCTestcase:
     async def test_rpc(self, queue: str):
         rpc_broker = self.get_broker()
 
-        @rpc_broker.subscriber(queue)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @rpc_broker.subscriber(*args, **kwargs)
         async def m(m):
             return "Hi!"
 
@@ -36,7 +40,9 @@ class BrokerRPCTestcase:
     async def test_rpc_timeout_raises(self, queue: str):
         rpc_broker = self.get_broker()
 
-        @rpc_broker.subscriber(queue)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @rpc_broker.subscriber(*args, **kwargs)
         async def m(m):  # pragma: no cover
             await anyio.sleep(1)
 
@@ -56,7 +62,9 @@ class BrokerRPCTestcase:
     async def test_rpc_timeout_none(self, queue: str):
         rpc_broker = self.get_broker()
 
-        @rpc_broker.subscriber(queue)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @rpc_broker.subscriber(*args, **kwargs)
         async def m(m):  # pragma: no cover
             await anyio.sleep(1)
 
@@ -83,12 +91,16 @@ class BrokerRPCTestcase:
 
         reply_queue = queue + "1"
 
-        @rpc_broker.subscriber(reply_queue)
+        args, kwargs = self.get_subscriber_params(reply_queue)
+
+        @rpc_broker.subscriber(*args, **kwargs)
         async def response_hanler(m: str):
             mock(m)
             event.set()
 
-        @rpc_broker.subscriber(queue)
+        args2, kwargs2 = self.get_subscriber_params(queue)
+
+        @rpc_broker.subscriber(*args2, **kwargs2)
         async def m(m):
             return "1"
 

@@ -17,6 +17,6 @@ async def test_ack_exc():
         AsyncConfluentConsumer, "commit", spy_decorator(AsyncConfluentConsumer.commit)
     ) as m:
         async with TestKafkaBroker(broker, with_real=True), TestApp(app):
-            await handle.wait_call(10)
+            await handle.wait_call(20)
 
             assert m.mock.call_count

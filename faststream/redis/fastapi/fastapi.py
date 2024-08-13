@@ -1,5 +1,4 @@
 import logging
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -35,6 +34,7 @@ from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -67,12 +67,11 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
     def __init__(
         self,
         url: str = "redis://localhost:6379",
-        polling_interval: Optional[float] = None,
         *,
-        host: Union[str, object] = Parameter.empty,
-        port: Union[str, int, object] = Parameter.empty,
-        db: Union[str, int, object] = Parameter.empty,
-        connection_class: Union[Type["Connection"], object] = Parameter.empty,
+        host: str = EMPTY,
+        port: Union[str, int] = EMPTY,
+        db: Union[str, int] = EMPTY,
+        connection_class: Type["Connection"] = EMPTY,
         client_name: Optional[str] = SERVICE_NAME,
         health_check_interval: float = 0,
         max_connections: Optional[int] = None,
@@ -138,7 +137,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         logger: Annotated[
             Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
-        ] = Parameter.empty,
+        ] = EMPTY,
         log_level: Annotated[
             int,
             Doc("Service messages log level."),
@@ -377,7 +376,6 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
     ) -> None:
         super().__init__(
             url=url,
-            polling_interval=polling_interval,
             host=host,
             port=port,
             db=db,

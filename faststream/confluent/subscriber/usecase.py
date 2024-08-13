@@ -6,6 +6,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    List,
     Optional,
     Sequence,
     Tuple,
@@ -19,6 +20,7 @@ from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
+from faststream.confluent.schemas import TopicPartition
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -49,6 +51,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     def __init__(
         self,
         *topics: str,
+        partitions: Sequence["TopicPartition"],
+        polling_interval: float,
         # Kafka information
         group_id: Optional[str],
         connection_data: "AnyDict",
@@ -81,16 +85,20 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             include_in_schema=include_in_schema,
         )
 
+        self.__connection_data = connection_data
+
         self.group_id = group_id
         self.topics = topics
+        self.partitions = partitions
         self.is_manual = is_manual
-        self.builder = None
+
         self.consumer = None
         self.task = None
+        self.polling_interval = polling_interval
 
         # Setup it later
         self.client_id = ""
-        self.__connection_data = connection_data
+        self.builder = None
 
     @override
     def setup(  # type: ignore[override]
@@ -135,6 +143,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         self.consumer = consumer = self.builder(
             *self.topics,
+            partitions=self.partitions,
             group_id=self.group_id,
             client_id=self.client_id,
             **self.__connection_data,
@@ -196,12 +205,22 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
                 if msg is not None:
                     await self.consume(msg)  # type: ignore[arg-type]
 
+    @property
+    def topic_names(self) -> List[str]:
+        if self.topics:
+            return list(self.topics)
+        else:
+            return [f"{p.topic}-{p.partition}" for p in self.partitions]
+
     @staticmethod
     def get_routing_hash(topics: Iterable[str], group_id: Optional[str] = None) -> int:
         return hash("".join((*topics, group_id or "")))
 
     def __hash__(self) -> int:
-        return self.get_routing_hash(self.topics, self.group_id)
+        return self.get_routing_hash(
+            topics=self.topic_names,
+            group_id=self.group_id,
+        )
 
     @staticmethod
     def build_log_context(
@@ -218,12 +237,25 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     def add_prefix(self, prefix: str) -> None:
         self.topics = tuple("".join((prefix, t)) for t in self.topics)
 
+        self.partitions = [
+            TopicPartition(
+                topic="".join((prefix, p.topic)),
+                partition=p.partition,
+                offset=p.offset,
+                metadata=p.metadata,
+                leader_epoch=p.leader_epoch,
+            )
+            for p in self.partitions
+        ]
+
 
 class DefaultSubscriber(LogicSubscriber[Message]):
     def __init__(
         self,
         *topics: str,
         # Kafka information
+        partitions: Sequence["TopicPartition"],
+        polling_interval: float,
         group_id: Optional[str],
         connection_data: "AnyDict",
         is_manual: bool,
@@ -240,6 +272,8 @@ class DefaultSubscriber(LogicSubscriber[Message]):
     ) -> None:
         super().__init__(
             *topics,
+            partitions=partitions,
+            polling_interval=polling_interval,
             group_id=group_id,
             connection_data=connection_data,
             is_manual=is_manual,
@@ -260,14 +294,14 @@ class DefaultSubscriber(LogicSubscriber[Message]):
 
     async def get_msg(self) -> Optional["Message"]:
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
-        return await self.consumer.getone()
+        return await self.consumer.getone(timeout=self.polling_interval)
 
     def get_log_context(
         self,
         message: Optional["StreamMessage[Message]"],
     ) -> Dict[str, str]:
         if message is None:
-            topic = ",".join(self.topics)
+            topic = ",".join(self.topic_names)
         else:
             topic = message.raw_message.topic() or ",".join(self.topics)
 
@@ -282,7 +316,8 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
     def __init__(
         self,
         *topics: str,
-        batch_timeout_ms: int,
+        partitions: Sequence["TopicPartition"],
+        polling_interval: float,
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
@@ -299,11 +334,12 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        self.batch_timeout_ms = batch_timeout_ms
         self.max_records = max_records
 
         super().__init__(
             *topics,
+            partitions=partitions,
+            polling_interval=polling_interval,
             group_id=group_id,
             connection_data=connection_data,
             is_manual=is_manual,
@@ -326,12 +362,12 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
 
         messages = await self.consumer.getmany(
-            timeout_ms=self.batch_timeout_ms,
+            timeout=self.polling_interval,
             max_records=self.max_records,
         )
 
-        if not messages:  # pragma: no cover
-            await anyio.sleep(self.batch_timeout_ms / 1000)
+        if not messages:  # TODO: why we are sleeping here?
+            await anyio.sleep(self.polling_interval)
             return None
 
         return messages
@@ -341,9 +377,9 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
         message: Optional["StreamMessage[Tuple[Message, ...]]"],
     ) -> Dict[str, str]:
         if message is None:
-            topic = ",".join(self.topics)
+            topic = ",".join(self.topic_names)
         else:
-            topic = message.raw_message[0].topic() or ",".join(self.topics)
+            topic = message.raw_message[0].topic() or ",".join(self.topic_names)
 
         return self.build_log_context(
             message=message,

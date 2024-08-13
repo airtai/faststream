@@ -1,5 +1,4 @@
 import asyncio
-from typing import Any, ClassVar, Dict
 from unittest.mock import Mock
 
 import pytest
@@ -8,12 +7,11 @@ from faststream import Context
 from faststream.confluent import KafkaBroker, KafkaResponse
 from tests.brokers.base.publish import BrokerPublishTestcase
 
+from .basic import ConfluentTestcaseConfig
+
 
 @pytest.mark.confluent()
-class TestPublish(BrokerPublishTestcase):
-    timeout: int = 10
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
-
+class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(apply_types=apply_types)
 
@@ -23,7 +21,9 @@ class TestPublish(BrokerPublishTestcase):
 
         msgs_queue = asyncio.Queue(maxsize=2)
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)
         async def handler(msg):
             await msgs_queue.put(msg)
 
@@ -48,7 +48,9 @@ class TestPublish(BrokerPublishTestcase):
 
         msgs_queue = asyncio.Queue(maxsize=2)
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)
         async def handler(msg):
             await msgs_queue.put(msg)
 
@@ -75,12 +77,16 @@ class TestPublish(BrokerPublishTestcase):
 
         msgs_queue = asyncio.Queue(maxsize=2)
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)
         async def handler(msg):
             await msgs_queue.put(msg)
 
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
+
         @pub_broker.publisher(queue, batch=True)
-        @pub_broker.subscriber(queue + "1", **self.subscriber_kwargs)
+        @pub_broker.subscriber(*args2, **kwargs2)
         async def pub(m):
             return 1, "hi"
 
@@ -108,12 +114,16 @@ class TestPublish(BrokerPublishTestcase):
     ):
         pub_broker = self.get_broker(apply_types=True)
 
-        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @pub_broker.subscriber(*args, **kwargs)
         @pub_broker.publisher(topic=queue + "1")
         async def handle():
             return KafkaResponse(1)
 
-        @pub_broker.subscriber(queue + "1", **self.subscriber_kwargs)
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
+
+        @pub_broker.subscriber(*args2, **kwargs2)
         async def handle_next(msg=Context("message")):
             mock(body=msg.body)
             event.set()

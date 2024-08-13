@@ -1,6 +1,6 @@
 import asyncio
 from abc import abstractmethod
-from typing import Any, ClassVar, Dict
+from typing import Any
 from unittest.mock import MagicMock
 
 import anyio
@@ -11,12 +11,11 @@ from faststream import Context, Depends
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.exceptions import StopConsume
 
+from .basic import BaseTestcaseConfig
+
 
 @pytest.mark.asyncio()
-class BrokerConsumeTestcase:
-    timeout: int = 3
-    subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
-
+class BrokerConsumeTestcase(BaseTestcaseConfig):
     @abstractmethod
     def get_broker(self, broker: BrokerUsecase) -> BrokerUsecase[Any, Any]:
         raise NotImplementedError
@@ -31,7 +30,9 @@ class BrokerConsumeTestcase:
     ):
         consume_broker = self.get_broker()
 
-        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @consume_broker.subscriber(*args, **kwargs)
         def subscriber(m):
             event.set()
 
@@ -57,8 +58,11 @@ class BrokerConsumeTestcase:
         consume = asyncio.Event()
         consume2 = asyncio.Event()
 
-        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
-        @consume_broker.subscriber(queue + "1", **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
+
+        @consume_broker.subscriber(*args, **kwargs)
+        @consume_broker.subscriber(*args2, **kwargs2)
         def subscriber(m):
             mock()
             if not consume.is_set():
@@ -92,7 +96,9 @@ class BrokerConsumeTestcase:
         consume = asyncio.Event()
         consume2 = asyncio.Event()
 
-        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @consume_broker.subscriber(*args, **kwargs)
         async def handler(m):
             mock()
             if not consume.is_set():
@@ -126,14 +132,17 @@ class BrokerConsumeTestcase:
         consume = asyncio.Event()
         consume2 = asyncio.Event()
 
-        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @consume_broker.subscriber(*args, **kwargs)
         def handler(m):
             mock.handler()
             consume.set()
 
         another_topic = queue + "1"
+        args, kwargs = self.get_subscriber_params(another_topic)
 
-        @consume_broker.subscriber(another_topic, **self.subscriber_kwargs)
+        @consume_broker.subscriber(*args, **kwargs)
         def handler2(m):
             mock.handler2()
             consume2.set()
@@ -165,16 +174,18 @@ class BrokerConsumeTestcase:
         consume = asyncio.Event()
         consume2 = asyncio.Event()
 
-        @consume_broker.subscriber(
+        args, kwargs = self.get_subscriber_params(
             queue,
-            filter=lambda m: m.content_type == "application/json",
-            **self.subscriber_kwargs,
         )
+
+        sub = consume_broker.subscriber(*args, **kwargs)
+
+        @sub(filter=lambda m: m.content_type == "application/json")
         async def handler(m):
             mock.handler(m)
             consume.set()
 
-        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
+        @sub
         async def handler2(m):
             mock.handler2(m)
             consume2.set()
@@ -213,7 +224,9 @@ class BrokerConsumeTestcase:
         def dependency() -> str:
             return "100"
 
-        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @consume_broker.subscriber(*args, **kwargs)
         async def handler(m: Foo, dep: int = Depends(dependency), broker=Context()):
             mock(m, dep, broker)
             event.set()
@@ -245,7 +258,8 @@ class BrokerConsumeTestcase:
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
-            sub = br.subscriber(queue, **self.subscriber_kwargs)
+            args, kwargs = self.get_subscriber_params(queue)
+            sub = br.subscriber(*args, **kwargs)
             sub(subscriber)
             br.setup_subscriber(sub)
             await sub.start()
@@ -271,7 +285,9 @@ class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
     ):
         consume_broker = self.get_broker()
 
-        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @consume_broker.subscriber(*args, **kwargs)
         def subscriber(m):
             mock()
             event.set()

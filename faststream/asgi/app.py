@@ -2,6 +2,8 @@ import traceback
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, AsyncIterator, Optional, Sequence, Tuple, Union
 
+import anyio
+
 from faststream.app import FastStream
 from faststream.asgi.factories import make_asyncapi_asgi
 from faststream.asgi.response import AsgiResponse
@@ -90,12 +92,14 @@ class AsgiFastStream(FastStream):
 
     @asynccontextmanager
     async def start_lifespan_context(self) -> AsyncIterator[None]:
-        async with self.lifespan_context():
-            await self._startup()
+        async with anyio.create_task_group() as tg, self.lifespan_context():
+            tg.start_soon(self._startup)
+
             try:
                 yield
             finally:
                 await self._shutdown()
+                tg.cancel_scope.cancel()
 
     async def lifespan(self, scope: "Scope", receive: "Receive", send: "Send") -> None:
         """Handle ASGI lifespan messages to start and shutdown the app."""
