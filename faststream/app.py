@@ -30,10 +30,10 @@ T_HookReturn = TypeVar("T_HookReturn")
 
 if TYPE_CHECKING:
     from faststream.broker.core.usecase import BrokerUsecase
-    from faststream.specification.contact import ContactDict, Contact
+    from faststream.specification.contact import Contact, ContactDict
     from faststream.specification.docs import ExternalDocs, ExternalDocsDict
     from faststream.specification.license import License, LicenseDict
-    from faststream.specification.tag import TagDict, Tag
+    from faststream.specification.tag import Tag, TagDict
     from faststream.types import (
         AnyCallable,
         AnyDict,

@@ -24,7 +24,9 @@ if TYPE_CHECKING:
     from faststream.confluent.subscriber.usecase import LogicSubscriber
     from faststream.types import SendableMessage
 
-__all__ = ("TestKafkaBroker",)
+__all__ = (
+    "TestKafkaBroker",
+)
 
 
 class TestKafkaBroker(TestBroker[KafkaBroker]):

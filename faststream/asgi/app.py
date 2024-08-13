@@ -18,7 +18,6 @@ from faststream.asgi.response import AsgiResponse
 from faststream.asgi.websocket import WebSocketClose
 from faststream.log.logging import logger
 
-
 if TYPE_CHECKING:
     from faststream.asgi.types import ASGIApp, Receive, Scope, Send
     from faststream.broker.core.usecase import BrokerUsecase
