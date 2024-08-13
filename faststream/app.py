@@ -58,7 +58,7 @@ class FastStream(Application):
         broker: Optional["BrokerUsecase[Any, Any]"] = None,
         logger: Optional["LoggerProto"] = logger,
         lifespan: Optional["Lifespan"] = None,
-        # AsyncAPI args,
+        # Specification args,
         title: str = "FastStream",
         version: str = "0.1.0",
         description: str = "",
@@ -102,7 +102,7 @@ class FastStream(Application):
 
         self.should_exit = False
 
-        # AsyncAPI information
+        # Specification information
         self.title = title
         self.version = version
         self.description = description
