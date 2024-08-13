@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol, Sequence, Union
 from typing_extensions import Annotated, Doc
 
 from faststream.asyncapi.version import AsyncAPIVersion
+from faststream.specification import License, LicenseDict, Contact, ContactDict
 
 if TYPE_CHECKING:
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.specification.channel import Channel
     from faststream.specification.docs import ExternalDocs, ExternalDocsDict
-    from faststream.specification.info import Contact, ContactDict, License, LicenseDict
     from faststream.specification.tag import Tag, TagDict
     from faststream.types import (
         AnyDict,

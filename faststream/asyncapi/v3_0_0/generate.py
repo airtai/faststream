@@ -104,7 +104,7 @@ def get_broker_server(
     if broker.tags:
 
         for tag in broker.tags:
-            if isinstance(tag, spec.tag.Tag):
+            if isinstance(tag, spec.Tag):
                 tags.append(Tag(**asdict(tag)))
             elif isinstance(tag, dict):
                 tags.append(dict(tag))
@@ -298,9 +298,9 @@ def get_broker_channels(
 
 
 def specs_external_docs_to_asyncapi(
-        externalDocs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, Dict[str, Any]]
+        externalDocs: Union[spec.ExternalDocs, spec.ExternalDocsDict, Dict[str, Any]]
 ) -> Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]:
-    if isinstance(externalDocs, spec.docs.ExternalDocs):
+    if isinstance(externalDocs, spec.ExternalDocs):
         return ExternalDocs(
             **asdict(externalDocs)
         )

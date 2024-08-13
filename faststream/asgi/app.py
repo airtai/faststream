@@ -21,19 +21,15 @@ from faststream.log.logging import logger
 if TYPE_CHECKING:
     from faststream.asgi.types import ASGIApp, Receive, Scope, Send
     from faststream.broker.core.usecase import BrokerUsecase
-    from faststream.specification.docs import (
-        ExternalDocs,
-        ExternalDocsDict,
-    )
-    from faststream.specification.info import (
+    from faststream.specification import (
+        LicenseDict,
+        License,
         Contact,
         ContactDict,
-        License,
-        LicenseDict,
-    )
-    from faststream.specification.tag import (
-        Tag,
         TagDict,
+        Tag,
+        ExternalDocs,
+        ExternalDocsDict,
     )
     from faststream.types import (
         AnyCallable,
