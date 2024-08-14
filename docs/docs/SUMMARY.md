@@ -350,7 +350,6 @@ search:
                         - [BrokerUsecase](api/faststream/broker/core/usecase/BrokerUsecase.md)
                 - fastapi
                     - [StreamMessage](api/faststream/broker/fastapi/StreamMessage.md)
-                    - [StreamRoute](api/faststream/broker/fastapi/StreamRoute.md)
                     - [StreamRouter](api/faststream/broker/fastapi/StreamRouter.md)
                     - context
                         - [Context](api/faststream/broker/fastapi/context/Context.md)
@@ -359,8 +358,9 @@ search:
                         - [get_fastapi_native_dependant](api/faststream/broker/fastapi/get_dependant/get_fastapi_native_dependant.md)
                     - route
                         - [StreamMessage](api/faststream/broker/fastapi/route/StreamMessage.md)
-                        - [StreamRoute](api/faststream/broker/fastapi/route/StreamRoute.md)
+                        - [build_faststream_to_fastapi_parser](api/faststream/broker/fastapi/route/build_faststream_to_fastapi_parser.md)
                         - [make_fastapi_execution](api/faststream/broker/fastapi/route/make_fastapi_execution.md)
+                        - [wrap_callable_to_fastapi_compatible](api/faststream/broker/fastapi/route/wrap_callable_to_fastapi_compatible.md)
                     - router
                         - [StreamRouter](api/faststream/broker/fastapi/router/StreamRouter.md)
                 - message

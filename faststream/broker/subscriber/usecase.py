@@ -89,6 +89,7 @@ class SubscriberUsecase(
 
     _broker_dependencies: Iterable["Depends"]
     _call_options: Optional["_CallOptions"]
+    _call_decorators: Iterable["Decorator"]
 
     def __init__(
         self,
@@ -116,6 +117,7 @@ class SubscriberUsecase(
         self._retry = retry
 
         self._call_options = None
+        self._call_decorators = ()
         self.running = False
         self.lock = sync_fake_context()
 
@@ -183,7 +185,7 @@ class SubscriberUsecase(
                 apply_types=apply_types,
                 is_validate=is_validate,
                 _get_dependant=_get_dependant,
-                _call_decorators=_call_decorators,
+                _call_decorators=(*self._call_decorators, *_call_decorators),
                 broker_dependencies=self._broker_dependencies,
             )
 

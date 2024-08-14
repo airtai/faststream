@@ -20,9 +20,6 @@ class FakeConsumer:
     async def commit(self) -> None:
         pass
 
-    def seek(self, **kwargs: Any) -> None:
-        pass
-
 
 FAKE_CONSUMER = FakeConsumer()
 
@@ -57,12 +54,10 @@ class KafkaMessage(
                 self.raw_message.topic,  # type: ignore[union-attr]
                 self.raw_message.partition,  # type: ignore[union-attr]
             )
-
             self.consumer.seek(  # type: ignore[attr-defined]
                 partition=topic_partition,
                 offset=self.raw_message.offset,  # type: ignore[union-attr]
             )
-
             await super().nack()
 
 

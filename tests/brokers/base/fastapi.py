@@ -128,9 +128,11 @@ class FastAPITestcase(BaseTestcaseConfig):
         router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue)
+        sub1 = router.subscriber(*args, **kwargs)
+
         args2, kwargs2 = self.get_subscriber_params(queue + "2")
 
-        @router.subscriber(*args, **kwargs)
+        @sub1
         @router.subscriber(*args2, **kwargs2)
         async def hello(msg: str):
             if event.is_set():
@@ -445,9 +447,10 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         publisher = router.publisher(queue + "resp")
 
         args, kwargs = self.get_subscriber_params(queue)
+        sub = router.subscriber(*args, **kwargs)
 
         @publisher
-        @router.subscriber(*args, **kwargs)
+        @sub
         async def m():
             return "response"
 

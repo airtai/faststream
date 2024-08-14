@@ -691,11 +691,9 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             ),
         ] = False,
     ) -> AsyncAPISubscriber:
-        queue = RabbitQueue.validate(queue)
         return cast(
             AsyncAPISubscriber,
             super().subscriber(
-                path=queue.name,
                 queue=queue,
                 exchange=exchange,
                 consume_args=consume_args,

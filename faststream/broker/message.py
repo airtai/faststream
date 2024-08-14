@@ -14,6 +14,7 @@ from typing import (
     cast,
 )
 from uuid import uuid4
+
 from typing_extensions import deprecated
 
 from faststream._compat import dump_json, json_loads
@@ -58,7 +59,7 @@ class StreamMessage(Generic[MsgType]):
         """Serialize the message by lazy decoder."""
         # TODO: make it lazy after `decoded_body` removed
         return self._decoded_body
-    
+
     @property
     @deprecated(
         "Deprecated in **FastStream 0.5.19**. "
