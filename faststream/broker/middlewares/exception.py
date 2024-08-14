@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
 
 from faststream.broker.middlewares.base import BaseMiddleware
 
@@ -11,13 +11,17 @@ class BaseExceptionMiddleware(BaseMiddleware):
 
     def __init__(
         self,
-        exception_handlers: Dict[
+        handlers: Dict[
+            Exception, Callable[[Exception], None]
+        ],
+        publish_handlers: Dict[
             Exception, Callable[[Exception], "SendableMessage"]
         ],
         msg: Optional[Any] = None,
     ) -> None:
         super().__init__(msg)
-        self._exception_handlers = exception_handlers
+        self._handlers = handlers
+        self._publish_handlers = publish_handlers
 
     async def consume_scope(
         self,
@@ -28,40 +32,59 @@ class BaseExceptionMiddleware(BaseMiddleware):
             return await call_next(await self.on_consume(msg))
 
         except Exception as exc:
-            if handler := self._exception_handlers.get(type(exc)):
+            if handler := self._publish_handlers.get(type(exc)):
                 return await handler(exc)
 
             raise
 
+    async def after_processed(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_val: Optional[BaseException] = None,
+        exc_tb: Optional["TracebackType"] = None,
+    ) -> Optional[bool]:
+        if exc_type and (handler := self._handlers.get(exc_type)):
+            await handler(exc_val)
+            return True
+
+        return False
 
 class ExceptionMiddleware:
-    __slots__ = ("_exception_handlers",)
+    __slots__ = ("_handlers", "_publish_handlers")
 
     def __init__(
         self,
-        exception_handlers: Optional[
+        handlers: Optional[
+            Dict[Exception, Callable[[Exception], None]]
+        ] = None,
+        publish_handlers: Optional[
             Dict[Exception, Callable[[Exception], "SendableMessage"]]
         ] = None
     ) -> None:
-        if not exception_handlers:
-            exception_handlers = {}
-        self._exception_handlers = exception_handlers
+        self._handlers = handlers if handlers else {}
+        self._publish_handlers = publish_handlers if publish_handlers else {}
 
     def add_handler(
-        self, exc: Exception
+        self, exc: Exception, publish: bool = False
     ) -> Callable[
-        [Callable[[Exception], "SendableMessage"]],
-        Callable[[Exception], "SendableMessage"]
+        [Callable[[Exception], Optional["SendableMessage"]]],
+        Callable[[Exception], Optional["SendableMessage"]]
     ]:
         def wrapper(
-            func: Callable[[Exception], "SendableMessage"]
-        ) -> Callable[[Exception], "SendableMessage"]:
-            self._exception_handlers[exc] = func
+            func: Callable[[Exception], Optional["SendableMessage"]]
+        ) -> Callable[[Exception], Optional["SendableMessage"]]:
+            if publish:
+                self._publish_handlers[exc] = func
+            else:
+                self._handlers[exc] = func
+
             return func
 
         return wrapper
 
     def __call__(self, msg: Optional[Any]) -> BaseMiddleware:
         return BaseExceptionMiddleware(
-            exception_handlers=self._exception_handlers, msg=msg
+            handlers=self._handlers,
+            publish_handlers=self._publish_handlers,
+            msg=msg,
         )
