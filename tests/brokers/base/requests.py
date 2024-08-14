@@ -53,7 +53,7 @@ class RequestsTestcase(BaseTestcaseConfig):
                 correlation_id="1",
             )
 
-        assert response.decoded_body == "Response"
+        assert await response.decode() == "Response"
         assert response.correlation_id == "1", response.correlation_id
 
     async def test_publisher_base_request(self, queue: str):
@@ -76,7 +76,7 @@ class RequestsTestcase(BaseTestcaseConfig):
                 correlation_id="1",
             )
 
-        assert response.decoded_body == "Response"
+        assert await response.decode() == "Response"
         assert response.correlation_id == "1", response.correlation_id
 
     async def test_router_publisher_request(self, queue: str):
@@ -102,5 +102,5 @@ class RequestsTestcase(BaseTestcaseConfig):
                 correlation_id="1",
             )
 
-        assert response.decoded_body == "Response"
+        assert await response.decode() == "Response"
         assert response.correlation_id == "1", response.correlation_id

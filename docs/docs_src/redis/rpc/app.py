@@ -32,18 +32,18 @@ async def t():
         channel="test-channel",
         timeout=3.0,
     )
-    assert response.decoded_body == msg
+    assert await response.decode() == msg
 
     response: RedisMessage = await broker.request(
         "Hi!",
         list="test-list",
         timeout=3.0,
     )
-    assert response.decoded_body == msg
+    assert await response.decode() == msg
 
     response: RedisMessage = await broker.request(
         "Hi!",
         stream="test-stream",
         timeout=3.0,
     )
-    assert response.decoded_body == msg
+    assert await response.decode() == msg

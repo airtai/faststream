@@ -136,7 +136,7 @@ class FakeProducer(AioKafkaFastProducer):
                         msg_to_send, topic, handler
                     )
                     if rpc:
-                        return_value = return_value or response_msg.decoded_body
+                        return_value = return_value or await response_msg.decode()
 
         return return_value
 
@@ -226,7 +226,7 @@ class FakeProducer(AioKafkaFastProducer):
         )
 
         response_msg: KafkaMessage = await self._parser(raw_response_msg)
-        response_msg.decoded_body = await self._decoder(response_msg)
+        response_msg._decoded_body = await self._decoder(response_msg)
         return response_msg
 
 

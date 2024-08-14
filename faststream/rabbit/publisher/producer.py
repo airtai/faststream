@@ -187,7 +187,7 @@ class AioPikaFastProducer(ProducerProto):
                 )
 
                 msg: RabbitMessage = await self._parser(await response_queue.receive())
-                msg.decoded_body = await self._decoder(msg)
+                msg._decoded_body = await self._decoder(msg)
                 return msg
 
     async def _publish(

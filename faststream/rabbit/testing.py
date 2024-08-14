@@ -257,7 +257,7 @@ class FakeProducer(AioPikaFastProducer):
                 with timeout_scope(rpc_timeout, raise_timeout):
                     response = await self._execute_handler(incoming, handler)
                     if rpc:
-                        return response.decoded_body
+                        return await response.decode()
 
         return None
 
@@ -327,7 +327,7 @@ class FakeProducer(AioPikaFastProducer):
         )
 
         response_msg: RabbitMessage = await self._parser(raw_response_msg)
-        response_msg.decoded_body = await self._decoder(response_msg)
+        response_msg._decoded_body = await self._decoder(response_msg)
         return response_msg
 
 

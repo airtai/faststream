@@ -15,4 +15,4 @@ async def handle(msg, logger: Logger):
 @app.after_startup
 async def test_publishing():
     response = await broker.request("ping", "test-queue")
-    assert response.decoded_body == "pong"
+    assert await response.decode() == "pong"

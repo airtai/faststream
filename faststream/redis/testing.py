@@ -147,7 +147,7 @@ class FakeProducer(RedisFastProducer):
                     with timeout_scope(rpc_timeout, raise_timeout):
                         response_msg = await self._execute_handler(msg, handler)
                         if rpc:
-                            return response_msg.decoded_body
+                            return await response_msg.decode()
 
         return None
 
@@ -234,7 +234,7 @@ class FakeProducer(RedisFastProducer):
         )
 
         response_msg: RedisMessage = await self._parser(raw_response_msg)
-        response_msg.decoded_body = await self._decoder(response_msg)
+        response_msg._decoded_body = await self._decoder(response_msg)
         return response_msg
 
 

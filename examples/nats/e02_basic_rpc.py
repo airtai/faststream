@@ -14,4 +14,4 @@ async def handler(msg: str, logger: Logger):
 @app.after_startup
 async def test_send():
     response = await broker.request("Hi!", "subject")
-    assert response.decoded_body == "Response"
+    assert await response.decode() == "Response"

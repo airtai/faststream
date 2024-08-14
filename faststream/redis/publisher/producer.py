@@ -186,7 +186,7 @@ class RedisFastProducer(ProducerProto):
             raise TimeoutError
 
         parsed_msg: RedisMessage = await self._parser(m)
-        parsed_msg.decoded_body = await self._decoder(parsed_msg)
+        parsed_msg._decoded_body = await self._decoder(parsed_msg)
         return parsed_msg
 
     async def publish_batch(

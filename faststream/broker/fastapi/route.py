@@ -188,7 +188,7 @@ class StreamMessage(Request):  # type: ignore[misc]
 
         async def real_consumer(message: "NativeMessage[Any]") -> Any:
             """An asynchronous function that processes an incoming message and returns a sendable message."""
-            body = message.decoded_body
+            body = await message.decode()
 
             fastapi_body: Union[AnyDict, List[Any]]
             if first_arg is not None:

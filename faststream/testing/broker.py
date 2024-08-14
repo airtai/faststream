@@ -17,17 +17,15 @@ from unittest import mock
 from unittest.mock import MagicMock
 
 from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.message import StreamMessage, decode_message, encode_message
 from faststream.broker.middlewares.logging import CriticalLogMiddleware
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.testing.app import TestApp
 from faststream.utils.ast import is_contains_context_name
-from faststream.utils.functions import sync_fake_context, timeout_scope
+from faststream.utils.functions import sync_fake_context
 
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from faststream.broker.subscriber.proto import SubscriberProto
     from faststream.broker.types import BrokerMiddleware
 
 Broker = TypeVar("Broker", bound=BrokerUsecase[Any, Any])
@@ -226,35 +224,3 @@ def patch_broker_calls(broker: "BrokerUsecase[Any, Any]") -> None:
     for handler in broker._subscribers.values():
         for h in handler.calls:
             h.handler.set_test()
-
-
-async def call_handler(
-    handler: "SubscriberProto[Any]",
-    message: Any,
-    rpc: bool = False,
-    rpc_timeout: Optional[float] = 30.0,
-    raise_timeout: bool = False,
-    raw: bool = False,
-) -> Any:
-    """Asynchronously call a handler function."""
-    with timeout_scope(rpc_timeout, raise_timeout):
-        result = await handler.process_message(message)
-        if rpc:
-            message_body, content_type = encode_message(result.body)
-
-            response_msg = StreamMessage(
-                raw_message=None,
-                body=message_body,
-                content_type=content_type,
-                headers=result.headers,
-                correlation_id=result.correlation_id or "",
-            )
-            decoded_data = decode_message(response_msg)
-
-            if raw:
-                response_msg.decoded_body = decoded_data
-                return response_msg
-            else:
-                return decoded_data
-
-    return None

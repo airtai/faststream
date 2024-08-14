@@ -124,7 +124,7 @@ class NatsFastProducer(ProducerProto):
         )
 
         parsed_msg = await self._parser(msg)
-        parsed_msg.decoded_body = await self._decoder(parsed_msg)
+        parsed_msg._decoded_body = await self._decoder(parsed_msg)
         return parsed_msg
 
 
@@ -253,5 +253,5 @@ class NatsJSFastProducer(ProducerProto):
                 raise nats.errors.NoRespondersError
 
             parsed_msg: NatsMessage = await self._parser(msg)
-            parsed_msg.decoded_body = await self._decoder(parsed_msg)
+            parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return parsed_msg

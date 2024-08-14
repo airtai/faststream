@@ -34,7 +34,7 @@ class NatsRequestsTestcase(RequestsTestcase):
                 timeout=self.timeout,
             )
 
-        assert response.decoded_body == "Response"
+        assert await response.decode() == "Response"
         assert response.correlation_id == "1"
 
     async def test_publisher_stream_request(self, queue: str):
@@ -58,7 +58,7 @@ class NatsRequestsTestcase(RequestsTestcase):
                 timeout=self.timeout,
             )
 
-        assert response.decoded_body == "Response"
+        assert await response.decode() == "Response"
         assert response.correlation_id == "1"
 
 

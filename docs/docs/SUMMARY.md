@@ -1003,7 +1003,6 @@ search:
                     - [TestApp](api/faststream/testing/app/TestApp.md)
                 - broker
                     - [TestBroker](api/faststream/testing/broker/TestBroker.md)
-                    - [call_handler](api/faststream/testing/broker/call_handler.md)
                     - [patch_broker_calls](api/faststream/testing/broker/patch_broker_calls.md)
             - types
                 - [LoggerProto](api/faststream/types/LoggerProto.md)

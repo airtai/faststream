@@ -113,7 +113,7 @@ class FakeProducer(NatsFastProducer):
                 with timeout_scope(rpc_timeout, raise_timeout):
                     response_msg = await self._execute_handler(msg, subject, handler)
                     if rpc:
-                        return response_msg.decoded_body
+                        return await response_msg.decode()
 
         return None
 
@@ -163,7 +163,7 @@ class FakeProducer(NatsFastProducer):
         )
 
         response_msg: NatsMessage = await self._parser(raw_response_msg)
-        response_msg.decoded_body = await self._decoder(response_msg)
+        response_msg._decoded_body = await self._decoder(response_msg)
         return response_msg
 
 

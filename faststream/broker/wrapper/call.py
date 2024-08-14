@@ -97,7 +97,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         assert self._wrapped_call, "You should use `set_wrapped` first"  # nosec B101
         if self.is_test:
             assert self.mock  # nosec B101
-            self.mock(message.decoded_body)
+            self.mock(message._decoded_body)
         return self._wrapped_call(message)
 
     async def wait_call(self, timeout: Optional[float] = None) -> None:
@@ -190,7 +190,7 @@ def _wrap_decode_message(
 
     async def decode_wrapper(message: "StreamMessage[MsgType]") -> T_HandlerReturn:
         """A wrapper function to decode and handle a message."""
-        msg = message.decoded_body
+        msg = await message.decode()
 
         if params_ln > 1:
             if isinstance(msg, Mapping):
