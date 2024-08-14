@@ -13,11 +13,25 @@ class ConsumerProtocol(Protocol):
 
     async def commit(self) -> None: ...
 
+    def seek(
+        self,
+        partition: AIOKafkaTopicPartition,
+        offset: int,
+    ) -> None:
+        pass
+
 
 class FakeConsumer:
     """A fake Kafka consumer."""
 
     async def commit(self) -> None:
+        pass
+
+    def seek(
+        self,
+        partition: AIOKafkaTopicPartition,
+        offset: int,
+    ) -> None:
         pass
 
 
@@ -54,7 +68,7 @@ class KafkaMessage(
                 self.raw_message.topic,  # type: ignore[union-attr]
                 self.raw_message.partition,  # type: ignore[union-attr]
             )
-            self.consumer.seek(  # type: ignore[attr-defined]
+            self.consumer.seek(
                 partition=topic_partition,
                 offset=self.raw_message.offset,  # type: ignore[union-attr]
             )
