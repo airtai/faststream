@@ -20,18 +20,14 @@ Just send a message like a regular one and get a response synchronously.
 
 It is very close to common **requests** syntax:
 
-```python hl_lines="1 4"
-msg = await broker.publish(
+```python hl_lines="3"
+from faststream.rabbit import RabbitMessage
+
+msg: RabbitMessage = await broker.request(
     "Hi!",
     queue="test",
-    rpc=True,
 )
 ```
-
-Also, you have two extra options to control this behavior:
-
-* `#!python rpc_timeout: Optional[float] = 30.0` - controls how long you are waiting for a response
-* `#!python raise_timeout: bool = False` - by default, a timeout request returns `None`, but if you need to raise a `TimeoutException` directly, you can specify this option
 
 ## Reply-To
 
