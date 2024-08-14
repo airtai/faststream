@@ -1,7 +1,7 @@
 from typing import Type
 
 from faststream import FastStream
-from faststream.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.rabbit import RabbitBroker
 from tests.asyncapi.base.naming import NamingTestCase
 

@@ -3,19 +3,47 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
-from faststream.asyncapi.v2_6_0.schema import ServerVariable
-from faststream.asyncapi.v2_6_0.schema.bindings import ServerBinding
-from faststream.asyncapi.v2_6_0.schema.utils import Reference, Tag, TagDict
+from faststream.specification.asyncapi.v2_6_0.schema.bindings import ServerBinding
+from faststream.specification.asyncapi.v2_6_0.schema.utils import (
+    Reference,
+    Tag,
+    TagDict,
+)
 
 SecurityRequirement = List[Dict[str, List[str]]]
+
+
+class ServerVariable(BaseModel):
+    """A class to represent a server variable.
+
+    Attributes:
+        enum : list of possible values for the server variable (optional)
+        default : default value for the server variable (optional)
+        description : description of the server variable (optional)
+        examples : list of example values for the server variable (optional)
+
+    """
+
+    enum: Optional[List[str]] = None
+    default: Optional[str] = None
+    description: Optional[str] = None
+    examples: Optional[List[str]] = None
+
+    if PYDANTIC_V2:
+        model_config = {"extra": "allow"}
+
+    else:
+
+        class Config:
+            extra = "allow"
+
 
 
 class Server(BaseModel):
     """A class to represent a server.
 
     Attributes:
-        host : host of the server
-        pathname : pathname of the server
+        url : URL of the server
         protocol : protocol used by the server
         description : optional description of the server
         protocolVersion : optional version of the protocol used by the server
@@ -33,8 +61,7 @@ class Server(BaseModel):
 
     """
 
-    host: str
-    pathname: str
+    url: str
     protocol: str
     description: Optional[str] = None
     protocolVersion: Optional[str] = None

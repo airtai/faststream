@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 from typing_extensions import TypeAlias, override
 
-from faststream.asyncapi.utils import resolve_payloads
 from faststream.exceptions import SetupError
 from faststream.redis.publisher.usecase import (
     ChannelPublisher,
@@ -13,6 +12,7 @@ from faststream.redis.publisher.usecase import (
 )
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import RedisAsyncAPIProtocol, validate_options
+from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import ChannelBinding, redis
 from faststream.specification.schema.channel import Channel
 from faststream.specification.schema.message import CorrelationId, Message

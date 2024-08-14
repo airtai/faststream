@@ -17,8 +17,6 @@ from typing import (
 
 from typing_extensions import Self, override
 
-from faststream.asyncapi.message import parse_handler_params
-from faststream.asyncapi.utils import to_camelcase
 from faststream.broker.response import ensure_response
 from faststream.broker.subscriber.call_item import HandlerItem
 from faststream.broker.subscriber.proto import SubscriberProto
@@ -29,6 +27,8 @@ from faststream.broker.types import (
 )
 from faststream.broker.utils import MultiLock, get_watcher_context, resolve_custom_func
 from faststream.broker.wrapper.call import HandlerCallWrapper
+from faststream.specification.asyncapi.message import parse_handler_params
+from faststream.specification.asyncapi.utils import to_camelcase
 from faststream.exceptions import SetupError, StopConsume, SubscriberNotFound
 from faststream.utils.context.repository import context
 from faststream.utils.functions import sync_fake_context, to_async

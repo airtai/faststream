@@ -3,7 +3,7 @@ from typing import Type
 import pydantic
 
 from faststream import FastStream
-from faststream.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.broker.core.usecase import BrokerUsecase
 
 

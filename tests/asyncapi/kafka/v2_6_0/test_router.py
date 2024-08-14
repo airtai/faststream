@@ -1,5 +1,5 @@
 from faststream import FastStream
-from faststream.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.kafka import KafkaBroker, KafkaPublisher, KafkaRoute, KafkaRouter
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 from tests.asyncapi.base.publisher import PublisherTestcase

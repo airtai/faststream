@@ -18,8 +18,8 @@ from faststream._compat import (
     JsonSchemaValue,
     with_info_plain_validator_function,
 )
-from faststream.asyncapi.base.schema import BaseInfo
 from faststream.log import logger
+from faststream.specification.asyncapi.base.schema import BaseInfo
 
 try:
     import email_validator

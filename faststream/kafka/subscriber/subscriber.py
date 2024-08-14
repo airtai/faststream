@@ -4,13 +4,13 @@ from typing import (
     Tuple,
 )
 
-from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import MsgType
 from faststream.kafka.subscriber.usecase import (
     BatchSubscriber,
     DefaultSubscriber,
     LogicSubscriber,
 )
+from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import ChannelBinding, kafka
 from faststream.specification.schema.channel import Channel
 from faststream.specification.schema.message import CorrelationId, Message

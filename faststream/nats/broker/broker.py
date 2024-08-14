@@ -59,7 +59,6 @@ if TYPE_CHECKING:
     from nats.js.object_store import ObjectStore
     from typing_extensions import TypedDict, Unpack
 
-    from faststream.asyncapi import schema as asyncapi
     from faststream.broker.publisher.proto import ProducerProto
     from faststream.broker.types import (
         BrokerMiddleware,
@@ -68,6 +67,7 @@ if TYPE_CHECKING:
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.publisher import SpecificationPublisher
     from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import (
         AnyDict,
         DecodedMessage,
@@ -413,7 +413,7 @@ class NatsBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args

@@ -4,8 +4,8 @@ from dirty_equals import Contains, IsStr
 from pydantic import create_model
 
 from faststream import FastStream
-from faststream.asyncapi.generate import get_app_schema
-from faststream.asyncapi.version import AsyncAPIVersion
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.broker.core.usecase import BrokerUsecase
 
 

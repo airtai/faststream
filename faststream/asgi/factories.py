@@ -6,8 +6,8 @@ from typing import (
 
 from faststream.asgi.handlers import get
 from faststream.asgi.response import AsgiResponse
-from faststream.asyncapi import get_app_schema
-from faststream.asyncapi.site import (
+from faststream.specification.asyncapi import get_app_schema
+from faststream.specification.asyncapi.site import (
     ASYNCAPI_CSS_DEFAULT_URL,
     ASYNCAPI_JS_DEFAULT_URL,
     get_asyncapi_html,
@@ -15,8 +15,8 @@ from faststream.asyncapi.site import (
 
 if TYPE_CHECKING:
     from faststream.asgi.types import ASGIApp, Scope
-    from faststream.asyncapi.proto import Application
     from faststream.broker.core.usecase import BrokerUsecase
+    from faststream.specification.proto import Application
 
 
 def make_ping_asgi(

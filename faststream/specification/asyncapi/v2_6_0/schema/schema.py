@@ -1,13 +1,18 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from faststream._compat import model_to_json, model_to_jsonable
-from faststream.asyncapi.base.schema import BaseSchema
-from faststream.asyncapi.v3_0_0.schema.channels import Channel
-from faststream.asyncapi.v3_0_0.schema.components import Components
-from faststream.asyncapi.v3_0_0.schema.info import Info
-from faststream.asyncapi.v3_0_0.schema.operations import Operation
-from faststream.asyncapi.v3_0_0.schema.servers import Server
-from faststream.asyncapi.version import AsyncAPIVersion
+from faststream.specification.asyncapi.base.schema import BaseSchema
+from faststream.specification.asyncapi.v2_6_0.schema.channels import Channel
+from faststream.specification.asyncapi.v2_6_0.schema.components import Components
+from faststream.specification.asyncapi.v2_6_0.schema.info import Info
+from faststream.specification.asyncapi.v2_6_0.schema.servers import Server
+from faststream.specification.asyncapi.v2_6_0.schema.utils import (
+    ExternalDocs,
+    ExternalDocsDict,
+    Tag,
+    TagDict,
+)
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 
 class Schema(BaseSchema):
@@ -21,6 +26,8 @@ class Schema(BaseSchema):
         servers : optional dictionary of servers
         channels : dictionary of channels
         components : optional components of the schema
+        tags : optional list of tags
+        externalDocs : optional external documentation
 
     Methods:
         to_jsonable() -> Any: Convert the schema to a JSON-serializable object.
@@ -29,14 +36,15 @@ class Schema(BaseSchema):
 
     """
 
-    asyncapi: AsyncAPIVersion = AsyncAPIVersion.v3_0
+    asyncapi: AsyncAPIVersion = AsyncAPIVersion.v2_6
     id: Optional[str] = None
     defaultContentType: Optional[str] = None
     info: Info
     servers: Optional[Dict[str, Server]] = None
     channels: Dict[str, Channel]
-    operations: Dict[str, Operation]
     components: Optional[Components] = None
+    tags: Optional[List[Union[Tag, TagDict, Dict[str, Any]]]] = None
+    externalDocs: Optional[Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]] = None
 
     def to_jsonable(self) -> Any:
         """Convert the schema to a JSON-serializable object."""

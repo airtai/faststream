@@ -1,4 +1,4 @@
-from faststream.asyncapi.version import AsyncAPIVersion
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.redis import TestRedisBroker
 from faststream.redis.fastapi import RedisRouter
 from tests.asyncapi.base.v3_0_0.arguments import FastAPICompatible

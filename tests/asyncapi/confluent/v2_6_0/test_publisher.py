@@ -1,4 +1,4 @@
-from faststream.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.confluent import KafkaBroker
 from tests.asyncapi.base.publisher import PublisherTestcase
 

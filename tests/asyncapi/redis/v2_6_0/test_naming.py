@@ -1,7 +1,7 @@
 import pytest
 
 from faststream import FastStream
-from faststream.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.redis import RedisBroker
 from tests.asyncapi.base.naming import NamingTestCase
 

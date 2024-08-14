@@ -3,7 +3,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from faststream._compat import model_to_json, model_to_jsonable
-from faststream.asyncapi.base.schema.info import BaseInfo
+from faststream.specification.asyncapi.base.schema.info import BaseInfo
 
 
 class BaseSchema(BaseModel):

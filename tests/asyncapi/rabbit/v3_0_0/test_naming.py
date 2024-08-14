@@ -1,8 +1,8 @@
 from typing import Type
 
 from faststream import FastStream
-from faststream.asyncapi.generate import get_app_schema
-from faststream.asyncapi.version import AsyncAPIVersion
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.rabbit import RabbitBroker
 from tests.asyncapi.base.v3_0_0.naming import NamingTestCase
 

@@ -2,9 +2,9 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional
 
 from typing_extensions import override
 
-from faststream.asyncapi.utils import resolve_payloads
 from faststream.rabbit.publisher.usecase import LogicPublisher, PublishKwargs
 from faststream.rabbit.utils import is_routing_exchange
+from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import (
     ChannelBinding,
     OperationBinding,

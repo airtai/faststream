@@ -41,13 +41,13 @@ if TYPE_CHECKING:
     from redis.asyncio.connection import BaseParser
     from typing_extensions import TypedDict, Unpack
 
-    from faststream.asyncapi import schema as asyncapi
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomCallable,
     )
     from faststream.redis.message import BaseMessage, RedisMessage
     from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import (
         AnyDict,
         AsyncFunc,
@@ -161,7 +161,7 @@ class RedisBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args

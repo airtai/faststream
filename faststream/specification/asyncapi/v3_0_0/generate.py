@@ -3,21 +3,26 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 from urllib.parse import urlparse
 
 from faststream._compat import DEF_KEY
-from faststream.asyncapi.v2_6_0.generate import (
+from faststream.constants import ContentTypes
+from faststream.specification import schema as spec
+from faststream.specification.asyncapi.v2_6_0.generate import (
     specs_channel_binding_to_asyncapi,
     specs_contact_to_asyncapi,
     specs_license_to_asyncapi,
     specs_operation_binding_to_asyncapi,
     specs_tags_to_asyncapi,
 )
-from faststream.asyncapi.v2_6_0.schema import (
+from faststream.specification.asyncapi.v2_6_0.schema import (
     ExternalDocs,
     ExternalDocsDict,
     Reference,
     Tag,
 )
-from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
-from faststream.asyncapi.v3_0_0.schema import (
+from faststream.specification.asyncapi.v2_6_0.schema.message import (
+    CorrelationId,
+    Message,
+)
+from faststream.specification.asyncapi.v3_0_0.schema import (
     Channel,
     Components,
     Info,
@@ -25,8 +30,6 @@ from faststream.asyncapi.v3_0_0.schema import (
     Schema,
     Server,
 )
-from faststream.constants import ContentTypes
-from faststream.specification import schema as spec
 from faststream.specification.proto import Application
 
 if TYPE_CHECKING:

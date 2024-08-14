@@ -27,7 +27,6 @@ from starlette.routing import BaseRoute
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.redis.broker.broker import RedisBroker as RB
@@ -35,6 +34,7 @@ from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.publisher import SpecificationPublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.redis.subscriber.subscriber import SpecificationSubscriber
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -46,7 +46,6 @@ if TYPE_CHECKING:
     from starlette.responses import Response
     from starlette.types import ASGIApp, Lifespan
 
-    from faststream.asyncapi import schema as asyncapi
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -56,6 +55,7 @@ if TYPE_CHECKING:
     )
     from faststream.redis.message import UnifyRedisMessage
     from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import AnyDict, LoggerProto
 
 
@@ -135,7 +135,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Doc("Version of AsyncAPI for schema generation")
         ] = AsyncAPIVersion.v2_6,
         asyncapi_tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args

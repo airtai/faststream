@@ -1,5 +1,5 @@
-from faststream.asyncapi.generate import get_app_schema
-from faststream.asyncapi.version import AsyncAPIVersion
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.rabbit.fastapi import RabbitRouter
 from faststream.rabbit.testing import TestRabbitBroker
 from faststream.security import SASLPlaintext

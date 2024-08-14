@@ -1,5 +1,5 @@
 from faststream import FastStream
-from faststream.asyncapi.v2_6_0.schema.info import License, Contact
+from faststream.specification.asyncapi.v2_6_0.schema.info import License, Contact
 from faststream.kafka import KafkaBroker
 
 broker = KafkaBroker("localhost:9092")

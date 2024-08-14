@@ -7,11 +7,11 @@ from typing import Optional, Sequence
 import typer
 
 from faststream._compat import json_dumps, model_parse
-from faststream.asyncapi.generate import get_app_schema
-from faststream.asyncapi.site import serve_app
-from faststream.asyncapi.v2_6_0.schema import Schema
 from faststream.cli.utils.imports import import_from_string
 from faststream.exceptions import INSTALL_WATCHFILES, INSTALL_YAML
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.site import serve_app
+from faststream.specification.asyncapi.v2_6_0.schema import Schema
 
 docs_app = typer.Typer(pretty_exceptions_short=True)
 

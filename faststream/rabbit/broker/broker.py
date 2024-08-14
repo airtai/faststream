@@ -48,7 +48,6 @@ if TYPE_CHECKING:
     from pamqp.common import FieldTable
     from yarl import URL
 
-    from faststream.asyncapi import schema as asyncapi
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -56,6 +55,7 @@ if TYPE_CHECKING:
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
@@ -192,7 +192,7 @@ class RabbitBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args

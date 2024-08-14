@@ -12,7 +12,6 @@ from typing import (
 
 from typing_extensions import override
 
-from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import MsgType
 from faststream.confluent.publisher.usecase import (
     BatchPublisher,
@@ -20,6 +19,7 @@ from faststream.confluent.publisher.usecase import (
     LogicPublisher,
 )
 from faststream.exceptions import SetupError
+from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import ChannelBinding, kafka
 from faststream.specification.schema.channel import Channel
 from faststream.specification.schema.message import CorrelationId, Message

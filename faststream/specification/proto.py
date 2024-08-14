@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol, Sequence, Union
 
 from typing_extensions import Annotated, Doc
 
-from faststream.asyncapi.version import AsyncAPIVersion
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.specification.schema.channel import Channel
 
 if TYPE_CHECKING:

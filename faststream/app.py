@@ -16,10 +16,10 @@ import anyio
 from typing_extensions import ParamSpec
 
 from faststream._compat import ExceptionGroup
-from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.cli.supervisors.utils import set_exit
 from faststream.exceptions import ValidationError
 from faststream.log.logging import logger
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.specification.proto import Application
 from faststream.utils import apply_types, context
 from faststream.utils.functions import drop_response_type, fake_context, to_async
@@ -30,9 +30,9 @@ T_HookReturn = TypeVar("T_HookReturn")
 
 if TYPE_CHECKING:
     from faststream.broker.core.usecase import BrokerUsecase
-    from faststream.specification.contact import Contact, ContactDict
-    from faststream.specification.docs import ExternalDocs, ExternalDocsDict
-    from faststream.specification.license import License, LicenseDict
+    from faststream.specification.schema.contact import Contact, ContactDict
+    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
+    from faststream.specification.schema.license import License, LicenseDict
     from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import (
         AnyCallable,

@@ -30,8 +30,6 @@ from fastapi.utils import generate_unique_id
 from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute, _DefaultLifespan
 
-from faststream.asyncapi.site import get_asyncapi_html
-from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.broker.fastapi.get_dependant import get_fastapi_dependant
 from faststream.broker.fastapi.route import wrap_callable_to_fastapi_compatible
 from faststream.broker.middlewares import BaseMiddleware
@@ -41,6 +39,8 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
+from faststream.specification.asyncapi.site import get_asyncapi_html
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.specification.proto import Application
 from faststream.utils.context.repository import context
 from faststream.utils.functions import fake_context, to_async
@@ -53,14 +53,14 @@ if TYPE_CHECKING:
     from starlette import routing
     from starlette.types import ASGIApp, AppType, Lifespan
 
-    from faststream.asyncapi import schema as asyncapi
-    from faststream.asyncapi.schema import BaseSchema
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import PublisherProto
     from faststream.broker.schemas import NameRequired
     from faststream.broker.types import BrokerMiddleware
     from faststream.broker.wrapper.call import HandlerCallWrapper
+    from faststream.specification.asyncapi.base.schema import BaseSchema
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import AnyDict
 
 
@@ -129,7 +129,7 @@ class StreamRouter(
         # AsyncAPI information
         asyncapi_version: AsyncAPIVersion = AsyncAPIVersion.v2_6,
         asyncapi_tags: Optional[
-            Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]
+            Iterable[Union["Tag", "TagDict"]]
         ] = None,
         schema_url: Optional[str] = "/asyncapi",
         **connection_kwars: Any,
@@ -303,7 +303,7 @@ class StreamRouter(
                 self.contact = app.contact
                 self.license = app.license_info
 
-                from faststream.asyncapi.generate import get_app_schema
+                from faststream.specification.asyncapi.generate import get_app_schema
 
                 self.schema = get_app_schema(self)
 

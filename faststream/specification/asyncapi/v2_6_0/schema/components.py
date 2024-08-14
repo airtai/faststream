@@ -1,9 +1,15 @@
-from typing import Any, Dict, Optional
+from typing import (
+    Any,
+    Dict,
+    Optional,
+)
 
 from pydantic import BaseModel
 
-from faststream._compat import PYDANTIC_V2
-from faststream.asyncapi.v2_6_0.schema.message import Message
+from faststream._compat import (
+    PYDANTIC_V2,
+)
+from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 
 
 class Components(BaseModel):

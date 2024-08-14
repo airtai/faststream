@@ -1,8 +1,8 @@
 from typing import Dict
 
-from faststream.asyncapi.utils import resolve_payloads
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.rabbit.utils import is_routing_exchange
+from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import (
     ChannelBinding,
     OperationBinding,

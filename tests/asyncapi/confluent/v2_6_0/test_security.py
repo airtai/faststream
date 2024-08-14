@@ -2,7 +2,7 @@ import ssl
 from copy import deepcopy
 
 from faststream.app import FastStream
-from faststream.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.confluent import KafkaBroker
 from faststream.security import (
     SASLGSSAPI,

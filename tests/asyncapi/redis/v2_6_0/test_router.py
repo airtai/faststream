@@ -1,5 +1,5 @@
 from faststream import FastStream
-from faststream.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.redis import RedisBroker, RedisPublisher, RedisRoute, RedisRouter
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 from tests.asyncapi.base.publisher import PublisherTestcase

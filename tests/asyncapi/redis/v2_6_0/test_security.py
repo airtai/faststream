@@ -1,7 +1,7 @@
 import ssl
 
 from faststream.app import FastStream
-from faststream.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.redis import RedisBroker
 from faststream.security import (
     BaseSecurity,

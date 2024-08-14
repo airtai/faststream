@@ -1,21 +1,21 @@
-from typing import List, Optional
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
-from faststream.asyncapi.v2_6_0.schema.bindings import ChannelBinding
-from faststream.asyncapi.v2_6_0.schema.operations import Operation
+from faststream.specification.asyncapi.v2_6_0.schema.bindings import ChannelBinding
+from faststream.specification.asyncapi.v2_6_0.schema.message import Message
+from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
 
 
 class Channel(BaseModel):
     """A class to represent a channel.
 
     Attributes:
+        address: A string representation of this channel's address.
         description : optional description of the channel
         servers : optional list of servers associated with the channel
         bindings : optional channel binding
-        subscribe : optional operation for subscribing to the channel
-        publish : optional operation for publishing to the channel
         parameters : optional parameters associated with the channel
 
     Configurations:
@@ -24,11 +24,11 @@ class Channel(BaseModel):
 
     """
 
+    address: str
     description: Optional[str] = None
-    servers: Optional[List[str]] = None
+    servers: Optional[List[Dict[str, str]]] = None
+    messages: Dict[str, Union[Message, Reference]]
     bindings: Optional[ChannelBinding] = None
-    subscribe: Optional[Operation] = None
-    publish: Optional[Operation] = None
 
     # TODO:
     # parameters: Optional[Parameter] = None

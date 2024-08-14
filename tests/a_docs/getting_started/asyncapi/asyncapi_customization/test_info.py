@@ -1,7 +1,7 @@
 from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_info import (
     app,
 )
-from faststream.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.generate import get_app_schema
 
 
 def test_info_customization():

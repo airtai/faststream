@@ -1,17 +1,17 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
-from faststream.asyncapi.v2_6_0.schema.bindings import OperationBinding
-from faststream.asyncapi.v2_6_0.schema.message import Message
-from faststream.asyncapi.v2_6_0.schema.utils import (
+from faststream.specification.asyncapi.v2_6_0.schema.bindings import OperationBinding
+from faststream.specification.asyncapi.v2_6_0.schema.utils import (
     ExternalDocs,
     ExternalDocsDict,
     Reference,
     Tag,
     TagDict,
 )
+from faststream.specification.asyncapi.v3_0_0.schema.channels import Channel
 
 
 class Operation(BaseModel):
@@ -28,14 +28,14 @@ class Operation(BaseModel):
         externalDocs : external documentation for the operation
 
     """
-
-    operationId: Optional[str] = None
+    action: Literal["send", "receive"]
     summary: Optional[str] = None
     description: Optional[str] = None
 
     bindings: Optional[OperationBinding] = None
 
-    message: Union[Message, Reference]
+    messages: List[Reference]
+    channel: Union[Channel, Reference]
 
     security: Optional[Dict[str, List[str]]] = None
 

@@ -1,6 +1,6 @@
 
-from faststream.asyncapi.generate import get_app_schema
-from faststream.asyncapi.version import AsyncAPIVersion
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.kafka.fastapi import KafkaRouter
 from faststream.kafka.testing import TestKafkaBroker
 from faststream.security import SASLPlaintext

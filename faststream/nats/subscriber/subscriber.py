@@ -2,7 +2,6 @@ from typing import Any, Dict
 
 from typing_extensions import override
 
-from faststream.asyncapi.utils import resolve_payloads
 from faststream.nats.subscriber.usecase import (
     BatchPullStreamSubscriber,
     ConcurrentCoreSubscriber,
@@ -15,6 +14,7 @@ from faststream.nats.subscriber.usecase import (
     PullStreamSubscriber,
     PushStreamSubscription,
 )
+from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import ChannelBinding, nats
 from faststream.specification.schema.channel import Channel
 from faststream.specification.schema.message import CorrelationId, Message
