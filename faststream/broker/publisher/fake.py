@@ -54,6 +54,6 @@ class FakePublisher(BasePublisherProto):
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Any:
         raise NotImplementedError(
-            "`FakePublisher` can be used to only to publish "
+            "`FakePublisher` can be used only to publish "
             "a response for `reply-to` or `RPC` messages."
         )
