@@ -34,17 +34,17 @@ msgspec: Any
 ujson: Any
 
 try:
-    import orjson
+    import orjson  # type: ignore[no-redef]
 except ImportError:
     orjson = None
 
 try:
-    import msgspec
+    import msgspec  # type: ignore[no-redef]
 except ImportError:
     msgspec = None
 
 try:
-    import ujson
+    import ujson  # type: ignore[no-redef]
 except ImportError:
     ujson = None
 
