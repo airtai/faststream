@@ -39,7 +39,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system requests
 

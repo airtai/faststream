@@ -64,8 +64,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - uses: actions/cache@v4
         id: cache
         with:
@@ -74,7 +72,6 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - name: Install Pydantic v1
@@ -105,12 +102,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[optionals,testing] orjson
       - run: mkdir coverage
@@ -135,12 +129,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - name: Test
@@ -155,11 +146,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        # no set -ux on windows
         run: |
           python -m pip install uv
           uv pip install --system .[optionals,testing]
@@ -175,12 +163,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[kafka,test-core]
       - name: Test
@@ -214,12 +199,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
@@ -244,12 +226,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[confluent,test-core]
       - name: Test
@@ -283,12 +262,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
@@ -313,12 +289,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[rabbit,test-core]
       - name: Test
@@ -341,12 +314,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
@@ -371,12 +341,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[nats,test-core]
       - name: Test
@@ -399,12 +366,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
@@ -429,12 +393,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[redis,test-core]
       - name: Test
@@ -457,12 +418,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          set -ux
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
@@ -495,8 +453,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.8"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
 
       - name: Get coverage files
         uses: actions/download-artifact@v4
@@ -506,7 +462,6 @@ jobs:
           merge-multiple: true
 
       - run: |
-          set -ux
           python -m pip install uv
           uv pip install --system coverage[toml]
 
