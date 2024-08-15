@@ -9,6 +9,26 @@ from faststream.specification.schema.bindings import sqs as sqs_bindings
 
 
 @dataclass
+class ServerBinding:
+    """A class to represent server bindings.
+
+    Attributes:
+        amqp : AMQP server binding (optional)
+        kafka : Kafka server binding (optional)
+        sqs : SQS server binding (optional)
+        nats : NATS server binding (optional)
+        redis : Redis server binding (optional)
+
+    """
+
+    amqp: Optional[amqp_bindings.ServerBinding] = None
+    kafka: Optional[kafka_bindings.ServerBinding] = None
+    sqs: Optional[sqs_bindings.ServerBinding] = None
+    nats: Optional[nats_bindings.ServerBinding] = None
+    redis: Optional[redis_bindings.ServerBinding] = None
+
+
+@dataclass
 class ChannelBinding:
     """A class to represent channel bindings.
 
