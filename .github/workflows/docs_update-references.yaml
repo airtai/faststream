@@ -35,7 +35,7 @@ jobs:
         run: |
           set -ux
           python -m pip install uv
-          uv pip install --system -e ".[dev]"
+          uv pip install --system -e .[dev]
       - name: Run build docs
         run: bash scripts/build-docs.sh
       - name: Commit
