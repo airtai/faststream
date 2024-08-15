@@ -30,18 +30,12 @@ def is_test_env() -> bool:
 
 json_dumps: Callable[..., bytes]
 orjson: Any
-msgspec: Any
 ujson: Any
 
 try:
     import orjson  # type: ignore[no-redef]
 except ImportError:
     orjson = None
-
-try:
-    import msgspec  # type: ignore[no-redef]
-except ImportError:
-    msgspec = None
 
 try:
     import ujson  # type: ignore[no-redef]
@@ -51,12 +45,6 @@ except ImportError:
 if orjson:
     json_loads = orjson.loads
     json_dumps = orjson.dumps
-
-elif msgspec:
-    json_loads = msgspec.json.decode
-
-    def json_dumps(*a: Any, default: Callable[[Any], Any], **kw: Any) -> bytes:
-        return msgspec.json.encode(*a, enc_hook=default, **kw)  # type: ignore
 
 elif ujson:
     json_loads = ujson.loads
