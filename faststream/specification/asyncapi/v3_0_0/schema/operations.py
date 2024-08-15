@@ -4,13 +4,8 @@ from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import OperationBinding
-from faststream.specification.asyncapi.v2_6_0.schema.utils import (
-    ExternalDocs,
-    ExternalDocsDict,
-    Reference,
-    Tag,
-    TagDict,
-)
+from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
+from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
 from faststream.specification.asyncapi.v3_0_0.schema.channels import Channel
 
 
@@ -25,7 +20,6 @@ class Operation(BaseModel):
         message : message of the operation
         security : security details of the operation
         tags : tags associated with the operation
-        externalDocs : external documentation for the operation
 
     """
     action: Literal["send", "receive"]
@@ -42,8 +36,7 @@ class Operation(BaseModel):
     # TODO
     # traits
 
-    tags: Optional[List[Union[Tag, TagDict, Dict[str, Any]]]] = None
-    externalDocs: Optional[Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]] = None
+    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

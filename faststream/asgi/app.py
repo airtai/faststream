@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from faststream.specification.contact import Contact, ContactDict
     from faststream.specification.docs import ExternalDocs, ExternalDocsDict
     from faststream.specification.license import License, LicenseDict
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.tag import Tag
     from faststream.types import (
         AnyCallable,
         AnyDict,
@@ -51,7 +51,7 @@ class AsgiFastStream(FastStream):
         terms_of_service: Optional["AnyHttpUrl"] = None,
         license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
         contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
-        tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]] = None,
+        tags: Optional[Sequence[Union["Tag", "AnyDict"]]] = None,
         external_docs: Optional[
             Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
 from faststream.specification.schema.bindings import ServerBinding
-from faststream.specification.schema.tag import Tag, TagDict
+from faststream.specification.schema.tag import Tag
 
 SecurityRequirement = List[Dict[str, List[str]]]
 
@@ -60,7 +60,7 @@ class Server(BaseModel):
     protocol: str
     description: Optional[str] = None
     protocolVersion: Optional[str] = None
-    tags: Optional[List[Union[Tag, TagDict, Dict[str, Any]]]] = None
+    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
     security: Optional[SecurityRequirement] = None
     variables: Optional[Dict[str, ServerVariable]] = None
     bindings: Optional[ServerBinding] = None

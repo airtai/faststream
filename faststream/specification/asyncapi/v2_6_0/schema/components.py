@@ -43,14 +43,6 @@ class Components(BaseModel):
     messages: Optional[Dict[str, Message]] = None
     schemas: Optional[Dict[str, Dict[str, Any]]] = None
     securitySchemes: Optional[Dict[str, Dict[str, Any]]] = None
-    # parameters
-    # correlationIds
-    # operationTraits
-    # messageTraits
-    # serverBindings
-    # channelBindings
-    # operationBindings
-    # messageBindings
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

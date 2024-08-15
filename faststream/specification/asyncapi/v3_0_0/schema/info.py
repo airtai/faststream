@@ -9,18 +9,14 @@ from typing import (
 from pydantic import AnyHttpUrl
 
 from faststream.specification.asyncapi.base.schema import BaseInfo
+from faststream.specification.asyncapi.v2_6_0.schema.docs import ExternalDocs
 from faststream.specification.asyncapi.v2_6_0.schema.info import (
     Contact,
     ContactDict,
     License,
     LicenseDict,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.utils import (  # noqa: TCH001
-    ExternalDocs,
-    ExternalDocsDict,
-    Tag,
-    TagDict,
-)
+from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
 from faststream.types import (  # noqa: TCH001
     AnyDict,
 )
@@ -41,7 +37,7 @@ class Info(BaseInfo):
     termsOfService: Optional[AnyHttpUrl] = None
     contact: Optional[Union[Contact, ContactDict, Dict[str, Any]]] = None
     license: Optional[Union[License, LicenseDict, Dict[str, Any]]] = None
-    tags: Optional[List[Union["Tag", "TagDict", "AnyDict"]]] = None
+    tags: Optional[List[Union["Tag", "AnyDict"]]] = None
     externalDocs: Optional[
-            Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
+            Union["ExternalDocs", "AnyDict"]
     ] = None

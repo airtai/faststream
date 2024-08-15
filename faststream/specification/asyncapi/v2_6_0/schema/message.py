@@ -3,10 +3,8 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
-from faststream.specification.asyncapi.v2_6_0.schema.utils import (
-    ExternalDocs,
-    Tag,
-)
+from faststream.specification.asyncapi.v2_6_0.schema.docs import ExternalDocs
+from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
 
 
 class CorrelationId(BaseModel):
@@ -67,7 +65,7 @@ class Message(BaseModel):
     # traits
 
     tags: Optional[List[Union[Tag, Dict[str, Any]]]] = (
-        None  # TODO: weird TagDict behavior
+        None
     )
     externalDocs: Optional[Union[ExternalDocs, Dict[str, Any]]] = (
         None  # TODO: weird ExternalDocsDict behavior

@@ -3,13 +3,12 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from faststream._compat import model_to_json, model_to_jsonable
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.specification.schema.channel import Channel
 from faststream.specification.schema.components import Components
 from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
 from faststream.specification.schema.info import Info
 from faststream.specification.schema.servers import Server
-from faststream.specification.schema.tag import Tag, TagDict
+from faststream.specification.schema.tag import Tag
 
 
 class Schema(BaseModel):
@@ -38,7 +37,7 @@ class Schema(BaseModel):
     servers: Optional[Dict[str, Server]] = None
     channels: Dict[str, Channel]
     components: Optional[Components] = None
-    tags: Optional[List[Union[Tag, TagDict, Dict[str, Any]]]] = None
+    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
     externalDocs: Optional[Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]] = None
 
     def to_jsonable(self) -> Any:

@@ -8,7 +8,6 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
     Contact,
-    ExternalDocs,
     Info,
     License,
     Operation,
@@ -16,7 +15,6 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     Schema,
     Server,
     Tag,
-    TagDict,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     ChannelBinding,
@@ -27,9 +25,15 @@ from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     redis,
     sqs,
 )
+from faststream.specification.asyncapi.v2_6_0.schema.docs import (
+    from_spec as docs_from_spec,
+)
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
     CorrelationId,
     Message,
+)
+from faststream.specification.asyncapi.v2_6_0.schema.tag import (
+    from_spec as tag_from_spec,
 )
 from faststream.specification.proto import Application
 
@@ -89,8 +93,13 @@ def get_app_schema(app: Application) -> Schema:
         ),
         defaultContentType=ContentTypes.json.value,
         id=app.identifier,
-        tags=specs_tags_to_asyncapi(list(app.specs_tags)) if app.specs_tags else None,
-        externalDocs=specs_external_docs_to_asyncapi(app.external_docs) if app.external_docs else None,
+
+        tags=[tag_from_spec(tag) for tag in app.specs_tags]
+        if app.specs_tags else None,
+
+        externalDocs=docs_from_spec(app.external_docs)
+        if app.external_docs else None,
+
         servers=servers,
         channels=channels,
         components=Components(
@@ -277,20 +286,17 @@ def specs_operation_to_asyncapi(operation: spec.operation.Operation) -> Operatio
 
             contentType=operation.message.contentType,
 
-            tags=specs_tags_to_asyncapi(operation.tags)
+            tags=[tag_from_spec(tag) for tag in operation.tags]
             if operation.tags else None,
 
-            externalDocs=specs_external_docs_to_asyncapi(operation.externalDocs)
-            if operation.externalDocs else None,
+            externalDocs=docs_from_spec(operation.message.externalDocs)
+            if operation.message.externalDocs else None,
         ),
 
         security=operation.security,
 
-        tags=specs_tags_to_asyncapi(operation.tags)
+        tags=[tag_from_spec(tag) for tag in operation.tags]
         if operation.tags else None,
-
-        externalDocs=specs_external_docs_to_asyncapi(operation.externalDocs)
-        if operation.externalDocs else None,
     )
 
 
@@ -313,37 +319,26 @@ def specs_operation_binding_to_asyncapi(binding: spec.bindings.OperationBinding)
     )
 
 
-def specs_tags_to_asyncapi(
-        tags: List[Union[spec.tag.Tag, spec.tag.TagDict, Dict[str, Any]]]
-) -> List[Union[Tag, TagDict, Dict[str, Any]]]:
-    asyncapi_tags: List[Union[Tag, TagDict, Dict[str, Any]]] = []
-
-    for tag in tags:
-        if isinstance(tag, spec.tag.Tag):
-            asyncapi_tags.append(Tag(
-                name=tag.name,
-                description=tag.description,
-
-                externalDocs=specs_external_docs_to_asyncapi(tag.externalDocs)
-                if tag.externalDocs else None,
-            ))
-        elif isinstance(tag, dict):
-            asyncapi_tags.append(dict(tag))
-        else:
-            raise NotImplementedError
-
-    return asyncapi_tags
-
-
-def specs_external_docs_to_asyncapi(
-        externalDocs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, Dict[str, Any]]
-) -> Union[ExternalDocs, Dict[str, Any]]:
-    if isinstance(externalDocs, spec.docs.ExternalDocs):
-        return ExternalDocs(
-            **asdict(externalDocs)
-        )
-    else:
-        return dict(externalDocs)
+# def specs_tags_to_asyncapi(
+#         tags: List[Union[spec.tag.Tag, spec.tag.TagDict, Dict[str, Any]]]
+# ) -> List[Union[Tag, Dict[str, Any]]]:
+#     asyncapi_tags: List[Union[Tag, Dict[str, Any]]] = []
+#
+#     for tag in tags:
+#         if isinstance(tag, spec.tag.Tag):
+#             asyncapi_tags.append(Tag(
+#                 name=tag.name,
+#                 description=tag.description,
+#
+#                 externalDocs=docs_from_spec(tag.externalDocs)
+#                 if tag.externalDocs else None,
+#             ))
+#         elif isinstance(tag, dict):
+#             asyncapi_tags.append(dict(tag))
+#         else:
+#             raise NotImplementedError
+#
+#     return asyncapi_tags
 
 
 def _resolve_msg_payloads(

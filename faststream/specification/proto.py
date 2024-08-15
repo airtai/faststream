@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from faststream.specification.schema.contact import Contact, ContactDict
     from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
     from faststream.specification.schema.license import License, LicenseDict
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.tag import Tag
     from faststream.types import (
         AnyDict,
         AnyHttpUrl,
@@ -27,7 +27,7 @@ class Application(Protocol):
     terms_of_service: Optional["AnyHttpUrl"]
     license: Optional[Union["License", "LicenseDict", "AnyDict"]]
     contact: Optional[Union["Contact", "ContactDict", "AnyDict"]]
-    specs_tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]]
+    specs_tags: Optional[Sequence[Union["Tag", "AnyDict"]]]
     external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]]
     asyncapi_version: AsyncAPIVersion
     identifier: Optional[str]

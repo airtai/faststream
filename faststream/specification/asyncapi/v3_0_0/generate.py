@@ -10,17 +10,18 @@ from faststream.specification.asyncapi.v2_6_0.generate import (
     specs_contact_to_asyncapi,
     specs_license_to_asyncapi,
     specs_operation_binding_to_asyncapi,
-    specs_tags_to_asyncapi,
 )
 from faststream.specification.asyncapi.v2_6_0.schema import (
     ExternalDocs,
-    ExternalDocsDict,
     Reference,
     Tag,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
     CorrelationId,
     Message,
+)
+from faststream.specification.asyncapi.v2_6_0.schema.tag import (
+    from_spec as tag_from_spec,
 )
 from faststream.specification.asyncapi.v3_0_0.schema import (
     Channel,
@@ -74,12 +75,18 @@ def get_app_schema(app: Application) -> Schema:
             version=app.version,
             description=app.description,
             termsOfService=app.terms_of_service,
+
             contact=specs_contact_to_asyncapi(app.contact)
             if app.contact else None,
+
             license=specs_license_to_asyncapi(app.license)
             if app.license else None,
-            tags=specs_tags_to_asyncapi(list(app.specs_tags)) if app.specs_tags else None,
-            externalDocs=specs_external_docs_to_asyncapi(app.external_docs) if app.external_docs else None,
+
+            tags=[tag_from_spec(tag) for tag in app.specs_tags]
+            if app.specs_tags else None,
+
+            externalDocs=specs_external_docs_to_asyncapi(app.external_docs)
+            if app.external_docs else None,
         ),
         defaultContentType=ContentTypes.json.value,
         id=app.identifier,
@@ -302,7 +309,7 @@ def get_broker_channels(
 
 def specs_external_docs_to_asyncapi(
         externalDocs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, Dict[str, Any]]
-) -> Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]:
+) -> Union[ExternalDocs, Dict[str, Any]]:
     if isinstance(externalDocs, spec.docs.ExternalDocs):
         return ExternalDocs(
             **asdict(externalDocs)
