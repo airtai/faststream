@@ -16,7 +16,6 @@ class Schema(BaseModel):
     """A class to represent a schema.
 
     Attributes:
-        asyncapi : version of the async API
         id : optional ID
         defaultContentType : optional default content type
         info : information about the schema
@@ -33,7 +32,6 @@ class Schema(BaseModel):
 
     """
 
-    asyncapi: AsyncAPIVersion = AsyncAPIVersion.v2_6
     id: Optional[str] = None
     defaultContentType: Optional[str] = None
     info: Info
