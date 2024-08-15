@@ -1,10 +1,14 @@
 from typing import Any, Dict, List, Optional, Union
 
+import typing_extensions
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
-from faststream.specification.asyncapi.v2_6_0.schema.docs import ExternalDocs
+from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
+from faststream.specification.asyncapi.v2_6_0.schema.tag import (
+    from_spec as tag_from_spec,
+)
 
 
 class CorrelationId(BaseModel):
@@ -30,6 +34,13 @@ class CorrelationId(BaseModel):
         class Config:
             extra = "allow"
 
+    @classmethod
+    def from_spec(cls, cor_id: spec.message.CorrelationId) -> typing_extensions.Self:
+        return cls(
+            description=cor_id.description,
+            location=cor_id.location,
+        )
+
 
 class Message(BaseModel):
     """A class to represent a message.
@@ -44,7 +55,6 @@ class Message(BaseModel):
         contentType : content type of the message
         payload : dictionary representing the payload of the message
         tags : list of tags associated with the message
-        externalDocs : external documentation associated with the message
 
     """
 
@@ -67,9 +77,6 @@ class Message(BaseModel):
     tags: Optional[List[Union[Tag, Dict[str, Any]]]] = (
         None
     )
-    externalDocs: Optional[Union[ExternalDocs, Dict[str, Any]]] = (
-        None  # TODO: weird ExternalDocsDict behavior
-    )
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}
@@ -78,3 +85,25 @@ class Message(BaseModel):
 
         class Config:
             extra = "allow"
+
+    @classmethod
+    def from_spec(cls, message: spec.message.Message) -> typing_extensions.Self:
+        return cls(
+            title=message.title,
+            name=message.name,
+            summary=message.summary,
+            description=message.description,
+            messageId=message.messageId,
+
+            correlationId=CorrelationId.from_spec(message.correlationId)
+            if message.correlationId is not None else None,
+
+            contentType=message.contentType,
+            payload=message.payload,
+            tags=[tag_from_spec(tag) for tag in message.tags]
+            if message.tags is not None else None,
+        )
+
+
+def from_spec(message: spec.message.Message) -> Message:
+    return Message.from_spec(message)

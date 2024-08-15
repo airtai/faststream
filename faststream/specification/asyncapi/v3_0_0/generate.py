@@ -17,8 +17,10 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     Tag,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
-    CorrelationId,
     Message,
+)
+from faststream.specification.asyncapi.v2_6_0.schema.message import (
+    from_spec as message_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.tag import (
     from_spec as tag_from_spec,
@@ -237,25 +239,7 @@ def get_broker_channels(
                 channel_v3_0 = Channel(
                     address=channel_name,
                     messages={
-                        "SubscribeMessage": Message(
-                            title=specs_channel.subscribe.message.title,
-                            name=specs_channel.subscribe.message.name,
-                            summary=specs_channel.subscribe.message.summary,
-                            description=specs_channel.subscribe.message.description,
-                            messageId=specs_channel.subscribe.message.messageId,
-                            payload=specs_channel.subscribe.message.payload,
-
-                            correlationId=CorrelationId(**asdict(specs_channel.subscribe.message.correlationId))
-                            if specs_channel.subscribe.message.correlationId else None,
-
-                            contentType=specs_channel.subscribe.message.contentType,
-
-                            tags=specs_tags_to_asyncapi(specs_channel.subscribe.message.tags)  # type: ignore
-                            if specs_channel.subscribe.message.tags else None,
-
-                            externalDocs=specs_external_docs_to_asyncapi(specs_channel.subscribe.message.externalDocs)
-                            if specs_channel.subscribe.message.externalDocs else None,
-                        ),
+                        "SubscribeMessage": message_from_spec(specs_channel.subscribe.message),
                     },
                     description=specs_channel.description,
                     servers=specs_channel.servers,
@@ -274,25 +258,7 @@ def get_broker_channels(
                 channel_v3_0 = Channel(
                     address=channel_name,
                     messages={
-                        "Message": Message(
-                            title=specs_channel.publish.message.title,
-                            name=specs_channel.publish.message.name,
-                            summary=specs_channel.publish.message.summary,
-                            description=specs_channel.publish.message.description,
-                            messageId=specs_channel.publish.message.messageId,
-                            payload=specs_channel.publish.message.payload,
-
-                            correlationId=CorrelationId(**asdict(specs_channel.publish.message.correlationId))
-                            if specs_channel.publish.message.correlationId else None,
-
-                            contentType=specs_channel.publish.message.contentType,
-
-                            tags=specs_tags_to_asyncapi(specs_channel.publish.message.tags)  # type: ignore
-                            if specs_channel.publish.message.tags else None,
-
-                            externalDocs=specs_external_docs_to_asyncapi(specs_channel.publish.message.externalDocs)
-                            if specs_channel.publish.message.externalDocs else None,
-                        ),
+                        "Message": message_from_spec(specs_channel.publish.message),
                     },
                     description=specs_channel.description,
                     servers=specs_channel.servers,

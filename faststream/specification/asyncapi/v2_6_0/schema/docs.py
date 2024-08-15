@@ -1,4 +1,3 @@
-from dataclasses import asdict
 from typing import Any, Dict, Optional, Union, overload
 
 import typing_extensions
@@ -52,6 +51,6 @@ def from_spec(
         docs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, Dict[str, Any]]
 ) -> Union[ExternalDocs, Dict[str, Any]]:
     if isinstance(docs, spec.docs.ExternalDocs):
-        return ExternalDocs(**asdict(docs))
+        return ExternalDocs.from_spec(docs)
 
     return dict(docs)

@@ -1,12 +1,15 @@
-from dataclasses import asdict
 from typing import Any, Dict, Optional, Union, overload
 
+import typing_extensions
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.docs import (
     ExternalDocs,
+)
+from faststream.specification.asyncapi.v2_6_0.schema.docs import (
+    from_spec as docs_from_spec,
 )
 
 
@@ -32,6 +35,15 @@ class Tag(BaseModel):
         class Config:
             extra = "allow"
 
+    @classmethod
+    def from_spec(cls, tag: spec.tag.Tag) -> typing_extensions.Self:
+        return cls(
+            name=tag.name,
+            description=tag.description,
+            externalDocs=docs_from_spec(tag.externalDocs)
+            if tag.externalDocs else None
+        )
+
 
 @overload
 def from_spec(tag: spec.tag.Tag) -> Tag: ...
@@ -49,6 +61,6 @@ def from_spec(
         tag: Union[spec.tag.Tag, spec.tag.TagDict, Dict[str, Any]]
 ) -> Union[Tag, Dict[str, Any]]:
     if isinstance(tag, spec.tag.Tag):
-        return Tag(**asdict(tag))
+        return Tag.from_spec(tag)
 
     return dict(tag)
