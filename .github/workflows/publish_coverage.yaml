@@ -18,7 +18,6 @@ jobs:
           python-version: "3.9"
 
       - run: |
-          set -ux
           python -m pip install uv
           uv pip install --system smokeshow
 
