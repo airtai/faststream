@@ -31,6 +31,7 @@ jobs:
         shell: bash
         # should install with `-e`
         run: |
+          set -ux
           python -m pip install uv
           uv pip install --system -e .[dev]
       - name: Run build docs

@@ -27,6 +27,7 @@ jobs:
           key: ${{ github.ref }}
           path: .cache
       - run: |
+          set -ux
           python -m pip install uv
           uv pip install --system -e .[dev]
       - run: ./scripts/build-docs.sh
