@@ -18,6 +18,9 @@ class FakeConsumer:
     async def commit(self) -> None:
         pass
 
+    async def seek(self, **kwargs: Any) -> None:
+        pass
+
 
 FAKE_CONSUMER = FakeConsumer()
 
