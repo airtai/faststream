@@ -15,7 +15,7 @@ from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 from opentelemetry.trace import SpanKind, get_current_span
 
 from faststream.broker.core.usecase import BrokerUsecase
-from faststream.opentelemetry import CurrentSpan
+from faststream.opentelemetry import Baggage, CurrentBaggage, CurrentSpan
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
     MESSAGING_DESTINATION_PUBLISH_NAME,
@@ -384,6 +384,68 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         @broker.subscriber(*args, **kwargs)
         async def handler(m, span: CurrentSpan):
             assert span is get_current_span()
+            mock(m)
+            event.set()
+
+        broker = self.patch_broker(broker)
+        msg = "start"
+
+        async with broker:
+            await broker.start()
+            tasks = (
+                asyncio.create_task(broker.publish(msg, queue)),
+                asyncio.create_task(event.wait()),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
+
+        assert event.is_set()
+        mock.assert_called_once_with(msg)
+
+    async def test_baggage(
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+    ):
+        mid = self.telemetry_middleware_class()
+        broker = self.broker_class(middlewares=(mid,))
+
+        first_queue = queue
+        second_queue = queue + "2"
+        third_queue = queue + "3"
+
+        args, kwargs = self.get_subscriber_params(first_queue)
+
+        @broker.subscriber(*args, **kwargs)
+        @broker.publisher(second_queue)
+        async def handler1(m):
+            baggage = Baggage({"foo": "bar"})
+            baggage.set("baz", "bar")
+            baggage.remove("foo")
+            baggage.set("foo", "baz")
+            baggage.propagate()
+            assert baggage.get("foo") == "baz"
+            assert baggage.__repr__() == baggage._baggage.__repr__()
+            return m
+
+        args2, kwargs2 = self.get_subscriber_params(second_queue)
+
+        @broker.subscriber(*args2, **kwargs2)
+        @broker.publisher(third_queue)
+        async def handler2(m, baggage: CurrentBaggage):
+            payload = baggage.get_all()
+            baggage.terminate()
+            assert payload == {"foo": "baz", "baz": "bar"}
+            return m
+
+        args3, kwargs3 = self.get_subscriber_params(third_queue)
+
+        @broker.subscriber(*args3, **kwargs3)
+        async def handler3(m, baggage: CurrentBaggage):
+            payload = baggage.get_all()
+            batch_payload = baggage.get_all_batch()
+            assert payload == {}
+            assert batch_payload == []
             mock(m)
             event.set()
 
