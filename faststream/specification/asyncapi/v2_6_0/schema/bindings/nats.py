@@ -6,6 +6,9 @@ References: https://github.com/asyncapi/bindings/tree/master/nats
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
+from typing_extensions import Self
+
+from faststream.specification import schema as spec
 
 
 class ChannelBinding(BaseModel):
@@ -21,6 +24,14 @@ class ChannelBinding(BaseModel):
     queue: Optional[str] = None
     bindingVersion: str = "custom"
 
+    @classmethod
+    def from_spec(cls, binding: spec.bindings.nats.ChannelBinding) -> Self:
+        return cls(
+            subject=binding.subject,
+            queue=binding.queue,
+            bindingVersion=binding.bindingVersion,
+        )
+
 
 class OperationBinding(BaseModel):
     """A class to represent an operation binding.
@@ -32,3 +43,10 @@ class OperationBinding(BaseModel):
 
     replyTo: Optional[Dict[str, Any]] = None
     bindingVersion: str = "custom"
+
+    @classmethod
+    def from_spec(cls, binding: spec.bindings.nats.OperationBinding) -> Self:
+        return cls(
+            replyTo=binding.replyTo,
+            bindingVersion=binding.bindingVersion,
+        )

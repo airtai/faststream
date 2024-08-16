@@ -2,10 +2,10 @@
 
 References: https://github.com/asyncapi/bindings/tree/master/kafka
 """
-import typing_extensions
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, PositiveInt
+from typing_extensions import Self
 
 from faststream.specification import schema as spec
 
@@ -29,7 +29,7 @@ class ChannelBinding(BaseModel):
     # topicConfiguration
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.kafka.ChannelBinding) -> typing_extensions.Self:
+    def from_spec(cls, binding: spec.bindings.kafka.ChannelBinding) -> Self:
         return cls(
             topic=binding.topic,
             partitions=binding.partitions,
@@ -54,7 +54,7 @@ class OperationBinding(BaseModel):
     bindingVersion: str = "0.4.0"
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.kafka.OperationBinding) -> typing_extensions.Self:
+    def from_spec(cls, binding: spec.bindings.kafka.OperationBinding) -> Self:
         return cls(
             groupId=binding.groupId,
             clientId=binding.clientId,

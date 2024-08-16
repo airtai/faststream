@@ -6,6 +6,9 @@ References: https://github.com/asyncapi/bindings/tree/master/amqp
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, PositiveInt
+from typing_extensions import Self
+
+from faststream.specification import schema as spec
 
 
 class Queue(BaseModel):
@@ -24,6 +27,16 @@ class Queue(BaseModel):
     exclusive: bool
     autoDelete: bool
     vhost: str = "/"
+
+    @classmethod
+    def from_spec(cls, binding: spec.bindings.amqp.Queue) -> Self:
+        return cls(
+            name=binding.name,
+            durable=binding.durable,
+            exclusive=binding.exclusive,
+            autoDelete=binding.autoDelete,
+            vhost=binding.vhost,
+        )
 
 
 class Exchange(BaseModel):
@@ -53,6 +66,16 @@ class Exchange(BaseModel):
     autoDelete: Optional[bool] = None
     vhost: str = "/"
 
+    @classmethod
+    def from_spec(cls, binding: spec.bindings.amqp.Exchange) -> Self:
+        return cls(
+            name=binding.name,
+            type=binding.type,
+            durable=binding.durable,
+            autoDelete=binding.autoDelete,
+            vhost=binding.vhost,
+        )
+
 
 class ChannelBinding(BaseModel):
     """A class to represent channel binding.
@@ -68,6 +91,19 @@ class ChannelBinding(BaseModel):
     bindingVersion: str = "0.2.0"
     queue: Optional[Queue] = None
     exchange: Optional[Exchange] = None
+
+    @classmethod
+    def from_spec(cls, binding: spec.bindings.amqp.ChannelBinding) -> Self:
+        return cls(**{
+            "is": binding.is_,
+            "bindingVersion": binding.bindingVersion,
+
+            "queue": Queue.from_spec(binding.queue)
+            if binding.queue is not None else None,
+
+            "exchange": Exchange.from_spec(binding.exchange)
+            if binding.exchange is not None else None,
+        })
 
 
 class OperationBinding(BaseModel):
@@ -87,3 +123,15 @@ class OperationBinding(BaseModel):
     mandatory: Optional[bool] = None
     priority: Optional[PositiveInt] = None
     bindingVersion: str = "0.2.0"
+
+    @classmethod
+    def from_spec(cls, binding: spec.bindings.amqp.OperationBinding) -> Self:
+        return cls(
+            cc=binding.cc,
+            ack=binding.ack,
+            replyTo=binding.replyTo,
+            deliveryMode=binding.deliveryMode,
+            mandatory=binding.mandatory,
+            priority=binding.priority,
+            bindingVersion=binding.bindingVersion,
+        )

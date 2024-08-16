@@ -227,41 +227,19 @@ def specs_channel_to_asyncapi(channel: spec.channel.Channel) -> Channel:
 
 def specs_channel_binding_to_asyncapi(binding: spec.bindings.ChannelBinding) -> ChannelBinding:
     return ChannelBinding(
-        amqp=amqp.ChannelBinding(**{
-            "is": binding.amqp.is_,
-            "bindingVersion": binding.amqp.bindingVersion,
-
-            "queue": amqp.Queue(
-                name=binding.amqp.queue.name,
-                durable=binding.amqp.queue.durable,
-                exclusive=binding.amqp.queue.exclusive,
-                autoDelete=binding.amqp.queue.autoDelete,
-                vhost=binding.amqp.queue.vhost,
-            )
-            if binding.amqp.queue else None,
-
-            "exchange": amqp.Exchange(
-                name=binding.amqp.exchange.name,
-                type=binding.amqp.exchange.type,
-                durable=binding.amqp.exchange.durable,
-                autoDelete=binding.amqp.exchange.autoDelete,
-                vhost=binding.amqp.exchange.vhost
-            )
-            if binding.amqp.exchange else None,
-        }
-    )
-        if binding.amqp else None,
+        amqp=amqp.ChannelBinding.from_spec(binding.amqp)
+        if binding.amqp is not None else None,
 
         kafka=kafka.ChannelBinding.from_spec(binding.kafka)
         if binding.kafka else None,
 
-        sqs=sqs.ChannelBinding(**asdict(binding.sqs))
+        sqs=sqs.ChannelBinding.from_spec(binding.sqs)
         if binding.sqs else None,
 
-        nats=nats.ChannelBinding(**asdict(binding.nats))
+        nats=nats.ChannelBinding.from_spec(binding.nats)
         if binding.nats else None,
 
-        redis=redis.ChannelBinding(**asdict(binding.redis))
+        redis=redis.ChannelBinding.from_spec(binding.redis)
         if binding.redis else None,
     )
 

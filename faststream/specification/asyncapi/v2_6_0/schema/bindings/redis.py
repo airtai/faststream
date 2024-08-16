@@ -6,6 +6,9 @@ References: https://github.com/asyncapi/bindings/tree/master/redis
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
+from typing_extensions import Self
+
+from faststream.specification import schema as spec
 
 
 class ChannelBinding(BaseModel):
@@ -23,6 +26,16 @@ class ChannelBinding(BaseModel):
     consumer_name: Optional[str] = None
     bindingVersion: str = "custom"
 
+    @classmethod
+    def from_spec(cls, binding: spec.bindings.redis.ChannelBinding) -> Self:
+        return cls(
+            channel=binding.channel,
+            method=binding.method,
+            group_name=binding.group_name,
+            consumer_name=binding.consumer_name,
+            bindingVersion=binding.bindingVersion,
+        )
+
 
 class OperationBinding(BaseModel):
     """A class to represent an operation binding.
@@ -34,3 +47,10 @@ class OperationBinding(BaseModel):
 
     replyTo: Optional[Dict[str, Any]] = None
     bindingVersion: str = "custom"
+
+    @classmethod
+    def from_spec(cls, binding: spec.bindings.redis.OperationBinding) -> Self:
+        return cls(
+            replyTo=binding.replyTo,
+            bindingVersion=binding.bindingVersion,
+        )
