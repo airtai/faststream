@@ -1,12 +1,12 @@
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Dict, List, Union
 from urllib.parse import urlparse
 
 from faststream._compat import DEF_KEY
 from faststream.constants import ContentTypes
 from faststream.specification import schema as spec
+from faststream.specification.asyncapi.v2_6_0.generate import move_pydantic_refs
 from faststream.specification.asyncapi.v2_6_0.schema import (
-    ExternalDocs,
     Reference,
     Tag,
 )
@@ -16,6 +16,9 @@ from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
 )
 from faststream.specification.asyncapi.v2_6_0.schema.contact import (
     from_spec as contact_from_spec,
+)
+from faststream.specification.asyncapi.v2_6_0.schema.docs import (
+    from_spec as docs_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.license import (
     from_spec as license_from_spec,
@@ -92,7 +95,7 @@ def get_app_schema(app: Application) -> Schema:
             tags=[tag_from_spec(tag) for tag in app.specs_tags]
             if app.specs_tags else None,
 
-            externalDocs=specs_external_docs_to_asyncapi(app.external_docs)
+            externalDocs=docs_from_spec(app.external_docs)
             if app.external_docs else None,
         ),
         defaultContentType=ContentTypes.json.value,
@@ -278,17 +281,6 @@ def get_broker_channels(
     return channels
 
 
-def specs_external_docs_to_asyncapi(
-        externalDocs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, AnyDict]
-) -> Union[ExternalDocs, AnyDict]:
-    if isinstance(externalDocs, spec.docs.ExternalDocs):
-        return ExternalDocs(
-            **asdict(externalDocs)
-        )
-    else:
-        return dict(externalDocs)
-
-
 def _resolve_msg_payloads(
         message_name: str,
         m: Message,
@@ -298,7 +290,7 @@ def _resolve_msg_payloads(
 ) -> Reference:
     assert isinstance(m.payload, dict)
 
-    m.payload = _move_pydantic_refs(m.payload, DEF_KEY)
+    m.payload = move_pydantic_refs(m.payload, DEF_KEY)
 
     if DEF_KEY in m.payload:
         payloads.update(m.payload.pop(DEF_KEY))
@@ -325,33 +317,3 @@ def _resolve_msg_payloads(
         assert m.title
         messages[m.title] = m
         return Reference(**{"$ref": f"#/components/messages/{channel_name}:{message_name}"})
-
-
-def _move_pydantic_refs(
-        original: Any,
-        key: str,
-) -> Any:
-    """Remove pydantic references and replace them by real schemas."""
-    if not isinstance(original, Dict):
-        return original
-
-    data = original.copy()
-
-    for k in data:
-        item = data[k]
-
-        if isinstance(item, str):
-            if key in item:
-                data[k] = data[k].replace(key, "components/schemas")
-
-        elif isinstance(item, dict):
-            data[k] = _move_pydantic_refs(data[k], key)
-
-        elif isinstance(item, List):
-            for i in range(len(data[k])):
-                data[k][i] = _move_pydantic_refs(item[i], key)
-
-    if isinstance(discriminator := data.get("discriminator"), dict):
-        data["discriminator"] = discriminator["propertyName"]
-
-    return data

@@ -22,9 +22,7 @@ from faststream.specification.asyncapi.v2_6_0.schema.docs import (
 from faststream.specification.asyncapi.v2_6_0.schema.license import (
     from_spec as license_from_spec,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.message import (
-    Message,
-)
+from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 from faststream.specification.asyncapi.v2_6_0.schema.tag import (
     from_spec as tag_from_spec,
 )
@@ -191,7 +189,7 @@ def _resolve_msg_payloads(
     Payloads and messages are editable dicts to store schemas for reference in AsyncAPI.
     """
     one_of_list: List[Reference] = []
-    m.payload = _move_pydantic_refs(m.payload, DEF_KEY)
+    m.payload = move_pydantic_refs(m.payload, DEF_KEY)
 
     if DEF_KEY in m.payload:
         payloads.update(m.payload.pop(DEF_KEY))
@@ -226,7 +224,7 @@ def _resolve_msg_payloads(
     return Reference(**{"$ref": f"#/components/messages/{m.title}"})
 
 
-def _move_pydantic_refs(
+def move_pydantic_refs(
         original: Any,
         key: str,
 ) -> Any:
@@ -244,11 +242,11 @@ def _move_pydantic_refs(
                 data[k] = data[k].replace(key, "components/schemas")
 
         elif isinstance(item, dict):
-            data[k] = _move_pydantic_refs(data[k], key)
+            data[k] = move_pydantic_refs(data[k], key)
 
         elif isinstance(item, List):
             for i in range(len(data[k])):
-                data[k][i] = _move_pydantic_refs(item[i], key)
+                data[k][i] = move_pydantic_refs(item[i], key)
 
     if isinstance(discriminator := data.get("discriminator"), dict):
         data["discriminator"] = discriminator["propertyName"]
