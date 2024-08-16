@@ -237,25 +237,6 @@ def specs_operation_to_asyncapi(operation: spec.operation.Operation) -> Operatio
     )
 
 
-# def specs_operation_binding_to_asyncapi(binding: spec.bindings.OperationBinding) -> OperationBinding:
-#     return OperationBinding(
-#         amqp=amqp.OperationBinding(**asdict(binding.amqp))
-#         if binding.amqp else None,
-#
-#         kafka=kafka.OperationBinding.from_spec(binding.kafka)
-#         if binding.kafka else None,
-#
-#         sqs=kafka.OperationBinding(**asdict(binding.sqs))
-#         if binding.sqs else None,
-#
-#         nats=kafka.OperationBinding(**asdict(binding.nats))
-#         if binding.nats else None,
-#
-#         redis=kafka.OperationBinding(**asdict(binding.redis))
-#         if binding.redis else None,
-#     )
-
-
 def _resolve_msg_payloads(
         m: Message,
         channel_name: str,
