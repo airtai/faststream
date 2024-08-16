@@ -17,10 +17,12 @@ from typing import (
     Sequence,
     Type,
     Union,
+    cast,
     overload,
 )
 from weakref import WeakSet
 
+from fastapi.background import BackgroundTasks
 from fastapi.datastructures import Default
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRoute, APIRouter
@@ -67,8 +69,10 @@ class _BackgroundMiddleware(BaseMiddleware):
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
         if not exc_type and (
-            background := getattr(context.get_local("message"), "background", None),
-
+            background := cast(  # type: ignore[redundant-cast]
+                Optional[BackgroundTasks],
+                getattr(context.get_local("message"), "background", None),
+            )
         ):
             await background()
 
@@ -76,7 +80,7 @@ class _BackgroundMiddleware(BaseMiddleware):
 
 
 class StreamRouter(
-    APIRouter,   # type: ignore[misc]
+    APIRouter,  # type: ignore[misc]
     AsyncAPIApplication,
     Generic[MsgType],
 ):
