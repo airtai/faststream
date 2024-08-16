@@ -8,17 +8,17 @@ search:
   boost: 10
 ---
 
-# Kafka RPC requests
+# Kafka RPC Requests
 
-Unfortunatelly, **Kafka** has no built-in **RPC** mechanism or zero-cost topics, but you can emulate such behavior using messaging pattern.
+Unfortunately, **Kafka** has no built-in **RPC** mechanism or zero-cost topics, but you can emulate such behavior using a messaging pattern.
 
-To implement it you should create persistent topic to consume responses stream and match them with requests by correlation id.
+To implement this, you should create a persistent topic to consume the response stream and match responses with requests using the correlation ID.
 
-It can be easely implemented with **FastStream**, so let's take a look at the code. At first, we will try to write simple **FastStream**-featured implementation and then create reusable tool based on it.
+This can be easily implemented with **FastStream**, so let's take a look at the code. First, we will try to write a simple **FastStream**-based implementation, and then create a reusable tool based on it.
 
-## Raw implementation
+## Raw Implementation
 
-Let's image, that we have simple **FastStream** echo subscriber like this:
+Let's imagine we have a simple **FastStream** echo subscriber like this:
 
 ```python linenums="1" hl_lines="7-9"
 from faststream import FastStream
@@ -32,9 +32,9 @@ async def echo_handler(msg: Any) -> Any:
     return msg
 ```
 
-It does nothing, but publishes responses to all messages with `reply_to` header.
+It does nothing but publishes responses to all messages with the `reply_to` header.
 
-Now, we want to send a message and consume echo callback. This reason we should create some *reply consumer* in our producer service. It can looks like the followed:
+Now, we want to send a message and consume the echo callback. For this reason, we need to create a *reply consumer* in our producer service. It can look like the following:
 
 ```python linenums="1" hl_lines="13-16 18-19"
 from asyncio import Future
@@ -58,9 +58,9 @@ async def response_handler(
         future.set_result(msg.body)
 ```
 
-This handler just maps incoming messages to their requests by `correlation_id` field.
+This handler simply maps incoming messages to their requests using the `correlation_id` field.
 
-Then we should just publish a message with `#!python reply_to="responses"` header, create a Future object and wait for it.
+Next, we just need to publish a message with the `#!python reply_to="responses"` header, create a Future object, and wait for it.
 
 ```python linenums="1" hl_lines="8-9 13-14 17-18"
 @app.after_startup
@@ -84,7 +84,7 @@ async def send_request(
 ```
 
 !!! note
-    `message.correlation_id` and `message.reply_to` are **FastStream**-specific message headers, but you can set them by any **Kafka** client you are using.
+    `message.correlation_id` and `message.reply_to` are **FastStream**-specific message headers, but you can set them using any **Kafka** client you are using.
 
 ??? example "Full Example"
     ```python linenums="1"
@@ -130,13 +130,13 @@ async def send_request(
         except TimeoutError:
             responses.pop(correlation_id, None)
             raise
-        
+
         assert data == b"echo"
     ```
 
-## Reusable class
+## Reusable Class
 
-Now, when we have already working **Kafka RPC** implementation, we can incapsulate it to reusable class, that can copy-pasted between services.
+Now that we have a working **Kafka RPC** implementation, we can encapsulate it into a reusable class that can be copy-pasted between services.
 
 ```python linenums="1"
 from uuid import uuid4
@@ -155,10 +155,10 @@ class RPCWorker:
         self.subscriber(self._handle_responses)
 
     def _handle_responses(self, msg: KafkaMessage) -> None:
-        """Our replies subsriber."""
+        """Our replies subscriber."""
         if (future := self.responses.pop(msg.correlation_id, None)):
             future.set_result(msg.body)
-        
+
     async def request(
         self,
         data: SendableMessage,
@@ -183,7 +183,7 @@ class RPCWorker:
             return response
 ```
 
-Now it can be used by the following way:
+Now it can be used in the following way:
 
 ```python linenums="1" hl_lines="5 10-11"
 from faststream import FastStream
@@ -199,7 +199,7 @@ async def send_request() -> None:
     assert data == "echo"
 ```
 
-Or, if you want to make `RPCWorker` working after startup, you should add manual `start` method to it
+Or, if you want to make the `RPCWorker` work after startup, you should add a manual `start` method to it:
 
 ```python
 class RPCWorker:
@@ -208,7 +208,7 @@ class RPCWorker:
         await self.subscriber.start()
 ```
 
-Now it can be used after application was started
+Now it can be used after the application has started:
 
 ```python linenums="1" hl_lines="9-10"
 from faststream import FastStream
@@ -244,18 +244,18 @@ async def send_request() -> None:
 
             self.subscriber = broker.subscriber(reply_topic)
             self.subscriber(self._handle_responses)
-        
+
         async def start(self) -> None:
             self.broker.setup_subscriber(self.subscriber)
             await self.subscriber.start()
-        
+
         async def stop(self) -> None:
             await self.subscriber.close()
 
         def _handle_responses(self, msg: KafkaMessage) -> None:
             if (future := self.responses.pop(msg.correlation_id, None)):
                 future.set_result(msg.body)
-            
+
         async def request(
             self,
             data: SendableMessage,
