@@ -7,7 +7,6 @@ from faststream.constants import ContentTypes
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.generate import (
     specs_contact_to_asyncapi,
-    specs_license_to_asyncapi,
 )
 from faststream.specification.asyncapi.v2_6_0.schema import (
     ExternalDocs,
@@ -17,6 +16,9 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     ChannelBinding,
     OperationBinding,
+)
+from faststream.specification.asyncapi.v2_6_0.schema.license import (
+    from_spec as license_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
     Message,
@@ -36,6 +38,7 @@ from faststream.specification.asyncapi.v3_0_0.schema import (
     Server,
 )
 from faststream.specification.proto import Application
+from faststream.types import AnyDict
 
 if TYPE_CHECKING:
     from faststream.broker.core.usecase import BrokerUsecase
@@ -54,7 +57,7 @@ def get_app_schema(app: Application) -> Schema:
     operations = get_broker_operations(broker)
 
     messages: Dict[str, Message] = {}
-    payloads: Dict[str, Dict[str, Any]] = {}
+    payloads: Dict[str, AnyDict] = {}
 
     for channel_name, channel in channels.items():
         msgs: Dict[str, Union[Message, Reference]] = {}
@@ -83,7 +86,7 @@ def get_app_schema(app: Application) -> Schema:
             contact=specs_contact_to_asyncapi(app.contact)
             if app.contact else None,
 
-            license=specs_license_to_asyncapi(app.license)
+            license=license_from_spec(app.license)
             if app.license else None,
 
             tags=[tag_from_spec(tag) for tag in app.specs_tags]
@@ -114,7 +117,7 @@ def get_broker_server(
     """Get the broker server for an application."""
     servers = {}
 
-    tags: List[Union[Tag, Dict[str, Any]]] = []
+    tags: List[Union[Tag, AnyDict]] = []
     if broker.tags:
 
         for tag in broker.tags:
@@ -125,7 +128,7 @@ def get_broker_server(
             else:
                 raise NotImplementedError(f"Unsupported tag type: {tag}; {type(tag)}")
 
-    broker_meta: Dict[str, Any] = {
+    broker_meta: AnyDict = {
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,
@@ -276,8 +279,8 @@ def get_broker_channels(
 
 
 def specs_external_docs_to_asyncapi(
-        externalDocs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, Dict[str, Any]]
-) -> Union[ExternalDocs, Dict[str, Any]]:
+        externalDocs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, AnyDict]
+) -> Union[ExternalDocs, AnyDict]:
     if isinstance(externalDocs, spec.docs.ExternalDocs):
         return ExternalDocs(
             **asdict(externalDocs)
@@ -290,8 +293,8 @@ def _resolve_msg_payloads(
         message_name: str,
         m: Message,
         channel_name: str,
-        payloads: Dict[str, Any],
-        messages: Dict[str, Any],
+        payloads: AnyDict,
+        messages: AnyDict,
 ) -> Reference:
     assert isinstance(m.payload, dict)
 
@@ -303,7 +306,7 @@ def _resolve_msg_payloads(
     one_of = m.payload.get("oneOf", None)
     if isinstance(one_of, dict):
         one_of_list = []
-        processed_payloads: Dict[str, Dict[str, Any]] = {}
+        processed_payloads: Dict[str, AnyDict] = {}
         for name, payload in one_of.items():
             processed_payloads[name] = payload
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{name}"}))

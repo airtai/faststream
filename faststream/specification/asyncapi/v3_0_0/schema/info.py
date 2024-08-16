@@ -1,6 +1,4 @@
 from typing import (
-    Any,
-    Dict,
     List,
     Optional,
     Union,
@@ -17,7 +15,7 @@ from faststream.specification.asyncapi.v2_6_0.schema.info import (
     LicenseDict,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
-from faststream.types import (  # noqa: TCH001
+from faststream.types import (
     AnyDict,
 )
 
@@ -35,8 +33,8 @@ class Info(BaseInfo):
     """
 
     termsOfService: Optional[AnyHttpUrl] = None
-    contact: Optional[Union[Contact, ContactDict, Dict[str, Any]]] = None
-    license: Optional[Union[License, LicenseDict, Dict[str, Any]]] = None
+    contact: Optional[Union[Contact, ContactDict, AnyDict]] = None
+    license: Optional[Union[License, LicenseDict, AnyDict]] = None
     tags: Optional[List[Union["Tag", "AnyDict"]]] = None
     externalDocs: Optional[
             Union["ExternalDocs", "AnyDict"]

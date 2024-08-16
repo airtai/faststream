@@ -1,9 +1,10 @@
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
+from faststream.types import AnyDict
 
 
 class Components(BaseModel):
@@ -35,8 +36,8 @@ class Components(BaseModel):
     """
 
     messages: Optional[Dict[str, Message]] = None
-    schemas: Optional[Dict[str, Dict[str, Any]]] = None
-    securitySchemes: Optional[Dict[str, Dict[str, Any]]] = None
+    schemas: Optional[Dict[str, AnyDict]] = None
+    securitySchemes: Optional[Dict[str, AnyDict]] = None
     # parameters
     # correlationIds
     # operationTraits

@@ -9,6 +9,7 @@ from faststream.specification.asyncapi.v2_6_0.schema.info import Info
 from faststream.specification.asyncapi.v2_6_0.schema.servers import Server
 from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
 from faststream.specification.asyncapi.version import AsyncAPIVersion
+from faststream.types import AnyDict
 
 
 class Schema(BaseSchema):
@@ -39,8 +40,8 @@ class Schema(BaseSchema):
     servers: Optional[Dict[str, Server]] = None
     channels: Dict[str, Channel]
     components: Optional[Components] = None
-    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
-    externalDocs: Optional[Union[ExternalDocs, Dict[str, Any]]] = None
+    tags: Optional[List[Union[Tag, AnyDict]]] = None
+    externalDocs: Optional[Union[ExternalDocs, AnyDict]] = None
 
     def to_jsonable(self) -> Any:
         """Convert the schema to a JSON-serializable object."""

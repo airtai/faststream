@@ -9,7 +9,6 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     Components,
     Contact,
     Info,
-    License,
     Operation,
     Reference,
     Schema,
@@ -23,6 +22,9 @@ from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
 from faststream.specification.asyncapi.v2_6_0.schema.docs import (
     from_spec as docs_from_spec,
 )
+from faststream.specification.asyncapi.v2_6_0.schema.license import (
+    from_spec as license_from_spec,
+)
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
     Message,
 )
@@ -34,10 +36,11 @@ from faststream.specification.asyncapi.v2_6_0.schema.tag import (
 )
 from faststream.specification.proto import Application
 
+from faststream.types import AnyDict
+
 if TYPE_CHECKING:
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.types import ConnectionType, MsgType
-    from faststream.types import AnyDict
 
 
 def get_app_schema(app: Application) -> Schema:
@@ -51,7 +54,7 @@ def get_app_schema(app: Application) -> Schema:
     channels = get_broker_channels(broker)
 
     messages: Dict[str, Message] = {}
-    payloads: Dict[str, Dict[str, Any]] = {}
+    payloads: Dict[str, AnyDict] = {}
     for channel_name, ch in channels.items():
         ch.servers = list(servers.keys())
 
@@ -85,7 +88,7 @@ def get_app_schema(app: Application) -> Schema:
             termsOfService=app.terms_of_service,
             contact=specs_contact_to_asyncapi(app.contact)
             if app.contact else None,
-            license=specs_license_to_asyncapi(app.license)
+            license=license_from_spec(app.license)
             if app.license else None,
         ),
         defaultContentType=ContentTypes.json.value,
@@ -116,7 +119,7 @@ def get_broker_server(
     """Get the broker server for an application."""
     servers = {}
 
-    tags: List[Union[Tag, Dict[str, Any]]] = []
+    tags: List[Union[Tag, AnyDict]] = []
 
     if broker.tags:
         for tag in broker.tags:
@@ -127,7 +130,7 @@ def get_broker_server(
             else:
                 raise NotImplementedError(f"Unsupported tag type: {tag}; {type(tag)}")
 
-    broker_meta: Dict[str, Any] = {
+    broker_meta: AnyDict = {
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,
@@ -194,15 +197,6 @@ def specs_contact_to_asyncapi(
     return dict(contact)
 
 
-def specs_license_to_asyncapi(
-        license: Union["spec.license.License", "spec.license.LicenseDict", "AnyDict"]
-) -> Union["License", "AnyDict"]:
-    if isinstance(license, spec.license.License):
-        return License(**license.dict())
-
-    return dict(license)
-
-
 
 def specs_channel_to_asyncapi(channel: spec.channel.Channel) -> Channel:
     return Channel(
@@ -240,8 +234,8 @@ def specs_operation_to_asyncapi(operation: spec.operation.Operation) -> Operatio
 def _resolve_msg_payloads(
         m: Message,
         channel_name: str,
-        payloads: Dict[str, Any],
-        messages: Dict[str, Any],
+        payloads: AnyDict,
+        messages: AnyDict,
 ) -> Reference:
     """Replace message payload by reference and normalize payloads.
 

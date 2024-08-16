@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Union, overload
+from typing import Optional, Union, overload
 
 import typing_extensions
 from pydantic import BaseModel
@@ -11,6 +11,7 @@ from faststream.specification.asyncapi.v2_6_0.schema.docs import (
 from faststream.specification.asyncapi.v2_6_0.schema.docs import (
     from_spec as docs_from_spec,
 )
+from faststream.types import AnyDict
 
 
 class Tag(BaseModel):
@@ -50,16 +51,16 @@ def from_spec(tag: spec.tag.Tag) -> Tag: ...
 
 
 @overload
-def from_spec(tag: spec.tag.TagDict) -> Dict[str, Any]: ...
+def from_spec(tag: spec.tag.TagDict) -> AnyDict: ...
 
 
 @overload
-def from_spec(tag: Dict[str, Any]) -> Dict[str, Any]: ...
+def from_spec(tag: AnyDict) -> AnyDict: ...
 
 
 def from_spec(
-        tag: Union[spec.tag.Tag, spec.tag.TagDict, Dict[str, Any]]
-) -> Union[Tag, Dict[str, Any]]:
+        tag: Union[spec.tag.Tag, spec.tag.TagDict, AnyDict]
+) -> Union[Tag, AnyDict]:
     if isinstance(tag, spec.tag.Tag):
         return Tag.from_spec(tag)
 

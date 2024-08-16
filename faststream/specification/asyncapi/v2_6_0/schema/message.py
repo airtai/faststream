@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 import typing_extensions
 from pydantic import BaseModel
@@ -9,6 +9,7 @@ from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
 from faststream.specification.asyncapi.v2_6_0.schema.tag import (
     from_spec as tag_from_spec,
 )
+from faststream.types import AnyDict
 
 
 class CorrelationId(BaseModel):
@@ -66,7 +67,7 @@ class Message(BaseModel):
     correlationId: Optional[CorrelationId] = None
     contentType: Optional[str] = None
 
-    payload: Dict[str, Any]
+    payload: AnyDict
     # TODO:
     # headers
     # schemaFormat
@@ -74,7 +75,7 @@ class Message(BaseModel):
     # examples
     # traits
 
-    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = (
+    tags: Optional[List[Union[Tag, AnyDict]]] = (
         None
     )
 

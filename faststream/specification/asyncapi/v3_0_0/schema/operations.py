@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel
 
@@ -7,6 +7,7 @@ from faststream.specification.asyncapi.v2_6_0.schema.bindings import OperationBi
 from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
 from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
 from faststream.specification.asyncapi.v3_0_0.schema.channels import Channel
+from faststream.types import AnyDict
 
 
 class Operation(BaseModel):
@@ -36,7 +37,7 @@ class Operation(BaseModel):
     # TODO
     # traits
 
-    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
+    tags: Optional[List[Union[Tag, AnyDict]]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

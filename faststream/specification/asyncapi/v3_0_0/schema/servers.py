@@ -1,10 +1,11 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
 from faststream.specification.asyncapi.v2_6_0.schema import ServerVariable, Tag
 from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
+from faststream.types import AnyDict
 
 SecurityRequirement = List[Dict[str, List[str]]]
 
@@ -36,7 +37,7 @@ class Server(BaseModel):
     protocol: str
     description: Optional[str] = None
     protocolVersion: Optional[str] = None
-    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
+    tags: Optional[List[Union[Tag, AnyDict]]] = None
     security: Optional[SecurityRequirement] = None
     variables: Optional[Dict[str, Union[ServerVariable, Reference]]] = None
 

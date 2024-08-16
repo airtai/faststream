@@ -2,12 +2,13 @@
 
 References: https://github.com/asyncapi/bindings/tree/master/kafka
 """
-from typing import Any, Dict, Optional
+from typing import Optional
 
 from pydantic import BaseModel, PositiveInt
 from typing_extensions import Self
 
 from faststream.specification import schema as spec
+from faststream.types import AnyDict
 
 
 class ChannelBinding(BaseModel):
@@ -48,9 +49,9 @@ class OperationBinding(BaseModel):
         bindingVersion : version of the binding (default: "0.4.0")
     """
 
-    groupId: Optional[Dict[str, Any]] = None
-    clientId: Optional[Dict[str, Any]] = None
-    replyTo: Optional[Dict[str, Any]] = None
+    groupId: Optional[AnyDict] = None
+    clientId: Optional[AnyDict] = None
+    replyTo: Optional[AnyDict] = None
     bindingVersion: str = "0.4.0"
 
     @classmethod

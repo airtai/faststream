@@ -1,7 +1,6 @@
 from typing import (
     Any,
     Callable,
-    Dict,
     Iterable,
     Optional,
     Type,
@@ -20,6 +19,7 @@ from faststream._compat import (
 )
 from faststream.log import logger
 from faststream.specification.asyncapi.base.schema import BaseInfo
+from faststream.types import AnyDict
 
 try:
     import email_validator
@@ -179,5 +179,5 @@ class Info(BaseInfo):
     """
 
     termsOfService: Optional[AnyHttpUrl] = None
-    contact: Optional[Union[Contact, ContactDict, Dict[str, Any]]] = None
-    license: Optional[Union[License, LicenseDict, Dict[str, Any]]] = None
+    contact: Optional[Union[Contact, ContactDict, AnyDict]] = None
+    license: Optional[Union[License, LicenseDict, AnyDict]] = None

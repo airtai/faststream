@@ -16,7 +16,6 @@ class Channel(BaseModel):
         bindings : optional channel binding
         subscribe : optional operation for subscribing to the channel
         publish : optional operation for publishing to the channel
-        parameters : optional parameters associated with the channel
 
     Configurations:
         model_config : configuration for the model (only applicable for Pydantic version 2)

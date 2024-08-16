@@ -1,9 +1,10 @@
 from inspect import isclass
-from typing import TYPE_CHECKING, Any, Dict, Optional, Sequence, Type, overload
+from typing import TYPE_CHECKING, Any, Optional, Sequence, Type, overload
 
 from pydantic import BaseModel, create_model
 
 from faststream._compat import DEF_KEY, PYDANTIC_V2, get_model_fields, model_schema
+from faststream.types import AnyDict
 
 if TYPE_CHECKING:
     from fast_depends.core import CallModel
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 
 def parse_handler_params(
     call: "CallModel[Any, Any]", prefix: str = ""
-) -> Dict[str, Any]:
+) -> AnyDict:
     """Parses the handler parameters."""
     model = call.model
     assert model  # nosec B101
@@ -38,13 +39,13 @@ def get_response_schema(call: None, prefix: str = "") -> None: ...
 @overload
 def get_response_schema(
     call: "CallModel[Any, Any]", prefix: str = ""
-) -> Dict[str, Any]: ...
+) -> AnyDict: ...
 
 
 def get_response_schema(
     call: Optional["CallModel[Any, Any]"],
     prefix: str = "",
-) -> Optional[Dict[str, Any]]:
+) -> Optional[AnyDict]:
     """Get the response schema for a given call."""
     return get_model_schema(
         getattr(
@@ -67,14 +68,14 @@ def get_model_schema(
     call: Type[BaseModel],
     prefix: str = "",
     exclude: Sequence[str] = (),
-) -> Dict[str, Any]: ...
+) -> AnyDict: ...
 
 
 def get_model_schema(
     call: Optional[Type[BaseModel]],
     prefix: str = "",
     exclude: Sequence[str] = (),
-) -> Optional[Dict[str, Any]]:
+) -> Optional[AnyDict]:
     """Get the schema of a model."""
     if call is None:
         return None
@@ -100,7 +101,7 @@ def get_model_schema(
     if model is None:
         model = call
 
-    body: Dict[str, Any] = model_schema(model)
+    body: AnyDict = model_schema(model)
     body["properties"] = body.get("properties", {})
     for i in exclude:
         body["properties"].pop(i, None)
@@ -108,13 +109,13 @@ def get_model_schema(
         body["required"] = list(filter(lambda x: x not in exclude, required))
 
     if params_number == 1 and not use_original_model:
-        param_body: Dict[str, Any] = body.get("properties", {})
+        param_body: AnyDict = body.get("properties", {})
         param_body = param_body[name]
 
         if defs := body.get(DEF_KEY):
             # single argument with useless reference
             if param_body.get("$ref"):
-                ref_obj: Dict[str, Any] = next(iter(defs.values()))
+                ref_obj: AnyDict = next(iter(defs.values()))
                 return ref_obj
             else:
                 param_body[DEF_KEY] = defs
