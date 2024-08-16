@@ -10,9 +10,8 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     Reference,
     Tag,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
-    ChannelBinding,
-    OperationBinding,
+from faststream.specification.asyncapi.v2_6_0.schema.bindings.main import (
+    from_spec as channel_or_operation_binding_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.contact import (
     from_spec as contact_from_spec,
@@ -23,9 +22,7 @@ from faststream.specification.asyncapi.v2_6_0.schema.docs import (
 from faststream.specification.asyncapi.v2_6_0.schema.license import (
     from_spec as license_from_spec,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.message import (
-    Message,
-)
+from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
     from_spec as message_from_spec,
 )
@@ -196,7 +193,7 @@ def get_broker_operations(
                     action="receive",
                     summary=specs_channel.subscribe.summary,
                     description=specs_channel.subscribe.description,
-                    bindings=OperationBinding.from_spec(specs_channel.subscribe.bindings)
+                    bindings=channel_or_operation_binding_from_spec(specs_channel.subscribe.bindings)
                     if specs_channel.subscribe.bindings else None,
                     messages=[
                         Reference(
@@ -217,7 +214,7 @@ def get_broker_operations(
                     action="send",
                     summary=specs_channel.publish.summary,
                     description=specs_channel.publish.description,
-                    bindings=OperationBinding.from_spec(specs_channel.publish.bindings)
+                    bindings=channel_or_operation_binding_from_spec(specs_channel.publish.bindings)
                     if specs_channel.publish.bindings else None,
                     messages=[
                         Reference(
@@ -251,7 +248,7 @@ def get_broker_channels(
                     },
                     description=specs_channel.description,
                     servers=specs_channel.servers,
-                    bindings=ChannelBinding.from_spec(specs_channel.bindings)
+                    bindings=channel_or_operation_binding_from_spec(specs_channel.bindings)
                     if specs_channel.bindings else None,
                 )
 
@@ -270,7 +267,7 @@ def get_broker_channels(
                     },
                     description=specs_channel.description,
                     servers=specs_channel.servers,
-                    bindings=ChannelBinding.from_spec(specs_channel.bindings)
+                    bindings=channel_or_operation_binding_from_spec(specs_channel.bindings)
                     if specs_channel.bindings else None,
                 )
 

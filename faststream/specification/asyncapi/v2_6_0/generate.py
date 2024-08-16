@@ -13,6 +13,9 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     Server,
     Tag,
 )
+from faststream.specification.asyncapi.v2_6_0.schema.channels import (
+    from_spec as channel_from_spec,
+)
 from faststream.specification.asyncapi.v2_6_0.schema.contact import (
     from_spec as contact_from_spec,
 )
@@ -164,14 +167,14 @@ def get_broker_channels(
     for h in broker._subscribers.values():
         schema = h.schema()
         channels.update({
-            key: Channel.from_spec(channel)
+            key: channel_from_spec(channel)
             for key, channel in schema.items()
         })
 
     for p in broker._publishers.values():
         schema = p.schema()
         channels.update({
-            key: Channel.from_spec(channel)
+            key: channel_from_spec(channel)
             for key, channel in schema.items()
         })
 

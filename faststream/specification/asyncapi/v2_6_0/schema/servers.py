@@ -35,7 +35,6 @@ class ServerVariable(BaseModel):
             extra = "allow"
 
 
-
 class Server(BaseModel):
     """A class to represent a server.
 

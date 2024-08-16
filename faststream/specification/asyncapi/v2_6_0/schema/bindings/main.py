@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel
 from typing_extensions import Self
@@ -110,3 +110,12 @@ class OperationBinding(BaseModel):
             redis=redis_bindings.OperationBinding.from_spec(binding.redis)
             if binding.redis is not None else None,
         )
+
+
+def from_spec(
+        binding: Union[spec.bindings.ChannelBinding, spec.bindings.OperationBinding]
+) -> Union[ChannelBinding, OperationBinding]:
+    if isinstance(binding, spec.bindings.ChannelBinding):
+        return ChannelBinding.from_spec(binding)
+
+    return OperationBinding.from_spec(binding)

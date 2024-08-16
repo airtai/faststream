@@ -6,6 +6,9 @@ from typing_extensions import Self
 from faststream._compat import PYDANTIC_V2
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import OperationBinding
+from faststream.specification.asyncapi.v2_6_0.schema.bindings.main import (
+    from_spec as channel_or_operation_binding_from_spec,
+)
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
     from_spec as message_from_spec,
@@ -64,7 +67,7 @@ class Operation(BaseModel):
             summary=operation.summary,
             description=operation.description,
 
-            bindings=OperationBinding.from_spec(operation.bindings)
+            bindings=channel_or_operation_binding_from_spec(operation.bindings)
             if operation.bindings is not None else None,
 
             message=message_from_spec(operation.message)
@@ -74,3 +77,6 @@ class Operation(BaseModel):
             if operation.tags is not None else None,
         )
 
+
+def from_spec(operation: spec.operation.Operation) -> Operation:
+    return Operation.from_spec(operation)
