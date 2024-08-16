@@ -661,7 +661,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         )
 
     @override
-    def publisher(  # type: ignore[override]
+    def publisher(
         self,
         channel: Annotated[
             Union[str, PubSub, None],

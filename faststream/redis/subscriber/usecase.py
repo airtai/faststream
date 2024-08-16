@@ -147,7 +147,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         )
 
     @override
-    async def start(  # type: ignore[override]
+    async def start(
         self,
         *args: Any,
     ) -> None:

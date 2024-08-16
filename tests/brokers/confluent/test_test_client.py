@@ -1,11 +1,15 @@
 import asyncio
+from unittest.mock import patch
 
 import pytest
 
 from faststream import BaseMiddleware
 from faststream.confluent import KafkaBroker, TestKafkaBroker
+from faststream.confluent.annotations import KafkaMessage
+from faststream.confluent.message import FAKE_CONSUMER
 from faststream.confluent.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
+from tests.tools import spy_decorator
 
 from .basic import ConfluentTestcaseConfig
 
@@ -24,6 +28,29 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
 
     def get_fake_producer_class(self) -> type:
         return FakeProducer
+
+    async def test_message_nack_seek(
+        self,
+        queue: str,
+    ):
+        broker = self.get_broker(apply_types=True)
+
+        @broker.subscriber(
+            queue,
+            group_id=f"{queue}-consume",
+            auto_commit=False,
+            auto_offset_reset="earliest",
+        )
+        async def m(msg: KafkaMessage):
+            await msg.nack()
+
+        async with self.patch_broker(broker) as br:
+            with patch.object(
+                FAKE_CONSUMER, "seek", spy_decorator(FAKE_CONSUMER.seek)
+            ) as mocked:
+                await br.publish("hello", queue)
+                m.mock.assert_called_once_with("hello")
+                mocked.mock.assert_called_once()
 
     @pytest.mark.confluent()
     async def test_with_real_testclient(

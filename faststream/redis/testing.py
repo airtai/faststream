@@ -65,7 +65,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         *args: Any,
         **kwargs: Any,
     ) -> AsyncMock:
-        broker._producer = FakeProducer(broker)  # type: ignore[assignment]
+        broker._producer = FakeProducer(broker)
         connection = MagicMock()
 
         pub_sub = AsyncMock()

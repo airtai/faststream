@@ -100,7 +100,7 @@ class AsyncConfluentProducer:
                 }
             )
 
-        self.producer = Producer(self.config, logger=self.logger)  # type: ignore[call-arg]
+        self.producer = Producer(self.config, logger=self.logger)
 
     async def stop(self) -> None:
         """Stop the Kafka producer and flush remaining messages."""
@@ -267,7 +267,7 @@ class AsyncConfluentConsumer:
                 }
             )
 
-        self.consumer = Consumer(self.config, logger=self.logger)  # type: ignore[call-arg]
+        self.consumer = Consumer(self.config, logger=self.logger)
 
     @property
     def topics_to_create(self) -> List[str]:
@@ -336,7 +336,7 @@ class AsyncConfluentConsumer:
     ) -> Tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
         raw_messages: List[Optional[Message]] = await call_or_await(
-            self.consumer.consume,  # type: ignore[arg-type]
+            self.consumer.consume,
             num_messages=max_records or 10,
             timeout=timeout,
         )

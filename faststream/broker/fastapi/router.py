@@ -376,7 +376,7 @@ class StreamRouter(
         Callable[["AppType"], Awaitable[None]],
     ]:
         """Register a function to be executed after startup."""
-        self._after_startup_hooks.append(to_async(func))  # type: ignore
+        self._after_startup_hooks.append(to_async(func))
         return func
 
     @overload
@@ -402,7 +402,7 @@ class StreamRouter(
         Callable[["AppType"], Awaitable[None]],
     ]:
         """Register a function to be executed before broker stop."""
-        self._on_shutdown_hooks.append(to_async(func))  # type: ignore
+        self._on_shutdown_hooks.append(to_async(func))
         return func
 
     @abstractmethod
