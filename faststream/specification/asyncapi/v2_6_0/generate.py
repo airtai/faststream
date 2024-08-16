@@ -8,15 +8,10 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
     Info,
-    Operation,
     Reference,
     Schema,
     Server,
     Tag,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
-    ChannelBinding,
-    OperationBinding,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.contact import (
     from_spec as contact_from_spec,
@@ -29,9 +24,6 @@ from faststream.specification.asyncapi.v2_6_0.schema.license import (
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
     Message,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.message import (
-    from_spec as message_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.tag import (
     from_spec as tag_from_spec,
@@ -174,52 +166,18 @@ def get_broker_channels(
     for h in broker._subscribers.values():
         schema = h.schema()
         channels.update({
-            key: specs_channel_to_asyncapi(channel)
+            key: Channel.from_spec(channel)
             for key, channel in schema.items()
         })
 
     for p in broker._publishers.values():
         schema = p.schema()
         channels.update({
-            key: specs_channel_to_asyncapi(channel)
+            key: Channel.from_spec(channel)
             for key, channel in schema.items()
         })
 
     return channels
-
-
-
-def specs_channel_to_asyncapi(channel: spec.channel.Channel) -> Channel:
-    return Channel(
-        description=channel.description,
-        servers=channel.servers,
-
-        bindings=ChannelBinding.from_spec(channel.bindings)
-        if channel.bindings else None,
-
-        subscribe=specs_operation_to_asyncapi(channel.subscribe)
-        if channel.subscribe else None,
-
-        publish=specs_operation_to_asyncapi(channel.publish)
-        if channel.publish else None,
-    )
-
-
-def specs_operation_to_asyncapi(operation: spec.operation.Operation) -> Operation:
-    return Operation(
-        operationId=operation.operationId,
-        summary=operation.summary,
-        description=operation.description,
-
-        bindings=OperationBinding.from_spec(operation.bindings)
-        if operation.bindings else None,
-
-        message=message_from_spec(operation.message),
-        security=operation.security,
-
-        tags=[tag_from_spec(tag) for tag in operation.tags]
-        if operation.tags else None,
-    )
 
 
 def _resolve_msg_payloads(

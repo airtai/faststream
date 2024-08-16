@@ -1,8 +1,10 @@
 from typing import List, Optional
 
 from pydantic import BaseModel
+from typing_extensions import Self
 
 from faststream._compat import PYDANTIC_V2
+from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import ChannelBinding
 from faststream.specification.asyncapi.v2_6_0.schema.operations import Operation
 
@@ -39,3 +41,19 @@ class Channel(BaseModel):
 
         class Config:
             extra = "allow"
+
+    @classmethod
+    def from_spec(cls, channel: spec.channel.Channel) -> Self:
+        return cls(
+            description=channel.description,
+            servers=channel.servers,
+
+            bindings=ChannelBinding.from_spec(channel.bindings)
+            if channel.bindings is not None else None,
+
+            subscribe=Operation.from_spec(channel.subscribe)
+            if channel.subscribe is not None else None,
+
+            publish=Operation.from_spec(channel.publish)
+            if channel.publish is not None else None,
+        )

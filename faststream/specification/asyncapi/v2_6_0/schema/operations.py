@@ -1,11 +1,19 @@
 from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel
+from typing_extensions import Self
 
 from faststream._compat import PYDANTIC_V2
+from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import OperationBinding
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
+from faststream.specification.asyncapi.v2_6_0.schema.message import (
+    from_spec as message_from_spec,
+)
 from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
+from faststream.specification.asyncapi.v2_6_0.schema.tag import (
+    from_spec as tag_from_spec,
+)
 from faststream.specification.asyncapi.v2_6_0.schema.utils import (
     Reference,
 )
@@ -48,3 +56,21 @@ class Operation(BaseModel):
 
         class Config:
             extra = "allow"
+
+    @classmethod
+    def from_spec(cls, operation: spec.operation.Operation) -> Self:
+        return cls(
+            operationId=operation.operationId,
+            summary=operation.summary,
+            description=operation.description,
+
+            bindings=OperationBinding.from_spec(operation.bindings)
+            if operation.bindings is not None else None,
+
+            message=message_from_spec(operation.message)
+            if operation.message is not None else None,
+
+            tags=[tag_from_spec(tag) for tag in operation.tags]
+            if operation.tags is not None else None,
+        )
+
