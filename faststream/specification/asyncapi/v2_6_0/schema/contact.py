@@ -4,10 +4,12 @@ from typing import (
     Iterable,
     Optional,
     Type,
+    Union,
+    overload,
 )
 
 from pydantic import AnyHttpUrl, BaseModel
-from typing_extensions import Required, TypedDict
+from typing_extensions import Self
 
 from faststream._compat import (
     PYDANTIC_V2,
@@ -17,6 +19,8 @@ from faststream._compat import (
     with_info_plain_validator_function,
 )
 from faststream.log import logger
+from faststream.specification import schema as spec
+from faststream.types import AnyDict
 
 try:
     import email_validator
@@ -87,21 +91,6 @@ except ImportError:  # pragma: no cover
             return with_info_plain_validator_function(cls._validate)  # type: ignore[no-any-return]
 
 
-class ContactDict(TypedDict, total=False):
-    """A class to represent a dictionary of contact information.
-
-    Attributes:
-        name : required name of the contact (type: str)
-        url : URL of the contact (type: AnyHttpUrl)
-        email : email address of the contact (type: EmailStr)
-
-    """
-
-    name: Required[str]
-    url: AnyHttpUrl
-    # email: EmailStr
-
-
 class Contact(BaseModel):
     """A class to represent a contact.
 
@@ -123,3 +112,32 @@ class Contact(BaseModel):
 
         class Config:
             extra = "allow"
+
+    @classmethod
+    def from_spec(cls, contact: spec.contact.Contact) -> Self:
+        return cls(
+            name=contact.name,
+            url=contact.url,
+            email=contact.email,
+        )
+
+
+@overload
+def from_spec(contact: spec.contact.Contact) -> Contact: ...
+
+
+@overload
+def from_spec(contact: spec.contact.ContactDict) -> AnyDict: ...
+
+
+@overload
+def from_spec(contact: AnyDict) -> AnyDict: ...
+
+
+def from_spec(
+        contact: Union[spec.contact.Contact, spec.contact.ContactDict, AnyDict]
+) -> Union[Contact, AnyDict]:
+    if isinstance(contact, spec.contact.Contact):
+        return Contact.from_spec(contact)
+
+    return dict(contact)

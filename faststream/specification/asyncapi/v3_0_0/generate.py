@@ -5,9 +5,6 @@ from urllib.parse import urlparse
 from faststream._compat import DEF_KEY
 from faststream.constants import ContentTypes
 from faststream.specification import schema as spec
-from faststream.specification.asyncapi.v2_6_0.generate import (
-    specs_contact_to_asyncapi,
-)
 from faststream.specification.asyncapi.v2_6_0.schema import (
     ExternalDocs,
     Reference,
@@ -16,6 +13,9 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     ChannelBinding,
     OperationBinding,
+)
+from faststream.specification.asyncapi.v2_6_0.schema.contact import (
+    from_spec as contact_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.license import (
     from_spec as license_from_spec,
@@ -83,7 +83,7 @@ def get_app_schema(app: Application) -> Schema:
             description=app.description,
             termsOfService=app.terms_of_service,
 
-            contact=specs_contact_to_asyncapi(app.contact)
+            contact=contact_from_spec(app.contact)
             if app.contact else None,
 
             license=license_from_spec(app.license)

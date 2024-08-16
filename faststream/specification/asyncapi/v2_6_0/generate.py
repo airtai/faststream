@@ -7,7 +7,6 @@ from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
-    Contact,
     Info,
     Operation,
     Reference,
@@ -18,6 +17,9 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     ChannelBinding,
     OperationBinding,
+)
+from faststream.specification.asyncapi.v2_6_0.schema.contact import (
+    from_spec as contact_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.docs import (
     from_spec as docs_from_spec,
@@ -35,7 +37,6 @@ from faststream.specification.asyncapi.v2_6_0.schema.tag import (
     from_spec as tag_from_spec,
 )
 from faststream.specification.proto import Application
-
 from faststream.types import AnyDict
 
 if TYPE_CHECKING:
@@ -79,14 +80,13 @@ def get_app_schema(app: Application) -> Schema:
                     payloads,
                     messages,
                 )
-
     schema = Schema(
         info=Info(
             title=app.title,
             version=app.version,
             description=app.description,
             termsOfService=app.terms_of_service,
-            contact=specs_contact_to_asyncapi(app.contact)
+            contact=contact_from_spec(app.contact)
             if app.contact else None,
             license=license_from_spec(app.license)
             if app.license else None,
@@ -186,15 +186,6 @@ def get_broker_channels(
         })
 
     return channels
-
-
-def specs_contact_to_asyncapi(
-        contact: Union["spec.contact.Contact", "spec.contact.ContactDict", "AnyDict"]
-) -> Union["Contact", "AnyDict"]:
-    if isinstance(contact, spec.contact.Contact):
-        return Contact(**contact.dict())
-
-    return dict(contact)
 
 
 
