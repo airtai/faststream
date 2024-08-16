@@ -21,9 +21,6 @@ from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     OperationBinding,
     amqp,
     kafka,
-    nats,
-    redis,
-    sqs,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.docs import (
     from_spec as docs_from_spec,
@@ -214,7 +211,7 @@ def specs_channel_to_asyncapi(channel: spec.channel.Channel) -> Channel:
         description=channel.description,
         servers=channel.servers,
 
-        bindings=specs_channel_binding_to_asyncapi(channel.bindings)
+        bindings=ChannelBinding.from_spec(channel.bindings)
         if channel.bindings else None,
 
         subscribe=specs_operation_to_asyncapi(channel.subscribe)
@@ -222,25 +219,6 @@ def specs_channel_to_asyncapi(channel: spec.channel.Channel) -> Channel:
 
         publish=specs_operation_to_asyncapi(channel.publish)
         if channel.publish else None,
-    )
-
-
-def specs_channel_binding_to_asyncapi(binding: spec.bindings.ChannelBinding) -> ChannelBinding:
-    return ChannelBinding(
-        amqp=amqp.ChannelBinding.from_spec(binding.amqp)
-        if binding.amqp is not None else None,
-
-        kafka=kafka.ChannelBinding.from_spec(binding.kafka)
-        if binding.kafka else None,
-
-        sqs=sqs.ChannelBinding.from_spec(binding.sqs)
-        if binding.sqs else None,
-
-        nats=nats.ChannelBinding.from_spec(binding.nats)
-        if binding.nats else None,
-
-        redis=redis.ChannelBinding.from_spec(binding.redis)
-        if binding.redis else None,
     )
 
 

@@ -6,7 +6,6 @@ from faststream._compat import DEF_KEY
 from faststream.constants import ContentTypes
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.generate import (
-    specs_channel_binding_to_asyncapi,
     specs_contact_to_asyncapi,
     specs_license_to_asyncapi,
     specs_operation_binding_to_asyncapi,
@@ -16,6 +15,7 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     Reference,
     Tag,
 )
+from faststream.specification.asyncapi.v2_6_0.schema.bindings import ChannelBinding
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
     Message,
 )
@@ -243,7 +243,7 @@ def get_broker_channels(
                     },
                     description=specs_channel.description,
                     servers=specs_channel.servers,
-                    bindings=specs_channel_binding_to_asyncapi(specs_channel.bindings)
+                    bindings=ChannelBinding.from_spec(specs_channel.bindings)
                     if specs_channel.bindings else None,
                 )
 
@@ -262,7 +262,7 @@ def get_broker_channels(
                     },
                     description=specs_channel.description,
                     servers=specs_channel.servers,
-                    bindings=specs_channel_binding_to_asyncapi(specs_channel.bindings)
+                    bindings=ChannelBinding.from_spec(specs_channel.bindings)
                     if specs_channel.bindings else None,
                 )
 
