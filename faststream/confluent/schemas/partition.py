@@ -36,4 +36,4 @@ class TopicPartition:
             kwargs["metadata"] = self.metadata
         if self.leader_epoch is not None:
             kwargs["leader_epoch"] = self.leader_epoch
-        return ConfluentPartition(**kwargs)  # type: ignore[arg-type]
+        return ConfluentPartition(**kwargs)

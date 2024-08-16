@@ -104,7 +104,7 @@ class ChannelPublisher(LogicPublisher):
         self.channel = channel
 
     @override
-    async def publish(  # type: ignore[override]
+    async def publish(
         self,
         message: Annotated[
             "SendableMessage",
@@ -231,7 +231,7 @@ class ListPublisher(LogicPublisher):
         self.list = list_sub
 
     @override
-    async def publish(  # type: ignore[override]
+    async def publish(
         self,
         message: Annotated[
             "SendableMessage",
@@ -405,7 +405,7 @@ class StreamPublisher(LogicPublisher):
         self.stream = stream_sub
 
     @override
-    async def publish(  # type: ignore[override]
+    async def publish(
         self,
         message: Annotated[
             "SendableMessage",

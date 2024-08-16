@@ -46,7 +46,7 @@ class TestNatsBroker(TestBroker[NatsBroker]):
         *args: Any,
         **kwargs: Any,
     ) -> AsyncMock:
-        broker.stream = AsyncMock()  # type: ignore[assignment]
+        broker.stream = AsyncMock()
         broker._js_producer = broker._producer = FakeProducer(broker)  # type: ignore[assignment]
         return AsyncMock()
 
