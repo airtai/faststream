@@ -374,7 +374,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         queue: str,
         mock: Mock,
         tracer_provider: TracerProvider,
-        trace_exporter: InMemorySpanExporter
+        trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.broker_class(middlewares=(mid,))
