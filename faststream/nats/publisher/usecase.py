@@ -129,7 +129,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         return await call(message, **kwargs)
 
     @override
-    async def request(  # type: ignore[override]
+    async def request(
         self,
         message: Annotated[
             "SendableMessage",

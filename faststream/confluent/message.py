@@ -76,7 +76,7 @@ class KafkaMessage(
                 if isinstance(self.raw_message, tuple)
                 else self.raw_message
             )
-            await self.consumer.seek(  # type: ignore[attr-defined]
+            await self.consumer.seek(
                 topic=raw_message.topic(),
                 partition=raw_message.partition(),
                 offset=raw_message.offset(),

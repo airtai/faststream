@@ -201,7 +201,7 @@ class ChannelPublisher(LogicPublisher):
         )
 
     @override
-    async def request(  # type: ignore[override]
+    async def request(
         self,
         message: Annotated[
             "SendableMessage",
@@ -398,7 +398,7 @@ class ListPublisher(LogicPublisher):
         )
 
     @override
-    async def request(  # type: ignore[override]
+    async def request(
         self,
         message: Annotated[
             "SendableMessage",
@@ -652,7 +652,7 @@ class StreamPublisher(LogicPublisher):
         )
 
     @override
-    async def request(  # type: ignore[override]
+    async def request(
         self,
         message: Annotated[
             "SendableMessage",
