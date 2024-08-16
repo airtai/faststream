@@ -69,7 +69,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
             def publisher_response_subscriber(msg: Any) -> None:
                 pass
 
-            broker.setup_subscriber(sub)  # type: ignore[arg-type]
+            broker.setup_subscriber(sub)
 
         return sub.calls[0].handler
 

@@ -38,7 +38,7 @@ except ImportError:
     orjson = None
 
 try:
-    import ujson  # type: ignore[no-redef]
+    import ujson
 except ImportError:
     ujson = None
 
@@ -94,7 +94,7 @@ if PYDANTIC_V2:
         from pydantic.annotated_handlers import (
             GetJsonSchemaHandler as GetJsonSchemaHandler,
         )
-        from pydantic_core.core_schema import (  # type: ignore[attr-defined]
+        from pydantic_core.core_schema import (
             with_info_plain_validator_function as with_info_plain_validator_function,
         )
     else:
@@ -190,7 +190,7 @@ if ANYIO_V3:
     from anyio import ExceptionGroup as ExceptionGroup  # type: ignore[attr-defined]
 else:
     if sys.version_info < (3, 11):
-        from exceptiongroup import (  # type: ignore[assignment,no-redef]
+        from exceptiongroup import (
             ExceptionGroup as ExceptionGroup,
         )
     else:

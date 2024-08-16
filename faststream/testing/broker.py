@@ -93,7 +93,7 @@ class TestBroker(Generic[Broker]):
 
         # TODO: remove useless middlewares filter
         middlewares: Tuple[BrokerMiddleware[Any], ...] = (
-            CriticalLogMiddleware(  # type: ignore[arg-type]
+            CriticalLogMiddleware(
                 logger=self.broker.logger,
                 log_level=self.broker._msg_log_level,
             ),

@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 
 class StreamRoute(
-    BaseRoute,  # type: ignore[misc]
+    BaseRoute,
     Generic[MsgType, P_HandlerParams, T_HandlerReturn],
 ):
     """A class representing a stream route."""
@@ -114,16 +114,16 @@ class StreamRoute(
         else:
             handler = call  # type: ignore[assignment]
 
-        self.handler = broker.subscriber(  # type: ignore[assignment,call-arg]
+        self.handler = broker.subscriber(  # type: ignore[call-arg]
             *extra,
             dependencies=list(dependencies),
             **handle_kwargs,
         )(
-            handler,  # type: ignore[arg-type]
+            handler,
         )
 
 
-class StreamMessage(Request):  # type: ignore[misc]
+class StreamMessage(Request):
     """A class to represent a stream message."""
 
     scope: "AnyDict"
