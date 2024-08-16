@@ -377,8 +377,8 @@
 <a id=__codelineno-0-148 name=__codelineno-0-148></a>            <span class=n>model</span><span class=o>=</span><span class=n>create_model</span><span class=p>(</span><span class=s2>&quot;Fake&quot;</span><span class=p>),</span>
 <a id=__codelineno-0-149 name=__codelineno-0-149></a>            <span class=n>response_model</span><span class=o>=</span><span class=n>create_model</span><span class=p>(</span>  <span class=c1># type: ignore[call-overload]</span>
 <a id=__codelineno-0-150 name=__codelineno-0-150></a>                <span class=s2>&quot;&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-151 name=__codelineno-0-151></a>                <span class=n>__config__</span><span class=o>=</span><span class=n>get_config_base</span><span class=p>(),</span>  <span class=c1># type: ignore[arg-type]</span>
-<a id=__codelineno-0-152 name=__codelineno-0-152></a>                <span class=o>**</span><span class=n>params</span><span class=p>,</span>  <span class=c1># type: ignore[arg-type]</span>
+<a id=__codelineno-0-151 name=__codelineno-0-151></a>                <span class=n>__config__</span><span class=o>=</span><span class=n>get_config_base</span><span class=p>(),</span>
+<a id=__codelineno-0-152 name=__codelineno-0-152></a>                <span class=o>**</span><span class=n>params</span><span class=p>,</span>
 <a id=__codelineno-0-153 name=__codelineno-0-153></a>            <span class=p>),</span>
 <a id=__codelineno-0-154 name=__codelineno-0-154></a>            <span class=n>params</span><span class=o>=</span><span class=n>params</span><span class=p>,</span>
 <a id=__codelineno-0-155 name=__codelineno-0-155></a>        <span class=p>)</span>
@@ -519,7 +519,7 @@
 <a id=__codelineno-0-48 name=__codelineno-0-48></a>
 <a id=__codelineno-0-49 name=__codelineno-0-49></a>    <span class=k>return</span> <span class=p>{</span>
 <a id=__codelineno-0-50 name=__codelineno-0-50></a>        <span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=p>:</span> <span class=n>Channel</span><span class=p>(</span>
-<a id=__codelineno-0-51 name=__codelineno-0-51></a>            <span class=n>description</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>description</span><span class=p>,</span>  <span class=c1># type: ignore[attr-defined]</span>
+<a id=__codelineno-0-51 name=__codelineno-0-51></a>            <span class=n>description</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>description</span><span class=p>,</span>
 <a id=__codelineno-0-52 name=__codelineno-0-52></a>            <span class=n>publish</span><span class=o>=</span><span class=n>Operation</span><span class=p>(</span>
 <a id=__codelineno-0-53 name=__codelineno-0-53></a>                <span class=n>bindings</span><span class=o>=</span><span class=n>OperationBinding</span><span class=p>(</span>
 <a id=__codelineno-0-54 name=__codelineno-0-54></a>                    <span class=n>amqp</span><span class=o>=</span><span class=n>amqp</span><span class=o>.</span><span class=n>OperationBinding</span><span class=p>(</span>
@@ -547,7 +547,7 @@
 <a id=__codelineno-0-76 name=__codelineno-0-76></a>            <span class=n>bindings</span><span class=o>=</span><span class=n>ChannelBinding</span><span class=p>(</span>
 <a id=__codelineno-0-77 name=__codelineno-0-77></a>                <span class=n>amqp</span><span class=o>=</span><span class=n>amqp</span><span class=o>.</span><span class=n>ChannelBinding</span><span class=p>(</span>
 <a id=__codelineno-0-78 name=__codelineno-0-78></a>                    <span class=o>**</span><span class=p>{</span>
-<a id=__codelineno-0-79 name=__codelineno-0-79></a>                        <span class=s2>&quot;is&quot;</span><span class=p>:</span> <span class=s2>&quot;routingKey&quot;</span><span class=p>,</span>  <span class=c1># type: ignore</span>
+<a id=__codelineno-0-79 name=__codelineno-0-79></a>                        <span class=s2>&quot;is&quot;</span><span class=p>:</span> <span class=s2>&quot;routingKey&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-80 name=__codelineno-0-80></a>                        <span class=s2>&quot;queue&quot;</span><span class=p>:</span> <span class=n>amqp</span><span class=o>.</span><span class=n>Queue</span><span class=p>(</span>
 <a id=__codelineno-0-81 name=__codelineno-0-81></a>                            <span class=n>name</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>queue</span><span class=o>.</span><span class=n>name</span><span class=p>,</span>
 <a id=__codelineno-0-82 name=__codelineno-0-82></a>                            <span class=n>durable</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>queue</span><span class=o>.</span><span class=n>durable</span><span class=p>,</span>
@@ -561,7 +561,7 @@
 <a id=__codelineno-0-90 name=__codelineno-0-90></a>                            <span class=n>amqp</span><span class=o>.</span><span class=n>Exchange</span><span class=p>(</span><span class=nb>type</span><span class=o>=</span><span class=s2>&quot;default&quot;</span><span class=p>,</span> <span class=n>vhost</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>virtual_host</span><span class=p>)</span>
 <a id=__codelineno-0-91 name=__codelineno-0-91></a>                            <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>exchange</span><span class=o>.</span><span class=n>name</span>
 <a id=__codelineno-0-92 name=__codelineno-0-92></a>                            <span class=k>else</span> <span class=n>amqp</span><span class=o>.</span><span class=n>Exchange</span><span class=p>(</span>
-<a id=__codelineno-0-93 name=__codelineno-0-93></a>                                <span class=nb>type</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>exchange</span><span class=o>.</span><span class=n>type</span><span class=o>.</span><span class=n>value</span><span class=p>,</span>  <span class=c1># type: ignore</span>
+<a id=__codelineno-0-93 name=__codelineno-0-93></a>                                <span class=nb>type</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>exchange</span><span class=o>.</span><span class=n>type</span><span class=o>.</span><span class=n>value</span><span class=p>,</span>
 <a id=__codelineno-0-94 name=__codelineno-0-94></a>                                <span class=n>name</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>exchange</span><span class=o>.</span><span class=n>name</span><span class=p>,</span>
 <a id=__codelineno-0-95 name=__codelineno-0-95></a>                                <span class=n>durable</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>exchange</span><span class=o>.</span><span class=n>durable</span><span class=p>,</span>
 <a id=__codelineno-0-96 name=__codelineno-0-96></a>                                <span class=n>autoDelete</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>exchange</span><span class=o>.</span><span class=n>auto_delete</span><span class=p>,</span>
