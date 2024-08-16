@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 class SpecificationPublisher(LogicPublisher):
     """AsyncAPI-compatible Rabbit Publisher class.
 
-    Creting by
+    Creating by
 
     ```python
     publisher: SpecificationPublisher = broker.publisher(...)
@@ -47,7 +47,7 @@ class SpecificationPublisher(LogicPublisher):
 
         return {
             self.name: Channel(
-                description=self.description,  # type: ignore[attr-defined]
+                description=self.description,
                 publish=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
