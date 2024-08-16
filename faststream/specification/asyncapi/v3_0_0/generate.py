@@ -1,10 +1,8 @@
-from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 from urllib.parse import urlparse
 
 from faststream._compat import DEF_KEY
 from faststream.constants import ContentTypes
-from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.generate import move_pydantic_refs
 from faststream.specification.asyncapi.v2_6_0.schema import (
     Reference,
@@ -120,22 +118,15 @@ def get_broker_server(
     """Get the broker server for an application."""
     servers = {}
 
-    tags: List[Union[Tag, AnyDict]] = []
+    tags: Optional[List[Union[Tag, AnyDict]]] = None
     if broker.tags:
-
-        for tag in broker.tags:
-            if isinstance(tag, spec.tag.Tag):
-                tags.append(Tag(**asdict(tag)))
-            elif isinstance(tag, dict):
-                tags.append(dict(tag))
-            else:
-                raise NotImplementedError(f"Unsupported tag type: {tag}; {type(tag)}")
+        tags = [tag_from_spec(tag) for tag in broker.tags]
 
     broker_meta: AnyDict = {
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,
-        "tags": tags if tags else None,
+        "tags": tags if tags is not None else None,
         # TODO
         # "variables": "",
         # "bindings": "",

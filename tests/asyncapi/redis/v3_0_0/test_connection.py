@@ -44,7 +44,7 @@ def test_custom():
         FastStream(
             RedisBroker(
                 "redis://localhost:6379",
-                asyncapi_url="rediss://127.0.0.1:8000"
+                specification_url="rediss://127.0.0.1:8000"
             ),
             asyncapi_version=AsyncAPIVersion.v3_0,
         )

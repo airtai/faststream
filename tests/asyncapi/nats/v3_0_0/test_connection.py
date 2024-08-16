@@ -78,7 +78,7 @@ def test_custom():
         FastStream(
             NatsBroker(
                 ["nats:9092", "nats:9093"],
-                asyncapi_url=["nats:9094", "nats:9095"],
+                specification_url=["nats:9094", "nats:9095"],
             ),
             asyncapi_version=AsyncAPIVersion.v3_0,
         )

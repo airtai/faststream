@@ -283,7 +283,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
                 "Security options to connect broker and generate Specification server security information."
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Optional[str],
             Doc("Specification hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -583,7 +583,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             protocol_version=protocol_version,
             asyncapi_version=asyncapi_version,
             asyncapi_tags=asyncapi_tags,
-            asyncapi_url=asyncapi_url,
+            specification_url=specification_url,
             # FastAPI kwargs
             prefix=prefix,
             tags=tags,

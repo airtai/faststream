@@ -50,7 +50,7 @@ def test_kwargs():
 def test_custom():
     broker = RabbitBroker(
         "amqps://localhost",
-        asyncapi_url="amqp://guest:guest@127.0.0.1:5672/vh",  # pragma: allowlist secret
+        specification_url="amqp://guest:guest@127.0.0.1:5672/vh",  # pragma: allowlist secret
     )
 
     broker.publisher("test")

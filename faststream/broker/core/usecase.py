@@ -134,7 +134,7 @@ class BrokerUsecase(
             Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ],
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Union[str, List[str]],
             Doc("AsyncAPI hardcoded server addresses."),
         ],
@@ -192,7 +192,7 @@ class BrokerUsecase(
         self._call_decorators = _call_decorators
 
         # AsyncAPI information
-        self.url = asyncapi_url
+        self.url = specification_url
         self.protocol = protocol
         self.protocol_version = protocol_version
         self.description = description

@@ -76,7 +76,7 @@ def test_custom():
         FastStream(
             KafkaBroker(
                 ["kafka:9092", "kafka:9093"],
-                asyncapi_url=["kafka:9094", "kafka:9095"],
+                specification_url=["kafka:9094", "kafka:9095"],
             ),
             asyncapi_version=AsyncAPIVersion.v3_0,
         )

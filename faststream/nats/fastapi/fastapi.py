@@ -244,7 +244,7 @@ class NatsRouter(StreamRouter["Msg"]):
                 "Security options to connect broker and generate AsyncAPI server security information."
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Union[str, Iterable[str], None],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -547,7 +547,7 @@ class NatsRouter(StreamRouter["Msg"]):
             parser=parser,
             middlewares=middlewares,
             security=security,
-            asyncapi_url=asyncapi_url,
+            specification_url=specification_url,
             protocol=protocol,
             protocol_version=protocol_version,
             description=description,

@@ -165,7 +165,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 "Security options to connect broker and generate AsyncAPI server security information."
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Optional[str],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -450,7 +450,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             on_return_raises=on_return_raises,
             middlewares=middlewares,
             security=security,
-            asyncapi_url=asyncapi_url,
+            specification_url=specification_url,
             protocol=protocol,
             protocol_version=protocol_version,
             description=description,

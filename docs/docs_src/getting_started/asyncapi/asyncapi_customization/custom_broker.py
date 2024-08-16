@@ -4,7 +4,7 @@ from faststream.kafka import KafkaBroker
 broker = KafkaBroker(
     "localhost:9092",
     description="Kafka broker running locally",
-    asyncapi_url="non-sensitive-url:9092",
+    specification_url="non-sensitive-url:9092",
 )
 app = FastStream(broker)
 

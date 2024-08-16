@@ -175,7 +175,7 @@ class RabbitBroker(
                 "Security options to connect broker and generate AsyncAPI server security information."
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Optional[str],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -240,14 +240,14 @@ class RabbitBroker(
             ssl=security_args.get("ssl"),
         )
 
-        if asyncapi_url is None:
-            asyncapi_url = str(amqp_url)
+        if specification_url is None:
+            specification_url = str(amqp_url)
 
         # respect ascynapi_url argument scheme
-        builded_asyncapi_url = urlparse(asyncapi_url)
-        self.virtual_host = builded_asyncapi_url.path
+        builded_specification_url = urlparse(specification_url)
+        self.virtual_host = builded_specification_url.path
         if protocol is None:
-            protocol = builded_asyncapi_url.scheme
+            protocol = builded_specification_url.scheme
 
         super().__init__(
             url=str(amqp_url),
@@ -267,8 +267,8 @@ class RabbitBroker(
             middlewares=middlewares,
             # AsyncAPI args
             description=description,
-            asyncapi_url=asyncapi_url,
-            protocol=protocol or builded_asyncapi_url.scheme,
+            specification_url=specification_url,
+            protocol=protocol or builded_specification_url.scheme,
             protocol_version=protocol_version,
             security=security,
             tags=tags,

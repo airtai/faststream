@@ -144,7 +144,7 @@ class RedisBroker(
                 "Security options to connect broker and generate AsyncAPI server security information."
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Optional[str],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -197,11 +197,11 @@ class RedisBroker(
     ) -> None:
         self._producer = None
 
-        if asyncapi_url is None:
-            asyncapi_url = url
+        if specification_url is None:
+            specification_url = url
 
         if protocol is None:
-            url_kwargs = urlparse(asyncapi_url)
+            url_kwargs = urlparse(specification_url)
             protocol = url_kwargs.scheme
 
         super().__init__(
@@ -234,7 +234,7 @@ class RedisBroker(
             middlewares=middlewares,
             # AsyncAPI
             description=description,
-            asyncapi_url=asyncapi_url,
+            specification_url=specification_url,
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,
