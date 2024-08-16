@@ -7,7 +7,7 @@ from faststream._compat import PYDANTIC_V2
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import OperationBinding
 from faststream.specification.asyncapi.v2_6_0.schema.bindings.main import (
-    from_spec as channel_or_operation_binding_from_spec,
+    operation_binding_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
@@ -67,7 +67,7 @@ class Operation(BaseModel):
             summary=operation.summary,
             description=operation.description,
 
-            bindings=channel_or_operation_binding_from_spec(operation.bindings)
+            bindings=operation_binding_from_spec(operation.bindings)
             if operation.bindings is not None else None,
 
             message=message_from_spec(operation.message)

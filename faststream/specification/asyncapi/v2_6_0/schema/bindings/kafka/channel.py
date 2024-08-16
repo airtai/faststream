@@ -8,7 +8,6 @@ from pydantic import BaseModel, PositiveInt
 from typing_extensions import Self
 
 from faststream.specification import schema as spec
-from faststream.types import AnyDict
 
 
 class ChannelBinding(BaseModel):
@@ -39,26 +38,5 @@ class ChannelBinding(BaseModel):
         )
 
 
-class OperationBinding(BaseModel):
-    """A class to represent an operation binding.
-
-    Attributes:
-        groupId : optional dictionary representing the group ID
-        clientId : optional dictionary representing the client ID
-        replyTo : optional dictionary representing the reply-to
-        bindingVersion : version of the binding (default: "0.4.0")
-    """
-
-    groupId: Optional[AnyDict] = None
-    clientId: Optional[AnyDict] = None
-    replyTo: Optional[AnyDict] = None
-    bindingVersion: str = "0.4.0"
-
-    @classmethod
-    def from_spec(cls, binding: spec.bindings.kafka.OperationBinding) -> Self:
-        return cls(
-            groupId=binding.groupId,
-            clientId=binding.clientId,
-            replyTo=binding.replyTo,
-            bindingVersion=binding.bindingVersion,
-        )
+def from_spec(binding: spec.bindings.kafka.ChannelBinding) -> ChannelBinding:
+    return ChannelBinding.from_spec(binding)

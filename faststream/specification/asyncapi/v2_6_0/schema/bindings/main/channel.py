@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional
 
 from pydantic import BaseModel
 from typing_extensions import Self
@@ -66,56 +66,5 @@ class ChannelBinding(BaseModel):
         )
 
 
-class OperationBinding(BaseModel):
-    """A class to represent an operation binding.
-
-    Attributes:
-        amqp : AMQP operation binding (optional)
-        kafka : Kafka operation binding (optional)
-        sqs : SQS operation binding (optional)
-        nats : NATS operation binding (optional)
-        redis : Redis operation binding (optional)
-
-    """
-
-    amqp: Optional[amqp_bindings.OperationBinding] = None
-    kafka: Optional[kafka_bindings.OperationBinding] = None
-    sqs: Optional[sqs_bindings.OperationBinding] = None
-    nats: Optional[nats_bindings.OperationBinding] = None
-    redis: Optional[redis_bindings.OperationBinding] = None
-
-    if PYDANTIC_V2:
-        model_config = {"extra": "allow"}
-
-    else:
-
-        class Config:
-            extra = "allow"
-
-    @classmethod
-    def from_spec(cls, binding: spec.bindings.OperationBinding) -> Self:
-        return cls(
-            amqp=amqp_bindings.OperationBinding.from_spec(binding.amqp)
-            if binding.amqp is not None else None,
-
-            kafka=kafka_bindings.OperationBinding.from_spec(binding.kafka)
-            if binding.kafka is not None else None,
-
-            sqs=sqs_bindings.OperationBinding.from_spec(binding.sqs)
-            if binding.sqs is not None else None,
-
-            nats=nats_bindings.OperationBinding.from_spec(binding.nats)
-            if binding.nats is not None else None,
-
-            redis=redis_bindings.OperationBinding.from_spec(binding.redis)
-            if binding.redis is not None else None,
-        )
-
-
-def from_spec(
-        binding: Union[spec.bindings.ChannelBinding, spec.bindings.OperationBinding]
-) -> Union[ChannelBinding, OperationBinding]:
-    if isinstance(binding, spec.bindings.ChannelBinding):
-        return ChannelBinding.from_spec(binding)
-
-    return OperationBinding.from_spec(binding)
+def from_spec(binding: spec.bindings.ChannelBinding) -> ChannelBinding:
+    return ChannelBinding.from_spec(binding)

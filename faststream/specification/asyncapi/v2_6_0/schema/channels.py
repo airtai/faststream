@@ -5,9 +5,9 @@ from typing_extensions import Self
 
 from faststream._compat import PYDANTIC_V2
 from faststream.specification import schema as spec
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import ChannelBinding
-from faststream.specification.asyncapi.v2_6_0.schema.bindings.main import (
-    from_spec as channel_or_operation_binding_from_spec,
+from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
+    ChannelBinding,
+    channel_binding_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.operations import Operation
 from faststream.specification.asyncapi.v2_6_0.schema.operations import (
@@ -54,7 +54,7 @@ class Channel(BaseModel):
             description=channel.description,
             servers=channel.servers,
 
-            bindings=channel_or_operation_binding_from_spec(channel.bindings)
+            bindings=channel_binding_from_spec(channel.bindings)
             if channel.bindings is not None else None,
 
             subscribe=operation_from_spec(channel.subscribe)
