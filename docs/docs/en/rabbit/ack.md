@@ -45,7 +45,7 @@ async def base_handler(body: str):
 ```
 
 !!! tip
-    **FastStreams** identify the message by `message_id`, so to make this option working, you should set this field at producer side manually (if your library doesn't set it automatically).
+    **FastStream** identifies the message by its `message_id`. To make this option work, you should manually set this field on the producer side (if your library doesn't set it automatically).
 
 !!! bug
     At the moment, attempts are counted only by the current consumer. If the message goes to another consumer, it will have its own counter.

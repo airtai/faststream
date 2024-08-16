@@ -39,7 +39,7 @@ To implement **Redis** RPC with `RedisBroker` in **FastStream**, follow the step
 
 3. Send RPC messages through `RedisBroker` and await responses on the correct data type.
 
-    Additionally, you can set an `timeout` to decide how long the publisher should wait for a response before timing out.
+    Additionally, you can set a `timeout` to decide how long the publisher should wait for a response before timing out.
 
     ```python linenums="1" hl_lines="5 12 19"
     {!> docs_src/redis/rpc/app.py [ln:26-49] !}
