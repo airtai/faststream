@@ -10,9 +10,6 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     Reference,
     Tag,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
-    channel_binding_from_spec,
-)
 from faststream.specification.asyncapi.v2_6_0.schema.contact import (
     from_spec as contact_from_spec,
 )
@@ -23,9 +20,6 @@ from faststream.specification.asyncapi.v2_6_0.schema.license import (
     from_spec as license_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
-from faststream.specification.asyncapi.v2_6_0.schema.message import (
-    from_spec as message_from_spec,
-)
 from faststream.specification.asyncapi.v2_6_0.schema.tag import (
     from_spec as tag_from_spec,
 )
@@ -36,6 +30,9 @@ from faststream.specification.asyncapi.v3_0_0.schema import (
     Operation,
     Schema,
     Server,
+)
+from faststream.specification.asyncapi.v3_0_0.schema.channels import (
+    from_spec as channel_from_spec,
 )
 from faststream.specification.asyncapi.v3_0_0.schema.operations import (
     Action,
@@ -223,18 +220,12 @@ def get_broker_channels(
         channels_schema_v3_0 = {}
         for channel_name, specs_channel in h.schema().items():
             if specs_channel.subscribe:
-                channel_v3_0 = Channel(
-                    address=channel_name,
-                    messages={
-                        "SubscribeMessage": message_from_spec(specs_channel.subscribe.message),
-                    },
-                    description=specs_channel.description,
-                    servers=specs_channel.servers,
-                    bindings=channel_binding_from_spec(specs_channel.bindings)
-                    if specs_channel.bindings else None,
+                channels_schema_v3_0[channel_name] = channel_from_spec(
+                    specs_channel,
+                    specs_channel.subscribe.message,
+                    channel_name,
+                    "SubscribeMessage",
                 )
-
-                channels_schema_v3_0[channel_name] = channel_v3_0
 
         channels.update(channels_schema_v3_0)
 
@@ -242,18 +233,12 @@ def get_broker_channels(
         channels_schema_v3_0 = {}
         for channel_name, specs_channel in p.schema().items():
             if specs_channel.publish:
-                channel_v3_0 = Channel(
-                    address=channel_name,
-                    messages={
-                        "Message": message_from_spec(specs_channel.publish.message),
-                    },
-                    description=specs_channel.description,
-                    servers=specs_channel.servers,
-                    bindings=channel_binding_from_spec(specs_channel.bindings)
-                    if specs_channel.bindings else None,
+                channels_schema_v3_0[channel_name] = channel_from_spec(
+                    specs_channel,
+                    specs_channel.publish.message,
+                    channel_name,
+                    "Message",
                 )
-
-                channels_schema_v3_0[channel_name] = channel_v3_0
 
         channels.update(channels_schema_v3_0)
 
