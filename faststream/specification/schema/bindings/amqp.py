@@ -45,17 +45,6 @@ class Exchange:
 
 
 @dataclass
-class ServerBinding:
-    """A class to represent a server binding.
-
-    Attributes:
-        bindingVersion : version of the binding (default: "0.2.0")
-    """
-
-    bindingVersion: str = "0.2.0"
-
-
-@dataclass
 class ChannelBinding:
     """A class to represent channel binding.
 

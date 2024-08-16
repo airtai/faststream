@@ -252,7 +252,7 @@ def specs_channel_binding_to_asyncapi(binding: spec.bindings.ChannelBinding) -> 
     )
         if binding.amqp else None,
 
-        kafka=kafka.ChannelBinding(**asdict(binding.kafka))
+        kafka=kafka.ChannelBinding.from_spec(binding.kafka)
         if binding.kafka else None,
 
         sqs=sqs.ChannelBinding(**asdict(binding.sqs))
@@ -288,7 +288,7 @@ def specs_operation_binding_to_asyncapi(binding: spec.bindings.OperationBinding)
         amqp=amqp.OperationBinding(**asdict(binding.amqp))
         if binding.amqp else None,
 
-        kafka=kafka.OperationBinding(**asdict(binding.kafka))
+        kafka=kafka.OperationBinding.from_spec(binding.kafka)
         if binding.kafka else None,
 
         sqs=kafka.OperationBinding(**asdict(binding.sqs))

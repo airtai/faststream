@@ -3,7 +3,6 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import ServerBinding
 from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
 from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
 
@@ -65,7 +64,6 @@ class Server(BaseModel):
     tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
     security: Optional[SecurityRequirement] = None
     variables: Optional[Dict[str, Union[ServerVariable, Reference]]] = None
-    bindings: Optional[Union[ServerBinding, Reference]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

@@ -2,20 +2,12 @@
 
 References: https://github.com/asyncapi/bindings/tree/master/kafka
 """
-
+import typing_extensions
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, PositiveInt
 
-
-class ServerBinding(BaseModel):
-    """A class to represent a server binding.
-
-    Attributes:
-        bindingVersion : version of the binding (default: "0.4.0")
-    """
-
-    bindingVersion: str = "0.4.0"
+from faststream.specification import schema as spec
 
 
 class ChannelBinding(BaseModel):
@@ -31,9 +23,19 @@ class ChannelBinding(BaseModel):
     topic: Optional[str] = None
     partitions: Optional[PositiveInt] = None
     replicas: Optional[PositiveInt] = None
+    bindingVersion: str = "0.4.0"
+
     # TODO:
     # topicConfiguration
-    bindingVersion: str = "0.4.0"
+
+    @classmethod
+    def from_spec(cls, binding: spec.bindings.kafka.ChannelBinding) -> typing_extensions.Self:
+        return cls(
+            topic=binding.topic,
+            partitions=binding.partitions,
+            replicas=binding.replicas,
+            bindingVersion=binding.bindingVersion,
+        )
 
 
 class OperationBinding(BaseModel):
@@ -50,3 +52,12 @@ class OperationBinding(BaseModel):
     clientId: Optional[Dict[str, Any]] = None
     replyTo: Optional[Dict[str, Any]] = None
     bindingVersion: str = "0.4.0"
+
+    @classmethod
+    def from_spec(cls, binding: spec.bindings.kafka.OperationBinding) -> typing_extensions.Self:
+        return cls(
+            groupId=binding.groupId,
+            clientId=binding.clientId,
+            replyTo=binding.replyTo,
+            bindingVersion=binding.bindingVersion,
+        )

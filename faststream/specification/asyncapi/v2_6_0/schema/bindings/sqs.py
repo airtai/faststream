@@ -8,16 +8,6 @@ from typing import Any, Dict, Optional
 from pydantic import BaseModel
 
 
-class ServerBinding(BaseModel):
-    """A class to represent a server binding.
-
-    Attributes:
-        bindingVersion : version of the binding (default: "custom")
-    """
-
-    bindingVersion: str = "custom"
-
-
 class ChannelBinding(BaseModel):
     """A class to represent channel binding.
 

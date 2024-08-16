@@ -54,16 +54,6 @@ class Exchange(BaseModel):
     vhost: str = "/"
 
 
-class ServerBinding(BaseModel):
-    """A class to represent a server binding.
-
-    Attributes:
-        bindingVersion : version of the binding (default: "0.2.0")
-    """
-
-    bindingVersion: str = "0.2.0"
-
-
 class ChannelBinding(BaseModel):
     """A class to represent channel binding.
 

@@ -7,17 +7,6 @@ from typing import Any, Dict, Optional
 
 
 @dataclass
-class ServerBinding:
-    """A class to represent a server binding.
-
-    Attributes:
-        bindingVersion : version of the binding (default: "custom")
-    """
-
-    bindingVersion: str = "custom"
-
-
-@dataclass
 class ChannelBinding:
     """A class to represent channel binding.
 

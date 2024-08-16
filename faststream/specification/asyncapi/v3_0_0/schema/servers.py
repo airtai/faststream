@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
 from faststream.specification.asyncapi.v2_6_0.schema import ServerVariable, Tag
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import ServerBinding
 from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
 
 SecurityRequirement = List[Dict[str, List[str]]]
@@ -22,7 +21,6 @@ class Server(BaseModel):
         tags : optional list of tags associated with the server
         security : optional security requirement for the server
         variables : optional dictionary of server variables
-        bindings : optional server binding
 
     Note:
         The attributes `description`, `protocolVersion`, `tags`, `security`, `variables`, and `bindings` are all optional.
@@ -41,7 +39,6 @@ class Server(BaseModel):
     tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
     security: Optional[SecurityRequirement] = None
     variables: Optional[Dict[str, Union[ServerVariable, Reference]]] = None
-    bindings: Optional[Union[ServerBinding, Reference]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

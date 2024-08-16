@@ -18,33 +18,6 @@ from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import sqs as sqs_bindings
 
 
-class ServerBinding(BaseModel):
-    """A class to represent server bindings.
-
-    Attributes:
-        amqp : AMQP server binding (optional)
-        kafka : Kafka server binding (optional)
-        sqs : SQS server binding (optional)
-        nats : NATS server binding (optional)
-        redis : Redis server binding (optional)
-
-    """
-
-    amqp: Optional[amqp_bindings.ServerBinding] = None
-    kafka: Optional[kafka_bindings.ServerBinding] = None
-    sqs: Optional[sqs_bindings.ServerBinding] = None
-    nats: Optional[nats_bindings.ServerBinding] = None
-    redis: Optional[redis_bindings.ServerBinding] = None
-
-    if PYDANTIC_V2:
-        model_config = {"extra": "allow"}
-
-    else:
-
-        class Config:
-            extra = "allow"
-
-
 class ChannelBinding(BaseModel):
     """A class to represent channel bindings.
 

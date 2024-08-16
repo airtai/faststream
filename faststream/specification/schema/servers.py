@@ -3,7 +3,6 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
-from faststream.specification.schema.bindings import ServerBinding
 from faststream.specification.schema.tag import Tag
 
 SecurityRequirement = List[Dict[str, List[str]]]
@@ -45,7 +44,6 @@ class Server(BaseModel):
         tags : optional list of tags associated with the server
         security : optional security requirement for the server
         variables : optional dictionary of server variables
-        bindings : optional server binding
 
     Note:
         The attributes `description`, `protocolVersion`, `tags`, `security`, `variables`, and `bindings` are all optional.
@@ -63,7 +61,6 @@ class Server(BaseModel):
     tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
     security: Optional[SecurityRequirement] = None
     variables: Optional[Dict[str, ServerVariable]] = None
-    bindings: Optional[ServerBinding] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}
