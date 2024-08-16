@@ -177,7 +177,7 @@ def _run(
         with suppress(ImportError):
             import uvloop
 
-            uvloop.install()  # type: ignore[attr-defined]
+            uvloop.install()
 
     try:
         anyio.run(
@@ -252,7 +252,7 @@ def publish(
 async def publish_message(broker: "BrokerUsecase[Any, Any]", extra: "AnyDict") -> Any:
     try:
         async with broker:
-            return await broker.publish(**extra)  # type: ignore[union-attr]
+            return await broker.publish(**extra)
     except Exception as e:
         typer.echo(f"Error when broker was publishing: {e}")
         sys.exit(1)

@@ -19,7 +19,7 @@ def parse_handler_params(
     body = get_model_schema(
         create_model(  # type: ignore[call-overload]
             model.__name__,
-            **call.flat_params,  # type: ignore[arg-type]
+            **call.flat_params,
         ),
         prefix=prefix,
         exclude=tuple(call.custom_fields.keys()),
@@ -119,7 +119,7 @@ def get_model_schema(
             else:
                 param_body[DEF_KEY] = defs
 
-        original_title = param.title if PYDANTIC_V2 else param.field_info.title  # type: ignore[attr-defined]
+        original_title = param.title if PYDANTIC_V2 else param.field_info.title
 
         if original_title:
             use_original_model = True

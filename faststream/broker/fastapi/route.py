@@ -114,12 +114,12 @@ class StreamRoute(
         else:
             handler = call  # type: ignore[assignment]
 
-        self.handler = broker.subscriber(  # type: ignore[assignment,call-arg]
+        self.handler = broker.subscriber(  # type: ignore[call-arg]
             *extra,
             dependencies=list(dependencies),
             **handle_kwargs,
         )(
-            handler,  # type: ignore[arg-type]
+            handler,
         )
 
 
