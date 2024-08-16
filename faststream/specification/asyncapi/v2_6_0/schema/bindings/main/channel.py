@@ -49,19 +49,19 @@ class ChannelBinding(BaseModel):
     @classmethod
     def from_spec(cls, binding: spec.bindings.ChannelBinding) -> Self:
         return cls(
-            amqp=amqp_bindings.ChannelBinding.from_spec(binding.amqp)
+            amqp=amqp_bindings.channel_binding_from_spec(binding.amqp)
             if binding.amqp is not None else None,
 
-            kafka=kafka_bindings.ChannelBinding.from_spec(binding.kafka)
+            kafka=kafka_bindings.channel_binding_from_spec(binding.kafka)
             if binding.kafka is not None else None,
 
-            sqs=sqs_bindings.ChannelBinding.from_spec(binding.sqs)
+            sqs=sqs_bindings.channel_binding_from_spec(binding.sqs)
             if binding.sqs is not None else None,
 
-            nats=nats_bindings.ChannelBinding.from_spec(binding.nats)
+            nats=nats_bindings.channel_binding_from_spec(binding.nats)
             if binding.nats is not None else None,
 
-            redis=redis_bindings.ChannelBinding.from_spec(binding.redis)
+            redis=redis_bindings.channel_binding_from_spec(binding.redis)
             if binding.redis is not None else None,
         )
 

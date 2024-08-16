@@ -49,19 +49,19 @@ class OperationBinding(BaseModel):
     @classmethod
     def from_spec(cls, binding: spec.bindings.OperationBinding) -> Self:
         return cls(
-            amqp=amqp_bindings.OperationBinding.from_spec(binding.amqp)
+            amqp=amqp_bindings.operation_binding_from_spec(binding.amqp)
             if binding.amqp is not None else None,
 
-            kafka=kafka_bindings.OperationBinding.from_spec(binding.kafka)
+            kafka=kafka_bindings.operation_binding_from_spec(binding.kafka)
             if binding.kafka is not None else None,
 
-            sqs=sqs_bindings.OperationBinding.from_spec(binding.sqs)
+            sqs=sqs_bindings.operation_binding_from_spec(binding.sqs)
             if binding.sqs is not None else None,
 
-            nats=nats_bindings.OperationBinding.from_spec(binding.nats)
+            nats=nats_bindings.operation_binding_from_spec(binding.nats)
             if binding.nats is not None else None,
 
-            redis=redis_bindings.OperationBinding.from_spec(binding.redis)
+            redis=redis_bindings.operation_binding_from_spec(binding.redis)
             if binding.redis is not None else None,
         )
 
