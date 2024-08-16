@@ -19,8 +19,6 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     ChannelBinding,
     OperationBinding,
-    amqp,
-    kafka,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.docs import (
     from_spec as docs_from_spec,
@@ -228,7 +226,7 @@ def specs_operation_to_asyncapi(operation: spec.operation.Operation) -> Operatio
         summary=operation.summary,
         description=operation.description,
 
-        bindings=specs_operation_binding_to_asyncapi(operation.bindings)
+        bindings=OperationBinding.from_spec(operation.bindings)
         if operation.bindings else None,
 
         message=message_from_spec(operation.message),
@@ -239,23 +237,23 @@ def specs_operation_to_asyncapi(operation: spec.operation.Operation) -> Operatio
     )
 
 
-def specs_operation_binding_to_asyncapi(binding: spec.bindings.OperationBinding) -> OperationBinding:
-    return OperationBinding(
-        amqp=amqp.OperationBinding(**asdict(binding.amqp))
-        if binding.amqp else None,
-
-        kafka=kafka.OperationBinding.from_spec(binding.kafka)
-        if binding.kafka else None,
-
-        sqs=kafka.OperationBinding(**asdict(binding.sqs))
-        if binding.sqs else None,
-
-        nats=kafka.OperationBinding(**asdict(binding.nats))
-        if binding.nats else None,
-
-        redis=kafka.OperationBinding(**asdict(binding.redis))
-        if binding.redis else None,
-    )
+# def specs_operation_binding_to_asyncapi(binding: spec.bindings.OperationBinding) -> OperationBinding:
+#     return OperationBinding(
+#         amqp=amqp.OperationBinding(**asdict(binding.amqp))
+#         if binding.amqp else None,
+#
+#         kafka=kafka.OperationBinding.from_spec(binding.kafka)
+#         if binding.kafka else None,
+#
+#         sqs=kafka.OperationBinding(**asdict(binding.sqs))
+#         if binding.sqs else None,
+#
+#         nats=kafka.OperationBinding(**asdict(binding.nats))
+#         if binding.nats else None,
+#
+#         redis=kafka.OperationBinding(**asdict(binding.redis))
+#         if binding.redis else None,
+#     )
 
 
 def _resolve_msg_payloads(

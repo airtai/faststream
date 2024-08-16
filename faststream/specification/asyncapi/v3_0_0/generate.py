@@ -8,14 +8,16 @@ from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.generate import (
     specs_contact_to_asyncapi,
     specs_license_to_asyncapi,
-    specs_operation_binding_to_asyncapi,
 )
 from faststream.specification.asyncapi.v2_6_0.schema import (
     ExternalDocs,
     Reference,
     Tag,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import ChannelBinding
+from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
+    ChannelBinding,
+    OperationBinding,
+)
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
     Message,
 )
@@ -188,7 +190,7 @@ def get_broker_operations(
                     action="receive",
                     summary=specs_channel.subscribe.summary,
                     description=specs_channel.subscribe.description,
-                    bindings=specs_operation_binding_to_asyncapi(specs_channel.subscribe.bindings)
+                    bindings=OperationBinding.from_spec(specs_channel.subscribe.bindings)
                     if specs_channel.subscribe.bindings else None,
                     messages=[
                         Reference(
@@ -209,7 +211,7 @@ def get_broker_operations(
                     action="send",
                     summary=specs_channel.publish.summary,
                     description=specs_channel.publish.description,
-                    bindings=specs_operation_binding_to_asyncapi(specs_channel.publish.bindings)
+                    bindings=OperationBinding.from_spec(specs_channel.publish.bindings)
                     if specs_channel.publish.bindings else None,
                     messages=[
                         Reference(
