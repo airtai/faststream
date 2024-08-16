@@ -12,7 +12,6 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
 )
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     channel_binding_from_spec,
-    operation_binding_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.contact import (
     from_spec as contact_from_spec,
@@ -37,6 +36,12 @@ from faststream.specification.asyncapi.v3_0_0.schema import (
     Operation,
     Schema,
     Server,
+)
+from faststream.specification.asyncapi.v3_0_0.schema.operations import (
+    Action,
+)
+from faststream.specification.asyncapi.v3_0_0.schema.operations import (
+    from_spec as operation_from_spec,
 )
 from faststream.specification.proto import Application
 from faststream.types import AnyDict
@@ -190,44 +195,20 @@ def get_broker_operations(
     for h in broker._subscribers.values():
         for channel_name, specs_channel in h.schema().items():
             if specs_channel.subscribe is not None:
-                op = Operation(
-                    action="receive",
-                    summary=specs_channel.subscribe.summary,
-                    description=specs_channel.subscribe.description,
-                    bindings=operation_binding_from_spec(specs_channel.subscribe.bindings)
-                    if specs_channel.subscribe.bindings else None,
-                    messages=[
-                        Reference(
-                            **{"$ref": f"#/channels/{channel_name}/messages/SubscribeMessage"},
-                        )
-                    ],
-                    channel=Reference(
-                        **{"$ref": f"#/channels/{channel_name}"},
-                    ),
-                    security=specs_channel.subscribe.security,
+                operations[f"{channel_name}Subscribe"] = operation_from_spec(
+                    specs_channel.subscribe,
+                    Action.RECEIVE,
+                    channel_name
                 )
-                operations[f"{channel_name}Subscribe"] = op
 
     for p in broker._publishers.values():
         for channel_name, specs_channel in p.schema().items():
             if specs_channel.publish is not None:
-                op = Operation(
-                    action="send",
-                    summary=specs_channel.publish.summary,
-                    description=specs_channel.publish.description,
-                    bindings=operation_binding_from_spec(specs_channel.publish.bindings)
-                    if specs_channel.publish.bindings else None,
-                    messages=[
-                        Reference(
-                            **{"$ref": f"#/channels/{channel_name}/messages/Message"},
-                        )
-                    ],
-                    channel=Reference(
-                        **{"$ref": f"#/channels/{channel_name}"},
-                    ),
-                    security=specs_channel.publish.security,
+                operations[f"{channel_name}"] = operation_from_spec(
+                    specs_channel.publish,
+                    Action.SEND,
+                    channel_name
                 )
-                operations[f"{channel_name}"] = op
 
     return operations
 
