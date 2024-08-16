@@ -29,13 +29,30 @@ def is_test_env() -> bool:
 
 
 json_dumps: Callable[..., bytes]
-try:
-    import orjson
+orjson: Any
+ujson: Any
 
+try:
+    import orjson  # type: ignore[no-redef]
+except ImportError:
+    orjson = None
+
+try:
+    import ujson  # type: ignore[no-redef]
+except ImportError:
+    ujson = None
+
+if orjson:
     json_loads = orjson.loads
     json_dumps = orjson.dumps
 
-except ImportError:
+elif ujson:
+    json_loads = ujson.loads
+
+    def json_dumps(*a: Any, **kw: Any) -> bytes:
+        return ujson.dumps(*a, **kw).encode()  # type: ignore
+
+else:
     json_loads = json.loads
 
     def json_dumps(*a: Any, **kw: Any) -> bytes:
