@@ -37,29 +37,3 @@ class Schema(BaseSchema):
     channels: Dict[str, Channel]
     operations: Dict[str, Operation]
     components: Optional[Components] = None
-
-    def to_jsonable(self) -> Any:
-        """Convert the schema to a JSON-serializable object."""
-        return model_to_jsonable(
-            self,
-            by_alias=True,
-            exclude_none=True,
-        )
-
-    def to_json(self) -> str:
-        """Convert the schema to a JSON string."""
-        return model_to_json(
-            self,
-            by_alias=True,
-            exclude_none=True,
-        )
-
-    def to_yaml(self) -> str:
-        """Convert the schema to a YAML string."""
-        from io import StringIO
-
-        import yaml
-
-        io = StringIO(initial_value="", newline="\n")
-        yaml.dump(self.to_jsonable(), io, sort_keys=False)
-        return io.getvalue()
