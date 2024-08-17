@@ -1,6 +1,5 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
-from faststream._compat import model_to_json, model_to_jsonable
 from faststream.specification.asyncapi.base.schema import BaseSchema
 from faststream.specification.asyncapi.v2_6_0.schema.channels import Channel
 from faststream.specification.asyncapi.v2_6_0.schema.components import Components

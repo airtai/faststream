@@ -1,17 +1,20 @@
 import json
 import sys
 import warnings
+from contextlib import suppress
 from pathlib import Path
 from typing import Optional, Sequence
 
 import typer
+from pydantic import ValidationError
 
 from faststream._compat import json_dumps, model_parse
 from faststream.cli.utils.imports import import_from_string
-from faststream.exceptions import INSTALL_WATCHFILES, INSTALL_YAML
+from faststream.exceptions import INSTALL_WATCHFILES, INSTALL_YAML, SCHEMA_NOT_SUPPORTED
 from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.specification.asyncapi.site import serve_app
-from faststream.specification.asyncapi.v2_6_0.schema import Schema
+from faststream.specification.asyncapi.v2_6_0.schema import Schema as SchemaV2_6
+from faststream.specification.asyncapi.v3_0_0.schema import Schema as SchemaV3
 
 docs_app = typer.Typer(pretty_exceptions_short=True)
 
@@ -183,6 +186,12 @@ def _parse_and_serve(
                 f"Unknown extension given - {app}; Please provide app in format [python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation"
             )
 
-        raw_schema = model_parse(Schema, data)
+        for schema in (SchemaV3, SchemaV2_6):
+            with suppress(ValidationError):
+                raw_schema = model_parse(schema, data)
+                break
+        else:
+            typer.echo(SCHEMA_NOT_SUPPORTED.format(schema_filename=app), err=True)
+            raise typer.Exit(1)
 
     serve_app(raw_schema, host, port)

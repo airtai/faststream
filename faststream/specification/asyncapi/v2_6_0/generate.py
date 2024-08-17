@@ -27,7 +27,6 @@ if TYPE_CHECKING:
 
 def get_app_schema(app: Application) -> Schema:
     """Get the application schema."""
-
     broker = app.broker
     if broker is None:  # pragma: no cover
         raise RuntimeError()
