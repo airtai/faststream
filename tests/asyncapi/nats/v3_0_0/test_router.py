@@ -2,8 +2,8 @@ from faststream import FastStream
 from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.nats import NatsBroker, NatsPublisher, NatsRoute, NatsRouter
-from tests.asyncapi.base.arguments import ArgumentsTestcase
-from tests.asyncapi.base.publisher import PublisherTestcase
+from tests.asyncapi.base.v2_6_0.arguments import ArgumentsTestcase
+from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
 from tests.asyncapi.base.v3_0_0.router import RouterTestcase
 
 

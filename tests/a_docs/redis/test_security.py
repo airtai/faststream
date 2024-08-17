@@ -39,7 +39,7 @@ async def test_base_security():
 
         assert connection.call_args.kwargs["ssl"]
 
-        schema = get_app_schema(FastStream(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
         assert schema == {
             "asyncapi": "2.6.0",
             "channels": {},
@@ -69,7 +69,7 @@ async def test_plaintext_security():
 
         assert connection.call_args.kwargs["ssl"]
 
-        schema = get_app_schema(FastStream(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
         assert schema == {
             "asyncapi": "2.6.0",
             "channels": {},

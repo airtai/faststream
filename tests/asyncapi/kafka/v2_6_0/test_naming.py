@@ -1,7 +1,8 @@
 from faststream import FastStream
 from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.kafka import KafkaBroker
-from tests.asyncapi.base.naming import NamingTestCase
+from faststream.specification.asyncapi.version import AsyncAPIVersion
+from tests.asyncapi.base.v2_6_0.naming import NamingTestCase
 
 
 class TestNaming(NamingTestCase):
@@ -13,7 +14,7 @@ class TestNaming(NamingTestCase):
         @broker.subscriber("test")
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
 
         assert schema == {
             "asyncapi": "2.6.0",

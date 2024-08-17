@@ -2,9 +2,9 @@ from typing import Type
 
 from faststream.nats import TestNatsBroker
 from faststream.nats.fastapi import NatsRouter
-from tests.asyncapi.base.arguments import FastAPICompatible
-from tests.asyncapi.base.fastapi import FastAPITestCase
-from tests.asyncapi.base.publisher import PublisherTestcase
+from tests.asyncapi.base.v2_6_0.arguments import FastAPICompatible
+from tests.asyncapi.base.v2_6_0.fastapi import FastAPITestCase
+from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
 
 
 class TestRouterArguments(FastAPITestCase, FastAPICompatible):

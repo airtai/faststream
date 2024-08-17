@@ -8,8 +8,8 @@ from faststream.rabbit import (
     RabbitRoute,
     RabbitRouter,
 )
-from tests.asyncapi.base.arguments import ArgumentsTestcase
-from tests.asyncapi.base.publisher import PublisherTestcase
+from tests.asyncapi.base.v2_6_0.arguments import ArgumentsTestcase
+from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
 from tests.asyncapi.base.v3_0_0.router import RouterTestcase
 
 

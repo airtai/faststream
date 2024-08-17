@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from faststream.specification.proto import Application
 
 
-def get_app_schema(app: "Application", version: AsyncAPIVersion) -> BaseSchema:
+def get_app_schema(app: "Application", version: AsyncAPIVersion = AsyncAPIVersion.v3_0) -> BaseSchema:
     if version == AsyncAPIVersion.v3_0:
         return get_app_schema_v3(app)
 

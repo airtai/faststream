@@ -7,6 +7,7 @@ from faststream.security import (
     BaseSecurity,
     SASLPlaintext,
 )
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 
 def test_base_security_schema():
@@ -20,7 +21,7 @@ def test_base_security_schema():
     )  # pragma: allowlist secret
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
-    schema = get_app_schema(FastStream(broker)).to_jsonable()
+    schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -56,7 +57,7 @@ def test_plaintext_security_schema():
     )  # pragma: allowlist secret
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
-    schema = get_app_schema(FastStream(broker)).to_jsonable()
+    schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
     assert (
         schema
         == {
@@ -94,7 +95,7 @@ def test_plaintext_security_schema_without_ssl():
         == "amqp://admin:password@localhost:5672/"  # pragma: allowlist secret
     )  # pragma: allowlist secret
 
-    schema = get_app_schema(FastStream(broker)).to_jsonable()
+    schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
     assert (
         schema
         == {

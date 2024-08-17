@@ -7,9 +7,10 @@ from faststream.rabbit import (
     RabbitRoute,
     RabbitRouter,
 )
-from tests.asyncapi.base.arguments import ArgumentsTestcase
-from tests.asyncapi.base.publisher import PublisherTestcase
-from tests.asyncapi.base.router import RouterTestcase
+from faststream.specification.asyncapi.version import AsyncAPIVersion
+from tests.asyncapi.base.v2_6_0.arguments import ArgumentsTestcase
+from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
+from tests.asyncapi.base.v2_6_0.router import RouterTestcase
 
 
 class TestRouter(RouterTestcase):
@@ -28,7 +29,7 @@ class TestRouter(RouterTestcase):
 
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
 
         assert (
             schema

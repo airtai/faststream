@@ -1,5 +1,6 @@
 from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.rabbit import ExchangeType, RabbitBroker, RabbitExchange, RabbitQueue
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 
 
@@ -12,7 +13,7 @@ class TestArguments(PublisherTestcase):
         @broker.publisher(exchange="test-ex")
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         assert schema["channels"] == {
             "_:test-ex:Publisher": {
@@ -74,7 +75,7 @@ class TestArguments(PublisherTestcase):
         )
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
@@ -107,7 +108,7 @@ class TestArguments(PublisherTestcase):
         )
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         assert schema["channels"] == {
             "_:test-ex:Publisher": {
@@ -159,7 +160,7 @@ class TestArguments(PublisherTestcase):
         @broker.publisher(exchange="test-ex", routing_key="key2", priority=10)
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         assert schema["channels"] == {
             "key1:test-ex:Publisher": {

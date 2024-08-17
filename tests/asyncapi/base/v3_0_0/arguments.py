@@ -32,7 +32,7 @@ class FastAPICompatible:
         @broker.subscriber("test", title="custom_name", description="test description")
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert key == "custom_name"
@@ -45,7 +45,7 @@ class FastAPICompatible:
         async def handle(msg):
             """Test description."""
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert key == "custom_name"
@@ -59,7 +59,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -76,7 +76,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -90,7 +90,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(msg: int): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
         assert next(iter(schema["channels"].values())).get("description") is None
@@ -105,7 +105,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(msg: Optional[int]): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -129,7 +129,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(msg: int = 1): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -147,7 +147,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(msg, another): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -169,7 +169,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(msg: str, another: int): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -191,7 +191,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(msg: str, another: Optional[int] = None): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -231,7 +231,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(user: User): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -257,7 +257,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(user: User): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -288,7 +288,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(user: User): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -326,7 +326,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(user: User, description: str = ""): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -382,7 +382,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(user: User): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -415,7 +415,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle_default(msg): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         assert (
             len(
@@ -446,7 +446,7 @@ class FastAPICompatible:
         @broker.subscriber("test", dependencies=dependencies)
         async def handle(id: int, message=message): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -480,7 +480,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(user: descriminator): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
         key = next(iter(schema["components"]["messages"].keys()))
         assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
 
@@ -541,7 +541,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(user: Model): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         key = next(iter(schema["components"]["messages"].keys()))
         assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
@@ -605,7 +605,7 @@ class ArgumentsTestcase(FastAPICompatible):
             ),
         ): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -627,7 +627,7 @@ class ArgumentsTestcase(FastAPICompatible):
         @broker.subscriber("test")
         async def handle(id: int, user: Optional[str] = None, message=Context()): ...
 
-        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
 

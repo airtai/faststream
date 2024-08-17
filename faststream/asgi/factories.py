@@ -12,6 +12,7 @@ from faststream.specification.asyncapi.site import (
     ASYNCAPI_JS_DEFAULT_URL,
     get_asyncapi_html,
 )
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 if TYPE_CHECKING:
     from faststream.asgi.types import ASGIApp, Scope
@@ -53,7 +54,7 @@ def make_asyncapi_asgi(
 ) -> "ASGIApp":
     return AsgiResponse(
         get_asyncapi_html(
-            get_app_schema(app),
+            get_app_schema(app, version=AsyncAPIVersion.v2_6),
             sidebar=sidebar,
             info=info,
             servers=servers,

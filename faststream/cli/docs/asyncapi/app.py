@@ -167,7 +167,7 @@ def _parse_and_serve(
         _, app_obj = import_from_string(app)
         if callable(app_obj) and is_factory:
             app_obj = app_obj()
-        raw_schema = get_app_schema(app_obj)
+        raw_schema = get_app_schema(app_obj, AsyncAPIVersion.v2_6)
 
     else:
         schema_filepath = Path.cwd() / app

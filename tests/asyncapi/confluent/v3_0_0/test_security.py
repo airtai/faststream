@@ -141,7 +141,7 @@ def test_base_security_schema():
     async def test_topic(msg: str) -> str:
         pass
 
-    schema = get_app_schema(app).to_jsonable()
+    schema = get_app_schema(app, version=AsyncAPIVersion.v3_0).to_jsonable()
 
     assert schema == basic_schema
 
@@ -162,7 +162,7 @@ def test_plaintext_security_schema():
     async def test_topic(msg: str) -> str:
         pass
 
-    schema = get_app_schema(app).to_jsonable()
+    schema = get_app_schema(app, version=AsyncAPIVersion.v3_0).to_jsonable()
 
     plaintext_security_schema = deepcopy(basic_schema)
     plaintext_security_schema["servers"]["development"]["security"] = [
@@ -191,7 +191,7 @@ def test_scram256_security_schema():
     async def test_topic(msg: str) -> str:
         pass
 
-    schema = get_app_schema(app).to_jsonable()
+    schema = get_app_schema(app, version=AsyncAPIVersion.v3_0).to_jsonable()
 
     sasl256_security_schema = deepcopy(basic_schema)
     sasl256_security_schema["servers"]["development"]["security"] = [{"scram256": []}]
@@ -218,7 +218,7 @@ def test_scram512_security_schema():
     async def test_topic(msg: str) -> str:
         pass
 
-    schema = get_app_schema(app).to_jsonable()
+    schema = get_app_schema(app, version=AsyncAPIVersion.v3_0).to_jsonable()
 
     sasl512_security_schema = deepcopy(basic_schema)
     sasl512_security_schema["servers"]["development"]["security"] = [{"scram512": []}]

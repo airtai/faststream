@@ -1,6 +1,7 @@
 from faststream import FastStream
 from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.rabbit import RabbitBroker
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.specification.schema.tag import Tag
 
 
@@ -14,7 +15,8 @@ def test_base():
                 description="Test description",
                 tags=(Tag(name="some-tag", description="experimental"),),
             )
-        )
+        ),
+        version=AsyncAPIVersion.v2_6,
     ).to_jsonable()
 
     assert schema == {
@@ -54,7 +56,7 @@ def test_custom():
     )
 
     broker.publisher("test")
-    schema = get_app_schema(FastStream(broker)).to_jsonable()
+    schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
 
     assert (
         schema
