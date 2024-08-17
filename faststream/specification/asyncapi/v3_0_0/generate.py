@@ -126,7 +126,7 @@ def get_broker_server(
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,
-        "tags": tags if tags is not None else None,
+        "tags": tags,
         # TODO
         # "variables": "",
         # "bindings": "",
@@ -135,41 +135,19 @@ def get_broker_server(
     if broker.security is not None:
         broker_meta["security"] = broker.security.get_requirement()
 
-    if isinstance(broker.url, str):
-        broker_url = broker.url
+    urls = broker.url if isinstance(broker.url, list) else [broker.url]
+
+    for i, broker_url in enumerate(urls, 1):
         if "://" not in broker_url:
             broker_url = "//" + broker_url
 
-        url = urlparse(broker_url)
-        servers["development"] = Server(
-            host=url.netloc,
-            pathname=url.path,
+        parsed_url = urlparse(broker_url)
+        server_name = "development" if len(urls) == 1 else f"Server{i}"
+        servers[server_name] = Server(
+            host=parsed_url.netloc,
+            pathname=parsed_url.path,
             **broker_meta,
         )
-
-    elif len(broker.url) == 1:
-        broker_url = broker.url[0]
-        if "://" not in broker_url:
-            broker_url = "//" + broker_url
-
-        url = urlparse(broker_url)
-        servers["development"] = Server(
-            host=url.netloc,
-            pathname=url.path,
-            **broker_meta,
-        )
-
-    else:
-        for i, broker_url in enumerate(broker.url, 1):
-            if "://" not in broker_url:
-                broker_url = "//" + broker_url
-
-            parsed_url = urlparse(broker_url)
-            servers[f"Server{i}"] = Server(
-                host=parsed_url.netloc,
-                pathname=parsed_url.path,
-                **broker_meta,
-            )
 
     return servers
 

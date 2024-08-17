@@ -1,9 +1,7 @@
-from dataclasses import asdict
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from faststream._compat import DEF_KEY
 from faststream.constants import ContentTypes
-from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
@@ -112,22 +110,15 @@ def get_broker_server(
     """Get the broker server for an application."""
     servers = {}
 
-    tags: List[Union[Tag, AnyDict]] = []
-
+    tags: Optional[List[Union[Tag, AnyDict]]] = None
     if broker.tags:
-        for tag in broker.tags:
-            if isinstance(tag, spec.tag.Tag):
-                tags.append(Tag(**asdict(tag)))
-            elif isinstance(tag, dict):
-                tags.append(dict(tag))
-            else:
-                raise NotImplementedError(f"Unsupported tag type: {tag}; {type(tag)}")
+        tags = [tag_from_spec(tag) for tag in broker.tags]
 
     broker_meta: AnyDict = {
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,
-        "tags": tags if tags else None,
+        "tags": tags,
         # TODO
         # "variables": "",
         # "bindings": "",
@@ -136,24 +127,14 @@ def get_broker_server(
     if broker.security is not None:
         broker_meta["security"] = broker.security.get_requirement()
 
-    if isinstance(broker.url, str):
-        servers["development"] = Server(
-            url=broker.url,
+    urls = broker.url if isinstance(broker.url, list) else [broker.url]
+
+    for i, url in enumerate(urls, 1):
+        server_name = "development" if len(urls) == 1 else f"Server{i}"
+        servers[server_name] = Server(
+            url=url,
             **broker_meta,
         )
-
-    elif len(broker.url) == 1:
-        servers["development"] = Server(
-            url=broker.url[0],
-            **broker_meta,
-        )
-
-    else:
-        for i, url in enumerate(broker.url, 1):
-            servers[f"Server{i}"] = Server(
-                url=url,
-                **broker_meta,
-            )
 
     return servers
 
