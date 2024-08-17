@@ -126,8 +126,8 @@ class StreamRouter(
         generate_unique_id_function: Callable[["APIRoute"], str] = Default(
             generate_unique_id
         ),
-        # AsyncAPI information
-        asyncapi_tags: Optional[
+        # Specification information
+        specification_tags: Optional[
             Iterable[Union["Tag", "TagDict"]]
         ] = None,
         schema_url: Optional[str] = "/asyncapi",
@@ -145,7 +145,7 @@ class StreamRouter(
                 _BackgroundMiddleware,
             ),
             _get_dependant=get_fastapi_dependant,
-            tags=asyncapi_tags,
+            tags=specification_tags,
             apply_types=False,
             **connection_kwars,
         )
@@ -303,7 +303,7 @@ class StreamRouter(
 
                 from faststream.specification.asyncapi.generate import get_app_schema
 
-                self.schema = get_app_schema(self, version=AsyncAPIVersion.v2_6)
+                self.schema = get_app_schema(self)
 
                 app.include_router(self.docs_router)
 

@@ -129,7 +129,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Optional[str],
             Doc("AsyncAPI server description."),
         ] = None,
-        asyncapi_tags: Annotated[
+        specification_tags: Annotated[
             Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
@@ -410,7 +410,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             protocol=protocol,
             description=description,
             protocol_version=protocol_version,
-            asyncapi_tags=asyncapi_tags,
+            specification_tags=specification_tags,
             specification_url=specification_url,
             # FastAPI kwargs
             prefix=prefix,

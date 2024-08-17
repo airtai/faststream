@@ -259,7 +259,7 @@ class NatsRouter(StreamRouter["Msg"]):
             Optional[str],
             Doc("AsyncAPI server description."),
         ] = None,
-        asyncapi_tags: Annotated[
+        specification_tags: Annotated[
             Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
@@ -549,7 +549,7 @@ class NatsRouter(StreamRouter["Msg"]):
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
-            asyncapi_tags=asyncapi_tags,
+            specification_tags=specification_tags,
             schema_url=schema_url,
             setup_state=setup_state,
             # FastAPI kwargs

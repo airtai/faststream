@@ -16,7 +16,6 @@ class FastAPITestCase:
     router_factory: Type[StreamRouter[MsgType]]
     broker_wrapper: Callable[[BrokerUsecase[MsgType, Any]], BrokerUsecase[MsgType, Any]]
 
-    @pytest.mark.skip()
     @pytest.mark.asyncio()
     async def test_fastapi_full_information(self):
         broker = self.router_factory(
@@ -24,8 +23,7 @@ class FastAPITestCase:
             protocol_version="1.1.1",
             description="Test broker description",
             schema_url="/asyncapi_schema",
-            asyncapi_tags=[{"name": "test"}],
-            asyncapi_version=AsyncAPIVersion.v3_0,
+            specification_tags=[{"name": "test"}],
         )
 
         app = FastAPI(
@@ -80,7 +78,6 @@ class FastAPITestCase:
                     }
                 }
 
-    @pytest.mark.skip()
     @pytest.mark.asyncio()
     async def test_fastapi_asyncapi_routes(self):
         broker = self.router_factory(schema_url="/asyncapi_schema")

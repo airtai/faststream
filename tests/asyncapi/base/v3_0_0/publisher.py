@@ -10,7 +10,7 @@ from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 
 class PublisherTestcase:
-    broker_factory: Callable[[], Union[BrokerUsecase, StreamRouter]]
+    broker_factory: Union[BrokerUsecase, StreamRouter]
 
     def build_app(self, broker):
         """Patch it to test FastAPI scheme generation too."""

@@ -298,7 +298,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Optional[str],
             Doc("Specification server description."),
         ] = None,
-        asyncapi_tags: Annotated[
+        specification_tags: Annotated[
             Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("Specification server tags."),
         ] = None,
@@ -576,7 +576,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             protocol=protocol,
             description=description,
             protocol_version=protocol_version,
-            asyncapi_tags=asyncapi_tags,
+            specification_tags=specification_tags,
             specification_url=specification_url,
             # FastAPI kwargs
             prefix=prefix,
