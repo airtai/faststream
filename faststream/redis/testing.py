@@ -47,10 +47,14 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         publisher: "AsyncAPIPublisher",
     ) -> "HandlerCallWrapper[Any, Any, Any]":
         sub: Optional[Any] = None
-        destination = _make_destionation_kwargs(channel=publisher.channel, list=None, stream=None)
+        destination = _make_destionation_kwargs(
+            channel=publisher.channel, list=None, stream=None
+        )
         visitors = (ChannelVisitor(), ListVisitor(), StreamVisitor())
         for handler in broker._subscribers.values():
-            if _is_handler_matches(handler=handler, destination=destination, visitors=visitors):
+            if _is_handler_matches(
+                handler=handler, destination=destination, visitors=visitors
+            ):
                 sub = handler
                 break
 
@@ -93,11 +97,15 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         publisher: "AsyncAPIPublisher",
     ) -> None:
         key_to_remove = None
-        destination = _make_destionation_kwargs(channel=publisher.channel, list=None, stream=None)
+        destination = _make_destionation_kwargs(
+            channel=publisher.channel, list=None, stream=None
+        )
         visitors = (ChannelVisitor(), ListVisitor(), StreamVisitor())
 
         for key, handler in broker._subscribers.items():
-            if _is_handler_matches(handler=handler, destination=destination, visitors=visitors):
+            if _is_handler_matches(
+                handler=handler, destination=destination, visitors=visitors
+            ):
                 key_to_remove = key
                 break
 
@@ -426,9 +434,5 @@ def _make_destionation_kwargs(
     return destination
 
 
-def _is_handler_matches(
-    handler: "LogicSubscriber[Any]",
-    destination,
-    visitors
-) -> bool:
+def _is_handler_matches(handler: "LogicSubscriber[Any]", destination, visitors) -> bool:
     return any(visitor.visit(**destination, sub=handler) for visitor in visitors)

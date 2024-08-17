@@ -35,7 +35,9 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     ) -> "HandlerCallWrapper[Any, Any, Any]":
         sub: Optional[Any] = None
         for handler in broker._subscribers.values():
-            if _is_handler_matches(handler=handler, subject=publisher.subject, stream=publisher.stream):
+            if _is_handler_matches(
+                handler=handler, subject=publisher.subject, stream=publisher.stream
+            ):
                 sub = handler
                 break
 
@@ -72,7 +74,9 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     ) -> None:
         key_to_remove = None
         for key, handler in broker._subscribers.items():
-            if _is_handler_matches(handler=handler, subject=publisher.subject, stream=publisher.stream):
+            if _is_handler_matches(
+                handler=handler, subject=publisher.subject, stream=publisher.stream
+            ):
                 key_to_remove = key
                 break
 

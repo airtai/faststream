@@ -65,7 +65,12 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
     ) -> "HandlerCallWrapper[Any, Any, Any]":
         sub: Optional[Any] = None
         for handler in broker._subscribers.values():
-            if _is_handler_matches(handler=handler, routing_key=publisher.routing_key, headers="", exchange=publisher.exchange):
+            if _is_handler_matches(
+                handler=handler,
+                routing_key=publisher.routing_key,
+                headers="",
+                exchange=publisher.exchange,
+            ):
                 sub = handler
                 break
 
@@ -91,7 +96,12 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
     ) -> None:
         key_to_remove = None
         for key, handler in broker._subscribers.items():
-            if _is_handler_matches(handler=handler, routing_key=publisher.routing_key, headers="", exchange=publisher.exchange):
+            if _is_handler_matches(
+                handler=handler,
+                routing_key=publisher.routing_key,
+                headers="",
+                exchange=publisher.exchange,
+            ):
                 key_to_remove = key
                 break
 
