@@ -11,7 +11,7 @@ from typer.core import TyperOption
 
 from faststream import FastStream
 from faststream.__about__ import __version__
-from faststream.cli.docs.app import docs_app
+from faststream.cli.docs import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
 from faststream.cli.utils.parser import parse_cli_args
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict, SettingField
 
 cli = typer.Typer(pretty_exceptions_short=True)
-cli.add_typer(docs_app, name="docs", help="AsyncAPI schema commands")
+cli.add_typer(docs_app, name="docs", help="Documentations commands")
 
 
 def version_callback(version: bool) -> None:

@@ -13,11 +13,11 @@ if TYPE_CHECKING:
     from faststream.specification.proto import Application
 
 
-def get_app_schema(app: "Application") -> BaseSchema:
-    if app.asyncapi_version == AsyncAPIVersion.v3_0:
+def get_app_schema(app: "Application", version: AsyncAPIVersion) -> BaseSchema:
+    if version == AsyncAPIVersion.v3_0:
         return get_app_schema_v3(app)
 
-    if app.asyncapi_version == AsyncAPIVersion.v2_6:
+    if version == AsyncAPIVersion.v2_6:
         return get_app_schema_v2_6(app)
 
     raise NotImplementedError(f"AsyncAPI version not supported: {app.asyncapi_version}")

@@ -15,11 +15,12 @@ from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.specification.asyncapi.site import serve_app
 from faststream.specification.asyncapi.v2_6_0.schema import Schema as SchemaV2_6
 from faststream.specification.asyncapi.v3_0_0.schema import Schema as SchemaV3
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 
-docs_app = typer.Typer(pretty_exceptions_short=True)
+asyncapi_app = typer.Typer(pretty_exceptions_short=True)
 
 
-@docs_app.command(name="serve")
+@asyncapi_app.command(name="serve")
 def serve(
     app: str = typer.Argument(
         ...,
@@ -89,7 +90,7 @@ def serve(
         _parse_and_serve(app, host, port, is_factory)
 
 
-@docs_app.command(name="gen")
+@asyncapi_app.command(name="gen")
 def gen(
     app: str = typer.Argument(
         ...,
@@ -119,6 +120,11 @@ def gen(
         is_flag=True,
         help="Treat APP as an application factory.",
     ),
+    asyncapi_version: str = typer.Option(
+        "3.0.0",
+        "--version",
+        help="Version of asyncapi schema. Currently supported only 3.0.0 and 2.6.0"
+    )
 ) -> None:
     """Generate project AsyncAPI schema."""
     if app_dir:  # pragma: no branch
@@ -127,7 +133,7 @@ def gen(
     _, app_obj = import_from_string(app)
     if callable(app_obj) and is_factory:
         app_obj = app_obj()
-    raw_schema = get_app_schema(app_obj)
+    raw_schema = get_app_schema(app_obj, AsyncAPIVersion(asyncapi_version))
 
     if yaml:
         try:
