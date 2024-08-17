@@ -91,10 +91,6 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
                 break
 
         if key_to_remove:
-            print(1)
-            print(key_to_remove)
-            print(broker._subscribers)
-            print(publisher)
             broker._subscribers.pop(key_to_remove)
 
 
