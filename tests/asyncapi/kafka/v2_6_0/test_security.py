@@ -2,7 +2,6 @@ import ssl
 from copy import deepcopy
 
 from faststream.app import FastStream
-from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.kafka import KafkaBroker
 from faststream.security import (
     SASLGSSAPI,
@@ -12,6 +11,7 @@ from faststream.security import (
     SASLScram256,
     SASLScram512,
 )
+from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 basic_schema = {

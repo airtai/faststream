@@ -38,7 +38,6 @@ from faststream.broker.utils import default_filter
 from faststream.nats.broker import NatsBroker
 from faststream.nats.publisher.publisher import SpecificationPublisher
 from faststream.nats.subscriber.subscriber import SpecificationSubscriber
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -260,10 +259,6 @@ class NatsRouter(StreamRouter["Msg"]):
             Optional[str],
             Doc("AsyncAPI server description."),
         ] = None,
-        asyncapi_version: Annotated[
-            AsyncAPIVersion,
-            Doc("Version of AsyncAPI for schema generation")
-        ] = AsyncAPIVersion.v2_6,
         asyncapi_tags: Annotated[
             Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
@@ -554,7 +549,6 @@ class NatsRouter(StreamRouter["Msg"]):
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
-            asyncapi_version=asyncapi_version,
             asyncapi_tags=asyncapi_tags,
             schema_url=schema_url,
             setup_state=setup_state,

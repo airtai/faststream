@@ -1,6 +1,6 @@
 from faststream import FastStream
-from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.nats import NatsBroker
+from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.specification.asyncapi.version import AsyncAPIVersion
 from tests.asyncapi.base.v2_6_0.naming import NamingTestCase
 

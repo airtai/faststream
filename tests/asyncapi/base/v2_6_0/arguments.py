@@ -10,8 +10,8 @@ from typing_extensions import Annotated, Literal
 
 from faststream import Context, FastStream
 from faststream._compat import PYDANTIC_V2
-from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.broker.core.usecase import BrokerUsecase
+from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.specification.asyncapi.version import AsyncAPIVersion
 from tests.marks import pydantic_v2
 

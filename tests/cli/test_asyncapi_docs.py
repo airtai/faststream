@@ -9,9 +9,9 @@ import yaml
 from typer.testing import CliRunner
 
 from docs.docs_src.getting_started.asyncapi.serve import (
+    asyncapi_serve_cmd,
     gen_asyncapi_json_cmd,
     gen_asyncapi_yaml_cmd,
-    asyncapi_serve_cmd,
 )
 from faststream.cli.main import cli
 from tests.marks import require_aiokafka

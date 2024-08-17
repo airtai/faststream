@@ -34,7 +34,6 @@ from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.publisher import SpecificationPublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.redis.subscriber.subscriber import SpecificationSubscriber
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -130,10 +129,6 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Optional[str],
             Doc("AsyncAPI server description."),
         ] = None,
-        asyncapi_version: Annotated[
-            AsyncAPIVersion,
-            Doc("Version of AsyncAPI for schema generation")
-        ] = AsyncAPIVersion.v2_6,
         asyncapi_tags: Annotated[
             Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
@@ -415,7 +410,6 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             protocol=protocol,
             description=description,
             protocol_version=protocol_version,
-            asyncapi_version=asyncapi_version,
             asyncapi_tags=asyncapi_tags,
             specification_url=specification_url,
             # FastAPI kwargs

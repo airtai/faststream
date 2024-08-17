@@ -19,7 +19,6 @@ from faststream._compat import ExceptionGroup
 from faststream.cli.supervisors.utils import set_exit
 from faststream.exceptions import ValidationError
 from faststream.log.logging import logger
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.specification.proto import Application
 from faststream.utils import apply_types, context
 from faststream.utils.functions import drop_response_type, fake_context, to_async
@@ -62,7 +61,6 @@ class FastStream(Application):
         title: str = "FastStream",
         version: str = "0.1.0",
         description: str = "",
-        asyncapi_version: AsyncAPIVersion = AsyncAPIVersion.v2_6,
         terms_of_service: Optional["AnyHttpUrl"] = None,
         license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
         contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
@@ -82,7 +80,6 @@ class FastStream(Application):
         self.broker = broker
         self.logger = logger
         self.context = context
-        self.asyncapi_version = asyncapi_version
 
         self._on_startup_calling = [apply_types(to_async(x)) for x in on_startup]
         self._after_startup_calling = [apply_types(to_async(x)) for x in after_startup]

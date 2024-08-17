@@ -1,15 +1,14 @@
-from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.rabbit.fastapi import RabbitRouter
 from faststream.rabbit.testing import TestRabbitBroker
 from faststream.security import SASLPlaintext
+from faststream.specification.asyncapi.generate import get_app_schema
 from tests.asyncapi.base.v3_0_0.arguments import FastAPICompatible
 from tests.asyncapi.base.v3_0_0.fastapi import FastAPITestCase
 from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 
 
 class TestRouterArguments(FastAPITestCase, FastAPICompatible):
-    broker_factory = staticmethod(lambda: RabbitRouter(asyncapi_version=AsyncAPIVersion.v3_0))
+    broker_factory = staticmethod(lambda: RabbitRouter())
     router_factory = RabbitRouter
     broker_wrapper = staticmethod(TestRabbitBroker)
 
@@ -18,7 +17,7 @@ class TestRouterArguments(FastAPITestCase, FastAPICompatible):
 
 
 class TestRouterPublisher(PublisherTestcase):
-    broker_factory = staticmethod(lambda: RabbitRouter(asyncapi_version=AsyncAPIVersion.v3_0))
+    broker_factory = staticmethod(lambda: RabbitRouter())
 
     def build_app(self, router):
         return router
@@ -27,7 +26,7 @@ class TestRouterPublisher(PublisherTestcase):
 def test_fastapi_security_schema():
     security = SASLPlaintext(username="user", password="pass", use_ssl=False)
 
-    router = RabbitRouter(security=security, asyncapi_version=AsyncAPIVersion.v3_0)
+    router = RabbitRouter(security=security)
 
     schema = get_app_schema(router,).to_jsonable()
 

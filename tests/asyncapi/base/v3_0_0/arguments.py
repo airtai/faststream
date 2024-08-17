@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, Optional, Union
+from typing import Optional, Union
 
 import pydantic
 from dirty_equals import IsDict, IsPartialDict, IsStr
@@ -11,20 +11,20 @@ from typing_extensions import Annotated, Literal
 
 from faststream import Context, FastStream
 from faststream._compat import PYDANTIC_V2
-from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi import StreamRouter
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 from tests.marks import pydantic_v2
 
 
 class FastAPICompatible:
-    broker_factory: Callable[[], Union[BrokerUsecase, StreamRouter]]
+    broker_factory: Union[BrokerUsecase, StreamRouter]
     dependency_builder = staticmethod(APIDepends)
 
     def build_app(self, broker):
         """Patch it to test FastAPI scheme generation too."""
-        return FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)
+        return FastStream(broker)
 
     def test_custom_naming(self):
         broker = self.broker_factory()

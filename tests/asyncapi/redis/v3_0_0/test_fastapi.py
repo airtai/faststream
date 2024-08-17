@@ -1,4 +1,3 @@
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.redis import TestRedisBroker
 from faststream.redis.fastapi import RedisRouter
 from tests.asyncapi.base.v3_0_0.arguments import FastAPICompatible
@@ -7,7 +6,7 @@ from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 
 
 class TestRouterArguments(FastAPITestCase, FastAPICompatible):
-    broker_factory = staticmethod(lambda: RedisRouter(asyncapi_version=AsyncAPIVersion.v3_0))
+    broker_factory = staticmethod(lambda: RedisRouter())
     router_factory = RedisRouter
     broker_wrapper = staticmethod(TestRedisBroker)
 
@@ -16,7 +15,7 @@ class TestRouterArguments(FastAPITestCase, FastAPICompatible):
 
 
 class TestRouterPublisher(PublisherTestcase):
-    broker_factory = staticmethod(lambda: RedisRouter(asyncapi_version=AsyncAPIVersion.v3_0))
+    broker_factory = staticmethod(lambda: RedisRouter())
 
     def build_app(self, router):
         return router

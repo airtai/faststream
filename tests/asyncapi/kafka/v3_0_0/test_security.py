@@ -2,8 +2,6 @@ import ssl
 from copy import deepcopy
 
 from faststream.app import FastStream
-from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.kafka import KafkaBroker
 from faststream.security import (
     BaseSecurity,
@@ -11,6 +9,8 @@ from faststream.security import (
     SASLScram256,
     SASLScram512,
 )
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 basic_schema = {
     "info": {
@@ -134,7 +134,7 @@ def test_base_security_schema():
     security = BaseSecurity(ssl_context=ssl_context)
 
     broker = KafkaBroker("localhost:9092", security=security)
-    app = FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)
+    app = FastStream(broker)
 
     @broker.publisher("test_2")
     @broker.subscriber("test_1")
@@ -155,7 +155,7 @@ def test_plaintext_security_schema():
     )
 
     broker = KafkaBroker("localhost:9092", security=security)
-    app = FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)
+    app = FastStream(broker)
 
     @broker.publisher("test_2")
     @broker.subscriber("test_1")
@@ -184,7 +184,7 @@ def test_scram256_security_schema():
     )
 
     broker = KafkaBroker("localhost:9092", security=security)
-    app = FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)
+    app = FastStream(broker)
 
     @broker.publisher("test_2")
     @broker.subscriber("test_1")
@@ -211,7 +211,7 @@ def test_scram512_security_schema():
     )
 
     broker = KafkaBroker("localhost:9092", security=security)
-    app = FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)
+    app = FastStream(broker)
 
     @broker.publisher("test_2")
     @broker.subscriber("test_1")

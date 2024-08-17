@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol, Sequence, Union
 
 from typing_extensions import Annotated, Doc
 
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.specification.schema.channel import Channel
 
 if TYPE_CHECKING:
@@ -29,7 +28,6 @@ class Application(Protocol):
     contact: Optional[Union["Contact", "ContactDict", "AnyDict"]]
     specs_tags: Optional[Sequence[Union["Tag", "AnyDict"]]]
     external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]]
-    asyncapi_version: AsyncAPIVersion
     identifier: Optional[str]
 
 

@@ -1,13 +1,13 @@
 import ssl
 
 from faststream.app import FastStream
-from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.redis import RedisBroker
 from faststream.security import (
     BaseSecurity,
     SASLPlaintext,
 )
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 
 def test_base_security_schema():
@@ -20,7 +20,7 @@ def test_base_security_schema():
         broker.url == "rediss://localhost:6379/"  # pragma: allowlist secret
     )  # pragma: allowlist secret
 
-    schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)).to_jsonable()
+    schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0,).to_jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",
@@ -56,7 +56,7 @@ def test_plaintext_security_schema():
         broker.url == "redis://localhost:6379/"  # pragma: allowlist secret
     )  # pragma: allowlist secret
 
-    schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)).to_jsonable()
+    schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0,).to_jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",
@@ -93,7 +93,7 @@ def test_plaintext_security_schema_without_ssl():
         broker.url == "redis://localhost:6379/"  # pragma: allowlist secret
     )  # pragma: allowlist secret
 
-    schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)).to_jsonable()
+    schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0,).to_jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",

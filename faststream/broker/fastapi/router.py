@@ -127,7 +127,6 @@ class StreamRouter(
             generate_unique_id
         ),
         # AsyncAPI information
-        asyncapi_version: AsyncAPIVersion = AsyncAPIVersion.v2_6,
         asyncapi_tags: Optional[
             Iterable[Union["Tag", "TagDict"]]
         ] = None,
@@ -165,7 +164,6 @@ class StreamRouter(
         self.description = ""
         self.license = None
         self.contact = None
-        self.asyncapi_version = asyncapi_version
 
         self.schema = None
 

@@ -1,9 +1,9 @@
 import pytest
 
 from faststream import FastStream
+from faststream.redis import RedisBroker
 from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.specification.asyncapi.version import AsyncAPIVersion
-from faststream.redis import RedisBroker
 from tests.asyncapi.base.v3_0_0.naming import NamingTestCase
 
 
@@ -16,7 +16,7 @@ class TestNaming(NamingTestCase):
         @broker.subscriber("test")
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)).to_jsonable()
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0,).to_jsonable()
 
         assert schema == {
             "asyncapi": "3.0.0",

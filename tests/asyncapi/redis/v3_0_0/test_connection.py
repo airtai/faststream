@@ -1,7 +1,7 @@
 from faststream import FastStream
+from faststream.redis import RedisBroker
 from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.specification.asyncapi.version import AsyncAPIVersion
-from faststream.redis import RedisBroker
 from faststream.specification.schema.tag import Tag
 
 
@@ -15,8 +15,8 @@ def test_base():
                 description="Test description",
                 tags=(Tag(name="some-tag", description="experimental"),),
             ),
-            asyncapi_version=AsyncAPIVersion.v3_0,
-        )
+        ),
+        version=AsyncAPIVersion.v3_0,
     ).to_jsonable()
 
     assert schema == {
@@ -46,8 +46,8 @@ def test_custom():
                 "redis://localhost:6379",
                 specification_url="rediss://127.0.0.1:8000"
             ),
-            asyncapi_version=AsyncAPIVersion.v3_0,
-        )
+        ),
+        version=AsyncAPIVersion.v3_0,
     ).to_jsonable()
 
     assert schema == {

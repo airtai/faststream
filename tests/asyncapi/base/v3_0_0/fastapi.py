@@ -5,18 +5,18 @@ from dirty_equals import IsStr
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import MsgType
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 
 class FastAPITestCase:
     router_factory: Type[StreamRouter[MsgType]]
     broker_wrapper: Callable[[BrokerUsecase[MsgType, Any]], BrokerUsecase[MsgType, Any]]
 
-    @pytest.mark.skip
+    @pytest.mark.skip()
     @pytest.mark.asyncio()
     async def test_fastapi_full_information(self):
         broker = self.router_factory(
@@ -80,10 +80,10 @@ class FastAPITestCase:
                     }
                 }
 
-    @pytest.mark.skip
+    @pytest.mark.skip()
     @pytest.mark.asyncio()
     async def test_fastapi_asyncapi_routes(self):
-        broker = self.router_factory(schema_url="/asyncapi_schema", asyncapi_version=AsyncAPIVersion.v3_0, )
+        broker = self.router_factory(schema_url="/asyncapi_schema")
 
         @broker.subscriber("test")
         async def handler(): ...
@@ -106,7 +106,7 @@ class FastAPITestCase:
 
     @pytest.mark.asyncio()
     async def test_fastapi_asyncapi_not_fount(self):
-        broker = self.router_factory(include_in_schema=False, asyncapi_version=AsyncAPIVersion.v3_0, )
+        broker = self.router_factory(include_in_schema=False)
 
         app = FastAPI(lifespan=broker.lifespan_context)
         app.include_router(broker)
@@ -124,7 +124,7 @@ class FastAPITestCase:
 
     @pytest.mark.asyncio()
     async def test_fastapi_asyncapi_not_fount_by_url(self):
-        broker = self.router_factory(schema_url=None, asyncapi_version=AsyncAPIVersion.v3_0, )
+        broker = self.router_factory(schema_url=None)
 
         app = FastAPI(lifespan=broker.lifespan_context)
         app.include_router(broker)

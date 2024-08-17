@@ -1,16 +1,15 @@
 
-from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.kafka.fastapi import KafkaRouter
 from faststream.kafka.testing import TestKafkaBroker
 from faststream.security import SASLPlaintext
+from faststream.specification.asyncapi.generate import get_app_schema
 from tests.asyncapi.base.v3_0_0.arguments import FastAPICompatible
 from tests.asyncapi.base.v3_0_0.fastapi import FastAPITestCase
 from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 
 
 class TestRouterArguments(FastAPITestCase, FastAPICompatible):
-    broker_factory = staticmethod(lambda: KafkaRouter(asyncapi_version=AsyncAPIVersion.v3_0))
+    broker_factory = KafkaRouter
     router_factory = KafkaRouter
     broker_wrapper = staticmethod(TestKafkaBroker)
 
@@ -19,7 +18,7 @@ class TestRouterArguments(FastAPITestCase, FastAPICompatible):
 
 
 class TestRouterPublisher(PublisherTestcase):
-    broker_factory = staticmethod(lambda: KafkaRouter(asyncapi_version=AsyncAPIVersion.v3_0))
+    broker_factory = staticmethod(lambda: KafkaRouter())
 
     def build_app(self, router):
         return router

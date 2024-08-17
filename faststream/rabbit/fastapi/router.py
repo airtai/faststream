@@ -30,7 +30,6 @@ from faststream.rabbit.schemas import (
     RabbitQueue,
 )
 from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -181,10 +180,6 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional[str],
             Doc("AsyncAPI server description."),
         ] = None,
-        asyncapi_version: Annotated[
-            AsyncAPIVersion,
-            Doc("Version of AsyncAPI for schema generation")
-        ] = AsyncAPIVersion.v2_6,
         asyncapi_tags: Annotated[
             Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
@@ -457,7 +452,6 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
-            asyncapi_version=asyncapi_version,
             asyncapi_tags=asyncapi_tags,
             schema_url=schema_url,
             setup_state=setup_state,

@@ -3,10 +3,10 @@ from typing import Type
 from dirty_equals import IsStr
 
 from faststream import FastStream
-from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 
 class RouterTestcase:
@@ -26,7 +26,7 @@ class RouterTestcase:
 
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)).to_jsonable()
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
 
         payload = schema["components"]["schemas"]
         key = list(payload.keys())[0]  # noqa: RUF015
@@ -49,7 +49,7 @@ class RouterTestcase:
 
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0))
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0)
         schemas = schema.components.schemas
         del schemas["Handle:Message:Payload"]
 
@@ -69,7 +69,7 @@ class RouterTestcase:
 
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0))
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0)
         assert schema.channels == {}, schema.channels
 
     def test_not_include_in_method(self):
@@ -82,7 +82,7 @@ class RouterTestcase:
 
         broker.include_router(router, include_in_schema=False)
 
-        schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0))
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0)
         assert schema.channels == {}, schema.channels
 
     def test_respect_subrouter(self):
@@ -97,7 +97,7 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0))
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0)
 
         assert schema.channels == {}, schema.channels
 
@@ -113,7 +113,7 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0))
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0)
 
         assert schema.channels == {}
 
@@ -129,7 +129,7 @@ class RouterTestcase:
         router.include_router(router2, include_in_schema=False)
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0))
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0)
 
         assert schema.channels == {}
 
@@ -145,7 +145,7 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router, include_in_schema=False)
 
-        schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0))
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0)
 
         assert schema.channels == {}
 
@@ -161,6 +161,6 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0))
+        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0)
 
         assert len(schema.channels) == 2

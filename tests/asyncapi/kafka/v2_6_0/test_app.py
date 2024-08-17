@@ -1,10 +1,10 @@
 from faststream import FastStream
+from faststream.kafka import KafkaBroker
 from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.specification.schema.contact import Contact
-from faststream.specification.schema.license import License
-from faststream.kafka import KafkaBroker
 from faststream.specification.schema.docs import ExternalDocs
+from faststream.specification.schema.license import License
 from faststream.specification.schema.tag import Tag
 
 

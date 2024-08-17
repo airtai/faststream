@@ -3,10 +3,10 @@ from typing import Callable, Union
 import pydantic
 
 from faststream import FastStream
-from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi import StreamRouter
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 
 class PublisherTestcase:
@@ -14,7 +14,7 @@ class PublisherTestcase:
 
     def build_app(self, broker):
         """Patch it to test FastAPI scheme generation too."""
-        return FastStream(broker, asyncapi_version=AsyncAPIVersion.v3_0)
+        return FastStream(broker)
 
     def test_publisher_with_description(self):
         broker = self.broker_factory()
