@@ -84,7 +84,18 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         broker: KafkaBroker,
         publisher: "AsyncAPIPublisher[Any]",
     ) -> None:
-        broker._subscribers.pop(hash(publisher), None)
+        key_to_remove = None
+        for key, handler in broker._subscribers.items():
+            if _is_handler_matches(handler, publisher.topic, publisher.partition):
+                key_to_remove = key
+                break
+
+        if key_to_remove:
+            print(1)
+            print(key_to_remove)
+            print(broker._subscribers)
+            print(publisher)
+            broker._subscribers.pop(key_to_remove)
 
 
 class FakeProducer(AsyncConfluentFastProducer):

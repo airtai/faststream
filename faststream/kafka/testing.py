@@ -46,17 +46,26 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         broker: KafkaBroker,
         publisher: "AsyncAPIPublisher[Any]",
     ) -> "HandlerCallWrapper[Any, Any, Any]":
-        if publisher.partition:
-            tp = TopicPartition(topic=publisher.topic, partition=publisher.partition)
-            sub = broker.subscriber(
-                partitions=[tp],
-                batch=isinstance(publisher, AsyncAPIBatchPublisher),
-            )
-        else:
-            sub = broker.subscriber(
-                publisher.topic,
-                batch=isinstance(publisher, AsyncAPIBatchPublisher),
-            )
+        sub: Optional[Any] = None
+        for handler in broker._subscribers.values():
+            if _is_handler_matches(handler, publisher.topic, publisher.partition):
+                sub = handler
+                break
+
+        if sub is None:
+            if publisher.partition:
+                tp = TopicPartition(
+                    topic=publisher.topic, partition=publisher.partition
+                )
+                sub = broker.subscriber(
+                    partitions=[tp],
+                    batch=isinstance(publisher, AsyncAPIBatchPublisher),
+                )
+            else:
+                sub = broker.subscriber(
+                    publisher.topic,
+                    batch=isinstance(publisher, AsyncAPIBatchPublisher),
+                )
 
         if not sub.calls:
 
@@ -73,7 +82,13 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         broker: KafkaBroker,
         publisher: "AsyncAPIPublisher[Any]",
     ) -> None:
-        broker._subscribers.pop(hash(publisher), None)
+        key_to_remove = None
+        for key, handler in broker._subscribers.items():
+            if _is_handler_matches(handler, publisher.topic, publisher.partition):
+                key_to_remove = key
+                break
+        if key_to_remove:
+            broker._subscribers.pop(key_to_remove)
 
 
 class FakeProducer(AioKafkaFastProducer):

@@ -22,7 +22,6 @@ from faststream.rabbit.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
 
@@ -31,6 +30,7 @@ if TYPE_CHECKING:
 
     from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.rabbit.message import RabbitMessage
+    from faststream.rabbit.subscriber.usecase import LogicSubscriber
     from faststream.rabbit.types import AioPikaSendableMessage
 
 
@@ -63,11 +63,17 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
         broker: RabbitBroker,
         publisher: AsyncAPIPublisher,
     ) -> "HandlerCallWrapper[Any, Any, Any]":
-        sub = broker.subscriber(
-            queue=publisher.routing,
-            exchange=publisher.exchange,
-        )
+        sub: Optional[Any] = None
+        for handler in broker._subscribers.values():
+            if _is_handler_matches(handler=handler, routing_key=publisher.routing_key, headers="", exchange=publisher.exchange):
+                sub = handler
+                break
 
+        if sub is None:
+            sub = broker.subscriber(
+                queue=publisher.routing,
+                exchange=publisher.exchange,
+            )
         if not sub.calls:
 
             @sub
@@ -83,13 +89,14 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
         broker: RabbitBroker,
         publisher: AsyncAPIPublisher,
     ) -> None:
-        broker._subscribers.pop(
-            LogicSubscriber.get_routing_hash(
-                queue=RabbitQueue.validate(publisher.routing),
-                exchange=RabbitExchange.validate(publisher.exchange),
-            ),
-            None,
-        )
+        key_to_remove = None
+        for key, handler in broker._subscribers.items():
+            if _is_handler_matches(handler=handler, routing_key=publisher.routing_key, headers="", exchange=publisher.exchange):
+                key_to_remove = key
+                break
+
+        if key_to_remove:
+            broker._subscribers.pop(key_to_remove)
 
 
 class PatchedMessage(IncomingMessage):
@@ -251,7 +258,7 @@ class FakeProducer(AioPikaFastProducer):
         )
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if _is_handler_suitable(
+            if _is_handler_matches(
                 handler, incoming.routing_key, incoming.headers, exch
             ):
                 with timeout_scope(rpc_timeout, raise_timeout):
@@ -306,7 +313,7 @@ class FakeProducer(AioPikaFastProducer):
         )
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if _is_handler_suitable(
+            if _is_handler_matches(
                 handler, incoming.routing_key, incoming.headers, exch
             ):
                 with anyio.fail_after(timeout):
@@ -331,7 +338,7 @@ class FakeProducer(AioPikaFastProducer):
         return response_msg
 
 
-def _is_handler_suitable(
+def _is_handler_matches(
     handler: "LogicSubscriber",
     routing_key: str,
     headers: "Mapping[Any, Any]",

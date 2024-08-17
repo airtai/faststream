@@ -12,7 +12,6 @@ from faststream.nats.broker import NatsBroker
 from faststream.nats.parser import NatsParser
 from faststream.nats.publisher.producer import NatsFastProducer
 from faststream.nats.schemas.js_stream import is_subject_match_wildcard
-from faststream.nats.subscriber.usecase import LogicSubscriber
 from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
 
@@ -20,6 +19,7 @@ if TYPE_CHECKING:
     from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.nats.subscriber.usecase import LogicSubscriber
     from faststream.types import AnyDict, SendableMessage
 
 __all__ = ("TestNatsBroker",)
@@ -33,7 +33,16 @@ class TestNatsBroker(TestBroker[NatsBroker]):
         broker: NatsBroker,
         publisher: "AsyncAPIPublisher",
     ) -> "HandlerCallWrapper[Any, Any, Any]":
-        sub = broker.subscriber(publisher.subject)
+        sub: Optional[Any] = None
+        for handler in broker._subscribers.values():
+            if _is_handler_matches(handler=handler, subject=publisher.subject, stream=publisher.stream):
+                sub = handler
+                break
+
+        if sub is None:
+            sub = broker.subscriber(
+                subject=publisher.subject,
+            )
 
         if not sub.calls:
 
@@ -61,9 +70,14 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     def remove_publisher_fake_subscriber(
         broker: NatsBroker, publisher: "AsyncAPIPublisher"
     ) -> None:
-        broker._subscribers.pop(
-            LogicSubscriber.get_routing_hash(publisher.subject), None
-        )
+        key_to_remove = None
+        for key, handler in broker._subscribers.items():
+            if _is_handler_matches(handler=handler, subject=publisher.subject, stream=publisher.stream):
+                key_to_remove = key
+                break
+
+        if key_to_remove:
+            broker._subscribers.pop(key_to_remove)
 
 
 class FakeProducer(NatsFastProducer):
@@ -102,7 +116,7 @@ class FakeProducer(NatsFastProducer):
         )
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if _is_handler_suitable(handler, subject, stream):
+            if _is_handler_matches(handler, subject, stream):
                 msg: Union[List[PatchedMessage], PatchedMessage]
 
                 if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
@@ -137,7 +151,7 @@ class FakeProducer(NatsFastProducer):
         )
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if _is_handler_suitable(handler, subject, stream):
+            if _is_handler_matches(handler, subject, stream):
                 msg: Union[List[PatchedMessage], PatchedMessage]
 
                 if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
@@ -167,7 +181,7 @@ class FakeProducer(NatsFastProducer):
         return response_msg
 
 
-def _is_handler_suitable(
+def _is_handler_matches(
     handler: "LogicSubscriber[Any]",
     subject: str,
     stream: Optional[str] = None,
