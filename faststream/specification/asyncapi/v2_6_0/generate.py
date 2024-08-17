@@ -40,6 +40,7 @@ def get_app_schema(app: Application) -> Schema:
     broker = app.broker
     if broker is None:  # pragma: no cover
         raise RuntimeError()
+
     broker.setup()
 
     servers = get_broker_server(broker)
@@ -47,30 +48,13 @@ def get_app_schema(app: Application) -> Schema:
 
     messages: Dict[str, Message] = {}
     payloads: Dict[str, AnyDict] = {}
+
+    for channel in channels.values():
+        channel.servers = list(servers.keys())
+
     for channel_name, ch in channels.items():
-        ch.servers = list(servers.keys())
+        resolve_channel_messages(ch, channel_name, payloads, messages)
 
-        if ch.subscribe is not None:
-            m = ch.subscribe.message
-
-            if isinstance(m, Message):  # pragma: no branch
-                ch.subscribe.message = _resolve_msg_payloads(
-                    m,
-                    channel_name,
-                    payloads,
-                    messages,
-                )
-
-        if ch.publish is not None:
-            m = ch.publish.message
-
-            if isinstance(m, Message):  # pragma: no branch
-                ch.publish.message = _resolve_msg_payloads(
-                    m,
-                    channel_name,
-                    payloads,
-                    messages,
-                )
     schema = Schema(
         info=Info(
             title=app.title,
@@ -102,6 +86,33 @@ def get_app_schema(app: Application) -> Schema:
         ),
     )
     return schema
+
+
+def resolve_channel_messages(
+        channel: Channel,
+        channel_name: str,
+        payloads: Dict[str, AnyDict],
+        messages: Dict[str, Message],
+) -> None:
+    if channel.subscribe is not None:
+        assert isinstance(channel.subscribe.message, Message)
+
+        channel.subscribe.message = _resolve_msg_payloads(
+            channel.subscribe.message,
+            channel_name,
+            payloads,
+            messages,
+        )
+
+    if channel.publish is not None:
+        assert isinstance(channel.publish.message, Message)
+
+        channel.publish.message = _resolve_msg_payloads(
+            channel.publish.message,
+            channel_name,
+            payloads,
+            messages,
+        )
 
 
 def get_broker_server(

@@ -60,6 +60,9 @@ def get_app_schema(app: Application) -> Schema:
     messages: Dict[str, Message] = {}
     payloads: Dict[str, AnyDict] = {}
 
+    for channel in channels.values():
+        channel.servers = [{"$ref": f"#/servers/{server_name}"} for server_name in list(servers.keys())]
+
     for channel_name, channel in channels.items():
         msgs: Dict[str, Union[Message, Reference]] = {}
         for message_name, message in channel.messages.items():
@@ -74,8 +77,6 @@ def get_app_schema(app: Application) -> Schema:
             )
 
         channel.messages = msgs
-
-        channel.servers = [{"$ref": f"#/servers/{server_name}"} for server_name in list(servers.keys())]
 
     schema = Schema(
         info=Info(
