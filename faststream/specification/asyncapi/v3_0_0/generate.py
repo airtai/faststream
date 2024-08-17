@@ -7,20 +7,12 @@ from faststream.specification.asyncapi.v2_6_0.generate import move_pydantic_refs
 from faststream.specification.asyncapi.v2_6_0.schema import (
     Reference,
     Tag,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.contact import (
-    from_spec as contact_from_spec,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.docs import (
-    from_spec as docs_from_spec,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.license import (
-    from_spec as license_from_spec,
+    contact_from_spec,
+    docs_from_spec,
+    license_from_spec,
+    tag_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
-from faststream.specification.asyncapi.v2_6_0.schema.tag import (
-    from_spec as tag_from_spec,
-)
 from faststream.specification.asyncapi.v3_0_0.schema import (
     Channel,
     Components,
@@ -28,15 +20,11 @@ from faststream.specification.asyncapi.v3_0_0.schema import (
     Operation,
     Schema,
     Server,
-)
-from faststream.specification.asyncapi.v3_0_0.schema.channels import (
-    from_spec as channel_from_spec,
+    channel_from_spec,
+    operation_from_spec,
 )
 from faststream.specification.asyncapi.v3_0_0.schema.operations import (
     Action,
-)
-from faststream.specification.asyncapi.v3_0_0.schema.operations import (
-    from_spec as operation_from_spec,
 )
 from faststream.specification.proto import Application
 from faststream.types import AnyDict
