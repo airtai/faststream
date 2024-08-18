@@ -14,7 +14,7 @@ async def test_base_security():
         async with broker:
             pass
 
-    schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
+    schema = get_app_schema(FastStream(broker), version="2.6.0").to_jsonable()
     assert schema == {
         "asyncapi": "2.6.0",
         "channels": {},
@@ -41,7 +41,7 @@ async def test_plaintext_security():
         async with broker:
             pass
 
-    schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
+    schema = get_app_schema(FastStream(broker), version="2.6.0").to_jsonable()
     assert (
         schema
         == {

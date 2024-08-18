@@ -12,7 +12,6 @@ from faststream.security import (
     SASLScram512,
 )
 from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 basic_schema = {
     "asyncapi": "2.6.0",
@@ -84,7 +83,7 @@ def test_base_security_schema():
     async def test_topic(msg: str) -> str:
         pass
 
-    schema = get_app_schema(app, version=AsyncAPIVersion.v2_6).to_jsonable()
+    schema = get_app_schema(app, version="2.6.0").to_jsonable()
 
     assert schema == basic_schema
 
@@ -105,7 +104,7 @@ def test_plaintext_security_schema():
     async def test_topic(msg: str) -> str:
         pass
 
-    schema = get_app_schema(app, version=AsyncAPIVersion.v2_6).to_jsonable()
+    schema = get_app_schema(app, version="2.6.0").to_jsonable()
 
     plaintext_security_schema = deepcopy(basic_schema)
     plaintext_security_schema["servers"]["development"]["security"] = [
@@ -134,7 +133,7 @@ def test_scram256_security_schema():
     async def test_topic(msg: str) -> str:
         pass
 
-    schema = get_app_schema(app, version=AsyncAPIVersion.v2_6).to_jsonable()
+    schema = get_app_schema(app, version="2.6.0").to_jsonable()
 
     sasl256_security_schema = deepcopy(basic_schema)
     sasl256_security_schema["servers"]["development"]["security"] = [{"scram256": []}]
@@ -161,7 +160,7 @@ def test_scram512_security_schema():
     async def test_topic(msg: str) -> str:
         pass
 
-    schema = get_app_schema(app, version=AsyncAPIVersion.v2_6).to_jsonable()
+    schema = get_app_schema(app, version="2.6.0").to_jsonable()
 
     sasl512_security_schema = deepcopy(basic_schema)
     sasl512_security_schema["servers"]["development"]["security"] = [{"scram512": []}]
@@ -213,7 +212,7 @@ def test_gssapi_security_schema():
     async def test_topic(msg: str) -> str:
         pass
 
-    schema = get_app_schema(app, version=AsyncAPIVersion.v2_6).to_jsonable()
+    schema = get_app_schema(app, version="2.6.0").to_jsonable()
 
     gssapi_security_schema = deepcopy(basic_schema)
     gssapi_security_schema["servers"]["development"]["security"] = [{"gssapi": []}]

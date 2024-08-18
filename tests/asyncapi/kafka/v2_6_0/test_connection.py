@@ -1,7 +1,6 @@
 from faststream import FastStream
 from faststream.kafka import KafkaBroker
 from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.specification.schema.tag import Tag
 
 
@@ -16,7 +15,7 @@ def test_base():
                 tags=(Tag(name="some-tag", description="experimental"),),
             )
         ),
-        version=AsyncAPIVersion.v2_6
+        version="2.6.0"
     ).to_jsonable()
 
     assert schema == {
@@ -40,7 +39,7 @@ def test_base():
 def test_multi():
     schema = get_app_schema(
         FastStream(KafkaBroker(["kafka:9092", "kafka:9093"])),
-        version=AsyncAPIVersion.v2_6,
+        version="2.6.0",
     ).to_jsonable()
 
     assert schema == {
@@ -72,7 +71,7 @@ def test_custom():
                 specification_url=["kafka:9094", "kafka:9095"],
             )
         ),
-        version=AsyncAPIVersion.v2_6,
+        version="2.6.0",
     ).to_jsonable()
 
     assert schema == {

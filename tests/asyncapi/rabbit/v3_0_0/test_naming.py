@@ -3,7 +3,6 @@ from typing import Type
 from faststream import FastStream
 from faststream.rabbit import RabbitBroker
 from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from tests.asyncapi.base.v3_0_0.naming import NamingTestCase
 
 
@@ -16,7 +15,7 @@ class TestNaming(NamingTestCase):
         @broker.subscriber("test", "exchange")
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0,).to_jsonable()
+        schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
 
         assert list(schema["channels"].keys()) == ["test:exchange:Handle"]
 
@@ -30,7 +29,7 @@ class TestNaming(NamingTestCase):
         @broker.publisher("test", "exchange")
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0,).to_jsonable()
+        schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
 
         assert list(schema["channels"].keys()) == ["test:exchange:Publisher"]
 
@@ -44,7 +43,7 @@ class TestNaming(NamingTestCase):
         @broker.subscriber("test")
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker), version=AsyncAPIVersion.v3_0,).to_jsonable()
+        schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
 
         assert (
                 schema

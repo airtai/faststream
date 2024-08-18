@@ -1,6 +1,5 @@
 from faststream.redis import RedisBroker
 from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
 
 
@@ -13,7 +12,7 @@ class TestArguments(PublisherTestcase):
         @broker.publisher("test")
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version="2.6.0").to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
@@ -30,7 +29,7 @@ class TestArguments(PublisherTestcase):
         @broker.publisher(list="test")
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version="2.6.0").to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
@@ -43,7 +42,7 @@ class TestArguments(PublisherTestcase):
         @broker.publisher(stream="test")
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v2_6).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version="2.6.0").to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {

@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Literal, Optional, Union
 
 from faststream.specification.asyncapi.base.schema import BaseSchema
 from faststream.specification.asyncapi.v3_0_0.schema.channels import Channel
@@ -6,7 +6,6 @@ from faststream.specification.asyncapi.v3_0_0.schema.components import Component
 from faststream.specification.asyncapi.v3_0_0.schema.info import Info
 from faststream.specification.asyncapi.v3_0_0.schema.operations import Operation
 from faststream.specification.asyncapi.v3_0_0.schema.servers import Server
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 
 class Schema(BaseSchema):
@@ -28,7 +27,7 @@ class Schema(BaseSchema):
 
     """
 
-    asyncapi: AsyncAPIVersion = AsyncAPIVersion.v3_0
+    asyncapi: Union[Literal["3.0.0"], str] = "3.0.0"
     id: Optional[str] = None
     defaultContentType: Optional[str] = None
     info: Info

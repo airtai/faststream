@@ -9,7 +9,6 @@ from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import MsgType
 from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 
 class FastAPITestCase:
@@ -90,7 +89,7 @@ class FastAPITestCase:
 
         async with self.broker_wrapper(broker.broker):
             with TestClient(app) as client:
-                schema = get_app_schema(broker, version=AsyncAPIVersion.v3_0)
+                schema = get_app_schema(broker, version="3.0.0")
 
                 response_json = client.get("/asyncapi_schema.json")
                 assert response_json.json() == schema.to_jsonable()

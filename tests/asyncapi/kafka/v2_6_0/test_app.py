@@ -1,7 +1,6 @@
 from faststream import FastStream
 from faststream.kafka import KafkaBroker
 from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.specification.schema.contact import Contact
 from faststream.specification.schema.docs import ExternalDocs
 from faststream.specification.schema.license import License
@@ -9,7 +8,7 @@ from faststream.specification.schema.tag import Tag
 
 
 def test_base():
-    schema = get_app_schema(FastStream(KafkaBroker()), version=AsyncAPIVersion.v2_6).to_jsonable()
+    schema = get_app_schema(FastStream(KafkaBroker()), version="2.6.0").to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -35,7 +34,7 @@ def test_with_name():
             version="1.0.0",
             description="Test description",
         ),
-        version=AsyncAPIVersion.v2_6,
+        version="2.6.0",
     ).to_jsonable()
 
     assert schema == {
@@ -74,7 +73,7 @@ def test_full():
                 url="https://extra-docs.py/",
             ),
         ),
-        version=AsyncAPIVersion.v2_6
+        version="2.6.0"
     ).to_jsonable()
 
     assert schema == {
@@ -119,7 +118,7 @@ def test_full_dict():
                 "url": "https://extra-docs.py/",
             },
         ),
-        version=AsyncAPIVersion.v2_6
+        version="2.6.0"
     ).to_jsonable()
 
     assert schema == {
@@ -167,7 +166,7 @@ def test_extra():
                 "x-field": "extra",
             },
         ),
-        version=AsyncAPIVersion.v2_6
+        version="2.6.0"
     ).to_jsonable()
 
     assert schema == {

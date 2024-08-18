@@ -15,7 +15,6 @@ from faststream.specification.asyncapi.generate import get_app_schema
 from faststream.specification.asyncapi.site import serve_app
 from faststream.specification.asyncapi.v2_6_0.schema import Schema as SchemaV2_6
 from faststream.specification.asyncapi.v3_0_0.schema import Schema as SchemaV3
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 asyncapi_app = typer.Typer(pretty_exceptions_short=True)
 
@@ -133,7 +132,7 @@ def gen(
     _, app_obj = import_from_string(app)
     if callable(app_obj) and is_factory:
         app_obj = app_obj()
-    raw_schema = get_app_schema(app_obj, AsyncAPIVersion(asyncapi_version))
+    raw_schema = get_app_schema(app_obj, asyncapi_version)
 
     if yaml:
         try:
@@ -167,7 +166,7 @@ def _parse_and_serve(
         _, app_obj = import_from_string(app)
         if callable(app_obj) and is_factory:
             app_obj = app_obj()
-        raw_schema = get_app_schema(app_obj, AsyncAPIVersion.v2_6)
+        raw_schema = get_app_schema(app_obj, "2.6.0")
 
     else:
         schema_filepath = Path.cwd() / app

@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 
 from faststream.specification.asyncapi.base.schema import BaseSchema
 from faststream.specification.asyncapi.v2_6_0.schema.channels import Channel
@@ -7,7 +7,6 @@ from faststream.specification.asyncapi.v2_6_0.schema.docs import ExternalDocs
 from faststream.specification.asyncapi.v2_6_0.schema.info import Info
 from faststream.specification.asyncapi.v2_6_0.schema.servers import Server
 from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.types import AnyDict
 
 
@@ -32,7 +31,7 @@ class Schema(BaseSchema):
 
     """
 
-    asyncapi: AsyncAPIVersion = AsyncAPIVersion.v2_6
+    asyncapi: Union[Literal["2.6.0"], str] = "2.6.0"
     id: Optional[str] = None
     defaultContentType: Optional[str] = None
     info: Info

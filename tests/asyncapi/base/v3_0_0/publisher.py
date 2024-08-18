@@ -1,4 +1,4 @@
-from typing import Callable, Union
+from typing import Union
 
 import pydantic
 
@@ -6,7 +6,6 @@ from faststream import FastStream
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi import StreamRouter
 from faststream.specification.asyncapi.generate import get_app_schema
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 
 
 class PublisherTestcase:
@@ -22,7 +21,7 @@ class PublisherTestcase:
         @broker.publisher("test", description="test description")
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
 
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
         assert schema["channels"][key]["description"] == "test description"
@@ -33,7 +32,7 @@ class PublisherTestcase:
         @broker.publisher("test")
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
 
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
         assert schema["channels"][key].get("description") is None
@@ -49,7 +48,7 @@ class PublisherTestcase:
         @broker.publisher("test")
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
         for v in payload.values():
@@ -61,7 +60,7 @@ class PublisherTestcase:
         @broker.publisher("test")
         async def handle(msg) -> int: ...
 
-        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
         for v in payload.values():
@@ -77,7 +76,7 @@ class PublisherTestcase:
         @broker.publisher("test")
         async def handle(msg) -> User: ...
 
-        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -100,7 +99,7 @@ class PublisherTestcase:
         @pub
         async def handle(msg) -> int: ...
 
-        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
         for v in payload.values():
@@ -111,7 +110,7 @@ class PublisherTestcase:
 
         broker.publisher("test", title="Custom", schema=int)
 
-        schema = get_app_schema(self.build_app(broker), version=AsyncAPIVersion.v3_0).to_jsonable()
+        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
         for v in payload.values():
