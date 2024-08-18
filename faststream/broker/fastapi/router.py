@@ -40,7 +40,6 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.specification.asyncapi.site import get_asyncapi_html
-from faststream.specification.asyncapi.version import AsyncAPIVersion
 from faststream.specification.proto import Application
 from faststream.utils.context.repository import context
 from faststream.utils.functions import fake_context, to_async

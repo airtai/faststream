@@ -6,21 +6,21 @@ These commands are also imported and used in tests under tests/ directory.
 
 
 gen_asyncapi_json_cmd = """
-faststream docs asyncapi gen basic:app
+faststream docs gen basic:app
 """
 
 gen_asyncapi_yaml_cmd = """
-faststream docs asyncapi gen --yaml basic:app
+faststream docs gen --yaml basic:app
 """
 
 asyncapi_serve_cmd = """
-faststream docs asyncapi serve basic:app
+faststream docs serve basic:app
 """
 
 asyncapi_serve_json_cmd = """
-faststream docs asyncapi serve asyncapi.json
+faststream docs serve asyncapi.json
 """
 
 asyncapi_serve_yaml_cmd = """
-faststream docs asyncapi serve asyncapi.yaml
+faststream docs serve asyncapi.yaml
 """
