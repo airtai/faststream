@@ -25,7 +25,7 @@ class BaseCase:
                 assert h.running
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 @require_aiokafka
 class TestKafka(BaseCase):
     @pytest.fixture(scope="class")
@@ -35,7 +35,7 @@ class TestKafka(BaseCase):
         return (app, core_router.broker)
 
 
-@pytest.mark.confluent()
+@pytest.mark.confluent
 @require_confluent
 class TestConfluent(BaseCase):
     @pytest.fixture(scope="class")
@@ -48,7 +48,7 @@ class TestConfluent(BaseCase):
         return (app, core_router.broker)
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 @require_nats
 class TestNats(BaseCase):
     @pytest.fixture(scope="class")
@@ -58,7 +58,7 @@ class TestNats(BaseCase):
         return (app, core_router.broker)
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 @require_aiopika
 class TestRabbit(BaseCase):
     @pytest.fixture(scope="class")
@@ -68,7 +68,7 @@ class TestRabbit(BaseCase):
         return (app, core_router.broker)
 
 
-@pytest.mark.redis()
+@pytest.mark.redis
 @require_redis
 class TestRedis(BaseCase):
     @pytest.fixture(scope="class")

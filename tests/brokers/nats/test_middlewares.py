@@ -7,7 +7,7 @@ from tests.brokers.base.middlewares import (
 )
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestMiddlewares(MiddlewareTestcase):
     broker_class = NatsBroker
 

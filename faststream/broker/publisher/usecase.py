@@ -148,8 +148,8 @@ class PublisherUsecase(
                 model=create_model("Fake"),
                 response_model=create_model(  # type: ignore[call-overload]
                     "",
-                    __config__=get_config_base(),  # type: ignore[arg-type]
-                    **params,  # type: ignore[arg-type]
+                    __config__=get_config_base(),
+                    **params,
                 ),
                 params=params,
             )

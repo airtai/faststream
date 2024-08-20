@@ -100,7 +100,7 @@ class AsyncConfluentProducer:
                 }
             )
 
-        self.producer = Producer(self.config, logger=self.logger)  # type: ignore[call-arg]
+        self.producer = Producer(self.config, logger=self.logger)
 
     async def stop(self) -> None:
         """Stop the Kafka producer and flush remaining messages."""
@@ -212,7 +212,10 @@ class AsyncConfluentConsumer:
         self.config: Dict[str, Any] = {} if config is None else dict(config)
 
         if group_id is None:
-            group_id = "faststream-consumer-group"
+            group_id = self.config.get("group.id", "faststream-consumer-group")
+
+        if group_instance_id is None:
+            group_instance_id = self.config.get("group.instance.id", None)
 
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
@@ -267,7 +270,7 @@ class AsyncConfluentConsumer:
                 }
             )
 
-        self.consumer = Consumer(self.config, logger=self.logger)  # type: ignore[call-arg]
+        self.consumer = Consumer(self.config, logger=self.logger)
 
     @property
     def topics_to_create(self) -> List[str]:
@@ -336,7 +339,7 @@ class AsyncConfluentConsumer:
     ) -> Tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
         raw_messages: List[Optional[Message]] = await call_or_await(
-            self.consumer.consume,  # type: ignore[arg-type]
+            self.consumer.consume,
             num_messages=max_records or 10,
             timeout=timeout,
         )

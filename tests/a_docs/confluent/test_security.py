@@ -3,8 +3,8 @@ import pytest
 from tests.brokers.confluent.test_security import patch_aio_consumer_and_producer
 
 
-@pytest.mark.asyncio()
-@pytest.mark.confluent()
+@pytest.mark.asyncio
+@pytest.mark.confluent
 async def test_base_security():
     from docs.docs_src.confluent.security.basic import broker as basic_broker
 
@@ -17,8 +17,8 @@ async def test_base_security():
             assert call_kwargs.items() <= producer_call_kwargs.items()
 
 
-@pytest.mark.asyncio()
-@pytest.mark.confluent()
+@pytest.mark.asyncio
+@pytest.mark.confluent
 async def test_scram256():
     from docs.docs_src.confluent.security.sasl_scram256 import (
         broker as scram256_broker,
@@ -42,8 +42,8 @@ async def test_scram256():
             )
 
 
-@pytest.mark.asyncio()
-@pytest.mark.confluent()
+@pytest.mark.asyncio
+@pytest.mark.confluent
 async def test_scram512():
     from docs.docs_src.confluent.security.sasl_scram512 import (
         broker as scram512_broker,
@@ -67,8 +67,8 @@ async def test_scram512():
             )
 
 
-@pytest.mark.asyncio()
-@pytest.mark.confluent()
+@pytest.mark.asyncio
+@pytest.mark.confluent
 async def test_plaintext():
     from docs.docs_src.confluent.security.plaintext import (
         broker as plaintext_broker,
@@ -92,8 +92,8 @@ async def test_plaintext():
             )
 
 
-@pytest.mark.asyncio()
-@pytest.mark.confluent()
+@pytest.mark.asyncio
+@pytest.mark.confluent
 async def test_oathbearer():
     from docs.docs_src.confluent.security.sasl_oauthbearer import (
         broker as oauthbearer_broker,
@@ -115,8 +115,8 @@ async def test_oathbearer():
             )
 
 
-@pytest.mark.asyncio()
-@pytest.mark.confluent()
+@pytest.mark.asyncio
+@pytest.mark.confluent
 async def test_gssapi():
     from docs.docs_src.confluent.security.sasl_gssapi import (
         broker as gssapi_broker,

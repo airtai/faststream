@@ -140,7 +140,7 @@ class DefaultPublisher(LogicPublisher[Message]):
 
 class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
     @override
-    async def publish(  # type: ignore[override]
+    async def publish(
         self,
         message: Union["SendableMessage", Iterable["SendableMessage"]],
         *extra_messages: "SendableMessage",

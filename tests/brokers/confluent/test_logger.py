@@ -10,7 +10,7 @@ from faststream.confluent import KafkaBroker
 from .basic import ConfluentTestcaseConfig
 
 
-@pytest.mark.confluent()
+@pytest.mark.confluent
 class TestLogger(ConfluentTestcaseConfig):
     """A class to represent a test Kafka broker."""
 
@@ -20,7 +20,7 @@ class TestLogger(ConfluentTestcaseConfig):
     def patch_broker(self, broker: BrokerUsecase[Any, Any]) -> BrokerUsecase[Any, Any]:
         return broker
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_custom_logger(
         self,
         queue: str,

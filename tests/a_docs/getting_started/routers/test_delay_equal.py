@@ -10,7 +10,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_delay_router_kafka():
     from docs.docs_src.getting_started.routers.kafka.delay_equal import (
@@ -33,7 +33,7 @@ async def test_delay_router_kafka():
         next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_delay_router_confluent():
     from docs.docs_src.getting_started.routers.confluent.delay_equal import (
@@ -56,7 +56,7 @@ async def test_delay_router_confluent():
         next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_delay_router_rabbit():
     from docs.docs_src.getting_started.routers.rabbit.delay_equal import (
@@ -79,7 +79,7 @@ async def test_delay_router_rabbit():
         next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_delay_router_nats():
     from docs.docs_src.getting_started.routers.nats.delay_equal import (
@@ -102,7 +102,7 @@ async def test_delay_router_nats():
         next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_delay_router_redis():
     from docs.docs_src.getting_started.routers.redis.delay_equal import (

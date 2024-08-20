@@ -7,14 +7,14 @@ from faststream.security import SASLPlaintext
 from tests.brokers.base.connection import BrokerConnectionTestcase
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 class TestConnection(BrokerConnectionTestcase):
     broker: Type[RabbitBroker] = RabbitBroker
 
     def get_broker_args(self, settings):
         return {"url": settings.url}
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_init_connect_by_raw_data(self, settings):
         broker = self.broker(
             host=settings.host,
@@ -27,7 +27,7 @@ class TestConnection(BrokerConnectionTestcase):
         assert await broker.connect()
         await broker.close()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_connection_by_params(self, settings):
         broker = self.broker()
         assert await broker.connect(
@@ -40,7 +40,7 @@ class TestConnection(BrokerConnectionTestcase):
         )
         await broker.close()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_connect_merge_kwargs_with_priority(self, settings):
         broker = self.broker(host="fake-host", port=5677)  # kwargs will be ignored
         assert await broker.connect(
@@ -53,7 +53,7 @@ class TestConnection(BrokerConnectionTestcase):
         )
         await broker.close()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_connect_merge_args_and_kwargs_native(self, settings):
         broker = self.broker("fake-url")  # will be ignored
         assert await broker.connect(url=settings.url)

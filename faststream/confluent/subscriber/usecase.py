@@ -203,7 +203,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
                     connected = True
 
                 if msg is not None:
-                    await self.consume(msg)  # type: ignore[arg-type]
+                    await self.consume(msg)
 
     @property
     def topic_names(self) -> List[str]:

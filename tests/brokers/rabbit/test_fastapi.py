@@ -9,11 +9,11 @@ from faststream.rabbit.testing import TestRabbitBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 class TestRouter(FastAPITestcase):
     router_class = RabbitRouter
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_path(
         self,
         queue: str,
@@ -52,7 +52,7 @@ class TestRouter(FastAPITestcase):
         mock.assert_called_once_with(msg="hello", name="john")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestRouterLocal(FastAPILocalTestcase):
     router_class = RabbitRouter
     broker_test = staticmethod(TestRabbitBroker)

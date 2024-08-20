@@ -13,11 +13,11 @@ from faststream.types import DecodedMessage
 from .basic import BaseTestcaseConfig
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class LocalMiddlewareTestcase(BaseTestcaseConfig):
     broker_class: Type[BrokerUsecase]
 
-    @pytest.fixture()
+    @pytest.fixture
     def raw_broker(self):
         return None
 
@@ -249,7 +249,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         mock.assert_called_once_with(True)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class MiddlewareTestcase(LocalMiddlewareTestcase):
     async def test_global_middleware(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker

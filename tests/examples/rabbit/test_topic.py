@@ -3,7 +3,7 @@ import pytest
 from faststream.rabbit import TestApp, TestRabbitBroker
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_index():
     from examples.rabbit.topic import (
         app,

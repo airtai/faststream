@@ -121,4 +121,4 @@ def resolve_custom_func(
 
     else:
         name = tuple(original_params.items())[1][0]
-        return partial(to_async(custom_func), **{name: default_func})  # type: ignore
+        return partial(to_async(custom_func), **{name: default_func})

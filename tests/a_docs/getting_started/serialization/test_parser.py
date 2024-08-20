@@ -10,7 +10,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_parser_nats():
     from docs.docs_src.getting_started.serialization.parser_nats import (
@@ -24,7 +24,7 @@ async def test_parser_nats():
         handle.mock.assert_called_once_with("")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_parser_kafka():
     from docs.docs_src.getting_started.serialization.parser_kafka import (
@@ -38,7 +38,7 @@ async def test_parser_kafka():
         handle.mock.assert_called_once_with("")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_parser_confluent():
     from docs.docs_src.getting_started.serialization.parser_confluent import (
@@ -52,7 +52,7 @@ async def test_parser_confluent():
         handle.mock.assert_called_once_with("")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_parser_rabbit():
     from docs.docs_src.getting_started.serialization.parser_rabbit import (
@@ -66,7 +66,7 @@ async def test_parser_rabbit():
         handle.mock.assert_called_once_with("")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_parser_redis():
     from docs.docs_src.getting_started.serialization.parser_redis import (

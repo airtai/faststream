@@ -7,7 +7,7 @@ from tests.brokers.base.middlewares import (
 )
 
 
-@pytest.mark.redis()
+@pytest.mark.redis
 class TestMiddlewares(MiddlewareTestcase):
     broker_class = RedisBroker
 

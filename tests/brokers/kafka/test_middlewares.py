@@ -7,7 +7,7 @@ from tests.brokers.base.middlewares import (
 )
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 class TestMiddlewares(MiddlewareTestcase):
     broker_class = KafkaBroker
 

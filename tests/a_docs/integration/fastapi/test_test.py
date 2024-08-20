@@ -9,7 +9,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_kafka():
     from docs.docs_src.integrations.fastapi.kafka.test import test_router
@@ -17,7 +17,7 @@ async def test_kafka():
     await test_router()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_confluent():
     from docs.docs_src.integrations.fastapi.confluent.test import test_router
@@ -25,7 +25,7 @@ async def test_confluent():
     await test_router()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_rabbit():
     from docs.docs_src.integrations.fastapi.rabbit.test import test_router
@@ -33,7 +33,7 @@ async def test_rabbit():
     await test_router()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_nats():
     from docs.docs_src.integrations.fastapi.nats.test import test_router
@@ -41,7 +41,7 @@ async def test_nats():
     await test_router()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_redis():
     from docs.docs_src.integrations.fastapi.redis.test import test_router

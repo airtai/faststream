@@ -67,6 +67,8 @@ search:
         - [Message Information](confluent/message.md)
         - [Security Configuration](confluent/security.md)
         - [Additional Configuration](confluent/additional-configuration.md)
+    - [How-To](howto/kafka/index.md)
+        - [Kafka RPC](howto/kafka/rpc.md)
 - [RabbitMQ](rabbit/index.md)
     - [Subscription](rabbit/examples/index.md)
         - [Direct](rabbit/examples/direct.md)

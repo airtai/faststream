@@ -618,6 +618,19 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             """
             ),
         ] = None,
+        group_instance_id: Annotated[
+            Optional[str],
+            Doc(
+                """
+            A unique string that identifies the consumer instance.
+            If set, the consumer is treated as a static member of the group
+            and does not participate in consumer group management (e.g.
+            partition assignment, rebalances). This can be used to assign
+            partitions to specific consumers, rather than letting the group
+            assign partitions based on consumer metadata.
+            """
+            ),
+        ] = None,
         fetch_max_wait_ms: Annotated[
             int,
             Doc(
@@ -1010,6 +1023,19 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             """
             ),
         ] = None,
+        group_instance_id: Annotated[
+            Optional[str],
+            Doc(
+                """
+            A unique string that identifies the consumer instance.
+            If set, the consumer is treated as a static member of the group
+            and does not participate in consumer group management (e.g.
+            partition assignment, rebalances). This can be used to assign
+            partitions to specific consumers, rather than letting the group
+            assign partitions based on consumer metadata.
+            """
+            ),
+        ] = None,
         fetch_max_wait_ms: Annotated[
             int,
             Doc(
@@ -1385,6 +1411,19 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             partition assignment (if enabled), and to use for fetching and
             committing offsets. If `None`, auto-partition assignment (via
             group coordinator) and offset commits are disabled.
+            """
+            ),
+        ] = None,
+        group_instance_id: Annotated[
+            Optional[str],
+            Doc(
+                """
+            A unique string that identifies the consumer instance.
+            If set, the consumer is treated as a static member of the group
+            and does not participate in consumer group management (e.g.
+            partition assignment, rebalances). This can be used to assign
+            partitions to specific consumers, rather than letting the group
+            assign partitions based on consumer metadata.
             """
             ),
         ] = None,
@@ -1783,6 +1822,19 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             """
             ),
         ] = None,
+        group_instance_id: Annotated[
+            Optional[str],
+            Doc(
+                """
+            A unique string that identifies the consumer instance.
+            If set, the consumer is treated as a static member of the group
+            and does not participate in consumer group management (e.g.
+            partition assignment, rebalances). This can be used to assign
+            partitions to specific consumers, rather than letting the group
+            assign partitions based on consumer metadata.
+            """
+            ),
+        ] = None,
         fetch_max_wait_ms: Annotated[
             int,
             Doc(
@@ -2166,6 +2218,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             polling_interval=polling_interval,
             partitions=partitions,
             group_id=group_id,
+            group_instance_id=group_instance_id,
             fetch_max_wait_ms=fetch_max_wait_ms,
             fetch_max_bytes=fetch_max_bytes,
             fetch_min_bytes=fetch_min_bytes,

@@ -77,6 +77,19 @@ class KafkaRegistrator(
             """
             ),
         ] = None,
+        group_instance_id: Annotated[
+            Optional[str],
+            Doc(
+                """
+            A unique string that identifies the consumer instance.
+            If set, the consumer is treated as a static member of the group
+            and does not participate in consumer group management (e.g.
+            partition assignment, rebalances). This can be used to assign
+            partitions to specific consumers, rather than letting the group
+            assign partitions based on consumer metadata.
+            """
+            ),
+        ] = None,
         fetch_max_wait_ms: Annotated[
             int,
             Doc(
@@ -346,6 +359,19 @@ class KafkaRegistrator(
             """
             ),
         ] = None,
+        group_instance_id: Annotated[
+            Optional[str],
+            Doc(
+                """
+            A unique string that identifies the consumer instance.
+            If set, the consumer is treated as a static member of the group
+            and does not participate in consumer group management (e.g.
+            partition assignment, rebalances). This can be used to assign
+            partitions to specific consumers, rather than letting the group
+            assign partitions based on consumer metadata.
+            """
+            ),
+        ] = None,
         fetch_max_wait_ms: Annotated[
             int,
             Doc(
@@ -612,6 +638,19 @@ class KafkaRegistrator(
             partition assignment (if enabled), and to use for fetching and
             committing offsets. If `None`, auto-partition assignment (via
             group coordinator) and offset commits are disabled.
+            """
+            ),
+        ] = None,
+        group_instance_id: Annotated[
+            Optional[str],
+            Doc(
+                """
+            A unique string that identifies the consumer instance.
+            If set, the consumer is treated as a static member of the group
+            and does not participate in consumer group management (e.g.
+            partition assignment, rebalances). This can be used to assign
+            partitions to specific consumers, rather than letting the group
+            assign partitions based on consumer metadata.
             """
             ),
         ] = None,
@@ -887,6 +926,19 @@ class KafkaRegistrator(
             """
             ),
         ] = None,
+        group_instance_id: Annotated[
+            Optional[str],
+            Doc(
+                """
+            A unique string that identifies the consumer instance.
+            If set, the consumer is treated as a static member of the group
+            and does not participate in consumer group management (e.g.
+            partition assignment, rebalances). This can be used to assign
+            partitions to specific consumers, rather than letting the group
+            assign partitions based on consumer metadata.
+            """
+            ),
+        ] = None,
         fetch_max_wait_ms: Annotated[
             int,
             Doc(
@@ -1150,6 +1202,7 @@ class KafkaRegistrator(
                 max_records=max_records,
                 group_id=group_id,
                 connection_data={
+                    "group_instance_id": group_instance_id,
                     "fetch_max_wait_ms": fetch_max_wait_ms,
                     "fetch_max_bytes": fetch_max_bytes,
                     "fetch_min_bytes": fetch_min_bytes,

@@ -8,7 +8,7 @@ from faststream.app import FastStream
 from faststream.cli.main import cli
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 def test_run_cmd(
     runner: CliRunner,
     mock: Mock,

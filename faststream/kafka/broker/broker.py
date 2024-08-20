@@ -16,9 +16,9 @@ from typing import (
 )
 
 import aiokafka
+import anyio
 from aiokafka.partitioner import DefaultPartitioner
 from aiokafka.producer.producer import _missing
-from anyio import move_on_after
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
@@ -807,11 +807,19 @@ class KafkaBroker(
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
-        with move_on_after(timeout) as cancel_scope:
-            if cancel_scope.cancel_called:
-                return False
+        sleep_time = (timeout or 10) / 10
 
+        with anyio.move_on_after(timeout) as cancel_scope:
             if self._producer is None:
                 return False
 
-            return not self._producer._producer._closed
+            while True:
+                if cancel_scope.cancel_called:
+                    return False
+
+                if not self._producer._producer._closed:
+                    return True
+
+                await anyio.sleep(sleep_time)
+
+        return False

@@ -195,7 +195,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
 
 class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
     @override
-    async def publish(  # type: ignore[override]
+    async def publish(
         self,
         message: Annotated[
             Union["SendableMessage", Iterable["SendableMessage"]],

@@ -16,12 +16,12 @@ from tests.brokers.rabbit.test_publish import TestPublish
 from ..basic import LocalTelemetryTestcase
 
 
-@pytest.fixture()
+@pytest.fixture
 def exchange(queue):
     return RabbitExchange(name=queue)
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "rabbitmq"
     include_messages_counters = False
@@ -65,7 +65,7 @@ class TestTelemetry(LocalTelemetryTestcase):
             assert span.parent.span_id == parent_span_id
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 class TestPublishWithTelemetry(TestPublish):
     def get_broker(self, apply_types: bool = False):
         return RabbitBroker(
@@ -74,7 +74,7 @@ class TestPublishWithTelemetry(TestPublish):
         )
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 class TestConsumeWithTelemetry(TestConsume):
     def get_broker(self, apply_types: bool = False):
         return RabbitBroker(

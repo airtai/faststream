@@ -12,8 +12,8 @@ from typing import (
     Union,
 )
 
+import anyio
 import nats
-from anyio import move_on_after
 from nats.aio.client import (
     DEFAULT_CONNECT_TIMEOUT,
     DEFAULT_DRAIN_TIMEOUT,
@@ -918,11 +918,19 @@ class NatsBroker(
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
-        with move_on_after(timeout) as cancel_scope:
-            if cancel_scope.cancel_called:
-                return False
+        sleep_time = (timeout or 10) / 10
 
+        with anyio.move_on_after(timeout) as cancel_scope:
             if self._connection is None:
                 return False
 
-            return self._connection.is_connected
+            while True:
+                if cancel_scope.cancel_called:
+                    return False
+
+                if self._connection.is_connected:
+                    return True
+
+                await anyio.sleep(sleep_time)
+
+        return False

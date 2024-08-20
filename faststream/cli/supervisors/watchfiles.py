@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from faststream.types import DecoratedCallable
 
 
-class ExtendedFilter(watchfiles.PythonFilter):  # type: ignore[misc]
+class ExtendedFilter(watchfiles.PythonFilter):
     """A class that extends the `watchfiles.PythonFilter` class."""
 
     def __init__(

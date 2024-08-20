@@ -7,7 +7,7 @@ from faststream import Path
 from tests.marks import require_aiokafka, require_aiopika, require_nats, require_redis
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_aiokafka_path():
     from faststream.kafka import KafkaBroker, TestKafkaBroker
@@ -35,7 +35,7 @@ async def test_aiokafka_path():
         )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_nats_path():
     from faststream.nats import NatsBroker, TestNatsBroker
@@ -63,8 +63,8 @@ async def test_nats_path():
         )
 
 
-@pytest.mark.asyncio()
-@pytest.mark.nats()
+@pytest.mark.asyncio
+@pytest.mark.nats
 @require_nats
 async def test_nats_kv_path(
     queue: str,
@@ -101,7 +101,7 @@ async def test_nats_kv_path(
     mock.assert_called_once_with(True)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_nats_batch_path():
     from faststream.nats import NatsBroker, PullSub, TestNatsBroker
@@ -129,7 +129,7 @@ async def test_nats_batch_path():
         )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_redis_path():
     from faststream.redis import RedisBroker, TestRedisBroker
@@ -157,7 +157,7 @@ async def test_redis_path():
         )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_rabbit_path():
     from faststream.rabbit import (

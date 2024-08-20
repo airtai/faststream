@@ -7,7 +7,7 @@ from tests.brokers.base.middlewares import (
 )
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 class TestMiddlewares(MiddlewareTestcase):
     broker_class = RabbitBroker
 

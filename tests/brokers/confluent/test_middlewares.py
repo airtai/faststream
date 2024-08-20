@@ -9,7 +9,7 @@ from tests.brokers.base.middlewares import (
 from .basic import ConfluentTestcaseConfig
 
 
-@pytest.mark.confluent()
+@pytest.mark.confluent
 class TestMiddlewares(ConfluentTestcaseConfig, MiddlewareTestcase):
     broker_class = KafkaBroker
 

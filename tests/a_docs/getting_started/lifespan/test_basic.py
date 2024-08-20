@@ -13,7 +13,7 @@ from tests.mocks import mock_pydantic_settings_env
 
 
 @pydantic_v2
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_rabbit_basic_lifespan():
     from faststream.rabbit import TestRabbitBroker
@@ -26,7 +26,7 @@ async def test_rabbit_basic_lifespan():
 
 
 @pydantic_v2
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_kafka_basic_lifespan():
     from faststream.kafka import TestKafkaBroker
@@ -39,7 +39,7 @@ async def test_kafka_basic_lifespan():
 
 
 @pydantic_v2
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_confluent_basic_lifespan():
     from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
@@ -52,7 +52,7 @@ async def test_confluent_basic_lifespan():
 
 
 @pydantic_v2
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_nats_basic_lifespan():
     from faststream.nats import TestNatsBroker
@@ -65,7 +65,7 @@ async def test_nats_basic_lifespan():
 
 
 @pydantic_v2
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_redis_basic_lifespan():
     from faststream.redis import TestRedisBroker
