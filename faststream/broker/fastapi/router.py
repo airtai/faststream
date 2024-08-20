@@ -69,7 +69,7 @@ class _BackgroundMiddleware(BaseMiddleware):
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
         if not exc_type and (
-            background := cast(  # type: ignore[redundant-cast]
+            background := cast(
                 Optional[BackgroundTasks],
                 getattr(context.get_local("message"), "background", None),
             )
@@ -80,7 +80,7 @@ class _BackgroundMiddleware(BaseMiddleware):
 
 
 class StreamRouter(
-    APIRouter,  # type: ignore[misc]
+    APIRouter,
     AsyncAPIApplication,
     Generic[MsgType],
 ):

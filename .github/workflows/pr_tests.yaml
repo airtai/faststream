@@ -31,7 +31,7 @@ jobs:
         run: |
           set -ux
           python -m pip install uv
-          uv pip install --system .[lint]
+          uv pip install --system .[dev]
 
       - name: Run ruff
         shell: bash
@@ -48,6 +48,23 @@ jobs:
       - name: Run Semgrep
         shell: bash
         run: semgrep scan --config auto --error
+
+  pre-commit-check:
+    runs-on: ubuntu-latest
+    env:
+      SKIP: "static-analysis"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: Set $PY environment variable
+        run: echo "PY=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit|${{ hashFiles('.pre-commit-config.yaml') }}
+      - name: Install Dependencies
+        run: pip install .[docs,testing]
+      - uses: pre-commit/action@v3.0.1
 
   test-basic:
     if: github.event.pull_request.draft == false
@@ -482,6 +499,7 @@ jobs:
 
     needs:
       - static_analysis
+      - pre-commit-check
       - coverage-combine
       - test-macos-latest
       - test-windows-latest

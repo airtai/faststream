@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 
 class StreamRoute(
-    BaseRoute,  # type: ignore[misc]
+    BaseRoute,
     Generic[MsgType, P_HandlerParams, T_HandlerReturn],
 ):
     """A class representing a stream route."""
@@ -123,7 +123,7 @@ class StreamRoute(
         )
 
 
-class StreamMessage(Request):  # type: ignore[misc]
+class StreamMessage(Request):
     """A class to represent a stream message."""
 
     scope: "AnyDict"
