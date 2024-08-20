@@ -174,7 +174,7 @@ no_implicit_optional = true
 check_untyped_defs = true
 warn_return_any = true
 show_error_codes = true
-warn_unused_ignores = false
+warn_unused_ignores = true
 
 disallow_incomplete_defs = true
 disallow_untyped_decorators = true
@@ -339,5 +339,5 @@ omit = [
 [tool.bandit]
 
 [tool.codespell]
-skip = "./venv,./docs/site/*"
+skip = "./venv*,./docs/site/*,./htmlcov"
 ignore-words = ".codespell-whitelist.txt"
