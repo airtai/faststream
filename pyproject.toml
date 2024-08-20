@@ -217,23 +217,25 @@ select = [
 ]
 
 ignore = [
-    "E501", # line too long, handled by formatter later
-    "C901", # too complex
+    "ASYNC109", # own timeout implementation
+
+    "E501",     # line too long, handled by formatter later
+    "C901",     # too complex
 
     # todo pep8-naming
-    "N817", # CamelCase `*` imported as acronym `*`
-    "N815", # Variable `*` in class scope should not be mixedCase
-    "N803", # Argument name `expandMessageExamples` should be lowercase
+    "N817",     # CamelCase `*` imported as acronym `*`
+    "N815",     # Variable `*` in class scope should not be mixedCase
+    "N803",     # Argument name `expandMessageExamples` should be lowercase
 
     # todo pydocstyle
-    "D100", # missing docstring in public module
+    "D100",     # missing docstring in public module
     "D101",
     "D102",
     "D103",
-    "D104", # missing docstring in public package
-    "D105", # missing docstring in magic methods
-    "D106", # missing docstring in public nested class
-    "D107", # missing docstring in __init__
+    "D104",     # missing docstring in public package
+    "D105",     # missing docstring in magic methods
+    "D106",     # missing docstring in public nested class
+    "D107",     # missing docstring in __init__
 ]
 
 [tool.ruff.lint.per-file-ignores]

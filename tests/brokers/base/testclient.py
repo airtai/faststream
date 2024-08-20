@@ -141,6 +141,7 @@ class BrokerTestclientTestcase(
             m.mock.assert_called_once_with("hello")
 
             with anyio.fail_after(self.timeout):
-                while not publisher.mock.called:
+                while not publisher.mock.called:  # noqa: ASYNC110
                     await asyncio.sleep(0.1)
+
                 publisher.mock.assert_called_once_with("response: hello")

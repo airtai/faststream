@@ -482,14 +482,20 @@ class RedisBroker(
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
         with move_on_after(timeout) as cancel_scope:
-            if cancel_scope.cancel_called:
-                return False
-
             if self._connection is None:
                 return False
 
             while True:
+                if cancel_scope.cancel_called:
+                    return False
+
                 try:
-                    return await self._connection.ping()
-                except ConnectionError:  # noqa: PERF203
-                    await anyio.sleep(0.1)
+                    if await self._connection.ping():
+                        return True
+
+                except ConnectionError:
+                    pass
+
+                await anyio.sleep(timeout / 10)
+
+        return False
