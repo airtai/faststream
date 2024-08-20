@@ -12,7 +12,7 @@ class BaseExceptionMiddleware(BaseMiddleware):
     def __init__(
         self,
         handlers: Dict[
-            Exception, Callable[[Exception], None]
+            Exception, Callable[[Exception, StreamMessage], None]
         ],
         publish_handlers: Dict[
             Exception, Callable[[Exception], "SendableMessage"]
@@ -43,11 +43,14 @@ class BaseExceptionMiddleware(BaseMiddleware):
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
-        if exc_type and (handler := self._handlers.get(exc_type)):
-            await handler(exc_val)
-            return True
+        for handler_type in self._handlers.keys():
+            if issubclass(exc_type, handler_type):
+                if handler := self._handlers.get(handler_type):
+                    await handler(exc_val, self.msg)
+                    return True
 
         return False
+
 
 class ExceptionMiddleware:
     __slots__ = ("_handlers", "_publish_handlers")
@@ -55,7 +58,7 @@ class ExceptionMiddleware:
     def __init__(
         self,
         handlers: Optional[
-            Dict[Exception, Callable[[Exception], None]]
+            Dict[Exception, Callable[[Exception, StreamMessage], None]]
         ] = None,
         publish_handlers: Optional[
             Dict[Exception, Callable[[Exception], "SendableMessage"]]
