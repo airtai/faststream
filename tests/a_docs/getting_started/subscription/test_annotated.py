@@ -11,7 +11,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @python39
 class BaseCase:
     async def test_handle(self, setup):

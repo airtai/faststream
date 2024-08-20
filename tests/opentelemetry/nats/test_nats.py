@@ -16,12 +16,12 @@ from tests.brokers.nats.test_publish import TestPublish
 from ..basic import LocalTelemetryTestcase
 
 
-@pytest.fixture()
+@pytest.fixture
 def stream(queue):
     return JStream(queue)
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "nats"
     include_messages_counters = True
@@ -89,7 +89,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         mock.assert_called_once_with(["hi"])
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestPublishWithTelemetry(TestPublish):
     def get_broker(self, apply_types: bool = False):
         return NatsBroker(
@@ -98,7 +98,7 @@ class TestPublishWithTelemetry(TestPublish):
         )
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestConsumeWithTelemetry(TestConsume):
     def get_broker(self, apply_types: bool = False):
         return NatsBroker(

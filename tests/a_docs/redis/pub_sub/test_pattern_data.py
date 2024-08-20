@@ -3,7 +3,7 @@ import pytest
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_pattern_data():
     from docs.docs_src.redis.pub_sub.pattern_data import broker, handle_test
 

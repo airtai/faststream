@@ -4,7 +4,7 @@ from faststream.confluent import KafkaBroker
 from tests.brokers.base.connection import BrokerConnectionTestcase
 
 
-@pytest.mark.confluent()
+@pytest.mark.confluent
 class TestConnection(BrokerConnectionTestcase):
     broker = KafkaBroker
 

@@ -7,8 +7,8 @@ from faststream.rabbit import TestApp, TestRabbitBroker
 from tests.tools import spy_decorator
 
 
-@pytest.mark.asyncio()
-@pytest.mark.rabbit()
+@pytest.mark.asyncio
+@pytest.mark.rabbit
 async def test_ack_exc():
     from docs.docs_src.rabbit.ack.errors import app, broker, handle
 

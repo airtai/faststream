@@ -9,7 +9,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_cast_kafka():
     from docs.docs_src.getting_started.context.kafka.cast import (
@@ -29,7 +29,7 @@ async def test_cast_kafka():
         handle_int.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_cast_confluent():
     from docs.docs_src.getting_started.context.confluent.cast import (
@@ -49,7 +49,7 @@ async def test_cast_confluent():
         handle_int.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_cast_rabbit():
     from docs.docs_src.getting_started.context.rabbit.cast import (
@@ -69,7 +69,7 @@ async def test_cast_rabbit():
         handle_int.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_cast_nats():
     from docs.docs_src.getting_started.context.nats.cast import (
@@ -89,7 +89,7 @@ async def test_cast_nats():
         handle_int.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_cast_redis():
     from docs.docs_src.getting_started.context.redis.cast import (

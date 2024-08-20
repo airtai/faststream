@@ -39,14 +39,14 @@ async def _test_with_broker(with_real: bool):
         on_output_data.mock.assert_called_once_with(2)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_with_fake_broker():
     await _test_with_broker(False)
     await _test_with_broker(False)
 
 
-@pytest.mark.asyncio()
-@pytest.mark.confluent()
+@pytest.mark.asyncio
+@pytest.mark.confluent
 async def test_with_real_broker():
     await _test_with_broker(True)
     await _test_with_broker(True)
@@ -67,7 +67,7 @@ async def _test_with_temp_subscriber():
         on_output_data.mock.assert_called_once_with(2)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.skip(
     reason=(
         "Failed due `on_output_data` subscriber creates inside test and doesn't removed after "

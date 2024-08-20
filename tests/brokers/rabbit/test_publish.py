@@ -10,12 +10,12 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 class TestPublish(BrokerPublishTestcase):
     def get_broker(self, apply_types: bool = False) -> RabbitBroker:
         return RabbitBroker(apply_types=apply_types)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_reply_config(
         self,
         queue: str,
@@ -61,7 +61,7 @@ class TestPublish(BrokerPublishTestcase):
         assert event.is_set()
         mock.assert_called_with("Hello!")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_response(
         self,
         queue: str,
@@ -105,7 +105,7 @@ class TestPublish(BrokerPublishTestcase):
 
         mock.assert_called_once_with(body=b"1")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_response_for_rpc(
         self,
         queue: str,
