@@ -527,6 +527,8 @@ class KafkaBroker(
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
+        sleep_time = (timeout or 10) / 10
+
         with anyio.move_on_after(timeout) as cancel_scope:
             if self._producer is None:
                 return False
@@ -538,6 +540,6 @@ class KafkaBroker(
                 if await self._producer._producer.ping(timeout=timeout):
                     return True
 
-                await anyio.sleep(timeout / 10)
+                await anyio.sleep(sleep_time)
 
         return False

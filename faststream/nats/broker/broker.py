@@ -918,6 +918,8 @@ class NatsBroker(
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
+        sleep_time = (timeout or 10) / 10
+
         with anyio.move_on_after(timeout) as cancel_scope:
             if self._connection is None:
                 return False
@@ -926,9 +928,9 @@ class NatsBroker(
                 if cancel_scope.cancel_called:
                     return False
 
-                if not self._connection.is_connected:
+                if self._connection.is_connected:
                     return True
 
-                await anyio.sleep(timeout / 10)
+                await anyio.sleep(sleep_time)
 
         return False

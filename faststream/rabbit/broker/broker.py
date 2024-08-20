@@ -693,6 +693,8 @@ class RabbitBroker(
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
+        sleep_time = (timeout or 10) / 10
+
         with anyio.move_on_after(timeout) as cancel_scope:
             if self._connection is None:
                 return False
@@ -704,6 +706,6 @@ class RabbitBroker(
                 if not self._connection.is_closed:
                     return True
 
-                await anyio.sleep(timeout / 10)
+                await anyio.sleep(sleep_time)
 
         return False
