@@ -10,8 +10,8 @@ from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.redis()
-@pytest.mark.asyncio()
+@pytest.mark.redis
+@pytest.mark.asyncio
 class TestConsume(BrokerRealConsumeTestcase):
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(apply_types=apply_types)
@@ -93,8 +93,8 @@ class TestConsume(BrokerRealConsumeTestcase):
         mock.assert_called_once_with("hello")
 
 
-@pytest.mark.redis()
-@pytest.mark.asyncio()
+@pytest.mark.redis
+@pytest.mark.asyncio
 class TestConsumeList:
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(apply_types=apply_types)
@@ -154,7 +154,7 @@ class TestConsumeList:
 
         mock.assert_called_once_with(b"hello")
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_list_batch_with_one(
         self,
         queue: str,
@@ -183,7 +183,7 @@ class TestConsumeList:
             assert event.is_set()
             mock.assert_called_once_with(["hi"])
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_list_batch_headers(
         self,
         queue: str,
@@ -222,7 +222,7 @@ class TestConsumeList:
             assert event.is_set()
             mock.assert_called_once_with(True)
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_list_batch(
         self,
         queue: str,
@@ -249,7 +249,7 @@ class TestConsumeList:
 
             assert [{1, "hi"}] == [set(r.result()) for r in result]
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_list_batch_complex(
         self,
         queue: str,
@@ -284,7 +284,7 @@ class TestConsumeList:
 
         assert [{Data(m="hi"), Data(m="again")}] == [set(r.result()) for r in result]
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_list_batch_native(
         self,
         queue: str,
@@ -312,8 +312,8 @@ class TestConsumeList:
         assert [{1, "hi"}] == [set(r.result()) for r in result]
 
 
-@pytest.mark.redis()
-@pytest.mark.asyncio()
+@pytest.mark.redis
+@pytest.mark.asyncio
 class TestConsumeStream:
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(apply_types=apply_types)
@@ -321,7 +321,7 @@ class TestConsumeStream:
     def patch_broker(self, broker):
         return broker
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream(
         self,
         event: asyncio.Event,
@@ -348,7 +348,7 @@ class TestConsumeStream:
 
         mock.assert_called_once_with("hello")
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream_native(
         self,
         event: asyncio.Event,
@@ -377,7 +377,7 @@ class TestConsumeStream:
 
         mock.assert_called_once_with({"message": "hello"})
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream_batch(
         self,
         event: asyncio.Event,
@@ -406,7 +406,7 @@ class TestConsumeStream:
 
         mock.assert_called_once_with(["hello"])
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream_batch_headers(
         self,
         queue: str,
@@ -445,7 +445,7 @@ class TestConsumeStream:
             assert event.is_set()
             mock.assert_called_once_with(True)
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream_batch_complex(
         self,
         queue,
@@ -477,7 +477,7 @@ class TestConsumeStream:
 
         assert next(iter(result)).result() == [Data(m="hi")]
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream_batch_native(
         self,
         event: asyncio.Event,

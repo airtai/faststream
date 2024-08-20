@@ -4,12 +4,12 @@ from faststream.redis import RedisBroker
 from tests.brokers.base.rpc import BrokerRPCTestcase, ReplyAndConsumeForbidden
 
 
-@pytest.mark.redis()
+@pytest.mark.redis
 class TestRPC(BrokerRPCTestcase, ReplyAndConsumeForbidden):
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(apply_types=apply_types)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_list_rpc(self, queue: str):
         rpc_broker = self.get_broker()
 

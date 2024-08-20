@@ -14,7 +14,7 @@ from faststream.exceptions import StopConsume
 from .basic import BaseTestcaseConfig
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class BrokerConsumeTestcase(BaseTestcaseConfig):
     @abstractmethod
     def get_broker(self, broker: BrokerUsecase) -> BrokerUsecase[Any, Any]:
@@ -274,9 +274,9 @@ class BrokerConsumeTestcase(BaseTestcaseConfig):
         assert event.is_set()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_stop_consume_exc(
         self,
         queue: str,

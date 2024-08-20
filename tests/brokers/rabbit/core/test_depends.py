@@ -6,8 +6,8 @@ from faststream.rabbit.annotations import RabbitMessage
 from faststream.utils import Depends
 
 
-@pytest.mark.asyncio()
-@pytest.mark.rabbit()
+@pytest.mark.asyncio
+@pytest.mark.rabbit
 async def test_broker_depends(
     queue,
     full_broker: RabbitBroker,
@@ -39,8 +39,8 @@ async def test_broker_depends(
     assert check_message is True
 
 
-@pytest.mark.asyncio()
-@pytest.mark.rabbit()
+@pytest.mark.asyncio
+@pytest.mark.rabbit
 async def test_different_consumers_has_different_messages(
     context,
     full_broker: RabbitBroker,

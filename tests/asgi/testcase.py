@@ -42,7 +42,7 @@ class AsgiTestcase:
             response = client.get("/health")
             assert response.status_code == 500
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_asgi_ping_healthy(self):
         broker = self.get_broker()
 
@@ -56,7 +56,7 @@ class AsgiTestcase:
                 response = client.get("/health")
                 assert response.status_code == 204
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_asyncapi_asgi(self):
         broker = self.get_broker()
 

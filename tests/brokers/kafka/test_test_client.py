@@ -12,7 +12,7 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestTestclient(BrokerTestclientTestcase):
     test_class = TestKafkaBroker
 
@@ -92,7 +92,7 @@ class TestTestclient(BrokerTestclientTestcase):
                 await br.publish("hello", queue)
                 mocked.mock.assert_called_once()
 
-    @pytest.mark.kafka()
+    @pytest.mark.kafka
     async def test_with_real_testclient(
         self,
         queue: str,
@@ -183,7 +183,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.kafka()
+    @pytest.mark.kafka
     async def test_real_respect_middleware(self, queue):
         routes = []
 
@@ -276,15 +276,15 @@ class TestTestclient(BrokerTestclientTestcase):
         assert subscriber1.mock.call_count == 1
         assert subscriber2.mock.call_count == 0
 
-    @pytest.mark.kafka()
+    @pytest.mark.kafka
     async def test_broker_gets_patched_attrs_within_cm(self):
         await super().test_broker_gets_patched_attrs_within_cm()
 
-    @pytest.mark.kafka()
+    @pytest.mark.kafka
     async def test_broker_with_real_doesnt_get_patched(self):
         await super().test_broker_with_real_doesnt_get_patched()
 
-    @pytest.mark.kafka()
+    @pytest.mark.kafka
     async def test_broker_with_real_patches_publishers_and_subscribers(
         self, queue: str
     ):

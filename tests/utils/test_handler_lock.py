@@ -7,7 +7,7 @@ from anyio.abc import TaskStatus
 from faststream.broker.utils import MultiLock
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_base():
     lock = MultiLock()
 
@@ -26,7 +26,7 @@ async def test_base():
     assert lock.qsize == 0
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_wait_correct():
     lock = MultiLock()
 
@@ -50,7 +50,7 @@ async def test_wait_correct():
         await tg.start(check)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_nowait_correct():
     lock = MultiLock()
 

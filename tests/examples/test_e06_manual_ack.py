@@ -3,7 +3,7 @@ import pytest
 from tests.marks import require_aiopika
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_example():
     from examples.e06_manual_ack import app, broker, handle

@@ -7,7 +7,7 @@ from tests.mocks import mock_pydantic_settings_env
 
 
 @pydantic_v2
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test():
     with mock_pydantic_settings_env({"host": "redis://localhost:6380"}):
         from docs.docs_src.getting_started.cli.redis_context import app, broker

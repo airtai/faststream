@@ -15,7 +15,7 @@ from faststream.rabbit import (
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 class TestRouter(RouterTestcase):
     broker_class = RabbitRouter
     route_class = RabbitRoute

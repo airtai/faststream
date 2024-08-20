@@ -10,7 +10,7 @@ from faststream.nats.testing import TestNatsBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestRouter(FastAPITestcase):
     router_class = NatsRouter
 

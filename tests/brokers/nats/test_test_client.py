@@ -9,7 +9,7 @@ from faststream.nats.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestTestclient(BrokerTestclientTestcase):
     test_class = TestNatsBroker
 
@@ -22,7 +22,7 @@ class TestTestclient(BrokerTestclientTestcase):
     def get_fake_producer_class(self) -> type:
         return FakeProducer
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_stream_publish(
         self,
         queue: str,
@@ -36,7 +36,7 @@ class TestTestclient(BrokerTestclientTestcase):
             await br.publish("Hi!", queue, stream="test")
             m.mock.assert_called_once_with("Hi!")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_wrong_stream_publish(
         self,
         queue: str,
@@ -50,7 +50,7 @@ class TestTestclient(BrokerTestclientTestcase):
             await br.publish("Hi!", queue, stream="test")
             assert not m.mock.called
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_rpc_conflicts_reply(self, queue):
         async with TestNatsBroker(NatsBroker()) as br:
             with pytest.raises(SetupError):
@@ -61,7 +61,7 @@ class TestTestclient(BrokerTestclientTestcase):
                     reply_to="response",
                 )
 
-    @pytest.mark.nats()
+    @pytest.mark.nats
     async def test_with_real_testclient(
         self,
         queue: str,
@@ -84,7 +84,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.nats()
+    @pytest.mark.nats
     async def test_inbox_prefix_with_real(
         self,
         queue: str,
@@ -117,7 +117,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.nats()
+    @pytest.mark.nats
     async def test_real_respect_middleware(self, queue):
         routes = []
 
@@ -256,15 +256,15 @@ class TestTestclient(BrokerTestclientTestcase):
             await br.publish(2, f"{queue}.a")
             subscriber.mock.assert_called_once_with(2)
 
-    @pytest.mark.nats()
+    @pytest.mark.nats
     async def test_broker_gets_patched_attrs_within_cm(self):
         await super().test_broker_gets_patched_attrs_within_cm()
 
-    @pytest.mark.nats()
+    @pytest.mark.nats
     async def test_broker_with_real_doesnt_get_patched(self):
         await super().test_broker_with_real_doesnt_get_patched()
 
-    @pytest.mark.nats()
+    @pytest.mark.nats
     async def test_broker_with_real_patches_publishers_and_subscribers(
         self, queue: str
     ):

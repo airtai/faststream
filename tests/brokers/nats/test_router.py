@@ -7,7 +7,7 @@ from faststream.nats import JStream, NatsBroker, NatsPublisher, NatsRoute, NatsR
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestRouter(RouterTestcase):
     broker_class = NatsRouter
     route_class = NatsRoute

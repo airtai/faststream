@@ -18,7 +18,7 @@ async def handle(msg: str) -> List[int]:
 app = FastStream(broker)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_base_app():
     async with TestKafkaBroker(broker):
         await broker.publish("", "test")

@@ -24,7 +24,7 @@ class BrokerTestclientTestcase(
     def get_fake_producer_class(self) -> type:
         raise NotImplementedError
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_subscriber_mock(self, queue: str):
         test_broker = self.get_broker()
 
@@ -39,7 +39,7 @@ class BrokerTestclientTestcase(
             await test_broker.publish("hello", queue)
             m.mock.assert_called_once_with("hello")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publisher_mock(self, queue: str):
         test_broker = self.get_broker()
 
@@ -57,7 +57,7 @@ class BrokerTestclientTestcase(
             await test_broker.publish("hello", queue)
             publisher.mock.assert_called_with("response")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_manual_publisher_mock(self, queue: str):
         test_broker = self.get_broker()
 
@@ -74,7 +74,7 @@ class BrokerTestclientTestcase(
             await test_broker.publish("hello", queue)
             publisher.mock.assert_called_with("response")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_exception_raises(self, queue: str):
         test_broker = self.get_broker()
 

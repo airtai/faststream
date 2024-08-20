@@ -21,7 +21,7 @@ from tests.brokers.kafka.test_publish import TestPublish
 from ..basic import LocalTelemetryTestcase
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "kafka"
     include_messages_counters = True
@@ -228,7 +228,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         mock.assert_called_once_with(["buy", "hi"])
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 class TestPublishWithTelemetry(TestPublish):
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(
@@ -237,7 +237,7 @@ class TestPublishWithTelemetry(TestPublish):
         )
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 class TestConsumeWithTelemetry(TestConsume):
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(
