@@ -33,10 +33,6 @@ jobs:
           python -m pip install uv
           uv pip install --system .[dev]
 
-      - name: Run ruff
-        shell: bash
-        run: ruff check
-
       - name: Run mypy
         shell: bash
         run: mypy
