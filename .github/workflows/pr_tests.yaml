@@ -65,7 +65,10 @@ jobs:
           path: ~/.cache/pre-commit
           key: pre-commit|${{ hashFiles('.pre-commit-config.yaml') }}
       - name: Install Dependencies
-        run: pip install .[docs,testing]
+        run: |
+          set -ux
+          python -m pip install uv
+          uv pip install .[docs,testing]
       - uses: pre-commit/action@v3.0.1
 
   test-basic:

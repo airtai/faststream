@@ -85,7 +85,7 @@ from faststream.security import SASLPlaintext
 
 security = SASLPlaintext(
     username="admin",
-    password="password",  # pragma: allowlist secret
+    password="password",
 )
 
 config = {"ssl.ca.location": "~/my_certs/CRT_cacerts.pem"}
