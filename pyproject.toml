@@ -79,7 +79,7 @@ otel = ["opentelemetry-sdk>=1.24.0,<2.0.0"]
 optionals = ["faststream[rabbit,kafka,confluent,nats,redis,otel]"]
 
 devdocs = [
-    "mkdocs-material==9.5.31",
+    "mkdocs-material==9.5.32",
     "mkdocs-static-i18n==1.2.3",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.25.2",
