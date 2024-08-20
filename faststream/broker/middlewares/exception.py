@@ -12,7 +12,7 @@ class BaseExceptionMiddleware(BaseMiddleware):
     def __init__(
         self,
         handlers: Dict[
-            Exception, Callable[[Exception, SendableMessage], None]
+            Exception, Callable[[Exception, StreamMessage], None]
         ],
         publish_handlers: Dict[
             Exception, Callable[[Exception], "SendableMessage"]
@@ -58,7 +58,7 @@ class ExceptionMiddleware:
     def __init__(
         self,
         handlers: Optional[
-            Dict[Exception, Callable[[Exception, SendableMessage], None]]
+            Dict[Exception, Callable[[Exception, StreamMessage], None]]
         ] = None,
         publish_handlers: Optional[
             Dict[Exception, Callable[[Exception], "SendableMessage"]]
