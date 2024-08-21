@@ -14,6 +14,6 @@ class TestMiddlewares(ConfluentTestcaseConfig, MiddlewareTestcase):
     broker_class = KafkaBroker
 
 
-@pytest.mark.confluent()
+@pytest.mark.confluent
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
     broker_class = KafkaBroker

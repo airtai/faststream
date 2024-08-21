@@ -12,6 +12,6 @@ class TestMiddlewares(MiddlewareTestcase):
     broker_class = NatsBroker
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
     broker_class = NatsBroker

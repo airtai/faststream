@@ -12,6 +12,6 @@ class TestMiddlewares(MiddlewareTestcase):
     broker_class = RabbitBroker
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
     broker_class = RabbitBroker

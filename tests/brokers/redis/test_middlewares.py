@@ -12,6 +12,6 @@ class TestMiddlewares(MiddlewareTestcase):
     broker_class = RedisBroker
 
 
-@pytest.mark.redis()
+@pytest.mark.redis
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
     broker_class = RedisBroker

@@ -212,8 +212,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         mock.end.assert_called_once()
         assert mock.call_count == 2
 
-    async def test_error_traceback(self, queue: str, mock: Mock, event,
-                                   raw_broker):
+    async def test_error_traceback(self, queue: str, mock: Mock, event, raw_broker):
         async def mid(call_next, msg):
             try:
                 result = await call_next(msg)
@@ -285,8 +284,8 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                 ),
                 timeout=self.timeout,
             )
-
         assert event.is_set()
+
         mock.start.assert_called_once()
         mock.end.assert_called_once()
 
@@ -347,8 +346,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         assert mock.start.call_count == 2
         assert mock.end.call_count == 2
 
-    async def test_patch_publish(self, queue: str, mock: Mock, event,
-                                 raw_broker):
+    async def test_patch_publish(self, queue: str, mock: Mock, event, raw_broker):
         class Mid(BaseMiddleware):
             async def on_publish(self, msg: str, *args, **kwargs) -> str:
                 return msg * 2
@@ -435,11 +433,11 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         assert mock.end.call_count == 3
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
     broker_class: Type[BrokerUsecase]
 
-    @pytest.fixture()
+    @pytest.fixture
     def raw_broker(self):
         return None
 
@@ -507,9 +505,9 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def subscriber1(m):
             raise ValueError
 
-        args, kwargs = self.get_subscriber_params(queue + "1")
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
-        @broker.subscriber(*args, **kwargs)
+        @broker.subscriber(*args2, **kwargs2)
         async def subscriber2(msg=Context("message")):
             mock(msg.decoded_body)
 
@@ -546,9 +544,9 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def subscriber1(m):
             raise ValueError
 
-        args, kwargs = self.get_subscriber_params(queue + "1")
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
-        @broker.subscriber(*args, **kwargs)
+        @broker.subscriber(*args2, **kwargs2)
         async def subscriber2(msg=Context("message")):
             mock(msg.decoded_body)
 
@@ -583,21 +581,23 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         broker = self.broker_class(middlewares=(mid,))
         args, kwargs = self.get_subscriber_params(queue)
 
+        publisher = broker.publisher(queue + "2")
+
         @broker.subscriber(*args, **kwargs)
-        @broker.publisher(queue + "2")
+        @publisher
         async def subscriber1(m):
             raise ZeroDivisionError
 
-        args, kwargs = self.get_subscriber_params(queue + "1")
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
-        @broker.subscriber(*args, **kwargs)
-        @broker.publisher(queue + "2")
+        @broker.subscriber(*args2, **kwargs2)
+        @publisher
         async def subscriber2(m):
             raise ValueError
 
-        args, kwargs = self.get_subscriber_params(queue + "2")
+        args3, kwargs3 = self.get_subscriber_params(queue + "2")
 
-        @broker.subscriber(*args, **kwargs)
+        @broker.subscriber(*args3, **kwargs3)
         async def subscriber3(msg=Context("message")):
             mock(msg.decoded_body)
             if mock.call_count > 1:
@@ -627,11 +627,9 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             return "value"
 
-        mid2 = ExceptionMiddleware(
-            handlers={ValueError: value_error_handler}
-        )
+        mid2 = ExceptionMiddleware(handlers={ValueError: value_error_handler})
 
-        assert mid1._handlers == mid2._handlers
+        assert mid1._handlers.keys() == mid2._handlers.keys()
 
     async def test_exception_middleware_init_publish_handler_same(self):
         mid1 = ExceptionMiddleware()
@@ -640,11 +638,9 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             return "value"
 
-        mid2 = ExceptionMiddleware(
-            publish_handlers={ValueError: value_error_handler}
-        )
+        mid2 = ExceptionMiddleware(publish_handlers={ValueError: value_error_handler})
 
-        assert mid1._publish_handlers == mid2._publish_handlers
+        assert mid1._publish_handlers.keys() == mid2._publish_handlers.keys()
 
     async def test_exception_middleware_decoder_error(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker

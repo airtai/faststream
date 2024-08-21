@@ -12,6 +12,6 @@ class TestMiddlewares(MiddlewareTestcase):
     broker_class = KafkaBroker
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
     broker_class = KafkaBroker
