@@ -32,6 +32,7 @@ search:
         - [Context](getting-started/lifespan/context.md)
         - [Testing](getting-started/lifespan/test.md)
     - [Middlewares](getting-started/middlewares/index.md)
+        - [Exception Middleware](getting-started/middlewares/exception.md)
     - AsyncAPI
         - [Schema Export](getting-started/asyncapi/export.md)
         - [Schema Hosting](getting-started/asyncapi/hosting.md)
