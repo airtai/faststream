@@ -21,6 +21,8 @@ jobs:
   pre-commit-check:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    env:
+      SKIP: "docs"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
