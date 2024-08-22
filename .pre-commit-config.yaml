@@ -9,7 +9,6 @@ repos:
         exclude: |
             (?x)^(
                 docs/docs/SUMMARY.md|
-                .faststream_gen/rabbit/ack.md|
                 docs/docs/en/api/.meta.yml
             )$
     -   id: check-yaml
