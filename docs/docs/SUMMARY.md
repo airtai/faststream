@@ -306,7 +306,7 @@ search:
                     - info
                         - [Contact](api/faststream/asyncapi/schema/info/Contact.md)
                         - [ContactDict](api/faststream/asyncapi/schema/info/ContactDict.md)
-                    - [EmailStr](api/faststream/asyncapi/schema/info/EmailStr.md)
+                        - [EmailStr](api/faststream/asyncapi/schema/info/EmailStr.md)
                         - [Info](api/faststream/asyncapi/schema/info/Info.md)
                         - [License](api/faststream/asyncapi/schema/info/License.md)
                         - [LicenseDict](api/faststream/asyncapi/schema/info/LicenseDict.md)
