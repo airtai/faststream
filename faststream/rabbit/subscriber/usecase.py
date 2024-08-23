@@ -67,11 +67,11 @@ class LogicSubscriber(
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        self.parser = AioPikaParser(pattern=queue.path_regex)
+        parser = AioPikaParser(pattern=queue.path_regex)
 
         super().__init__(
-            default_parser=self.parser.parse_message,
-            default_decoder=self.parser.decode_message,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
             no_reply=no_reply,
@@ -137,16 +137,18 @@ class LogicSubscriber(
             _call_decorators=_call_decorators,
         )
 
-    async def _prepare(self) -> None:
+    @override
+    async def start(self) -> None:
+        """Starts the consumer for the RabbitMQ queue."""
         if self.declarer is None:
             raise SetupError("You should setup subscriber at first.")
 
         self._queue_obj = queue = await self.declarer.declare_queue(self.queue)
 
         if (
-            self.exchange is not None
-            and not queue.passive  # queue just getted from RMQ
-            and self.exchange.name  # check Exchange is not default
+                self.exchange is not None
+                and not queue.passive  # queue just getted from RMQ
+                and self.exchange.name  # check Exchange is not default
         ):
             exchange = await self.declarer.declare_exchange(self.exchange)
 
@@ -158,15 +160,8 @@ class LogicSubscriber(
                 robust=self.queue.robust,
             )
 
-    async def _ensure_prepared(self) -> None:
-        if not self._prepared:
-            await self._prepare()
-            self.prepared = True
-
-    @override
-    async def start(self) -> None:
-        """Starts the consumer for the RabbitMQ queue."""
-        await self._ensure_prepared()
+        if not self.calls:
+            return
 
         self._consumer_tag = await self._queue_obj.consume(
             # NOTE: aio-pika expects AbstractIncomingMessage, not IncomingMessage
@@ -176,17 +171,15 @@ class LogicSubscriber(
 
         await super().start()
 
-    async def get_one(self, auto_ack: bool = False) -> "RabbitMessage":
-        await self._ensure_prepared()
-
+    async def get_one(self, auto_ack: bool = False) -> "Optional[RabbitMessage]":
         if self._queue_obj is None:
-            raise SetupError("You should prepare() subscriber at first.")
+            raise SetupError("You should start subscriber at first.")
 
-        while (message := await self._queue_obj.get(fail=False, no_ack=auto_ack)) is None:
-            await asyncio.sleep(0)
+        assert not self.calls
 
-        parsed_message = await self.parser.parse_message(message)
-        assert isinstance(parsed_message, RabbitMessage)
+        message = await self._queue_obj.get(no_ack=auto_ack)
+        parsed_message = await self._default_parser(message)
+
         return parsed_message
 
     async def close(self) -> None:
