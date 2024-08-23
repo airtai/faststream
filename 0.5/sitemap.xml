@@ -97,6 +97,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/app/FastStream/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/app/catch_startup_validation_error/</loc>
+        <lastmod>2024-08-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/app/catch_startup_validation_error/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/asgi/AsgiFastStream/</loc>
         <lastmod>2024-08-23</lastmod>
         <changefreq>daily</changefreq>
@@ -4163,6 +4169,12 @@
         <lastmod>2024-08-23</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/app/FastStream/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/app/catch_startup_validation_error/</loc>
+        <lastmod>2024-08-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/app/catch_startup_validation_error/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/public_api/faststream/asgi/AsgiFastStream/</loc>
