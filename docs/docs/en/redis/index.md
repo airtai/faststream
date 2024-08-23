@@ -30,7 +30,7 @@ In contrast, [**Redis List**](https://redis.io/docs/data-types/lists/#common-use
 
 #### 3. Streams
 
-[**Redis Streams**](https://redis.io/docs/data-types/streams/){.external-link target="_blank"} introduce a more advanced concept, embracing an append-only log-like structure. Messages, organized as entries, allow for nuanced features like consumer groups, enabling parallel processing, and acknowledgment for precise message handling. Streams excel in scenarios demanding scalability, persistence, and ordered message processing.
+[**Redis Streams**](https://redis.io/docs/latest/develop/data-types/streams/){.external-link target="_blank"} introduce a more advanced concept, embracing an append-only log-like structure. Messages, organized as entries, allow for nuanced features like consumer groups, enabling parallel processing, and acknowledgment for precise message handling. Streams excel in scenarios demanding scalability, persistence, and ordered message processing.
 
 Ultimately, the choice between **Pub/Sub**, **List**, or **Streams** hinges on the specific needs of the application. Redis Pub/Sub suits real-time communication, List offers simplicity in ordered processing, while Streams cater to complex, scalable, and ordered message handling, each providing tailored solutions based on distinct use case requirements.
 
