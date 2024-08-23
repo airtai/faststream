@@ -342,6 +342,12 @@ def create_api_docs(
     (docs_dir / "SUMMARY.md").write_text(summary)
 
 
+def on_page_markdown(markdown, *, page, config, files):
+    """Mkdocs hook to update the edit URL for the public API pages."""
+    if "public_api" in page.edit_url:
+        page.edit_url = page.edit_url.replace("public_api", "api")
+
+
 if __name__ == "__main__":
     root = Path(__file__).resolve().parent
     create_api_docs(root, "faststream")
