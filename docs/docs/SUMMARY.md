@@ -216,6 +216,7 @@ search:
             - [apply_types](api/faststream/apply_types.md)
             - app
                 - [FastStream](api/faststream/app/FastStream.md)
+                - [catch_startup_validation_error](api/faststream/app/catch_startup_validation_error.md)
             - asgi
                 - [AsgiFastStream](api/faststream/asgi/AsgiFastStream.md)
                 - [AsgiResponse](api/faststream/asgi/AsgiResponse.md)

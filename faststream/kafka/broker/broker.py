@@ -64,7 +64,7 @@ if TYPE_CHECKING:
         ]
         retry_backoff_ms: Annotated[
             int,
-            Doc(" Milliseconds to backoff when retrying on errors."),
+            Doc("Milliseconds to backoff when retrying on errors."),
         ]
         metadata_max_age_ms: Annotated[
             int,
@@ -258,7 +258,7 @@ class KafkaBroker(
         ] = 40 * 1000,
         retry_backoff_ms: Annotated[
             int,
-            Doc(" Milliseconds to backoff when retrying on errors."),
+            Doc("Milliseconds to backoff when retrying on errors."),
         ] = 100,
         metadata_max_age_ms: Annotated[
             int,
