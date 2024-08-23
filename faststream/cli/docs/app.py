@@ -20,21 +20,21 @@ docs_app = typer.Typer(pretty_exceptions_short=True)
 def serve(
     app: str = typer.Argument(
         ...,
-        help="[python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation",
+        help="[python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation.",
     ),
     host: str = typer.Option(
         "localhost",
-        help="documentation hosting address",
+        help="Documentation hosting address.",
     ),
     port: int = typer.Option(
         8000,
-        help="documentation hosting port",
+        help="Documentation hosting port.",
     ),
     reload: bool = typer.Option(
         False,
         "--reload",
         is_flag=True,
-        help="Restart documentation at directory files changes",
+        help="Restart documentation at directory files changes.",
     ),
     app_dir: str = typer.Option(
         ".",
@@ -45,7 +45,10 @@ def serve(
         ),
     ),
     is_factory: bool = typer.Option(
-        False, "--factory", help="Treat APP as an application factory"
+        False,
+        "--factory",
+        is_flag=True,
+        help="Treat APP as an application factory.",
     ),
 ) -> None:
     """Serve project AsyncAPI schema."""
@@ -87,17 +90,17 @@ def serve(
 def gen(
     app: str = typer.Argument(
         ...,
-        help="[python_module:FastStream] - path to your application",
+        help="[python_module:FastStream] - path to your application.",
     ),
     yaml: bool = typer.Option(
         False,
         "--yaml",
         is_flag=True,
-        help="generate `asyncapi.yaml` schema",
+        help="Generate `asyncapi.yaml` schema.",
     ),
     out: Optional[str] = typer.Option(
         None,
-        help="output filename",
+        help="Output filename.",
     ),
     app_dir: str = typer.Option(
         ".",
@@ -110,7 +113,8 @@ def gen(
     is_factory: bool = typer.Option(
         False,
         "--factory",
-        help="Treat APP as an application factory",
+        is_flag=True,
+        help="Treat APP as an application factory.",
     ),
 ) -> None:
     """Generate project AsyncAPI schema."""
