@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 import anyio
 from aio_pika import connect_robust
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id

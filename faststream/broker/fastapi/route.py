@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict
 
 
-class StreamMessage(Request):
+class StreamMessage(Request):  # type: ignore[misc]
     """A class to represent a stream message."""
 
     scope: "AnyDict"
