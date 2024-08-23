@@ -170,7 +170,7 @@ class FastStream(AsyncAPIApplication):
                     tg.start_soon(self._startup, log_level, run_extra_options)
 
                     # TODO: mv it to event trigger after nats-py fixing
-                    while not self.should_exit:  # noqa: ASYNC110
+                    while not self.should_exit:
                         await anyio.sleep(sleep_time)
 
                     await self._shutdown(log_level)

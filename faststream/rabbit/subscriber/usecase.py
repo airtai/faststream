@@ -1,4 +1,3 @@
-import asyncio
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -15,17 +14,17 @@ from typing_extensions import override
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.exceptions import SetupError
-from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import BaseRMQInformation
 
 if TYPE_CHECKING:
-    from aio_pika import IncomingMessage, RobustQueue, Message
+    from aio_pika import IncomingMessage, RobustQueue
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage, gen_cor_id
+    from faststream.broker.message import StreamMessage
     from faststream.broker.types import BrokerMiddleware, CustomCallable
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
+    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas import (
         RabbitExchange,
@@ -146,9 +145,9 @@ class LogicSubscriber(
         self._queue_obj = queue = await self.declarer.declare_queue(self.queue)
 
         if (
-                self.exchange is not None
-                and not queue.passive  # queue just getted from RMQ
-                and self.exchange.name  # check Exchange is not default
+            self.exchange is not None
+            and not queue.passive  # queue just getted from RMQ
+            and self.exchange.name  # check Exchange is not default
         ):
             exchange = await self.declarer.declare_exchange(self.exchange)
 
