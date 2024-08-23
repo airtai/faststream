@@ -3,6 +3,7 @@ import logging.config
 from typing import (
     TYPE_CHECKING,
     Any,
+    AsyncIterator,
     Callable,
     Dict,
     List,
@@ -161,7 +162,9 @@ class FastStream(AsyncAPIApplication):
 
         set_exit(lambda *_: self.exit(), sync=False)
 
-        async with self.lifespan_context(**(run_extra_options or {})):
+        async with catch_startup_validation_error(), self.lifespan_context(
+            **(run_extra_options or {})
+        ):
             try:
                 async with anyio.create_task_group() as tg:
                     tg.start_soon(self._startup, log_level, run_extra_options)
@@ -186,20 +189,7 @@ class FastStream(AsyncAPIApplication):
     ) -> None:
         """Executes startup hooks and start broker."""
         for func in self._on_startup_calling:
-            call = func(**run_extra_options)
-
-            try:
-                from pydantic import ValidationError as PValidation
-
-            except ImportError:
-                await call
-
-            else:
-                try:
-                    await call
-                except PValidation as e:
-                    fields = [str(x["loc"][0]) for x in e.errors()]
-                    raise ValidationError(fields=fields) from e
+            await func(**run_extra_options)
 
         if self.broker is not None:
             await self.broker.start()
@@ -237,3 +227,22 @@ class FastStream(AsyncAPIApplication):
     def _log(self, level: int, message: str) -> None:
         if self.logger is not None:
             self.logger.log(level, message)
+
+
+try:
+    from contextlib import asynccontextmanager
+
+    from pydantic import ValidationError as PValidation
+
+    @asynccontextmanager
+    async def catch_startup_validation_error() -> AsyncIterator[None]:
+        try:
+            yield
+        except PValidation as e:
+            fields = [str(x["loc"][0]) for x in e.errors()]
+            raise ValidationError(fields=fields) from e
+
+except ImportError:
+    from faststream.utils.functions import fake_context
+
+    catch_startup_validation_error = fake_context
