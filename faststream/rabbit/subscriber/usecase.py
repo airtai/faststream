@@ -9,6 +9,7 @@ from typing import (
     Union,
 )
 
+from aio_pika.abc import TimeoutType
 from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
@@ -46,7 +47,6 @@ class LogicSubscriber(
     _consumer_tag: Optional[str]
     _queue_obj: Optional["RobustQueue"]
     _producer: Optional["AioPikaFastProducer"]
-    _prepared: bool
 
     def __init__(
         self,
@@ -96,7 +96,6 @@ class LogicSubscriber(
         self.app_id = None
         self.virtual_host = ""
         self.declarer = None
-        self._prepared = False
 
     @override
     def setup(  # type: ignore[override]
@@ -170,15 +169,21 @@ class LogicSubscriber(
 
         await super().start()
 
-    async def get_one(self, auto_ack: bool = False) -> "Optional[RabbitMessage]":
+    async def get_one(
+            self,
+            no_ack: bool = False,
+            fail: bool = True,
+            timeout: TimeoutType = 5,
+    ) -> "Optional[RabbitMessage]":
         if self._queue_obj is None:
             raise SetupError("You should start subscriber at first.")
 
         assert not self.calls
 
-        message = await self._queue_obj.get(no_ack=auto_ack)
+        message = await self._queue_obj.get(no_ack=no_ack, fail=fail, timeout=timeout)  # type: ignore[call-overload]
         parsed_message = await self._default_parser(message)
 
+        assert isinstance(parsed_message, RabbitMessage)
         return parsed_message
 
     async def close(self) -> None:
