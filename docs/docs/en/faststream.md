@@ -34,8 +34,8 @@ search:
 
   <br/>
 
-  <a href="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yml" target="_blank">
-    <img src="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yml/badge.svg" alt="CodeQL">
+  <a href="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yaml" target="_blank">
+    <img src="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yaml/badge.svg" alt="CodeQL">
   </a>
 
   <a href="https://github.com/airtai/faststream/actions/workflows/pr_dependency-review.yaml" target="_blank">
