@@ -71,6 +71,17 @@ class StreamMessage(Generic[MsgType]):
     def decoded_body(self) -> Optional["DecodedMessage"]:
         return self._decoded_body
 
+    @decoded_body.setter
+    @deprecated(
+        "Deprecated in **FastStream 0.5.19**. "
+        "Please, use `decode` lazy method instead. "
+        "Argument will be removed in **FastStream 0.6.0**.",
+        category=DeprecationWarning,
+        stacklevel=1,
+    )
+    def decoded_body(self, value: Optional["DecodedMessage"]) -> None:
+        self._decoded_body = value
+
     async def ack(self) -> None:
         self.committed = True
 
