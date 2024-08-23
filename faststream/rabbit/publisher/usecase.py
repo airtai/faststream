@@ -1,7 +1,16 @@
 from copy import deepcopy
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Iterable,
+    List,
+    Optional,
+    Union,
+)
 
 from aio_pika import IncomingMessage
 from typing_extensions import Annotated, Doc, TypedDict, Unpack, deprecated, override
@@ -11,6 +20,7 @@ from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
+from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
@@ -338,17 +348,20 @@ class LogicPublisher(
 
         call: AsyncFunc = self._producer.request
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+        pub_middlewares: List[PublisherMiddleware] = []
+        sub_middlewares: Callable[[RabbitMessage], Awaitable[RabbitMessage]] = (
+            return_input
+        )
+        for m in self._broker_middlewares:
+            mid = m(None)
+            pub_middlewares.append(mid.publish_scope)
+            sub_middlewares = partial(mid.consume_scope, sub_middlewares)
+
+        for pub_m in chain(_extra_middlewares or pub_middlewares, self._middlewares):
+            call = partial(pub_m, call)
 
         msg: RabbitMessage = await call(message, **kwargs)
-        return msg
+        return await sub_middlewares(msg)
 
     def add_prefix(self, prefix: str) -> None:
         """Include Publisher in router."""

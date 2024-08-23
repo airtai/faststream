@@ -1,6 +1,18 @@
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Tuple, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 from aiokafka import ConsumerRecord
 from typing_extensions import Annotated, Doc, override
@@ -9,6 +21,7 @@ from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.broker.types import MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
@@ -135,14 +148,17 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
         call: AsyncFunc = self._producer.request
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+        pub_middlewares: List[PublisherMiddleware] = []
+        sub_middlewares: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = (
+            return_input
+        )
+        for m in self._broker_middlewares:
+            mid = m(None)
+            pub_middlewares.append(mid.publish_scope)
+            sub_middlewares = partial(mid.consume_scope, sub_middlewares)
+
+        for pub_m in chain(_extra_middlewares or pub_middlewares, self._middlewares):
+            call = partial(pub_m, call)
 
         msg: KafkaMessage = await call(
             message,
@@ -154,7 +170,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
             correlation_id=correlation_id,
             timestamp_ms=timestamp_ms,
         )
-        return msg
+        return await sub_middlewares(msg)
 
 
 class DefaultPublisher(LogicPublisher[ConsumerRecord]):

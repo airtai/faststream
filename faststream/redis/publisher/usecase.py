@@ -2,7 +2,7 @@ from abc import abstractmethod
 from copy import deepcopy
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, List, Optional
 
 from typing_extensions import Annotated, Doc, deprecated, override
 
@@ -11,6 +11,7 @@ from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
+from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
@@ -237,14 +238,17 @@ class ChannelPublisher(LogicPublisher):
 
         call: AsyncFunc = self._producer.request
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+        pub_middlewares: List[PublisherMiddleware] = []
+        sub_middlewares: Callable[[RedisMessage], Awaitable[RedisMessage]] = (
+            return_input
+        )
+        for m in self._broker_middlewares:
+            mid = m(None)
+            pub_middlewares.append(mid.publish_scope)
+            sub_middlewares = partial(mid.consume_scope, sub_middlewares)
+
+        for pub_m in chain(_extra_middlewares or pub_middlewares, self._middlewares):
+            call = partial(pub_m, call)
 
         msg: RedisMessage = await call(
             message,
@@ -254,7 +258,7 @@ class ChannelPublisher(LogicPublisher):
             correlation_id=correlation_id or gen_cor_id(),
             timeout=timeout,
         )
-        return msg
+        return await sub_middlewares(msg)
 
 
 class ListPublisher(LogicPublisher):
@@ -434,14 +438,17 @@ class ListPublisher(LogicPublisher):
 
         call: AsyncFunc = self._producer.request
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+        pub_middlewares: List[PublisherMiddleware] = []
+        sub_middlewares: Callable[[RedisMessage], Awaitable[RedisMessage]] = (
+            return_input
+        )
+        for m in self._broker_middlewares:
+            mid = m(None)
+            pub_middlewares.append(mid.publish_scope)
+            sub_middlewares = partial(mid.consume_scope, sub_middlewares)
+
+        for pub_m in chain(_extra_middlewares or pub_middlewares, self._middlewares):
+            call = partial(pub_m, call)
 
         msg: RedisMessage = await call(
             message,
@@ -451,7 +458,7 @@ class ListPublisher(LogicPublisher):
             correlation_id=correlation_id or gen_cor_id(),
             timeout=timeout,
         )
-        return msg
+        return await sub_middlewares(msg)
 
 
 class ListBatchPublisher(ListPublisher):
@@ -695,22 +702,24 @@ class StreamPublisher(LogicPublisher):
 
         call: AsyncFunc = self._producer.request
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+        pub_middlewares: List[PublisherMiddleware] = []
+        sub_middlewares: Callable[[RedisMessage], Awaitable[RedisMessage]] = (
+            return_input
+        )
+        for m in self._broker_middlewares:
+            mid = m(None)
+            pub_middlewares.append(mid.publish_scope)
+            sub_middlewares = partial(mid.consume_scope, sub_middlewares)
+
+        for pub_m in chain(_extra_middlewares or pub_middlewares, self._middlewares):
+            call = partial(pub_m, call)
 
         msg: RedisMessage = await call(
             message,
             stream=StreamSub.validate(stream or self.stream).name,
-            maxlen=maxlen,
             # basic args
             headers=headers or self.headers,
             correlation_id=correlation_id or gen_cor_id(),
             timeout=timeout,
         )
-        return msg
+        return await sub_middlewares(msg)
