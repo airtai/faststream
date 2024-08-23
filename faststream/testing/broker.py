@@ -67,22 +67,6 @@ class TestBroker(Generic[Broker]):
         self.connect_only = connect_only
 
     async def __aenter__(self) -> Broker:
-        # TODO: remove useless middlewares filter
-        middlewares = tuple(
-            filter(
-                lambda x: not isinstance(x, CriticalLogMiddleware),
-                self.broker._middlewares,
-            )
-        )
-
-        self.broker._middlewares = middlewares
-
-        for sub in self.broker._subscribers.values():
-            sub._broker_middlewares = middlewares
-
-        for pub in self.broker._publishers.values():
-            pub._broker_middlewares = middlewares
-
         self._ctx = self._create_ctx()
         return await self._ctx.__aenter__()
 

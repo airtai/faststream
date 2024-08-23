@@ -1,6 +1,16 @@
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Union,
+)
 
 from nats.aio.msg import Msg
 from typing_extensions import Annotated, Doc, override
@@ -8,6 +18,7 @@ from typing_extensions import Annotated, Doc, override
 from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
@@ -178,17 +189,18 @@ class LogicPublisher(PublisherUsecase[Msg]):
 
         call: AsyncFunc = self._producer.request
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+        pub_middlewares: List[PublisherMiddleware] = []
+        sub_middlewares: Callable[[NatsMessage], Awaitable[NatsMessage]] = return_input
+        for m in self._broker_middlewares:
+            mid = m(None)
+            pub_middlewares.append(mid.publish_scope)
+            sub_middlewares = partial(mid.consume_scope, sub_middlewares)
+
+        for pub_m in chain(_extra_middlewares or pub_middlewares, self._middlewares):
+            call = partial(pub_m, call)
 
         msg: NatsMessage = await call(message, **kwargs)
-        return msg
+        return await sub_middlewares(msg)
 
     def add_prefix(self, prefix: str) -> None:
         self.subject = prefix + self.subject

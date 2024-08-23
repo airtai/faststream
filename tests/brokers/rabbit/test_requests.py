@@ -6,11 +6,11 @@ from tests.brokers.base.requests import RequestsTestcase
 
 @pytest.mark.asyncio
 class RabbitRequestsTestcase(RequestsTestcase):
-    def get_broker(self):
-        return RabbitBroker()
+    def get_broker(self, **kwargs):
+        return RabbitBroker(**kwargs)
 
-    def get_router(self):
-        return RabbitRouter()
+    def get_router(self, **kwargs):
+        return RabbitRouter(**kwargs)
 
 
 @pytest.mark.rabbit
@@ -20,5 +20,5 @@ class TestRealRequests(RabbitRequestsTestcase):
 
 @pytest.mark.asyncio
 class TestRequestTestClient(RabbitRequestsTestcase):
-    def patch_broker(self, broker):
-        return TestRabbitBroker(broker)
+    def patch_broker(self, broker, **kwargs):
+        return TestRabbitBroker(broker, **kwargs)

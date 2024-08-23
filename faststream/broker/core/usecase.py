@@ -32,7 +32,7 @@ from faststream.broker.types import (
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.log.logging import set_logger_fmt
 from faststream.utils.context.repository import context
-from faststream.utils.functions import to_async
+from faststream.utils.functions import return_input, to_async
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -356,11 +356,16 @@ class BrokerUsecase(
         assert producer, NOT_CONNECTED_YET  # nosec B101
 
         publish = producer.request
+        return_msg = return_input
 
         for m in self._middlewares:
-            publish = partial(m(None).publish_scope, publish)
+            mid = m(None)
+            publish = partial(mid.publish_scope, publish)
+            return_msg = partial(mid.consume_scope, return_msg)
 
-        return await publish(msg, correlation_id=correlation_id, **kwargs)
+        published_msg = await publish(msg, correlation_id=correlation_id, **kwargs)
+        processed_msg = await return_msg(published_msg)
+        return processed_msg
 
     @abstractmethod
     async def ping(self, timeout: Optional[float]) -> bool:

@@ -6,11 +6,11 @@ from tests.brokers.base.requests import RequestsTestcase
 
 @pytest.mark.asyncio
 class NatsRequestsTestcase(RequestsTestcase):
-    def get_broker(self):
-        return NatsBroker()
+    def get_broker(self, **kwargs):
+        return NatsBroker(**kwargs)
 
-    def get_router(self):
-        return NatsRouter()
+    def get_router(self, **kwargs):
+        return NatsRouter(**kwargs)
 
     async def test_broker_stream_request(self, queue: str):
         broker = self.get_broker()
@@ -68,5 +68,5 @@ class TestRealRequests(NatsRequestsTestcase):
 
 
 class TestRequestTestClient(NatsRequestsTestcase):
-    def patch_broker(self, broker):
-        return TestNatsBroker(broker)
+    def patch_broker(self, broker, **kwargs):
+        return TestNatsBroker(broker, **kwargs)
