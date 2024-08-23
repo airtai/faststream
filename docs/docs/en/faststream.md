@@ -218,57 +218,6 @@ Just import a **StreamRouter** you need and declare the message handler with the
 
 ---
 
-## Code generator
-
-As evident, **FastStream** is an incredibly user-friendly framework. However, we've taken it a step further and made it even more user-friendly! Introducing [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"}, a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications. Simply describe your application requirements, and [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} will generate a production-grade **FastStream** project that is ready to deploy in no time.
-
-Save application description inside `description.txt`:
-
-```
-{! docs_src/index/app_description.txt !}
-```
-
-and run the following command to create a new **FastStream** project:
-
-```shell
-faststream_gen -i description.txt
-```
-
-```{.shell .no-copy}
-✨  Generating a new FastStream application!
- ✔ Application description validated.
- ✔ FastStream app skeleton code generated. Takes around 15 to 45 seconds)...
- ✔ The app and the tests are generated.  around 30 to 90 seconds)...
- ✔ New FastStream project created.
- ✔ Integration tests were successfully completed.
- Tokens used: 10768
- Total Cost (USD): $0.03284
-✨  All files were successfully generated!
-```
-{ data-search-exclude }
-
-### Tutorial
-
-We also invite you to explore our tutorial, where we will guide you through the process of utilizing the [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} Python library to effortlessly create **FastStream** applications:
-
-- [Cryptocurrency analysis with FastStream](https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/){.external-link target="_blank"}
-
----
-
-## Stay in touch
-
-Please show your support and stay in touch by:
-
-- giving our [GitHub repository](https://github.com/airtai/faststream/){.external-link target="_blank"} a star, and
-
-- joining our [Discord server](https://discord.gg/qFm6aSqq59){.external-link target="_blank"}
-
-Your support helps us to stay in touch with you and encourages us to
-continue developing and improving the framework. Thank you for your
-support!
-
----
-
 ## Contributors
 
 Thanks to all of these amazing people who made the project better!
