@@ -7,8 +7,8 @@ from faststream.nats import TestApp, TestNatsBroker
 from tests.tools import spy_decorator
 
 
-@pytest.mark.asyncio()
-@pytest.mark.nats()
+@pytest.mark.asyncio
+@pytest.mark.nats
 async def test_ack_exc():
     from docs.docs_src.nats.ack.errors import app, broker, handle
 

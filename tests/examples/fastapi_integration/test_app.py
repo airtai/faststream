@@ -3,7 +3,7 @@ import pytest
 from tests.marks import require_aiopika
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_handler():
     from examples.fastapi_integration.testing import router
@@ -14,7 +14,7 @@ async def test_handler():
         await test_(br)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_incorrect():
     from examples.fastapi_integration.testing import router

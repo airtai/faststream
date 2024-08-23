@@ -46,7 +46,7 @@ def main(
         "--version",
         callback=version_callback,
         is_eager=True,
-        help="Show current platform, python and FastStream version",
+        help="Show current platform, python and FastStream version.",
     ),
 ) -> None:
     """Generate, run and manage FastStream apps to greater development experience."""
@@ -59,24 +59,23 @@ def run(
     ctx: typer.Context,
     app: str = typer.Argument(
         ...,
-        help="[python_module:FastStream] - path to your application",
+        help="[python_module:FastStream] - path to your application.",
     ),
     workers: int = typer.Option(
         1,
         show_default=False,
-        help="Run [workers] applications with process spawning",
+        help="Run [workers] applications with process spawning.",
     ),
     log_level: LogLevels = typer.Option(
-        LogLevels.info,
+        LogLevels.notset,
         case_sensitive=False,
-        show_default=False,
-        help="[INFO] default",
+        help="Set selected level for FastStream and brokers logger objects.",
     ),
     reload: bool = typer.Option(
         False,
         "--reload",
         is_flag=True,
-        help="Restart app at directory files changes",
+        help="Restart app at directory files changes.",
     ),
     watch_extensions: List[str] = typer.Option(
         (),
@@ -84,7 +83,7 @@ def run(
         "--ext",
         "--reload-extension",
         "--reload-ext",
-        help="List of file extensions to watch by",
+        help="List of file extensions to watch by.",
     ),
     app_dir: str = typer.Option(
         ".",
@@ -98,7 +97,7 @@ def run(
         False,
         "--factory",
         is_flag=True,
-        help="Treat APP as an application factory",
+        help="Treat APP as an application factory.",
     ),
 ) -> None:
     """Run [MODULE:APP] FastStream application."""
@@ -158,7 +157,7 @@ def _run(
     app: str,
     extra_options: Dict[str, "SettingField"],
     is_factory: bool,
-    log_level: int = logging.INFO,
+    log_level: int = logging.NOTSET,
     app_level: int = logging.INFO,
 ) -> None:
     """Runs the specified application."""
@@ -171,13 +170,14 @@ def _run(
             f'Imported object "{app_obj}" must be "FastStream" type.',
         )
 
-    set_log_level(log_level, app_obj)
+    if log_level > 0:
+        set_log_level(log_level, app_obj)
 
     if sys.platform not in ("win32", "cygwin", "cli"):  # pragma: no cover
         with suppress(ImportError):
             import uvloop
 
-            uvloop.install()  # type: ignore[attr-defined]
+            uvloop.install()
 
     try:
         anyio.run(
@@ -188,7 +188,11 @@ def _run(
 
     except ValidationError as e:
         ex = MissingParameter(
-            param=TyperOption(param_decls=[f"--{x}" for x in e.fields])
+            message=(
+                "You registered extra options in your application "
+                "`lifespan/on_startup` hook, but does not set in CLI."
+            ),
+            param=TyperOption(param_decls=[f"--{x}" for x in e.fields]),
         )
 
         try:
@@ -206,14 +210,14 @@ def _run(
 )
 def publish(
     ctx: typer.Context,
-    app: str = typer.Argument(..., help="FastStream app instance, e.g., main:app"),
-    message: str = typer.Argument(..., help="Message to be published"),
-    rpc: bool = typer.Option(False, help="Enable RPC mode and system output"),
+    app: str = typer.Argument(..., help="FastStream app instance, e.g., main:app."),
+    message: str = typer.Argument(..., help="Message to be published."),
+    rpc: bool = typer.Option(False, help="Enable RPC mode and system output."),
     is_factory: bool = typer.Option(
         False,
         "--factory",
         is_flag=True,
-        help="Treat APP as an application factory",
+        help="Treat APP as an application factory.",
     ),
 ) -> None:
     """Publish a message using the specified broker in a FastStream application.
@@ -252,7 +256,7 @@ def publish(
 async def publish_message(broker: "BrokerUsecase[Any, Any]", extra: "AnyDict") -> Any:
     try:
         async with broker:
-            return await broker.publish(**extra)  # type: ignore[union-attr]
+            return await broker.publish(**extra)
     except Exception as e:
         typer.echo(f"Error when broker was publishing: {e}")
         sys.exit(1)

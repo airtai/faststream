@@ -63,8 +63,17 @@ This chapter discusses the security options available in **FastStream** and how 
     {!> docs_src/confluent/security/sasl_oauthbearer.py [ln:1-8] !}
     ```
 
+### 5. SASLGSSAPI Object with SSL/TLS
 
-### 5. Other security related usecases
+**Purpose:** The `SASLGSSAPI` object is used for authentication using Kerberos.
+
+**Usage:**
+
+```python linenums="1"
+{!> docs_src/confluent/security/sasl_gssapi.py [ln:1-10.25,11-] !}
+```
+
+### 6. Other security related usecases
 
 **Purpose**: If you want to pass additional values to `confluent-kafka-python`, you can pass a dictionary called `config` to `KafkaBroker`. For example, to pass your own certificate file:
 

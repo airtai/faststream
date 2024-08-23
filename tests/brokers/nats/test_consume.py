@@ -11,7 +11,7 @@ from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestConsume(BrokerRealConsumeTestcase):
     def get_broker(self, apply_types: bool = False) -> NatsBroker:
         return NatsBroker(apply_types=apply_types)
@@ -308,7 +308,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
         mock.assert_called_once_with(True)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_kv(
         self,
         queue: str,
@@ -342,7 +342,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
         mock.assert_called_with(b"world")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_os(
         self,
         queue: str,

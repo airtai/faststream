@@ -5,6 +5,7 @@ from faststream.app import FastStream
 from faststream.asyncapi.generate import get_app_schema
 from faststream.confluent import KafkaBroker
 from faststream.security import (
+    SASLGSSAPI,
     BaseSecurity,
     SASLOAuthBearer,
     SASLPlaintext,
@@ -195,3 +196,26 @@ def test_oauthbearer_security_schema():
     }
 
     assert schema == sasl_oauthbearer_security_schema
+
+
+def test_gssapi_security_schema():
+    ssl_context = ssl.create_default_context()
+    security = SASLGSSAPI(ssl_context=ssl_context)
+
+    broker = KafkaBroker("localhost:9092", security=security)
+    app = FastStream(broker)
+
+    @broker.publisher("test_2")
+    @broker.subscriber("test_1")
+    async def test_topic(msg: str) -> str:
+        pass
+
+    schema = get_app_schema(app).to_jsonable()
+
+    gssapi_security_schema = deepcopy(basic_schema)
+    gssapi_security_schema["servers"]["development"]["security"] = [{"gssapi": []}]
+    gssapi_security_schema["components"]["securitySchemes"] = {
+        "gssapi": {"type": "gssapi"}
+    }
+
+    assert schema == gssapi_security_schema

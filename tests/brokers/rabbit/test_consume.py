@@ -11,12 +11,12 @@ from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 class TestConsume(BrokerRealConsumeTestcase):
     def get_broker(self, apply_types: bool = False) -> RabbitBroker:
         return RabbitBroker(apply_types=apply_types)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_from_exchange(
         self,
         queue: str,
@@ -43,7 +43,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_with_get_old(
         self,
         queue: str,
@@ -82,7 +82,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_ack(
         self,
         queue: str,
@@ -114,7 +114,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_manual_ack(
         self,
         queue: str,
@@ -146,7 +146,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_exception_ack(
         self,
         queue: str,
@@ -180,7 +180,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_manual_nack(
         self,
         queue: str,
@@ -213,7 +213,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_exception_nack(
         self,
         queue: str,
@@ -247,7 +247,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_manual_reject(
         self,
         queue: str,
@@ -280,7 +280,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_exception_reject(
         self,
         queue: str,
@@ -314,7 +314,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_skip_message(
         self,
         queue: str,
@@ -352,7 +352,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_no_ack(
         self,
         queue: str,

@@ -1,16 +1,20 @@
 import asyncio
+from unittest.mock import patch
 
 import pytest
 
 from faststream import BaseMiddleware
 from faststream.confluent import KafkaBroker, TestKafkaBroker
+from faststream.confluent.annotations import KafkaMessage
+from faststream.confluent.message import FAKE_CONSUMER
 from faststream.confluent.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
+from tests.tools import spy_decorator
 
 from .basic import ConfluentTestcaseConfig
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     """A class to represent a test Kafka broker."""
 
@@ -25,7 +29,30 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     def get_fake_producer_class(self) -> type:
         return FakeProducer
 
-    @pytest.mark.confluent()
+    async def test_message_nack_seek(
+        self,
+        queue: str,
+    ):
+        broker = self.get_broker(apply_types=True)
+
+        @broker.subscriber(
+            queue,
+            group_id=f"{queue}-consume",
+            auto_commit=False,
+            auto_offset_reset="earliest",
+        )
+        async def m(msg: KafkaMessage):
+            await msg.nack()
+
+        async with self.patch_broker(broker) as br:
+            with patch.object(
+                FAKE_CONSUMER, "seek", spy_decorator(FAKE_CONSUMER.seek)
+            ) as mocked:
+                await br.publish("hello", queue)
+                m.mock.assert_called_once_with("hello")
+                mocked.mock.assert_called_once()
+
+    @pytest.mark.confluent
     async def test_with_real_testclient(
         self,
         queue: str,
@@ -116,7 +143,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.confluent()
+    @pytest.mark.confluent
     async def test_real_respect_middleware(self, queue):
         routes = []
 
@@ -209,15 +236,15 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
         assert subscriber1.mock.call_count == 1
         assert subscriber2.mock.call_count == 0
 
-    @pytest.mark.confluent()
+    @pytest.mark.confluent
     async def test_broker_gets_patched_attrs_within_cm(self):
         await super().test_broker_gets_patched_attrs_within_cm()
 
-    @pytest.mark.confluent()
+    @pytest.mark.confluent
     async def test_broker_with_real_doesnt_get_patched(self):
         await super().test_broker_with_real_doesnt_get_patched()
 
-    @pytest.mark.confluent()
+    @pytest.mark.confluent
     async def test_broker_with_real_patches_publishers_and_subscribers(
         self, queue: str
     ):

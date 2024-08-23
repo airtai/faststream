@@ -11,7 +11,7 @@ def exit(parent_id):  # pragma: no cover
     os.kill(parent_id, signal.SIGINT)
 
 
-@pytest.mark.slow()
+@pytest.mark.slow
 @pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_base():
     processor = Multiprocess(target=exit, args=(), workers=5)

@@ -334,9 +334,17 @@ class SubscriberUsecase(
                 await middleware.__aenter__()
 
             cache: Dict[Any, Any] = {}
+            parsing_error: Optional[Exception] = None
             for h in self.calls:
-                if (message := await h.is_suitable(msg, cache)) is not None:
+                try:
+                    message = await h.is_suitable(msg, cache)
+                except Exception as e:
+                    parsing_error = e
+                    break
+
+                if message is not None:
                     # Acknowledgement scope
+                    # TODO: move it to scope enter at `retry` option deprecation
                     await stack.enter_async_context(
                         self.watcher(
                             message,
@@ -365,7 +373,7 @@ class SubscriberUsecase(
                         result_msg.correlation_id = message.correlation_id
 
                     for p in chain(
-                        self.__get_reponse_publisher(message),
+                        self.__get_response_publisher(message),
                         h.handler._publishers,
                     ):
                         await p.publish(
@@ -377,15 +385,20 @@ class SubscriberUsecase(
 
                     return result_msg.body
 
-            # Suitable handler is not founded
+            # Suitable handler was not found or
+            # parsing/decoding exception occurred
             for m in middlewares:
                 stack.push_async_exit(m.__aexit__)
 
-            raise AssertionError(f"There is no suitable handler for {msg=}")
+            if parsing_error:
+                raise parsing_error
+
+            else:
+                raise AssertionError(f"There is no suitable handler for {msg=}")
 
         return None
 
-    def __get_reponse_publisher(
+    def __get_response_publisher(
         self,
         message: "StreamMessage[MsgType]",
     ) -> Iterable["BasePublisherProto"]:

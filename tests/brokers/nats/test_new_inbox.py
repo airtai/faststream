@@ -7,8 +7,8 @@ from faststream.nats import NatsBroker
 from tests.tools import spy_decorator
 
 
-@pytest.mark.asyncio()
-@pytest.mark.nats()
+@pytest.mark.asyncio
+@pytest.mark.nats
 async def test_new_inbox():
     with patch.object(
         NatsClient,

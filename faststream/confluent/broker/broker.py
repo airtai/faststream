@@ -15,7 +15,7 @@ from typing import (
     Union,
 )
 
-from anyio import move_on_after
+import anyio
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
@@ -26,7 +26,6 @@ from faststream.confluent.client import (
     AsyncConfluentConsumer,
     AsyncConfluentProducer,
 )
-from faststream.confluent.config import ConfluentConfig
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
@@ -45,6 +44,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         CustomCallable,
     )
+    from faststream.confluent.config import ConfluentConfig
     from faststream.security import BaseSecurity
     from faststream.types import (
         AnyDict,
@@ -87,7 +87,7 @@ class KafkaBroker(
         ] = 40 * 1000,
         retry_backoff_ms: Annotated[
             int,
-            Doc(" Milliseconds to backoff when retrying on errors."),
+            Doc("Milliseconds to backoff when retrying on errors."),
         ] = 100,
         metadata_max_age_ms: Annotated[
             int,
@@ -131,7 +131,7 @@ class KafkaBroker(
             ),
         ] = True,
         config: Annotated[
-            Optional[ConfluentConfig],
+            Optional["ConfluentConfig"],
             Doc(
                 """
                 Extra configuration for the confluent-kafka-python
@@ -527,11 +527,19 @@ class KafkaBroker(
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
-        with move_on_after(timeout) as cancel_scope:
-            if cancel_scope.cancel_called:
-                return False
+        sleep_time = (timeout or 10) / 10
 
+        with anyio.move_on_after(timeout) as cancel_scope:
             if self._producer is None:
                 return False
 
-            return await self._producer._producer.ping(timeout=timeout)
+            while True:
+                if cancel_scope.cancel_called:
+                    return False
+
+                if await self._producer._producer.ping(timeout=timeout):
+                    return True
+
+                await anyio.sleep(sleep_time)
+
+        return False

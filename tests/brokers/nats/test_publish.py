@@ -8,14 +8,14 @@ from faststream.nats import NatsBroker, NatsResponse
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestPublish(BrokerPublishTestcase):
     """Test publish method of NATS broker."""
 
     def get_broker(self, apply_types: bool = False) -> NatsBroker:
         return NatsBroker(apply_types=apply_types)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_response(
         self,
         queue: str,
@@ -54,7 +54,7 @@ class TestPublish(BrokerPublishTestcase):
             correlation_id="1",
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_response_for_rpc(
         self,
         queue: str,

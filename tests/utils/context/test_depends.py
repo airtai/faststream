@@ -12,7 +12,7 @@ async def async_dep(key):
     return key
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_sync_depends():
     key = 1000
 
@@ -23,7 +23,7 @@ async def test_sync_depends():
     assert func(key=key)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_sync_with_async_depends():
     with pytest.raises(AssertionError):
 
@@ -32,7 +32,7 @@ async def test_sync_with_async_depends():
             pass
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_async_depends():
     key = 1000
 
@@ -43,7 +43,7 @@ async def test_async_depends():
     assert await func(key=key)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_async_with_sync_depends():
     key = 1000
 
@@ -54,7 +54,7 @@ async def test_async_with_sync_depends():
     assert await func(key=key)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_annotated_depends():
     D = Annotated[int, Depends(sync_dep)]  # noqa: N806
 

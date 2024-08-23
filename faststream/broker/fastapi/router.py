@@ -69,7 +69,7 @@ class _BackgroundMiddleware(BaseMiddleware):
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
         if not exc_type and (
-            background := cast(  # type: ignore[redundant-cast]
+            background := cast(
                 Optional[BackgroundTasks],
                 getattr(context.get_local("message"), "background", None),
             )
@@ -80,7 +80,7 @@ class _BackgroundMiddleware(BaseMiddleware):
 
 
 class StreamRouter(
-    APIRouter,  # type: ignore[misc]
+    APIRouter,
     AsyncAPIApplication,
     Generic[MsgType],
 ):
@@ -374,7 +374,7 @@ class StreamRouter(
         Callable[["AppType"], Awaitable[None]],
     ]:
         """Register a function to be executed after startup."""
-        self._after_startup_hooks.append(to_async(func))  # type: ignore
+        self._after_startup_hooks.append(to_async(func))
         return func
 
     @overload
@@ -400,7 +400,7 @@ class StreamRouter(
         Callable[["AppType"], Awaitable[None]],
     ]:
         """Register a function to be executed before broker stop."""
-        self._on_shutdown_hooks.append(to_async(func))  # type: ignore
+        self._on_shutdown_hooks.append(to_async(func))
         return func
 
     @abstractmethod

@@ -12,6 +12,26 @@ hide:
 ---
 
 # Release Notes
+## 0.5.18
+
+### What's Changed
+
+* Added additional parameters to HandlerException by [@ulbwa](https://github.com/ulbwa){.external-link target="_blank"} in [#1659](https://github.com/airtai/faststream/pull/1659){.external-link target="_blank"}
+* Removed Doc and Added docstrings instead by @Kirill-Stepankov in [#1662](https://github.com/airtai/faststream/pull/1662){.external-link target="_blank"}
+* feat (#1663): support default values for Header by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1667](https://github.com/airtai/faststream/pull/1667){.external-link target="_blank"}
+* fix (#1660): correct patch nested JStream subjects by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1666](https://github.com/airtai/faststream/pull/1666){.external-link target="_blank"}
+* fix: add ConfluentRouter FastAPI missed  init options by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1664](https://github.com/airtai/faststream/pull/1664){.external-link target="_blank"}
+* Add kerberos support for confluent broker by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1670](https://github.com/airtai/faststream/pull/1670){.external-link target="_blank"}
+* Fix nack for kafka and confluent brokers by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1678](https://github.com/airtai/faststream/pull/1678){.external-link target="_blank"}
+* fix: support all RMQ exchanges in AsyncAPI by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1679](https://github.com/airtai/faststream/pull/1679){.external-link target="_blank"}
+* fix: catch parser errors by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1680](https://github.com/airtai/faststream/pull/1680){.external-link target="_blank"}
+
+### New Contributors
+* [@ulbwa](https://github.com/ulbwa){.external-link target="_blank"} made their first contribution in [#1659](https://github.com/airtai/faststream/pull/1659){.external-link target="_blank"}
+* @Kirill-Stepankov made their first contribution in [#1662](https://github.com/airtai/faststream/pull/1662){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.17...0.5.18](https://github.com/airtai/faststream/compare/0.5.17...0.5.18){.external-link target="_blank"}
+
 ## 0.5.17
 
 ### What's Changed
@@ -22,7 +42,7 @@ Just a hotfix for the following case:
 @broker.subscriber(...)
 async def handler():
     return NatsResponse(...)
-    
+
 await broker.publish(..., rpc=True)
 ```
 
@@ -38,7 +58,7 @@ await broker.publish(..., rpc=True)
 
 ### What's Changed
 
-Well, seems like it is the biggest patch release ever 😃 
+Well, seems like it is the biggest patch release ever 😃
 
 #### Detail Responses
 

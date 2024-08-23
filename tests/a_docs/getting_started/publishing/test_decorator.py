@@ -10,7 +10,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_decorator_kafka():
     from docs.docs_src.getting_started.publishing.kafka.decorator import (
@@ -27,7 +27,7 @@ async def test_decorator_kafka():
         next(iter(broker._publishers.values())).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_decorator_confluent():
     from docs.docs_src.getting_started.publishing.confluent.decorator import (
@@ -44,7 +44,7 @@ async def test_decorator_confluent():
         next(iter(broker._publishers.values())).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_decorator_rabbit():
     from docs.docs_src.getting_started.publishing.rabbit.decorator import (
@@ -61,7 +61,7 @@ async def test_decorator_rabbit():
         next(iter(broker._publishers.values())).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_decorator_nats():
     from docs.docs_src.getting_started.publishing.nats.decorator import (
@@ -78,7 +78,7 @@ async def test_decorator_nats():
         next(iter(broker._publishers.values())).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_decorator_redis():
     from docs.docs_src.getting_started.publishing.redis.decorator import (

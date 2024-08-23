@@ -8,12 +8,12 @@ from faststream.kafka import KafkaBroker, KafkaResponse
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 class TestPublish(BrokerPublishTestcase):
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(apply_types=apply_types)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publish_batch(self, queue: str):
         pub_broker = self.get_broker()
 
@@ -38,7 +38,7 @@ class TestPublish(BrokerPublishTestcase):
 
         assert {1, "hi"} == {r.result() for r in result}
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_batch_publisher_manual(self, queue: str):
         pub_broker = self.get_broker()
 
@@ -65,7 +65,7 @@ class TestPublish(BrokerPublishTestcase):
 
         assert {1, "hi"} == {r.result() for r in result}
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_batch_publisher_decorator(self, queue: str):
         pub_broker = self.get_broker()
 
@@ -95,7 +95,7 @@ class TestPublish(BrokerPublishTestcase):
 
         assert {1, "hi"} == {r.result() for r in result}
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_response(
         self,
         queue: str,

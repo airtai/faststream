@@ -9,11 +9,11 @@ from faststream.broker.core.usecase import BrokerUsecase
 from .basic import BaseTestcaseConfig
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class LocalCustomParserTestcase(BaseTestcaseConfig):
     broker_class: Type[BrokerUsecase]
 
-    @pytest.fixture()
+    @pytest.fixture
     def raw_broker(self):
         return None
 

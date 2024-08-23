@@ -17,13 +17,13 @@ from confluent_kafka import Consumer, KafkaError, KafkaException, Message, Produ
 from confluent_kafka.admin import AdminClient, NewTopic
 
 from faststream.confluent.config import ConfluentConfig
+from faststream.confluent.schemas import TopicPartition
 from faststream.exceptions import SetupError
 from faststream.log import logger as faststream_logger
 from faststream.types import EMPTY
 from faststream.utils.functions import call_or_await
 
 if TYPE_CHECKING:
-    from faststream.confluent.schemas import TopicPartition
     from faststream.types import AnyDict, LoggerProto
 
 
@@ -100,7 +100,7 @@ class AsyncConfluentProducer:
                 }
             )
 
-        self.producer = Producer(self.config, logger=self.logger)  # type: ignore[call-arg]
+        self.producer = Producer(self.config, logger=self.logger)
 
     async def stop(self) -> None:
         """Stop the Kafka producer and flush remaining messages."""
@@ -212,7 +212,10 @@ class AsyncConfluentConsumer:
         self.config: Dict[str, Any] = {} if config is None else dict(config)
 
         if group_id is None:
-            group_id = "faststream-consumer-group"
+            group_id = self.config.get("group.id", "faststream-consumer-group")
+
+        if group_instance_id is None:
+            group_instance_id = self.config.get("group.instance.id", None)
 
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
@@ -267,7 +270,7 @@ class AsyncConfluentConsumer:
                 }
             )
 
-        self.consumer = Consumer(self.config, logger=self.logger)  # type: ignore[call-arg]
+        self.consumer = Consumer(self.config, logger=self.logger)
 
     @property
     def topics_to_create(self) -> List[str]:
@@ -336,12 +339,19 @@ class AsyncConfluentConsumer:
     ) -> Tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
         raw_messages: List[Optional[Message]] = await call_or_await(
-            self.consumer.consume,  # type: ignore[arg-type]
+            self.consumer.consume,
             num_messages=max_records or 10,
             timeout=timeout,
         )
 
         return tuple(x for x in map(check_msg_error, raw_messages) if x is not None)
+
+    async def seek(self, topic: str, partition: int, offset: int) -> None:
+        """Seeks to the specified offset in the specified topic and partition."""
+        topic_partition = TopicPartition(
+            topic=topic, partition=partition, offset=offset
+        )
+        await call_or_await(self.consumer.seek, topic_partition.to_confluent())
 
 
 def check_msg_error(msg: Optional[Message]) -> Optional[Message]:

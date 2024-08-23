@@ -11,7 +11,7 @@ from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 from .basic import ConfluentTestcaseConfig
 
 
-@pytest.mark.confluent()
+@pytest.mark.confluent
 class TestConfluentRouter(ConfluentTestcaseConfig, FastAPITestcase):
     router_class = KafkaRouter
 

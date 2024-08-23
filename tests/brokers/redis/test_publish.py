@@ -10,8 +10,8 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.redis()
-@pytest.mark.asyncio()
+@pytest.mark.redis
+@pytest.mark.asyncio
 class TestPublish(BrokerPublishTestcase):
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(apply_types=apply_types)
@@ -184,7 +184,7 @@ class TestPublish(BrokerPublishTestcase):
             correlation_id="1",
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_response_for_rpc(
         self,
         queue: str,

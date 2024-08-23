@@ -29,13 +29,30 @@ def is_test_env() -> bool:
 
 
 json_dumps: Callable[..., bytes]
-try:
-    import orjson
+orjson: Any
+ujson: Any
 
+try:
+    import orjson  # type: ignore[no-redef]
+except ImportError:
+    orjson = None
+
+try:
+    import ujson
+except ImportError:
+    ujson = None
+
+if orjson:
     json_loads = orjson.loads
     json_dumps = orjson.dumps
 
-except ImportError:
+elif ujson:
+    json_loads = ujson.loads
+
+    def json_dumps(*a: Any, **kw: Any) -> bytes:
+        return ujson.dumps(*a, **kw).encode()  # type: ignore
+
+else:
     json_loads = json.loads
 
     def json_dumps(*a: Any, **kw: Any) -> bytes:
@@ -77,7 +94,7 @@ if PYDANTIC_V2:
         from pydantic.annotated_handlers import (
             GetJsonSchemaHandler as GetJsonSchemaHandler,
         )
-        from pydantic_core.core_schema import (  # type: ignore[attr-defined]
+        from pydantic_core.core_schema import (
             with_info_plain_validator_function as with_info_plain_validator_function,
         )
     else:
@@ -173,7 +190,7 @@ if ANYIO_V3:
     from anyio import ExceptionGroup as ExceptionGroup  # type: ignore[attr-defined]
 else:
     if sys.version_info < (3, 11):
-        from exceptiongroup import (  # type: ignore[assignment,no-redef]
+        from exceptiongroup import (
             ExceptionGroup as ExceptionGroup,
         )
     else:

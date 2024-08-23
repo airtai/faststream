@@ -52,10 +52,10 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
 
     from faststream._compat import PydanticUndefined
 
-    params = dependant.query_params + dependant.body_params  # type: ignore[attr-defined]
+    params = dependant.query_params + dependant.body_params
 
     for d in dependant.dependencies:
-        params.extend(d.query_params + d.body_params)  # type: ignore[attr-defined]
+        params.extend(d.query_params + d.body_params)
 
     params_unique = {}
     for p in params:

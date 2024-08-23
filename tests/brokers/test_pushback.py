@@ -10,12 +10,12 @@ from faststream.broker.acknowledgement_watcher import (
 from faststream.exceptions import NackMessage, SkipMessage
 
 
-@pytest.fixture()
+@pytest.fixture
 def message():
     return AsyncMock(message_id=1)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_push_back_correct(async_mock: AsyncMock, message):
     watcher = CounterWatcher(3)
 
@@ -32,7 +32,7 @@ async def test_push_back_correct(async_mock: AsyncMock, message):
     assert not watcher.memory.get(message.message_id)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_push_back_endless_correct(async_mock: AsyncMock, message):
     watcher = EndlessWatcher()
 
@@ -48,7 +48,7 @@ async def test_push_back_endless_correct(async_mock: AsyncMock, message):
     message.ack.assert_awaited_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_push_back_watcher(async_mock: AsyncMock, message):
     watcher = CounterWatcher(3)
 
@@ -69,7 +69,7 @@ async def test_push_back_watcher(async_mock: AsyncMock, message):
     message.reject.assert_awaited_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_push_endless_back_watcher(async_mock: AsyncMock, message):
     watcher = EndlessWatcher()
 
@@ -90,7 +90,7 @@ async def test_push_endless_back_watcher(async_mock: AsyncMock, message):
     assert message.nack.await_count == 10
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_ignore_skip(async_mock: AsyncMock, message):
     watcher = CounterWatcher(3)
 
@@ -107,7 +107,7 @@ async def test_ignore_skip(async_mock: AsyncMock, message):
     assert not message.ack.called
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_additional_params_with_handler_exception(async_mock: AsyncMock, message):
     watcher = EndlessWatcher()
 

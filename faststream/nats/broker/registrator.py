@@ -209,8 +209,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
 
         You can use it as a handler decorator `@broker.subscriber(...)`.
         """
-        if (stream := self._stream_builder.create(stream)) and subject:
-            stream.add_subject(subject)
+        stream = self._stream_builder.create(stream)
 
         subscriber = cast(
             AsyncAPISubscriber,
@@ -249,6 +248,9 @@ class NatsRegistrator(ABCBroker["Msg"]):
                 )
             ),
         )
+
+        if stream and subscriber.subject:
+            stream.add_subject(subscriber.subject)
 
         return subscriber.add_call(
             filter_=filter,
@@ -323,8 +325,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
 
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
-        if (stream := self._stream_builder.create(stream)) and subject:
-            stream.add_subject(subject)
+        stream = self._stream_builder.create(stream)
 
         publisher = cast(
             AsyncAPIPublisher,
@@ -348,6 +349,10 @@ class NatsRegistrator(ABCBroker["Msg"]):
                 )
             ),
         )
+
+        if stream and publisher.subject:
+            stream.add_subject(publisher.subject)
+
         return publisher
 
     @override
@@ -360,7 +365,20 @@ class NatsRegistrator(ABCBroker["Msg"]):
         middlewares: Iterable["BrokerMiddleware[Msg]"] = (),
         include_in_schema: Optional[bool] = None,
     ) -> None:
-        self._stream_builder.objects.update(router._stream_builder.objects)
+        sub_streams = router._stream_builder.objects.copy()
+
+        sub_router_subjects = [sub.subject for sub in router._subscribers.values()]
+
+        for stream in sub_streams.values():
+            new_subjects = []
+            for subj in stream.subjects:
+                if subj in sub_router_subjects:
+                    new_subjects.append("".join((self.prefix, subj)))
+                else:
+                    new_subjects.append(subj)
+            stream.subjects = new_subjects
+
+        self._stream_builder.objects.update(sub_streams)
 
         return super().include_router(
             router,

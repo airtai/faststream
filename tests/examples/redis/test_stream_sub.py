@@ -3,7 +3,7 @@ import pytest
 from faststream.redis import TestApp, TestRedisBroker
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_stream_sub():
     from examples.redis.stream_sub import app, broker, handle
 

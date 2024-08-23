@@ -9,7 +9,7 @@ from faststream.kafka.testing import TestKafkaBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 class TestKafkaRouter(FastAPITestcase):
     router_class = KafkaRouter
 

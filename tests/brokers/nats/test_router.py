@@ -3,11 +3,11 @@ import asyncio
 import pytest
 
 from faststream import Path
-from faststream.nats import NatsBroker, NatsPublisher, NatsRoute, NatsRouter
+from faststream.nats import JStream, NatsBroker, NatsPublisher, NatsRoute, NatsRouter
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestRouter(RouterTestcase):
     broker_class = NatsRouter
     route_class = NatsRoute
@@ -148,3 +148,26 @@ class TestRouterLocal(RouterLocalTestcase):
         pub_broker.include_router(router)
 
         assert next(iter(pub_broker._stream_builder.objects.keys())) == "stream"
+
+    async def test_include_stream_with_subjects(self):
+        stream = JStream("test-stream")
+
+        sub_router = NatsRouter(prefix="client.")
+
+        sub_router.subscriber("1", stream=stream)
+        sub_router.subscriber("2", stream=stream)
+
+        router = NatsRouter(prefix="user.")
+
+        router.subscriber("registered", stream=stream)
+
+        router.include_router(sub_router)
+
+        broker = NatsBroker()
+        broker.include_router(router)
+
+        assert set(stream.subjects) == {
+            "user.registered",
+            "user.client.1",
+            "user.client.2",
+        }
