@@ -80,8 +80,6 @@ Making streaming microservices has never been easier. Designed with junior devel
 
 - [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
 
-- [**Built for Automatic Code Generation**](#code-generator): **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
-
 That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you're just starting with streaming microservices or looking to scale, **FastStream** has got you covered.
 
 ---
