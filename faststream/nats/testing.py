@@ -33,7 +33,7 @@ class TestNatsBroker(TestBroker[NatsBroker]):
         if not sub.calls:
 
             @sub
-            def publisher_response_subscriber(msg: Any) -> None:
+            async def publisher_response_subscriber(msg: Any) -> None:
                 pass
 
             broker.setup_subscriber(sub)
