@@ -23,7 +23,7 @@ class Settings:
     queue = "test_queue"
 
 
-@pytest.fixture()
+@pytest.fixture
 def exchange(queue):
     return RabbitExchange(name=queue)
 
@@ -33,7 +33,7 @@ def settings():
     return Settings()
 
 
-@pytest.fixture()
+@pytest.fixture
 def router():
     return RabbitRouter()
 

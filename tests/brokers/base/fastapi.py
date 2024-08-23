@@ -19,7 +19,7 @@ from .basic import BaseTestcaseConfig
 Broker = TypeVar("Broker", bound=BrokerUsecase)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class FastAPITestcase(BaseTestcaseConfig):
     router_class: Type[StreamRouter[BrokerUsecase]]
 
@@ -194,7 +194,7 @@ class FastAPITestcase(BaseTestcaseConfig):
         mock.assert_called_once_with("hi")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class FastAPILocalTestcase(BaseTestcaseConfig):
     router_class: Type[StreamRouter[BrokerUsecase]]
     broker_test: Callable[[Broker], Broker]

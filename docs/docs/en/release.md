@@ -42,7 +42,7 @@ Just a hotfix for the following case:
 @broker.subscriber(...)
 async def handler():
     return NatsResponse(...)
-    
+
 await broker.publish(..., rpc=True)
 ```
 
@@ -58,7 +58,7 @@ await broker.publish(..., rpc=True)
 
 ### What's Changed
 
-Well, seems like it is the biggest patch release ever 😃 
+Well, seems like it is the biggest patch release ever 😃
 
 #### Detail Responses
 

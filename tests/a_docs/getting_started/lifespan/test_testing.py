@@ -10,7 +10,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @python39
 @require_redis
 async def test_lifespan_redis():
@@ -21,7 +21,7 @@ async def test_lifespan_redis():
     await _test_lifespan_red()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @python39
 @require_confluent
 async def test_lifespan_confluent():
@@ -32,7 +32,7 @@ async def test_lifespan_confluent():
     await _test_lifespan_confluent()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @python39
 @require_aiokafka
 async def test_lifespan_kafka():
@@ -43,7 +43,7 @@ async def test_lifespan_kafka():
     await _test_lifespan_k()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @python39
 @require_aiopika
 async def test_lifespan_rabbit():
@@ -54,7 +54,7 @@ async def test_lifespan_rabbit():
     await _test_lifespan_r()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @python39
 @require_nats
 async def test_lifespan_nats():

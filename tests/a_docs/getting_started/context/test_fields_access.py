@@ -9,7 +9,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_fields_access_kafka():
     from docs.docs_src.getting_started.context.kafka.fields_access import (
@@ -24,7 +24,7 @@ async def test_fields_access_kafka():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_fields_access_confluent():
     from docs.docs_src.getting_started.context.confluent.fields_access import (
@@ -39,7 +39,7 @@ async def test_fields_access_confluent():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_fields_access_rabbit():
     from docs.docs_src.getting_started.context.rabbit.fields_access import (
@@ -54,7 +54,7 @@ async def test_fields_access_rabbit():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_fields_access_nats():
     from docs.docs_src.getting_started.context.nats.fields_access import (
@@ -69,7 +69,7 @@ async def test_fields_access_nats():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_fields_access_redis():
     from docs.docs_src.getting_started.context.redis.fields_access import (

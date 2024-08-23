@@ -18,36 +18,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  static_analysis:
+  pre-commit-check:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    env:
+      SKIP: "docs"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: 3.9
-      - name: Install Dependencies and library
-        shell: bash
-        run: |
-          set -ux
-          python -m pip install uv
-          uv pip install --system .[lint]
-
-      - name: Run ruff
-        shell: bash
-        run: ruff check
-
-      - name: Run mypy
-        shell: bash
-        run: mypy
-
-      - name: Run bandit
-        shell: bash
-        run: bandit -c pyproject.toml -r faststream
-
-      - name: Run Semgrep
-        shell: bash
-        run: semgrep scan --config auto --error
+          python-version: |
+            3.8
+            3.9
+            3.10
+      - name: Set $PY environment variable
+        run: echo "PY=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit|${{ hashFiles('.pre-commit-config.yaml') }}
+      - uses: pre-commit/action@v3.0.1
 
   test-basic:
     if: github.event.pull_request.draft == false
@@ -481,7 +471,7 @@ jobs:
     if: github.event.pull_request.draft == false
 
     needs:
-      - static_analysis
+      - pre-commit-check
       - coverage-combine
       - test-macos-latest
       - test-windows-latest

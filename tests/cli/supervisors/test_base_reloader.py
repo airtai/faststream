@@ -18,7 +18,7 @@ def empty(*args, **kwargs):
     pass
 
 
-@pytest.mark.slow()
+@pytest.mark.slow
 def test_base():
     processor = PatchedBaseReload(target=empty, args=())
 

@@ -20,7 +20,7 @@ class BrokerRPCTestcase(BaseTestcaseConfig):
     def patch_broker(self, broker: BrokerUsecase[Any, Any]) -> BrokerUsecase[Any, Any]:
         return broker
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_rpc(self, queue: str):
         rpc_broker = self.get_broker()
 
@@ -36,7 +36,7 @@ class BrokerRPCTestcase(BaseTestcaseConfig):
 
         assert r == "Hi!"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_rpc_timeout_raises(self, queue: str):
         rpc_broker = self.get_broker()
 
@@ -58,7 +58,7 @@ class BrokerRPCTestcase(BaseTestcaseConfig):
                     raise_timeout=True,
                 )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_rpc_timeout_none(self, queue: str):
         rpc_broker = self.get_broker()
 
@@ -80,7 +80,7 @@ class BrokerRPCTestcase(BaseTestcaseConfig):
 
         assert r is None
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_rpc_with_reply(
         self,
         queue: str,
@@ -116,7 +116,7 @@ class BrokerRPCTestcase(BaseTestcaseConfig):
 
 
 class ReplyAndConsumeForbidden:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_rpc_with_reply_and_callback(self):
         rpc_broker = self.get_broker()
 

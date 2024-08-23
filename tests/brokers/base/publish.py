@@ -36,7 +36,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
     def patch_broker(self, broker: BrokerUsecase[Any, Any]) -> BrokerUsecase[Any, Any]:
         return broker
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("message", "message_type", "expected_message"),
         (  # noqa: PT007
@@ -176,7 +176,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_with(expected_message)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_response(
         self,
         queue: str,
@@ -220,7 +220,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
             headers="1",
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_unwrap_dict(
         self,
         queue: str,
@@ -254,7 +254,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
             }
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_unwrap_list(
         self,
         mock: Mock,
@@ -283,7 +283,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_with({"a": 1, "b": 1, "args": (2, 3)})
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_base_publisher(
         self,
         queue: str,
@@ -319,7 +319,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_once_with("")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publisher_object(
         self,
         queue: str,
@@ -357,7 +357,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_once_with("")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publish_manual(
         self,
         queue: str,
@@ -394,7 +394,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_once_with("")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_multiple_publishers(
         self,
         queue: str,
@@ -443,7 +443,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         mock.resp1.assert_called_once_with("")
         mock.resp2.assert_called_once_with("")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_reusable_publishers(
         self,
         queue: str,
@@ -496,7 +496,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert consume.is_set()
         assert mock.call_count == 2
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_reply_to(
         self,
         queue: str,
@@ -534,7 +534,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_with("Hello!")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_no_reply(
         self,
         queue: str,
@@ -578,7 +578,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         assert not mock.called
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publisher_after_start(
         self,
         queue: str,

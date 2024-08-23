@@ -11,7 +11,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @python39
 @require_aiokafka
 async def test_kafka():
@@ -26,7 +26,7 @@ async def test_kafka():
     context.clear()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @python39
 @require_confluent
 async def test_confluent():
@@ -41,7 +41,7 @@ async def test_confluent():
     context.clear()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @python39
 @require_aiopika
 async def test_rabbit():
@@ -56,7 +56,7 @@ async def test_rabbit():
     context.clear()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @python39
 @require_nats
 async def test_nats():
@@ -71,7 +71,7 @@ async def test_nats():
     context.clear()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @python39
 @require_redis
 async def test_redis():

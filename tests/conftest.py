@@ -19,12 +19,12 @@ def pytest_collection_modifyitems(items):
         item.add_marker("all")
 
 
-@pytest.fixture()
+@pytest.fixture
 def queue():
     return str(uuid4())
 
 
-@pytest.fixture()
+@pytest.fixture
 def event():
     return asyncio.Event()
 
@@ -34,14 +34,14 @@ def runner() -> CliRunner:
     return CliRunner()
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock():
     m = MagicMock()
     yield m
     m.reset_mock()
 
 
-@pytest.fixture()
+@pytest.fixture
 def async_mock():
     m = AsyncMock()
     yield m
@@ -53,12 +53,12 @@ def version():
     return __version__
 
 
-@pytest.fixture()
+@pytest.fixture
 def context():
     yield global_context
     global_context.clear()
 
 
-@pytest.fixture()
+@pytest.fixture
 def kafka_basic_project():
     return "docs.docs_src.kafka.basic.basic:app"

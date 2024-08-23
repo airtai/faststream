@@ -212,7 +212,10 @@ class AsyncConfluentConsumer:
         self.config: Dict[str, Any] = {} if config is None else dict(config)
 
         if group_id is None:
-            group_id = "faststream-consumer-group"
+            group_id = self.config.get("group.id", "faststream-consumer-group")
+
+        if group_instance_id is None:
+            group_instance_id = self.config.get("group.instance.id", None)
 
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str

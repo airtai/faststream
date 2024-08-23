@@ -376,7 +376,7 @@ class SubscriberUsecase(
                         result_msg.correlation_id = message.correlation_id
 
                     for p in chain(
-                        self.__get_reponse_publisher(message),
+                        self.__get_response_publisher(message),
                         h.handler._publishers,
                     ):
                         await p.publish(
@@ -403,7 +403,7 @@ class SubscriberUsecase(
         # An error was raised and processed by some middleware
         return ensure_response(None)
 
-    def __get_reponse_publisher(
+    def __get_response_publisher(
         self,
         message: "StreamMessage[MsgType]",
     ) -> Iterable["BasePublisherProto"]:

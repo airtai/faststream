@@ -5,8 +5,8 @@ from faststream.app import FastStream
 from faststream.asyncapi.generate import get_app_schema
 
 
-@pytest.mark.asyncio()
-@pytest.mark.rabbit()
+@pytest.mark.asyncio
+@pytest.mark.rabbit
 async def test_base_security():
     from docs.docs_src.rabbit.security.basic import broker
 
@@ -32,8 +32,8 @@ async def test_base_security():
     }
 
 
-@pytest.mark.asyncio()
-@pytest.mark.rabbit()
+@pytest.mark.asyncio
+@pytest.mark.rabbit
 async def test_plaintext_security():
     from docs.docs_src.rabbit.security.plaintext import broker
 

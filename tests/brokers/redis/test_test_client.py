@@ -9,7 +9,7 @@ from faststream.redis.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestTestclient(BrokerTestclientTestcase):
     test_class = TestRedisBroker
 
@@ -32,7 +32,7 @@ class TestTestclient(BrokerTestclientTestcase):
                     reply_to="response",
                 )
 
-    @pytest.mark.redis()
+    @pytest.mark.redis
     async def test_with_real_testclient(
         self,
         queue: str,
@@ -77,7 +77,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.redis()
+    @pytest.mark.redis
     async def test_real_respect_middleware(self, queue):
         routes = []
 
@@ -231,15 +231,15 @@ class TestTestclient(BrokerTestclientTestcase):
             with pytest.raises(ValueError):  # noqa: PT011
                 await br.publish("hello")
 
-    @pytest.mark.redis()
+    @pytest.mark.redis
     async def test_broker_gets_patched_attrs_within_cm(self):
         await super().test_broker_gets_patched_attrs_within_cm()
 
-    @pytest.mark.redis()
+    @pytest.mark.redis
     async def test_broker_with_real_doesnt_get_patched(self):
         await super().test_broker_with_real_doesnt_get_patched()
 
-    @pytest.mark.redis()
+    @pytest.mark.redis
     async def test_broker_with_real_patches_publishers_and_subscribers(
         self, queue: str
     ):

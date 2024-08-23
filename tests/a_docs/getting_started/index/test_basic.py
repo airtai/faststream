@@ -9,7 +9,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_quickstart_index_kafka():
     from docs.docs_src.getting_started.index.base_kafka import base_handler, broker
@@ -21,7 +21,7 @@ async def test_quickstart_index_kafka():
         base_handler.mock.assert_called_once_with("")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_quickstart_index_confluent():
     from docs.docs_src.getting_started.index.base_confluent import base_handler, broker
@@ -33,7 +33,7 @@ async def test_quickstart_index_confluent():
         base_handler.mock.assert_called_once_with("")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_quickstart_index_rabbit():
     from docs.docs_src.getting_started.index.base_rabbit import base_handler, broker
@@ -45,7 +45,7 @@ async def test_quickstart_index_rabbit():
         base_handler.mock.assert_called_once_with("")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_quickstart_index_nats():
     from docs.docs_src.getting_started.index.base_nats import base_handler, broker
@@ -57,7 +57,7 @@ async def test_quickstart_index_nats():
         base_handler.mock.assert_called_once_with("")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_quickstart_index_redis():
     from docs.docs_src.getting_started.index.base_redis import base_handler, broker

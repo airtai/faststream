@@ -11,9 +11,9 @@ from typing import (
 )
 from urllib.parse import urlparse
 
+import anyio
 from aio_pika import connect_robust
-from anyio import move_on_after
-from typing_extensions import Annotated, Doc, deprecated, override
+from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
@@ -829,11 +829,19 @@ class RabbitBroker(
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
-        with move_on_after(timeout) as cancel_scope:
-            if cancel_scope.cancel_called:
-                return False
+        sleep_time = (timeout or 10) / 10
 
+        with anyio.move_on_after(timeout) as cancel_scope:
             if self._connection is None:
                 return False
 
-            return not self._connection.is_closed
+            while True:
+                if cancel_scope.cancel_called:
+                    return False
+
+                if not self._connection.is_closed:
+                    return True
+
+                await anyio.sleep(sleep_time)
+
+        return False

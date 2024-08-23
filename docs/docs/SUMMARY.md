@@ -32,6 +32,7 @@ search:
         - [Context](getting-started/lifespan/context.md)
         - [Testing](getting-started/lifespan/test.md)
     - [Middlewares](getting-started/middlewares/index.md)
+        - [Exception Middleware](getting-started/middlewares/exception.md)
     - AsyncAPI
         - [Schema Export](getting-started/asyncapi/export.md)
         - [Schema Hosting](getting-started/asyncapi/hosting.md)
@@ -117,6 +118,7 @@ search:
             - [BaseMiddleware](public_api/faststream/BaseMiddleware.md)
             - [Context](public_api/faststream/Context.md)
             - [Depends](public_api/faststream/Depends.md)
+            - [ExceptionMiddleware](public_api/faststream/ExceptionMiddleware.md)
             - [FastStream](public_api/faststream/FastStream.md)
             - [Header](public_api/faststream/Header.md)
             - [Path](public_api/faststream/Path.md)
@@ -205,6 +207,7 @@ search:
             - [BaseMiddleware](api/faststream/BaseMiddleware.md)
             - [Context](api/faststream/Context.md)
             - [Depends](api/faststream/Depends.md)
+            - [ExceptionMiddleware](api/faststream/ExceptionMiddleware.md)
             - [FastStream](api/faststream/FastStream.md)
             - [Header](api/faststream/Header.md)
             - [Path](api/faststream/Path.md)
@@ -303,7 +306,7 @@ search:
                     - info
                         - [Contact](api/faststream/asyncapi/schema/info/Contact.md)
                         - [ContactDict](api/faststream/asyncapi/schema/info/ContactDict.md)
-                    - [EmailStr](api/faststream/asyncapi/schema/info/EmailStr.md)
+                        - [EmailStr](api/faststream/asyncapi/schema/info/EmailStr.md)
                         - [Info](api/faststream/asyncapi/schema/info/Info.md)
                         - [License](api/faststream/asyncapi/schema/info/License.md)
                         - [LicenseDict](api/faststream/asyncapi/schema/info/LicenseDict.md)
@@ -372,8 +375,12 @@ search:
                     - [gen_cor_id](api/faststream/broker/message/gen_cor_id.md)
                 - middlewares
                     - [BaseMiddleware](api/faststream/broker/middlewares/BaseMiddleware.md)
+                    - [ExceptionMiddleware](api/faststream/broker/middlewares/ExceptionMiddleware.md)
                     - base
                         - [BaseMiddleware](api/faststream/broker/middlewares/base/BaseMiddleware.md)
+                    - exception
+                        - [BaseExceptionMiddleware](api/faststream/broker/middlewares/exception/BaseExceptionMiddleware.md)
+                        - [ExceptionMiddleware](api/faststream/broker/middlewares/exception/ExceptionMiddleware.md)
                     - logging
                         - [CriticalLogMiddleware](api/faststream/broker/middlewares/logging/CriticalLogMiddleware.md)
                 - proto
