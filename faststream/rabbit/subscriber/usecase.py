@@ -1,3 +1,4 @@
+import asyncio
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -14,14 +15,15 @@ from typing_extensions import override
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.exceptions import SetupError
+from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import BaseRMQInformation
 
 if TYPE_CHECKING:
-    from aio_pika import IncomingMessage, RobustQueue
+    from aio_pika import IncomingMessage, RobustQueue, Message
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage
+    from faststream.broker.message import StreamMessage, gen_cor_id
     from faststream.broker.types import BrokerMiddleware, CustomCallable
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -45,6 +47,7 @@ class LogicSubscriber(
     _consumer_tag: Optional[str]
     _queue_obj: Optional["RobustQueue"]
     _producer: Optional["AioPikaFastProducer"]
+    _prepared: bool
 
     def __init__(
         self,
@@ -64,11 +67,11 @@ class LogicSubscriber(
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        parser = AioPikaParser(pattern=queue.path_regex)
+        self.parser = AioPikaParser(pattern=queue.path_regex)
 
         super().__init__(
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
+            default_parser=self.parser.parse_message,
+            default_decoder=self.parser.decode_message,
             # Propagated options
             no_ack=no_ack,
             no_reply=no_reply,
@@ -94,6 +97,7 @@ class LogicSubscriber(
         self.app_id = None
         self.virtual_host = ""
         self.declarer = None
+        self._prepared = False
 
     @override
     def setup(  # type: ignore[override]
@@ -133,9 +137,7 @@ class LogicSubscriber(
             _call_decorators=_call_decorators,
         )
 
-    @override
-    async def start(self) -> None:
-        """Starts the consumer for the RabbitMQ queue."""
+    async def _prepare(self) -> None:
         if self.declarer is None:
             raise SetupError("You should setup subscriber at first.")
 
@@ -156,13 +158,36 @@ class LogicSubscriber(
                 robust=self.queue.robust,
             )
 
-        self._consumer_tag = await queue.consume(
+    async def _ensure_prepared(self) -> None:
+        if not self._prepared:
+            await self._prepare()
+            self.prepared = True
+
+    @override
+    async def start(self) -> None:
+        """Starts the consumer for the RabbitMQ queue."""
+        await self._ensure_prepared()
+
+        self._consumer_tag = await self._queue_obj.consume(
             # NOTE: aio-pika expects AbstractIncomingMessage, not IncomingMessage
             self.consume,  # type: ignore[arg-type]
             arguments=self.consume_args,
         )
 
         await super().start()
+
+    async def get_one(self, auto_ack: bool = False) -> "RabbitMessage":
+        await self._ensure_prepared()
+
+        if self._queue_obj is None:
+            raise SetupError("You should prepare() subscriber at first.")
+
+        while (message := await self._queue_obj.get(fail=False, no_ack=auto_ack)) is None:
+            await asyncio.sleep(0)
+
+        parsed_message = await self.parser.parse_message(message)
+        assert isinstance(parsed_message, RabbitMessage)
+        return parsed_message
 
     async def close(self) -> None:
         await super().close()
