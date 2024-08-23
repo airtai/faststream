@@ -4,7 +4,7 @@ from faststream.redis import RedisBroker, RedisRouter, TestRedisBroker
 from tests.brokers.base.requests import RequestsTestcase
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class RedisRequestsTestcase(RequestsTestcase):
     def get_broker(self):
         return RedisBroker()
@@ -13,7 +13,7 @@ class RedisRequestsTestcase(RequestsTestcase):
         return RedisRouter()
 
 
-@pytest.mark.redis()
+@pytest.mark.redis
 class TestRealRequests(RedisRequestsTestcase):
     pass
 

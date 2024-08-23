@@ -4,7 +4,7 @@ from faststream.nats import NatsBroker, NatsRouter, TestNatsBroker
 from tests.brokers.base.requests import RequestsTestcase
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class NatsRequestsTestcase(RequestsTestcase):
     def get_broker(self):
         return NatsBroker()
@@ -62,7 +62,7 @@ class NatsRequestsTestcase(RequestsTestcase):
         assert response.correlation_id == "1"
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestRealRequests(NatsRequestsTestcase):
     pass
 

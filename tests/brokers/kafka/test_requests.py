@@ -4,7 +4,7 @@ from faststream.kafka import KafkaBroker, KafkaRouter, TestKafkaBroker
 from tests.brokers.base.requests import RequestsTestcase
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestRequestTestClient(RequestsTestcase):
     def get_broker(self):
         return KafkaBroker()

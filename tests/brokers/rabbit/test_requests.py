@@ -4,7 +4,7 @@ from faststream.rabbit import RabbitBroker, RabbitRouter, TestRabbitBroker
 from tests.brokers.base.requests import RequestsTestcase
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class RabbitRequestsTestcase(RequestsTestcase):
     def get_broker(self):
         return RabbitBroker()
@@ -13,12 +13,12 @@ class RabbitRequestsTestcase(RequestsTestcase):
         return RabbitRouter()
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 class TestRealRequests(RabbitRequestsTestcase):
     pass
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestRequestTestClient(RabbitRequestsTestcase):
     def patch_broker(self, broker):
         return TestRabbitBroker(broker)

@@ -6,7 +6,7 @@ from tests.brokers.base.requests import RequestsTestcase
 from .basic import ConfluentTestcaseConfig
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestRequestTestClient(ConfluentTestcaseConfig, RequestsTestcase):
     def get_broker(self):
         return KafkaBroker()
