@@ -12,6 +12,74 @@ hide:
 ---
 
 # Release Notes
+## 0.5.19
+
+### What's Changed
+
+The current release is planned as a latest feature release before **0.6.0**. All other **0.5.19+** releases will contain only minor bugfixes and all the team work will be focused on next major one.
+
+There a lot of changes we want to present you now though! 
+
+#### New RPC feature
+
+Our old `broker.publish(..., rpc=True)` implementation was very limited and ugly. Now we present you a much suitable way to do the same thing - `broker.request(...)`
+
+```python
+from faststream import FastStream
+from faststream.nats import NatsBroker, NatsResponse, NatsMessage
+
+broker = NatsBroker()
+
+@broker.subscriber("test")
+async def echo_handler(msg):
+    return NatsResponse(msg, headers={"x-token": "some-token"})
+
+@app.after_startup
+async def test():
+    # The old implementation was returning just a message body,
+    # so you wasn't be able to check response headers, etc
+    msg_body: str = await broker.publish("ping", "test", rpc=True)
+    assert msg_body == "ping"
+    
+    # Now request return the whole message and you can validate any part of it
+    # moreover it triggers all your middlewares
+    response: NatsMessage = await broker.request("ping", "test")
+```
+
+#### Exception Middleware
+
+Community asked and community did! Sorry, we've been putting off this job for too long. Thanks for @Rusich90 to help us!
+Now you can wrap your application by a suitable exception handlers. Just check the new [documentation](https://faststream.airt.ai/latest/getting-started/middlewares/exception/) to learn more.
+
+#### Details
+
+Also, there are a lot of minor changes you can find below. Big thanks to all our old and new contributors! You are amazing ones!
+
+* Bug: resolve missing seek on kafka fakeconsumer by @JonathanSerafini in https://github.com/airtai/faststream/pull/1682
+* replace pip with uv in CI by @newonlynew in https://github.com/airtai/faststream/pull/1688
+* Added support for JSON serialization and deserialization by other libraries by @ulbwa in https://github.com/airtai/faststream/pull/1687
+* Fix batch nack by @kumaranvpl in https://github.com/airtai/faststream/pull/1689
+* Remove unused ignores by @kumaranvpl in https://github.com/airtai/faststream/pull/1690
+* docs: add Kafka HowTo section by @Lancetnik in https://github.com/airtai/faststream/pull/1686
+* Add missed out group_instance_id as subscriber and router parameter by @kumaranvpl in https://github.com/airtai/faststream/pull/1695
+* Set warn_unused_ignores mypy config to true by @kumaranvpl in https://github.com/airtai/faststream/pull/1694
+* Skip building docs in pre-commit CI job by @kumaranvpl in https://github.com/airtai/faststream/pull/1704
+* Fix to run check-docs-changes worflow in forks by @kumaranvpl in https://github.com/airtai/faststream/pull/1710
+* feature/exception_middleware add exception middleware by @Rusich90 in https://github.com/airtai/faststream/pull/1604
+* Remove mentions of faststream-gen by @kumaranvpl in https://github.com/airtai/faststream/pull/1717
+* Fix multiple docs issues by @kumaranvpl in https://github.com/airtai/faststream/pull/1718
+* CI: group Dependabot updates into one PR by @dolfinus in https://github.com/airtai/faststream/pull/1719
+* feat: CLI DX improvements by @Lancetnik in https://github.com/airtai/faststream/pull/1723
+* fix: use async test subscribers functions by @Lancetnik in https://github.com/airtai/faststream/pull/1725
+* feat: add broker.request method by @Lancetnik in https://github.com/airtai/faststream/pull/1649
+
+### New Contributors
+* @JonathanSerafini made their first contribution in https://github.com/airtai/faststream/pull/1682
+* @Rusich90 made their first contribution in https://github.com/airtai/faststream/pull/1604
+* @dolfinus made their first contribution in https://github.com/airtai/faststream/pull/1719
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.18...0.5.19
+
 ## 0.5.18
 
 ### What's Changed
