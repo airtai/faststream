@@ -205,9 +205,9 @@
 <a id=__codelineno-0-34 name=__codelineno-0-34></a>    <span class=k>else</span><span class=p>:</span>
 <a id=__codelineno-0-35 name=__codelineno-0-35></a>        <span class=k>return</span> <span class=p>{}</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.add_middleware class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">add_middleware</span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.add_middleware class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>add_middleware</span><span class=p>(</span><span class=n>middleware</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-136>136</a></span>
-<span class=normal><a href=#__codelineno-0-137>137</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-136 name=__codelineno-0-136></a><span class=k>def</span> <span class=nf>add_middleware</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>middleware</span><span class=p>:</span> <span class=s2>&quot;BrokerMiddleware[MsgType]&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-137 name=__codelineno-0-137></a>    <span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span> <span class=o>=</span> <span class=p>(</span><span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>,</span> <span class=n>middleware</span><span class=p>)</span>
+</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-139>139</a></span>
+<span class=normal><a href=#__codelineno-0-140>140</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-139 name=__codelineno-0-139></a><span class=k>def</span> <span class=nf>add_middleware</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>middleware</span><span class=p>:</span> <span class=s2>&quot;BrokerMiddleware[MsgType]&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-140 name=__codelineno-0-140></a>    <span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span> <span class=o>=</span> <span class=p>(</span><span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>,</span> <span class=n>middleware</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_log_context class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_log_context</span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_log_context class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_log_context</span><span class=p>(</span><span class=n>message</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <p>Log context factory using in <code>self.consume</code> scope.</p> <details class=quote> <summary>Source code in <code>faststream/nats/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-438>438</a></span>
 <span class=normal><a href=#__codelineno-0-439>439</a></span>
@@ -259,10 +259,7 @@
 <a id=__codelineno-0-165 name=__codelineno-0-165></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>subscription</span><span class=o>.</span><span class=n>unsubscribe</span><span class=p>()</span>
 <a id=__codelineno-0-166 name=__codelineno-0-166></a>        <span class=bp>self</span><span class=o>.</span><span class=n>subscription</span> <span class=o>=</span> <span class=kc>None</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.consume class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">consume</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.consume class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>consume</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Consume a message asynchronously.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-295>295</a></span>
-<span class=normal><a href=#__codelineno-0-296>296</a></span>
-<span class=normal><a href=#__codelineno-0-297>297</a></span>
-<span class=normal><a href=#__codelineno-0-298>298</a></span>
+</code></pre></div> <div class="doc doc-contents "> <p>Consume a message asynchronously.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-298>298</a></span>
 <span class=normal><a href=#__codelineno-0-299>299</a></span>
 <span class=normal><a href=#__codelineno-0-300>300</a></span>
 <span class=normal><a href=#__codelineno-0-301>301</a></span>
@@ -280,33 +277,33 @@
 <span class=normal><a href=#__codelineno-0-313>313</a></span>
 <span class=normal><a href=#__codelineno-0-314>314</a></span>
 <span class=normal><a href=#__codelineno-0-315>315</a></span>
-<span class=normal><a href=#__codelineno-0-316>316</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-295 name=__codelineno-0-295></a><span class=k>async</span> <span class=k>def</span> <span class=nf>consume</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>MsgType</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
-<a id=__codelineno-0-296 name=__codelineno-0-296></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Consume a message asynchronously.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-297 name=__codelineno-0-297></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>running</span><span class=p>:</span>
-<a id=__codelineno-0-298 name=__codelineno-0-298></a>        <span class=k>return</span> <span class=kc>None</span>
-<a id=__codelineno-0-299 name=__codelineno-0-299></a>
-<a id=__codelineno-0-300 name=__codelineno-0-300></a>    <span class=k>try</span><span class=p>:</span>
-<a id=__codelineno-0-301 name=__codelineno-0-301></a>        <span class=k>return</span> <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>process_message</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
+<span class=normal><a href=#__codelineno-0-316>316</a></span>
+<span class=normal><a href=#__codelineno-0-317>317</a></span>
+<span class=normal><a href=#__codelineno-0-318>318</a></span>
+<span class=normal><a href=#__codelineno-0-319>319</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-298 name=__codelineno-0-298></a><span class=k>async</span> <span class=k>def</span> <span class=nf>consume</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>MsgType</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
+<a id=__codelineno-0-299 name=__codelineno-0-299></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Consume a message asynchronously.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-300 name=__codelineno-0-300></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>running</span><span class=p>:</span>
+<a id=__codelineno-0-301 name=__codelineno-0-301></a>        <span class=k>return</span> <span class=kc>None</span>
 <a id=__codelineno-0-302 name=__codelineno-0-302></a>
-<a id=__codelineno-0-303 name=__codelineno-0-303></a>    <span class=k>except</span> <span class=n>StopConsume</span><span class=p>:</span>
-<a id=__codelineno-0-304 name=__codelineno-0-304></a>        <span class=c1># Stop handler at StopConsume exception</span>
-<a id=__codelineno-0-305 name=__codelineno-0-305></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
-<a id=__codelineno-0-306 name=__codelineno-0-306></a>
-<a id=__codelineno-0-307 name=__codelineno-0-307></a>    <span class=k>except</span> <span class=ne>SystemExit</span><span class=p>:</span>
-<a id=__codelineno-0-308 name=__codelineno-0-308></a>        <span class=c1># Stop handler at `exit()` call</span>
-<a id=__codelineno-0-309 name=__codelineno-0-309></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
-<a id=__codelineno-0-310 name=__codelineno-0-310></a>
-<a id=__codelineno-0-311 name=__codelineno-0-311></a>        <span class=k>if</span> <span class=n>app</span> <span class=o>:=</span> <span class=n>context</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&quot;app&quot;</span><span class=p>):</span>
-<a id=__codelineno-0-312 name=__codelineno-0-312></a>            <span class=n>app</span><span class=o>.</span><span class=n>exit</span><span class=p>()</span>
+<a id=__codelineno-0-303 name=__codelineno-0-303></a>    <span class=k>try</span><span class=p>:</span>
+<a id=__codelineno-0-304 name=__codelineno-0-304></a>        <span class=k>return</span> <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>process_message</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
+<a id=__codelineno-0-305 name=__codelineno-0-305></a>
+<a id=__codelineno-0-306 name=__codelineno-0-306></a>    <span class=k>except</span> <span class=n>StopConsume</span><span class=p>:</span>
+<a id=__codelineno-0-307 name=__codelineno-0-307></a>        <span class=c1># Stop handler at StopConsume exception</span>
+<a id=__codelineno-0-308 name=__codelineno-0-308></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+<a id=__codelineno-0-309 name=__codelineno-0-309></a>
+<a id=__codelineno-0-310 name=__codelineno-0-310></a>    <span class=k>except</span> <span class=ne>SystemExit</span><span class=p>:</span>
+<a id=__codelineno-0-311 name=__codelineno-0-311></a>        <span class=c1># Stop handler at `exit()` call</span>
+<a id=__codelineno-0-312 name=__codelineno-0-312></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
 <a id=__codelineno-0-313 name=__codelineno-0-313></a>
-<a id=__codelineno-0-314 name=__codelineno-0-314></a>    <span class=k>except</span> <span class=ne>Exception</span><span class=p>:</span>  <span class=c1># nosec B110</span>
-<a id=__codelineno-0-315 name=__codelineno-0-315></a>        <span class=c1># All other exceptions were logged by CriticalLogMiddleware</span>
-<a id=__codelineno-0-316 name=__codelineno-0-316></a>        <span class=k>pass</span>
+<a id=__codelineno-0-314 name=__codelineno-0-314></a>        <span class=k>if</span> <span class=n>app</span> <span class=o>:=</span> <span class=n>context</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&quot;app&quot;</span><span class=p>):</span>
+<a id=__codelineno-0-315 name=__codelineno-0-315></a>            <span class=n>app</span><span class=o>.</span><span class=n>exit</span><span class=p>()</span>
+<a id=__codelineno-0-316 name=__codelineno-0-316></a>
+<a id=__codelineno-0-317 name=__codelineno-0-317></a>    <span class=k>except</span> <span class=ne>Exception</span><span class=p>:</span>  <span class=c1># nosec B110</span>
+<a id=__codelineno-0-318 name=__codelineno-0-318></a>        <span class=c1># All other exceptions were logged by CriticalLogMiddleware</span>
+<a id=__codelineno-0-319 name=__codelineno-0-319></a>        <span class=k>pass</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.process_message class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">process_message</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.process_message class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>process_message</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Execute all message processing stages.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-318>318</a></span>
-<span class=normal><a href=#__codelineno-0-319>319</a></span>
-<span class=normal><a href=#__codelineno-0-320>320</a></span>
-<span class=normal><a href=#__codelineno-0-321>321</a></span>
+</code></pre></div> <div class="doc doc-contents "> <p>Execute all message processing stages.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-321>321</a></span>
 <span class=normal><a href=#__codelineno-0-322>322</a></span>
 <span class=normal><a href=#__codelineno-0-323>323</a></span>
 <span class=normal><a href=#__codelineno-0-324>324</a></span>
@@ -384,93 +381,97 @@
 <span class=normal><a href=#__codelineno-0-396>396</a></span>
 <span class=normal><a href=#__codelineno-0-397>397</a></span>
 <span class=normal><a href=#__codelineno-0-398>398</a></span>
-<span class=normal><a href=#__codelineno-0-399>399</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-318 name=__codelineno-0-318></a><span class=k>async</span> <span class=k>def</span> <span class=nf>process_message</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>MsgType</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
-<a id=__codelineno-0-319 name=__codelineno-0-319></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Execute all message processing stages.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-320 name=__codelineno-0-320></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>AsyncExitStack</span><span class=p>()</span> <span class=k>as</span> <span class=n>stack</span><span class=p>:</span>
-<a id=__codelineno-0-321 name=__codelineno-0-321></a>        <span class=n>stack</span><span class=o>.</span><span class=n>enter_context</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>lock</span><span class=p>)</span>
-<a id=__codelineno-0-322 name=__codelineno-0-322></a>
-<a id=__codelineno-0-323 name=__codelineno-0-323></a>        <span class=c1># Enter context before middlewares</span>
-<a id=__codelineno-0-324 name=__codelineno-0-324></a>        <span class=k>for</span> <span class=n>k</span><span class=p>,</span> <span class=n>v</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>extra_context</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
-<a id=__codelineno-0-325 name=__codelineno-0-325></a>            <span class=n>stack</span><span class=o>.</span><span class=n>enter_context</span><span class=p>(</span><span class=n>context</span><span class=o>.</span><span class=n>scope</span><span class=p>(</span><span class=n>k</span><span class=p>,</span> <span class=n>v</span><span class=p>))</span>
-<a id=__codelineno-0-326 name=__codelineno-0-326></a>
-<a id=__codelineno-0-327 name=__codelineno-0-327></a>        <span class=n>stack</span><span class=o>.</span><span class=n>enter_context</span><span class=p>(</span><span class=n>context</span><span class=o>.</span><span class=n>scope</span><span class=p>(</span><span class=s2>&quot;handler_&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=p>))</span>
-<a id=__codelineno-0-328 name=__codelineno-0-328></a>
-<a id=__codelineno-0-329 name=__codelineno-0-329></a>        <span class=c1># enter all middlewares</span>
-<a id=__codelineno-0-330 name=__codelineno-0-330></a>        <span class=n>middlewares</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>BaseMiddleware</span><span class=p>]</span> <span class=o>=</span> <span class=p>[]</span>
-<a id=__codelineno-0-331 name=__codelineno-0-331></a>        <span class=k>for</span> <span class=n>base_m</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>:</span>
-<a id=__codelineno-0-332 name=__codelineno-0-332></a>            <span class=n>middleware</span> <span class=o>=</span> <span class=n>base_m</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
-<a id=__codelineno-0-333 name=__codelineno-0-333></a>            <span class=n>middlewares</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>middleware</span><span class=p>)</span>
-<a id=__codelineno-0-334 name=__codelineno-0-334></a>            <span class=k>await</span> <span class=n>middleware</span><span class=o>.</span><span class=fm>__aenter__</span><span class=p>()</span>
-<a id=__codelineno-0-335 name=__codelineno-0-335></a>
-<a id=__codelineno-0-336 name=__codelineno-0-336></a>        <span class=n>cache</span><span class=p>:</span> <span class=n>Dict</span><span class=p>[</span><span class=n>Any</span><span class=p>,</span> <span class=n>Any</span><span class=p>]</span> <span class=o>=</span> <span class=p>{}</span>
-<a id=__codelineno-0-337 name=__codelineno-0-337></a>        <span class=n>parsing_error</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=ne>Exception</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
-<a id=__codelineno-0-338 name=__codelineno-0-338></a>        <span class=k>for</span> <span class=n>h</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>
-<a id=__codelineno-0-339 name=__codelineno-0-339></a>            <span class=k>try</span><span class=p>:</span>
-<a id=__codelineno-0-340 name=__codelineno-0-340></a>                <span class=n>message</span> <span class=o>=</span> <span class=k>await</span> <span class=n>h</span><span class=o>.</span><span class=n>is_suitable</span><span class=p>(</span><span class=n>msg</span><span class=p>,</span> <span class=n>cache</span><span class=p>)</span>
-<a id=__codelineno-0-341 name=__codelineno-0-341></a>            <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
-<a id=__codelineno-0-342 name=__codelineno-0-342></a>                <span class=n>parsing_error</span> <span class=o>=</span> <span class=n>e</span>
-<a id=__codelineno-0-343 name=__codelineno-0-343></a>                <span class=k>break</span>
-<a id=__codelineno-0-344 name=__codelineno-0-344></a>
-<a id=__codelineno-0-345 name=__codelineno-0-345></a>            <span class=k>if</span> <span class=n>message</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-346 name=__codelineno-0-346></a>                <span class=c1># Acknowledgement scope</span>
-<a id=__codelineno-0-347 name=__codelineno-0-347></a>                <span class=c1># TODO: move it to scope enter at `retry` option deprecation</span>
-<a id=__codelineno-0-348 name=__codelineno-0-348></a>                <span class=k>await</span> <span class=n>stack</span><span class=o>.</span><span class=n>enter_async_context</span><span class=p>(</span>
-<a id=__codelineno-0-349 name=__codelineno-0-349></a>                    <span class=bp>self</span><span class=o>.</span><span class=n>watcher</span><span class=p>(</span>
-<a id=__codelineno-0-350 name=__codelineno-0-350></a>                        <span class=n>message</span><span class=p>,</span>
-<a id=__codelineno-0-351 name=__codelineno-0-351></a>                        <span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>extra_watcher_options</span><span class=p>,</span>
-<a id=__codelineno-0-352 name=__codelineno-0-352></a>                    <span class=p>)</span>
-<a id=__codelineno-0-353 name=__codelineno-0-353></a>                <span class=p>)</span>
-<a id=__codelineno-0-354 name=__codelineno-0-354></a>
-<a id=__codelineno-0-355 name=__codelineno-0-355></a>                <span class=n>stack</span><span class=o>.</span><span class=n>enter_context</span><span class=p>(</span>
-<a id=__codelineno-0-356 name=__codelineno-0-356></a>                    <span class=n>context</span><span class=o>.</span><span class=n>scope</span><span class=p>(</span><span class=s2>&quot;log_context&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_log_context</span><span class=p>(</span><span class=n>message</span><span class=p>))</span>
-<a id=__codelineno-0-357 name=__codelineno-0-357></a>                <span class=p>)</span>
-<a id=__codelineno-0-358 name=__codelineno-0-358></a>                <span class=n>stack</span><span class=o>.</span><span class=n>enter_context</span><span class=p>(</span><span class=n>context</span><span class=o>.</span><span class=n>scope</span><span class=p>(</span><span class=s2>&quot;message&quot;</span><span class=p>,</span> <span class=n>message</span><span class=p>))</span>
-<a id=__codelineno-0-359 name=__codelineno-0-359></a>
-<a id=__codelineno-0-360 name=__codelineno-0-360></a>                <span class=c1># Middlewares should be exited before scope release</span>
-<a id=__codelineno-0-361 name=__codelineno-0-361></a>                <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>middlewares</span><span class=p>:</span>
-<a id=__codelineno-0-362 name=__codelineno-0-362></a>                    <span class=n>stack</span><span class=o>.</span><span class=n>push_async_exit</span><span class=p>(</span><span class=n>m</span><span class=o>.</span><span class=fm>__aexit__</span><span class=p>)</span>
-<a id=__codelineno-0-363 name=__codelineno-0-363></a>
-<a id=__codelineno-0-364 name=__codelineno-0-364></a>                <span class=n>result_msg</span> <span class=o>=</span> <span class=n>ensure_response</span><span class=p>(</span>
-<a id=__codelineno-0-365 name=__codelineno-0-365></a>                    <span class=k>await</span> <span class=n>h</span><span class=o>.</span><span class=n>call</span><span class=p>(</span>
-<a id=__codelineno-0-366 name=__codelineno-0-366></a>                        <span class=n>message</span><span class=o>=</span><span class=n>message</span><span class=p>,</span>
-<a id=__codelineno-0-367 name=__codelineno-0-367></a>                        <span class=c1># consumer middlewares</span>
-<a id=__codelineno-0-368 name=__codelineno-0-368></a>                        <span class=n>_extra_middlewares</span><span class=o>=</span><span class=p>(</span><span class=n>m</span><span class=o>.</span><span class=n>consume_scope</span> <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>middlewares</span><span class=p>),</span>
-<a id=__codelineno-0-369 name=__codelineno-0-369></a>                    <span class=p>)</span>
-<a id=__codelineno-0-370 name=__codelineno-0-370></a>                <span class=p>)</span>
-<a id=__codelineno-0-371 name=__codelineno-0-371></a>
-<a id=__codelineno-0-372 name=__codelineno-0-372></a>                <span class=k>if</span> <span class=ow>not</span> <span class=n>result_msg</span><span class=o>.</span><span class=n>correlation_id</span><span class=p>:</span>
-<a id=__codelineno-0-373 name=__codelineno-0-373></a>                    <span class=n>result_msg</span><span class=o>.</span><span class=n>correlation_id</span> <span class=o>=</span> <span class=n>message</span><span class=o>.</span><span class=n>correlation_id</span>
+<span class=normal><a href=#__codelineno-0-399>399</a></span>
+<span class=normal><a href=#__codelineno-0-400>400</a></span>
+<span class=normal><a href=#__codelineno-0-401>401</a></span>
+<span class=normal><a href=#__codelineno-0-402>402</a></span>
+<span class=normal><a href=#__codelineno-0-403>403</a></span>
+<span class=normal><a href=#__codelineno-0-404>404</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-321 name=__codelineno-0-321></a><span class=k>async</span> <span class=k>def</span> <span class=nf>process_message</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>MsgType</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Response&quot;</span><span class=p>:</span>
+<a id=__codelineno-0-322 name=__codelineno-0-322></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Execute all message processing stages.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-323 name=__codelineno-0-323></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>AsyncExitStack</span><span class=p>()</span> <span class=k>as</span> <span class=n>stack</span><span class=p>:</span>
+<a id=__codelineno-0-324 name=__codelineno-0-324></a>        <span class=n>stack</span><span class=o>.</span><span class=n>enter_context</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>lock</span><span class=p>)</span>
+<a id=__codelineno-0-325 name=__codelineno-0-325></a>
+<a id=__codelineno-0-326 name=__codelineno-0-326></a>        <span class=c1># Enter context before middlewares</span>
+<a id=__codelineno-0-327 name=__codelineno-0-327></a>        <span class=k>for</span> <span class=n>k</span><span class=p>,</span> <span class=n>v</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>extra_context</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
+<a id=__codelineno-0-328 name=__codelineno-0-328></a>            <span class=n>stack</span><span class=o>.</span><span class=n>enter_context</span><span class=p>(</span><span class=n>context</span><span class=o>.</span><span class=n>scope</span><span class=p>(</span><span class=n>k</span><span class=p>,</span> <span class=n>v</span><span class=p>))</span>
+<a id=__codelineno-0-329 name=__codelineno-0-329></a>
+<a id=__codelineno-0-330 name=__codelineno-0-330></a>        <span class=n>stack</span><span class=o>.</span><span class=n>enter_context</span><span class=p>(</span><span class=n>context</span><span class=o>.</span><span class=n>scope</span><span class=p>(</span><span class=s2>&quot;handler_&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=p>))</span>
+<a id=__codelineno-0-331 name=__codelineno-0-331></a>
+<a id=__codelineno-0-332 name=__codelineno-0-332></a>        <span class=c1># enter all middlewares</span>
+<a id=__codelineno-0-333 name=__codelineno-0-333></a>        <span class=n>middlewares</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>BaseMiddleware</span><span class=p>]</span> <span class=o>=</span> <span class=p>[]</span>
+<a id=__codelineno-0-334 name=__codelineno-0-334></a>        <span class=k>for</span> <span class=n>base_m</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>:</span>
+<a id=__codelineno-0-335 name=__codelineno-0-335></a>            <span class=n>middleware</span> <span class=o>=</span> <span class=n>base_m</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
+<a id=__codelineno-0-336 name=__codelineno-0-336></a>            <span class=n>middlewares</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>middleware</span><span class=p>)</span>
+<a id=__codelineno-0-337 name=__codelineno-0-337></a>            <span class=k>await</span> <span class=n>middleware</span><span class=o>.</span><span class=fm>__aenter__</span><span class=p>()</span>
+<a id=__codelineno-0-338 name=__codelineno-0-338></a>
+<a id=__codelineno-0-339 name=__codelineno-0-339></a>        <span class=n>cache</span><span class=p>:</span> <span class=n>Dict</span><span class=p>[</span><span class=n>Any</span><span class=p>,</span> <span class=n>Any</span><span class=p>]</span> <span class=o>=</span> <span class=p>{}</span>
+<a id=__codelineno-0-340 name=__codelineno-0-340></a>        <span class=n>parsing_error</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=ne>Exception</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
+<a id=__codelineno-0-341 name=__codelineno-0-341></a>        <span class=k>for</span> <span class=n>h</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>
+<a id=__codelineno-0-342 name=__codelineno-0-342></a>            <span class=k>try</span><span class=p>:</span>
+<a id=__codelineno-0-343 name=__codelineno-0-343></a>                <span class=n>message</span> <span class=o>=</span> <span class=k>await</span> <span class=n>h</span><span class=o>.</span><span class=n>is_suitable</span><span class=p>(</span><span class=n>msg</span><span class=p>,</span> <span class=n>cache</span><span class=p>)</span>
+<a id=__codelineno-0-344 name=__codelineno-0-344></a>            <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+<a id=__codelineno-0-345 name=__codelineno-0-345></a>                <span class=n>parsing_error</span> <span class=o>=</span> <span class=n>e</span>
+<a id=__codelineno-0-346 name=__codelineno-0-346></a>                <span class=k>break</span>
+<a id=__codelineno-0-347 name=__codelineno-0-347></a>
+<a id=__codelineno-0-348 name=__codelineno-0-348></a>            <span class=k>if</span> <span class=n>message</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-349 name=__codelineno-0-349></a>                <span class=c1># Acknowledgement scope</span>
+<a id=__codelineno-0-350 name=__codelineno-0-350></a>                <span class=c1># TODO: move it to scope enter at `retry` option deprecation</span>
+<a id=__codelineno-0-351 name=__codelineno-0-351></a>                <span class=k>await</span> <span class=n>stack</span><span class=o>.</span><span class=n>enter_async_context</span><span class=p>(</span>
+<a id=__codelineno-0-352 name=__codelineno-0-352></a>                    <span class=bp>self</span><span class=o>.</span><span class=n>watcher</span><span class=p>(</span>
+<a id=__codelineno-0-353 name=__codelineno-0-353></a>                        <span class=n>message</span><span class=p>,</span>
+<a id=__codelineno-0-354 name=__codelineno-0-354></a>                        <span class=o>**</span><span class=bp>self</span><span class=o>.</span><span class=n>extra_watcher_options</span><span class=p>,</span>
+<a id=__codelineno-0-355 name=__codelineno-0-355></a>                    <span class=p>)</span>
+<a id=__codelineno-0-356 name=__codelineno-0-356></a>                <span class=p>)</span>
+<a id=__codelineno-0-357 name=__codelineno-0-357></a>
+<a id=__codelineno-0-358 name=__codelineno-0-358></a>                <span class=n>stack</span><span class=o>.</span><span class=n>enter_context</span><span class=p>(</span>
+<a id=__codelineno-0-359 name=__codelineno-0-359></a>                    <span class=n>context</span><span class=o>.</span><span class=n>scope</span><span class=p>(</span><span class=s2>&quot;log_context&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_log_context</span><span class=p>(</span><span class=n>message</span><span class=p>))</span>
+<a id=__codelineno-0-360 name=__codelineno-0-360></a>                <span class=p>)</span>
+<a id=__codelineno-0-361 name=__codelineno-0-361></a>                <span class=n>stack</span><span class=o>.</span><span class=n>enter_context</span><span class=p>(</span><span class=n>context</span><span class=o>.</span><span class=n>scope</span><span class=p>(</span><span class=s2>&quot;message&quot;</span><span class=p>,</span> <span class=n>message</span><span class=p>))</span>
+<a id=__codelineno-0-362 name=__codelineno-0-362></a>
+<a id=__codelineno-0-363 name=__codelineno-0-363></a>                <span class=c1># Middlewares should be exited before scope release</span>
+<a id=__codelineno-0-364 name=__codelineno-0-364></a>                <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>middlewares</span><span class=p>:</span>
+<a id=__codelineno-0-365 name=__codelineno-0-365></a>                    <span class=n>stack</span><span class=o>.</span><span class=n>push_async_exit</span><span class=p>(</span><span class=n>m</span><span class=o>.</span><span class=fm>__aexit__</span><span class=p>)</span>
+<a id=__codelineno-0-366 name=__codelineno-0-366></a>
+<a id=__codelineno-0-367 name=__codelineno-0-367></a>                <span class=n>result_msg</span> <span class=o>=</span> <span class=n>ensure_response</span><span class=p>(</span>
+<a id=__codelineno-0-368 name=__codelineno-0-368></a>                    <span class=k>await</span> <span class=n>h</span><span class=o>.</span><span class=n>call</span><span class=p>(</span>
+<a id=__codelineno-0-369 name=__codelineno-0-369></a>                        <span class=n>message</span><span class=o>=</span><span class=n>message</span><span class=p>,</span>
+<a id=__codelineno-0-370 name=__codelineno-0-370></a>                        <span class=c1># consumer middlewares</span>
+<a id=__codelineno-0-371 name=__codelineno-0-371></a>                        <span class=n>_extra_middlewares</span><span class=o>=</span><span class=p>(</span><span class=n>m</span><span class=o>.</span><span class=n>consume_scope</span> <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>middlewares</span><span class=p>),</span>
+<a id=__codelineno-0-372 name=__codelineno-0-372></a>                    <span class=p>)</span>
+<a id=__codelineno-0-373 name=__codelineno-0-373></a>                <span class=p>)</span>
 <a id=__codelineno-0-374 name=__codelineno-0-374></a>
-<a id=__codelineno-0-375 name=__codelineno-0-375></a>                <span class=k>for</span> <span class=n>p</span> <span class=ow>in</span> <span class=n>chain</span><span class=p>(</span>
-<a id=__codelineno-0-376 name=__codelineno-0-376></a>                    <span class=bp>self</span><span class=o>.</span><span class=n>__get_response_publisher</span><span class=p>(</span><span class=n>message</span><span class=p>),</span>
-<a id=__codelineno-0-377 name=__codelineno-0-377></a>                    <span class=n>h</span><span class=o>.</span><span class=n>handler</span><span class=o>.</span><span class=n>_publishers</span><span class=p>,</span>
-<a id=__codelineno-0-378 name=__codelineno-0-378></a>                <span class=p>):</span>
-<a id=__codelineno-0-379 name=__codelineno-0-379></a>                    <span class=k>await</span> <span class=n>p</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span>
-<a id=__codelineno-0-380 name=__codelineno-0-380></a>                        <span class=n>result_msg</span><span class=o>.</span><span class=n>body</span><span class=p>,</span>
-<a id=__codelineno-0-381 name=__codelineno-0-381></a>                        <span class=o>**</span><span class=n>result_msg</span><span class=o>.</span><span class=n>as_publish_kwargs</span><span class=p>(),</span>
-<a id=__codelineno-0-382 name=__codelineno-0-382></a>                        <span class=c1># publisher middlewares</span>
-<a id=__codelineno-0-383 name=__codelineno-0-383></a>                        <span class=n>_extra_middlewares</span><span class=o>=</span><span class=p>(</span><span class=n>m</span><span class=o>.</span><span class=n>publish_scope</span> <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>middlewares</span><span class=p>),</span>
-<a id=__codelineno-0-384 name=__codelineno-0-384></a>                    <span class=p>)</span>
-<a id=__codelineno-0-385 name=__codelineno-0-385></a>
-<a id=__codelineno-0-386 name=__codelineno-0-386></a>                <span class=k>return</span> <span class=n>result_msg</span><span class=o>.</span><span class=n>body</span>
-<a id=__codelineno-0-387 name=__codelineno-0-387></a>
-<a id=__codelineno-0-388 name=__codelineno-0-388></a>        <span class=c1># Suitable handler was not found or</span>
-<a id=__codelineno-0-389 name=__codelineno-0-389></a>        <span class=c1># parsing/decoding exception occurred</span>
-<a id=__codelineno-0-390 name=__codelineno-0-390></a>        <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>middlewares</span><span class=p>:</span>
-<a id=__codelineno-0-391 name=__codelineno-0-391></a>            <span class=n>stack</span><span class=o>.</span><span class=n>push_async_exit</span><span class=p>(</span><span class=n>m</span><span class=o>.</span><span class=fm>__aexit__</span><span class=p>)</span>
-<a id=__codelineno-0-392 name=__codelineno-0-392></a>
-<a id=__codelineno-0-393 name=__codelineno-0-393></a>        <span class=k>if</span> <span class=n>parsing_error</span><span class=p>:</span>
-<a id=__codelineno-0-394 name=__codelineno-0-394></a>            <span class=k>raise</span> <span class=n>parsing_error</span>
-<a id=__codelineno-0-395 name=__codelineno-0-395></a>
-<a id=__codelineno-0-396 name=__codelineno-0-396></a>        <span class=k>else</span><span class=p>:</span>
-<a id=__codelineno-0-397 name=__codelineno-0-397></a>            <span class=k>raise</span> <span class=ne>AssertionError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;There is no suitable handler for </span><span class=si>{</span><span class=n>msg</span><span class=si>=}</span><span class=s2>&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-398 name=__codelineno-0-398></a>
-<a id=__codelineno-0-399 name=__codelineno-0-399></a>    <span class=k>return</span> <span class=kc>None</span>
+<a id=__codelineno-0-375 name=__codelineno-0-375></a>                <span class=k>if</span> <span class=ow>not</span> <span class=n>result_msg</span><span class=o>.</span><span class=n>correlation_id</span><span class=p>:</span>
+<a id=__codelineno-0-376 name=__codelineno-0-376></a>                    <span class=n>result_msg</span><span class=o>.</span><span class=n>correlation_id</span> <span class=o>=</span> <span class=n>message</span><span class=o>.</span><span class=n>correlation_id</span>
+<a id=__codelineno-0-377 name=__codelineno-0-377></a>
+<a id=__codelineno-0-378 name=__codelineno-0-378></a>                <span class=k>for</span> <span class=n>p</span> <span class=ow>in</span> <span class=n>chain</span><span class=p>(</span>
+<a id=__codelineno-0-379 name=__codelineno-0-379></a>                    <span class=bp>self</span><span class=o>.</span><span class=n>__get_response_publisher</span><span class=p>(</span><span class=n>message</span><span class=p>),</span>
+<a id=__codelineno-0-380 name=__codelineno-0-380></a>                    <span class=n>h</span><span class=o>.</span><span class=n>handler</span><span class=o>.</span><span class=n>_publishers</span><span class=p>,</span>
+<a id=__codelineno-0-381 name=__codelineno-0-381></a>                <span class=p>):</span>
+<a id=__codelineno-0-382 name=__codelineno-0-382></a>                    <span class=k>await</span> <span class=n>p</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span>
+<a id=__codelineno-0-383 name=__codelineno-0-383></a>                        <span class=n>result_msg</span><span class=o>.</span><span class=n>body</span><span class=p>,</span>
+<a id=__codelineno-0-384 name=__codelineno-0-384></a>                        <span class=o>**</span><span class=n>result_msg</span><span class=o>.</span><span class=n>as_publish_kwargs</span><span class=p>(),</span>
+<a id=__codelineno-0-385 name=__codelineno-0-385></a>                        <span class=c1># publisher middlewares</span>
+<a id=__codelineno-0-386 name=__codelineno-0-386></a>                        <span class=n>_extra_middlewares</span><span class=o>=</span><span class=p>(</span><span class=n>m</span><span class=o>.</span><span class=n>publish_scope</span> <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>middlewares</span><span class=p>),</span>
+<a id=__codelineno-0-387 name=__codelineno-0-387></a>                    <span class=p>)</span>
+<a id=__codelineno-0-388 name=__codelineno-0-388></a>
+<a id=__codelineno-0-389 name=__codelineno-0-389></a>                <span class=c1># Return data for tests</span>
+<a id=__codelineno-0-390 name=__codelineno-0-390></a>                <span class=k>return</span> <span class=n>result_msg</span>
+<a id=__codelineno-0-391 name=__codelineno-0-391></a>
+<a id=__codelineno-0-392 name=__codelineno-0-392></a>        <span class=c1># Suitable handler was not found or</span>
+<a id=__codelineno-0-393 name=__codelineno-0-393></a>        <span class=c1># parsing/decoding exception occurred</span>
+<a id=__codelineno-0-394 name=__codelineno-0-394></a>        <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>middlewares</span><span class=p>:</span>
+<a id=__codelineno-0-395 name=__codelineno-0-395></a>            <span class=n>stack</span><span class=o>.</span><span class=n>push_async_exit</span><span class=p>(</span><span class=n>m</span><span class=o>.</span><span class=fm>__aexit__</span><span class=p>)</span>
+<a id=__codelineno-0-396 name=__codelineno-0-396></a>
+<a id=__codelineno-0-397 name=__codelineno-0-397></a>        <span class=k>if</span> <span class=n>parsing_error</span><span class=p>:</span>
+<a id=__codelineno-0-398 name=__codelineno-0-398></a>            <span class=k>raise</span> <span class=n>parsing_error</span>
+<a id=__codelineno-0-399 name=__codelineno-0-399></a>
+<a id=__codelineno-0-400 name=__codelineno-0-400></a>        <span class=k>else</span><span class=p>:</span>
+<a id=__codelineno-0-401 name=__codelineno-0-401></a>            <span class=k>raise</span> <span class=n>SubscriberNotFound</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;There is no suitable handler for </span><span class=si>{</span><span class=n>msg</span><span class=si>=}</span><span class=s2>&quot;</span><span class=p>)</span>
+<a id=__codelineno-0-402 name=__codelineno-0-402></a>
+<a id=__codelineno-0-403 name=__codelineno-0-403></a>    <span class=c1># An error was raised and processed by some middleware</span>
+<a id=__codelineno-0-404 name=__codelineno-0-404></a>    <span class=k>return</span> <span class=n>ensure_response</span><span class=p>(</span><span class=kc>None</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.add_call class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">add_call</span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.add_call class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>add_call</span><span class=p>(</span><span class=o>*</span><span class=p>,</span> <span class=n>filter_</span><span class=p>,</span> <span class=n>parser_</span><span class=p>,</span> <span class=n>decoder_</span><span class=p>,</span> <span class=n>middlewares_</span><span class=p>,</span> <span class=n>dependencies_</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-206>206</a></span>
-<span class=normal><a href=#__codelineno-0-207>207</a></span>
-<span class=normal><a href=#__codelineno-0-208>208</a></span>
-<span class=normal><a href=#__codelineno-0-209>209</a></span>
+</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-209>209</a></span>
 <span class=normal><a href=#__codelineno-0-210>210</a></span>
 <span class=normal><a href=#__codelineno-0-211>211</a></span>
 <span class=normal><a href=#__codelineno-0-212>212</a></span>
@@ -483,41 +484,44 @@
 <span class=normal><a href=#__codelineno-0-219>219</a></span>
 <span class=normal><a href=#__codelineno-0-220>220</a></span>
 <span class=normal><a href=#__codelineno-0-221>221</a></span>
-<span class=normal><a href=#__codelineno-0-222>222</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-206 name=__codelineno-0-206></a><span class=k>def</span> <span class=nf>add_call</span><span class=p>(</span>
-<a id=__codelineno-0-207 name=__codelineno-0-207></a>    <span class=bp>self</span><span class=p>,</span>
-<a id=__codelineno-0-208 name=__codelineno-0-208></a>    <span class=o>*</span><span class=p>,</span>
-<a id=__codelineno-0-209 name=__codelineno-0-209></a>    <span class=n>filter_</span><span class=p>:</span> <span class=s2>&quot;Filter[Any]&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-210 name=__codelineno-0-210></a>    <span class=n>parser_</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;CustomCallable&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-211 name=__codelineno-0-211></a>    <span class=n>decoder_</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;CustomCallable&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-212 name=__codelineno-0-212></a>    <span class=n>middlewares_</span><span class=p>:</span> <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;SubscriberMiddleware[Any]&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-213 name=__codelineno-0-213></a>    <span class=n>dependencies_</span><span class=p>:</span> <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;Depends&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-214 name=__codelineno-0-214></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Self</span><span class=p>:</span>
-<a id=__codelineno-0-215 name=__codelineno-0-215></a>    <span class=bp>self</span><span class=o>.</span><span class=n>_call_options</span> <span class=o>=</span> <span class=n>_CallOptions</span><span class=p>(</span>
-<a id=__codelineno-0-216 name=__codelineno-0-216></a>        <span class=nb>filter</span><span class=o>=</span><span class=n>filter_</span><span class=p>,</span>
-<a id=__codelineno-0-217 name=__codelineno-0-217></a>        <span class=n>parser</span><span class=o>=</span><span class=n>parser_</span><span class=p>,</span>
-<a id=__codelineno-0-218 name=__codelineno-0-218></a>        <span class=n>decoder</span><span class=o>=</span><span class=n>decoder_</span><span class=p>,</span>
-<a id=__codelineno-0-219 name=__codelineno-0-219></a>        <span class=n>middlewares</span><span class=o>=</span><span class=n>middlewares_</span><span class=p>,</span>
-<a id=__codelineno-0-220 name=__codelineno-0-220></a>        <span class=n>dependencies</span><span class=o>=</span><span class=n>dependencies_</span><span class=p>,</span>
-<a id=__codelineno-0-221 name=__codelineno-0-221></a>    <span class=p>)</span>
-<a id=__codelineno-0-222 name=__codelineno-0-222></a>    <span class=k>return</span> <span class=bp>self</span>
+<span class=normal><a href=#__codelineno-0-222>222</a></span>
+<span class=normal><a href=#__codelineno-0-223>223</a></span>
+<span class=normal><a href=#__codelineno-0-224>224</a></span>
+<span class=normal><a href=#__codelineno-0-225>225</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-209 name=__codelineno-0-209></a><span class=k>def</span> <span class=nf>add_call</span><span class=p>(</span>
+<a id=__codelineno-0-210 name=__codelineno-0-210></a>    <span class=bp>self</span><span class=p>,</span>
+<a id=__codelineno-0-211 name=__codelineno-0-211></a>    <span class=o>*</span><span class=p>,</span>
+<a id=__codelineno-0-212 name=__codelineno-0-212></a>    <span class=n>filter_</span><span class=p>:</span> <span class=s2>&quot;Filter[Any]&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-213 name=__codelineno-0-213></a>    <span class=n>parser_</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;CustomCallable&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-214 name=__codelineno-0-214></a>    <span class=n>decoder_</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;CustomCallable&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-215 name=__codelineno-0-215></a>    <span class=n>middlewares_</span><span class=p>:</span> <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;SubscriberMiddleware[Any]&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-216 name=__codelineno-0-216></a>    <span class=n>dependencies_</span><span class=p>:</span> <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;Depends&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-217 name=__codelineno-0-217></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Self</span><span class=p>:</span>
+<a id=__codelineno-0-218 name=__codelineno-0-218></a>    <span class=bp>self</span><span class=o>.</span><span class=n>_call_options</span> <span class=o>=</span> <span class=n>_CallOptions</span><span class=p>(</span>
+<a id=__codelineno-0-219 name=__codelineno-0-219></a>        <span class=nb>filter</span><span class=o>=</span><span class=n>filter_</span><span class=p>,</span>
+<a id=__codelineno-0-220 name=__codelineno-0-220></a>        <span class=n>parser</span><span class=o>=</span><span class=n>parser_</span><span class=p>,</span>
+<a id=__codelineno-0-221 name=__codelineno-0-221></a>        <span class=n>decoder</span><span class=o>=</span><span class=n>decoder_</span><span class=p>,</span>
+<a id=__codelineno-0-222 name=__codelineno-0-222></a>        <span class=n>middlewares</span><span class=o>=</span><span class=n>middlewares_</span><span class=p>,</span>
+<a id=__codelineno-0-223 name=__codelineno-0-223></a>        <span class=n>dependencies</span><span class=o>=</span><span class=n>dependencies_</span><span class=p>,</span>
+<a id=__codelineno-0-224 name=__codelineno-0-224></a>    <span class=p>)</span>
+<a id=__codelineno-0-225 name=__codelineno-0-225></a>    <span class=k>return</span> <span class=bp>self</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_name class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_name</span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_name class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_name</span><span class=p>()</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/nats/subscriber/asyncapi.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-31>31</a></span>
 <span class=normal><a href=#__codelineno-0-32>32</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-31 name=__codelineno-0-31></a><span class=k>def</span> <span class=nf>get_name</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
 <a id=__codelineno-0-32 name=__codelineno-0-32></a>    <span class=k>return</span> <span class=sa>f</span><span class=s2>&quot;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>subject</span><span class=si>}</span><span class=s2>:</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=si>}</span><span class=s2>&quot;</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_description class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_description</span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_description class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_description</span><span class=p>()</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Returns the description of the handler.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-430>430</a></span>
-<span class=normal><a href=#__codelineno-0-431>431</a></span>
-<span class=normal><a href=#__codelineno-0-432>432</a></span>
-<span class=normal><a href=#__codelineno-0-433>433</a></span>
-<span class=normal><a href=#__codelineno-0-434>434</a></span>
-<span class=normal><a href=#__codelineno-0-435>435</a></span>
-<span class=normal><a href=#__codelineno-0-436>436</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-430 name=__codelineno-0-430></a><span class=k>def</span> <span class=nf>get_description</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]:</span>
-<a id=__codelineno-0-431 name=__codelineno-0-431></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Returns the description of the handler.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-432 name=__codelineno-0-432></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
-<a id=__codelineno-0-433 name=__codelineno-0-433></a>        <span class=k>return</span> <span class=kc>None</span>
-<a id=__codelineno-0-434 name=__codelineno-0-434></a>
-<a id=__codelineno-0-435 name=__codelineno-0-435></a>    <span class=k>else</span><span class=p>:</span>
-<a id=__codelineno-0-436 name=__codelineno-0-436></a>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>description</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Returns the description of the handler.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-435>435</a></span>
+<span class=normal><a href=#__codelineno-0-436>436</a></span>
+<span class=normal><a href=#__codelineno-0-437>437</a></span>
+<span class=normal><a href=#__codelineno-0-438>438</a></span>
+<span class=normal><a href=#__codelineno-0-439>439</a></span>
+<span class=normal><a href=#__codelineno-0-440>440</a></span>
+<span class=normal><a href=#__codelineno-0-441>441</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-435 name=__codelineno-0-435></a><span class=k>def</span> <span class=nf>get_description</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]:</span>
+<a id=__codelineno-0-436 name=__codelineno-0-436></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Returns the description of the handler.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-437 name=__codelineno-0-437></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
+<a id=__codelineno-0-438 name=__codelineno-0-438></a>        <span class=k>return</span> <span class=kc>None</span>
+<a id=__codelineno-0-439 name=__codelineno-0-439></a>
+<a id=__codelineno-0-440 name=__codelineno-0-440></a>    <span class=k>else</span><span class=p>:</span>
+<a id=__codelineno-0-441 name=__codelineno-0-441></a>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>description</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_schema class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_schema</span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_schema class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_schema</span><span class=p>()</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/nats/subscriber/asyncapi.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-34>34</a></span>
 <span class=normal><a href=#__codelineno-0-35>35</a></span>
@@ -565,12 +569,7 @@
 <a id=__codelineno-0-55 name=__codelineno-0-55></a>        <span class=p>)</span>
 <a id=__codelineno-0-56 name=__codelineno-0-56></a>    <span class=p>}</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_payloads class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_payloads</span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.get_payloads class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_payloads</span><span class=p>()</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Get the payloads of the handler.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-438>438</a></span>
-<span class=normal><a href=#__codelineno-0-439>439</a></span>
-<span class=normal><a href=#__codelineno-0-440>440</a></span>
-<span class=normal><a href=#__codelineno-0-441>441</a></span>
-<span class=normal><a href=#__codelineno-0-442>442</a></span>
-<span class=normal><a href=#__codelineno-0-443>443</a></span>
+</code></pre></div> <div class="doc doc-contents "> <p>Get the payloads of the handler.</p> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-443>443</a></span>
 <span class=normal><a href=#__codelineno-0-444>444</a></span>
 <span class=normal><a href=#__codelineno-0-445>445</a></span>
 <span class=normal><a href=#__codelineno-0-446>446</a></span>
@@ -590,32 +589,37 @@
 <span class=normal><a href=#__codelineno-0-460>460</a></span>
 <span class=normal><a href=#__codelineno-0-461>461</a></span>
 <span class=normal><a href=#__codelineno-0-462>462</a></span>
-<span class=normal><a href=#__codelineno-0-463>463</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-438 name=__codelineno-0-438></a><span class=k>def</span> <span class=nf>get_payloads</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>List</span><span class=p>[</span><span class=n>Tuple</span><span class=p>[</span><span class=s2>&quot;AnyDict&quot;</span><span class=p>,</span> <span class=nb>str</span><span class=p>]]:</span>
-<a id=__codelineno-0-439 name=__codelineno-0-439></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Get the payloads of the handler.&quot;&quot;&quot;</span>
-<a id=__codelineno-0-440 name=__codelineno-0-440></a>    <span class=n>payloads</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>Tuple</span><span class=p>[</span><span class=n>AnyDict</span><span class=p>,</span> <span class=nb>str</span><span class=p>]]</span> <span class=o>=</span> <span class=p>[]</span>
-<a id=__codelineno-0-441 name=__codelineno-0-441></a>
-<a id=__codelineno-0-442 name=__codelineno-0-442></a>    <span class=k>for</span> <span class=n>h</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>
-<a id=__codelineno-0-443 name=__codelineno-0-443></a>        <span class=k>if</span> <span class=n>h</span><span class=o>.</span><span class=n>dependant</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-444 name=__codelineno-0-444></a>            <span class=k>raise</span> <span class=n>SetupError</span><span class=p>(</span><span class=s2>&quot;You should setup `Handler` at first.&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-445 name=__codelineno-0-445></a>
-<a id=__codelineno-0-446 name=__codelineno-0-446></a>        <span class=n>body</span> <span class=o>=</span> <span class=n>parse_handler_params</span><span class=p>(</span>
-<a id=__codelineno-0-447 name=__codelineno-0-447></a>            <span class=n>h</span><span class=o>.</span><span class=n>dependant</span><span class=p>,</span>
-<a id=__codelineno-0-448 name=__codelineno-0-448></a>            <span class=n>prefix</span><span class=o>=</span><span class=sa>f</span><span class=s2>&quot;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>title_</span><span class=w> </span><span class=ow>or</span><span class=w> </span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=si>}</span><span class=s2>:Message&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-449 name=__codelineno-0-449></a>        <span class=p>)</span>
+<span class=normal><a href=#__codelineno-0-463>463</a></span>
+<span class=normal><a href=#__codelineno-0-464>464</a></span>
+<span class=normal><a href=#__codelineno-0-465>465</a></span>
+<span class=normal><a href=#__codelineno-0-466>466</a></span>
+<span class=normal><a href=#__codelineno-0-467>467</a></span>
+<span class=normal><a href=#__codelineno-0-468>468</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-443 name=__codelineno-0-443></a><span class=k>def</span> <span class=nf>get_payloads</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>List</span><span class=p>[</span><span class=n>Tuple</span><span class=p>[</span><span class=s2>&quot;AnyDict&quot;</span><span class=p>,</span> <span class=nb>str</span><span class=p>]]:</span>
+<a id=__codelineno-0-444 name=__codelineno-0-444></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Get the payloads of the handler.&quot;&quot;&quot;</span>
+<a id=__codelineno-0-445 name=__codelineno-0-445></a>    <span class=n>payloads</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>Tuple</span><span class=p>[</span><span class=n>AnyDict</span><span class=p>,</span> <span class=nb>str</span><span class=p>]]</span> <span class=o>=</span> <span class=p>[]</span>
+<a id=__codelineno-0-446 name=__codelineno-0-446></a>
+<a id=__codelineno-0-447 name=__codelineno-0-447></a>    <span class=k>for</span> <span class=n>h</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>
+<a id=__codelineno-0-448 name=__codelineno-0-448></a>        <span class=k>if</span> <span class=n>h</span><span class=o>.</span><span class=n>dependant</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-449 name=__codelineno-0-449></a>            <span class=k>raise</span> <span class=n>SetupError</span><span class=p>(</span><span class=s2>&quot;You should setup `Handler` at first.&quot;</span><span class=p>)</span>
 <a id=__codelineno-0-450 name=__codelineno-0-450></a>
-<a id=__codelineno-0-451 name=__codelineno-0-451></a>        <span class=n>payloads</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>body</span><span class=p>,</span> <span class=n>to_camelcase</span><span class=p>(</span><span class=n>h</span><span class=o>.</span><span class=n>call_name</span><span class=p>)))</span>
-<a id=__codelineno-0-452 name=__codelineno-0-452></a>
-<a id=__codelineno-0-453 name=__codelineno-0-453></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>
-<a id=__codelineno-0-454 name=__codelineno-0-454></a>        <span class=n>payloads</span><span class=o>.</span><span class=n>append</span><span class=p>(</span>
-<a id=__codelineno-0-455 name=__codelineno-0-455></a>            <span class=p>(</span>
-<a id=__codelineno-0-456 name=__codelineno-0-456></a>                <span class=p>{</span>
-<a id=__codelineno-0-457 name=__codelineno-0-457></a>                    <span class=s2>&quot;title&quot;</span><span class=p>:</span> <span class=sa>f</span><span class=s2>&quot;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>title_</span><span class=w> </span><span class=ow>or</span><span class=w> </span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=si>}</span><span class=s2>:Message:Payload&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-458 name=__codelineno-0-458></a>                <span class=p>},</span>
-<a id=__codelineno-0-459 name=__codelineno-0-459></a>                <span class=n>to_camelcase</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=p>),</span>
-<a id=__codelineno-0-460 name=__codelineno-0-460></a>            <span class=p>)</span>
-<a id=__codelineno-0-461 name=__codelineno-0-461></a>        <span class=p>)</span>
-<a id=__codelineno-0-462 name=__codelineno-0-462></a>
-<a id=__codelineno-0-463 name=__codelineno-0-463></a>    <span class=k>return</span> <span class=n>payloads</span>
+<a id=__codelineno-0-451 name=__codelineno-0-451></a>        <span class=n>body</span> <span class=o>=</span> <span class=n>parse_handler_params</span><span class=p>(</span>
+<a id=__codelineno-0-452 name=__codelineno-0-452></a>            <span class=n>h</span><span class=o>.</span><span class=n>dependant</span><span class=p>,</span>
+<a id=__codelineno-0-453 name=__codelineno-0-453></a>            <span class=n>prefix</span><span class=o>=</span><span class=sa>f</span><span class=s2>&quot;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>title_</span><span class=w> </span><span class=ow>or</span><span class=w> </span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=si>}</span><span class=s2>:Message&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-454 name=__codelineno-0-454></a>        <span class=p>)</span>
+<a id=__codelineno-0-455 name=__codelineno-0-455></a>
+<a id=__codelineno-0-456 name=__codelineno-0-456></a>        <span class=n>payloads</span><span class=o>.</span><span class=n>append</span><span class=p>((</span><span class=n>body</span><span class=p>,</span> <span class=n>to_camelcase</span><span class=p>(</span><span class=n>h</span><span class=o>.</span><span class=n>call_name</span><span class=p>)))</span>
+<a id=__codelineno-0-457 name=__codelineno-0-457></a>
+<a id=__codelineno-0-458 name=__codelineno-0-458></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>
+<a id=__codelineno-0-459 name=__codelineno-0-459></a>        <span class=n>payloads</span><span class=o>.</span><span class=n>append</span><span class=p>(</span>
+<a id=__codelineno-0-460 name=__codelineno-0-460></a>            <span class=p>(</span>
+<a id=__codelineno-0-461 name=__codelineno-0-461></a>                <span class=p>{</span>
+<a id=__codelineno-0-462 name=__codelineno-0-462></a>                    <span class=s2>&quot;title&quot;</span><span class=p>:</span> <span class=sa>f</span><span class=s2>&quot;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>title_</span><span class=w> </span><span class=ow>or</span><span class=w> </span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=si>}</span><span class=s2>:Message:Payload&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-463 name=__codelineno-0-463></a>                <span class=p>},</span>
+<a id=__codelineno-0-464 name=__codelineno-0-464></a>                <span class=n>to_camelcase</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>call_name</span><span class=p>),</span>
+<a id=__codelineno-0-465 name=__codelineno-0-465></a>            <span class=p>)</span>
+<a id=__codelineno-0-466 name=__codelineno-0-466></a>        <span class=p>)</span>
+<a id=__codelineno-0-467 name=__codelineno-0-467></a>
+<a id=__codelineno-0-468 name=__codelineno-0-468></a>    <span class=k>return</span> <span class=n>payloads</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.build_log_context class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">build_log_context</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small> </span> <a href=#faststream.nats.subscriber.asyncapi.AsyncAPICoreSubscriber.build_log_context class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>build_log_context</span><span class=p>(</span><span class=n>message</span><span class=p>,</span> <span class=n>subject</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>queue</span><span class=o>=</span><span class=s1>&#39;&#39;</span><span class=p>,</span> <span class=n>stream</span><span class=o>=</span><span class=s1>&#39;&#39;</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <p>Static method to build log context out of <code>self.consume</code> scope.</p> <details class=quote> <summary>Source code in <code>faststream/nats/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-179>179</a></span>
 <span class=normal><a href=#__codelineno-0-180>180</a></span>

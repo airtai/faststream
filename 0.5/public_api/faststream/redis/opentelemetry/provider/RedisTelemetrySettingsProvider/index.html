@@ -44,7 +44,7 @@
 <a id=__codelineno-0-30 name=__codelineno-0-30></a>
 <a id=__codelineno-0-31 name=__codelineno-0-31></a>    <span class=k>if</span> <span class=n>cast</span><span class=p>(</span><span class=nb>str</span><span class=p>,</span> <span class=n>msg</span><span class=o>.</span><span class=n>raw_message</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&quot;type&quot;</span><span class=p>,</span> <span class=s2>&quot;&quot;</span><span class=p>))</span><span class=o>.</span><span class=n>startswith</span><span class=p>(</span><span class=s2>&quot;b&quot;</span><span class=p>):</span>
 <a id=__codelineno-0-32 name=__codelineno-0-32></a>        <span class=n>attrs</span><span class=p>[</span><span class=n>SpanAttributes</span><span class=o>.</span><span class=n>MESSAGING_BATCH_MESSAGE_COUNT</span><span class=p>]</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span>
-<a id=__codelineno-0-33 name=__codelineno-0-33></a>            <span class=n>cast</span><span class=p>(</span><span class=n>Sized</span><span class=p>,</span> <span class=n>msg</span><span class=o>.</span><span class=n>decoded_body</span><span class=p>)</span>
+<a id=__codelineno-0-33 name=__codelineno-0-33></a>            <span class=n>cast</span><span class=p>(</span><span class=n>Sized</span><span class=p>,</span> <span class=n>msg</span><span class=o>.</span><span class=n>_decoded_body</span><span class=p>)</span>
 <a id=__codelineno-0-34 name=__codelineno-0-34></a>        <span class=p>)</span>
 <a id=__codelineno-0-35 name=__codelineno-0-35></a>
 <a id=__codelineno-0-36 name=__codelineno-0-36></a>    <span class=k>return</span> <span class=n>attrs</span>
