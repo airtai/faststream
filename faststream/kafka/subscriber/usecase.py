@@ -187,7 +187,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         assert not self.calls
 
         message = await self.consumer.getone()
-        parsed_message = await self._default_parser(message)
+        parsed_message = await self._parser(message)
 
         assert isinstance(parsed_message, KafkaMessage)
         return parsed_message

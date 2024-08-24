@@ -1,6 +1,9 @@
+from contextlib import AsyncExitStack
+from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
     Callable,
     Dict,
     Iterable,
@@ -9,16 +12,16 @@ from typing import (
     Union,
 )
 
-from aio_pika.abc import TimeoutType
+import anyio
 from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.exceptions import SetupError
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
-from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import BaseRMQInformation
+from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
@@ -27,6 +30,7 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import BrokerMiddleware, CustomCallable
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
+    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas import (
         RabbitExchange,
@@ -159,14 +163,12 @@ class LogicSubscriber(
                 robust=self.queue.robust,
             )
 
-        if not self.calls:
-            return
-
-        self._consumer_tag = await self._queue_obj.consume(
-            # NOTE: aio-pika expects AbstractIncomingMessage, not IncomingMessage
-            self.consume,  # type: ignore[arg-type]
-            arguments=self.consume_args,
-        )
+        if self.calls:
+            self._consumer_tag = await self._queue_obj.consume(
+                # NOTE: aio-pika expects AbstractIncomingMessage, not IncomingMessage
+                self.consume,  # type: ignore[arg-type]
+                arguments=self.consume_args,
+            )
 
         await super().start()
 
@@ -182,21 +184,46 @@ class LogicSubscriber(
             self._queue_obj = None
 
     async def get_one(
-            self,
-            no_ack: bool = False,
-            fail: bool = True,
-            timeout: TimeoutType = 5,
+        self,
+        *,
+        timeout: float = 5.0,
+        no_ack: bool = True,
     ) -> "Optional[RabbitMessage]":
-        if self._queue_obj is None:
-            raise SetupError("You should start subscriber at first.")
+        assert self._queue_obj, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        assert not self.calls
+        sleep_interval = timeout / 10
 
-        message = await self._queue_obj.get(no_ack=no_ack, fail=fail, timeout=timeout)  # type: ignore[call-overload]
-        parsed_message = await self._default_parser(message)
+        raw_message: Optional[IncomingMessage] = None
+        with anyio.move_on_after(timeout):
+            while (  # noqa: ASYNC110
+                raw_message := await self._queue_obj.get(
+                    fail=False,
+                    no_ack=no_ack,
+                    timeout=timeout,
+                )
+            ) is None:
+                await anyio.sleep(sleep_interval)
 
-        assert isinstance(parsed_message, RabbitMessage)
-        return parsed_message
+        if raw_message is None:
+            return None
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[RabbitMessage], Awaitable[RabbitMessage]] = (
+                return_input
+            )
+            for m in self._broker_middlewares:
+                mid = m(raw_message)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg = await self._parser(raw_message)
+            parsed_msg._decoded_body = await self._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
+
+        raise AssertionError("unreachable")
 
     def _make_response_publisher(
         self,
