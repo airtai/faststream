@@ -55,7 +55,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         if not sub.calls:
 
             @sub  # type: ignore[misc]
-            def publisher_response_subscriber(msg: Any) -> None:
+            async def publisher_response_subscriber(msg: Any) -> None:
                 pass
 
             broker.setup_subscriber(sub)
