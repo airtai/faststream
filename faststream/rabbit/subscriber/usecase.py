@@ -170,6 +170,17 @@ class LogicSubscriber(
 
         await super().start()
 
+    async def close(self) -> None:
+        await super().close()
+
+        if self._queue_obj is not None:
+            if self._consumer_tag is not None:  # pragma: no branch
+                if not self._queue_obj.channel.is_closed:
+                    await self._queue_obj.cancel(self._consumer_tag)
+                self._consumer_tag = None
+
+            self._queue_obj = None
+
     async def get_one(
             self,
             no_ack: bool = False,
@@ -186,17 +197,6 @@ class LogicSubscriber(
 
         assert isinstance(parsed_message, RabbitMessage)
         return parsed_message
-
-    async def close(self) -> None:
-        await super().close()
-
-        if self._queue_obj is not None:
-            if self._consumer_tag is not None:  # pragma: no branch
-                if not self._queue_obj.channel.is_closed:
-                    await self._queue_obj.cancel(self._consumer_tag)
-                self._consumer_tag = None
-
-            self._queue_obj = None
 
     def _make_response_publisher(
         self,

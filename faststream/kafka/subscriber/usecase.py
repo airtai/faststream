@@ -164,6 +164,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         await consumer.start()
         await super().start()
 
+        # if not self.calls:
+        #     return
+
         self.task = asyncio.create_task(self._consume())
 
     async def close(self) -> None:
@@ -177,6 +180,17 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             self.task.cancel()
 
         self.task = None
+
+    async def get_one(self) -> "Optional[KafkaMessage]":
+        assert self.consumer, "You should start subscriber at first."
+
+        assert not self.calls
+
+        message = await self.consumer.getone()
+        parsed_message = await self._default_parser(message)
+
+        assert isinstance(parsed_message, KafkaMessage)
+        return parsed_message
 
     def _make_response_publisher(
         self,
