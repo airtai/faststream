@@ -190,7 +190,7 @@ class FakeProducer(AioPikaFastProducer):
         )
 
     @override
-    async def publish(
+    async def publish(  # type: ignore[override]
         self,
         message: "AioPikaSendableMessage",
         exchange: Union["RabbitExchange", str, None] = None,
