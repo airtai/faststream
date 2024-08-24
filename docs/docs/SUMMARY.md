@@ -216,6 +216,7 @@ search:
             - [apply_types](api/faststream/apply_types.md)
             - app
                 - [FastStream](api/faststream/app/FastStream.md)
+                - [catch_startup_validation_error](api/faststream/app/catch_startup_validation_error.md)
             - asgi
                 - [AsgiFastStream](api/faststream/asgi/AsgiFastStream.md)
                 - [AsgiResponse](api/faststream/asgi/AsgiResponse.md)
@@ -1051,6 +1052,7 @@ search:
                     - [call_or_await](api/faststream/utils/functions/call_or_await.md)
                     - [drop_response_type](api/faststream/utils/functions/drop_response_type.md)
                     - [fake_context](api/faststream/utils/functions/fake_context.md)
+                    - [return_input](api/faststream/utils/functions/return_input.md)
                     - [sync_fake_context](api/faststream/utils/functions/sync_fake_context.md)
                     - [timeout_scope](api/faststream/utils/functions/timeout_scope.md)
                     - [to_async](api/faststream/utils/functions/to_async.md)

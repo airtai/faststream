@@ -20,20 +20,26 @@ class LogLevels(str, Enum):
     """
 
     critical = "critical"
+    fatal = "fatal"
     error = "error"
     warning = "warning"
+    warn = "warn"
     info = "info"
     debug = "debug"
+    notset = "notset"
 
 
 LOG_LEVELS: DefaultDict[str, int] = defaultdict(
     lambda: logging.INFO,
     **{
         "critical": logging.CRITICAL,
+        "fatal": logging.FATAL,
         "error": logging.ERROR,
         "warning": logging.WARNING,
+        "warn": logging.WARN,
         "info": logging.INFO,
         "debug": logging.DEBUG,
+        "notset": logging.NOTSET,
     },
 )
 
@@ -60,9 +66,9 @@ def get_log_level(level: Union[LogLevels, str, int]) -> int:
 
 def set_log_level(level: int, app: "FastStream") -> None:
     """Sets the log level for an application."""
-    if app.logger and isinstance(app.logger, logging.Logger):
-        app.logger.setLevel(level)
+    if app.logger and getattr(app.logger, "setLevel", None):
+        app.logger.setLevel(level)  # type: ignore[attr-defined]
 
     broker_logger: Optional[LoggerProto] = getattr(app.broker, "logger", None)
-    if broker_logger is not None and isinstance(broker_logger, logging.Logger):
-        broker_logger.setLevel(level)
+    if broker_logger is not None and getattr(broker_logger, "setLevel", None):
+        broker_logger.setLevel(level)  # type: ignore[attr-defined]
