@@ -19,6 +19,7 @@ from typing_extensions import override
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import MsgType
+from faststream.confluent.message import KafkaMessage
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.schemas import TopicPartition
 
@@ -152,6 +153,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         await super().start()
 
+        if not self.calls:
+            return
+
         self.task = asyncio.create_task(self._consume())
 
     async def close(self) -> None:
@@ -165,6 +169,17 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             self.task.cancel()
 
         self.task = None
+
+    async def get_one(self, timeout: float = 0.1) -> "Optional[KafkaMessage]":
+        assert self.consumer, "You should start subscriber at first."
+
+        assert not self.calls
+
+        message = await self.consumer.getone(timeout=timeout)
+        parsed_message = await self._default_parser(message)
+
+        assert isinstance(parsed_message, KafkaMessage)
+        return parsed_message
 
     def _make_response_publisher(
         self,
