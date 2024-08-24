@@ -214,7 +214,6 @@ class LogicSubscriber(
             return_msg: Callable[[RabbitMessage], Awaitable[RabbitMessage]] = (
                 return_input
             )
-
             for m in self._broker_middlewares:
                 mid = m(raw_message)
                 await stack.enter_async_context(mid)
