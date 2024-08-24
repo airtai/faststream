@@ -1,5 +1,6 @@
 import logging
 from abc import abstractmethod
+from contextlib import AsyncExitStack
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -40,6 +41,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.asyncapi.schema import Tag, TagDict
+    from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto, PublisherProto
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, Decorator, LoggerProto
@@ -355,17 +357,26 @@ class BrokerUsecase(
         """Publish message directly."""
         assert producer, NOT_CONNECTED_YET  # nosec B101
 
-        publish = producer.request
-        return_msg = return_input
-
+        request = producer.request
         for m in self._middlewares:
-            mid = m(None)
-            publish = partial(mid.publish_scope, publish)
-            return_msg = partial(mid.consume_scope, return_msg)
+            request = partial(m(None).publish_scope, request)
 
-        published_msg = await publish(msg, correlation_id=correlation_id, **kwargs)
-        processed_msg = await return_msg(published_msg)
-        return processed_msg
+        published_msg = await request(
+            msg,
+            correlation_id=correlation_id,
+            **kwargs,
+        )
+
+        async with AsyncExitStack() as stack:
+            return_msg = return_input
+            for m in self._middlewares:
+                mid = m(published_msg)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg: StreamMessage[Any] = await producer._parser(published_msg)
+            parsed_msg._decoded_body = await producer._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
 
     @abstractmethod
     async def ping(self, timeout: Optional[float]) -> bool:

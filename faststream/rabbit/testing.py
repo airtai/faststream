@@ -30,7 +30,6 @@ if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
 
     from faststream.broker.wrapper.call import HandlerCallWrapper
-    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage
 
 
@@ -257,7 +256,7 @@ class FakeProducer(AioPikaFastProducer):
                 with timeout_scope(rpc_timeout, raise_timeout):
                     response = await self._execute_handler(incoming, handler)
                     if rpc:
-                        return await response.decode()
+                        return await self._decoder(await self._parser(response))
 
         return None
 
@@ -283,7 +282,7 @@ class FakeProducer(AioPikaFastProducer):
         message_type: Optional[str] = None,
         user_id: Optional[str] = None,
         app_id: Optional[str] = None,
-    ) -> "RabbitMessage":
+    ) -> "PatchedMessage":
         """Publish a message to a RabbitMQ queue or exchange."""
         exch = RabbitExchange.validate(exchange)
 
@@ -316,19 +315,15 @@ class FakeProducer(AioPikaFastProducer):
 
     async def _execute_handler(
         self, msg: PatchedMessage, handler: "LogicSubscriber"
-    ) -> "RabbitMessage":
+    ) -> "PatchedMessage":
         result = await handler.process_message(msg)
 
-        raw_response_msg = build_message(
+        return build_message(
             routing_key=msg.routing_key,
             message=result.body,
             headers=result.headers,
             correlation_id=result.correlation_id,
         )
-
-        response_msg: RabbitMessage = await self._parser(raw_response_msg)
-        response_msg._decoded_body = await self._decoder(response_msg)
-        return response_msg
 
 
 def _is_handler_suitable(

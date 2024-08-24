@@ -1,3 +1,4 @@
+from contextlib import AsyncExitStack
 from functools import partial
 from itertools import chain
 from typing import (
@@ -7,7 +8,6 @@ from typing import (
     Callable,
     Dict,
     Iterable,
-    List,
     Optional,
     Tuple,
     Union,
@@ -146,21 +146,18 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.request
+        request: AsyncFunc = self._producer.request
 
-        pub_middlewares: List[PublisherMiddleware] = []
-        sub_middlewares: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = (
-            return_input
-        )
-        for m in self._broker_middlewares:
-            mid = m(None)
-            pub_middlewares.append(mid.publish_scope)
-            sub_middlewares = partial(mid.consume_scope, sub_middlewares)
+        for pub_m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            request = partial(pub_m, request)
 
-        for pub_m in chain(_extra_middlewares or pub_middlewares, self._middlewares):
-            call = partial(pub_m, call)
-
-        msg: KafkaMessage = await call(
+        published_msg = await request(
             message,
             topic=topic,
             key=key,
@@ -170,7 +167,19 @@ class LogicPublisher(PublisherUsecase[MsgType]):
             correlation_id=correlation_id,
             timestamp_ms=timestamp_ms,
         )
-        return await sub_middlewares(msg)
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = return_input
+            for m in self._broker_middlewares:
+                mid = m(published_msg)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg = await self._producer._parser(published_msg)
+            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
+
+        raise AssertionError("unreachable")
 
 
 class DefaultPublisher(LogicPublisher[ConsumerRecord]):

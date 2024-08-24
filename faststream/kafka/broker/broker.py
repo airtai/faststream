@@ -632,6 +632,8 @@ class KafkaBroker(
         await producer.start()
         self._producer = AioKafkaFastProducer(
             producer=producer,
+            parser=self._parser,
+            decoder=self._decoder,
         )
 
         return partial(

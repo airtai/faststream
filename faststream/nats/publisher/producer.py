@@ -21,7 +21,6 @@ if TYPE_CHECKING:
         AsyncCallable,
         CustomCallable,
     )
-    from faststream.nats import NatsMessage
     from faststream.types import SendableMessage
 
 
@@ -110,7 +109,7 @@ class NatsFastProducer(ProducerProto):
         correlation_id: str,
         headers: Optional[Dict[str, str]] = None,
         timeout: float = 0.5,
-    ) -> Optional[Any]:
+    ) -> "Msg":
         payload, content_type = encode_message(message)
 
         headers_to_send = {
@@ -119,13 +118,12 @@ class NatsFastProducer(ProducerProto):
             **(headers or {}),
         }
 
-        msg = await self._connection.request(
-            subject=subject, payload=payload, headers=headers_to_send, timeout=timeout
+        return await self._connection.request(
+            subject=subject,
+            payload=payload,
+            headers=headers_to_send,
+            timeout=timeout,
         )
-
-        parsed_msg = await self._parser(msg)
-        parsed_msg._decoded_body = await self._decoder(parsed_msg)
-        return parsed_msg
 
 
 class NatsJSFastProducer(ProducerProto):
@@ -217,7 +215,7 @@ class NatsJSFastProducer(ProducerProto):
         headers: Optional[Dict[str, str]] = None,
         stream: Optional[str] = None,
         timeout: float = 0.5,
-    ) -> "NatsMessage":
+    ) -> "Msg":
         payload, content_type = encode_message(message)
 
         reply_to = self._connection._nc.new_inbox()
@@ -252,6 +250,4 @@ class NatsJSFastProducer(ProducerProto):
             ):
                 raise nats.errors.NoRespondersError
 
-            parsed_msg: NatsMessage = await self._parser(msg)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return parsed_msg
+            return msg

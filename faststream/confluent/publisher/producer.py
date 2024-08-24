@@ -4,9 +4,12 @@ from typing_extensions import override
 
 from faststream.broker.message import encode_message
 from faststream.broker.publisher.proto import ProducerProto
+from faststream.broker.utils import resolve_custom_func
+from faststream.confluent.parser import AsyncConfluentParser
 from faststream.exceptions import OperationForbiddenError
 
 if TYPE_CHECKING:
+    from faststream.broker.types import CustomCallable
     from faststream.confluent.client import AsyncConfluentProducer
     from faststream.types import SendableMessage
 
@@ -17,8 +20,15 @@ class AsyncConfluentFastProducer(ProducerProto):
     def __init__(
         self,
         producer: "AsyncConfluentProducer",
+        parser: Optional["CustomCallable"],
+        decoder: Optional["CustomCallable"],
     ) -> None:
         self._producer = producer
+
+        # NOTE: register default parser to be compatible with request
+        default = AsyncConfluentParser
+        self._parser = resolve_custom_func(parser, default.parse_message)
+        self._decoder = resolve_custom_func(decoder, default.decode_message)
 
     @override
     async def publish(  # type: ignore[override]

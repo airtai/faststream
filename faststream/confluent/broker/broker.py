@@ -431,7 +431,7 @@ class KafkaBroker(
         security_params = parse_security(self.security)
         kwargs.update(security_params)
 
-        producer = AsyncConfluentProducer(
+        native_producer = AsyncConfluentProducer(
             **kwargs,
             client_id=client_id,
             logger=self.logger,
@@ -439,7 +439,9 @@ class KafkaBroker(
         )
 
         self._producer = AsyncConfluentFastProducer(
-            producer=producer,
+            producer=native_producer,
+            parser=self._parser,
+            decoder=self._decoder,
         )
 
         return partial(

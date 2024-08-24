@@ -1,3 +1,4 @@
+from contextlib import AsyncExitStack
 from copy import deepcopy
 from functools import partial
 from itertools import chain
@@ -7,7 +8,6 @@ from typing import (
     Awaitable,
     Callable,
     Iterable,
-    List,
     Optional,
     Union,
 )
@@ -346,22 +346,36 @@ class LogicPublisher(
             **publish_kwargs,
         }
 
-        call: AsyncFunc = self._producer.request
+        request: AsyncFunc = self._producer.request
 
-        pub_middlewares: List[PublisherMiddleware] = []
-        sub_middlewares: Callable[[RabbitMessage], Awaitable[RabbitMessage]] = (
-            return_input
+        for pub_m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            request = partial(pub_m, request)
+
+        published_msg = await request(
+            message,
+            **kwargs,
         )
-        for m in self._broker_middlewares:
-            mid = m(None)
-            pub_middlewares.append(mid.publish_scope)
-            sub_middlewares = partial(mid.consume_scope, sub_middlewares)
 
-        for pub_m in chain(_extra_middlewares or pub_middlewares, self._middlewares):
-            call = partial(pub_m, call)
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[RabbitMessage], Awaitable[RabbitMessage]] = (
+                return_input
+            )
+            for m in self._broker_middlewares:
+                mid = m(published_msg)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
 
-        msg: RabbitMessage = await call(message, **kwargs)
-        return await sub_middlewares(msg)
+            parsed_msg = await self._producer._parser(published_msg)
+            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
+
+        raise AssertionError("unreachable")
 
     def add_prefix(self, prefix: str) -> None:
         """Include Publisher in router."""

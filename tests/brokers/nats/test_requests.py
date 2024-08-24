@@ -1,11 +1,24 @@
 import pytest
 
+from faststream import BaseMiddleware
 from faststream.nats import NatsBroker, NatsRouter, TestNatsBroker
 from tests.brokers.base.requests import RequestsTestcase
 
 
+class Mid(BaseMiddleware):
+    async def on_receive(self) -> None:
+        self.msg.data = self.msg.data * 2
+
+    async def consume_scope(self, call_next, msg):
+        msg._decoded_body = msg._decoded_body * 2
+        return await call_next(msg)
+
+
 @pytest.mark.asyncio
 class NatsRequestsTestcase(RequestsTestcase):
+    def get_middleware(self, **kwargs):
+        return Mid
+
     def get_broker(self, **kwargs):
         return NatsBroker(**kwargs)
 

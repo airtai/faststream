@@ -18,7 +18,6 @@ from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
     from faststream.broker.wrapper.call import HandlerCallWrapper
-    from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
     from faststream.types import AnyDict, SendableMessage
 
@@ -111,9 +110,9 @@ class FakeProducer(NatsFastProducer):
                     msg = incoming
 
                 with timeout_scope(rpc_timeout, raise_timeout):
-                    response_msg = await self._execute_handler(msg, subject, handler)
+                    response = await self._execute_handler(msg, subject, handler)
                     if rpc:
-                        return await response_msg.decode()
+                        return await self._decoder(await self._parser(response))
 
         return None
 
@@ -128,7 +127,7 @@ class FakeProducer(NatsFastProducer):
         timeout: float = 0.5,
         # NatsJSFastProducer compatibility
         stream: Optional[str] = None,
-    ) -> "NatsMessage":
+    ) -> "PatchedMessage":
         incoming = build_message(
             message=message,
             subject=subject,
@@ -152,19 +151,15 @@ class FakeProducer(NatsFastProducer):
 
     async def _execute_handler(
         self, msg: Any, subject: str, handler: "LogicSubscriber[Any]"
-    ) -> "NatsMessage":
+    ) -> "PatchedMessage":
         result = await handler.process_message(msg)
 
-        raw_response_msg = build_message(
+        return build_message(
             subject=subject,
             message=result.body,
             headers=result.headers,
             correlation_id=result.correlation_id,
         )
-
-        response_msg: NatsMessage = await self._parser(raw_response_msg)
-        response_msg._decoded_body = await self._decoder(response_msg)
-        return response_msg
 
 
 def _is_handler_suitable(

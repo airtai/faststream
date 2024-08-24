@@ -1,18 +1,13 @@
 import anyio
 import pytest
 
-from faststream import BaseMiddleware
-
 from .basic import BaseTestcaseConfig
 
 
-class Mid(BaseMiddleware):
-    async def consume_scope(self, call_next, msg):
-        msg._decoded_body = msg._decoded_body * 2
-        return await call_next(msg)
-
-
 class RequestsTestcase(BaseTestcaseConfig):
+    def get_middleware(self, **kwargs):
+        raise NotImplementedError
+
     def get_broker(self, **kwargs):
         raise NotImplementedError
 
@@ -114,7 +109,7 @@ class RequestsTestcase(BaseTestcaseConfig):
         assert response.correlation_id == "1", response.correlation_id
 
     async def test_broker_request_respect_middleware(self, queue: str):
-        broker = self.get_broker(middlewares=(Mid,))
+        broker = self.get_broker(middlewares=(self.get_middleware(),))
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -131,10 +126,10 @@ class RequestsTestcase(BaseTestcaseConfig):
                 timeout=self.timeout,
             )
 
-        assert await response.decode() == "x" * 2 * 2
+        assert await response.decode() == "x" * 2 * 2 * 2 * 2
 
     async def test_broker_publisher_request_respect_middleware(self, queue: str):
-        broker = self.get_broker(middlewares=(Mid,))
+        broker = self.get_broker(middlewares=(self.get_middleware(),))
 
         publisher = broker.publisher(queue)
 
@@ -152,10 +147,10 @@ class RequestsTestcase(BaseTestcaseConfig):
                 timeout=self.timeout,
             )
 
-        assert await response.decode() == "x" * 2 * 2
+        assert await response.decode() == "x" * 2 * 2 * 2 * 2
 
     async def test_router_publisher_request_respect_middleware(self, queue: str):
-        router = self.get_router(middlewares=(Mid,))
+        router = self.get_router(middlewares=(self.get_middleware(),))
 
         publisher = router.publisher(queue)
 
@@ -176,4 +171,4 @@ class RequestsTestcase(BaseTestcaseConfig):
                 timeout=self.timeout,
             )
 
-        assert await response.decode() == "x" * 2 * 2
+        assert await response.decode() == "x" * 2 * 2 * 2 * 2

@@ -31,7 +31,6 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
-    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import SendableMessage
 
@@ -157,7 +156,7 @@ class AioPikaFastProducer(ProducerProto):
         message_type: Optional[str] = None,
         user_id: Optional[str] = None,
         app_id: Optional[str] = None,
-    ) -> "RabbitMessage":
+    ) -> "IncomingMessage":
         """Publish a message to a RabbitMQ queue."""
         async with _RPCCallback(
             self._rpc_lock,
@@ -185,10 +184,7 @@ class AioPikaFastProducer(ProducerProto):
                     user_id=user_id,
                     app_id=app_id,
                 )
-
-                msg: RabbitMessage = await self._parser(await response_queue.receive())
-                msg._decoded_body = await self._decoder(msg)
-                return msg
+                return await response_queue.receive()
 
     async def _publish(
         self,

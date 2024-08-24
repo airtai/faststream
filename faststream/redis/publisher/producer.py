@@ -6,7 +6,7 @@ from typing_extensions import override
 from faststream.broker.publisher.proto import ProducerProto
 from faststream.broker.utils import resolve_custom_func
 from faststream.exceptions import WRONG_PUBLISH_ARGS, SetupError
-from faststream.redis.message import DATA_KEY, RedisMessage
+from faststream.redis.message import DATA_KEY
 from faststream.redis.parser import RawMessage, RedisPubSubParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.utils.functions import timeout_scope
@@ -137,7 +137,7 @@ class RedisFastProducer(ProducerProto):
         maxlen: Optional[int] = None,
         headers: Optional["AnyDict"] = None,
         timeout: Optional[float] = 30.0,
-    ) -> "RedisMessage":
+    ) -> "Any":
         if not any((channel, list, stream)):
             raise SetupError(INCORRECT_SETUP_MSG)
 
@@ -174,7 +174,7 @@ class RedisFastProducer(ProducerProto):
             )
 
             # get real response
-            m = await psub.get_message(
+            response_msg = await psub.get_message(
                 ignore_subscribe_messages=True,
                 timeout=timeout or 0.0,
             )
@@ -185,9 +185,7 @@ class RedisFastProducer(ProducerProto):
         if scope.cancel_called:
             raise TimeoutError
 
-        parsed_msg: RedisMessage = await self._parser(m)
-        parsed_msg._decoded_body = await self._decoder(parsed_msg)
-        return parsed_msg
+        return response_msg
 
     async def publish_batch(
         self,

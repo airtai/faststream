@@ -136,7 +136,9 @@ class FakeProducer(AioKafkaFastProducer):
                         msg_to_send, topic, handler
                     )
                     if rpc:
-                        return_value = return_value or await response_msg.decode()
+                        return_value = return_value or await self._decoder(
+                            await self._parser(response_msg)
+                        )
 
         return return_value
 
@@ -152,7 +154,7 @@ class FakeProducer(AioKafkaFastProducer):
         correlation_id: Optional[str] = None,
         *,
         timeout: Optional[float] = 0.5,
-    ) -> Optional[Any]:
+    ) -> "ConsumerRecord":
         incoming = build_message(
             message=message,
             topic=topic,
@@ -215,19 +217,15 @@ class FakeProducer(AioKafkaFastProducer):
         msg: Any,
         topic: str,
         handler: "LogicSubscriber[Any]",
-    ) -> "KafkaMessage":
+    ) -> "ConsumerRecord":
         result = await handler.process_message(msg)
 
-        raw_response_msg = build_message(
+        return build_message(
             topic=topic,
             message=result.body,
             headers=result.headers,
             correlation_id=result.correlation_id,
         )
-
-        response_msg: KafkaMessage = await self._parser(raw_response_msg)
-        response_msg._decoded_body = await self._decoder(response_msg)
-        return response_msg
 
 
 def build_message(
@@ -240,7 +238,7 @@ def build_message(
     correlation_id: Optional[str] = None,
     *,
     reply_to: str = "",
-) -> ConsumerRecord:
+) -> "ConsumerRecord":
     """Build a Kafka ConsumerRecord for a sendable message."""
     msg, content_type = encode_message(message)
 

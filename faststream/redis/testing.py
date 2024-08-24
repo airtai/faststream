@@ -32,7 +32,6 @@ from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
     from faststream.broker.wrapper.call import HandlerCallWrapper
-    from faststream.redis.message import RedisMessage
     from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
     from faststream.types import AnyDict, SendableMessage
 
@@ -147,7 +146,7 @@ class FakeProducer(RedisFastProducer):
                     with timeout_scope(rpc_timeout, raise_timeout):
                         response_msg = await self._execute_handler(msg, handler)
                         if rpc:
-                            return await response_msg.decode()
+                            return await self._decoder(await self._parser(response_msg))
 
         return None
 
@@ -163,7 +162,7 @@ class FakeProducer(RedisFastProducer):
         maxlen: Optional[int] = None,
         headers: Optional["AnyDict"] = None,
         timeout: Optional[float] = 30.0,
-    ) -> "RedisMessage":
+    ) -> "PubSubMessage":
         correlation_id = correlation_id or gen_cor_id()
 
         body = build_message(
@@ -219,10 +218,10 @@ class FakeProducer(RedisFastProducer):
 
     async def _execute_handler(
         self, msg: Any, handler: "LogicSubscriber"
-    ) -> "RedisMessage":
+    ) -> "PubSubMessage":
         result = await handler.process_message(msg)
 
-        raw_response_msg = PubSubMessage(
+        return PubSubMessage(
             type="message",
             data=build_message(
                 message=result.body,
@@ -232,10 +231,6 @@ class FakeProducer(RedisFastProducer):
             channel="",
             pattern=None,
         )
-
-        response_msg: RedisMessage = await self._parser(raw_response_msg)
-        response_msg._decoded_body = await self._decoder(response_msg)
-        return response_msg
 
 
 def build_message(
