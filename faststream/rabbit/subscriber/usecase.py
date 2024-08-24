@@ -211,9 +211,8 @@ class LogicSubscriber(
             return None
 
         async with AsyncExitStack() as stack:
-            return_msg: Callable[[RabbitMessage], Awaitable[RabbitMessage]] = (
-                return_input
-            )
+            return_msg: Callable[[RabbitMessage], Awaitable[RabbitMessage]]
+
             for m in self._broker_middlewares:
                 mid = m(raw_message)
                 await stack.enter_async_context(mid)
@@ -222,8 +221,6 @@ class LogicSubscriber(
             parsed_msg = await self._parser(raw_message)
             parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
 
     def _make_response_publisher(
         self,
