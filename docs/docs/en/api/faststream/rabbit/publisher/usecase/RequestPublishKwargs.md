@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.testing.broker.call_handler
+::: faststream.rabbit.publisher.usecase.RequestPublishKwargs

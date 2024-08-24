@@ -17,10 +17,7 @@ class RabbitMessage(StreamMessage[IncomingMessage]):
         """Acknowledge the RabbitMQ message."""
         pika_message = self.raw_message
         await super().ack()
-        if (
-            pika_message._IncomingMessage__processed  # type: ignore[attr-defined]
-            or pika_message._IncomingMessage__no_ack  # type: ignore[attr-defined]
-        ):
+        if pika_message.locked:
             return
         await pika_message.ack(multiple=multiple)
 
@@ -32,10 +29,7 @@ class RabbitMessage(StreamMessage[IncomingMessage]):
         """Negative Acknowledgment of the RabbitMQ message."""
         pika_message = self.raw_message
         await super().nack()
-        if (
-            pika_message._IncomingMessage__processed  # type: ignore[attr-defined]
-            or pika_message._IncomingMessage__no_ack  # type: ignore[attr-defined]
-        ):
+        if pika_message.locked:
             return
         await pika_message.nack(multiple=multiple, requeue=requeue)
 
@@ -46,9 +40,6 @@ class RabbitMessage(StreamMessage[IncomingMessage]):
         """Reject the RabbitMQ message."""
         pika_message = self.raw_message
         await super().reject()
-        if (
-            pika_message._IncomingMessage__processed  # type: ignore[attr-defined]
-            or pika_message._IncomingMessage__no_ack  # type: ignore[attr-defined]
-        ):
+        if pika_message.locked:
             return
         await pika_message.reject(requeue=requeue)

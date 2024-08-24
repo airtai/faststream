@@ -431,7 +431,7 @@ class KafkaBroker(
         security_params = parse_security(self.security)
         kwargs.update(security_params)
 
-        producer = AsyncConfluentProducer(
+        native_producer = AsyncConfluentProducer(
             **kwargs,
             client_id=client_id,
             logger=self.logger,
@@ -439,7 +439,9 @@ class KafkaBroker(
         )
 
         self._producer = AsyncConfluentFastProducer(
-            producer=producer,
+            producer=native_producer,
+            parser=self._parser,
+            decoder=self._decoder,
         )
 
         return partial(
@@ -495,6 +497,32 @@ class KafkaBroker(
             correlation_id=correlation_id,
             reply_to=reply_to,
             **kwargs,
+        )
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: "SendableMessage",
+        topic: str,
+        key: Optional[bytes] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[Dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        timeout: float = 0.5,
+    ) -> Optional[Any]:
+        correlation_id = correlation_id or gen_cor_id()
+
+        return await super().request(
+            message,
+            producer=self._producer,
+            topic=topic,
+            key=key,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            correlation_id=correlation_id,
+            timeout=timeout,
         )
 
     async def publish_batch(

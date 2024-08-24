@@ -34,7 +34,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         raw_broker,
     ):
         async def mid(call_next, msg):
-            mock.start(msg.decoded_body)
+            mock.start(msg._decoded_body)
             result = await call_next(msg)
             mock.end()
             event.set()

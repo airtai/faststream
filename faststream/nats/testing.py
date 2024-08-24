@@ -1,16 +1,20 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from unittest.mock import AsyncMock
 
+import anyio
 from nats.aio.msg import Msg
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
-from faststream.exceptions import WRONG_PUBLISH_ARGS
+from faststream.broker.utils import resolve_custom_func
+from faststream.exceptions import WRONG_PUBLISH_ARGS, SubscriberNotFound
 from faststream.nats.broker import NatsBroker
+from faststream.nats.parser import NatsParser
 from faststream.nats.publisher.producer import NatsFastProducer
 from faststream.nats.schemas.js_stream import is_subject_match_wildcard
 from faststream.nats.subscriber.usecase import LogicSubscriber
-from faststream.testing.broker import TestBroker, call_handler
+from faststream.testing.broker import TestBroker
+from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
     from faststream.broker.wrapper.call import HandlerCallWrapper
@@ -47,7 +51,9 @@ class TestNatsBroker(TestBroker[NatsBroker]):
         **kwargs: Any,
     ) -> AsyncMock:
         broker.stream = AsyncMock()
-        broker._js_producer = broker._producer = FakeProducer(broker)  # type: ignore[assignment]
+        broker._js_producer = broker._producer = FakeProducer(  # type: ignore[assignment]
+            broker,
+        )
         return AsyncMock()
 
     @staticmethod
@@ -62,6 +68,10 @@ class TestNatsBroker(TestBroker[NatsBroker]):
 class FakeProducer(NatsFastProducer):
     def __init__(self, broker: NatsBroker) -> None:
         self.broker = broker
+
+        default = NatsParser(pattern="")
+        self._parser = resolve_custom_func(broker._parser, default.parse_message)
+        self._decoder = resolve_custom_func(broker._decoder, default.decode_message)
 
     @override
     async def publish(  # type: ignore[override]
@@ -91,34 +101,87 @@ class FakeProducer(NatsFastProducer):
         )
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if stream and (
-                not (handler_stream := getattr(handler, "stream", None))
-                or stream != handler_stream.name
-            ):
-                continue
-
-            if is_subject_match_wildcard(subject, handler.clear_subject) or any(
-                is_subject_match_wildcard(subject, filter_subject)
-                for filter_subject in (handler.config.filter_subjects or ())
-            ):
+            if _is_handler_suitable(handler, subject, stream):
                 msg: Union[List[PatchedMessage], PatchedMessage]
+
                 if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
                     msg = [incoming]
                 else:
                     msg = incoming
 
-                r = await call_handler(
-                    handler=handler,
-                    message=msg,
-                    rpc=rpc,
-                    rpc_timeout=rpc_timeout,
-                    raise_timeout=raise_timeout,
-                )
-
-                if rpc:
-                    return r
+                with timeout_scope(rpc_timeout, raise_timeout):
+                    response = await self._execute_handler(msg, subject, handler)
+                    if rpc:
+                        return await self._decoder(await self._parser(response))
 
         return None
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: "SendableMessage",
+        subject: str,
+        *,
+        correlation_id: Optional[str] = None,
+        headers: Optional[Dict[str, str]] = None,
+        timeout: float = 0.5,
+        # NatsJSFastProducer compatibility
+        stream: Optional[str] = None,
+    ) -> "PatchedMessage":
+        incoming = build_message(
+            message=message,
+            subject=subject,
+            headers=headers,
+            correlation_id=correlation_id,
+        )
+
+        for handler in self.broker._subscribers.values():  # pragma: no branch
+            if _is_handler_suitable(handler, subject, stream):
+                msg: Union[List[PatchedMessage], PatchedMessage]
+
+                if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
+                    msg = [incoming]
+                else:
+                    msg = incoming
+
+                with anyio.fail_after(timeout):
+                    return await self._execute_handler(msg, subject, handler)
+
+        raise SubscriberNotFound
+
+    async def _execute_handler(
+        self, msg: Any, subject: str, handler: "LogicSubscriber[Any]"
+    ) -> "PatchedMessage":
+        result = await handler.process_message(msg)
+
+        return build_message(
+            subject=subject,
+            message=result.body,
+            headers=result.headers,
+            correlation_id=result.correlation_id,
+        )
+
+
+def _is_handler_suitable(
+    handler: "LogicSubscriber[Any]",
+    subject: str,
+    stream: Optional[str] = None,
+) -> bool:
+    if stream:
+        if not (handler_stream := getattr(handler, "stream", None)):
+            return False
+
+        if stream != handler_stream.name:
+            return False
+
+    if is_subject_match_wildcard(subject, handler.clear_subject):
+        return True
+
+    for filter_subject in handler.config.filter_subjects or ():
+        if is_subject_match_wildcard(subject, filter_subject):
+            return True
+
+    return False
 
 
 def build_message(

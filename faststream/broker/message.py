@@ -15,6 +15,8 @@ from typing import (
 )
 from uuid import uuid4
 
+from typing_extensions import deprecated
+
 from faststream._compat import dump_json, json_loads
 from faststream.constants import ContentTypes
 from faststream.types import EMPTY
@@ -49,9 +51,36 @@ class StreamMessage(Generic[MsgType]):
         default_factory=gen_cor_id  # pragma: no cover
     )
 
-    decoded_body: Optional["DecodedMessage"] = field(default=None, init=False)
     processed: bool = field(default=False, init=False)
     committed: bool = field(default=False, init=False)
+    _decoded_body: Optional["DecodedMessage"] = field(default=None, init=False)
+
+    async def decode(self) -> Optional["DecodedMessage"]:
+        """Serialize the message by lazy decoder."""
+        # TODO: make it lazy after `decoded_body` removed
+        return self._decoded_body
+
+    @property
+    @deprecated(
+        "Deprecated in **FastStream 0.5.19**. "
+        "Please, use `decode` lazy method instead. "
+        "Argument will be removed in **FastStream 0.6.0**.",
+        category=DeprecationWarning,
+        stacklevel=1,
+    )
+    def decoded_body(self) -> Optional["DecodedMessage"]:
+        return self._decoded_body
+
+    @decoded_body.setter
+    @deprecated(
+        "Deprecated in **FastStream 0.5.19**. "
+        "Please, use `decode` lazy method instead. "
+        "Argument will be removed in **FastStream 0.6.0**.",
+        category=DeprecationWarning,
+        stacklevel=1,
+    )
+    def decoded_body(self, value: Optional["DecodedMessage"]) -> None:
+        self._decoded_body = value
 
     async def ack(self) -> None:
         self.committed = True
