@@ -1,5 +1,7 @@
 import asyncio
 from abc import ABC, abstractmethod
+from contextlib import AsyncExitStack
+from functools import partial
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
@@ -10,7 +12,7 @@ from typing import (
     List,
     Optional,
     Sequence,
-    Tuple,
+    Tuple, Awaitable,
 )
 
 import anyio
@@ -28,6 +30,7 @@ from faststream.broker.types import (
 )
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
+from faststream.utils.functions import return_input
 from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
@@ -181,16 +184,32 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         self.task = None
 
-    async def get_one(self) -> "Optional[KafkaMessage]":
+    async def get_one(self, timeout: float = 5) -> "Optional[KafkaMessage]":
         assert self.consumer, "You should start subscriber at first."
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        assert not self.calls
+        raw_messages = await self.consumer.getmany(timeout_ms=timeout * 1000, max_records=1)
 
-        message = await self.consumer.getone()
-        parsed_message = await self._parser(message)
+        if not raw_messages:
+            return None
 
-        assert isinstance(parsed_message, KafkaMessage)
-        return parsed_message
+        (raw_message,) ,= raw_messages.values()
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = (
+                return_input
+            )
+
+            for m in self._broker_middlewares:
+                mid = m(raw_message)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg = await self._parser(raw_message)
+            parsed_msg._decoded_body = await self._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
 
     def _make_response_publisher(
         self,
