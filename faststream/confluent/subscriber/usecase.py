@@ -1,5 +1,7 @@
 import asyncio
 from abc import ABC, abstractmethod
+from contextlib import AsyncExitStack
+from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -9,7 +11,7 @@ from typing import (
     List,
     Optional,
     Sequence,
-    Tuple,
+    Tuple, Awaitable,
 )
 
 import anyio
@@ -22,6 +24,7 @@ from faststream.broker.types import MsgType
 from faststream.confluent.message import KafkaMessage
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.schemas import TopicPartition
+from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -170,16 +173,27 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         self.task = None
 
-    async def get_one(self, timeout: float = 0.1) -> "Optional[KafkaMessage]":
+    async def get_one(self, timeout: float = 5.0) -> "Optional[KafkaMessage]":
         assert self.consumer, "You should start subscriber at first."
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        assert not self.calls
+        raw_message = await self.consumer.getone(timeout=timeout)
 
-        message = await self.consumer.getone(timeout=timeout)
-        parsed_message = await self._parser(message)
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = (
+                return_input
+            )
 
-        assert isinstance(parsed_message, KafkaMessage)
-        return parsed_message
+            for m in self._broker_middlewares:
+                mid = m(raw_message)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg = await self._parser(raw_message)
+            parsed_msg._decoded_body = await self._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
 
     def _make_response_publisher(
         self,
