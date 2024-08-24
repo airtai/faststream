@@ -211,7 +211,9 @@ class LogicSubscriber(
             return None
 
         async with AsyncExitStack() as stack:
-            return_msg: Callable[[RabbitMessage], Awaitable[RabbitMessage]]
+            return_msg: Callable[[RabbitMessage], Awaitable[RabbitMessage]] = (
+                return_input
+            )
 
             for m in self._broker_middlewares:
                 mid = m(raw_message)
