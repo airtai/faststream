@@ -583,7 +583,11 @@ class BatchListSubscriber(_ListHandlerMixin):
                 data=raw_message,
                 channel=self.list_sub.name,
             )
-            return await return_msg(message)
+
+            parsed_message = await self._parser(message)
+            parsed_message._decoded_body = await self._decoder(parsed_message)
+
+            return await return_msg(parsed_message)
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
         raw_msgs = await client.lpop(
