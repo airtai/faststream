@@ -155,6 +155,10 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         """Create NATS subscription and start consume tasks."""
         assert self._connection, NOT_CONNECTED_YET  # nosec B101
         await super().start()
+
+        if not self.calls:
+            return None
+
         await self._create_subscription(connection=self._connection)
 
     async def close(self) -> None:
@@ -236,6 +240,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
 
 
 class _DefaultSubscriber(LogicSubscriber[MsgType]):
+    def get_one(self, *args, **kwargs): ...
     def __init__(
         self,
         *,
@@ -434,6 +439,8 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
             cb=self.consume,
             **self.extra_options,
         )
+
+
 
     def get_log_context(
         self,

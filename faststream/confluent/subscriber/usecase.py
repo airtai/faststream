@@ -156,10 +156,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         await super().start()
 
-        if not self.calls:
-            return
-
-        self.task = asyncio.create_task(self._consume())
+        if self.calls:
+            self.task = asyncio.create_task(self._consume())
 
     async def close(self) -> None:
         await super().close()
