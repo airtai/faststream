@@ -240,7 +240,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
 
 
 class _DefaultSubscriber(LogicSubscriber[MsgType]):
-    def get_one(self, *args, **kwargs): ...
     def __init__(
         self,
         *,
