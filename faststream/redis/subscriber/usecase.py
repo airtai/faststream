@@ -409,6 +409,10 @@ class _ListHandlerMixin(LogicSubscriber):
             return
 
         assert self._client, "You should setup subscriber at first."  # nosec B101
+
+        if not self.calls:
+            return None
+
         await super().start(self._client)
 
     def add_prefix(self, prefix: str) -> None:
@@ -449,6 +453,46 @@ class ListSubscriber(_ListHandlerMixin):
             description_=description_,
             include_in_schema=include_in_schema,
         )
+
+    async def get_one(
+        self,
+        *,
+        timeout: float = 5.0,
+        ignore_subscribe_messages: bool = False,
+    ) -> "Optional[RedisMessage]":
+        # assert self.list_sub, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        sleep_interval = timeout / 10
+        raw_message = None
+
+        with anyio.move_on_after(timeout):
+            while (  # noqa: ASYNC110
+                raw_message := await self._client.lpop(name=self.list_sub.name)
+            ) is None:
+                await anyio.sleep(sleep_interval)
+
+        if not raw_message:
+            return None
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = (
+                return_input
+            )
+
+            for m in self._broker_middlewares:
+                mid = m(raw_message)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            message = DefaultListMessage(
+                type="list",
+                data=raw_message,
+                channel=self.list_sub.name,
+            )
+            return await return_msg(message)
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
         raw_msg = await client.lpop(name=self.list_sub.name)
