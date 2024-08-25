@@ -1,7 +1,8 @@
 import asyncio
 from abc import abstractmethod
-from contextlib import suppress
+from contextlib import suppress, AsyncExitStack
 from copy import deepcopy
+from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -30,6 +31,7 @@ from faststream.redis.message import (
     DefaultStreamMessage,
     PubSubMessage,
     UnifyRedisDict,
+    RedisMessage
 )
 from faststream.redis.parser import (
     RedisBatchListParser,
@@ -39,6 +41,7 @@ from faststream.redis.parser import (
     RedisStreamParser,
 )
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
+from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -268,6 +271,9 @@ class ChannelSubscriber(LogicSubscriber):
         else:
             await psub.subscribe(self.channel.name)
 
+        if not self.calls:
+            return
+
         await super().start(psub)
 
     async def close(self) -> None:
@@ -277,6 +283,47 @@ class ChannelSubscriber(LogicSubscriber):
             self.subscription = None
 
         await super().close()
+
+    async def get_one(
+        self,
+        *,
+        timeout: float = 5.0,
+        ignore_subscribe_messages: bool = False,
+    ) -> "Optional[RedisMessage]":
+        assert self.subscription, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        sleep_interval = timeout / 10
+
+        raw_message = None
+
+        with anyio.move_on_after(timeout):
+            while (  # noqa: ASYNC110
+                raw_message := await self.subscription.get_message(
+                    timeout=timeout,
+                    ignore_subscribe_messages=ignore_subscribe_messages,
+                )
+            ) is None:
+                await anyio.sleep(sleep_interval)
+
+        if not raw_message:
+            return None
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = (
+                return_input
+            )
+
+            for m in self._broker_middlewares:
+                mid = m(raw_message)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg = await self._parser(raw_message)
+            parsed_msg._decoded_body = await self._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
 
     async def _get_msgs(self, psub: RPubSub) -> None:
         raw_msg = await psub.get_message(
