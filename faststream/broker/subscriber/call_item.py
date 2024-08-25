@@ -139,7 +139,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
             "StreamMessage[MsgType]", cache.get(parser) or await parser(msg)
         )
 
-        message.decoded_body = cache[decoder] = cache.get(decoder) or await decoder(
+        message._decoded_body = cache[decoder] = cache.get(decoder) or await decoder(
             message
         )
 

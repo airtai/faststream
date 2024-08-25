@@ -94,6 +94,7 @@ class AsgiFastStream(FastStream):
     async def start_lifespan_context(self) -> AsyncIterator[None]:
         async with anyio.create_task_group() as tg, self.lifespan_context():
             tg.start_soon(self._startup)
+
             try:
                 yield
             finally:

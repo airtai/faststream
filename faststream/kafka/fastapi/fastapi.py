@@ -2623,7 +2623,6 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         "AsyncAPIDefaultSubscriber",
     ]:
         subscriber = super().subscriber(
-            topics[0],  # path
             *topics,
             group_id=group_id,
             key_deserializer=key_deserializer,

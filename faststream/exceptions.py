@@ -102,6 +102,14 @@ class ValidationError(FastStreamException, ValueError):
         self.fields = fields
 
 
+class OperationForbiddenError(FastStreamException, NotImplementedError):
+    """Raises at planned NotImplemented operation call."""
+
+
+class SubscriberNotFound(FastStreamException):
+    """Raises as a service message or in tests."""
+
+
 WRONG_PUBLISH_ARGS = SetupError(
     "You should use `reply_to` to send response to long-living queue "
     "and `rpc` to get response in sync mode."

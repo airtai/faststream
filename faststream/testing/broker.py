@@ -17,17 +17,15 @@ from unittest import mock
 from unittest.mock import MagicMock
 
 from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.message import StreamMessage, decode_message, encode_message
 from faststream.broker.middlewares.logging import CriticalLogMiddleware
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.testing.app import TestApp
 from faststream.utils.ast import is_contains_context_name
-from faststream.utils.functions import sync_fake_context, timeout_scope
+from faststream.utils.functions import sync_fake_context
 
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from faststream.broker.subscriber.proto import SubscriberProto
     from faststream.broker.types import BrokerMiddleware
 
 Broker = TypeVar("Broker", bound=BrokerUsecase[Any, Any])
@@ -69,22 +67,6 @@ class TestBroker(Generic[Broker]):
         self.connect_only = connect_only
 
     async def __aenter__(self) -> Broker:
-        # TODO: remove useless middlewares filter
-        middlewares = tuple(
-            filter(
-                lambda x: not isinstance(x, CriticalLogMiddleware),
-                self.broker._middlewares,
-            )
-        )
-
-        self.broker._middlewares = middlewares
-
-        for sub in self.broker._subscribers.values():
-            sub._broker_middlewares = middlewares
-
-        for pub in self.broker._publishers.values():
-            pub._broker_middlewares = middlewares
-
         self._ctx = self._create_ctx()
         return await self._ctx.__aenter__()
 
@@ -226,27 +208,3 @@ def patch_broker_calls(broker: "BrokerUsecase[Any, Any]") -> None:
     for handler in broker._subscribers.values():
         for h in handler.calls:
             h.handler.set_test()
-
-
-async def call_handler(
-    handler: "SubscriberProto[Any]",
-    message: Any,
-    rpc: bool = False,
-    rpc_timeout: Optional[float] = 30.0,
-    raise_timeout: bool = False,
-) -> Any:
-    """Asynchronously call a handler function."""
-    with timeout_scope(rpc_timeout, raise_timeout):
-        result = await handler.process_message(message)
-
-        if rpc:
-            message_body, content_type = encode_message(result)
-            msg_to_publish = StreamMessage(
-                raw_message=None,
-                body=message_body,
-                content_type=content_type,
-            )
-            consumed_data = decode_message(msg_to_publish)
-            return consumed_data
-
-    return None

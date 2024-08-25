@@ -27,7 +27,7 @@ from nats.aio.client import (
 )
 from nats.errors import Error
 from nats.js.errors import BadRequestError
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
@@ -65,6 +65,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         CustomCallable,
     )
+    from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
     from faststream.security import BaseSecurity
     from faststream.types import (
@@ -715,16 +716,31 @@ class NatsBroker(
         rpc: Annotated[
             bool,
             Doc("Whether to wait for reply in blocking mode."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = False,
         rpc_timeout: Annotated[
             Optional[float],
             Doc("RPC reply waiting time."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method with `timeout` instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = 30.0,
         raise_timeout: Annotated[
             bool,
             Doc(
                 "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
                 "RPC request returns `None` at timeout by default."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "`request` always raises TimeoutError instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
             ),
         ] = False,
     ) -> Optional["DecodedMessage"]:
@@ -739,7 +755,6 @@ class NatsBroker(
             "subject": subject,
             "headers": headers,
             "reply_to": reply_to,
-            "correlation_id": correlation_id or gen_cor_id(),
             "rpc": rpc,
             "rpc_timeout": rpc_timeout,
             "raise_timeout": raise_timeout,
@@ -760,8 +775,71 @@ class NatsBroker(
         return await super().publish(
             message,
             producer=producer,
+            correlation_id=correlation_id or gen_cor_id(),
             **publish_kwargs,
         )
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: Annotated[
+            "SendableMessage",
+            Doc(
+                "Message body to send. "
+                "Can be any encodable object (native python types or `pydantic.BaseModel`)."
+            ),
+        ],
+        subject: Annotated[
+            str,
+            Doc("NATS subject to send message."),
+        ],
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway."
+            ),
+        ] = None,
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        stream: Annotated[
+            Optional[str],
+            Doc(
+                "This option validates that the target subject is in presented stream. "
+                "Can be omitted without any effect."
+            ),
+        ] = None,
+        timeout: Annotated[
+            float,
+            Doc("Timeout to send message to NATS."),
+        ] = 0.5,
+    ) -> "NatsMessage":
+        publish_kwargs = {
+            "subject": subject,
+            "headers": headers,
+            "timeout": timeout,
+        }
+
+        producer: Optional[ProducerProto]
+        if stream is None:
+            producer = self._producer
+
+        else:
+            producer = self._js_producer
+            publish_kwargs.update({"stream": stream})
+
+        msg: NatsMessage = await super().request(
+            message,
+            producer=producer,
+            correlation_id=correlation_id or gen_cor_id(),
+            **publish_kwargs,
+        )
+        return msg
 
     @override
     def setup_subscriber(  # type: ignore[override]

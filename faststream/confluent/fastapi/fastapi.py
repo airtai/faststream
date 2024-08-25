@@ -2210,10 +2210,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         "AsyncAPIDefaultSubscriber",
     ]:
         subscriber = super().subscriber(
-            (  # path
-                next(iter(topics), "")
-                or getattr(next(iter(partitions), None), "topic", "")
-            ),
             *topics,
             polling_interval=polling_interval,
             partitions=partitions,

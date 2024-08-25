@@ -28,13 +28,13 @@ class BrokerRPCTestcase(BaseTestcaseConfig):
 
         @rpc_broker.subscriber(*args, **kwargs)
         async def m(m):
-            return "1"
+            return "Hi!"
 
         async with self.patch_broker(rpc_broker) as br:
             await br.start()
             r = await br.publish("hello", queue, rpc_timeout=3, rpc=True)
 
-        assert r == "1"
+        assert r == "Hi!"
 
     @pytest.mark.asyncio
     async def test_rpc_timeout_raises(self, queue: str):

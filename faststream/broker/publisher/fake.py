@@ -44,3 +44,16 @@ class FakePublisher(BasePublisherProto):
             call = partial(m, call)
 
         return await call(message, **publish_kwargs)
+
+    async def request(
+        self,
+        message: "SendableMessage",
+        /,
+        *,
+        correlation_id: Optional[str] = None,
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+    ) -> Any:
+        raise NotImplementedError(
+            "`FakePublisher` can be used only to publish "
+            "a response for `reply-to` or `RPC` messages."
+        )
