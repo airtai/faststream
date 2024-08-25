@@ -271,6 +271,9 @@ class ChannelSubscriber(LogicSubscriber):
         else:
             await psub.subscribe(self.channel.name)
 
+        if not self.calls:
+            return None
+
         await super().start(psub)
 
     async def close(self) -> None:
