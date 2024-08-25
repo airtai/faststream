@@ -288,7 +288,6 @@ class ChannelSubscriber(LogicSubscriber):
         self,
         *,
         timeout: float = 5.0,
-        ignore_subscribe_messages: bool = False,
     ) -> "Optional[RedisMessage]":
         assert self.subscription, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
@@ -297,18 +296,13 @@ class ChannelSubscriber(LogicSubscriber):
 
         sleep_interval = timeout / 10
 
-        raw_message = None
+        message: Optional[PubSubMessage] = None
 
         with anyio.move_on_after(timeout):
-            while (  # noqa: ASYNC110
-                raw_message := await self.subscription.get_message(
-                    timeout=timeout,
-                    ignore_subscribe_messages=ignore_subscribe_messages,
-                )
-            ) is None:
+            while (message := await self._get_message(self.subscription)) is None:
                 await anyio.sleep(sleep_interval)
 
-        if not raw_message:
+        if not message:
             return None
 
         async with AsyncExitStack() as stack:
@@ -317,28 +311,34 @@ class ChannelSubscriber(LogicSubscriber):
             )
 
             for m in self._broker_middlewares:
-                mid = m(raw_message)
+                mid = m(message)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
 
-            parsed_msg = await self._parser(raw_message)
+            parsed_msg = await self._parser(message)
             parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return await return_msg(parsed_msg)
 
-    async def _get_msgs(self, psub: RPubSub) -> None:
+    async def _get_message(self, psub: RPubSub) -> Optional[PubSubMessage]:
         raw_msg = await psub.get_message(
             ignore_subscribe_messages=True,
             timeout=self.channel.polling_interval,
         )
 
         if raw_msg:
-            msg = PubSubMessage(
+            return PubSubMessage(
                 type=raw_msg["type"],
                 data=raw_msg["data"],
                 channel=raw_msg["channel"].decode(),
                 pattern=raw_msg["pattern"],
             )
-            await self.consume(msg)  # type: ignore[arg-type]
+
+        return
+
+
+    async def _get_msgs(self, psub: RPubSub) -> None:
+        msg = await self._get_message(psub)
+        await self.consume(msg)  # type: ignore[arg-type]
 
     def add_prefix(self, prefix: str) -> None:
         new_ch = deepcopy(self.channel)
@@ -491,7 +491,11 @@ class ListSubscriber(_ListHandlerMixin):
                 data=raw_message,
                 channel=self.list_sub.name,
             )
-            return await return_msg(message)
+
+            parsed_message = await self._parser(message)
+            parsed_message._decoded_body = await self._decoder(parsed_message)
+
+            return await return_msg(parsed_message)
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
         raw_msg = await client.lpop(name=self.list_sub.name)
