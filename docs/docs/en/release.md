@@ -18,7 +18,7 @@ hide:
 
 The current release is planned as a latest feature release before **0.6.0**. All other **0.5.19+** releases will contain only minor bugfixes and all the team work will be focused on next major one.
 
-There a lot of changes we want to present you now though! 
+There a lot of changes we want to present you now though!
 
 #### New RPC feature
 
@@ -40,7 +40,7 @@ async def test():
     # so you wasn't be able to check response headers, etc
     msg_body: str = await broker.publish("ping", "test", rpc=True)
     assert msg_body == "ping"
-    
+
     # Now request return the whole message and you can validate any part of it
     # moreover it triggers all your middlewares
     response: NatsMessage = await broker.request("ping", "test")
@@ -64,7 +64,7 @@ Also, there are a lot of minor changes you can find below. Big thanks to all our
 * Add missed out group_instance_id as subscriber and router parameter by @kumaranvpl in https://github.com/airtai/faststream/pull/1695
 * Set warn_unused_ignores mypy config to true by @kumaranvpl in https://github.com/airtai/faststream/pull/1694
 * Skip building docs in pre-commit CI job by @kumaranvpl in https://github.com/airtai/faststream/pull/1704
-* Fix to run check-docs-changes worflow in forks by @kumaranvpl in https://github.com/airtai/faststream/pull/1710
+* Fix to run check-docs-changes workflow in forks by @kumaranvpl in https://github.com/airtai/faststream/pull/1710
 * feature/exception_middleware add exception middleware by @Rusich90 in https://github.com/airtai/faststream/pull/1604
 * Remove mentions of faststream-gen by @kumaranvpl in https://github.com/airtai/faststream/pull/1717
 * Fix multiple docs issues by @kumaranvpl in https://github.com/airtai/faststream/pull/1718
