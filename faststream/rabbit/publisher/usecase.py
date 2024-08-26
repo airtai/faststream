@@ -1,21 +1,32 @@
+from contextlib import AsyncExitStack
 from copy import deepcopy
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Iterable,
+    Optional,
+    Union,
+)
 
 from aio_pika import IncomingMessage
-from typing_extensions import Annotated, Doc, TypedDict, Unpack, override
+from typing_extensions import Annotated, Doc, TypedDict, Unpack, deprecated, override
 
 from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
+from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
 
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas.exchange import RabbitExchange
     from faststream.rabbit.types import AioPikaSendableMessage
@@ -23,8 +34,8 @@ if TYPE_CHECKING:
 
 
 # should be public to use in imports
-class PublishKwargs(TypedDict, total=False):
-    """Typed dict to annotate RabbitMQ publishers."""
+class RequestPublishKwargs(TypedDict, total=False):
+    """Typed dict to annotate RabbitMQ requesters."""
 
     headers: Annotated[
         Optional["HeadersType"],
@@ -55,12 +66,7 @@ class PublishKwargs(TypedDict, total=False):
         Optional[bool],
         Doc("Restore the message on RabbitMQ reboot."),
     ]
-    reply_to: Annotated[
-        Optional[str],
-        Doc(
-            "Reply message routing key to send with (always sending to default exchange)."
-        ),
-    ]
+
     priority: Annotated[
         Optional[int],
         Doc("The message priority (0 by default)."),
@@ -88,6 +94,17 @@ class PublishKwargs(TypedDict, total=False):
     content_encoding: Annotated[
         Optional[str],
         Doc("Message body content encoding, e.g. **gzip**."),
+    ]
+
+
+class PublishKwargs(RequestPublishKwargs):
+    """Typed dict to annotate RabbitMQ publishers."""
+
+    reply_to: Annotated[
+        Optional[str],
+        Doc(
+            "Reply message routing key to send with (always sending to default exchange)."
+        ),
     ]
 
 
@@ -128,7 +145,10 @@ class LogicPublisher(
         )
 
         self.routing_key = routing_key
-        self.message_kwargs = message_kwargs
+
+        request_kwargs = dict(message_kwargs)
+        self.reply_to = request_kwargs.pop("reply_to", None)
+        self.message_kwargs = request_kwargs
 
         # BaseRMQInformation
         self.queue = queue
@@ -161,7 +181,7 @@ class LogicPublisher(
         )
 
     @override
-    async def publish(
+    async def publish(  # type: ignore[override]
         self,
         message: "AioPikaSendableMessage",
         queue: Annotated[
@@ -200,16 +220,31 @@ class LogicPublisher(
         rpc: Annotated[
             bool,
             Doc("Whether to wait for reply in blocking mode."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = False,
         rpc_timeout: Annotated[
             Optional[float],
             Doc("RPC reply waiting time."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method with `timeout` instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = 30.0,
         raise_timeout: Annotated[
             bool,
             Doc(
                 "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
                 "RPC request returns `None` at timeout by default."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "`request` always raises TimeoutError instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
             ),
         ] = False,
         # publisher specific
@@ -234,6 +269,7 @@ class LogicPublisher(
             "rpc": rpc,
             "rpc_timeout": rpc_timeout,
             "raise_timeout": raise_timeout,
+            "reply_to": self.reply_to,
             **self.message_kwargs,
             **publish_kwargs,
         }
@@ -250,6 +286,96 @@ class LogicPublisher(
             call = partial(m, call)
 
         return await call(message, **kwargs)
+
+    @override
+    async def request(
+        self,
+        message: "AioPikaSendableMessage",
+        queue: Annotated[
+            Union["RabbitQueue", str, None],
+            Doc("Message routing key to publish with."),
+        ] = None,
+        exchange: Annotated[
+            Union["RabbitExchange", str, None],
+            Doc("Target exchange to publish message to."),
+        ] = None,
+        *,
+        routing_key: Annotated[
+            str,
+            Doc(
+                "Message routing key to publish with. "
+                "Overrides `queue` option if presented."
+            ),
+        ] = "",
+        # message args
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        message_id: Annotated[
+            Optional[str],
+            Doc("Arbitrary message id. Generated automatically if not presented."),
+        ] = None,
+        timestamp: Annotated[
+            Optional["DateType"],
+            Doc("Message publish timestamp. Generated automatically if not presented."),
+        ] = None,
+        # publisher specific
+        _extra_middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Extra middlewares to wrap publishing process."),
+        ] = (),
+        **publish_kwargs: "Unpack[RequestPublishKwargs]",
+    ) -> "RabbitMessage":
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        kwargs: AnyDict = {
+            "routing_key": routing_key
+            or self.routing_key
+            or RabbitQueue.validate(queue or self.queue).routing,
+            "exchange": exchange or self.exchange.name,
+            "app_id": self.app_id,
+            "correlation_id": correlation_id or gen_cor_id(),
+            "message_id": message_id,
+            "timestamp": timestamp,
+            # specific args
+            **self.message_kwargs,
+            **publish_kwargs,
+        }
+
+        request: AsyncFunc = self._producer.request
+
+        for pub_m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            request = partial(pub_m, request)
+
+        published_msg = await request(
+            message,
+            **kwargs,
+        )
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[RabbitMessage], Awaitable[RabbitMessage]] = (
+                return_input
+            )
+            for m in self._broker_middlewares:
+                mid = m(published_msg)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg = await self._producer._parser(published_msg)
+            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
+
+        raise AssertionError("unreachable")
 
     def add_prefix(self, prefix: str) -> None:
         """Include Publisher in router."""

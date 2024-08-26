@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 import anyio
 from aio_pika import connect_robust
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
@@ -53,6 +53,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         CustomCallable,
     )
+    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, Decorator, LoggerProto
@@ -572,16 +573,31 @@ class RabbitBroker(
         rpc: Annotated[
             bool,
             Doc("Whether to wait for reply in blocking mode."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = False,
         rpc_timeout: Annotated[
             Optional[float],
             Doc("RPC reply waiting time."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method with `timeout` instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = 30.0,
         raise_timeout: Annotated[
             bool,
             Doc(
                 "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
                 "RPC request returns `None` at timeout by default."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "`request` always raises TimeoutError instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
             ),
         ] = False,
         # message args
@@ -668,6 +684,126 @@ class RabbitBroker(
             rpc_timeout=rpc_timeout,
             raise_timeout=raise_timeout,
         )
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: Annotated[
+            "AioPikaSendableMessage",
+            Doc("Message body to send."),
+        ] = None,
+        queue: Annotated[
+            Union["RabbitQueue", str],
+            Doc("Message routing key to publish with."),
+        ] = "",
+        exchange: Annotated[
+            Union["RabbitExchange", str, None],
+            Doc("Target exchange to publish message to."),
+        ] = None,
+        *,
+        routing_key: Annotated[
+            str,
+            Doc(
+                "Message routing key to publish with. "
+                "Overrides `queue` option if presented."
+            ),
+        ] = "",
+        mandatory: Annotated[
+            bool,
+            Doc(
+                "Client waits for confirmation that the message is placed to some queue. "
+                "RabbitMQ returns message to client if there is no suitable queue."
+            ),
+        ] = True,
+        immediate: Annotated[
+            bool,
+            Doc(
+                "Client expects that there is consumer ready to take the message to work. "
+                "RabbitMQ returns message to client if there is no suitable consumer."
+            ),
+        ] = False,
+        timeout: Annotated[
+            "TimeoutType",
+            Doc("Send confirmation time from RabbitMQ."),
+        ] = None,
+        persist: Annotated[
+            bool,
+            Doc("Restore the message on RabbitMQ reboot."),
+        ] = False,
+        # message args
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        headers: Annotated[
+            Optional["HeadersType"],
+            Doc("Message headers to store metainformation."),
+        ] = None,
+        content_type: Annotated[
+            Optional[str],
+            Doc(
+                "Message **content-type** header. "
+                "Used by application, not core RabbitMQ. "
+                "Will be set automatically if not specified."
+            ),
+        ] = None,
+        content_encoding: Annotated[
+            Optional[str],
+            Doc("Message body content encoding, e.g. **gzip**."),
+        ] = None,
+        expiration: Annotated[
+            Optional["DateType"],
+            Doc("Message expiration (lifetime) in seconds (or datetime or timedelta)."),
+        ] = None,
+        message_id: Annotated[
+            Optional[str],
+            Doc("Arbitrary message id. Generated automatically if not presented."),
+        ] = None,
+        timestamp: Annotated[
+            Optional["DateType"],
+            Doc("Message publish timestamp. Generated automatically if not presented."),
+        ] = None,
+        message_type: Annotated[
+            Optional[str],
+            Doc("Application-specific message type, e.g. **orders.created**."),
+        ] = None,
+        user_id: Annotated[
+            Optional[str],
+            Doc("Publisher connection User ID, validated if set."),
+        ] = None,
+        priority: Annotated[
+            Optional[int],
+            Doc("The message priority (0 by default)."),
+        ] = None,
+    ) -> "RabbitMessage":
+        routing = routing_key or RabbitQueue.validate(queue).routing
+        correlation_id = correlation_id or gen_cor_id()
+
+        msg: RabbitMessage = await super().request(
+            message,
+            producer=self._producer,
+            correlation_id=correlation_id,
+            routing_key=routing,
+            app_id=self.app_id,
+            exchange=exchange,
+            mandatory=mandatory,
+            immediate=immediate,
+            persist=persist,
+            headers=headers,
+            content_type=content_type,
+            content_encoding=content_encoding,
+            expiration=expiration,
+            message_id=message_id,
+            timestamp=timestamp,
+            message_type=message_type,
+            user_id=user_id,
+            timeout=timeout,
+            priority=priority,
+        )
+        return msg
 
     async def declare_queue(
         self,

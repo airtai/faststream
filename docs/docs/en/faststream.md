@@ -34,8 +34,8 @@ search:
 
   <br/>
 
-  <a href="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yml" target="_blank">
-    <img src="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yml/badge.svg" alt="CodeQL">
+  <a href="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yaml" target="_blank">
+    <img src="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yaml/badge.svg" alt="CodeQL">
   </a>
 
   <a href="https://github.com/airtai/faststream/actions/workflows/pr_dependency-review.yaml" target="_blank">
@@ -79,8 +79,6 @@ Making streaming microservices has never been easier. Designed with junior devel
 - **Extensible**: Use extensions for lifespans, custom serialization and middleware
 
 - [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
-
-- [**Built for Automatic Code Generation**](#code-generator): **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
 
 That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you're just starting with streaming microservices or looking to scale, **FastStream** has got you covered.
 
