@@ -435,17 +435,18 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        assert self.subscription is None
-
-        self.subscription = await self._connection.subscribe(
-            subject=self.clear_subject,
-            queue=self.queue,
-            **self.extra_options,
-        )
+        if self.subscription is None:
+            self.subscription = await self._connection.subscribe(
+                subject=self.clear_subject,
+                queue=self.queue,
+                **self.extra_options,
+            )
 
         raw_message = None
-        async for raw_message in self.subscription.messages:
-            break
+
+        with anyio.move_on_after(timeout):
+            async for raw_message in self.subscription.messages:
+                break
 
         if not raw_message:
             return None
