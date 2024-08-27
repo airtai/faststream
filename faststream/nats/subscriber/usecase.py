@@ -1205,6 +1205,7 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
         parser = ObjParser(pattern="")
 
         self.obj_watch = obj_watch
+        self.obj_watch_conn = None
 
         super().__init__(
             subject=subject,
@@ -1222,6 +1223,44 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
             title_=title_,
             include_in_schema=include_in_schema,
         )
+
+    async def get_one(self, *, timeout: float = 5) -> Optional[NatsKvMessage]:
+        assert self._connection, "Please, start() subscriber first"
+
+        if not self.obj_watch_conn:
+            self.bucket = await self._connection.create_object_store(
+                bucket=self.subject,
+                declare=self.obj_watch.declare,
+            )
+
+            self.obj_watch_conn = await self.bucket.watch(
+                ignore_deletes=self.obj_watch.ignore_deletes,
+                include_history=self.obj_watch.include_history,
+                meta_only=self.obj_watch.meta_only,
+            )
+
+        raw_message = None
+        sleep_interval = timeout / 10
+        with anyio.move_on_after(timeout):
+            while (raw_message := await self.obj_watch_conn.updates(timeout)) is None:
+                await anyio.sleep(sleep_interval)
+
+        if not raw_message:
+            return None
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[NatsMessage], Awaitable[NatsMessage]] = (
+                return_input
+            )
+
+            for m in self._broker_middlewares:
+                mid = m(raw_message)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg = await self._parser(raw_message)
+            parsed_msg._decoded_body = await self._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
 
     @override
     async def _create_subscription(  # type: ignore[override]
