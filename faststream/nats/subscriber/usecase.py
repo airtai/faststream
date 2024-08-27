@@ -1,6 +1,7 @@
 import asyncio
 from abc import abstractmethod
-from contextlib import suppress
+from contextlib import suppress, AsyncExitStack
+from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -27,6 +28,7 @@ from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import CustomCallable, MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.nats.message import NatsMessage
 from faststream.nats.parser import (
     BatchParser,
     JsParser,
@@ -41,6 +43,7 @@ from faststream.nats.subscriber.subscription import (
 )
 from faststream.types import AnyDict, LoggerProto, SendableMessage
 from faststream.utils.context.repository import context
+from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
@@ -422,6 +425,45 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
             include_in_schema=include_in_schema,
         )
 
+    async def get_one(
+        self,
+        *,
+        timeout: float = 5.0,
+    ) -> "Optional[NatsMessage]":
+        assert self._connection
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        assert self.subscription is None
+
+        self.subscription = await self._connection.subscribe(
+            subject=self.clear_subject,
+            queue=self.queue,
+            **self.extra_options,
+        )
+
+        raw_message = None
+        async for raw_message in self.subscription.messages:
+            break
+
+        if not raw_message:
+            return None
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[NatsMessage], Awaitable[NatsMessage]] = (
+                return_input
+            )
+
+            for m in self._broker_middlewares:
+                mid = m(raw_message)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg = await self._parser(raw_message)
+            parsed_msg._decoded_body = await self._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
+
     @override
     async def _create_subscription(  # type: ignore[override]
         self,
@@ -429,6 +471,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         connection: "Client",
     ) -> None:
         """Create NATS subscription and start consume task."""
+
         if self.subscription:
             return
 
