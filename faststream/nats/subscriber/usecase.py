@@ -626,6 +626,41 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
 class PushStreamSubscription(_StreamSubscriber):
     subscription: Optional["JetStreamContext.PushSubscription"]
 
+    async def get_one(self, *, timeout: float = 5) -> Optional[NatsMessage]:
+        assert self._connection, "Please, start() subscriber first"
+
+        if not self.subscription:
+            self.subscription = await self._connection.pull_subscribe(
+                subject=self.clear_subject,
+                config=self.config,
+                **self.extra_options,
+            )
+
+        try:
+            raw_message ,= await self.subscription.fetch(
+                batch=1,
+                timeout=timeout,
+            )
+        except TimeoutError:
+            raw_message = None
+
+        if not raw_message:
+            return None
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[NatsMessage], Awaitable[NatsMessage]] = (
+                return_input
+            )
+
+            for m in self._broker_middlewares:
+                mid = m(raw_message)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg = await self._parser(raw_message)
+            parsed_msg._decoded_body = await self._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
+
     @override
     async def _create_subscription(  # type: ignore[override]
         self,
@@ -688,6 +723,41 @@ class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
             title_=title_,
             include_in_schema=include_in_schema,
         )
+
+    async def get_one(self, *, timeout: float = 5) -> Optional[NatsMessage]:
+        assert self._connection, "Please, start() subscriber first"
+
+        if not self.subscription:
+            self.subscription = await self._connection.pull_subscribe(
+                subject=self.clear_subject,
+                config=self.config,
+                **self.extra_options,
+            )
+
+        try:
+            raw_message ,= await self.subscription.fetch(
+                batch=1,
+                timeout=timeout,
+            )
+        except TimeoutError:
+            raw_message = None
+
+        if not raw_message:
+            return None
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[NatsMessage], Awaitable[NatsMessage]] = (
+                return_input
+            )
+
+            for m in self._broker_middlewares:
+                mid = m(raw_message)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg = await self._parser(raw_message)
+            parsed_msg._decoded_body = await self._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
 
     @override
     async def _create_subscription(  # type: ignore[override]
