@@ -383,3 +383,57 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_not_called()
 
             assert event.is_set()
+
+    @pytest.mark.asyncio
+    async def test_get_one(
+        self,
+        queue: str,
+        exchange: RabbitExchange,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(queue, exchange=exchange)
+
+        async with self.patch_broker(broker) as br:
+            await broker.start()
+
+            message = None
+            async def set_msg():
+                nonlocal message
+                message = await subscriber.get_one()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish(message="test_message", queue=queue, exchange=exchange)),
+                    asyncio.create_task(set_msg()),
+                ),
+                timeout=3
+            )
+
+            assert message is not None
+            assert await message.decode() == "test_message"
+
+    @pytest.mark.asyncio
+    async def test_get_one_timeout(
+        self,
+        queue: str,
+        exchange: RabbitExchange,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(queue, exchange=exchange)
+
+        async with self.patch_broker(broker) as br:
+            await broker.start()
+
+            message = object()
+            async def coro():
+                nonlocal message
+                message = await subscriber.get_one(timeout=1)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(coro()),
+                ),
+                timeout=3
+            )
+
+            assert message is None, message
