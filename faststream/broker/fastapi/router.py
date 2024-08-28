@@ -41,7 +41,7 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.utils.context.repository import context
-from faststream.utils.functions import to_async
+from faststream.utils.functions import fake_context, to_async
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -63,7 +63,7 @@ if TYPE_CHECKING:
 
 
 class _BackgroundMiddleware(BaseMiddleware):
-    async def after_processed(
+    async def __aexit__(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
@@ -497,6 +497,7 @@ class StreamRouter(
     ) -> None:
         """Includes a router in the API."""
         if isinstance(router, StreamRouter):  # pragma: no branch
+            router.lifespan_context = fake_context
             self.broker.include_router(router.broker)
             router.weak_dependencies_provider = self.weak_dependencies_provider
 

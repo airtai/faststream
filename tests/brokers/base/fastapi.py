@@ -203,7 +203,8 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
     async def test_base(self, queue: str):
         router = self.router_class()
 
-        app = FastAPI(lifespan=router.lifespan_context)
+        app = FastAPI()
+        app.include_router(router)
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -226,7 +227,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
     async def test_base_without_state(self, queue: str):
         router = self.router_class(setup_state=False)
 
-        app = FastAPI(lifespan=router.lifespan_context)
+        app = FastAPI()
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -249,7 +250,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
     async def test_invalid(self, queue: str):
         router = self.router_class()
 
-        app = FastAPI(lifespan=router.lifespan_context)
+        app = FastAPI()
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -381,7 +382,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
     async def test_hooks(self, mock: Mock):
         router = self.router_class()
 
-        app = FastAPI(lifespan=router.lifespan_context)
+        app = FastAPI()
         app.include_router(router)
 
         @router.after_startup
@@ -417,7 +418,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
 
         router = self.router_class(lifespan=lifespan)
 
-        app = FastAPI(lifespan=router.lifespan_context)
+        app = FastAPI()
         app.include_router(router)
 
         async with self.broker_test(router.broker), router.lifespan_context(
@@ -462,7 +463,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         router = self.router_class()
         router2 = self.router_class()
 
-        app = FastAPI(lifespan=router.lifespan_context)
+        app = FastAPI()
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -477,6 +478,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             return "hi"
 
         router.include_router(router2)
+        app.include_router(router)
 
         async with self.broker_test(router.broker):
             with TestClient(app) as client:
@@ -506,7 +508,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             mock.not_call()
             pass
 
-        app = FastAPI(lifespan=router.lifespan_context)
+        app = FastAPI()
         app.dependency_overrides[dep1] = lambda: mock()
 
         args, kwargs = self.get_subscriber_params(queue)
