@@ -179,6 +179,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         raw_message = await self.consumer.getone(timeout=timeout)
 
+        if not raw_message:
+            return None
+
         async with AsyncExitStack() as stack:
             return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = (
                 return_input

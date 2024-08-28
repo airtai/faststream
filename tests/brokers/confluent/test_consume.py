@@ -1,4 +1,5 @@
 import asyncio
+import time
 from unittest.mock import patch
 
 import pytest
@@ -322,3 +323,59 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
         assert event.is_set()
         assert event2.is_set()
+
+    @pytest.mark.asyncio
+    async def test_get_one(
+        self,
+        queue: str,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(queue)
+
+        async with self.patch_broker(broker) as br:
+            await broker.start()
+
+            message = None
+            async def consume():
+                nonlocal message
+                message = await subscriber.get_one(5)
+
+            async def publish():
+                await asyncio.sleep(3)
+                await br.publish("test_message", queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume()),
+                    asyncio.create_task(publish()),
+                ),
+                timeout=10
+            )
+
+            assert message is not None
+            assert await message.decode() == "test_message"
+
+    @pytest.mark.asyncio
+    async def test_get_one_timeout(
+        self,
+        queue: str,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(queue)
+
+        async with self.patch_broker(broker) as br:
+            await broker.start()
+
+            message = object()
+            async def coro():
+                nonlocal message
+                message = await subscriber.get_one(timeout=1)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(coro()),
+                ),
+                timeout=3
+            )
+
+            assert message is None
