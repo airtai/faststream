@@ -801,9 +801,9 @@ class StreamSubscriber(_StreamHandlerMixin):
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        stream_message =  await self._client.xread(
+        stream_message = await self._client.xread(
             {self.stream_sub.name: self.last_id},
-            block=timeout * 100000,
+            block=timeout * 1000,
             count=1,
         )
 
@@ -914,9 +914,9 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        stream_message =  await self._client.xread(
+        stream_message = await self._client.xread(
             {self.stream_sub.name: self.last_id},
-            block=timeout * 100000,
+            block=timeout * 1000,
             count=1,
         )
 

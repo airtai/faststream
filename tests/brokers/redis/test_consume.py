@@ -92,6 +92,63 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         mock.assert_called_once_with("hello")
 
+    @pytest.mark.asyncio
+    async def test_get_one(
+        self,
+        queue: str,
+        event: asyncio.Event,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(queue)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            message = None
+            async def consume():
+                nonlocal message
+                message = await subscriber.get_one(timeout=5)
+
+            async def publish():
+                await asyncio.sleep(0.5)
+                await br.publish("test_message", queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume()),
+                    asyncio.create_task(publish()),
+                ),
+                timeout=10
+            )
+
+            assert message is not None
+            assert await message.decode() == "test_message"
+
+    @pytest.mark.asyncio
+    async def test_get_one_timeout(
+        self,
+        queue: str,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(queue)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            message = object()
+            async def coro():
+                nonlocal message
+                message = await subscriber.get_one(timeout=1)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(coro()),
+                ),
+                timeout=3
+            )
+
+            assert message is None
+
 
 @pytest.mark.redis
 @pytest.mark.asyncio
@@ -310,6 +367,63 @@ class TestConsumeList:
             )
 
         assert [{1, "hi"}] == [set(r.result()) for r in result]
+
+    @pytest.mark.asyncio
+    async def test_get_one(
+        self,
+        queue: str,
+        event: asyncio.Event,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(list=queue)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            message = None
+            async def consume():
+                nonlocal message
+                message = await subscriber.get_one(timeout=5)
+
+            async def publish():
+                await asyncio.sleep(0.5)
+                await br.publish("test_message", list=queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume()),
+                    asyncio.create_task(publish()),
+                ),
+                timeout=10
+            )
+
+            assert message is not None
+            assert await message.decode() == "test_message"
+
+    @pytest.mark.asyncio
+    async def test_get_one_timeout(
+        self,
+        queue: str,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(list=queue)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            message = object()
+            async def coro():
+                nonlocal message
+                message = await subscriber.get_one(timeout=1)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(coro()),
+                ),
+                timeout=3
+            )
+
+            assert message is None
 
 
 @pytest.mark.redis
@@ -592,3 +706,59 @@ class TestConsumeStream:
                 m.mock.assert_called_once()
 
         assert event.is_set()
+
+    @pytest.mark.asyncio
+    async def test_get_one(
+        self,
+        queue: str,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(stream=queue)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            message = None
+            async def consume():
+                nonlocal message
+                message = await subscriber.get_one(timeout=3)
+
+            async def publish():
+                await asyncio.sleep(0.5)
+                await br.publish("test_message", stream=queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume()),
+                    asyncio.create_task(publish()),
+                ),
+                timeout=10
+            )
+
+            assert message is not None
+            assert await message.decode() == "test_message"
+
+    @pytest.mark.asyncio
+    async def test_get_one_timeout(
+        self,
+        queue: str,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(stream=queue)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            message = object()
+            async def coro():
+                nonlocal message
+                message = await subscriber.get_one(timeout=1)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(coro()),
+                ),
+                timeout=3
+            )
+
+            assert message is None

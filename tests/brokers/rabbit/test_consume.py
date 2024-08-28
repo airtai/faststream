@@ -394,7 +394,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         subscriber = broker.subscriber(queue, exchange=exchange)
 
         async with self.patch_broker(broker) as br:
-            await broker.start()
+            await br.start()
 
             message = None
             async def set_msg():
@@ -422,7 +422,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         subscriber = broker.subscriber(queue, exchange=exchange)
 
         async with self.patch_broker(broker) as br:
-            await broker.start()
+            await br.start()
 
             message = object()
             async def coro():

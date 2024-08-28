@@ -328,17 +328,18 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_get_one(
         self,
         queue: str,
+        event: asyncio.Event,
     ):
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(queue)
 
         async with self.patch_broker(broker) as br:
-            await broker.start()
+            await br.start()
 
             message = None
             async def consume():
                 nonlocal message
-                message = await subscriber.get_one(5)
+                message = await subscriber.get_one(timeout=5)
 
             async def publish():
                 await asyncio.sleep(3)
@@ -364,7 +365,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         subscriber = broker.subscriber(queue)
 
         async with self.patch_broker(broker) as br:
-            await broker.start()
+            await br.start()
 
             message = object()
             async def coro():

@@ -182,7 +182,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         self.task = None
 
-    async def get_one(self, timeout: float = 5) -> "Optional[KafkaMessage]":
+    async def get_one(self, *, timeout: float = 5.0,) -> "Optional[KafkaMessage]":
         assert self.consumer, "You should start subscriber at first."
         assert (  # nosec B101
             not self.calls
