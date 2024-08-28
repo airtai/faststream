@@ -436,4 +436,4 @@ class TestConsume(BrokerRealConsumeTestcase):
                 timeout=3
             )
 
-            assert message is None, message
+            assert message is None
