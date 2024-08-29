@@ -103,7 +103,7 @@ This way the core router collects all nested routers publishers and subscribers 
 
 ### Custom lifespan
 
-Otherwise, if you want to has multiple connections to different broker instances, you should start routers independently in your custom lifespan
+Otherwise, if you want to has multiple connections to different broker instances, you can just include them separately to the app (each router has own broker and connection in this case)
 
 {! includes/getting_started/integrations/fastapi/multiple_lifespan.md !}
 
