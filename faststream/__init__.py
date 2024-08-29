@@ -28,3 +28,6 @@ __all__ = (
     # basic
     "Response",
 )
+
+
+def useless_func() -> None: ...
