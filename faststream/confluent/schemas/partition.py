@@ -4,7 +4,7 @@ from confluent_kafka import TopicPartition as ConfluentPartition
 from typing_extensions import NotRequired, TypedDict
 
 
-class TopicKwargs(TypedDict):
+class _TopicKwargs(TypedDict):
     topic: str
     partition: int
     offset: int
@@ -36,7 +36,7 @@ class TopicPartition:
         self.leader_epoch = leader_epoch
 
     def to_confluent(self) -> ConfluentPartition:
-        kwargs: TopicKwargs = {
+        kwargs: _TopicKwargs = {
             "topic": self.topic,
             "partition": self.partition,
             "offset": self.offset,

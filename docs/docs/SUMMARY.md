@@ -538,7 +538,6 @@ search:
                     - params
                         - [ConsumerConnectionParams](api/faststream/confluent/schemas/params/ConsumerConnectionParams.md)
                     - partition
-                        - [TopicKwargs](api/faststream/confluent/schemas/partition/TopicKwargs.md)
                         - [TopicPartition](api/faststream/confluent/schemas/partition/TopicPartition.md)
                 - security
                     - [parse_security](api/faststream/confluent/security/parse_security.md)
