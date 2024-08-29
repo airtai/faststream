@@ -18,7 +18,6 @@ from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
-    from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
     from faststream.confluent.subscriber.usecase import LogicSubscriber
     from faststream.types import SendableMessage
@@ -42,8 +41,8 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
         publisher: "AsyncAPIPublisher[Any]",
-    ) -> "HandlerCallWrapper[Any, Any, Any]":
-        sub: Optional[Any] = None
+    ) -> Tuple["LogicSubscriber[Any]", bool]:
+        sub: Optional[LogicSubscriber[Any]] = None
         for handler in broker._subscribers.values():
             if _is_handler_matches(
                 handler, topic=publisher.topic, partition=publisher.partition
@@ -52,6 +51,8 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
                 break
 
         if sub is None:
+            is_real = False
+
             if publisher.partition:
                 tp = TopicPartition(
                     topic=publisher.topic, partition=publisher.partition
@@ -68,22 +69,10 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
                     auto_offset_reset="earliest",
                 )
 
-        if not sub.calls:
+        else:
+            is_real = True
 
-            @sub  # type: ignore[misc]
-            async def publisher_response_subscriber(msg: Any) -> None:
-                pass
-
-            broker.setup_subscriber(sub)
-
-        return sub.calls[0].handler
-
-    @staticmethod
-    def remove_publisher_fake_subscriber(
-        broker: KafkaBroker,
-        publisher: "AsyncAPIPublisher[Any]",
-    ) -> None:
-        broker._subscribers.pop(hash(publisher), None)
+        return sub, is_real
 
 
 class FakeProducer(AsyncConfluentFastProducer):

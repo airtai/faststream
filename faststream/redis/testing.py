@@ -1,5 +1,15 @@
 import re
-from typing import TYPE_CHECKING, Any, List, Optional, Protocol, Sequence, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    List,
+    Optional,
+    Protocol,
+    Sequence,
+    Tuple,
+    Union,
+    cast,
+)
 from unittest.mock import AsyncMock, MagicMock
 
 import anyio
@@ -20,7 +30,6 @@ from faststream.redis.message import (
 from faststream.redis.parser import RawMessage, RedisPubSubParser
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
-from faststream.redis.subscriber.factory import create_subscriber
 from faststream.redis.subscriber.usecase import (
     ChannelSubscriber,
     LogicSubscriber,
@@ -31,7 +40,6 @@ from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
-    from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
     from faststream.types import AnyDict, SendableMessage
 
@@ -45,18 +53,26 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     def create_publisher_fake_subscriber(
         broker: RedisBroker,
         publisher: "AsyncAPIPublisher",
-    ) -> "HandlerCallWrapper[Any, Any, Any]":
-        sub = broker.subscriber(**publisher.subscriber_property)
+    ) -> Tuple["LogicSubscriber", bool]:
+        sub: Optional[LogicSubscriber] = None
 
-        if not sub.calls:
+        named_property = publisher.subscriber_property(name_only=True)
+        visitors = (ChannelVisitor(), ListVisitor(), StreamVisitor())
 
-            @sub
-            async def publisher_response_subscriber(msg: Any) -> None:
-                pass
+        for handler in broker._subscribers.values():  # pragma: no branch
+            for visitor in visitors:
+                if visitor.visit(**named_property, sub=handler):
+                    sub = handler
+                    break
 
-            broker.setup_subscriber(sub)
+        if sub is None:
+            is_real = False
+            sub = broker.subscriber(**publisher.subscriber_property(name_only=False))
 
-        return sub.calls[0].handler
+        else:
+            is_real = True
+
+        return sub, is_real
 
     @staticmethod
     async def _fake_connect(  # type: ignore[override]
@@ -77,16 +93,6 @@ class TestRedisBroker(TestBroker[RedisBroker]):
 
         connection.pubsub.side_effect = lambda: pub_sub
         return connection
-
-    @staticmethod
-    def remove_publisher_fake_subscriber(
-        broker: RedisBroker,
-        publisher: "AsyncAPIPublisher",
-    ) -> None:
-        broker._subscribers.pop(
-            hash(create_subscriber(**publisher.subscriber_property)),
-            None,
-        )
 
 
 class FakeProducer(RedisFastProducer):

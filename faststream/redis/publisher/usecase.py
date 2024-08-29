@@ -55,9 +55,8 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
 
         self._producer = None
 
-    @property
     @abstractmethod
-    def subscriber_property(self) -> "AnyDict":
+    def subscriber_property(self, *, name_only: bool) -> "AnyDict":
         raise NotImplementedError()
 
 
@@ -93,10 +92,10 @@ class ChannelPublisher(LogicPublisher):
     def __hash__(self) -> int:
         return hash(f"publisher:pubsub:{self.channel.name}")
 
-    @property
-    def subscriber_property(self) -> "AnyDict":
+    @override
+    def subscriber_property(self, *, name_only: bool) -> "AnyDict":
         return {
-            "channel": self.channel,
+            "channel": self.channel.name if name_only else self.channel,
             "list": None,
             "stream": None,
         }
@@ -306,11 +305,11 @@ class ListPublisher(LogicPublisher):
     def __hash__(self) -> int:
         return hash(f"publisher:list:{self.list.name}")
 
-    @property
-    def subscriber_property(self) -> "AnyDict":
+    @override
+    def subscriber_property(self, *, name_only: bool) -> "AnyDict":
         return {
             "channel": None,
-            "list": self.list,
+            "list": self.list.name if name_only else self.list,
             "stream": None,
         }
 
@@ -571,9 +570,13 @@ class StreamPublisher(LogicPublisher):
     def __hash__(self) -> int:
         return hash(f"publisher:stream:{self.stream.name}")
 
-    @property
-    def subscriber_property(self) -> "AnyDict":
-        return {"channel": None, "list": None, "stream": self.stream}
+    @override
+    def subscriber_property(self, *, name_only: bool) -> "AnyDict":
+        return {
+            "channel": None,
+            "list": None,
+            "stream": self.stream.name if name_only else self.stream,
+        }
 
     def add_prefix(self, prefix: str) -> None:
         stream_sub = deepcopy(self.stream)

@@ -75,6 +75,10 @@ class FastStream(AsyncAPIApplication):
             Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,
         identifier: Optional[str] = None,
+        on_startup: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
+        after_startup: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
+        on_shutdown: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
+        after_shutdown: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
     ) -> None:
         context.set_global("app", self)
 
@@ -82,10 +86,12 @@ class FastStream(AsyncAPIApplication):
         self.logger = logger
         self.context = context
 
-        self._on_startup_calling = []
-        self._after_startup_calling = []
-        self._on_shutdown_calling = []
-        self._after_shutdown_calling = []
+        self._on_startup_calling = [apply_types(to_async(x)) for x in on_startup]
+        self._after_startup_calling = [apply_types(to_async(x)) for x in after_startup]
+        self._on_shutdown_calling = [apply_types(to_async(x)) for x in on_shutdown]
+        self._after_shutdown_calling = [
+            apply_types(to_async(x)) for x in after_shutdown
+        ]
 
         self.lifespan_context = (
             apply_types(
