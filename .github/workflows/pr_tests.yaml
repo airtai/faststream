@@ -3,15 +3,15 @@ name: Run all tests
 on:
   schedule:
     - cron: "0 0 * * *"
-  # pull_request:
-  #   types:
-  #     - opened
-  #     - synchronize
-  #     - ready_for_review
-  # # https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue#triggering-merge-group-checks-with-github-actions
-  # merge_group:
-  #   types:
-  #     - checks_requested
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - ready_for_review
+  # https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue#triggering-merge-group-checks-with-github-actions
+  merge_group:
+    types:
+      - checks_requested
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

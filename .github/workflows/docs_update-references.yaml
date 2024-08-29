@@ -6,8 +6,8 @@ on:
       - opened
       - synchronize
       - ready_for_review
-    # paths:
-    #   - faststream/**
+    paths:
+      - faststream/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
