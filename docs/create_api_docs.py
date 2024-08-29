@@ -1,6 +1,7 @@
 """Create API documentation for a module."""
 
 import itertools
+import shutil
 from importlib import import_module
 from inspect import getmembers, isclass, isfunction
 from pathlib import Path
@@ -295,6 +296,7 @@ def _generate_api_docs_for_module(root_path: Path, module_name: str) -> Tuple[st
     api_summary = _get_api_summary(members_with_submodules)
 
     api_root = root_path / "docs" / "en" / "api"
+    shutil.rmtree(api_root / module_name, ignore_errors=True)
     api_root.mkdir(parents=True, exist_ok=True)
 
     (api_root / ".meta.yml").write_text(API_META)

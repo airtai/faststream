@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 from unittest.mock import AsyncMock
 
 import anyio
@@ -12,13 +12,12 @@ from faststream.nats.broker import NatsBroker
 from faststream.nats.parser import NatsParser
 from faststream.nats.publisher.producer import NatsFastProducer
 from faststream.nats.schemas.js_stream import is_subject_match_wildcard
-from faststream.nats.subscriber.usecase import LogicSubscriber
 from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
-    from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.nats.subscriber.usecase import LogicSubscriber
     from faststream.types import AnyDict, SendableMessage
 
 __all__ = ("TestNatsBroker",)
@@ -31,18 +30,21 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     def create_publisher_fake_subscriber(
         broker: NatsBroker,
         publisher: "AsyncAPIPublisher",
-    ) -> "HandlerCallWrapper[Any, Any, Any]":
-        sub = broker.subscriber(publisher.subject)
+    ) -> Tuple["LogicSubscriber[Any]", bool]:
+        sub: Optional[LogicSubscriber[Any]] = None
+        publisher_stream = publisher.stream.name if publisher.stream else None
+        for handler in broker._subscribers.values():
+            if _is_handler_suitable(handler, publisher.subject, publisher_stream):
+                sub = handler
+                break
 
-        if not sub.calls:
+        if sub is None:
+            is_real = False
+            sub = broker.subscriber(publisher.subject)
+        else:
+            is_real = True
 
-            @sub
-            async def publisher_response_subscriber(msg: Any) -> None:
-                pass
-
-            broker.setup_subscriber(sub)
-
-        return sub.calls[0].handler
+        return sub, is_real
 
     @staticmethod
     async def _fake_connect(  # type: ignore[override]
@@ -55,14 +57,6 @@ class TestNatsBroker(TestBroker[NatsBroker]):
             broker,
         )
         return AsyncMock()
-
-    @staticmethod
-    def remove_publisher_fake_subscriber(
-        broker: NatsBroker, publisher: "AsyncAPIPublisher"
-    ) -> None:
-        broker._subscribers.pop(
-            LogicSubscriber.get_routing_hash(publisher.subject), None
-        )
 
 
 class FakeProducer(NatsFastProducer):

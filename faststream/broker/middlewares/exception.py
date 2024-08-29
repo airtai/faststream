@@ -21,16 +21,14 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from faststream.broker.message import StreamMessage
-    from faststream.types import AsyncFuncAny, SendableMessage
+    from faststream.types import AsyncFuncAny
 
 
 GeneralExceptionHandler: TypeAlias = Callable[..., None]
-PublishingExceptionHandler: TypeAlias = Callable[..., "SendableMessage"]
+PublishingExceptionHandler: TypeAlias = Callable[..., "Any"]
 
 CastedGeneralExceptionHandler: TypeAlias = Callable[..., Awaitable[None]]
-CastedPublishingExceptionHandler: TypeAlias = Callable[
-    ..., Awaitable["SendableMessage"]
-]
+CastedPublishingExceptionHandler: TypeAlias = Callable[..., Awaitable["Any"]]
 CastedHandlers: TypeAlias = Dict[Type[Exception], CastedGeneralExceptionHandler]
 CastedPublishingHandlers: TypeAlias = Dict[
     Type[Exception], CastedPublishingExceptionHandler

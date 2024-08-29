@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generator, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Any, Generator, Mapping, Optional, Tuple, Union
 from unittest import mock
 from unittest.mock import AsyncMock
 
@@ -22,14 +22,13 @@ from faststream.rabbit.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
 
-    from faststream.broker.wrapper.call import HandlerCallWrapper
+    from faststream.rabbit.subscriber.usecase import LogicSubscriber
     from faststream.rabbit.types import AioPikaSendableMessage
 
 
@@ -39,9 +38,8 @@ __all__ = ("TestRabbitBroker",)
 class TestRabbitBroker(TestBroker[RabbitBroker]):
     """A class to test RabbitMQ brokers."""
 
-    @classmethod
     @contextmanager
-    def _patch_broker(cls, broker: RabbitBroker) -> Generator[None, None, None]:
+    def _patch_broker(self, broker: RabbitBroker) -> Generator[None, None, None]:
         with mock.patch.object(
             broker,
             "_channel",
@@ -61,34 +59,28 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
     def create_publisher_fake_subscriber(
         broker: RabbitBroker,
         publisher: AsyncAPIPublisher,
-    ) -> "HandlerCallWrapper[Any, Any, Any]":
-        sub = broker.subscriber(
-            queue=publisher.routing,
-            exchange=publisher.exchange,
-        )
+    ) -> Tuple["LogicSubscriber", bool]:
+        sub: Optional[LogicSubscriber] = None
+        for handler in broker._subscribers.values():
+            if _is_handler_suitable(
+                handler,
+                publisher.routing,
+                {},
+                publisher.exchange,
+            ):
+                sub = handler
+                break
 
-        if not sub.calls:
+        if sub is None:
+            is_real = False
+            sub = broker.subscriber(
+                queue=publisher.routing,
+                exchange=publisher.exchange,
+            )
+        else:
+            is_real = True
 
-            @sub
-            async def publisher_response_subscriber(msg: Any) -> None:
-                pass
-
-            broker.setup_subscriber(sub)
-
-        return sub.calls[0].handler
-
-    @staticmethod
-    def remove_publisher_fake_subscriber(
-        broker: RabbitBroker,
-        publisher: AsyncAPIPublisher,
-    ) -> None:
-        broker._subscribers.pop(
-            LogicSubscriber.get_routing_hash(
-                queue=RabbitQueue.validate(publisher.routing),
-                exchange=RabbitExchange.validate(publisher.exchange),
-            ),
-            None,
-        )
+        return sub, is_real
 
 
 class PatchedMessage(IncomingMessage):
