@@ -5,7 +5,10 @@ from typing import (
     Callable,
     ContextManager,
     Dict,
+    List,
+    NoReturn,
     Optional,
+    Tuple,
     Type,
     Union,
     overload,
@@ -14,6 +17,7 @@ from typing import (
 from typing_extensions import Literal, TypeAlias
 
 from faststream.broker.middlewares.base import BaseMiddleware
+from faststream.exceptions import IgnoredException
 from faststream.utils import apply_types, context
 from faststream.utils.functions import sync_fake_context, to_async
 
@@ -29,9 +33,17 @@ PublishingExceptionHandler: TypeAlias = Callable[..., "Any"]
 
 CastedGeneralExceptionHandler: TypeAlias = Callable[..., Awaitable[None]]
 CastedPublishingExceptionHandler: TypeAlias = Callable[..., Awaitable["Any"]]
-CastedHandlers: TypeAlias = Dict[Type[Exception], CastedGeneralExceptionHandler]
-CastedPublishingHandlers: TypeAlias = Dict[
-    Type[Exception], CastedPublishingExceptionHandler
+CastedHandlers: TypeAlias = List[
+    Tuple[
+        Type[Exception],
+        CastedGeneralExceptionHandler,
+    ]
+]
+CastedPublishingHandlers: TypeAlias = List[
+    Tuple[
+        Type[Exception],
+        CastedPublishingExceptionHandler,
+    ]
 ]
 
 
@@ -57,7 +69,7 @@ class BaseExceptionMiddleware(BaseMiddleware):
         except Exception as exc:
             exc_type = type(exc)
 
-            for handler_type, handler in self._publish_handlers.items():
+            for handler_type, handler in self._publish_handlers:
                 if issubclass(exc_type, handler_type):
                     return await handler(exc)
 
@@ -70,7 +82,7 @@ class BaseExceptionMiddleware(BaseMiddleware):
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
         if exc_type:
-            for handler_type, handler in self._handlers.items():
+            for handler_type, handler in self._handlers:
                 if issubclass(exc_type, handler_type):
                     # TODO: remove it after context will be moved to middleware
                     # In case parser/decoder error occurred
@@ -98,20 +110,34 @@ class ExceptionMiddleware:
 
     def __init__(
         self,
-        handlers: Optional[Dict[Type[Exception], GeneralExceptionHandler]] = None,
+        handlers: Optional[
+            Dict[
+                Type[Exception],
+                GeneralExceptionHandler,
+            ]
+        ] = None,
         publish_handlers: Optional[
-            Dict[Type[Exception], PublishingExceptionHandler]
+            Dict[
+                Type[Exception],
+                PublishingExceptionHandler,
+            ]
         ] = None,
     ) -> None:
-        self._handlers = {
-            exc_type: apply_types(to_async(handler))
-            for exc_type, handler in (handlers or {}).items()
-        }
+        self._handlers: CastedHandlers = [
+            (IgnoredException, ignore_handler),
+            *(
+                (exc_type, apply_types(to_async(handler)))
+                for exc_type, handler in (handlers or {}).items()
+            ),
+        ]
 
-        self._publish_handlers = {
-            exc_type: apply_types(to_async(handler))
-            for exc_type, handler in (publish_handlers or {}).items()
-        }
+        self._publish_handlers: CastedPublishingHandlers = [
+            (IgnoredException, ignore_handler),
+            *(
+                (exc_type, apply_types(to_async(handler)))
+                for exc_type, handler in (publish_handlers or {}).items()
+            ),
+        ]
 
     @overload
     def add_handler(
@@ -140,7 +166,12 @@ class ExceptionMiddleware:
             def pub_wrapper(
                 func: PublishingExceptionHandler,
             ) -> PublishingExceptionHandler:
-                self._publish_handlers[exc] = apply_types(to_async(func))
+                self._publish_handlers.append(
+                    (
+                        exc,
+                        apply_types(to_async(func)),
+                    )
+                )
                 return func
 
             return pub_wrapper
@@ -150,7 +181,12 @@ class ExceptionMiddleware:
             def default_wrapper(
                 func: GeneralExceptionHandler,
             ) -> GeneralExceptionHandler:
-                self._handlers[exc] = apply_types(to_async(func))
+                self._handlers.append(
+                    (
+                        exc,
+                        apply_types(to_async(func)),
+                    )
+                )
                 return func
 
             return default_wrapper
@@ -162,3 +198,7 @@ class ExceptionMiddleware:
             publish_handlers=self._publish_handlers,
             msg=msg,
         )
+
+
+async def ignore_handler(exception: IgnoredException) -> NoReturn:
+    raise exception

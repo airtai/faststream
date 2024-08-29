@@ -382,6 +382,7 @@ search:
                     - exception
                         - [BaseExceptionMiddleware](api/faststream/broker/middlewares/exception/BaseExceptionMiddleware.md)
                         - [ExceptionMiddleware](api/faststream/broker/middlewares/exception/ExceptionMiddleware.md)
+                        - [ignore_handler](api/faststream/broker/middlewares/exception/ignore_handler.md)
                     - logging
                         - [CriticalLogMiddleware](api/faststream/broker/middlewares/logging/CriticalLogMiddleware.md)
                 - proto
