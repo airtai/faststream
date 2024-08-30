@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import Callable, Type, TypeVar
+from typing import Any, Callable, Type, TypeVar
 from unittest.mock import Mock
 
 import pytest
@@ -12,6 +12,7 @@ from faststream import context
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi.context import Context
 from faststream.broker.fastapi.router import StreamRouter
+from faststream.broker.router import BrokerRouter
 from faststream.types import AnyCallable
 
 from .basic import BaseTestcaseConfig
@@ -22,6 +23,7 @@ Broker = TypeVar("Broker", bound=BrokerUsecase)
 @pytest.mark.asyncio
 class FastAPITestcase(BaseTestcaseConfig):
     router_class: Type[StreamRouter[BrokerUsecase]]
+    broker_router_class: Type[BrokerRouter[Any]]
 
     async def test_base_real(self, mock: Mock, queue: str, event: asyncio.Event):
         router = self.router_class()
@@ -461,7 +463,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
 
     async def test_include(self, queue: str):
         router = self.router_class()
-        router2 = self.router_class()
+        router2 = self.broker_router_class()
 
         app = FastAPI()
 
