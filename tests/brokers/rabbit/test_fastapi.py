@@ -3,15 +3,16 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from faststream.rabbit import ExchangeType, RabbitExchange, RabbitQueue
-from faststream.rabbit.fastapi import RabbitRouter
+from faststream.rabbit import ExchangeType, RabbitExchange, RabbitQueue, RabbitRouter
+from faststream.rabbit.fastapi import RabbitRouter as StreamRouter
 from faststream.rabbit.testing import TestRabbitBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
 @pytest.mark.rabbit
 class TestRouter(FastAPITestcase):
-    router_class = RabbitRouter
+    router_class = StreamRouter
+    broker_router_class = RabbitRouter
 
     @pytest.mark.asyncio
     async def test_path(
@@ -20,7 +21,7 @@ class TestRouter(FastAPITestcase):
         event: asyncio.Event,
         mock: MagicMock,
     ):
-        router = RabbitRouter()
+        router = self.router_class()
 
         @router.subscriber(
             RabbitQueue(
@@ -54,7 +55,8 @@ class TestRouter(FastAPITestcase):
 
 @pytest.mark.asyncio
 class TestRouterLocal(FastAPILocalTestcase):
-    router_class = RabbitRouter
+    router_class = StreamRouter
+    broker_router_class = RabbitRouter
     broker_test = staticmethod(TestRabbitBroker)
     build_message = staticmethod(build_message)
 

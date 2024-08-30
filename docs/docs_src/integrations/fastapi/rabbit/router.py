@@ -1,7 +1,8 @@
 from fastapi import FastAPI
-from faststream.rabbit.fastapi import RabbitRouter
+from faststream.rabbit import RabbitRouter
+from faststream.rabbit.fastapi import RabbitRouter as StreamRouter
 
-core_router = RabbitRouter()
+core_router = StreamRouter()
 nested_router = RabbitRouter()
 
 @core_router.subscriber("core-queue")

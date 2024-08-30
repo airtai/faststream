@@ -1,7 +1,8 @@
 from fastapi import FastAPI
-from faststream.redis.fastapi import RedisRouter
+from faststream.redis import RedisRouter
+from faststream.redis.fastapi import RedisRouter as StreamRouter
 
-core_router = RedisRouter()
+core_router = StreamRouter()
 nested_router = RedisRouter()
 
 @core_router.subscriber("core-channel")
