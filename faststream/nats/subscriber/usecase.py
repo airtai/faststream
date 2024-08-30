@@ -633,7 +633,6 @@ class PushStreamSubscription(_StreamSubscriber):
             self.subscription = await self._connection.pull_subscribe(
                 subject=self.clear_subject,
                 config=self.config,
-                **self.extra_options,
             )
 
         try:

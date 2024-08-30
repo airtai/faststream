@@ -92,7 +92,6 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         mock.assert_called_once_with("hello")
 
-    @pytest.mark.asyncio
     async def test_get_one(
         self,
         queue: str,
@@ -124,7 +123,6 @@ class TestConsume(BrokerRealConsumeTestcase):
             assert message is not None
             assert await message.decode() == "test_message"
 
-    @pytest.mark.asyncio
     async def test_get_one_timeout(
         self,
         queue: str,
@@ -368,7 +366,6 @@ class TestConsumeList:
 
         assert [{1, "hi"}] == [set(r.result()) for r in result]
 
-    @pytest.mark.asyncio
     async def test_get_one(
         self,
         queue: str,
@@ -400,7 +397,6 @@ class TestConsumeList:
             assert message is not None
             assert await message.decode() == "test_message"
 
-    @pytest.mark.asyncio
     async def test_get_one_timeout(
         self,
         queue: str,
@@ -707,7 +703,6 @@ class TestConsumeStream:
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
     async def test_get_one(
         self,
         queue: str,
@@ -738,7 +733,6 @@ class TestConsumeStream:
             assert message is not None
             assert await message.decode() == "test_message"
 
-    @pytest.mark.asyncio
     async def test_get_one_timeout(
         self,
         queue: str,
