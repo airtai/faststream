@@ -488,3 +488,68 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             assert message is None
 
+    async def test_get_one_pool(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        stream: JStream,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(
+            queue,
+            stream=stream,
+            pull_sub=PullSub(1),
+        )
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            message = None
+            async def consume():
+                nonlocal message
+                message = await subscriber.get_one(timeout=5)
+
+            async def publish():
+                await asyncio.sleep(0.5)
+                await br.publish("test_message", queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume()),
+                    asyncio.create_task(publish()),
+                ),
+                timeout=10
+            )
+
+            assert message is not None
+            assert await message.decode() == "test_message"
+
+    async def test_get_one_pool_timeout(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        stream: JStream,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(
+            queue,
+            stream=stream,
+            pull_sub=PullSub(1),
+        )
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            message = object
+            async def consume():
+                nonlocal message
+                message = await subscriber.get_one(timeout=1)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume()),
+                ),
+                timeout=3
+            )
+
+            assert message is None
