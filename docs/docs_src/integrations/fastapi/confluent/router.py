@@ -1,7 +1,8 @@
 from fastapi import FastAPI
-from faststream.confluent.fastapi import KafkaRouter
+from faststream.confluent import KafkaRouter
+from faststream.confluent.fastapi import KafkaRouter as StreamRouter
 
-core_router = KafkaRouter()
+core_router = StreamRouter()
 nested_router = KafkaRouter()
 
 @core_router.subscriber("core-topic")
