@@ -517,6 +517,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/asyncapi/schema/info/ContactDict/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/asyncapi/schema/info/EmailStr/</loc>
+        <lastmod>2024-08-30</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/asyncapi/schema/info/EmailStr/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/asyncapi/schema/info/Info/</loc>
         <lastmod>2024-08-30</lastmod>
         <changefreq>daily</changefreq>
@@ -4637,6 +4643,12 @@
         <lastmod>2024-08-30</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/asyncapi/schema/info/ContactDict/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/asyncapi/schema/info/EmailStr/</loc>
+        <lastmod>2024-08-30</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/asyncapi/schema/info/EmailStr/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/public_api/faststream/asyncapi/schema/info/Info/</loc>
