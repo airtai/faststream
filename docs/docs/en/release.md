@@ -15,18 +15,14 @@ hide:
 ## 0.5.20
 
 ### What's Changed
-* Update Release Notes for 0.5.19 by @faststream-release-notes-updater in [#1727](https://github.com/airtai/faststream/pull/1727){.external-link target="_blank"}
-* refactor: change publisher fake subscriber generation logic by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1729](https://github.com/airtai/faststream/pull/1729){.external-link target="_blank"}
+* Refactor: change publisher fake subscriber generation logic by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1729](https://github.com/airtai/faststream/pull/1729){.external-link target="_blank"}
 * Remove docs/api directory before running create_api_docs script by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1730](https://github.com/airtai/faststream/pull/1730){.external-link target="_blank"}
 * CI: automatically approve & merge Dependabot PRs by [@dolfinus](https://github.com/dolfinus){.external-link target="_blank"} in [#1720](https://github.com/airtai/faststream/pull/1720){.external-link target="_blank"}
 * Run check broken links after docs deploy by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1733](https://github.com/airtai/faststream/pull/1733){.external-link target="_blank"}
-* feature: extend FastStream.__init__ by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1734](https://github.com/airtai/faststream/pull/1734){.external-link target="_blank"}
+* Feature: extend FastStream.__init__ by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1734](https://github.com/airtai/faststream/pull/1734){.external-link target="_blank"}
 * Fix Dependabot group names by [@dolfinus](https://github.com/dolfinus){.external-link target="_blank"} in [#1737](https://github.com/airtai/faststream/pull/1737){.external-link target="_blank"}
-* chore(deps): bump the pip group with 4 updates by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#1738](https://github.com/airtai/faststream/pull/1738){.external-link target="_blank"}
-* fix: respect ignored exceptions by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1735](https://github.com/airtai/faststream/pull/1735){.external-link target="_blank"}
-* Downgrade FastAPI by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1739](https://github.com/airtai/faststream/pull/1739){.external-link target="_blank"}
-* fix: update FastAPI to 0.112.2 by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1736](https://github.com/airtai/faststream/pull/1736){.external-link target="_blank"}
-* Update version to 0.5.20 by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1743](https://github.com/airtai/faststream/pull/1743){.external-link target="_blank"}
+* Fix: respect ignored exceptions by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1735](https://github.com/airtai/faststream/pull/1735){.external-link target="_blank"}
+* Fix: update FastAPI to 0.112.2 by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1736](https://github.com/airtai/faststream/pull/1736){.external-link target="_blank"}
 
 
 **Full Changelog**: [#0.5.19...0.5.20](https://github.com/airtai/faststream/compare/0.5.19...0.5.20){.external-link target="_blank"}
