@@ -1,16 +1,28 @@
+from contextlib import AsyncExitStack
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Iterable,
+    Optional,
+    Union,
+)
 
 from nats.aio.msg import Msg
-from typing_extensions import override
+from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
     from faststream.nats.schemas import JStream
     from faststream.types import AnyDict, AsyncFunc, SendableMessage
@@ -126,6 +138,83 @@ class LogicPublisher(PublisherUsecase[Msg]):
             call = partial(m, call)
 
         return await call(message, **kwargs)
+
+    @override
+    async def request(
+        self,
+        message: Annotated[
+            "SendableMessage",
+            Doc(
+                "Message body to send. "
+                "Can be any encodable object (native python types or `pydantic.BaseModel`)."
+            ),
+        ],
+        subject: Annotated[
+            str,
+            Doc("NATS subject to send message."),
+        ] = "",
+        *,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway."
+            ),
+        ] = None,
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        timeout: Annotated[
+            float,
+            Doc("Timeout to send message to NATS."),
+        ] = 0.5,
+        # publisher specific
+        _extra_middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Extra middlewares to wrap publishing process."),
+        ] = (),
+    ) -> "NatsMessage":
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        kwargs: AnyDict = {
+            "subject": subject or self.subject,
+            "headers": headers or self.headers,
+            "timeout": timeout or self.timeout,
+            "correlation_id": correlation_id or gen_cor_id(),
+        }
+
+        request: AsyncFunc = self._producer.request
+
+        for pub_m in chain(
+            (
+                _extra_middlewares
+                or (m(None).publish_scope for m in self._broker_middlewares)
+            ),
+            self._middlewares,
+        ):
+            request = partial(pub_m, request)
+
+        published_msg = await request(
+            message,
+            **kwargs,
+        )
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[NatsMessage], Awaitable[NatsMessage]] = return_input
+            for m in self._broker_middlewares:
+                mid = m(published_msg)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg = await self._producer._parser(published_msg)
+            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
+
+        raise AssertionError("unreachable")
 
     def add_prefix(self, prefix: str) -> None:
         self.subject = prefix + self.subject

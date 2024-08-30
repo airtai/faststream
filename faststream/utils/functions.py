@@ -80,3 +80,7 @@ def drop_response_type(
 ) -> CallModel[F_Spec, F_Return]:
     model.response_model = None
     return model
+
+
+async def return_input(x: Any) -> Any:
+    return x

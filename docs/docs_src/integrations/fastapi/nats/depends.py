@@ -5,7 +5,7 @@ from faststream.nats import NatsBroker, fastapi
 
 router = fastapi.NatsRouter("nats://localhost:4222")
 
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 
 
 def broker():

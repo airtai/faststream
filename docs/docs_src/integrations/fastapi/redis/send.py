@@ -4,7 +4,7 @@ from faststream.redis.fastapi import RedisRouter
 
 router = RedisRouter("redis://localhost:6379")
 
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 
 
 @router.get("/")

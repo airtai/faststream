@@ -34,7 +34,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         raw_broker,
     ):
         async def mid(call_next, msg):
-            mock.start(msg.decoded_body)
+            mock.start(msg._decoded_body)
             result = await call_next(msg)
             mock.end()
             event.set()
@@ -526,6 +526,39 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         assert event.is_set()
         assert mock.call_count == 0
 
+    async def test_exception_middleware_do_not_catch_skip_msg(
+        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+    ):
+        mid = ExceptionMiddleware()
+
+        @mid.add_handler(Exception)
+        async def value_error_handler(exc):
+            mock()
+
+        broker = self.broker_class(middlewares=(mid,))
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
+        async def subscriber(m):
+            event.set()
+            raise SkipMessage
+
+        broker = self.patch_broker(raw_broker, broker)
+
+        async with broker:
+            await broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
+            await asyncio.sleep(0.001)
+
+        assert event.is_set()
+        assert mock.call_count == 0
+
     async def test_exception_middleware_reraise(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
     ):
@@ -629,7 +662,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         mid2 = ExceptionMiddleware(handlers={ValueError: value_error_handler})
 
-        assert mid1._handlers.keys() == mid2._handlers.keys()
+        assert [x[0] for x in mid1._handlers] == [x[0] for x in mid2._handlers]
 
     async def test_exception_middleware_init_publish_handler_same(self):
         mid1 = ExceptionMiddleware()
@@ -640,7 +673,9 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         mid2 = ExceptionMiddleware(publish_handlers={ValueError: value_error_handler})
 
-        assert mid1._publish_handlers.keys() == mid2._publish_handlers.keys()
+        assert [x[0] for x in mid1._publish_handlers] == [
+            x[0] for x in mid2._publish_handlers
+        ]
 
     async def test_exception_middleware_decoder_error(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker

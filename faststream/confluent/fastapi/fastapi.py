@@ -93,7 +93,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = 40 * 1000,
         retry_backoff_ms: Annotated[
             int,
-            Doc(" Milliseconds to backoff when retrying on errors."),
+            Doc("Milliseconds to backoff when retrying on errors."),
         ] = 100,
         metadata_max_age_ms: Annotated[
             int,
@@ -2210,10 +2210,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         "AsyncAPIDefaultSubscriber",
     ]:
         subscriber = super().subscriber(
-            (  # path
-                next(iter(topics), "")
-                or getattr(next(iter(partitions), None), "topic", "")
-            ),
             *topics,
             polling_interval=polling_interval,
             partitions=partitions,

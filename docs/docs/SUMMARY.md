@@ -216,6 +216,7 @@ search:
             - [apply_types](api/faststream/apply_types.md)
             - app
                 - [FastStream](api/faststream/app/FastStream.md)
+                - [catch_startup_validation_error](api/faststream/app/catch_startup_validation_error.md)
             - asgi
                 - [AsgiFastStream](api/faststream/asgi/AsgiFastStream.md)
                 - [AsgiResponse](api/faststream/asgi/AsgiResponse.md)
@@ -355,7 +356,6 @@ search:
                         - [BrokerUsecase](api/faststream/broker/core/usecase/BrokerUsecase.md)
                 - fastapi
                     - [StreamMessage](api/faststream/broker/fastapi/StreamMessage.md)
-                    - [StreamRoute](api/faststream/broker/fastapi/StreamRoute.md)
                     - [StreamRouter](api/faststream/broker/fastapi/StreamRouter.md)
                     - context
                         - [Context](api/faststream/broker/fastapi/context/Context.md)
@@ -364,8 +364,9 @@ search:
                         - [get_fastapi_native_dependant](api/faststream/broker/fastapi/get_dependant/get_fastapi_native_dependant.md)
                     - route
                         - [StreamMessage](api/faststream/broker/fastapi/route/StreamMessage.md)
-                        - [StreamRoute](api/faststream/broker/fastapi/route/StreamRoute.md)
+                        - [build_faststream_to_fastapi_parser](api/faststream/broker/fastapi/route/build_faststream_to_fastapi_parser.md)
                         - [make_fastapi_execution](api/faststream/broker/fastapi/route/make_fastapi_execution.md)
+                        - [wrap_callable_to_fastapi_compatible](api/faststream/broker/fastapi/route/wrap_callable_to_fastapi_compatible.md)
                     - router
                         - [StreamRouter](api/faststream/broker/fastapi/router/StreamRouter.md)
                 - message
@@ -381,6 +382,7 @@ search:
                     - exception
                         - [BaseExceptionMiddleware](api/faststream/broker/middlewares/exception/BaseExceptionMiddleware.md)
                         - [ExceptionMiddleware](api/faststream/broker/middlewares/exception/ExceptionMiddleware.md)
+                        - [ignore_handler](api/faststream/broker/middlewares/exception/ignore_handler.md)
                     - logging
                         - [CriticalLogMiddleware](api/faststream/broker/middlewares/logging/CriticalLogMiddleware.md)
                 - proto
@@ -564,11 +566,13 @@ search:
                 - [HandlerException](api/faststream/exceptions/HandlerException.md)
                 - [IgnoredException](api/faststream/exceptions/IgnoredException.md)
                 - [NackMessage](api/faststream/exceptions/NackMessage.md)
+                - [OperationForbiddenError](api/faststream/exceptions/OperationForbiddenError.md)
                 - [RejectMessage](api/faststream/exceptions/RejectMessage.md)
                 - [SetupError](api/faststream/exceptions/SetupError.md)
                 - [SkipMessage](api/faststream/exceptions/SkipMessage.md)
                 - [StopApplication](api/faststream/exceptions/StopApplication.md)
                 - [StopConsume](api/faststream/exceptions/StopConsume.md)
+                - [SubscriberNotFound](api/faststream/exceptions/SubscriberNotFound.md)
                 - [ValidationError](api/faststream/exceptions/ValidationError.md)
             - kafka
                 - [KafkaBroker](api/faststream/kafka/KafkaBroker.md)
@@ -843,6 +847,7 @@ search:
                     - usecase
                         - [LogicPublisher](api/faststream/rabbit/publisher/usecase/LogicPublisher.md)
                         - [PublishKwargs](api/faststream/rabbit/publisher/usecase/PublishKwargs.md)
+                        - [RequestPublishKwargs](api/faststream/rabbit/publisher/usecase/RequestPublishKwargs.md)
                 - response
                     - [RabbitResponse](api/faststream/rabbit/response/RabbitResponse.md)
                 - router
@@ -989,8 +994,12 @@ search:
                         - [LogicSubscriber](api/faststream/redis/subscriber/usecase/LogicSubscriber.md)
                         - [StreamSubscriber](api/faststream/redis/subscriber/usecase/StreamSubscriber.md)
                 - testing
+                    - [ChannelVisitor](api/faststream/redis/testing/ChannelVisitor.md)
                     - [FakeProducer](api/faststream/redis/testing/FakeProducer.md)
+                    - [ListVisitor](api/faststream/redis/testing/ListVisitor.md)
+                    - [StreamVisitor](api/faststream/redis/testing/StreamVisitor.md)
                     - [TestRedisBroker](api/faststream/redis/testing/TestRedisBroker.md)
+                    - [Visitor](api/faststream/redis/testing/Visitor.md)
                     - [build_message](api/faststream/redis/testing/build_message.md)
             - security
                 - [BaseSecurity](api/faststream/security/BaseSecurity.md)
@@ -1005,7 +1014,6 @@ search:
                     - [TestApp](api/faststream/testing/app/TestApp.md)
                 - broker
                     - [TestBroker](api/faststream/testing/broker/TestBroker.md)
-                    - [call_handler](api/faststream/testing/broker/call_handler.md)
                     - [patch_broker_calls](api/faststream/testing/broker/patch_broker_calls.md)
             - types
                 - [LoggerProto](api/faststream/types/LoggerProto.md)
@@ -1045,6 +1053,7 @@ search:
                     - [call_or_await](api/faststream/utils/functions/call_or_await.md)
                     - [drop_response_type](api/faststream/utils/functions/drop_response_type.md)
                     - [fake_context](api/faststream/utils/functions/fake_context.md)
+                    - [return_input](api/faststream/utils/functions/return_input.md)
                     - [sync_fake_context](api/faststream/utils/functions/sync_fake_context.md)
                     - [timeout_scope](api/faststream/utils/functions/timeout_scope.md)
                     - [to_async](api/faststream/utils/functions/to_async.md)

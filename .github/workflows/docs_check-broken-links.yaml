@@ -4,8 +4,7 @@ on:
   workflow_run:
     types:
       - completed
-    workflows:
-      - Deploy Docs to GitHub Pages
+    workflows: ["pages-build-deployment"]
 
 jobs:
   check-broken-link:

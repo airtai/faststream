@@ -21,5 +21,5 @@ async def hello(m: Incoming, logger: Logger, d=Depends(call)):
 async def hello_http():
     return "Hello, HTTP!"
 
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 app.include_router(router)

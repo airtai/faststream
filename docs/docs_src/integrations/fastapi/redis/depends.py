@@ -5,7 +5,7 @@ from faststream.redis import RedisBroker, fastapi
 
 router = fastapi.RedisRouter("redis://localhost:6379")
 
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 
 
 def broker():

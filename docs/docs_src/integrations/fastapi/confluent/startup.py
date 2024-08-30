@@ -15,5 +15,5 @@ async def test(app: FastAPI):
     await router.broker.publish("Hello!", "test")
 
 
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 app.include_router(router)
