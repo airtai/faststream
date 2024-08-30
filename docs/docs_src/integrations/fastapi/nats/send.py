@@ -4,7 +4,7 @@ from faststream.nats.fastapi import NatsRouter
 
 router = NatsRouter("nats://localhost:4222")
 
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 
 
 @router.get("/")

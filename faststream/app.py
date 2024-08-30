@@ -249,6 +249,4 @@ try:
             raise ValidationError(fields=fields) from e
 
 except ImportError:
-    from faststream.utils.functions import fake_context
-
     catch_startup_validation_error = fake_context

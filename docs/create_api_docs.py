@@ -346,7 +346,7 @@ def create_api_docs(
 
 def on_page_markdown(markdown, *, page, config, files):
     """Mkdocs hook to update the edit URL for the public API pages."""
-    if "public_api" in page.edit_url:
+    if page.edit_url and "public_api" in page.edit_url:
         page.edit_url = page.edit_url.replace("public_api", "api")
 
 

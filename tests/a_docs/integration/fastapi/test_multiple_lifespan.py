@@ -40,12 +40,12 @@ class TestKafka(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.kafka.multiple_lifespan import (
+            another_router,
             app,
-            core_router,
-            nested_router,
+            one_router,
         )
 
-        return (app, core_router, nested_router)
+        return (app, one_router, another_router)
 
 
 @pytest.mark.confluent
@@ -54,12 +54,12 @@ class TestConfluent(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.confluent.multiple_lifespan import (
+            another_router,
             app,
-            core_router,
-            nested_router,
+            one_router,
         )
 
-        return (app, core_router, nested_router)
+        return (app, one_router, another_router)
 
 
 @pytest.mark.nats
@@ -68,12 +68,12 @@ class TestNats(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.nats.multiple_lifespan import (
+            another_router,
             app,
-            core_router,
-            nested_router,
+            one_router,
         )
 
-        return (app, core_router, nested_router)
+        return (app, one_router, another_router)
 
 
 @pytest.mark.rabbit
@@ -82,12 +82,12 @@ class TestRabbit(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.rabbit.multiple_lifespan import (
+            another_router,
             app,
-            core_router,
-            nested_router,
+            one_router,
         )
 
-        return (app, core_router, nested_router)
+        return (app, one_router, another_router)
 
 
 @pytest.mark.redis
@@ -96,9 +96,9 @@ class TestRedis(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.redis.multiple_lifespan import (
+            another_router,
             app,
-            core_router,
-            nested_router,
+            one_router,
         )
 
-        return (app, core_router, nested_router)
+        return (app, one_router, another_router)

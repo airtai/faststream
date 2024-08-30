@@ -18,7 +18,7 @@ hide:
 
 The current release is planned as a latest feature release before **0.6.0**. All other **0.5.19+** releases will contain only minor bugfixes and all the team work will be focused on next major one.
 
-There a lot of changes we want to present you now though!
+There's a lot of changes we want to present you now though!
 
 #### New RPC feature
 

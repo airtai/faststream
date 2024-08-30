@@ -14,5 +14,5 @@ async def nested_handler():
 
 core_router.include_router(nested_router)
 
-app = FastAPI(lifespan=core_router.lifespan_context)
+app = FastAPI()
 app.include_router(core_router)

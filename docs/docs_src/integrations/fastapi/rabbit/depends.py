@@ -5,7 +5,7 @@ from faststream.rabbit import RabbitBroker, fastapi
 
 router = fastapi.RabbitRouter("amqp://guest:guest@localhost:5672/")
 
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 
 
 def broker():
