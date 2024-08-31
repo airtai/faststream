@@ -4,7 +4,7 @@ from faststream.kafka.fastapi import KafkaRouter
 
 router = KafkaRouter("localhost:9092")
 
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 
 
 @router.get("/")

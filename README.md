@@ -318,7 +318,7 @@ class Incoming(BaseModel):
 async def hello(m: Incoming):
     return {"response": "Hello, world!"}
 
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 app.include_router(router)
 ```
 

@@ -30,7 +30,7 @@ class BaseCase:
 class TestKafka(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
-        from docs.docs_src.integrations.fastapi.kafka.multiple import app, core_router
+        from docs.docs_src.integrations.fastapi.kafka.router import app, core_router
 
         return (app, core_router.broker)
 
@@ -40,7 +40,7 @@ class TestKafka(BaseCase):
 class TestConfluent(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
-        from docs.docs_src.integrations.fastapi.confluent.multiple import (
+        from docs.docs_src.integrations.fastapi.confluent.router import (
             app,
             core_router,
         )
@@ -53,7 +53,7 @@ class TestConfluent(BaseCase):
 class TestNats(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
-        from docs.docs_src.integrations.fastapi.nats.multiple import app, core_router
+        from docs.docs_src.integrations.fastapi.nats.router import app, core_router
 
         return (app, core_router.broker)
 
@@ -63,7 +63,7 @@ class TestNats(BaseCase):
 class TestRabbit(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
-        from docs.docs_src.integrations.fastapi.rabbit.multiple import app, core_router
+        from docs.docs_src.integrations.fastapi.rabbit.router import app, core_router
 
         return (app, core_router.broker)
 
@@ -73,6 +73,6 @@ class TestRabbit(BaseCase):
 class TestRedis(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
-        from docs.docs_src.integrations.fastapi.redis.multiple import app, core_router
+        from docs.docs_src.integrations.fastapi.redis.router import app, core_router
 
         return (app, core_router.broker)

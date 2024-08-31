@@ -4,14 +4,16 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream.kafka.fastapi import KafkaRouter
+from faststream.kafka import KafkaRouter
+from faststream.kafka.fastapi import KafkaRouter as StreamRouter
 from faststream.kafka.testing import TestKafkaBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
 @pytest.mark.kafka
 class TestKafkaRouter(FastAPITestcase):
-    router_class = KafkaRouter
+    router_class = StreamRouter
+    broker_router_class = KafkaRouter
 
     async def test_batch_real(
         self,
@@ -19,7 +21,7 @@ class TestKafkaRouter(FastAPITestcase):
         queue: str,
         event: asyncio.Event,
     ):
-        router = KafkaRouter()
+        router = self.router_class()
 
         @router.subscriber(queue, batch=True)
         async def hello(msg: List[str]):
@@ -41,7 +43,8 @@ class TestKafkaRouter(FastAPITestcase):
 
 
 class TestRouterLocal(FastAPILocalTestcase):
-    router_class = KafkaRouter
+    router_class = StreamRouter
+    broker_router_class = KafkaRouter
     broker_test = staticmethod(TestKafkaBroker)
     build_message = staticmethod(build_message)
 
@@ -51,7 +54,7 @@ class TestRouterLocal(FastAPILocalTestcase):
         queue: str,
         event: asyncio.Event,
     ):
-        router = KafkaRouter()
+        router = self.router_class()
 
         @router.subscriber(queue, batch=True)
         async def hello(msg: List[str]):

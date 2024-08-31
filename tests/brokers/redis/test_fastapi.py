@@ -4,15 +4,16 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream.redis import ListSub, StreamSub
-from faststream.redis.fastapi import RedisRouter
+from faststream.redis import ListSub, RedisRouter, StreamSub
+from faststream.redis.fastapi import RedisRouter as StreamRouter
 from faststream.redis.testing import TestRedisBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
 @pytest.mark.redis
 class TestRouter(FastAPITestcase):
-    router_class = RedisRouter
+    router_class = StreamRouter
+    broker_router_class = RedisRouter
 
     async def test_path(
         self,
@@ -20,7 +21,7 @@ class TestRouter(FastAPITestcase):
         event: asyncio.Event,
         mock: Mock,
     ):
-        router = RedisRouter()
+        router = self.router_class()
 
         @router.subscriber("in.{name}")
         def subscriber(msg: str, name: str):
@@ -41,7 +42,7 @@ class TestRouter(FastAPITestcase):
         mock.assert_called_once_with(msg="hello", name="john")
 
     async def test_connection_params(self, settings):
-        broker = RedisRouter(
+        broker = self.router_class(
             host="fake-host", port=6377
         ).broker  # kwargs will be ignored
         await broker.connect(
@@ -57,7 +58,7 @@ class TestRouter(FastAPITestcase):
         queue: str,
         event: asyncio.Event,
     ):
-        router = RedisRouter()
+        router = self.router_class()
 
         @router.subscriber(list=ListSub(queue, batch=True, max_records=1))
         async def hello(msg: List[str]):
@@ -84,7 +85,7 @@ class TestRouter(FastAPITestcase):
         mock: Mock,
         queue,
     ):
-        router = RedisRouter()
+        router = self.router_class()
 
         @router.subscriber(stream=StreamSub(queue, polling_interval=10))
         async def handler(msg):
@@ -112,7 +113,7 @@ class TestRouter(FastAPITestcase):
         mock: Mock,
         queue,
     ):
-        router = RedisRouter()
+        router = self.router_class()
 
         @router.subscriber(stream=StreamSub(queue, polling_interval=10, batch=True))
         async def handler(msg: List[str]):
@@ -135,7 +136,8 @@ class TestRouter(FastAPITestcase):
 
 
 class TestRouterLocal(FastAPILocalTestcase):
-    router_class = RedisRouter
+    router_class = StreamRouter
+    broker_router_class = RedisRouter
     broker_test = staticmethod(TestRedisBroker)
     build_message = staticmethod(build_message)
 
@@ -145,7 +147,7 @@ class TestRouterLocal(FastAPILocalTestcase):
         queue: str,
         event: asyncio.Event,
     ):
-        router = RedisRouter()
+        router = self.router_class()
 
         @router.subscriber(list=ListSub(queue, batch=True, max_records=1))
         async def hello(msg: List[str]):
@@ -170,7 +172,7 @@ class TestRouterLocal(FastAPILocalTestcase):
         queue: str,
         event: asyncio.Event,
     ):
-        router = RedisRouter()
+        router = self.router_class()
 
         @router.subscriber(stream=StreamSub(queue, batch=True))
         async def hello(msg: List[str]):

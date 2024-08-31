@@ -35,13 +35,14 @@ from faststream.asyncapi.site import get_asyncapi_html
 from faststream.broker.fastapi.get_dependant import get_fastapi_dependant
 from faststream.broker.fastapi.route import wrap_callable_to_fastapi_compatible
 from faststream.broker.middlewares import BaseMiddleware
+from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
 )
 from faststream.utils.context.repository import context
-from faststream.utils.functions import to_async
+from faststream.utils.functions import fake_context, to_async
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -63,7 +64,7 @@ if TYPE_CHECKING:
 
 
 class _BackgroundMiddleware(BaseMiddleware):
-    async def after_processed(
+    async def __aexit__(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
@@ -479,9 +480,9 @@ class StreamRouter(
         docs_router.get(f"{schema_url}.yaml")(download_app_yaml_schema)
         return docs_router
 
-    def include_router(
+    def include_router(  # type: ignore[override]
         self,
-        router: "APIRouter",
+        router: Union["StreamRouter[MsgType]", "BrokerRouter[MsgType]"],
         *,
         prefix: str = "",
         tags: Optional[List[Union[str, Enum]]] = None,
@@ -496,7 +497,26 @@ class StreamRouter(
         ),
     ) -> None:
         """Includes a router in the API."""
+        if isinstance(router, BrokerRouter):
+            for sub in router._subscribers.values():
+                sub._call_decorators = (  # type: ignore[attr-defined]
+                    self._add_api_mq_route(
+                        dependencies=(),
+                        response_model=Default(None),
+                        response_model_include=None,
+                        response_model_exclude=None,
+                        response_model_by_alias=True,
+                        response_model_exclude_unset=False,
+                        response_model_exclude_defaults=False,
+                        response_model_exclude_none=False,
+                    ),
+                )
+
+            self.broker.include_router(router)
+            return
+
         if isinstance(router, StreamRouter):  # pragma: no branch
+            router.lifespan_context = fake_context
             self.broker.include_router(router.broker)
             router.weak_dependencies_provider = self.weak_dependencies_provider
 
