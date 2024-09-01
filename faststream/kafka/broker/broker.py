@@ -719,6 +719,10 @@ class KafkaBroker(
             str,
             Doc("Reply message topic name to send response."),
         ] = "",
+        no_wait: Annotated[
+            bool,
+            Doc("Do not wait for Kafka publish confirmation."),
+        ] = False,
         # extra options to be compatible with test client
         **kwargs: Any,
     ) -> Optional[Any]:
@@ -741,6 +745,7 @@ class KafkaBroker(
             headers=headers,
             correlation_id=correlation_id,
             reply_to=reply_to,
+            no_wait=no_wait,
             **kwargs,
         )
 
@@ -861,6 +866,10 @@ class KafkaBroker(
                 "**correlation_id** is a useful option to trace messages."
             ),
         ] = None,
+        no_wait: Annotated[
+            bool,
+            Doc("Do not wait for Kafka publish confirmation."),
+        ] = False,
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -879,6 +888,7 @@ class KafkaBroker(
             headers=headers,
             reply_to=reply_to,
             correlation_id=correlation_id,
+            no_wait=no_wait,
         )
 
     @override
