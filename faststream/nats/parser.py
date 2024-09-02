@@ -51,7 +51,7 @@ class NatsBaseParser:
 class NatsParser(NatsBaseParser):
     """A class to parse NATS core messages."""
 
-    def __init__(self, *, pattern: str, no_ack: bool = False) -> None:
+    def __init__(self, *, pattern: str, no_ack: bool) -> None:
         super().__init__(pattern=pattern)
         self.no_ack = no_ack
 
