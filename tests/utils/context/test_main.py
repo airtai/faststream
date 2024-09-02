@@ -154,6 +154,15 @@ def test_default(context: ContextRepo):
         use()
 
 
+def test_local_default(context: ContextRepo):
+    key = "some-key"
+
+    tag = context.set_local(key, "useless")
+    context.reset_local(key, tag)
+
+    assert context.get_local(key, 1) == 1
+
+
 def test_initial():
     @apply_types
     def use(
