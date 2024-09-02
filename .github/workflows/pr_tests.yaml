@@ -75,7 +75,7 @@ jobs:
         run: uv pip install --system --pre "pydantic>=2.0.0b2,<3.0.0"
       - run: mkdir coverage
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh -vv
           -m "(slow and ($ALL_PYTEST_MARKERS)) or ($ALL_PYTEST_MARKERS)"
         env:
@@ -104,7 +104,7 @@ jobs:
           uv pip install --system .[optionals,testing] orjson
       - run: mkdir coverage
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "(slow and ($ALL_PYTEST_MARKERS)) or ($ALL_PYTEST_MARKERS)"
         env:
@@ -151,7 +151,7 @@ jobs:
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "(slow and ($ALL_PYTEST_MARKERS)) or ($ALL_PYTEST_MARKERS)"
 
@@ -170,7 +170,7 @@ jobs:
           python -m pip install uv
           uv pip install --system .[kafka,test-core]
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "not kafka"
           tests/brokers/kafka/test_test_client.py
@@ -210,7 +210,7 @@ jobs:
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "(slow and kafka) or kafka"
         env:
@@ -238,7 +238,7 @@ jobs:
           python -m pip install uv
           uv pip install --system .[confluent,test-core]
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "not confluent"
           tests/brokers/confluent/test_test_client.py
@@ -278,7 +278,7 @@ jobs:
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh -vv
           -m "(slow and confluent) or confluent"
         env:
@@ -306,7 +306,7 @@ jobs:
           python -m pip install uv
           uv pip install --system .[rabbit,test-core]
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "not rabbit"
           tests/brokers/rabbit/test_test_client.py
@@ -335,7 +335,7 @@ jobs:
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "(slow and rabbit) or rabbit"
         env:
@@ -363,7 +363,7 @@ jobs:
           python -m pip install uv
           uv pip install --system .[nats,test-core]
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "not nats"
           tests/brokers/nats/test_test_client.py
@@ -392,7 +392,7 @@ jobs:
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "(slow and nats) or nats"
         env:
@@ -420,7 +420,7 @@ jobs:
           python -m pip install uv
           uv pip install --system .[redis,test-core]
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "not redis"
           tests/brokers/redis/test_test_client.py
@@ -449,7 +449,7 @@ jobs:
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "(slow and redis) or redis"
         env:
