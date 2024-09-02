@@ -100,6 +100,7 @@ class FakeProducer(AsyncConfluentFastProducer):
         headers: Optional[Dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         *,
+        no_confirm: bool = False,
         reply_to: str = "",
         rpc: bool = False,
         rpc_timeout: Optional[float] = None,
@@ -147,6 +148,7 @@ class FakeProducer(AsyncConfluentFastProducer):
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
+        no_confirm: bool = False,
     ) -> None:
         """Publish a batch of messages to the Kafka broker."""
         for handler in self.broker._subscribers.values():  # pragma: no branch

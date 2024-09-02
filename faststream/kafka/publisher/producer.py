@@ -47,7 +47,7 @@ class AioKafkaFastProducer(ProducerProto):
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
-        no_wait: bool = False,
+        no_confirm: bool = False,
     ) -> None:
         """Publish a message to a topic."""
         message, content_type = encode_message(message)
@@ -72,9 +72,7 @@ class AioKafkaFastProducer(ProducerProto):
             timestamp_ms=timestamp_ms,
             headers=[(i, (j or "").encode()) for i, j in headers_to_send.items()],
         )
-        if no_wait:
-            return None
-        else:
+        if not no_confirm:
             await send_future
 
     async def stop(self) -> None:
@@ -89,7 +87,7 @@ class AioKafkaFastProducer(ProducerProto):
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
-        no_wait: bool = False,
+        no_confirm: bool = False,
     ) -> None:
         """Publish a batch of messages to a topic."""
         batch = self._producer.create_batch()
@@ -121,9 +119,7 @@ class AioKafkaFastProducer(ProducerProto):
             )
 
         send_future = await self._producer.send_batch(batch, topic, partition=partition)
-        if no_wait:
-            return None
-        else:
+        if not no_confirm:
             await send_future
 
     @override

@@ -105,7 +105,7 @@ class FakeProducer(AioKafkaFastProducer):
         rpc: bool = False,
         rpc_timeout: Optional[float] = None,
         raise_timeout: bool = False,
-        no_wait: bool = False,
+        no_confirm: bool = False,
     ) -> Optional[Any]:
         """Publish a message to the Kafka broker."""
         incoming = build_message(
@@ -185,7 +185,7 @@ class FakeProducer(AioKafkaFastProducer):
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
-        no_wait: bool = False,
+        no_confirm: bool = False,
     ) -> None:
         """Publish a batch of messages to the Kafka broker."""
         for handler in self.broker._subscribers.values():  # pragma: no branch

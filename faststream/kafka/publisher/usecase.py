@@ -276,7 +276,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
             str,
             Doc("Reply message topic name to send response."),
         ] = "",
-        no_wait: Annotated[
+        no_confirm: Annotated[
             bool,
             Doc("Do not wait for Kafka publish confirmation."),
         ] = False,
@@ -315,7 +315,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
             reply_to=reply_to,
             correlation_id=correlation_id,
             timestamp_ms=timestamp_ms,
-            no_wait=no_wait,
+            no_confirm=no_confirm,
         )
 
     @override
@@ -445,7 +445,7 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
                 "**correlation_id** is a useful option to trace messages."
             ),
         ] = None,
-        no_wait: Annotated[
+        no_confirm: Annotated[
             bool,
             Doc("Do not wait for Kafka publish confirmation."),
         ] = False,
@@ -488,5 +488,5 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
             reply_to=reply_to,
             correlation_id=correlation_id,
             timestamp_ms=timestamp_ms,
-            no_wait=no_wait,
+            no_confirm=no_confirm,
         )

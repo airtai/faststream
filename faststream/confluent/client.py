@@ -1,4 +1,7 @@
+import asyncio
 import logging
+from contextlib import suppress
+from threading import Thread
 from time import time
 from typing import (
     TYPE_CHECKING,
@@ -24,7 +27,16 @@ from faststream.types import EMPTY
 from faststream.utils.functions import call_or_await
 
 if TYPE_CHECKING:
+    from typing_extensions import NotRequired, TypedDict
+
     from faststream.types import AnyDict, LoggerProto
+
+    class _SendKwargs(TypedDict):
+        value: Optional[Union[str, bytes]]
+        key: Optional[Union[str, bytes]]
+        headers: Optional[List[Tuple[str, Union[str, bytes]]]]
+        partition: NotRequired[int]
+        timestamp: NotRequired[int]
 
 
 class AsyncConfluentProducer:
@@ -102,9 +114,21 @@ class AsyncConfluentProducer:
 
         self.producer = Producer(self.config, logger=self.logger)
 
+        self.__running = True
+        self._poll_thread = Thread(target=self._poll_loop)
+        self._poll_thread.start()
+
+    def _poll_loop(self) -> None:
+        while self.__running:
+            with suppress(Exception):
+                self.producer.poll(0.1)
+
     async def stop(self) -> None:
         """Stop the Kafka producer and flush remaining messages."""
-        await call_or_await(self.producer.flush)
+        if self.__running:
+            await call_or_await(self.producer.flush)
+            self.__running = False
+            self._poll_thread.join()
 
     async def send(
         self,
@@ -114,9 +138,10 @@ class AsyncConfluentProducer:
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
         headers: Optional[List[Tuple[str, Union[str, bytes]]]] = None,
+        no_confirm: bool = False,
     ) -> None:
         """Sends a single message to a Kafka topic."""
-        kwargs: AnyDict = {
+        kwargs: _SendKwargs = {
             "value": value,
             "key": key,
             "headers": headers,
@@ -128,9 +153,18 @@ class AsyncConfluentProducer:
         if timestamp_ms is not None:
             kwargs["timestamp"] = timestamp_ms
 
+        result_future: asyncio.Future[Optional[Message]] = asyncio.Future()
+
+        def ack_callback(err: Any, msg: Optional[Message]) -> None:
+            if err or (msg is not None and (err := msg.error())):
+                result_future.set_exception(KafkaException(err))
+            else:
+                result_future.set_result(msg)
+
         # should be sync to prevent segfault
-        self.producer.produce(topic, **kwargs)
-        self.producer.poll(0)
+        self.producer.produce(topic, **kwargs, on_delivery=ack_callback)
+        if not no_confirm:
+            await result_future
 
     def create_batch(self) -> "BatchBuilder":
         """Creates a batch for sending multiple messages."""

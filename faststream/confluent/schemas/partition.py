@@ -1,15 +1,16 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from confluent_kafka import TopicPartition as ConfluentPartition
-from typing_extensions import NotRequired, TypedDict
 
+if TYPE_CHECKING:
+    from typing_extensions import NotRequired, TypedDict
 
-class _TopicKwargs(TypedDict):
-    topic: str
-    partition: int
-    offset: int
-    metadata: NotRequired[str]
-    leader_epoch: NotRequired[int]
+    class _TopicKwargs(TypedDict):
+        topic: str
+        partition: int
+        offset: int
+        metadata: NotRequired[str]
+        leader_epoch: NotRequired[int]
 
 
 class TopicPartition:
