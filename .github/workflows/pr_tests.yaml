@@ -77,7 +77,11 @@ jobs:
       - name: Test
         run: |
           bash scripts/test.sh -vv
+<<<<<<< HEAD
           -m "(slow and ($ALL_PYTEST_MARKERS)) or ($env.ALL_PYTEST_MARKERS)"
+=======
+          -m "(slow and (${{env.ALL_PYTEST_MARKERS}})) or (${{env.ALL_PYTEST_MARKERS}})"
+>>>>>>> 922f50cf7ada5cdf07f1ceb469968862406af63c
         env:
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
