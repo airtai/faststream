@@ -13,6 +13,9 @@ on:
     types:
       - checks_requested
 
+env:
+  ALL_PYTEST_MARKERS: "not nats and not kafka and not confluent and not rabbit and not redis"
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -72,7 +75,9 @@ jobs:
         run: uv pip install --system --pre "pydantic>=2.0.0b2,<3.0.0"
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -vv -m "(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
+        run: |
+          bash scripts/test.sh -vv
+          -m "(slow and ($ALL_PYTEST_MARKERS)) or ($env.ALL_PYTEST_MARKERS)"
         env:
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
@@ -99,7 +104,9 @@ jobs:
           uv pip install --system .[optionals,testing] orjson
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -m"(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
+        run: |
+          bash scripts/test.sh
+          -m "(slow and (${{env.ALL_PYTEST_MARKERS}})) or (${{env.ALL_PYTEST_MARKERS}})"
         env:
           COVERAGE_FILE: coverage/.coverage.orjson
           CONTEXT: orjson
@@ -125,7 +132,9 @@ jobs:
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - name: Test
-        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
+        run: |
+          bash scripts/test.sh
+          -m "(slow and (${{env.ALL_PYTEST_MARKERS}})) or (${{env.ALL_PYTEST_MARKERS}})"
 
   test-windows-latest:
     if: github.event.pull_request.draft == false
@@ -142,7 +151,9 @@ jobs:
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - name: Test
-        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
+        run: |
+          bash scripts/test.sh
+          -m "(slow and (${{env.ALL_PYTEST_MARKERS}})) or (${{env.ALL_PYTEST_MARKERS}})"
 
   test-kafka-smoke:
     if: github.event.pull_request.draft == false
@@ -159,7 +170,10 @@ jobs:
           python -m pip install uv
           uv pip install --system .[kafka,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not kafka" tests/brokers/kafka/test_test_client.py
+        run: |
+          bash scripts/test.sh
+          -m "not kafka"
+          tests/brokers/kafka/test_test_client.py
 
   test-kafka-real:
     if: github.event.pull_request.draft == false
@@ -196,7 +210,9 @@ jobs:
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -m "(slow and kafka) or kafka"
+        run: |
+          bash scripts/test.sh
+          -m "(slow and kafka) or kafka"
         env:
           COVERAGE_FILE: coverage/.coverage.kafka-py
           CONTEXT: kafka-py
@@ -222,7 +238,10 @@ jobs:
           python -m pip install uv
           uv pip install --system .[confluent,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not confluent" tests/brokers/confluent/test_test_client.py
+        run: |
+          bash scripts/test.sh
+          -m "not confluent"
+          tests/brokers/confluent/test_test_client.py
 
   test-confluent-real:
     if: github.event.pull_request.draft == false
@@ -259,7 +278,9 @@ jobs:
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -vv -m "(slow and confluent) or confluent"
+        run: |
+          bash scripts/test.sh -vv
+          -m "(slow and confluent) or confluent"
         env:
           COVERAGE_FILE: coverage/.coverage.confluent-py
           CONTEXT: confluent-py
@@ -285,7 +306,10 @@ jobs:
           python -m pip install uv
           uv pip install --system .[rabbit,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not rabbit" tests/brokers/rabbit/test_test_client.py
+        run: |
+          bash scripts/test.sh
+          -m "not rabbit"
+          tests/brokers/rabbit/test_test_client.py
 
   test-rabbit-real:
     if: github.event.pull_request.draft == false
@@ -311,7 +335,9 @@ jobs:
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -m "(slow and rabbit) or rabbit"
+        run: |
+          bash scripts/test.sh
+          -m "(slow and rabbit) or rabbit"
         env:
           COVERAGE_FILE: coverage/.coverage.rabbit-py
           CONTEXT: rabbit-py
@@ -337,7 +363,10 @@ jobs:
           python -m pip install uv
           uv pip install --system .[nats,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not nats" tests/brokers/nats/test_test_client.py
+        run: |
+          bash scripts/test.sh
+          -m "not nats"
+          tests/brokers/nats/test_test_client.py
 
   test-nats-real:
     if: github.event.pull_request.draft == false
@@ -363,7 +392,9 @@ jobs:
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -m "(slow and nats) or nats"
+        run: |
+          bash scripts/test.sh
+          -m "(slow and nats) or nats"
         env:
           COVERAGE_FILE: coverage/.coverage.nats-py
           CONTEXT: nats-py
@@ -389,7 +420,10 @@ jobs:
           python -m pip install uv
           uv pip install --system .[redis,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not redis" tests/brokers/redis/test_test_client.py
+        run: |
+          bash scripts/test.sh
+          -m "not redis"
+          tests/brokers/redis/test_test_client.py
 
   test-redis-real:
     if: github.event.pull_request.draft == false
@@ -415,7 +449,9 @@ jobs:
           uv pip install --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -m "(slow and redis) or redis"
+        run: |
+          bash scripts/test.sh
+          -m "(slow and redis) or redis"
         env:
           COVERAGE_FILE: coverage/.coverage.redis-py
           CONTEXT: redis-py
