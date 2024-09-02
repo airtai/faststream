@@ -1,7 +1,7 @@
 import json
 from contextlib import suppress
 from dataclasses import dataclass, field
-from enum import StrEnum
+from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 MsgType = TypeVar("MsgType")
 
 
-class AckStatus(StrEnum):
+class AckStatus(str, Enum):
     acked = "acked"
     nacked = "nacked"
     rejected = "rejected"
