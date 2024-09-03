@@ -1,6 +1,7 @@
 import json
 from contextlib import suppress
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -28,6 +29,12 @@ if TYPE_CHECKING:
 MsgType = TypeVar("MsgType")
 
 
+class AckStatus(str, Enum):
+    acked = "acked"
+    nacked = "nacked"
+    rejected = "rejected"
+
+
 def gen_cor_id() -> str:
     """Generate random string to use as ID."""
     return str(uuid4())
@@ -52,8 +59,17 @@ class StreamMessage(Generic[MsgType]):
     )
 
     processed: bool = field(default=False, init=False)
-    committed: bool = field(default=False, init=False)
+    committed: Optional[AckStatus] = field(default=None, init=False)
     _decoded_body: Optional["DecodedMessage"] = field(default=None, init=False)
+
+    async def ack(self) -> None:
+        self.committed = AckStatus.acked
+
+    async def nack(self) -> None:
+        self.committed = AckStatus.nacked
+
+    async def reject(self) -> None:
+        self.committed = AckStatus.rejected
 
     async def decode(self) -> Optional["DecodedMessage"]:
         """Serialize the message by lazy decoder."""
@@ -81,15 +97,6 @@ class StreamMessage(Generic[MsgType]):
     )
     def decoded_body(self, value: Optional["DecodedMessage"]) -> None:
         self._decoded_body = value
-
-    async def ack(self) -> None:
-        self.committed = True
-
-    async def nack(self) -> None:
-        self.committed = True
-
-    async def reject(self) -> None:
-        self.committed = True
 
 
 def decode_message(message: "StreamMessage[Any]") -> "DecodedMessage":
