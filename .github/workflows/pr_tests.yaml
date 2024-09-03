@@ -89,36 +89,6 @@ jobs:
           if-no-files-found: error
           include-hidden-files: true
 
-  test-orjson:
-    if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          python -m pip install uv
-          uv pip install --system .[optionals,testing] orjson
-      - run: mkdir coverage
-      - name: Test
-        run: >
-          bash scripts/test.sh
-          -m "(slow and ($ALL_PYTEST_MARKERS)) or ($ALL_PYTEST_MARKERS)"
-        env:
-          COVERAGE_FILE: coverage/.coverage.orjson
-          CONTEXT: orjson
-      - name: Store coverage files
-        uses: actions/upload-artifact@v4
-        with:
-          name: .coverage.orjson
-          path: coverage
-          if-no-files-found: error
-          include-hidden-files: true
-
   test-macos-latest:
     if: github.event.pull_request.draft == false
     runs-on: macos-latest
@@ -136,7 +106,7 @@ jobs:
       - name: Test
         run: >
           bash scripts/test.sh
-          -m "(slow and ($ALL_PYTEST_MARKERS)) or ($ALL_PYTEST_MARKERS)"
+          -m "(slow and (${{env.ALL_PYTEST_MARKERS}})) or (${{env.ALL_PYTEST_MARKERS}})"
 
   test-windows-latest:
     if: github.event.pull_request.draft == false
@@ -155,7 +125,7 @@ jobs:
       - name: Test
         run: >
           bash scripts/test.sh
-          -m "(slow and ($ALL_PYTEST_MARKERS)) or ($ALL_PYTEST_MARKERS)"
+          -m "(slow and (${{env.ALL_PYTEST_MARKERS}})) or (${{env.ALL_PYTEST_MARKERS}})"
 
   test-kafka-smoke:
     if: github.event.pull_request.draft == false
