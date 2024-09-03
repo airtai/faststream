@@ -82,6 +82,7 @@ jobs:
           name: .coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
           path: coverage
           if-no-files-found: error
+          include-hidden-files: true
 
   test-orjson:
     if: github.event.pull_request.draft == false
@@ -109,6 +110,7 @@ jobs:
           name: .coverage.orjson
           path: coverage
           if-no-files-found: error
+          include-hidden-files: true
 
   test-macos-latest:
     if: github.event.pull_request.draft == false
@@ -206,6 +208,7 @@ jobs:
           name: .coverage.kafka-py
           path: coverage
           if-no-files-found: error
+          include-hidden-files: true
 
   test-confluent-smoke:
     if: github.event.pull_request.draft == false
@@ -269,6 +272,7 @@ jobs:
           name: .coverage.confluent-py
           path: coverage
           if-no-files-found: error
+          include-hidden-files: true
 
   test-rabbit-smoke:
     if: github.event.pull_request.draft == false
@@ -321,6 +325,7 @@ jobs:
           name: .coverage.rabbit-py
           path: coverage
           if-no-files-found: error
+          include-hidden-files: true
 
   test-nats-smoke:
     if: github.event.pull_request.draft == false
@@ -373,6 +378,7 @@ jobs:
           name: .coverage.nats-py
           path: coverage
           if-no-files-found: error
+          include-hidden-files: true
 
   test-redis-smoke:
     if: github.event.pull_request.draft == false
@@ -425,6 +431,7 @@ jobs:
           name: .coverage.redis-py
           path: coverage
           if-no-files-found: error
+          include-hidden-files: true
 
   coverage-combine:
     if: github.event.pull_request.draft == false
