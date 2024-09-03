@@ -77,7 +77,7 @@ jobs:
       - name: Test
         run: >
           bash scripts/test.sh -vv
-          -m "(slow and ($ALL_PYTEST_MARKERS)) or ($ALL_PYTEST_MARKERS)"
+          -m "(slow and (${{env.ALL_PYTEST_MARKERS}})) or (${{env.ALL_PYTEST_MARKERS}})"
         env:
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
@@ -108,7 +108,7 @@ jobs:
       - name: Test
         run: >
           bash scripts/test.sh
-          -m "(slow and ($ALL_PYTEST_MARKERS)) or ($ALL_PYTEST_MARKERS)"
+          -m "(slow and (${{env.ALL_PYTEST_MARKERS}})) or (${{env.ALL_PYTEST_MARKERS}})"
         env:
           COVERAGE_FILE: coverage/.coverage.orjson
           CONTEXT: orjson
@@ -135,9 +135,9 @@ jobs:
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
-          -m "(slow and ($ALL_PYTEST_MARKERS)) or ($ALL_PYTEST_MARKERS)"
+          -m "(slow and (${{env.ALL_PYTEST_MARKERS}})) or (${{env.ALL_PYTEST_MARKERS}})"
 
   test-windows-latest:
     if: github.event.pull_request.draft == false
@@ -156,7 +156,7 @@ jobs:
       - name: Test
         run: >
           bash scripts/test.sh
-          -m "(slow and ($ALL_PYTEST_MARKERS)) or ($ALL_PYTEST_MARKERS)"
+          -m "(slow and (${{env.ALL_PYTEST_MARKERS}})) or (${{env.ALL_PYTEST_MARKERS}})"
 
   test-kafka-smoke:
     if: github.event.pull_request.draft == false
