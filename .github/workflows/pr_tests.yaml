@@ -488,7 +488,6 @@ jobs:
       - coverage-combine
       - test-macos-latest
       - test-windows-latest
-      - test-orjson
 
     runs-on: ubuntu-latest
 
