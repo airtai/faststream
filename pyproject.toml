@@ -92,7 +92,6 @@ devdocs = [
     "pillow",                                           # required for mkdocs-glightbo
     "cairosvg",                                         # required for mkdocs-glightbo
     "requests",                                         # using in CI, do not pin it
-    "griffe-typingdoc==0.2.6",                          # Annotated[..., Doc("")] support
 ]
 
 types = [

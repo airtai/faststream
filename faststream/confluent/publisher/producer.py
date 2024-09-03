@@ -42,6 +42,7 @@ class AsyncConfluentFastProducer(ProducerProto):
         headers: Optional[Dict[str, str]] = None,
         correlation_id: str = "",
         reply_to: str = "",
+        no_confirm: bool = False,
     ) -> None:
         """Publish a message to a topic."""
         message, content_type = encode_message(message)
@@ -65,6 +66,7 @@ class AsyncConfluentFastProducer(ProducerProto):
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=[(i, (j or "").encode()) for i, j in headers_to_send.items()],
+            no_confirm=no_confirm,
         )
 
     async def stop(self) -> None:

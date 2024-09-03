@@ -81,7 +81,6 @@ jobs:
         env:
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
-      - run: ls coverage
       - name: Store coverage files
         uses: actions/upload-artifact@v4
         with:
@@ -135,7 +134,7 @@ jobs:
           python -m pip install uv
           uv pip install --system .[optionals,testing]
       - name: Test
-        run: |
+        run: >
           bash scripts/test.sh
           -m "(slow and ($ALL_PYTEST_MARKERS)) or ($ALL_PYTEST_MARKERS)"
 
