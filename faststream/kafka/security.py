@@ -72,6 +72,7 @@ def _parse_sasl_scram512(security: SASLScram512) -> "AnyDict":
 def _parse_sasl_oauthbearer(security: SASLOAuthBearer) -> "AnyDict":
     return {
         "security_protocol": "SASL_SSL" if security.use_ssl else "SASL_PLAINTEXT",
+        "ssl_context": security.ssl_context,
         "sasl_mechanism": "OAUTHBEARER",
     }
 
