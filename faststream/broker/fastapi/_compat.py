@@ -70,7 +70,7 @@ if FASTAPI_v102_3:
             body=request._body,  # type: ignore[arg-type]
             dependant=dependant,
             dependency_overrides_provider=dependency_overrides_provider,
-            **extra,
+            **extra,  # type: ignore[arg-type]
             **kwargs,
         )
         values, errors, background = (
