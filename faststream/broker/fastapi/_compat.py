@@ -52,7 +52,7 @@ else:
 
 
 if FASTAPI_v102_3:
-    from fastapi.utils import (  # type: ignore[attr-defined]
+    from fastapi.utils import (
         create_model_field as create_response_field,
     )
 
@@ -70,9 +70,9 @@ if FASTAPI_v102_3:
             **kwargs,
         )
         values, errors, background = (
-            solved_result.values,  # type: ignore[attr-defined]
-            solved_result.errors,  # type: ignore[attr-defined]
-            solved_result.background_tasks,  # type: ignore[attr-defined]
+            solved_result.values,
+            solved_result.errors,
+            solved_result.background_tasks,
         )
 
         return SolvedDependency(
@@ -82,7 +82,9 @@ if FASTAPI_v102_3:
         )
 
 else:
-    from fastapi.utils import create_response_field as create_response_field
+    from fastapi.utils import (  # type: ignore[attr-defined,no-redef]
+        create_response_field as create_response_field,
+    )
 
     async def solve_faststream_dependency(
         request: "Request",
@@ -104,10 +106,10 @@ else:
             background,
             _response,
             _dependency_cache,
-        ) = solved_result
+        ) = solved_result  # type: ignore[misc]
 
         return SolvedDependency(
-            values=values,
-            errors=errors,
-            background_tasks=background,
+            values=values,  # type: ignore[has-type]
+            errors=errors,  # type: ignore[has-type]
+            background_tasks=background,  # type: ignore[has-type]
         )
