@@ -20,9 +20,6 @@ IS_WINDOWS = (
 ModelVar = TypeVar("ModelVar", bound=BaseModel)
 
 
-IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)
-
-
 def is_test_env() -> bool:
     return bool(os.getenv("PYTEST_CURRENT_TEST"))
 
