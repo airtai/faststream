@@ -16,6 +16,7 @@ major, minor, patch, *_ = map(int, FASTAPI_VERSION.split("."))
 FASTAPI_V2 = major > 0 or minor > 100
 FASTAPI_V106 = major > 0 or minor >= 106
 FASTAPI_v102_3 = major > 0 or minor > 112 or (minor == 112 and patch > 2)
+FASTAPI_v102_4 = major > 0 or minor > 112 or (minor == 112 and patch > 3)
 
 __all__ = (
     "create_response_field",
@@ -56,6 +57,8 @@ if FASTAPI_v102_3:
         create_model_field as create_response_field,
     )
 
+    extra = {"embed_body_fields": False} if FASTAPI_v102_4 else {}
+
     async def solve_faststream_dependency(
         request: "Request",
         dependant: "Dependant",
@@ -67,6 +70,7 @@ if FASTAPI_v102_3:
             body=request._body,  # type: ignore[arg-type]
             dependant=dependant,
             dependency_overrides_provider=dependency_overrides_provider,
+            **extra,
             **kwargs,
         )
         values, errors, background = (
