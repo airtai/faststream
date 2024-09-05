@@ -370,6 +370,7 @@ search:
                     - router
                         - [StreamRouter](api/faststream/broker/fastapi/router/StreamRouter.md)
                 - message
+                    - [AckStatus](api/faststream/broker/message/AckStatus.md)
                     - [StreamMessage](api/faststream/broker/message/StreamMessage.md)
                     - [decode_message](api/faststream/broker/message/decode_message.md)
                     - [encode_message](api/faststream/broker/message/encode_message.md)
