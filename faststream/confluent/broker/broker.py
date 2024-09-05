@@ -26,6 +26,7 @@ from faststream.confluent.client import (
     AsyncConfluentConsumer,
     AsyncConfluentProducer,
 )
+from faststream.confluent.config import ConfluentFastConfig
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
@@ -394,7 +395,7 @@ class KafkaBroker(
         )
         self.client_id = client_id
         self._producer = None
-        self.config = config
+        self.config = ConfluentFastConfig(config)
 
     async def _close(
         self,
