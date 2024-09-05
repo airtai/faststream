@@ -4,7 +4,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     AsyncIterator,
-    Callable,
     Optional,
     Sequence,
     Tuple,
@@ -39,6 +38,7 @@ if TYPE_CHECKING:
         Lifespan,
         LoggerProto,
     )
+
 
 class AsgiFastStream(FastStream):
     def __init__(
