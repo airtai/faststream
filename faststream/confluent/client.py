@@ -16,7 +16,7 @@ import anyio
 from confluent_kafka import Consumer, KafkaError, KafkaException, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 
-from faststream.confluent.config import ConfluentConfig
+from faststream.confluent import config as config_module
 from faststream.confluent.schemas import TopicPartition
 from faststream.exceptions import SetupError
 from faststream.log import logger as faststream_logger
@@ -34,6 +34,7 @@ class AsyncConfluentProducer:
         self,
         *,
         logger: Optional["LoggerProto"],
+        config: config_module.ConfluentFastConfig,
         bootstrap_servers: Union[str, List[str]] = "localhost",
         client_id: Optional[str] = None,
         metadata_max_age_ms: int = 300000,
@@ -53,11 +54,8 @@ class AsyncConfluentProducer:
         sasl_mechanism: Optional[str] = None,
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
-        config: Optional[ConfluentConfig] = None,
     ) -> None:
         self.logger = logger
-
-        self.config: Dict[str, Any] = {} if config is None else dict(config)
 
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
@@ -89,10 +87,11 @@ class AsyncConfluentProducer:
             "connections.max.idle.ms": connections_max_idle_ms,
             "allow.auto.create.topics": allow_auto_create_topics,
         }
-        self.config = {**self.config, **config_from_params}
+
+        final_config = {**config.as_config_dict(), **config_from_params}
 
         if sasl_mechanism in ["PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512"]:
-            self.config.update(
+            final_config.update(
                 {
                     "sasl.mechanism": sasl_mechanism,
                     "sasl.username": sasl_plain_username,
@@ -100,7 +99,7 @@ class AsyncConfluentProducer:
                 }
             )
 
-        self.producer = Producer(self.config, logger=self.logger)
+        self.producer = Producer(final_config, logger=self.logger)
 
     async def stop(self) -> None:
         """Stop the Kafka producer and flush remaining messages."""
@@ -180,6 +179,7 @@ class AsyncConfluentConsumer:
         *topics: str,
         partitions: Sequence["TopicPartition"],
         logger: Optional["LoggerProto"],
+        config: config_module.ConfluentFastConfig,
         bootstrap_servers: Union[str, List[str]] = "localhost",
         client_id: Optional[str] = "confluent-kafka-consumer",
         group_id: Optional[str] = None,
@@ -205,17 +205,8 @@ class AsyncConfluentConsumer:
         sasl_mechanism: Optional[str] = None,
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
-        config: Optional[ConfluentConfig] = None,
     ) -> None:
         self.logger = logger
-
-        self.config: Dict[str, Any] = {} if config is None else dict(config)
-
-        if group_id is None:
-            group_id = self.config.get("group.id", "faststream-consumer-group")
-
-        if group_instance_id is None:
-            group_instance_id = self.config.get("group.instance.id", None)
 
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
@@ -232,13 +223,18 @@ class AsyncConfluentConsumer:
                     for x in partition_assignment_strategy
                 ]
             )
+
+        final_config = config.as_config_dict()
+
         config_from_params = {
             "allow.auto.create.topics": allow_auto_create_topics,
             "topic.metadata.refresh.interval.ms": 1000,
             "bootstrap.servers": bootstrap_servers,
             "client.id": client_id,
-            "group.id": group_id,
-            "group.instance.id": group_instance_id,
+            "group.id": group_id
+            or final_config.get("group.id", "faststream-consumer-group"),
+            "group.instance.id": group_instance_id
+            or final_config.get("group.instance.id", None),
             "fetch.wait.max.ms": fetch_max_wait_ms,
             "fetch.max.bytes": fetch_max_bytes,
             "fetch.min.bytes": fetch_min_bytes,
@@ -259,10 +255,10 @@ class AsyncConfluentConsumer:
             "isolation.level": isolation_level,
         }
         self.allow_auto_create_topics = allow_auto_create_topics
-        self.config = {**self.config, **config_from_params}
+        final_config.update(config_from_params)
 
         if sasl_mechanism in ["PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512"]:
-            self.config.update(
+            final_config.update(
                 {
                     "sasl.mechanism": sasl_mechanism,
                     "sasl.username": sasl_plain_username,
@@ -270,7 +266,8 @@ class AsyncConfluentConsumer:
                 }
             )
 
-        self.consumer = Consumer(self.config, logger=self.logger)
+        self.config = final_config
+        self.consumer = Consumer(self.final_config, logger=self.logger)
 
     @property
     def topics_to_create(self) -> List[str]:
