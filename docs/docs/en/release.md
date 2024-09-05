@@ -12,6 +12,14 @@ hide:
 ---
 
 # Release Notes
+## 0.5.22
+
+### What's Changed
+
+* fix: FastAPI 0.112.4+ compatibility by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1766](https://github.com/airtai/faststream/pull/1766){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.21...0.5.22](https://github.com/airtai/faststream/compare/0.5.21...0.5.22){.external-link target="_blank"}
+
 ## 0.5.21
 
 ### What's Changed
