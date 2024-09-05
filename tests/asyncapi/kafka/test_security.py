@@ -7,9 +7,10 @@ from faststream.kafka import KafkaBroker
 from faststream.security import (
     SASLGSSAPI,
     BaseSecurity,
+    SASLOAuthBearer,
     SASLPlaintext,
     SASLScram256,
-    SASLScram512, SASLOAuthBearer,
+    SASLScram512,
 )
 
 basic_schema = {
