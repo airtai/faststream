@@ -267,7 +267,7 @@ class AsyncConfluentConsumer:
             )
 
         self.config = final_config
-        self.consumer = Consumer(self.final_config, logger=self.logger)
+        self.consumer = Consumer(final_config, logger=self.logger)
 
     @property
     def topics_to_create(self) -> List[str]:
