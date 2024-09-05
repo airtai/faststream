@@ -1261,6 +1261,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/confluent/config/ConfluentConfig/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/confluent/config/ConfluentFastConfig/</loc>
+        <lastmod>2024-09-05</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/confluent/config/ConfluentFastConfig/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/confluent/config/Debug/</loc>
         <lastmod>2024-09-05</lastmod>
         <changefreq>daily</changefreq>
@@ -5393,6 +5399,12 @@
         <lastmod>2024-09-05</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/confluent/config/ConfluentConfig/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/confluent/config/ConfluentFastConfig/</loc>
+        <lastmod>2024-09-05</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/confluent/config/ConfluentFastConfig/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/public_api/faststream/confluent/config/Debug/</loc>
