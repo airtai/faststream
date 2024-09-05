@@ -54,7 +54,7 @@ This chapter discusses the security options available in **FastStream** and how 
 
 ### 4. SASLOAuthBearer Object with SSL/TLS
 
-**Purpose:** The `SASLOAuthBearer` is used for authentication using the `OAUTHBEARER` sasl_mechanism. You'll likely need to provide your own `sasl_oauth_token_provider` to the KafkaBroker object in order to complete the authentication flow, such as AWS's [`aws-msk-iam-sasl-signer-python`](https://github.com/aws/aws-msk-iam-sasl-signer-python). For more information see AIOKafka's documentation on [AbstractTokenProvider](https://aiokafka.readthedocs.io/en/stable/api.html#aiokafka.abc.AbstractTokenProvider). 
+**Purpose:** The `SASLOAuthBearer` is used for authentication using the `OAUTHBEARER` sasl_mechanism. You'll likely need to provide your own `sasl_oauth_token_provider` to the KafkaBroker object in order to complete the authentication flow, such as AWS's [`aws-msk-iam-sasl-signer-python`](https://github.com/aws/aws-msk-iam-sasl-signer-python). For more information see AIOKafka's documentation on [AbstractTokenProvider](https://aiokafka.readthedocs.io/en/stable/api.html#aiokafka.abc.AbstractTokenProvider).
 
 **Usage:**
 
