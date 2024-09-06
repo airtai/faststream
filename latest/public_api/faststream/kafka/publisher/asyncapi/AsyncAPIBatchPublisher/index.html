@@ -83,13 +83,8 @@
 </code></pre></div> <div class="doc doc-contents "> </div> </div> <div class="doc doc-object doc-attribute"> <h3 id=faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.partition class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code> <span class="doc doc-object-name doc-attribute-name">partition</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> </span> <a href=#faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.partition class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=n>partition</span> <span class=o>=</span> <span class=n><a class="autorefs autorefs-internal" title="faststream.kafka.publisher.usecase.LogicPublisher.partition" href="../../../../../../api/faststream/kafka/publisher/usecase/LogicPublisher/#faststream.kafka.publisher.usecase.LogicPublisher.partition">partition</a></span>
 </code></pre></div> <div class="doc doc-contents "> </div> </div> <div class="doc doc-object doc-attribute"> <h3 id=faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.reply_to class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code> <span class="doc doc-object-name doc-attribute-name">reply_to</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> </span> <a href=#faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.reply_to class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=n>reply_to</span> <span class=o>=</span> <span class=n><a class="autorefs autorefs-internal" title="faststream.kafka.publisher.usecase.LogicPublisher.reply_to" href="../../../../../../api/faststream/kafka/publisher/usecase/LogicPublisher/#faststream.kafka.publisher.usecase.LogicPublisher.reply_to">reply_to</a></span>
 </code></pre></div> <div class="doc doc-contents "> </div> </div> <div class="doc doc-object doc-attribute"> <h3 id=faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.headers class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code> <span class="doc doc-object-name doc-attribute-name">headers</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> </span> <a href=#faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.headers class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=n>headers</span> <span class=o>=</span> <span class=n><a class="autorefs autorefs-internal" title="faststream.kafka.publisher.usecase.LogicPublisher.headers" href="../../../../../../api/faststream/kafka/publisher/usecase/LogicPublisher/#faststream.kafka.publisher.usecase.LogicPublisher.headers">headers</a></span>
-</code></pre></div> <div class="doc doc-contents "> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.publish class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">publish</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.publish class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>publish</span><span class=p>(</span><span class=n>message</span><span class=p>,</span> <span class=o>*</span><span class=n>extra_messages</span><span class=p>,</span> <span class=n>topic</span><span class=o>=</span><span class=s1>&#39;&#39;</span><span class=p>,</span> <span class=n>partition</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>timestamp_ms</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>headers</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>reply_to</span><span class=o>=</span><span class=s1>&#39;&#39;</span><span class=p>,</span> <span class=n>correlation_id</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>_extra_middlewares</span><span class=o>=</span><span class=p>())</span>
-</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/kafka/publisher/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-395>395</a></span>
-<span class=normal><a href=#__codelineno-0-396>396</a></span>
-<span class=normal><a href=#__codelineno-0-397>397</a></span>
-<span class=normal><a href=#__codelineno-0-398>398</a></span>
-<span class=normal><a href=#__codelineno-0-399>399</a></span>
-<span class=normal><a href=#__codelineno-0-400>400</a></span>
+</code></pre></div> <div class="doc doc-contents "> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.publish class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">publish</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.publish class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>publish</span><span class=p>(</span><span class=n>message</span><span class=p>,</span> <span class=o>*</span><span class=n>extra_messages</span><span class=p>,</span> <span class=n>topic</span><span class=o>=</span><span class=s1>&#39;&#39;</span><span class=p>,</span> <span class=n>partition</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>timestamp_ms</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>headers</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>reply_to</span><span class=o>=</span><span class=s1>&#39;&#39;</span><span class=p>,</span> <span class=n>correlation_id</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>no_confirm</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>_extra_middlewares</span><span class=o>=</span><span class=p>())</span>
+</code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/kafka/publisher/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-400>400</a></span>
 <span class=normal><a href=#__codelineno-0-401>401</a></span>
 <span class=normal><a href=#__codelineno-0-402>402</a></span>
 <span class=normal><a href=#__codelineno-0-403>403</a></span>
@@ -171,94 +166,109 @@
 <span class=normal><a href=#__codelineno-0-479>479</a></span>
 <span class=normal><a href=#__codelineno-0-480>480</a></span>
 <span class=normal><a href=#__codelineno-0-481>481</a></span>
-<span class=normal><a href=#__codelineno-0-482>482</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-395 name=__codelineno-0-395></a><span class=nd>@override</span>
-<a id=__codelineno-0-396 name=__codelineno-0-396></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish</span><span class=p>(</span>
-<a id=__codelineno-0-397 name=__codelineno-0-397></a>    <span class=bp>self</span><span class=p>,</span>
-<a id=__codelineno-0-398 name=__codelineno-0-398></a>    <span class=n>message</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-399 name=__codelineno-0-399></a>        <span class=n>Union</span><span class=p>[</span><span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span> <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;SendableMessage&quot;</span><span class=p>]],</span>
-<a id=__codelineno-0-400 name=__codelineno-0-400></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;One message or iterable messages bodies to send.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-401 name=__codelineno-0-401></a>    <span class=p>],</span>
-<a id=__codelineno-0-402 name=__codelineno-0-402></a>    <span class=o>*</span><span class=n>extra_messages</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-403 name=__codelineno-0-403></a>        <span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-404 name=__codelineno-0-404></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Messages bodies to send.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-405 name=__codelineno-0-405></a>    <span class=p>],</span>
-<a id=__codelineno-0-406 name=__codelineno-0-406></a>    <span class=n>topic</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-407 name=__codelineno-0-407></a>        <span class=nb>str</span><span class=p>,</span>
-<a id=__codelineno-0-408 name=__codelineno-0-408></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Topic where the message will be published.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-409 name=__codelineno-0-409></a>    <span class=p>]</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-410 name=__codelineno-0-410></a>    <span class=n>partition</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-411 name=__codelineno-0-411></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>],</span>
-<a id=__codelineno-0-412 name=__codelineno-0-412></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-413 name=__codelineno-0-413></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
-<a id=__codelineno-0-414 name=__codelineno-0-414></a><span class=sd>        Specify a partition. If not set, the partition will be</span>
-<a id=__codelineno-0-415 name=__codelineno-0-415></a><span class=sd>        selected using the configured `partitioner`.</span>
-<a id=__codelineno-0-416 name=__codelineno-0-416></a><span class=sd>        &quot;&quot;&quot;</span>
-<a id=__codelineno-0-417 name=__codelineno-0-417></a>        <span class=p>),</span>
-<a id=__codelineno-0-418 name=__codelineno-0-418></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-419 name=__codelineno-0-419></a>    <span class=n>timestamp_ms</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-420 name=__codelineno-0-420></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>],</span>
-<a id=__codelineno-0-421 name=__codelineno-0-421></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-422 name=__codelineno-0-422></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
-<a id=__codelineno-0-423 name=__codelineno-0-423></a><span class=sd>        Epoch milliseconds (from Jan 1 1970 UTC) to use as</span>
-<a id=__codelineno-0-424 name=__codelineno-0-424></a><span class=sd>        the message timestamp. Defaults to current time.</span>
-<a id=__codelineno-0-425 name=__codelineno-0-425></a><span class=sd>        &quot;&quot;&quot;</span>
-<a id=__codelineno-0-426 name=__codelineno-0-426></a>        <span class=p>),</span>
-<a id=__codelineno-0-427 name=__codelineno-0-427></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-428 name=__codelineno-0-428></a>    <span class=n>headers</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-429 name=__codelineno-0-429></a>        <span class=n>Optional</span><span class=p>[</span><span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=nb>str</span><span class=p>]],</span>
-<a id=__codelineno-0-430 name=__codelineno-0-430></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Messages headers to store metainformation.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-431 name=__codelineno-0-431></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-432 name=__codelineno-0-432></a>    <span class=n>reply_to</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-433 name=__codelineno-0-433></a>        <span class=nb>str</span><span class=p>,</span>
-<a id=__codelineno-0-434 name=__codelineno-0-434></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Reply message topic name to send response.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-435 name=__codelineno-0-435></a>    <span class=p>]</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
-<a id=__codelineno-0-436 name=__codelineno-0-436></a>    <span class=n>correlation_id</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-437 name=__codelineno-0-437></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
-<a id=__codelineno-0-438 name=__codelineno-0-438></a>        <span class=n>Doc</span><span class=p>(</span>
-<a id=__codelineno-0-439 name=__codelineno-0-439></a>            <span class=s2>&quot;Manual message **correlation_id** setter. &quot;</span>
-<a id=__codelineno-0-440 name=__codelineno-0-440></a>            <span class=s2>&quot;**correlation_id** is a useful option to trace messages.&quot;</span>
-<a id=__codelineno-0-441 name=__codelineno-0-441></a>        <span class=p>),</span>
-<a id=__codelineno-0-442 name=__codelineno-0-442></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-443 name=__codelineno-0-443></a>    <span class=c1># publisher specific</span>
-<a id=__codelineno-0-444 name=__codelineno-0-444></a>    <span class=n>_extra_middlewares</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
-<a id=__codelineno-0-445 name=__codelineno-0-445></a>        <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;PublisherMiddleware&quot;</span><span class=p>],</span>
-<a id=__codelineno-0-446 name=__codelineno-0-446></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Extra middlewares to wrap publishing process.&quot;</span><span class=p>),</span>
-<a id=__codelineno-0-447 name=__codelineno-0-447></a>    <span class=p>]</span> <span class=o>=</span> <span class=p>(),</span>
-<a id=__codelineno-0-448 name=__codelineno-0-448></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-0-449 name=__codelineno-0-449></a>    <span class=k>assert</span> <span class=bp>self</span><span class=o>.</span><span class=n>_producer</span><span class=p>,</span> <span class=n>NOT_CONNECTED_YET</span>  <span class=c1># nosec B101</span>
-<a id=__codelineno-0-450 name=__codelineno-0-450></a>
-<a id=__codelineno-0-451 name=__codelineno-0-451></a>    <span class=n>msgs</span><span class=p>:</span> <span class=n>Iterable</span><span class=p>[</span><span class=n>SendableMessage</span><span class=p>]</span>
-<a id=__codelineno-0-452 name=__codelineno-0-452></a>    <span class=k>if</span> <span class=n>extra_messages</span><span class=p>:</span>
-<a id=__codelineno-0-453 name=__codelineno-0-453></a>        <span class=n>msgs</span> <span class=o>=</span> <span class=p>(</span><span class=n>cast</span><span class=p>(</span><span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span> <span class=n>message</span><span class=p>),</span> <span class=o>*</span><span class=n>extra_messages</span><span class=p>)</span>
-<a id=__codelineno-0-454 name=__codelineno-0-454></a>    <span class=k>else</span><span class=p>:</span>
-<a id=__codelineno-0-455 name=__codelineno-0-455></a>        <span class=n>msgs</span> <span class=o>=</span> <span class=n>cast</span><span class=p>(</span><span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;SendableMessage&quot;</span><span class=p>],</span> <span class=n>message</span><span class=p>)</span>
-<a id=__codelineno-0-456 name=__codelineno-0-456></a>
-<a id=__codelineno-0-457 name=__codelineno-0-457></a>    <span class=n>topic</span> <span class=o>=</span> <span class=n>topic</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>topic</span>
-<a id=__codelineno-0-458 name=__codelineno-0-458></a>    <span class=n>partition</span> <span class=o>=</span> <span class=n>partition</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>partition</span>
-<a id=__codelineno-0-459 name=__codelineno-0-459></a>    <span class=n>headers</span> <span class=o>=</span> <span class=n>headers</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>headers</span>
-<a id=__codelineno-0-460 name=__codelineno-0-460></a>    <span class=n>reply_to</span> <span class=o>=</span> <span class=n>reply_to</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>reply_to</span>
-<a id=__codelineno-0-461 name=__codelineno-0-461></a>    <span class=n>correlation_id</span> <span class=o>=</span> <span class=n>correlation_id</span> <span class=ow>or</span> <span class=n>gen_cor_id</span><span class=p>()</span>
-<a id=__codelineno-0-462 name=__codelineno-0-462></a>
-<a id=__codelineno-0-463 name=__codelineno-0-463></a>    <span class=n>call</span><span class=p>:</span> <span class=n>AsyncFunc</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_producer</span><span class=o>.</span><span class=n>publish_batch</span>
-<a id=__codelineno-0-464 name=__codelineno-0-464></a>
-<a id=__codelineno-0-465 name=__codelineno-0-465></a>    <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>chain</span><span class=p>(</span>
-<a id=__codelineno-0-466 name=__codelineno-0-466></a>        <span class=p>(</span>
-<a id=__codelineno-0-467 name=__codelineno-0-467></a>            <span class=n>_extra_middlewares</span>
-<a id=__codelineno-0-468 name=__codelineno-0-468></a>            <span class=ow>or</span> <span class=p>(</span><span class=n>m</span><span class=p>(</span><span class=kc>None</span><span class=p>)</span><span class=o>.</span><span class=n>publish_scope</span> <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>)</span>
-<a id=__codelineno-0-469 name=__codelineno-0-469></a>        <span class=p>),</span>
-<a id=__codelineno-0-470 name=__codelineno-0-470></a>        <span class=bp>self</span><span class=o>.</span><span class=n>_middlewares</span><span class=p>,</span>
-<a id=__codelineno-0-471 name=__codelineno-0-471></a>    <span class=p>):</span>
-<a id=__codelineno-0-472 name=__codelineno-0-472></a>        <span class=n>call</span> <span class=o>=</span> <span class=n>partial</span><span class=p>(</span><span class=n>m</span><span class=p>,</span> <span class=n>call</span><span class=p>)</span>
+<span class=normal><a href=#__codelineno-0-482>482</a></span>
+<span class=normal><a href=#__codelineno-0-483>483</a></span>
+<span class=normal><a href=#__codelineno-0-484>484</a></span>
+<span class=normal><a href=#__codelineno-0-485>485</a></span>
+<span class=normal><a href=#__codelineno-0-486>486</a></span>
+<span class=normal><a href=#__codelineno-0-487>487</a></span>
+<span class=normal><a href=#__codelineno-0-488>488</a></span>
+<span class=normal><a href=#__codelineno-0-489>489</a></span>
+<span class=normal><a href=#__codelineno-0-490>490</a></span>
+<span class=normal><a href=#__codelineno-0-491>491</a></span>
+<span class=normal><a href=#__codelineno-0-492>492</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-400 name=__codelineno-0-400></a><span class=nd>@override</span>
+<a id=__codelineno-0-401 name=__codelineno-0-401></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish</span><span class=p>(</span>
+<a id=__codelineno-0-402 name=__codelineno-0-402></a>    <span class=bp>self</span><span class=p>,</span>
+<a id=__codelineno-0-403 name=__codelineno-0-403></a>    <span class=n>message</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-404 name=__codelineno-0-404></a>        <span class=n>Union</span><span class=p>[</span><span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span> <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;SendableMessage&quot;</span><span class=p>]],</span>
+<a id=__codelineno-0-405 name=__codelineno-0-405></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;One message or iterable messages bodies to send.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-406 name=__codelineno-0-406></a>    <span class=p>],</span>
+<a id=__codelineno-0-407 name=__codelineno-0-407></a>    <span class=o>*</span><span class=n>extra_messages</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-408 name=__codelineno-0-408></a>        <span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-409 name=__codelineno-0-409></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Messages bodies to send.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-410 name=__codelineno-0-410></a>    <span class=p>],</span>
+<a id=__codelineno-0-411 name=__codelineno-0-411></a>    <span class=n>topic</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-412 name=__codelineno-0-412></a>        <span class=nb>str</span><span class=p>,</span>
+<a id=__codelineno-0-413 name=__codelineno-0-413></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Topic where the message will be published.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-414 name=__codelineno-0-414></a>    <span class=p>]</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-415 name=__codelineno-0-415></a>    <span class=n>partition</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-416 name=__codelineno-0-416></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>],</span>
+<a id=__codelineno-0-417 name=__codelineno-0-417></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-418 name=__codelineno-0-418></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
+<a id=__codelineno-0-419 name=__codelineno-0-419></a><span class=sd>        Specify a partition. If not set, the partition will be</span>
+<a id=__codelineno-0-420 name=__codelineno-0-420></a><span class=sd>        selected using the configured `partitioner`.</span>
+<a id=__codelineno-0-421 name=__codelineno-0-421></a><span class=sd>        &quot;&quot;&quot;</span>
+<a id=__codelineno-0-422 name=__codelineno-0-422></a>        <span class=p>),</span>
+<a id=__codelineno-0-423 name=__codelineno-0-423></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-424 name=__codelineno-0-424></a>    <span class=n>timestamp_ms</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-425 name=__codelineno-0-425></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>],</span>
+<a id=__codelineno-0-426 name=__codelineno-0-426></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-427 name=__codelineno-0-427></a><span class=w>            </span><span class=sd>&quot;&quot;&quot;</span>
+<a id=__codelineno-0-428 name=__codelineno-0-428></a><span class=sd>        Epoch milliseconds (from Jan 1 1970 UTC) to use as</span>
+<a id=__codelineno-0-429 name=__codelineno-0-429></a><span class=sd>        the message timestamp. Defaults to current time.</span>
+<a id=__codelineno-0-430 name=__codelineno-0-430></a><span class=sd>        &quot;&quot;&quot;</span>
+<a id=__codelineno-0-431 name=__codelineno-0-431></a>        <span class=p>),</span>
+<a id=__codelineno-0-432 name=__codelineno-0-432></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-433 name=__codelineno-0-433></a>    <span class=n>headers</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-434 name=__codelineno-0-434></a>        <span class=n>Optional</span><span class=p>[</span><span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=nb>str</span><span class=p>]],</span>
+<a id=__codelineno-0-435 name=__codelineno-0-435></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Messages headers to store metainformation.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-436 name=__codelineno-0-436></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-437 name=__codelineno-0-437></a>    <span class=n>reply_to</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-438 name=__codelineno-0-438></a>        <span class=nb>str</span><span class=p>,</span>
+<a id=__codelineno-0-439 name=__codelineno-0-439></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Reply message topic name to send response.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-440 name=__codelineno-0-440></a>    <span class=p>]</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-441 name=__codelineno-0-441></a>    <span class=n>correlation_id</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-442 name=__codelineno-0-442></a>        <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span>
+<a id=__codelineno-0-443 name=__codelineno-0-443></a>        <span class=n>Doc</span><span class=p>(</span>
+<a id=__codelineno-0-444 name=__codelineno-0-444></a>            <span class=s2>&quot;Manual message **correlation_id** setter. &quot;</span>
+<a id=__codelineno-0-445 name=__codelineno-0-445></a>            <span class=s2>&quot;**correlation_id** is a useful option to trace messages.&quot;</span>
+<a id=__codelineno-0-446 name=__codelineno-0-446></a>        <span class=p>),</span>
+<a id=__codelineno-0-447 name=__codelineno-0-447></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-448 name=__codelineno-0-448></a>    <span class=n>no_confirm</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-449 name=__codelineno-0-449></a>        <span class=nb>bool</span><span class=p>,</span>
+<a id=__codelineno-0-450 name=__codelineno-0-450></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Do not wait for Kafka publish confirmation.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-451 name=__codelineno-0-451></a>    <span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-452 name=__codelineno-0-452></a>    <span class=c1># publisher specific</span>
+<a id=__codelineno-0-453 name=__codelineno-0-453></a>    <span class=n>_extra_middlewares</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
+<a id=__codelineno-0-454 name=__codelineno-0-454></a>        <span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;PublisherMiddleware&quot;</span><span class=p>],</span>
+<a id=__codelineno-0-455 name=__codelineno-0-455></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Extra middlewares to wrap publishing process.&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-456 name=__codelineno-0-456></a>    <span class=p>]</span> <span class=o>=</span> <span class=p>(),</span>
+<a id=__codelineno-0-457 name=__codelineno-0-457></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-0-458 name=__codelineno-0-458></a>    <span class=k>assert</span> <span class=bp>self</span><span class=o>.</span><span class=n>_producer</span><span class=p>,</span> <span class=n>NOT_CONNECTED_YET</span>  <span class=c1># nosec B101</span>
+<a id=__codelineno-0-459 name=__codelineno-0-459></a>
+<a id=__codelineno-0-460 name=__codelineno-0-460></a>    <span class=n>msgs</span><span class=p>:</span> <span class=n>Iterable</span><span class=p>[</span><span class=n>SendableMessage</span><span class=p>]</span>
+<a id=__codelineno-0-461 name=__codelineno-0-461></a>    <span class=k>if</span> <span class=n>extra_messages</span><span class=p>:</span>
+<a id=__codelineno-0-462 name=__codelineno-0-462></a>        <span class=n>msgs</span> <span class=o>=</span> <span class=p>(</span><span class=n>cast</span><span class=p>(</span><span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span> <span class=n>message</span><span class=p>),</span> <span class=o>*</span><span class=n>extra_messages</span><span class=p>)</span>
+<a id=__codelineno-0-463 name=__codelineno-0-463></a>    <span class=k>else</span><span class=p>:</span>
+<a id=__codelineno-0-464 name=__codelineno-0-464></a>        <span class=n>msgs</span> <span class=o>=</span> <span class=n>cast</span><span class=p>(</span><span class=n>Iterable</span><span class=p>[</span><span class=s2>&quot;SendableMessage&quot;</span><span class=p>],</span> <span class=n>message</span><span class=p>)</span>
+<a id=__codelineno-0-465 name=__codelineno-0-465></a>
+<a id=__codelineno-0-466 name=__codelineno-0-466></a>    <span class=n>topic</span> <span class=o>=</span> <span class=n>topic</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>topic</span>
+<a id=__codelineno-0-467 name=__codelineno-0-467></a>    <span class=n>partition</span> <span class=o>=</span> <span class=n>partition</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>partition</span>
+<a id=__codelineno-0-468 name=__codelineno-0-468></a>    <span class=n>headers</span> <span class=o>=</span> <span class=n>headers</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>headers</span>
+<a id=__codelineno-0-469 name=__codelineno-0-469></a>    <span class=n>reply_to</span> <span class=o>=</span> <span class=n>reply_to</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>reply_to</span>
+<a id=__codelineno-0-470 name=__codelineno-0-470></a>    <span class=n>correlation_id</span> <span class=o>=</span> <span class=n>correlation_id</span> <span class=ow>or</span> <span class=n>gen_cor_id</span><span class=p>()</span>
+<a id=__codelineno-0-471 name=__codelineno-0-471></a>
+<a id=__codelineno-0-472 name=__codelineno-0-472></a>    <span class=n>call</span><span class=p>:</span> <span class=n>AsyncFunc</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_producer</span><span class=o>.</span><span class=n>publish_batch</span>
 <a id=__codelineno-0-473 name=__codelineno-0-473></a>
-<a id=__codelineno-0-474 name=__codelineno-0-474></a>    <span class=k>await</span> <span class=n>call</span><span class=p>(</span>
-<a id=__codelineno-0-475 name=__codelineno-0-475></a>        <span class=o>*</span><span class=n>msgs</span><span class=p>,</span>
-<a id=__codelineno-0-476 name=__codelineno-0-476></a>        <span class=n>topic</span><span class=o>=</span><span class=n>topic</span><span class=p>,</span>
-<a id=__codelineno-0-477 name=__codelineno-0-477></a>        <span class=n>partition</span><span class=o>=</span><span class=n>partition</span><span class=p>,</span>
-<a id=__codelineno-0-478 name=__codelineno-0-478></a>        <span class=n>headers</span><span class=o>=</span><span class=n>headers</span><span class=p>,</span>
-<a id=__codelineno-0-479 name=__codelineno-0-479></a>        <span class=n>reply_to</span><span class=o>=</span><span class=n>reply_to</span><span class=p>,</span>
-<a id=__codelineno-0-480 name=__codelineno-0-480></a>        <span class=n>correlation_id</span><span class=o>=</span><span class=n>correlation_id</span><span class=p>,</span>
-<a id=__codelineno-0-481 name=__codelineno-0-481></a>        <span class=n>timestamp_ms</span><span class=o>=</span><span class=n>timestamp_ms</span><span class=p>,</span>
-<a id=__codelineno-0-482 name=__codelineno-0-482></a>    <span class=p>)</span>
+<a id=__codelineno-0-474 name=__codelineno-0-474></a>    <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>chain</span><span class=p>(</span>
+<a id=__codelineno-0-475 name=__codelineno-0-475></a>        <span class=p>(</span>
+<a id=__codelineno-0-476 name=__codelineno-0-476></a>            <span class=n>_extra_middlewares</span>
+<a id=__codelineno-0-477 name=__codelineno-0-477></a>            <span class=ow>or</span> <span class=p>(</span><span class=n>m</span><span class=p>(</span><span class=kc>None</span><span class=p>)</span><span class=o>.</span><span class=n>publish_scope</span> <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>)</span>
+<a id=__codelineno-0-478 name=__codelineno-0-478></a>        <span class=p>),</span>
+<a id=__codelineno-0-479 name=__codelineno-0-479></a>        <span class=bp>self</span><span class=o>.</span><span class=n>_middlewares</span><span class=p>,</span>
+<a id=__codelineno-0-480 name=__codelineno-0-480></a>    <span class=p>):</span>
+<a id=__codelineno-0-481 name=__codelineno-0-481></a>        <span class=n>call</span> <span class=o>=</span> <span class=n>partial</span><span class=p>(</span><span class=n>m</span><span class=p>,</span> <span class=n>call</span><span class=p>)</span>
+<a id=__codelineno-0-482 name=__codelineno-0-482></a>
+<a id=__codelineno-0-483 name=__codelineno-0-483></a>    <span class=k>await</span> <span class=n>call</span><span class=p>(</span>
+<a id=__codelineno-0-484 name=__codelineno-0-484></a>        <span class=o>*</span><span class=n>msgs</span><span class=p>,</span>
+<a id=__codelineno-0-485 name=__codelineno-0-485></a>        <span class=n>topic</span><span class=o>=</span><span class=n>topic</span><span class=p>,</span>
+<a id=__codelineno-0-486 name=__codelineno-0-486></a>        <span class=n>partition</span><span class=o>=</span><span class=n>partition</span><span class=p>,</span>
+<a id=__codelineno-0-487 name=__codelineno-0-487></a>        <span class=n>headers</span><span class=o>=</span><span class=n>headers</span><span class=p>,</span>
+<a id=__codelineno-0-488 name=__codelineno-0-488></a>        <span class=n>reply_to</span><span class=o>=</span><span class=n>reply_to</span><span class=p>,</span>
+<a id=__codelineno-0-489 name=__codelineno-0-489></a>        <span class=n>correlation_id</span><span class=o>=</span><span class=n>correlation_id</span><span class=p>,</span>
+<a id=__codelineno-0-490 name=__codelineno-0-490></a>        <span class=n>timestamp_ms</span><span class=o>=</span><span class=n>timestamp_ms</span><span class=p>,</span>
+<a id=__codelineno-0-491 name=__codelineno-0-491></a>        <span class=n>no_confirm</span><span class=o>=</span><span class=n>no_confirm</span><span class=p>,</span>
+<a id=__codelineno-0-492 name=__codelineno-0-492></a>    <span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.request class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">request</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.kafka.publisher.asyncapi.AsyncAPIBatchPublisher.request class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>request</span><span class=p>(</span><span class=n>message</span><span class=p>,</span> <span class=n>topic</span><span class=o>=</span><span class=s1>&#39;&#39;</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>key</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>partition</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>timestamp_ms</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>headers</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>correlation_id</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>timeout</span><span class=o>=</span><span class=mf>0.5</span><span class=p>,</span> <span class=n>_extra_middlewares</span><span class=o>=</span><span class=p>())</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/kafka/publisher/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-77> 77</a></span>
 <span class=normal><a href=#__codelineno-0-78> 78</a></span>
