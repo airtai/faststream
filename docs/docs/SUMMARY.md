@@ -41,7 +41,7 @@ search:
         - [HTTP Async Frameworks](getting-started/integrations/frameworks/index.md)
         - [FastAPI Plugin](getting-started/integrations/fastapi/index.md)
         - [Django](getting-started/integrations/django/index.md)
-    - [CLI commands](getting-started/cli/index.md)
+    - [CLI](getting-started/cli/index.md)
     - [ASGI](getting-started/asgi.md)
     - [OpenTelemetry](getting-started/opentelemetry/index.md)
     - [Logging](getting-started/logging.md)
