@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     )
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.types import (
+        AnyCallable,
         AnyDict,
         AnyHttpUrl,
         AsyncFunc,
@@ -75,10 +76,11 @@ class FastStream(AsyncAPIApplication):
             Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,
         identifier: Optional[str] = None,
-        on_startup: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
-        after_startup: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
-        on_shutdown: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
-        after_shutdown: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
+        on_startup: Sequence["AnyCallable"] = (),
+        after_startup: Sequence["AnyCallable"] = (),
+        on_shutdown: Sequence["AnyCallable"] = (),
+        after_shutdown: Sequence["AnyCallable"] = (),
+        # all options should be copied to AsgiFastStream class
     ) -> None:
         context.set_global("app", self)
 

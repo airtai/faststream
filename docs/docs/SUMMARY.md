@@ -492,6 +492,7 @@ search:
                     - [CompressionCodec](api/faststream/confluent/config/CompressionCodec.md)
                     - [CompressionType](api/faststream/confluent/config/CompressionType.md)
                     - [ConfluentConfig](api/faststream/confluent/config/ConfluentConfig.md)
+                    - [ConfluentFastConfig](api/faststream/confluent/config/ConfluentFastConfig.md)
                     - [Debug](api/faststream/confluent/config/Debug.md)
                     - [GroupProtocol](api/faststream/confluent/config/GroupProtocol.md)
                     - [IsolationLevel](api/faststream/confluent/config/IsolationLevel.md)
