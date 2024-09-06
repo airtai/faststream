@@ -443,13 +443,9 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
                 **self.extra_options,
             )
 
-        raw_message = None
-
-        with anyio.move_on_after(timeout):
-            async for raw_message in self.subscription.messages:
-                break
-
-        if not raw_message:
+        try:
+            raw_message = await self.subscription.next_msg(timeout)
+        except TimeoutError:
             return None
 
         async with AsyncExitStack() as stack:
