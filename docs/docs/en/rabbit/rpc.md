@@ -40,7 +40,7 @@ So, if you have such one, you can specify it with the `reply_to` argument. This 
 async def consume_responses(msg):
     ...
 
-msg = await broker.publish(
+await broker.publish(
     "Hi!",
     queue="test",
     reply_to="response-queue",

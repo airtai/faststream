@@ -14,14 +14,18 @@ from typing import (
     Union,
 )
 
-from fastapi.dependencies.utils import solve_dependencies
 from fastapi.routing import run_endpoint_function, serialize_response
-from fastapi.utils import create_response_field
 from starlette.requests import Request
 
-from faststream._compat import FASTAPI_V106, raise_fastapi_validation_error
 from faststream.broker.fastapi.get_dependant import get_fastapi_native_dependant
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
+
+from ._compat import (
+    FASTAPI_V106,
+    create_response_field,
+    raise_fastapi_validation_error,
+    solve_faststream_dependency,
+)
 
 if TYPE_CHECKING:
     from fastapi import params
@@ -199,28 +203,21 @@ def make_fastapi_execution(
                 request.scope["fastapi_astack"] = stack
                 kwargs = {}
 
-            solved_result = await solve_dependencies(
+            solved_result = await solve_faststream_dependency(
                 request=request,
-                body=request._body,  # type: ignore[arg-type]
                 dependant=dependent,
                 dependency_overrides_provider=provider_factory(),
-                **kwargs,  # type: ignore[arg-type]
+                **kwargs,
             )
 
-            (
-                values,
-                errors,
-                raw_message.background,  # type: ignore[attr-defined]
-                _response,
-                _dependency_cache,
-            ) = solved_result
+            raw_message.background = solved_result.background_tasks  # type: ignore[attr-defined]
 
-            if errors:
-                raise_fastapi_validation_error(errors, request._body)  # type: ignore[arg-type]
+            if solved_result.errors:
+                raise_fastapi_validation_error(solved_result.errors, request._body)  # type: ignore[arg-type]
 
             raw_reponse = await run_endpoint_function(
                 dependant=dependent,
-                values=values,
+                values=solved_result.values,
                 is_coroutine=is_coroutine,
             )
 

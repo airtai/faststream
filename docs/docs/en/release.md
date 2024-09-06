@@ -12,6 +12,28 @@ hide:
 ---
 
 # Release Notes
+## 0.5.22
+
+### What's Changed
+
+* fix: FastAPI 0.112.4+ compatibility by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1766](https://github.com/airtai/faststream/pull/1766){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.21...0.5.22](https://github.com/airtai/faststream/compare/0.5.21...0.5.22){.external-link target="_blank"}
+
+## 0.5.21
+
+### What's Changed
+
+* feat (#1168): allow include regular router to FastAPI integration by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1747](https://github.com/airtai/faststream/pull/1747){.external-link target="_blank"}
+* In case if core-subscriber receive a JetStream message. by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [#1751](https://github.com/airtai/faststream/pull/1751){.external-link target="_blank"}
+* feat: explicit final message commit status by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1754](https://github.com/airtai/faststream/pull/1754){.external-link target="_blank"}
+* Fix/context get local default by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1752](https://github.com/airtai/faststream/pull/1752){.external-link target="_blank"}
+* fix (#1759): correct ConfluentConfig with enums by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1762](https://github.com/airtai/faststream/pull/1762){.external-link target="_blank"}
+* Adds SASLOAuthBearer flow to AIO Kafka's Faststream Security Parsing by [@sifex](https://github.com/sifex){.external-link target="_blank"} in [#1761](https://github.com/airtai/faststream/pull/1761){.external-link target="_blank"}
+* fix: FastAPI 0.112.3 compatibility by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1763](https://github.com/airtai/faststream/pull/1763){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.20...0.5.21](https://github.com/airtai/faststream/compare/0.5.20...0.5.21){.external-link target="_blank"}
+
 ## 0.5.20
 
 ### What's Changed

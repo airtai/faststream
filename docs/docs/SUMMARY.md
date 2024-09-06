@@ -370,6 +370,7 @@ search:
                     - router
                         - [StreamRouter](api/faststream/broker/fastapi/router/StreamRouter.md)
                 - message
+                    - [AckStatus](api/faststream/broker/message/AckStatus.md)
                     - [StreamMessage](api/faststream/broker/message/StreamMessage.md)
                     - [decode_message](api/faststream/broker/message/decode_message.md)
                     - [encode_message](api/faststream/broker/message/encode_message.md)
@@ -491,6 +492,7 @@ search:
                     - [CompressionCodec](api/faststream/confluent/config/CompressionCodec.md)
                     - [CompressionType](api/faststream/confluent/config/CompressionType.md)
                     - [ConfluentConfig](api/faststream/confluent/config/ConfluentConfig.md)
+                    - [ConfluentFastConfig](api/faststream/confluent/config/ConfluentFastConfig.md)
                     - [Debug](api/faststream/confluent/config/Debug.md)
                     - [GroupProtocol](api/faststream/confluent/config/GroupProtocol.md)
                     - [IsolationLevel](api/faststream/confluent/config/IsolationLevel.md)

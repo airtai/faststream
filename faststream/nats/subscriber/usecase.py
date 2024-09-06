@@ -403,7 +403,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        parser_ = NatsParser(pattern=subject)
+        parser_ = NatsParser(pattern=subject, no_ack=no_ack)
 
         self.queue = queue
 

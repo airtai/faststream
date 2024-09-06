@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 
 class NatsRegistrator(ABCBroker["Msg"]):
-    """Includable to RabbitBroker router."""
+    """Includable to NatsBroker router."""
 
     _subscribers: Dict[int, "AsyncAPISubscriber"]
     _publishers: Dict[int, "AsyncAPIPublisher"]

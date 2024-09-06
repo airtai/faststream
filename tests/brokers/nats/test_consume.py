@@ -160,6 +160,32 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
+    async def test_core_consume_no_ack(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        stream: JStream,
+    ):
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, no_ack=True)
+        async def handler(msg: NatsMessage):
+            if not msg.raw_message._ackd:
+                event.set()
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+
     async def test_consume_ack_manual(
         self,
         queue: str,
