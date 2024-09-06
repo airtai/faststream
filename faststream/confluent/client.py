@@ -1,11 +1,11 @@
 import asyncio
 import logging
 from contextlib import suppress
-from threading import Thread
 from time import time
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     Iterable,
     List,
@@ -37,6 +37,7 @@ if TYPE_CHECKING:
         headers: Optional[List[Tuple[str, Union[str, bytes]]]]
         partition: NotRequired[int]
         timestamp: NotRequired[int]
+        on_delivery: NotRequired[Callable[..., None]]
 
 
 class AsyncConfluentProducer:
@@ -115,20 +116,20 @@ class AsyncConfluentProducer:
         self.producer = Producer(self.config, logger=self.logger)
 
         self.__running = True
-        self._poll_thread = Thread(target=self._poll_loop)
-        self._poll_thread.start()
+        self._poll_task = asyncio.create_task(self._poll_loop())
 
-    def _poll_loop(self) -> None:
+    async def _poll_loop(self) -> None:
         while self.__running:
             with suppress(Exception):
-                self.producer.poll(0.1)
+                await call_or_await(self.producer.poll, 0.1)
 
     async def stop(self) -> None:
         """Stop the Kafka producer and flush remaining messages."""
         if self.__running:
-            await call_or_await(self.producer.flush)
             self.__running = False
-            self._poll_thread.join()
+            if not self._poll_task.done():
+                self._poll_task.cancel()
+            await call_or_await(self.producer.flush)
 
     async def send(
         self,
@@ -153,16 +154,20 @@ class AsyncConfluentProducer:
         if timestamp_ms is not None:
             kwargs["timestamp"] = timestamp_ms
 
-        result_future: asyncio.Future[Optional[Message]] = asyncio.Future()
+        if not no_confirm:
+            result_future: asyncio.Future[Optional[Message]] = asyncio.Future()
 
-        def ack_callback(err: Any, msg: Optional[Message]) -> None:
-            if err or (msg is not None and (err := msg.error())):
-                result_future.set_exception(KafkaException(err))
-            else:
-                result_future.set_result(msg)
+            def ack_callback(err: Any, msg: Optional[Message]) -> None:
+                if err or (msg is not None and (err := msg.error())):
+                    result_future.set_exception(KafkaException(err))
+                else:
+                    result_future.set_result(msg)
+
+            kwargs["on_delivery"] = ack_callback
 
         # should be sync to prevent segfault
-        self.producer.produce(topic, **kwargs, on_delivery=ack_callback)
+        self.producer.produce(topic, **kwargs)
+
         if not no_confirm:
             await result_future
 
@@ -373,7 +378,7 @@ class AsyncConfluentConsumer:
     ) -> Tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
         raw_messages: List[Optional[Message]] = await call_or_await(
-            self.consumer.consume,
+            self.consumer.consume,  # type: ignore[arg-type]
             num_messages=max_records or 10,
             timeout=timeout,
         )
