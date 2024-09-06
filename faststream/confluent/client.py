@@ -176,7 +176,12 @@ class AsyncConfluentProducer:
         return BatchBuilder()
 
     async def send_batch(
-        self, batch: "BatchBuilder", topic: str, *, partition: Optional[int]
+        self,
+        batch: "BatchBuilder",
+        topic: str,
+        *,
+        partition: Optional[int],
+        no_confirm: bool = False,
     ) -> None:
         """Sends a batch of messages to a Kafka topic."""
         async with anyio.create_task_group() as tg:
@@ -189,6 +194,7 @@ class AsyncConfluentProducer:
                     partition,
                     msg["timestamp_ms"],
                     msg["headers"],
+                    no_confirm,
                 )
 
     async def ping(
@@ -378,7 +384,7 @@ class AsyncConfluentConsumer:
     ) -> Tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
         raw_messages: List[Optional[Message]] = await call_or_await(
-            self.consumer.consume,  # type: ignore[arg-type]
+            self.consumer.consume,
             num_messages=max_records or 10,
             timeout=timeout,
         )

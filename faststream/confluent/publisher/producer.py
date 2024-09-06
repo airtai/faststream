@@ -81,6 +81,7 @@ class AsyncConfluentFastProducer(ProducerProto):
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: str = "",
+        no_confirm: bool = False,
     ) -> None:
         """Publish a batch of messages to a topic."""
         batch = self._producer.create_batch()
@@ -111,7 +112,12 @@ class AsyncConfluentFastProducer(ProducerProto):
                 headers=[(i, j.encode()) for i, j in final_headers.items()],
             )
 
-        await self._producer.send_batch(batch, topic, partition=partition)
+        await self._producer.send_batch(
+            batch,
+            topic,
+            partition=partition,
+            no_confirm=no_confirm,
+        )
 
     @override
     async def request(self, *args: Any, **kwargs: Any) -> Optional[Any]:
