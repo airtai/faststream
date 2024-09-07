@@ -3,8 +3,8 @@ from typing import Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
-from faststream.asyncapi.schema.bindings import ChannelBinding
 from faststream.asyncapi.schema.message import Message
+from faststream.asyncapi.schema.bindings import ChannelBinding
 from faststream.asyncapi.schema.utils import Parameter, Reference
 
 
@@ -26,7 +26,7 @@ class Channel(BaseModel):
 
     address: str
     description: Optional[str] = None
-    servers: Optional[List[str]] = None
+    servers: Optional[List[Dict[str, str]]] = None
     messages: Dict[str, Union[Message, Reference]]
     bindings: Optional[ChannelBinding] = None
     parameters: Optional[Parameter] = None

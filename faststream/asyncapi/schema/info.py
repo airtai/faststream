@@ -1,11 +1,9 @@
 from typing import (
     Any,
     Callable,
-    Dict,
     Iterable,
     Optional,
     Type,
-    Union,
 )
 
 from pydantic import AnyHttpUrl, BaseModel
@@ -185,22 +183,3 @@ class BaseInfo(BaseModel):
 
         class Config:
             extra = "allow"
-
-
-
-class InfoV2_6(BaseInfo):  # noqa: N801
-    """A class to represent information.
-
-    Attributes:
-        title : title of the information
-        version : version of the information (default: "1.0.0")
-        description : description of the information (default: "")
-        termsOfService : terms of service for the information (default: None)
-        contact : contact information for the information (default: None)
-        license : license information for the information (default: None)
-
-    """
-
-    termsOfService: Optional[AnyHttpUrl] = None
-    contact: Optional[Union[Contact, ContactDict, Dict[str, Any]]] = None
-    license: Optional[Union[License, LicenseDict, Dict[str, Any]]] = None

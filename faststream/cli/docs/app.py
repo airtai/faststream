@@ -8,7 +8,7 @@ import typer
 
 from faststream._compat import json_dumps, model_parse
 from faststream.asyncapi.generate import get_app_schema
-from faststream.asyncapi.schema import SchemaV2_6
+from faststream.asyncapi.schema.v2_6_0 import Schema
 from faststream.asyncapi.site import serve_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.exceptions import INSTALL_WATCHFILES, INSTALL_YAML
@@ -184,6 +184,6 @@ def _parse_and_serve(
             )
 
         # TODO: add schema choosing based on FastStream.asyncapi_version
-        raw_schema = model_parse(SchemaV2_6, data)
+        raw_schema = model_parse(Schema, data)
 
     serve_app(raw_schema, host, port)

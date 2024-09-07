@@ -2,13 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 from typing_extensions import TypeAlias, override
 
-from faststream.asyncapi.schema import (
-    Channel,
-    ChannelBinding,
-    CorrelationId,
-    Message,
-    Operation,
-)
+from faststream.asyncapi.schema import ChannelBinding, CorrelationId, Message, v2_6_0
 from faststream.asyncapi.schema.bindings import redis
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.exceptions import SetupError
@@ -38,13 +32,13 @@ PublisherType: TypeAlias = Union[
 class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
     """A class to represent a Redis publisher."""
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
         payloads = self.get_payloads()
 
         return {
-            self.name: Channel(
+            self.name: v2_6_0.Channel(
                 description=self.description,
-                publish=Operation(
+                publish=v2_6_0.Operation(
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads, "Publisher"),

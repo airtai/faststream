@@ -1,12 +1,11 @@
 from typing import Dict
 
 from faststream.asyncapi.schema import (
-    Channel,
     ChannelBinding,
     CorrelationId,
     Message,
-    Operation,
     OperationBinding,
+    v2_6_0,
 )
 from faststream.asyncapi.schema.bindings import amqp
 from faststream.asyncapi.utils import resolve_payloads
@@ -20,7 +19,7 @@ class AsyncAPISubscriber(LogicSubscriber):
     def get_name(self) -> str:
         return f"{self.queue.name}:{getattr(self.exchange, 'name', None) or '_'}:{self.call_name}"
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
         payloads = self.get_payloads()
 
         return {

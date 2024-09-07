@@ -13,11 +13,10 @@ from typing import (
 from typing_extensions import override
 
 from faststream.asyncapi.schema import (
-    Channel,
     ChannelBinding,
     CorrelationId,
     Message,
-    Operation,
+    v2_6_0,
 )
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
@@ -41,13 +40,13 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
     def get_name(self) -> str:
         return f"{self.topic}:Publisher"
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
         payloads = self.get_payloads()
 
         return {
-            self.name: Channel(
+            self.name: v2_6_0.Channel(
                 description=self.description,
-                publish=Operation(
+                publish=v2_6_0.Operation(
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads, "Publisher"),

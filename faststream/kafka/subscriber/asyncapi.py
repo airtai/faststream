@@ -5,11 +5,10 @@ from typing import (
 )
 
 from faststream.asyncapi.schema import (
-    Channel,
     ChannelBinding,
     CorrelationId,
     Message,
-    Operation,
+    v2_6_0,
 )
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
@@ -30,7 +29,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
     def get_name(self) -> str:
         return f'{",".join(self.topics)}:{self.call_name}'
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
         channels = {}
 
         payloads = self.get_payloads()
@@ -38,9 +37,9 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         for t in self.topics:
             handler_name = self.title_ or f"{t}:{self.call_name}"
 
-            channels[handler_name] = Channel(
+            channels[handler_name] = v2_6_0.Channel(
                 description=self.description,
-                subscribe=Operation(
+                subscribe=v2_6_0.Operation(
                     message=Message(
                         title=f"{handler_name}:Message",
                         payload=resolve_payloads(payloads),
