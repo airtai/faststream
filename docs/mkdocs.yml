@@ -82,8 +82,6 @@ plugins:
           import:
           - https://docs.python.org/3/objects.inv
           options:
-            # extensions:
-            # - griffe_typingdoc
             preload_modules:
             - httpx
             - starlette
