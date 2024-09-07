@@ -302,7 +302,7 @@ class StreamRouter(
 
                 from faststream.specification.asyncapi.generate import get_app_schema
 
-                self.schema = get_app_schema(self)
+                self.schema = get_app_schema(self, version=AsyncAPIVersion.v2_6)
 
                 app.include_router(self.docs_router)
 
