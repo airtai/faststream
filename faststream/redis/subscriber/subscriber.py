@@ -21,13 +21,13 @@ from faststream.specification.schema.operation import Operation
 class SpecificationSubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
     """A class to represent a Redis handler."""
 
-    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
-            self.name: v2_6_0.Channel(
+            self.name: Channel(
                 description=self.description,
-                subscribe=v2_6_0.Operation(
+                subscribe=Operation(
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),

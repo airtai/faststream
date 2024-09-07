@@ -62,6 +62,17 @@ class Exchange(BaseModel):
     ]
 
     name: Optional[str] = None
+    type: Literal[
+        "default",
+        "direct",
+        "topic",
+        "fanout",
+        "headers",
+        "x-delayed-message",
+        "x-consistent-hash",
+        "x-modulus-hash",
+    ]
+    
     durable: Optional[bool] = None
     autoDelete: Optional[bool] = None
     vhost: str = "/"

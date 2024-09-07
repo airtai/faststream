@@ -20,13 +20,13 @@ class SpecificationSubscriber(LogicSubscriber):
     def get_name(self) -> str:
         return f"{self.queue.name}:{getattr(self.exchange, 'name', None) or '_'}:{self.call_name}"
 
-    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
-            self.name: v2_6_0.Channel(
+            self.name: Channel(
                 description=self.description,  # type: ignore[attr-defined]
-                subscribe=v2_6_0.Operation(
+                subscribe=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
                             cc=self.queue.routing,

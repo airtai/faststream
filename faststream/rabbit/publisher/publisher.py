@@ -43,13 +43,13 @@ class SpecificationPublisher(LogicPublisher):
 
         return f"{routing}:{getattr(self.exchange, 'name', None) or '_'}:Publisher"
 
-    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
-            self.name: v2_6_0.Channel(
+            self.name: Channel(
                 description=self.description,  # type: ignore[attr-defined]
-                publish=v2_6_0.Operation(
+                publish=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
                             cc=self.routing or None,

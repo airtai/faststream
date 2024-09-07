@@ -88,7 +88,7 @@ except ImportError:  # pragma: no cover
                 source : the source
                 handler : the handler
             """
-            return with_info_plain_validator_function(cls._validate)  # type: ignore[no-any-return]
+            return with_info_plain_validator_function(cls._validate)
 
 
 class Contact(BaseModel):
