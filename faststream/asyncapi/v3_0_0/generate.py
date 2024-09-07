@@ -5,7 +5,14 @@ from faststream._compat import DEF_KEY, HAS_FASTAPI
 from faststream.asyncapi.schema import (
     Message,
     Reference,
-    v3_0_0,
+)
+from faststream.asyncapi.v3_0_0.schema import (
+    Channel,
+    Components,
+    Info,
+    Operation,
+    Schema,
+    Server,
 )
 from faststream.constants import ContentTypes
 
@@ -18,7 +25,7 @@ if TYPE_CHECKING:
         from faststream.broker.fastapi.router import StreamRouter
 
 
-def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> v3_0_0.Schema:
+def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
@@ -49,8 +56,8 @@ def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> v3_0_0.Sche
 
         channel.servers = [{"$ref": f"#/servers/{server_name}"} for server_name in list(servers.keys())]
 
-    schema = v3_0_0.Schema(
-        info=v3_0_0.Info(
+    schema = Schema(
+        info=Info(
             title=app.title,
             version=app.version,
             description=app.description,
@@ -65,7 +72,7 @@ def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> v3_0_0.Sche
         servers=servers,
         channels=channels,
         operations=operations,
-        components=v3_0_0.Components(
+        components=Components(
             messages=messages,
             schemas=payloads,
             securitySchemes=None
@@ -78,7 +85,7 @@ def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> v3_0_0.Sche
 
 def get_broker_server(
         broker: "BrokerUsecase[MsgType, ConnectionType]",
-) -> Dict[str, v3_0_0.Server]:
+) -> Dict[str, Server]:
     """Get the broker server for an application."""
     servers = {}
 
@@ -101,7 +108,7 @@ def get_broker_server(
             broker_url = "//" + broker_url
 
         url = urlparse(broker_url)
-        servers["development"] = v3_0_0.Server(
+        servers["development"] = Server(
             host=url.netloc,
             pathname=url.path,
             **broker_meta,
@@ -113,7 +120,7 @@ def get_broker_server(
             broker_url = "//" + broker_url
 
         url = urlparse(broker_url)
-        servers["development"] = v3_0_0.Server(
+        servers["development"] = Server(
             host=url.netloc,
             pathname=url.path,
             **broker_meta,
@@ -125,7 +132,7 @@ def get_broker_server(
                 broker_url = "//" + broker_url
 
             parsed_url = urlparse(broker_url)
-            servers[f"Server{i}"] = v3_0_0.Server(
+            servers[f"Server{i}"] = Server(
                 host=parsed_url.netloc,
                 pathname=parsed_url.path,
                 **broker_meta,
@@ -136,14 +143,14 @@ def get_broker_server(
 
 def get_broker_operations(
         broker: "BrokerUsecase[MsgType, ConnectionType]",
-) -> Dict[str, v3_0_0.Operation]:
+) -> Dict[str, Operation]:
     """Get the broker operations for an application."""
     operations = {}
 
     for h in broker._subscribers.values():
         for channel_name, channel_2_6 in h.schema().items():
             if channel_2_6.subscribe is not None:
-                op = v3_0_0.Operation(
+                op = Operation(
                     action="receive",
                     summary=channel_2_6.subscribe.summary,
                     description=channel_2_6.subscribe.description,
@@ -161,7 +168,7 @@ def get_broker_operations(
                 operations[f"{channel_name}Subscribe"] = op
 
             elif channel_2_6.publish is not None:
-                op = v3_0_0.Operation(
+                op = Operation(
                     action="send",
                     summary=channel_2_6.publish.summary,
                     description=channel_2_6.publish.description,
@@ -181,7 +188,7 @@ def get_broker_operations(
     for p in broker._publishers.values():
         for channel_name, channel_2_6 in p.schema().items():
             if channel_2_6.subscribe is not None:
-                op = v3_0_0.Operation(
+                op = Operation(
                     action="send",
                     summary=channel_2_6.subscribe.summary,
                     description=channel_2_6.subscribe.description,
@@ -199,7 +206,7 @@ def get_broker_operations(
                 operations[f"{channel_name}Subscribe"] = op
 
             elif channel_2_6.publish is not None:
-                op = v3_0_0.Operation(
+                op = Operation(
                     action="send",
                     summary=channel_2_6.publish.summary,
                     description=channel_2_6.publish.description,
@@ -221,7 +228,7 @@ def get_broker_operations(
 
 def get_broker_channels(
         broker: "BrokerUsecase[MsgType, ConnectionType]",
-) -> Dict[str, v3_0_0.Channel]:
+) -> Dict[str, Channel]:
     """Get the broker channels for an application."""
     channels = {}
 
@@ -229,7 +236,7 @@ def get_broker_channels(
         channels_schema_v3_0 = {}
         for channel_name, channel_v2_6 in h.schema().items():
             if channel_v2_6.subscribe:
-                channel_v3_0 = v3_0_0.Channel(
+                channel_v3_0 = Channel(
                     address=channel_name,
                     messages={
                         "SubscribeMessage": channel_v2_6.subscribe.message,
@@ -248,7 +255,7 @@ def get_broker_channels(
         channels_schema_v3_0 = {}
         for channel_name, channel_v2_6 in p.schema().items():
             if channel_v2_6.publish:
-                channel_v3_0 = v3_0_0.Channel(
+                channel_v3_0 = Channel(
                     address=channel_name,
                     messages={
                         "Message": channel_v2_6.publish.message,

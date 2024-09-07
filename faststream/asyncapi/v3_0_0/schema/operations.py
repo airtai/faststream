@@ -11,7 +11,7 @@ from faststream.asyncapi.schema.utils import (
     Tag,
     TagDict,
 )
-from faststream.asyncapi.schema.v3_0_0.channels import Channel
+from faststream.asyncapi.v3_0_0.schema.channels import Channel
 
 
 class Operation(BaseModel):

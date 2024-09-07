@@ -8,8 +8,8 @@ import typer
 
 from faststream._compat import json_dumps, model_parse
 from faststream.asyncapi.generate import get_app_schema
-from faststream.asyncapi.schema.v2_6_0 import Schema
 from faststream.asyncapi.site import serve_app
+from faststream.asyncapi.v2_6_0.schema import Schema
 from faststream.cli.utils.imports import import_from_string
 from faststream.exceptions import INSTALL_WATCHFILES, INSTALL_YAML
 

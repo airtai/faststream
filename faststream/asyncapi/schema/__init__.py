@@ -1,6 +1,5 @@
 """AsyncAPI schema related functions."""
 
-from faststream.asyncapi.schema import v2_6_0, v3_0_0
 from faststream.asyncapi.schema.bindings import (
     ChannelBinding,
     OperationBinding,
@@ -18,7 +17,6 @@ from faststream.asyncapi.schema.schema import (
     BaseSchema,
 )
 from faststream.asyncapi.schema.security import SecuritySchemaComponent
-from faststream.asyncapi.schema.servers import Server
 from faststream.asyncapi.schema.utils import (
     ExternalDocs,
     ExternalDocsDict,
@@ -39,7 +37,6 @@ __all__ = (
     "License",
     "LicenseDict",
     # servers
-    "Server",
     # channels
     # utils
     "Tag",
@@ -56,7 +53,4 @@ __all__ = (
     "Message",
     # security
     "SecuritySchemaComponent",
-    # AsyncAPI schemas by versions
-    "v2_6_0",
-    "v3_0_0",
 )

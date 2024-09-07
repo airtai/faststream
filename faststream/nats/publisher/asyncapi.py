@@ -6,10 +6,13 @@ from faststream.asyncapi.schema import (
     ChannelBinding,
     CorrelationId,
     Message,
-    v2_6_0,
 )
 from faststream.asyncapi.schema.bindings import nats
 from faststream.asyncapi.utils import resolve_payloads
+from faststream.asyncapi.v2_6_0.schema import (
+    Channel,
+    Operation,
+)
 from faststream.nats.publisher.usecase import LogicPublisher
 
 if TYPE_CHECKING:
@@ -25,13 +28,13 @@ class AsyncAPIPublisher(LogicPublisher):
     def get_name(self) -> str:
         return f"{self.subject}:Publisher"
 
-    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
-            self.name: v2_6_0.Channel(
+            self.name: Channel(
                 description=self.description,
-                publish=v2_6_0.Operation(
+                publish=Operation(
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads, "Publisher"),

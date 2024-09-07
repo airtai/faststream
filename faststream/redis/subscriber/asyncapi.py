@@ -4,10 +4,13 @@ from faststream.asyncapi.schema import (
     ChannelBinding,
     CorrelationId,
     Message,
-    v2_6_0,
 )
 from faststream.asyncapi.schema.bindings import redis
 from faststream.asyncapi.utils import resolve_payloads
+from faststream.asyncapi.v2_6_0.schema import (
+    Channel,
+    Operation,
+)
 from faststream.redis.schemas import ListSub, StreamSub
 from faststream.redis.schemas.proto import RedisAsyncAPIProtocol
 from faststream.redis.subscriber.usecase import (
@@ -23,13 +26,13 @@ from faststream.redis.subscriber.usecase import (
 class AsyncAPISubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
     """A class to represent a Redis handler."""
 
-    def get_schema(self) -> Dict[str, v2_6_0.Channel]:
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
-            self.name: v2_6_0.Channel(
+            self.name: Channel(
                 description=self.description,
-                subscribe=v2_6_0.Operation(
+                subscribe=Operation(
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),
