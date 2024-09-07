@@ -3,11 +3,7 @@ from typing import Optional, Union
 
 from typing_extensions import Required, TypedDict
 
-<<<<<<<< HEAD:faststream/specification/schema/tag.py
 from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-========
-from faststream.specification.docs import ExternalDocs, ExternalDocsDict
->>>>>>>> 3361c325 (mypy satisfied):faststream/specification/tag.py
 
 
 class TagDict(TypedDict, total=False):

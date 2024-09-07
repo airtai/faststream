@@ -1,13 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-<<<<<<<< HEAD:faststream/specification/schema/channel.py
 from faststream.specification.schema.bindings import ChannelBinding
 from faststream.specification.schema.operation import Operation
-========
-from faststream.specification.bindings import ChannelBinding
-from faststream.specification.operation import Operation
->>>>>>>> 3361c325 (mypy satisfied):faststream/specification/channel.py
 
 
 @dataclass

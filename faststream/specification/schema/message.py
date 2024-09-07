@@ -1,13 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
-<<<<<<<< HEAD:faststream/specification/schema/message.py
 from faststream.specification.schema.docs import ExternalDocs
 from faststream.specification.schema.tag import Tag
-========
-from faststream.specification.docs import ExternalDocs
-from faststream.specification.tag import Tag
->>>>>>>> 3361c325 (mypy satisfied):faststream/specification/message.py
 
 
 @dataclass

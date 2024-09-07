@@ -1,19 +1,11 @@
 from dataclasses import dataclass
 from typing import Optional
 
-<<<<<<<< HEAD:faststream/specification/schema/bindings/main.py
 from faststream.specification.schema.bindings import amqp as amqp_bindings
 from faststream.specification.schema.bindings import kafka as kafka_bindings
 from faststream.specification.schema.bindings import nats as nats_bindings
 from faststream.specification.schema.bindings import redis as redis_bindings
 from faststream.specification.schema.bindings import sqs as sqs_bindings
-========
-from faststream.specification.bindings import amqp as amqp_bindings
-from faststream.specification.bindings import kafka as kafka_bindings
-from faststream.specification.bindings import nats as nats_bindings
-from faststream.specification.bindings import redis as redis_bindings
-from faststream.specification.bindings import sqs as sqs_bindings
->>>>>>>> 3361c325 (mypy satisfied):faststream/specification/bindings/main.py
 
 
 @dataclass
