@@ -1,4 +1,3 @@
-from abc import ABC
 from inspect import unwrap
 from typing import (
     TYPE_CHECKING,
@@ -24,7 +23,6 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.wrapper.call import HandlerCallWrapper
-from faststream.specification.abc import SpecificationOperation
 
 if TYPE_CHECKING:
     from faststream.broker.publisher.proto import ProducerProto
@@ -36,8 +34,6 @@ if TYPE_CHECKING:
 
 
 class PublisherUsecase(
-    ABC,
-    SpecificationOperation,
     PublisherProto[MsgType],
 ):
     """A base class for publishers in an asynchronous API."""

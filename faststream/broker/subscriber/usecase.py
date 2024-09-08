@@ -30,7 +30,6 @@ from faststream.broker.types import (
 from faststream.broker.utils import MultiLock, get_watcher_context, resolve_custom_func
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.exceptions import SetupError, StopConsume, SubscriberNotFound
-from faststream.specification.abc import SpecificationOperation
 from faststream.utils.context.repository import context
 from faststream.utils.functions import sync_fake_context, to_async
 
@@ -77,7 +76,6 @@ class _CallOptions:
 
 
 class SubscriberUsecase(
-    SpecificationOperation,
     SubscriberProto[MsgType],
 ):
     """A class representing an asynchronous handler."""

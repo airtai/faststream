@@ -1,7 +1,6 @@
 from dataclasses import asdict
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
-from faststream.specification import schema as spec
 from faststream._compat import DEF_KEY
 from faststream.asyncapi.v2_6_0.schema import (
     Channel,
@@ -28,6 +27,7 @@ from faststream.asyncapi.v2_6_0.schema.bindings import (
 )
 from faststream.asyncapi.v2_6_0.schema.message import CorrelationId, Message
 from faststream.constants import ContentTypes
+from faststream.specification import schema as spec
 from faststream.specification.proto import Application
 
 if TYPE_CHECKING:
