@@ -25,7 +25,7 @@ from faststream.opentelemetry.middleware import TelemetryMiddleware
 from tests.brokers.base.basic import BaseTestcaseConfig
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class LocalTelemetryTestcase(BaseTestcaseConfig):
     messaging_system: str
     include_messages_counters: bool
@@ -62,22 +62,22 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         metrics = sorted(metrics, key=lambda m: m.name)
         return cast(List[Metric], metrics)
 
-    @pytest.fixture()
+    @pytest.fixture
     def tracer_provider(self) -> TracerProvider:
         tracer_provider = TracerProvider(resource=self.resource)
         return tracer_provider
 
-    @pytest.fixture()
+    @pytest.fixture
     def trace_exporter(self, tracer_provider: TracerProvider) -> InMemorySpanExporter:
         exporter = InMemorySpanExporter()
         tracer_provider.add_span_processor(SimpleSpanProcessor(exporter))
         return exporter
 
-    @pytest.fixture()
+    @pytest.fixture
     def metric_reader(self) -> InMemoryMetricReader:
         return InMemoryMetricReader()
 
-    @pytest.fixture()
+    @pytest.fixture
     def meter_provider(self, metric_reader: InMemoryMetricReader) -> MeterProvider:
         return MeterProvider(metric_readers=(metric_reader,), resource=self.resource)
 

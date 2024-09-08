@@ -15,7 +15,7 @@ from typing import (
     Union,
 )
 
-from anyio import move_on_after
+import anyio
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
@@ -26,6 +26,7 @@ from faststream.confluent.client import (
     AsyncConfluentConsumer,
     AsyncConfluentProducer,
 )
+from faststream.confluent.config import ConfluentFastConfig
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
@@ -87,7 +88,7 @@ class KafkaBroker(
         ] = 40 * 1000,
         retry_backoff_ms: Annotated[
             int,
-            Doc(" Milliseconds to backoff when retrying on errors."),
+            Doc("Milliseconds to backoff when retrying on errors."),
         ] = 100,
         metadata_max_age_ms: Annotated[
             int,
@@ -394,7 +395,7 @@ class KafkaBroker(
         )
         self.client_id = client_id
         self._producer = None
-        self.config = config
+        self.config = ConfluentFastConfig(config)
 
     async def _close(
         self,
@@ -431,7 +432,7 @@ class KafkaBroker(
         security_params = parse_security(self.security)
         kwargs.update(security_params)
 
-        producer = AsyncConfluentProducer(
+        native_producer = AsyncConfluentProducer(
             **kwargs,
             client_id=client_id,
             logger=self.logger,
@@ -439,7 +440,9 @@ class KafkaBroker(
         )
 
         self._producer = AsyncConfluentFastProducer(
-            producer=producer,
+            producer=native_producer,
+            parser=self._parser,
+            decoder=self._decoder,
         )
 
         return partial(
@@ -479,6 +482,7 @@ class KafkaBroker(
         correlation_id: Optional[str] = None,
         *,
         reply_to: str = "",
+        no_confirm: bool = False,
         # extra options to be compatible with test client
         **kwargs: Any,
     ) -> Optional[Any]:
@@ -494,7 +498,34 @@ class KafkaBroker(
             headers=headers,
             correlation_id=correlation_id,
             reply_to=reply_to,
+            no_confirm=no_confirm,
             **kwargs,
+        )
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: "SendableMessage",
+        topic: str,
+        key: Optional[bytes] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[Dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        timeout: float = 0.5,
+    ) -> Optional[Any]:
+        correlation_id = correlation_id or gen_cor_id()
+
+        return await super().request(
+            message,
+            producer=self._producer,
+            topic=topic,
+            key=key,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            correlation_id=correlation_id,
+            timeout=timeout,
         )
 
     async def publish_batch(
@@ -506,6 +537,7 @@ class KafkaBroker(
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
+        no_confirm: bool = False,
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -523,15 +555,24 @@ class KafkaBroker(
             headers=headers,
             reply_to=reply_to,
             correlation_id=correlation_id,
+            no_confirm=no_confirm,
         )
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
-        with move_on_after(timeout) as cancel_scope:
-            if cancel_scope.cancel_called:
-                return False
+        sleep_time = (timeout or 10) / 10
 
+        with anyio.move_on_after(timeout) as cancel_scope:
             if self._producer is None:
                 return False
 
-            return await self._producer._producer.ping(timeout=timeout)
+            while True:
+                if cancel_scope.cancel_called:
+                    return False
+
+                if await self._producer._producer.ping(timeout=timeout):
+                    return True
+
+                await anyio.sleep(sleep_time)
+
+        return False

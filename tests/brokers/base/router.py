@@ -12,7 +12,7 @@ from tests.brokers.base.middlewares import LocalMiddlewareTestcase
 from tests.brokers.base.parser import LocalCustomParserTestcase
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class RouterTestcase(
     LocalMiddlewareTestcase,
     LocalCustomParserTestcase,
@@ -25,11 +25,11 @@ class RouterTestcase(
         br.include_router(router)
         return br
 
-    @pytest.fixture()
+    @pytest.fixture
     def pub_broker(self, broker):
         return broker
 
-    @pytest.fixture()
+    @pytest.fixture
     def raw_broker(self, pub_broker):
         return pub_broker
 
@@ -582,9 +582,9 @@ class RouterTestcase(
             mock.decoder.assert_called_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class RouterLocalTestcase(RouterTestcase):
-    @pytest.fixture()
+    @pytest.fixture
     def pub_broker(self, test_broker):
         return test_broker
 

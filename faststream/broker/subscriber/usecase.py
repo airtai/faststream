@@ -30,7 +30,7 @@ from faststream.broker.types import (
 )
 from faststream.broker.utils import MultiLock, get_watcher_context, resolve_custom_func
 from faststream.broker.wrapper.call import HandlerCallWrapper
-from faststream.exceptions import SetupError, StopConsume
+from faststream.exceptions import SetupError, StopConsume, SubscriberNotFound
 from faststream.utils.context.repository import context
 from faststream.utils.functions import sync_fake_context, to_async
 
@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.middlewares import BaseMiddleware
     from faststream.broker.publisher.proto import BasePublisherProto, ProducerProto
+    from faststream.broker.response import Response
     from faststream.broker.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -88,6 +89,7 @@ class SubscriberUsecase(
 
     _broker_dependencies: Iterable["Depends"]
     _call_options: Optional["_CallOptions"]
+    _call_decorators: Iterable["Decorator"]
 
     def __init__(
         self,
@@ -115,6 +117,7 @@ class SubscriberUsecase(
         self._retry = retry
 
         self._call_options = None
+        self._call_decorators = ()
         self.running = False
         self.lock = sync_fake_context()
 
@@ -182,7 +185,7 @@ class SubscriberUsecase(
                 apply_types=apply_types,
                 is_validate=is_validate,
                 _get_dependant=_get_dependant,
-                _call_decorators=_call_decorators,
+                _call_decorators=(*self._call_decorators, *_call_decorators),
                 broker_dependencies=self._broker_dependencies,
             )
 
@@ -315,7 +318,7 @@ class SubscriberUsecase(
             # All other exceptions were logged by CriticalLogMiddleware
             pass
 
-    async def process_message(self, msg: MsgType) -> Any:
+    async def process_message(self, msg: MsgType) -> "Response":
         """Execute all message processing stages."""
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
@@ -373,7 +376,7 @@ class SubscriberUsecase(
                         result_msg.correlation_id = message.correlation_id
 
                     for p in chain(
-                        self.__get_reponse_publisher(message),
+                        self.__get_response_publisher(message),
                         h.handler._publishers,
                     ):
                         await p.publish(
@@ -383,7 +386,8 @@ class SubscriberUsecase(
                             _extra_middlewares=(m.publish_scope for m in middlewares),
                         )
 
-                    return result_msg.body
+                    # Return data for tests
+                    return result_msg
 
             # Suitable handler was not found or
             # parsing/decoding exception occurred
@@ -394,11 +398,12 @@ class SubscriberUsecase(
                 raise parsing_error
 
             else:
-                raise AssertionError(f"There is no suitable handler for {msg=}")
+                raise SubscriberNotFound(f"There is no suitable handler for {msg=}")
 
-        return None
+        # An error was raised and processed by some middleware
+        return ensure_response(None)
 
-    def __get_reponse_publisher(
+    def __get_response_publisher(
         self,
         message: "StreamMessage[MsgType]",
     ) -> Iterable["BasePublisherProto"]:

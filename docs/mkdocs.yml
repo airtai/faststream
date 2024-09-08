@@ -82,8 +82,6 @@ plugins:
           import:
           - https://docs.python.org/3/objects.inv
           options:
-            # extensions:
-            # - griffe_typingdoc
             preload_modules:
             - httpx
             - starlette
@@ -132,6 +130,9 @@ plugins:
       redirect_template: templates/redirect.html
       canonical_version: latest
 
+hooks:
+  - create_api_docs.py
+
 markdown_extensions:
   - toc:
       permalink: "#"             # replace TOC block symbol
@@ -163,7 +164,7 @@ extra:
     - icon: fontawesome/brands/github-alt
       link: https://github.com/airtai/faststream
     - icon: fontawesome/brands/twitter
-      link: https://twitter.com/airt_AI
+      link: https://x.com/airt_AI
     - icon: fontawesome/brands/facebook
       link: https://www.facebook.com/airt.ai.api/
     - icon: fontawesome/brands/linkedin

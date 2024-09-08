@@ -866,7 +866,6 @@ class NatsRouter(StreamRouter["Msg"]):
         return cast(
             AsyncAPISubscriber,
             super().subscriber(
-                path=subject,
                 subject=subject,
                 queue=queue,
                 pending_msgs_limit=pending_msgs_limit,

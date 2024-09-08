@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class RedisRegistrator(ABCBroker[UnifyRedisDict]):
-    """Includable to RabbitBroker router."""
+    """Includable to RedisBroker router."""
 
     _subscribers: Dict[int, "SubsciberType"]
     _publishers: Dict[int, "PublisherType"]

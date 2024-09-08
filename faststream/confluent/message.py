@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Protocol, Tuple, Union
+from typing import TYPE_CHECKING, Any, Optional, Protocol, Tuple, Union
 
 from faststream.broker.message import StreamMessage
 
@@ -11,6 +11,13 @@ class ConsumerProtocol(Protocol):
 
     async def commit(self) -> None: ...
 
+    async def seek(
+        self,
+        topic: Optional[str],
+        partition: Optional[int],
+        offset: Optional[int],
+    ) -> None: ...
+
 
 class FakeConsumer:
     """A fake Kafka consumer."""
@@ -18,7 +25,12 @@ class FakeConsumer:
     async def commit(self) -> None:
         pass
 
-    async def seek(self, **kwargs: Any) -> None:
+    async def seek(
+        self,
+        topic: Optional[str],
+        partition: Optional[int],
+        offset: Optional[int],
+    ) -> None:
         pass
 
 
@@ -64,7 +76,7 @@ class KafkaMessage(
                 if isinstance(self.raw_message, tuple)
                 else self.raw_message
             )
-            await self.consumer.seek(  # type: ignore[attr-defined]
+            await self.consumer.seek(
                 topic=raw_message.topic(),
                 partition=raw_message.partition(),
                 offset=raw_message.offset(),

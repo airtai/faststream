@@ -11,7 +11,7 @@ from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestConsume(BrokerRealConsumeTestcase):
     def get_broker(self, apply_types: bool = False) -> NatsBroker:
         return NatsBroker(apply_types=apply_types)
@@ -157,6 +157,32 @@ class TestConsume(BrokerRealConsumeTestcase):
                     timeout=3,
                 )
                 m.mock.assert_called_once()
+
+        assert event.is_set()
+
+    async def test_core_consume_no_ack(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        stream: JStream,
+    ):
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, no_ack=True)
+        async def handler(msg: NatsMessage):
+            if not msg.raw_message._ackd:
+                event.set()
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
         assert event.is_set()
 
@@ -308,7 +334,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
         mock.assert_called_once_with(True)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_kv(
         self,
         queue: str,
@@ -342,7 +368,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
         mock.assert_called_with(b"world")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consume_os(
         self,
         queue: str,

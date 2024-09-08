@@ -9,6 +9,7 @@ from faststream.broker.types import MsgType
 
 if TYPE_CHECKING:
     from faststream.broker.types import (
+        AsyncCallable,
         BrokerMiddleware,
         P_HandlerParams,
         PublisherMiddleware,
@@ -18,6 +19,9 @@ if TYPE_CHECKING:
 
 
 class ProducerProto(Protocol):
+    _parser: "AsyncCallable"
+    _decoder: "AsyncCallable"
+
     @abstractmethod
     async def publish(
         self,
@@ -27,6 +31,17 @@ class ProducerProto(Protocol):
         correlation_id: Optional[str] = None,
     ) -> Optional[Any]:
         """Publishes a message asynchronously."""
+        ...
+
+    @abstractmethod
+    async def request(
+        self,
+        message: "SendableMessage",
+        /,
+        *,
+        correlation_id: Optional[str] = None,
+    ) -> Any:
+        """Publishes a message synchronously."""
         ...
 
 
@@ -41,6 +56,18 @@ class BasePublisherProto(Protocol):
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
         """Publishes a message asynchronously."""
+        ...
+
+    @abstractmethod
+    async def request(
+        self,
+        message: "SendableMessage",
+        /,
+        *,
+        correlation_id: Optional[str] = None,
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+    ) -> Optional[Any]:
+        """Publishes a message synchronously."""
         ...
 
 

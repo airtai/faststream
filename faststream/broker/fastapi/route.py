@@ -8,23 +8,24 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Generic,
     Iterable,
     List,
     Optional,
     Union,
 )
 
-from fastapi.dependencies.utils import solve_dependencies
 from fastapi.routing import run_endpoint_function, serialize_response
-from fastapi.utils import create_response_field
 from starlette.requests import Request
-from starlette.routing import BaseRoute
 
-from faststream._compat import FASTAPI_V106, raise_fastapi_validation_error
 from faststream.broker.fastapi.get_dependant import get_fastapi_native_dependant
-from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
-from faststream.broker.wrapper.call import HandlerCallWrapper
+from faststream.broker.types import P_HandlerParams, T_HandlerReturn
+
+from ._compat import (
+    FASTAPI_V106,
+    create_response_field,
+    raise_fastapi_validation_error,
+    solve_faststream_dependency,
+)
 
 if TYPE_CHECKING:
     from fastapi import params
@@ -32,98 +33,11 @@ if TYPE_CHECKING:
     from fastapi.dependencies.models import Dependant
     from fastapi.types import IncEx
 
-    from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.message import StreamMessage as NativeMessage
-    from faststream.broker.schemas import NameRequired
     from faststream.types import AnyDict
 
 
-class StreamRoute(
-    BaseRoute,  # type: ignore[misc]
-    Generic[MsgType, P_HandlerParams, T_HandlerReturn],
-):
-    """A class representing a stream route."""
-
-    handler: "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]"
-
-    def __init__(
-        self,
-        path: Union["NameRequired", str, None],
-        *extra: Any,
-        provider_factory: Callable[[], Any],
-        endpoint: Union[
-            Callable[P_HandlerParams, T_HandlerReturn],
-            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
-        ],
-        broker: "BrokerUsecase[MsgType, Any]",
-        dependencies: Iterable["params.Depends"],
-        response_model: Any,
-        response_model_include: Optional["IncEx"],
-        response_model_exclude: Optional["IncEx"],
-        response_model_by_alias: bool,
-        response_model_exclude_unset: bool,
-        response_model_exclude_defaults: bool,
-        response_model_exclude_none: bool,
-        **handle_kwargs: Any,
-    ) -> None:
-        self.path, path_name = path or "", getattr(path, "name", "")
-        self.broker = broker
-
-        if isinstance(endpoint, HandlerCallWrapper):
-            orig_call = endpoint._original_call
-            while hasattr(orig_call, "__consumer__"):
-                orig_call = orig_call.__wrapped__  # type: ignore[union-attr]
-
-        else:
-            orig_call = endpoint
-
-        dependent = get_fastapi_native_dependant(
-            orig_call,
-            list(dependencies),
-            path_name=path_name,
-        )
-
-        if response_model:
-            response_field = create_response_field(
-                name="ResponseModel",
-                type_=response_model,
-                mode="serialization",
-            )
-        else:
-            response_field = None
-
-        call = wraps(orig_call)(
-            StreamMessage.get_consumer(
-                dependent=dependent,
-                provider_factory=provider_factory,
-                response_field=response_field,
-                response_model_include=response_model_include,
-                response_model_exclude=response_model_exclude,
-                response_model_by_alias=response_model_by_alias,
-                response_model_exclude_unset=response_model_exclude_unset,
-                response_model_exclude_defaults=response_model_exclude_defaults,
-                response_model_exclude_none=response_model_exclude_none,
-            )
-        )
-
-        handler: HandlerCallWrapper[Any, Any, Any]
-        if isinstance(endpoint, HandlerCallWrapper):
-            endpoint._original_call = call
-            handler = endpoint
-
-        else:
-            handler = call  # type: ignore[assignment]
-
-        self.handler = broker.subscriber(  # type: ignore[call-arg]
-            *extra,
-            dependencies=list(dependencies),
-            **handle_kwargs,
-        )(
-            handler,
-        )
-
-
-class StreamMessage(Request):  # type: ignore[misc]
+class StreamMessage(Request):
     """A class to represent a stream message."""
 
     scope: "AnyDict"
@@ -147,75 +61,116 @@ class StreamMessage(Request):  # type: ignore[misc]
         self.scope = {"path_params": self._query_params}
         self._cookies = {}
 
-    @classmethod
-    def get_consumer(
-        cls,
-        *,
-        dependent: "Dependant",
-        provider_factory: Callable[[], Any],
-        response_field: Optional["ModelField"],
-        response_model_include: Optional["IncEx"],
-        response_model_exclude: Optional["IncEx"],
-        response_model_by_alias: bool,
-        response_model_exclude_unset: bool,
-        response_model_exclude_defaults: bool,
-        response_model_exclude_none: bool,
-    ) -> Callable[["NativeMessage[Any]"], Awaitable[Any]]:
-        """Creates a session for handling requests."""
-        assert dependent.call  # nosec B101
 
-        consume = make_fastapi_execution(
-            dependent=dependent,
-            provider_factory=provider_factory,
-            response_field=response_field,
-            response_model_include=response_model_include,
-            response_model_exclude=response_model_exclude,
-            response_model_by_alias=response_model_by_alias,
-            response_model_exclude_unset=response_model_exclude_unset,
-            response_model_exclude_defaults=response_model_exclude_defaults,
-            response_model_exclude_none=response_model_exclude_none,
+def wrap_callable_to_fastapi_compatible(
+    user_callable: Callable[P_HandlerParams, T_HandlerReturn],
+    *,
+    provider_factory: Callable[[], Any],
+    dependencies: Iterable["params.Depends"],
+    response_model: Any,
+    response_model_include: Optional["IncEx"],
+    response_model_exclude: Optional["IncEx"],
+    response_model_by_alias: bool,
+    response_model_exclude_unset: bool,
+    response_model_exclude_defaults: bool,
+    response_model_exclude_none: bool,
+) -> Callable[["NativeMessage[Any]"], Awaitable[Any]]:
+    __magic_attr = "__faststream_consumer__"
+
+    if getattr(user_callable, __magic_attr, False):
+        return user_callable  # type: ignore[return-value]
+
+    if response_model:
+        response_field = create_response_field(
+            name="ResponseModel",
+            type_=response_model,
+            mode="serialization",
         )
+    else:
+        response_field = None
 
-        dependencies_names = tuple(i.name for i in dependent.dependencies)
+    parsed_callable = build_faststream_to_fastapi_parser(
+        dependent=get_fastapi_native_dependant(user_callable, list(dependencies)),
+        provider_factory=provider_factory,
+        response_field=response_field,
+        response_model_include=response_model_include,
+        response_model_exclude=response_model_exclude,
+        response_model_by_alias=response_model_by_alias,
+        response_model_exclude_unset=response_model_exclude_unset,
+        response_model_exclude_defaults=response_model_exclude_defaults,
+        response_model_exclude_none=response_model_exclude_none,
+    )
 
-        first_arg = next(
-            dropwhile(
-                lambda i: i in dependencies_names,
-                inspect.signature(dependent.call).parameters,
-            ),
-            None,
-        )
+    setattr(parsed_callable, __magic_attr, True)
+    return wraps(user_callable)(parsed_callable)
 
-        async def real_consumer(message: "NativeMessage[Any]") -> Any:
-            """An asynchronous function that processes an incoming message and returns a sendable message."""
-            body = message.decoded_body
 
-            fastapi_body: Union[AnyDict, List[Any]]
-            if first_arg is not None:
-                if isinstance(body, dict):
-                    path = fastapi_body = body or {}
-                elif isinstance(body, list):
-                    fastapi_body, path = body, {}
-                else:
-                    path = fastapi_body = {first_arg: body}
+def build_faststream_to_fastapi_parser(
+    *,
+    dependent: "Dependant",
+    provider_factory: Callable[[], Any],
+    response_field: Optional["ModelField"],
+    response_model_include: Optional["IncEx"],
+    response_model_exclude: Optional["IncEx"],
+    response_model_by_alias: bool,
+    response_model_exclude_unset: bool,
+    response_model_exclude_defaults: bool,
+    response_model_exclude_none: bool,
+) -> Callable[["NativeMessage[Any]"], Awaitable[Any]]:
+    """Creates a session for handling requests."""
+    assert dependent.call  # nosec B101
 
-                stream_message = cls(
-                    body=fastapi_body,
-                    headers=message.headers,
-                    path={**path, **message.path},
-                )
+    consume = make_fastapi_execution(
+        dependent=dependent,
+        provider_factory=provider_factory,
+        response_field=response_field,
+        response_model_include=response_model_include,
+        response_model_exclude=response_model_exclude,
+        response_model_by_alias=response_model_by_alias,
+        response_model_exclude_unset=response_model_exclude_unset,
+        response_model_exclude_defaults=response_model_exclude_defaults,
+        response_model_exclude_none=response_model_exclude_none,
+    )
 
+    dependencies_names = tuple(i.name for i in dependent.dependencies)
+
+    first_arg = next(
+        dropwhile(
+            lambda i: i in dependencies_names,
+            inspect.signature(dependent.call).parameters,
+        ),
+        None,
+    )
+
+    async def parsed_consumer(message: "NativeMessage[Any]") -> Any:
+        """Wrapper, that parser FastStream message to FastAPI compatible one."""
+        body = await message.decode()
+
+        fastapi_body: Union[AnyDict, List[Any]]
+        if first_arg is not None:
+            if isinstance(body, dict):
+                path = fastapi_body = body or {}
+            elif isinstance(body, list):
+                fastapi_body, path = body, {}
             else:
-                stream_message = cls(
-                    body={},
-                    headers={},
-                    path={},
-                )
+                path = fastapi_body = {first_arg: body}
 
-            return await consume(stream_message, message)
+            stream_message = StreamMessage(
+                body=fastapi_body,
+                headers=message.headers,
+                path={**path, **message.path},
+            )
 
-        real_consumer.__consumer__ = True  # type: ignore[attr-defined]
-        return real_consumer
+        else:
+            stream_message = StreamMessage(
+                body={},
+                headers={},
+                path={},
+            )
+
+        return await consume(stream_message, message)
+
+    return parsed_consumer
 
 
 def make_fastapi_execution(
@@ -230,15 +185,15 @@ def make_fastapi_execution(
     response_model_exclude_defaults: bool,
     response_model_exclude_none: bool,
 ) -> Callable[
-    [StreamMessage, "NativeMessage[Any]"],
+    ["StreamMessage", "NativeMessage[Any]"],
     Awaitable[Any],
 ]:
     """Creates a FastAPI application."""
     is_coroutine = asyncio.iscoroutinefunction(dependent.call)
 
     async def app(
-        request: StreamMessage,
-        raw_message: "NativeMessage[Any]",
+        request: "StreamMessage",
+        raw_message: "NativeMessage[Any]",  # to support BackgroundTasks by middleware
     ) -> Any:
         """Consume StreamMessage and return user function result."""
         async with AsyncExitStack() as stack:
@@ -248,22 +203,21 @@ def make_fastapi_execution(
                 request.scope["fastapi_astack"] = stack
                 kwargs = {}
 
-            solved_result = await solve_dependencies(
+            solved_result = await solve_faststream_dependency(
                 request=request,
-                body=request._body,  # type: ignore[arg-type]
                 dependant=dependent,
                 dependency_overrides_provider=provider_factory(),
-                **kwargs,  # type: ignore[arg-type]
+                **kwargs,
             )
 
-            values, errors, raw_message.background, _, _2 = solved_result  # type: ignore[attr-defined]
+            raw_message.background = solved_result.background_tasks  # type: ignore[attr-defined]
 
-            if errors:
-                raise_fastapi_validation_error(errors, request._body)  # type: ignore[arg-type]
+            if solved_result.errors:
+                raise_fastapi_validation_error(solved_result.errors, request._body)  # type: ignore[arg-type]
 
             raw_reponse = await run_endpoint_function(
                 dependant=dependent,
-                values=values,
+                values=solved_result.values,
                 is_coroutine=is_coroutine,
             )
 

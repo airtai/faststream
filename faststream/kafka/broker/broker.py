@@ -16,9 +16,9 @@ from typing import (
 )
 
 import aiokafka
+import anyio
 from aiokafka.partitioner import DefaultPartitioner
 from aiokafka.producer.producer import _missing
-from anyio import move_on_after
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
@@ -64,7 +64,7 @@ if TYPE_CHECKING:
         ]
         retry_backoff_ms: Annotated[
             int,
-            Doc(" Milliseconds to backoff when retrying on errors."),
+            Doc("Milliseconds to backoff when retrying on errors."),
         ]
         metadata_max_age_ms: Annotated[
             int,
@@ -258,7 +258,7 @@ class KafkaBroker(
         ] = 40 * 1000,
         retry_backoff_ms: Annotated[
             int,
-            Doc(" Milliseconds to backoff when retrying on errors."),
+            Doc("Milliseconds to backoff when retrying on errors."),
         ] = 100,
         metadata_max_age_ms: Annotated[
             int,
@@ -632,6 +632,8 @@ class KafkaBroker(
         await producer.start()
         self._producer = AioKafkaFastProducer(
             producer=producer,
+            parser=self._parser,
+            decoder=self._decoder,
         )
 
         return partial(
@@ -717,6 +719,10 @@ class KafkaBroker(
             str,
             Doc("Reply message topic name to send response."),
         ] = "",
+        no_confirm: Annotated[
+            bool,
+            Doc("Do not wait for Kafka publish confirmation."),
+        ] = False,
         # extra options to be compatible with test client
         **kwargs: Any,
     ) -> Optional[Any]:
@@ -739,7 +745,82 @@ class KafkaBroker(
             headers=headers,
             correlation_id=correlation_id,
             reply_to=reply_to,
+            no_confirm=no_confirm,
             **kwargs,
+        )
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: Annotated[
+            "SendableMessage",
+            Doc("Message body to send."),
+        ],
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
+        *,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc(
+                """
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """
+            ),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc(
+                """
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """
+            ),
+        ] = None,
+        timestamp_ms: Annotated[
+            Optional[int],
+            Doc(
+                """
+            Epoch milliseconds (from Jan 1 1970 UTC) to use as
+            the message timestamp. Defaults to current time.
+            """
+            ),
+        ] = None,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc("Message headers to store metainformation."),
+        ] = None,
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        timeout: Annotated[
+            float,
+            Doc("Timeout to send RPC request."),
+        ] = 0.5,
+    ) -> Optional[Any]:
+        correlation_id = correlation_id or gen_cor_id()
+
+        return await super().request(
+            message,
+            producer=self._producer,
+            topic=topic,
+            key=key,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            correlation_id=correlation_id,
+            timeout=timeout,
         )
 
     async def publish_batch(
@@ -785,6 +866,10 @@ class KafkaBroker(
                 "**correlation_id** is a useful option to trace messages."
             ),
         ] = None,
+        no_confirm: Annotated[
+            bool,
+            Doc("Do not wait for Kafka publish confirmation."),
+        ] = False,
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -803,15 +888,24 @@ class KafkaBroker(
             headers=headers,
             reply_to=reply_to,
             correlation_id=correlation_id,
+            no_confirm=no_confirm,
         )
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
-        with move_on_after(timeout) as cancel_scope:
-            if cancel_scope.cancel_called:
-                return False
+        sleep_time = (timeout or 10) / 10
 
+        with anyio.move_on_after(timeout) as cancel_scope:
             if self._producer is None:
                 return False
 
-            return not self._producer._producer._closed
+            while True:
+                if cancel_scope.cancel_called:
+                    return False
+
+                if not self._producer._producer._closed:
+                    return True
+
+                await anyio.sleep(sleep_time)
+
+        return False

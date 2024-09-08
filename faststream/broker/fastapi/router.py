@@ -33,15 +33,16 @@ from starlette.routing import BaseRoute, _DefaultLifespan
 from faststream.asyncapi.proto import AsyncAPIApplication
 from faststream.asyncapi.site import get_asyncapi_html
 from faststream.broker.fastapi.get_dependant import get_fastapi_dependant
-from faststream.broker.fastapi.route import StreamRoute
+from faststream.broker.fastapi.route import wrap_callable_to_fastapi_compatible
 from faststream.broker.middlewares import BaseMiddleware
+from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
 )
 from faststream.utils.context.repository import context
-from faststream.utils.functions import to_async
+from faststream.utils.functions import fake_context, to_async
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -54,6 +55,7 @@ if TYPE_CHECKING:
     from faststream.asyncapi import schema as asyncapi
     from faststream.asyncapi.schema import Schema
     from faststream.broker.core.usecase import BrokerUsecase
+    from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import PublisherProto
     from faststream.broker.schemas import NameRequired
     from faststream.broker.types import BrokerMiddleware
@@ -62,14 +64,14 @@ if TYPE_CHECKING:
 
 
 class _BackgroundMiddleware(BaseMiddleware):
-    async def after_processed(
+    async def __aexit__(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
         if not exc_type and (
-            background := cast(  # type: ignore[redundant-cast]
+            background := cast(
                 Optional[BackgroundTasks],
                 getattr(context.get_local("message"), "background", None),
             )
@@ -80,7 +82,7 @@ class _BackgroundMiddleware(BaseMiddleware):
 
 
 class StreamRouter(
-    APIRouter,  # type: ignore[misc]
+    APIRouter,
     AsyncAPIApplication,
     Generic[MsgType],
 ):
@@ -143,6 +145,7 @@ class StreamRouter(
             ),
             _get_dependant=get_fastapi_dependant,
             tags=asyncapi_tags,
+            apply_types=False,
             **connection_kwars,
         )
 
@@ -204,9 +207,6 @@ class StreamRouter(
 
     def _add_api_mq_route(
         self,
-        path: Union["NameRequired", str],
-        *extra: Union["NameRequired", str],
-        endpoint: Callable[P_HandlerParams, T_HandlerReturn],
         dependencies: Iterable["params.Depends"],
         response_model: Any,
         response_model_include: Optional["IncEx"],
@@ -215,31 +215,33 @@ class StreamRouter(
         response_model_exclude_unset: bool,
         response_model_exclude_defaults: bool,
         response_model_exclude_none: bool,
-        **broker_kwargs: Any,
-    ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-        """Add an API message queue route."""
-        route = StreamRoute[MsgType, P_HandlerParams, T_HandlerReturn](
-            path,
-            *extra,
-            endpoint=endpoint,
-            dependencies=(*self.dependencies, *dependencies),
-            provider_factory=self._get_dependencies_overides_provider,
-            broker=self.broker,
-            response_model=response_model,
-            response_model_include=response_model_include,
-            response_model_exclude=response_model_exclude,
-            response_model_by_alias=response_model_by_alias,
-            response_model_exclude_unset=response_model_exclude_unset,
-            response_model_exclude_defaults=response_model_exclude_defaults,
-            response_model_exclude_none=response_model_exclude_none,
-            **broker_kwargs,
-        )
-        self.routes.append(route)
-        return route.handler
+    ) -> Callable[
+        [Callable[..., Any]],
+        Callable[["StreamMessage[Any]"], Awaitable[Any]],
+    ]:
+        """Decorator before `broker.subscriber`, that wraps function to FastAPI-compatible one."""
+
+        def wrapper(
+            endpoint: Callable[..., Any],
+        ) -> Callable[["StreamMessage[Any]"], Awaitable[Any]]:
+            """Patch user function to make it FastAPI-compatible."""
+            return wrap_callable_to_fastapi_compatible(
+                user_callable=endpoint,
+                dependencies=dependencies,
+                response_model=response_model,
+                response_model_include=response_model_include,
+                response_model_exclude=response_model_exclude,
+                response_model_by_alias=response_model_by_alias,
+                response_model_exclude_unset=response_model_exclude_unset,
+                response_model_exclude_defaults=response_model_exclude_defaults,
+                response_model_exclude_none=response_model_exclude_none,
+                provider_factory=self._get_dependencies_overides_provider,
+            )
+
+        return wrapper
 
     def subscriber(
         self,
-        path: Union[str, "NameRequired"],
         *extra: Union["NameRequired", str],
         dependencies: Iterable["params.Depends"],
         response_model: Any,
@@ -255,15 +257,16 @@ class StreamRouter(
         "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
     ]:
         """A function decorator for subscribing to a message queue."""
+        dependencies = (*self.dependencies, *dependencies)
 
-        def decorator(
-            func: Callable[P_HandlerParams, T_HandlerReturn],
-        ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-            """A decorator function."""
-            return self._add_api_mq_route(
-                path,
-                *extra,
-                endpoint=func,
+        sub = self.broker.subscriber(  # type: ignore[call-arg]
+            *extra,  # type: ignore[arg-type]
+            dependencies=dependencies,
+            **broker_kwargs,
+        )
+
+        sub._call_decorators = (  # type: ignore[attr-defined]
+            self._add_api_mq_route(
                 dependencies=dependencies,
                 response_model=response_model,
                 response_model_include=response_model_include,
@@ -272,10 +275,10 @@ class StreamRouter(
                 response_model_exclude_unset=response_model_exclude_unset,
                 response_model_exclude_defaults=response_model_exclude_defaults,
                 response_model_exclude_none=response_model_exclude_none,
-                **broker_kwargs,
-            )
+            ),
+        )
 
-        return decorator
+        return sub
 
     def _wrap_lifespan(
         self, lifespan: Optional["Lifespan[Any]"] = None
@@ -477,9 +480,9 @@ class StreamRouter(
         docs_router.get(f"{schema_url}.yaml")(download_app_yaml_schema)
         return docs_router
 
-    def include_router(
+    def include_router(  # type: ignore[override]
         self,
-        router: "APIRouter",
+        router: Union["StreamRouter[MsgType]", "BrokerRouter[MsgType]"],
         *,
         prefix: str = "",
         tags: Optional[List[Union[str, Enum]]] = None,
@@ -494,7 +497,26 @@ class StreamRouter(
         ),
     ) -> None:
         """Includes a router in the API."""
+        if isinstance(router, BrokerRouter):
+            for sub in router._subscribers.values():
+                sub._call_decorators = (  # type: ignore[attr-defined]
+                    self._add_api_mq_route(
+                        dependencies=(),
+                        response_model=Default(None),
+                        response_model_include=None,
+                        response_model_exclude=None,
+                        response_model_by_alias=True,
+                        response_model_exclude_unset=False,
+                        response_model_exclude_defaults=False,
+                        response_model_exclude_none=False,
+                    ),
+                )
+
+            self.broker.include_router(router)
+            return
+
         if isinstance(router, StreamRouter):  # pragma: no branch
+            router.lifespan_context = fake_context
             self.broker.include_router(router.broker)
             router.weak_dependencies_provider = self.weak_dependencies_provider
 

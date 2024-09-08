@@ -4,7 +4,7 @@ from examples.router.delay_registration import app, broker
 from faststream.kafka import TestApp, TestKafkaBroker
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_example():
     sub = next(iter(broker._subscribers.values()))
     sub.topic = "prefix_in"

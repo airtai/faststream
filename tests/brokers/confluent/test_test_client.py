@@ -14,7 +14,7 @@ from tests.tools import spy_decorator
 from .basic import ConfluentTestcaseConfig
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     """A class to represent a test Kafka broker."""
 
@@ -52,7 +52,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
                 m.mock.assert_called_once_with("hello")
                 mocked.mock.assert_called_once()
 
-    @pytest.mark.confluent()
+    @pytest.mark.confluent
     async def test_with_real_testclient(
         self,
         queue: str,
@@ -60,7 +60,9 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     ):
         broker = self.get_broker()
 
-        @broker.subscriber(queue, auto_offset_reset="earliest")
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         def subscriber(m):
             event.set()
 
@@ -81,7 +83,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     ):
         broker = self.get_broker()
 
-        @broker.subscriber(queue, batch=True, auto_offset_reset="earliest")
+        @broker.subscriber(queue, batch=True)
         async def m(msg):
             pass
 
@@ -95,7 +97,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     ):
         broker = self.get_broker()
 
-        @broker.subscriber(queue, batch=True, auto_offset_reset="earliest")
+        @broker.subscriber(queue, batch=True)
         async def m(msg):
             pass
 
@@ -112,7 +114,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
         publisher = broker.publisher(queue + "1", batch=True)
 
         @publisher
-        @broker.subscriber(queue, auto_offset_reset="earliest")
+        @broker.subscriber(queue)
         async def m(msg):
             return 1, 2, 3
 
@@ -131,10 +133,10 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
 
         broker = KafkaBroker(middlewares=(Middleware,))
 
-        @broker.subscriber(queue, auto_offset_reset="earliest")
+        @broker.subscriber(queue)
         async def h1(): ...
 
-        @broker.subscriber(queue + "1", auto_offset_reset="earliest")
+        @broker.subscriber(queue + "1")
         async def h2(): ...
 
         async with TestKafkaBroker(broker) as br:
@@ -143,7 +145,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.confluent()
+    @pytest.mark.confluent
     async def test_real_respect_middleware(self, queue):
         routes = []
 
@@ -154,10 +156,14 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
 
         broker = KafkaBroker(middlewares=(Middleware,))
 
-        @broker.subscriber(queue, auto_offset_reset="earliest")
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
         async def h1(): ...
 
-        @broker.subscriber(queue + "1", auto_offset_reset="earliest")
+        args2, kwargs2 = self.get_subscriber_params(queue + "1")
+
+        @broker.subscriber(*args2, **kwargs2)
         async def h2(): ...
 
         async with TestKafkaBroker(broker, with_real=True) as br:
@@ -236,15 +242,15 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
         assert subscriber1.mock.call_count == 1
         assert subscriber2.mock.call_count == 0
 
-    @pytest.mark.confluent()
+    @pytest.mark.confluent
     async def test_broker_gets_patched_attrs_within_cm(self):
         await super().test_broker_gets_patched_attrs_within_cm()
 
-    @pytest.mark.confluent()
+    @pytest.mark.confluent
     async def test_broker_with_real_doesnt_get_patched(self):
         await super().test_broker_with_real_doesnt_get_patched()
 
-    @pytest.mark.confluent()
+    @pytest.mark.confluent
     async def test_broker_with_real_patches_publishers_and_subscribers(
         self, queue: str
     ):

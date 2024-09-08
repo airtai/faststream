@@ -16,7 +16,7 @@ def exit(parent_id):  # pragma: no cover
     os.kill(parent_id, signal.SIGINT)
 
 
-@pytest.mark.slow()
+@pytest.mark.slow
 @pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_base():
     processor = WatchReloader(target=exit, args=(), reload_dirs=[DIR])
@@ -35,7 +35,7 @@ def touch_file(file: Path):  # pragma: no cover
             f.write("hello")
 
 
-@pytest.mark.slow()
+@pytest.mark.slow
 @pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_restart(mock: Mock):
     file = DIR / "file.py"

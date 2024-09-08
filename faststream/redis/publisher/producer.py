@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Any, Optional
 
+import anyio
 from typing_extensions import override
 
 from faststream.broker.publisher.proto import ProducerProto
@@ -35,13 +36,15 @@ class RedisFastProducer(ProducerProto):
         decoder: Optional["CustomCallable"],
     ) -> None:
         self._connection = connection
+
+        default = RedisPubSubParser()
         self._parser = resolve_custom_func(
             parser,
-            RedisPubSubParser().parse_message,
+            default.parse_message,
         )
         self._decoder = resolve_custom_func(
             decoder,
-            RedisPubSubParser().decode_message,
+            default.decode_message,
         )
 
     @override
@@ -121,6 +124,68 @@ class RedisFastProducer(ProducerProto):
                     return None
             else:
                 return await self._decoder(await self._parser(m))
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: "SendableMessage",
+        *,
+        correlation_id: str,
+        channel: Optional[str] = None,
+        list: Optional[str] = None,
+        stream: Optional[str] = None,
+        maxlen: Optional[int] = None,
+        headers: Optional["AnyDict"] = None,
+        timeout: Optional[float] = 30.0,
+    ) -> "Any":
+        if not any((channel, list, stream)):
+            raise SetupError(INCORRECT_SETUP_MSG)
+
+        nuid = NUID()
+        reply_to = str(nuid.next(), "utf-8")
+        psub = self._connection.pubsub()
+        await psub.subscribe(reply_to)
+
+        msg = RawMessage.encode(
+            message=message,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
+        )
+
+        if channel is not None:
+            await self._connection.publish(channel, msg)
+        elif list is not None:
+            await self._connection.rpush(list, msg)
+        elif stream is not None:
+            await self._connection.xadd(
+                name=stream,
+                fields={DATA_KEY: msg},
+                maxlen=maxlen,
+            )
+        else:
+            raise AssertionError("unreachable")
+
+        with anyio.fail_after(timeout) as scope:
+            # skip subscribe message
+            await psub.get_message(
+                ignore_subscribe_messages=True,
+                timeout=timeout or 0.0,
+            )
+
+            # get real response
+            response_msg = await psub.get_message(
+                ignore_subscribe_messages=True,
+                timeout=timeout or 0.0,
+            )
+
+        await psub.unsubscribe()
+        await psub.aclose()  # type: ignore[attr-defined]
+
+        if scope.cancel_called:
+            raise TimeoutError
+
+        return response_msg
 
     async def publish_batch(
         self,

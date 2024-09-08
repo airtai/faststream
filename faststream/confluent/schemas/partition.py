@@ -1,6 +1,16 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from confluent_kafka import TopicPartition as ConfluentPartition
+
+if TYPE_CHECKING:
+    from typing_extensions import NotRequired, TypedDict
+
+    class _TopicKwargs(TypedDict):
+        topic: str
+        partition: int
+        offset: int
+        metadata: NotRequired[str]
+        leader_epoch: NotRequired[int]
 
 
 class TopicPartition:
@@ -27,7 +37,7 @@ class TopicPartition:
         self.leader_epoch = leader_epoch
 
     def to_confluent(self) -> ConfluentPartition:
-        kwargs = {
+        kwargs: _TopicKwargs = {
             "topic": self.topic,
             "partition": self.partition,
             "offset": self.offset,

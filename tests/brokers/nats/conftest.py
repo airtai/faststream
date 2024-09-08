@@ -21,12 +21,12 @@ def settings():
     return Settings()
 
 
-@pytest.fixture()
+@pytest.fixture
 def stream(queue):
     return JStream(queue)
 
 
-@pytest.fixture()
+@pytest.fixture
 def router():
     return NatsRouter()
 

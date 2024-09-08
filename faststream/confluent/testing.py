@@ -2,18 +2,22 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
 from unittest.mock import AsyncMock, MagicMock
 
+import anyio
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
+from faststream.broker.utils import resolve_custom_func
 from faststream.confluent.broker import KafkaBroker
+from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.asyncapi import AsyncAPIBatchPublisher
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas import TopicPartition
 from faststream.confluent.subscriber.asyncapi import AsyncAPIBatchSubscriber
-from faststream.testing.broker import TestBroker, call_handler
+from faststream.exceptions import SubscriberNotFound
+from faststream.testing.broker import TestBroker
+from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
-    from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
     from faststream.confluent.subscriber.usecase import LogicSubscriber
     from faststream.types import SendableMessage
@@ -37,8 +41,8 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
         publisher: "AsyncAPIPublisher[Any]",
-    ) -> "HandlerCallWrapper[Any, Any, Any]":
-        sub: Optional[Any] = None
+    ) -> Tuple["LogicSubscriber[Any]", bool]:
+        sub: Optional[LogicSubscriber[Any]] = None
         for handler in broker._subscribers.values():
             if _is_handler_matches(
                 handler, topic=publisher.topic, partition=publisher.partition
@@ -47,6 +51,8 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
                 break
 
         if sub is None:
+            is_real = False
+
             if publisher.partition:
                 tp = TopicPartition(
                     topic=publisher.topic, partition=publisher.partition
@@ -63,22 +69,10 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
                     auto_offset_reset="earliest",
                 )
 
-        if not sub.calls:
+        else:
+            is_real = True
 
-            @sub  # type: ignore[misc]
-            def publisher_response_subscriber(msg: Any) -> None:
-                pass
-
-            broker.setup_subscriber(sub)
-
-        return sub.calls[0].handler
-
-    @staticmethod
-    def remove_publisher_fake_subscriber(
-        broker: KafkaBroker,
-        publisher: "AsyncAPIPublisher[Any]",
-    ) -> None:
-        broker._subscribers.pop(hash(publisher), None)
+        return sub, is_real
 
 
 class FakeProducer(AsyncConfluentFastProducer):
@@ -89,6 +83,11 @@ class FakeProducer(AsyncConfluentFastProducer):
 
     def __init__(self, broker: KafkaBroker) -> None:
         self.broker = broker
+
+        default = AsyncConfluentParser
+
+        self._parser = resolve_custom_func(broker._parser, default.parse_message)
+        self._decoder = resolve_custom_func(broker._decoder, default.decode_message)
 
     @override
     async def publish(  # type: ignore[override]
@@ -101,14 +100,13 @@ class FakeProducer(AsyncConfluentFastProducer):
         headers: Optional[Dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         *,
+        no_confirm: bool = False,
         reply_to: str = "",
         rpc: bool = False,
         rpc_timeout: Optional[float] = None,
         raise_timeout: bool = False,
     ) -> Optional[Any]:
         """Publish a message to the Kafka broker."""
-        correlation_id = correlation_id or gen_cor_id()
-
         incoming = build_message(
             message=message,
             topic=topic,
@@ -116,7 +114,7 @@ class FakeProducer(AsyncConfluentFastProducer):
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=headers,
-            correlation_id=correlation_id,
+            correlation_id=correlation_id or gen_cor_id(),
             reply_to=reply_to,
         )
 
@@ -124,17 +122,20 @@ class FakeProducer(AsyncConfluentFastProducer):
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
             if _is_handler_matches(handler, topic, partition):
-                handle_value = await call_handler(
-                    handler=handler,
-                    message=[incoming]
+                msg_to_send = (
+                    [incoming]
                     if isinstance(handler, AsyncAPIBatchSubscriber)
-                    else incoming,
-                    rpc=rpc,
-                    rpc_timeout=rpc_timeout,
-                    raise_timeout=raise_timeout,
+                    else incoming
                 )
 
-                return_value = return_value or handle_value
+                with timeout_scope(rpc_timeout, raise_timeout):
+                    response_msg = await self._execute_handler(
+                        msg_to_send, topic, handler
+                    )
+                    if rpc:
+                        return_value = return_value or await self._decoder(
+                            await self._parser(response_msg)
+                        )
 
         return return_value
 
@@ -147,10 +148,9 @@ class FakeProducer(AsyncConfluentFastProducer):
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
+        no_confirm: bool = False,
     ) -> None:
         """Publish a batch of messages to the Kafka broker."""
-        correlation_id = correlation_id or gen_cor_id()
-
         for handler in self.broker._subscribers.values():  # pragma: no branch
             if _is_handler_matches(handler, topic, partition):
                 messages = (
@@ -160,25 +160,71 @@ class FakeProducer(AsyncConfluentFastProducer):
                         partition=partition,
                         timestamp_ms=timestamp_ms,
                         headers=headers,
-                        correlation_id=correlation_id,
+                        correlation_id=correlation_id or gen_cor_id(),
                         reply_to=reply_to,
                     )
                     for message in msgs
                 )
 
                 if isinstance(handler, AsyncAPIBatchSubscriber):
-                    await call_handler(
-                        handler=handler,
-                        message=list(messages),
-                    )
+                    await self._execute_handler(list(messages), topic, handler)
 
                 else:
                     for m in messages:
-                        await call_handler(
-                            handler=handler,
-                            message=m,
-                        )
+                        await self._execute_handler(m, topic, handler)
+
         return None
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: "SendableMessage",
+        topic: str,
+        key: Optional[bytes] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[Dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        *,
+        timeout: Optional[float] = 0.5,
+    ) -> "MockConfluentMessage":
+        incoming = build_message(
+            message=message,
+            topic=topic,
+            key=key,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            correlation_id=correlation_id or gen_cor_id(),
+        )
+
+        for handler in self.broker._subscribers.values():  # pragma: no branch
+            if _is_handler_matches(handler, topic, partition):
+                msg_to_send = (
+                    [incoming]
+                    if isinstance(handler, AsyncAPIBatchSubscriber)
+                    else incoming
+                )
+
+                with anyio.fail_after(timeout):
+                    return await self._execute_handler(msg_to_send, topic, handler)
+
+        raise SubscriberNotFound
+
+    async def _execute_handler(
+        self,
+        msg: Any,
+        topic: str,
+        handler: "LogicSubscriber[Any]",
+    ) -> "MockConfluentMessage":
+        result = await handler.process_message(msg)
+
+        return build_message(
+            topic=topic,
+            message=result.body,
+            headers=result.headers,
+            correlation_id=result.correlation_id or gen_cor_id(),
+        )
 
 
 class MockConfluentMessage:

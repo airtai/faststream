@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.broker.fastapi.route.StreamRoute
+::: faststream.redis.testing.StreamVisitor

@@ -4,7 +4,7 @@ from faststream.rabbit.fastapi import RabbitRouter
 
 router = RabbitRouter("amqp://guest:guest@localhost:5672/")
 
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 
 
 @router.get("/")

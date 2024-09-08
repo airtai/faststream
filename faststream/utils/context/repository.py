@@ -66,7 +66,7 @@ class ContextRepo(Singleton):
         """
         context_var = self._scope_context.get(key)
         if context_var is None:
-            context_var = ContextVar(key, default=None)
+            context_var = ContextVar(key, default=EMPTY)
             self._scope_context[key] = context_var
         return context_var.set(value)
 
@@ -92,10 +92,12 @@ class ContextRepo(Singleton):
         Returns:
             The value of the local variable.
         """
-        if (context_var := self._scope_context.get(key)) is not None:
-            return context_var.get()
-        else:
-            return default
+        value = default
+        if (context_var := self._scope_context.get(key)) is not None and (
+            context_value := context_var.get()
+        ) is not EMPTY:
+            value = context_value
+        return value
 
     @contextmanager
     def scope(self, key: str, value: Any) -> Iterator[None]:

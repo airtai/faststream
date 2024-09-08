@@ -4,15 +4,16 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from faststream.nats import JStream, PullSub
-from faststream.nats.fastapi import NatsRouter
+from faststream.nats import JStream, NatsRouter, PullSub
+from faststream.nats.fastapi import NatsRouter as StreamRouter
 from faststream.nats.testing import TestNatsBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 class TestRouter(FastAPITestcase):
-    router_class = NatsRouter
+    router_class = StreamRouter
+    broker_router_class = NatsRouter
 
     async def test_path(
         self,
@@ -20,7 +21,7 @@ class TestRouter(FastAPITestcase):
         event: asyncio.Event,
         mock: MagicMock,
     ):
-        router = NatsRouter()
+        router = self.router_class()
 
         @router.subscriber("in.{name}")
         def subscriber(msg: str, name: str):
@@ -47,7 +48,7 @@ class TestRouter(FastAPITestcase):
         event: asyncio.Event,
         mock: MagicMock,
     ):
-        router = NatsRouter()
+        router = self.router_class()
 
         @router.subscriber(
             queue,
@@ -73,7 +74,8 @@ class TestRouter(FastAPITestcase):
 
 
 class TestRouterLocal(FastAPILocalTestcase):
-    router_class = NatsRouter
+    router_class = StreamRouter
+    broker_router_class = NatsRouter
     broker_test = staticmethod(TestNatsBroker)
     build_message = staticmethod(build_message)
 
@@ -84,7 +86,7 @@ class TestRouterLocal(FastAPILocalTestcase):
         event: asyncio.Event,
         mock: MagicMock,
     ):
-        router = NatsRouter()
+        router = self.router_class()
 
         @router.subscriber(
             queue,
