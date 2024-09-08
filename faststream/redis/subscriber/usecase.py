@@ -439,7 +439,9 @@ class _ListHandlerMixin(LogicSubscriber):
             return None
 
         async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisListMessage], Awaitable[RedisListMessage]] = return_input
+            return_msg: Callable[[RedisListMessage], Awaitable[RedisListMessage]] = (
+                return_input
+            )
 
             for m in self._broker_middlewares:
                 mid = m(raw_message)
@@ -745,7 +747,9 @@ class _StreamHandlerMixin(LogicSubscriber):
         )
 
         async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisStreamMessage], Awaitable[RedisStreamMessage]] = return_input
+            return_msg: Callable[
+                [RedisStreamMessage], Awaitable[RedisStreamMessage]
+            ] = return_input
 
             for m in self._broker_middlewares:
                 mid = m(msg)  # type: ignore[arg-type]

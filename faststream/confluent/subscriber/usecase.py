@@ -37,7 +37,6 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.confluent.client import AsyncConfluentConsumer
-    from faststream.confluent.message import KafkaMessage
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
@@ -189,7 +188,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             return None
 
         async with AsyncExitStack() as stack:
-            return_msg: Callable[[StreamMessage[MsgType]], Awaitable[StreamMessage[MsgType]]] = return_input
+            return_msg: Callable[
+                [StreamMessage[MsgType]], Awaitable[StreamMessage[MsgType]]
+            ] = return_input
 
             for m in self._broker_middlewares:
                 mid = m(raw_message)  # type: ignore[arg-type]
