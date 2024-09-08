@@ -728,7 +728,7 @@ class _StreamHandlerMixin(LogicSubscriber):
 
         stream_message = await self._client.xread(
             {self.stream_sub.name: self.last_id},
-            block=timeout * 1000,
+            block=int(timeout * 1000) or None,
             count=1,
         )
 

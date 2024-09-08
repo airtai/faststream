@@ -126,6 +126,7 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_get_one_timeout(
         self,
         queue: str,
+        mock: MagicMock,
     ):
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(queue)
@@ -133,15 +134,8 @@ class TestConsume(BrokerRealConsumeTestcase):
         async with self.patch_broker(broker) as br:
             await br.start()
 
-            message = object()
-
-            async def coro():
-                nonlocal message
-                message = await subscriber.get_one(timeout=1)
-
-            await asyncio.wait((asyncio.create_task(coro()),), timeout=3)
-
-            assert message is None
+            mock(await subscriber.get_one(timeout=1e-24))
+            mock.assert_called_once_with(None)
 
 
 @pytest.mark.redis
@@ -396,6 +390,7 @@ class TestConsumeList:
     async def test_get_one_timeout(
         self,
         queue: str,
+        mock: MagicMock,
     ):
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(list=queue)
@@ -403,15 +398,8 @@ class TestConsumeList:
         async with self.patch_broker(broker) as br:
             await br.start()
 
-            message = object()
-
-            async def coro():
-                nonlocal message
-                message = await subscriber.get_one(timeout=1)
-
-            await asyncio.wait((asyncio.create_task(coro()),), timeout=3)
-
-            assert message is None
+            mock(await subscriber.get_one(timeout=1e-24))
+            mock.assert_called_once_with(None)
 
 
 @pytest.mark.redis
@@ -729,6 +717,7 @@ class TestConsumeStream:
     async def test_get_one_timeout(
         self,
         queue: str,
+        mock: MagicMock,
     ):
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(stream=queue)
@@ -736,12 +725,5 @@ class TestConsumeStream:
         async with self.patch_broker(broker) as br:
             await br.start()
 
-            message = object()
-
-            async def coro():
-                nonlocal message
-                message = await subscriber.get_one(timeout=1e-24)
-
-            await asyncio.wait((asyncio.create_task(coro()),), timeout=3)
-
-            assert message is None
+            mock(await subscriber.get_one(timeout=1e-24))
+            mock.assert_called_once_with(None)
