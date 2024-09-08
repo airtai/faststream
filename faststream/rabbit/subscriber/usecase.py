@@ -9,11 +9,14 @@ from typing import (
     Union,
 )
 
+import anyio
 from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
+from faststream.broker.utils import process_msg
 from faststream.exceptions import SetupError
+from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import BaseRMQInformation
 
@@ -24,6 +27,7 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import BrokerMiddleware, CustomCallable
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
+    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas import (
         RabbitExchange,
@@ -156,11 +160,12 @@ class LogicSubscriber(
                 robust=self.queue.robust,
             )
 
-        self._consumer_tag = await queue.consume(
-            # NOTE: aio-pika expects AbstractIncomingMessage, not IncomingMessage
-            self.consume,  # type: ignore[arg-type]
-            arguments=self.consume_args,
-        )
+        if self.calls:
+            self._consumer_tag = await self._queue_obj.consume(
+                # NOTE: aio-pika expects AbstractIncomingMessage, not IncomingMessage
+                self.consume,  # type: ignore[arg-type]
+                arguments=self.consume_args,
+            )
 
         await super().start()
 
@@ -174,6 +179,39 @@ class LogicSubscriber(
                 self._consumer_tag = None
 
             self._queue_obj = None
+
+    @override
+    async def get_one(
+        self,
+        *,
+        timeout: float = 5.0,
+        no_ack: bool = True,
+    ) -> "Optional[RabbitMessage]":
+        assert self._queue_obj, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        sleep_interval = timeout / 10
+
+        raw_message: Optional[IncomingMessage] = None
+        with anyio.move_on_after(timeout):
+            while (  # noqa: ASYNC110
+                raw_message := await self._queue_obj.get(
+                    fail=False,
+                    no_ack=no_ack,
+                    timeout=timeout,
+                )
+            ) is None:
+                await anyio.sleep(sleep_interval)
+
+        msg: Optional[RabbitMessage] = await process_msg(  # type: ignore[assignment]
+            msg=raw_message,
+            middlewares=self._broker_middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     def _make_response_publisher(
         self,

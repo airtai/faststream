@@ -25,7 +25,7 @@ from faststream.nats.subscriber.usecase import (
 )
 
 
-class AsyncAPISubscriber(LogicSubscriber[Any]):
+class AsyncAPISubscriber(LogicSubscriber[Any, Any]):
     """A class to represent a NATS handler."""
 
     def get_name(self) -> str:
