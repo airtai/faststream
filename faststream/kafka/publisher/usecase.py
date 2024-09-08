@@ -319,7 +319,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         )
 
     @override
-    async def request(  # type: ignore[override]
+    async def request(
         self,
         message: Annotated[
             "SendableMessage",
@@ -396,7 +396,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         )
 
     @override
-    async def request(  # type: ignore[override]
+    async def request(   # type: ignore[no-redef]
         self,
         message: Annotated[
             "SendableMessage",
