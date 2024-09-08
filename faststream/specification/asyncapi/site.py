@@ -32,6 +32,7 @@ def get_asyncapi_html(
     asyncapi_css_url: str = ASYNCAPI_CSS_DEFAULT_URL,
 ) -> str:
     """Generate HTML for displaying an AsyncAPI document."""
+
     schema_json = schema.to_json()
 
     config = {

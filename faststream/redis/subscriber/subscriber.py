@@ -28,7 +28,7 @@ class SpecificationSubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
                 description=self.description,
                 subscribe=Operation(
                     message=Message(
-                        title=f"{self.name}:Message",
+                        title=f"{self.name}:SubscribeMessage",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"
