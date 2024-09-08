@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
-from faststream.specification.docs import ExternalDocs
-from faststream.specification.tag import Tag
+from faststream.specification.schema.docs import ExternalDocs
+from faststream.specification.schema.tag import Tag
 
 
 @dataclass

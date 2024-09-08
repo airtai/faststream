@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Any, Dict, Optional
 
-from faststream.specification.channel import Channel
+from faststream.specification.schema.channel import Channel
 from faststream.specification.proto import SpecificationProto
 
 

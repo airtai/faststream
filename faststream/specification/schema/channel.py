@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from faststream.specification.bindings import ChannelBinding
-from faststream.specification.operation import Operation
+from faststream.specification.schema.bindings import ChannelBinding
+from faststream.specification.schema.operation import Operation
 
 
 @dataclass

@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from faststream.specification.contact import Contact, ContactDict
     from faststream.specification.docs import ExternalDocs, ExternalDocsDict
     from faststream.specification.license import License, LicenseDict
-    from faststream.specification.tag import Tag, TagDict
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import (
         AnyCallable,
         AnyDict,

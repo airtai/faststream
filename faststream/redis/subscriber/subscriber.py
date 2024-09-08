@@ -11,10 +11,10 @@ from faststream.redis.subscriber.usecase import (
     LogicSubscriber,
     StreamSubscriber,
 )
-from faststream.specification.bindings import ChannelBinding, redis
-from faststream.specification.channel import Channel
-from faststream.specification.message import CorrelationId, Message
-from faststream.specification.operation import Operation
+from faststream.specification.schema.bindings import ChannelBinding, redis
+from faststream.specification.schema.channel import Channel
+from faststream.specification.schema.message import CorrelationId, Message
+from faststream.specification.schema.operation import Operation
 
 
 class SpecificationSubscriber(LogicSubscriber, RedisAsyncAPIProtocol):

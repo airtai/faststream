@@ -2,7 +2,7 @@ from dataclasses import asdict
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 from urllib.parse import urlparse
 
-from faststream import specification as spec
+from faststream.specification import schema as spec
 from faststream._compat import DEF_KEY
 from faststream.asyncapi.v2_6_0.generate import (
     specs_channel_binding_to_asyncapi,

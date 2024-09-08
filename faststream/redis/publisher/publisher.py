@@ -13,10 +13,10 @@ from faststream.redis.publisher.usecase import (
 )
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import RedisAsyncAPIProtocol, validate_options
-from faststream.specification.bindings import ChannelBinding, redis
-from faststream.specification.channel import Channel
-from faststream.specification.message import CorrelationId, Message
-from faststream.specification.operation import Operation
+from faststream.specification.schema.bindings import ChannelBinding, redis
+from faststream.specification.schema.channel import Channel
+from faststream.specification.schema.message import CorrelationId, Message
+from faststream.specification.schema.operation import Operation
 
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware

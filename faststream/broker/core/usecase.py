@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto, PublisherProto
     from faststream.security import BaseSecurity
-    from faststream.specification.tag import Tag, TagDict
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 

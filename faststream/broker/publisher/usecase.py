@@ -15,7 +15,6 @@ from fast_depends._compat import create_model, get_config_base
 from fast_depends.core import CallModel, build_call_model
 from typing_extensions import Annotated, Doc, override
 
-from faststream.asyncapi.abc import SpecificationOperation
 from faststream.asyncapi.message import get_response_schema
 from faststream.asyncapi.utils import to_camelcase
 from faststream.broker.publisher.proto import PublisherProto
@@ -25,6 +24,7 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.wrapper.call import HandlerCallWrapper
+from faststream.specification.abc import SpecificationOperation
 
 if TYPE_CHECKING:
     from faststream.broker.publisher.proto import ProducerProto

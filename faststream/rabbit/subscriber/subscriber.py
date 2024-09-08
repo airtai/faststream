@@ -3,14 +3,14 @@ from typing import Dict
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.rabbit.utils import is_routing_exchange
-from faststream.specification.bindings import (
+from faststream.specification.schema.bindings import (
     ChannelBinding,
     OperationBinding,
     amqp,
 )
-from faststream.specification.channel import Channel
-from faststream.specification.message import CorrelationId, Message
-from faststream.specification.operation import Operation
+from faststream.specification.schema.channel import Channel
+from faststream.specification.schema.message import CorrelationId, Message
+from faststream.specification.schema.operation import Operation
 
 
 class SpecificationSubscriber(LogicSubscriber):

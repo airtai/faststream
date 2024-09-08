@@ -1,12 +1,12 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Union
 
-from faststream.asyncapi.abc import SpecificationOperation
 from faststream.exceptions import SetupError
+from faststream.specification.abc import SpecificationOperation
 
 if TYPE_CHECKING:
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
-    from faststream.specification.bindings import redis
+    from faststream.specification.schema.bindings import redis
 
 
 class RedisAsyncAPIProtocol(SpecificationOperation):

@@ -2,7 +2,7 @@ from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.redis import RedisBroker
-from faststream.specification.tag import Tag
+from faststream.specification.schema.tag import Tag
 
 
 def test_base():

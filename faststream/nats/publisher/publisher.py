@@ -4,10 +4,10 @@ from typing_extensions import override
 
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.nats.publisher.usecase import LogicPublisher
-from faststream.specification.bindings import ChannelBinding, nats
-from faststream.specification.channel import Channel
-from faststream.specification.message import CorrelationId, Message
-from faststream.specification.operation import Operation
+from faststream.specification.schema.bindings import ChannelBinding, nats
+from faststream.specification.schema.channel import Channel
+from faststream.specification.schema.message import CorrelationId, Message
+from faststream.specification.schema.operation import Operation
 
 if TYPE_CHECKING:
     from nats.aio.msg import Msg

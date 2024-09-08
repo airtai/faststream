@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
-from faststream.specification.bindings import OperationBinding
-from faststream.specification.docs import ExternalDocs, ExternalDocsDict
-from faststream.specification.message import Message
-from faststream.specification.tag import Tag, TagDict
+from faststream.specification.schema.bindings import OperationBinding
+from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
+from faststream.specification.schema.message import Message
+from faststream.specification.schema.tag import Tag, TagDict
 
 
 @dataclass

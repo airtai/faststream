@@ -15,10 +15,10 @@ from faststream.nats.subscriber.usecase import (
     PullStreamSubscriber,
     PushStreamSubscription,
 )
-from faststream.specification.bindings import ChannelBinding, nats
-from faststream.specification.channel import Channel
-from faststream.specification.message import CorrelationId, Message
-from faststream.specification.operation import Operation
+from faststream.specification.schema.bindings import ChannelBinding, nats
+from faststream.specification.schema.channel import Channel
+from faststream.specification.schema.message import CorrelationId, Message
+from faststream.specification.schema.operation import Operation
 
 
 class SpecificationSubscriber(LogicSubscriber[Any]):

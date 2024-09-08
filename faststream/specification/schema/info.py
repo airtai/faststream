@@ -7,8 +7,8 @@ from typing import (
 
 from pydantic import AnyHttpUrl, BaseModel
 
-from faststream.specification.contact import Contact, ContactDict
-from faststream.specification.license import License, LicenseDict
+from faststream.specification.schema.contact import Contact, ContactDict
+from faststream.specification.schema.license import License, LicenseDict
 
 
 class Info(BaseModel):

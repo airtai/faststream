@@ -2,8 +2,8 @@ from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.v2_6_0.schema.info import Contact, License
 from faststream.kafka import KafkaBroker
-from faststream.specification.docs import ExternalDocs
-from faststream.specification.tag import Tag
+from faststream.specification.schema.docs import ExternalDocs
+from faststream.specification.schema.tag import Tag
 
 
 def test_base():

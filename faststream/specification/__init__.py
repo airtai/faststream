@@ -1,25 +1,7 @@
-from . import (
-    bindings,
-    channel,
-    contact,
-    docs,
-    info,
-    license,
-    message,
-    operation,
-    security,
-    tag,
-)
+from . import abc, proto, schema
 
 __all__ = (
-    "bindings",
-    "channel",
-    "contact",
-    "docs",
-    "info",
-    "license",
-    "message",
-    "operation",
-    "security",
-    "tag",
+    "schema",
+    "abc",
+    "proto",
 )

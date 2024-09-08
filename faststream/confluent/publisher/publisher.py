@@ -20,10 +20,10 @@ from faststream.confluent.publisher.usecase import (
     LogicPublisher,
 )
 from faststream.exceptions import SetupError
-from faststream.specification.bindings import ChannelBinding, kafka
-from faststream.specification.channel import Channel
-from faststream.specification.message import CorrelationId, Message
-from faststream.specification.operation import Operation
+from faststream.specification.schema.bindings import ChannelBinding, kafka
+from faststream.specification.schema.channel import Channel
+from faststream.specification.schema.message import CorrelationId, Message
+from faststream.specification.schema.operation import Operation
 
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
