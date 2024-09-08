@@ -121,7 +121,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         self._metrics = metrics_container
         self._current_span: Optional[Span] = None
         self._origin_context: Optional[Context] = None
-        self._scope_tokens: List[Tuple[str, Token]] = []
+        self._scope_tokens: List[Tuple[str, Token[Any]]] = []
         self.__settings_provider = settings_provider_factory(msg)
 
     async def publish_scope(
