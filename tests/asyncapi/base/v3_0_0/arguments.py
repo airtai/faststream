@@ -483,9 +483,6 @@ class FastAPICompatible:
         key = next(iter(schema["components"]["messages"].keys()))
         assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
 
-        with open("schema5.json", "w") as file:
-            json.dump(schema["components"], file, indent=4)
-
         assert schema["components"] == {
             "messages": {
                 key: {
