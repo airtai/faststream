@@ -176,6 +176,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         headers: Optional[Dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         reply_to: str = "",
+        no_confirm: bool = False,
         # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
@@ -184,6 +185,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         kwargs: AnyDict = {
             "key": key or self.key,
             # basic args
+            "no_confirm": no_confirm,
             "topic": topic or self.topic,
             "partition": partition or self.partition,
             "timestamp_ms": timestamp_ms,
@@ -243,8 +245,9 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
-        reply_to: str = "",
         correlation_id: Optional[str] = None,
+        reply_to: str = "",
+        no_confirm: bool = False,
         # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
@@ -258,6 +261,7 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
 
         kwargs: AnyDict = {
             "topic": topic or self.topic,
+            "no_confirm": no_confirm,
             "partition": partition or self.partition,
             "timestamp_ms": timestamp_ms,
             "headers": headers or self.headers,
