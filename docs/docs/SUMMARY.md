@@ -414,6 +414,8 @@ search:
                         - [SubscriberProto](api/faststream/broker/subscriber/proto/SubscriberProto.md)
                     - usecase
                         - [SubscriberUsecase](api/faststream/broker/subscriber/usecase/SubscriberUsecase.md)
+                    - utils
+                        - [process_msg](api/faststream/broker/subscriber/utils/process_msg.md)
                 - types
                     - [PublisherMiddleware](api/faststream/broker/types/PublisherMiddleware.md)
                 - utils
