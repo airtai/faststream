@@ -24,7 +24,7 @@ class SpecificationSubscriber(LogicSubscriber):
 
         return {
             self.name: Channel(
-                description=self.description,  # type: ignore[attr-defined]
+                description=self.description,
                 subscribe=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
