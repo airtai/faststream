@@ -11,6 +11,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
     overload,
 )
 
@@ -128,7 +129,12 @@ class ExceptionMiddleware:
         self._handlers: CastedHandlers = [
             (IgnoredException, ignore_handler),
             *(
-                (exc_type, apply_types(to_async(handler)))
+                (
+                    exc_type,
+                    apply_types(
+                        cast(Callable[..., Awaitable[None]], to_async(handler))
+                    ),
+                )
                 for exc_type, handler in (handlers or {}).items()
             ),
         ]
