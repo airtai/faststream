@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.broker.subscriber.utils.process_msg
+::: faststream.broker.utils.process_msg

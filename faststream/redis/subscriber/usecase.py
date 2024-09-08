@@ -24,7 +24,7 @@ from typing_extensions import TypeAlias, override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.subscriber.utils import process_msg
+from faststream.broker.utils import process_msg
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,

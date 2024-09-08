@@ -18,8 +18,8 @@ from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.subscriber.utils import process_msg
 from faststream.broker.types import MsgType
+from faststream.broker.utils import process_msg
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.schemas import TopicPartition
 

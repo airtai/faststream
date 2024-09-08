@@ -26,8 +26,8 @@ from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.subscriber.utils import process_msg
 from faststream.broker.types import MsgType
+from faststream.broker.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.parser import (
     BatchParser,

@@ -20,13 +20,13 @@ from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.subscriber.utils import process_msg
 from faststream.broker.types import (
     AsyncCallable,
     BrokerMiddleware,
     CustomCallable,
     MsgType,
 )
+from faststream.broker.utils import process_msg
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 from faststream.utils.path import compile_path
