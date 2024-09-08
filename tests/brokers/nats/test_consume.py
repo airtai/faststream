@@ -490,6 +490,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
+        mock: Mock,
     ):
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(
@@ -501,15 +502,8 @@ class TestConsume(BrokerRealConsumeTestcase):
         async with self.patch_broker(broker) as br:
             await br.start()
 
-            message = object
-
-            async def consume():
-                nonlocal message
-                message = await subscriber.get_one(timeout=1e-24)
-
-            await asyncio.wait((asyncio.create_task(consume()),), timeout=3)
-
-            assert message is None
+            mock(await subscriber.get_one(timeout=1e-24))
+            mock.assert_called_once_with(None)
 
     async def test_get_one_batch(
         self,
@@ -552,6 +546,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
+        mock: Mock,
     ):
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(
@@ -563,15 +558,8 @@ class TestConsume(BrokerRealConsumeTestcase):
         async with self.patch_broker(broker) as br:
             await br.start()
 
-            message = object
-
-            async def consume():
-                nonlocal message
-                message = await subscriber.get_one(timeout=1e-24)
-
-            await asyncio.wait((asyncio.create_task(consume()),), timeout=3)
-
-            assert message is None
+            mock(await subscriber.get_one(timeout=1e-24))
+            mock.assert_called_once_with(None)
 
     async def test_get_one_with_filter(
         self,
@@ -646,6 +634,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
+        mock: Mock,
     ):
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(queue, kv_watch=queue + "1")
@@ -653,18 +642,8 @@ class TestConsume(BrokerRealConsumeTestcase):
         async with self.patch_broker(broker) as br:
             await br.start()
 
-            message = object()
-
-            async def consume():
-                nonlocal message
-                message = await subscriber.get_one(timeout=1e-24)
-
-            await asyncio.wait(
-                (asyncio.create_task(consume()),),
-                timeout=10,
-            )
-
-            assert message is None
+            mock(await subscriber.get_one(timeout=1e-24))
+            mock.assert_called_once_with(None)
 
     async def test_get_one_os(
         self,
@@ -700,12 +679,12 @@ class TestConsume(BrokerRealConsumeTestcase):
             new_object = await bucket.get(new_object_id)
             assert new_object.data == b"test_message"
 
-
     async def test_get_one_os_timeout(
         self,
         queue: str,
         event: asyncio.Event,
         stream: JStream,
+        mock: Mock,
     ):
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(queue, obj_watch=True)
@@ -713,15 +692,5 @@ class TestConsume(BrokerRealConsumeTestcase):
         async with self.patch_broker(broker) as br:
             await br.start()
 
-            new_object_event = object()
-
-            async def consume():
-                nonlocal new_object_event
-                new_object_event = await subscriber.get_one(timeout=1e-24)
-
-            await asyncio.wait(
-                (asyncio.create_task(consume()),),
-                timeout=10,
-            )
-
-            assert new_object_event is None
+            mock(await subscriber.get_one(timeout=1e-24))
+            mock.assert_called_once_with(None)
