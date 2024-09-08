@@ -429,7 +429,9 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
             await broker.start()
             tasks = (
                 asyncio.create_task(
-                    broker.publish(msg, queue, headers=Baggage({"foo": "bar"}).to_headers())
+                    broker.publish(
+                        msg, queue, headers=Baggage({"foo": "bar"}).to_headers()
+                    )
                 ),
                 asyncio.create_task(event.wait()),
             )
@@ -439,10 +441,10 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         mock.assert_called_once_with(msg)
 
     async def test_clear_baggage(
-            self,
-            event: asyncio.Event,
-            queue: str,
-            mock: Mock,
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
     ):
         mid = self.telemetry_middleware_class()
         broker = self.broker_class(middlewares=(mid,))
@@ -474,7 +476,9 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
             await broker.start()
             tasks = (
                 asyncio.create_task(
-                    broker.publish(msg, first_queue, headers=Baggage({"foo": "bar"}).to_headers())
+                    broker.publish(
+                        msg, first_queue, headers=Baggage({"foo": "bar"}).to_headers()
+                    )
                 ),
                 asyncio.create_task(event.wait()),
             )
@@ -484,10 +488,10 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         mock.assert_called_once_with(msg)
 
     async def test_modify_baggage(
-            self,
-            event: asyncio.Event,
-            queue: str,
-            mock: Mock,
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
     ):
         mid = self.telemetry_middleware_class()
         broker = self.broker_class(middlewares=(mid,))
@@ -521,7 +525,9 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
             await broker.start()
             tasks = (
                 asyncio.create_task(
-                    broker.publish(msg, first_queue, headers=Baggage({"foo": "bar"}).to_headers())
+                    broker.publish(
+                        msg, first_queue, headers=Baggage({"foo": "bar"}).to_headers()
+                    )
                 ),
                 asyncio.create_task(event.wait()),
             )

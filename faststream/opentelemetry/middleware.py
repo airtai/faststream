@@ -1,7 +1,7 @@
 import time
 from collections import defaultdict
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Type, cast
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type, cast
 
 from opentelemetry import baggage, context, metrics, trace
 from opentelemetry.baggage.propagation import W3CBaggagePropagator
@@ -23,6 +23,7 @@ from faststream.opentelemetry.consts import (
 from faststream.opentelemetry.provider import TelemetrySettingsProvider
 
 if TYPE_CHECKING:
+    from contextvars import Token
     from types import TracebackType
 
     from opentelemetry.metrics import Meter, MeterProvider
@@ -120,7 +121,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         self._metrics = metrics_container
         self._current_span: Optional[Span] = None
         self._origin_context: Optional[Context] = None
-        self._scope_tokens = []
+        self._scope_tokens: List[Tuple[str, Token]] = []
         self.__settings_provider = settings_provider_factory(msg)
 
     async def publish_scope(
@@ -247,7 +248,9 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 self._current_span = span
 
                 self._scope_tokens.append(("span", fs_context.set_local("span", span)))
-                self._scope_tokens.append(("baggage", fs_context.set_local("baggage", Baggage.from_msg(msg))))
+                self._scope_tokens.append(
+                    ("baggage", fs_context.set_local("baggage", Baggage.from_msg(msg)))
+                )
 
                 new_context = trace.set_span_in_context(span, current_context)
                 token = context.attach(new_context)
