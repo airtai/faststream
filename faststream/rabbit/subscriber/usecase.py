@@ -183,6 +183,7 @@ class LogicSubscriber(
 
             self._queue_obj = None
 
+    @override
     async def get_one(
         self,
         *,
@@ -222,6 +223,8 @@ class LogicSubscriber(
             parsed_msg: RabbitMessage = await self._parser(raw_message)
             parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return await return_msg(parsed_msg)
+
+        raise AssertionError("unreachable")
 
     def _make_response_publisher(
         self,
