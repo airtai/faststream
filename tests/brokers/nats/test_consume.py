@@ -607,3 +607,70 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             assert message is not None
             assert await message.decode() == "test_message"
+
+    async def test_get_one_kv(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        stream: JStream,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(queue, kv_watch=queue + "1")
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+            bucket = await br.key_value(queue + "1")
+
+            message = None
+
+            async def consume():
+                nonlocal message
+                message = await subscriber.get_one(timeout=5)
+
+            async def publish():
+                await bucket.put(queue, b"test_message")
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume()),
+                    asyncio.create_task(publish()),
+                ),
+                timeout=10,
+            )
+
+            assert message is not None
+            assert await message.decode() == b"test_message"
+
+    async def test_get_one_os(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        stream: JStream,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(queue, obj_watch=True)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+            bucket = await br.object_storage(queue)
+
+            new_object_id = None
+
+            async def consume():
+                nonlocal new_object_id
+                new_object_event = await subscriber.get_one(timeout=5)
+                new_object_id = await new_object_event.decode()
+
+            async def publish():
+                await bucket.put(queue, b"test_message")
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume()),
+                    asyncio.create_task(publish()),
+                ),
+                timeout=10,
+            )
+
+            new_object = await bucket.get(new_object_id)
+            assert new_object.data == b"test_message"
