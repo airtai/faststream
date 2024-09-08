@@ -273,6 +273,69 @@ class BrokerConsumeTestcase(BaseTestcaseConfig):
 
         assert event.is_set()
 
+    async def test_get_one(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        mock: MagicMock,
+    ):
+        broker = self.get_broker(apply_types=True)
+
+        args, kwargs = self.get_subscriber_params(queue)
+        subscriber = broker.subscriber(*args, **kwargs)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            async def consume():
+                mock(await subscriber.get_one(timeout=self.timeout))
+
+            async def publish():
+                await anyio.sleep(1e-24)
+                await br.publish("test_message", queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume()),
+                    asyncio.create_task(publish()),
+                ),
+                timeout=self.timeout,
+            )
+
+            mock.assert_called_once()
+            message = mock.call_args[0][0]
+            assert message
+            assert await message.decode() == "test_message"
+
+    async def test_get_one_timeout(
+        self,
+        queue: str,
+        mock: MagicMock,
+    ):
+        broker = self.get_broker(apply_types=True)
+        args, kwargs = self.get_subscriber_params(queue)
+        subscriber = broker.subscriber(*args, **kwargs)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            mock(await subscriber.get_one(timeout=1e-24))
+            mock.assert_called_once_with(None)
+
+    async def test_get_one_conflicts_with_handler(self, queue):
+        broker = self.get_broker(apply_types=True)
+        args, kwargs = self.get_subscriber_params(queue)
+        subscriber = broker.subscriber(*args, **kwargs)
+
+        @subscriber
+        async def t(): ...
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            with pytest.raises(AssertionError):
+                await subscriber.get_one(timeout=1e-24)
+
 
 @pytest.mark.asyncio
 class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
