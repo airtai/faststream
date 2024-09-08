@@ -135,7 +135,10 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         headers = kwargs.pop("headers", {}) or {}
         current_context = context.get_current()
         destination_name = provider.get_publish_destination_name(kwargs)
-        current_baggage: Optional[Baggage] = fs_context.get_local("baggage", None)
+
+        current_baggage: Optional[Baggage] = fs_context.get_local("baggage")
+        if current_baggage:
+            headers.update(current_baggage.to_headers())
 
         trace_attributes = provider.get_publish_attrs_from_kwargs(kwargs)
         metrics_attributes = {
@@ -146,6 +149,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         # NOTE: if batch with single message?
         if (msg_count := len((msg, *args))) > 1:
             trace_attributes[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = msg_count
+            current_context = _BAGGAGE_PROPAGATOR.extract(headers, current_context)
             _BAGGAGE_PROPAGATOR.inject(
                 headers, baggage.set_baggage(WITH_BATCH, True, context=current_context)
             )
@@ -165,11 +169,6 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             current_context = trace.set_span_in_context(create_span)
             _TRACE_PROPAGATOR.inject(headers, context=current_context)
             create_span.end()
-
-        if current_baggage is not None:
-            for k, v in current_baggage.get_all().items():
-                current_context = baggage.set_baggage(k, v, context=current_context)
-            _BAGGAGE_PROPAGATOR.inject(headers, current_context)
 
         start_time = time.perf_counter()
 
@@ -210,7 +209,6 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             links = None
             current_context = _TRACE_PROPAGATOR.extract(msg.headers)
 
-        current_baggage = Baggage.extract(msg)
         destination_name = provider.get_consume_destination_name(msg)
         trace_attributes = provider.get_consume_attrs_from_message(msg)
         metrics_attributes = {
@@ -246,7 +244,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 new_context = trace.set_span_in_context(span, current_context)
                 token = context.attach(new_context)
                 fs_context.set_local("span", span)
-                current_baggage.propagate()
+                fs_context.set_local("baggage", Baggage.from_msg(msg))
                 result = await call_next(msg)
                 context.detach(token)
 

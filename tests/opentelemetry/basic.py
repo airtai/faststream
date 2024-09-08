@@ -418,12 +418,10 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @broker.publisher(second_queue)
-        async def handler1(m):
-            baggage = Baggage({"foo": "bar"})
+        async def handler1(m, baggage: CurrentBaggage):
             baggage.set("baz", "bar")
             baggage.remove("foo")
             baggage.set("foo", "baz")
-            baggage.propagate()
             assert baggage.get("foo") == "baz"
             assert baggage.__repr__() == baggage._baggage.__repr__()
             return m
@@ -434,7 +432,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         @broker.publisher(third_queue)
         async def handler2(m, baggage: CurrentBaggage):
             payload = baggage.get_all()
-            baggage.terminate()
+            baggage.clear()
             assert payload == {"foo": "baz", "baz": "bar"}
             return m
 
@@ -454,8 +452,11 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
         async with broker:
             await broker.start()
+            baggage = Baggage({"foo": "bar"})
             tasks = (
-                asyncio.create_task(broker.publish(msg, queue)),
+                asyncio.create_task(
+                    broker.publish(msg, queue, headers=baggage.to_headers())
+                ),
                 asyncio.create_task(event.wait()),
             )
             await asyncio.wait(tasks, timeout=self.timeout)
