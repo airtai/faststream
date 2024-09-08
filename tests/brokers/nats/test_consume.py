@@ -447,7 +447,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             async def coro():
                 nonlocal message
-                message = await subscriber.get_one(timeout=1)
+                message = await subscriber.get_one(timeout=1e-24)
 
             await asyncio.wait((asyncio.create_task(coro()),), timeout=3)
 
@@ -489,6 +489,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         stream: JStream,
+        mock,
     ):
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(queue, stream=stream)
@@ -496,15 +497,8 @@ class TestConsume(BrokerRealConsumeTestcase):
         async with self.patch_broker(broker) as br:
             await br.start()
 
-            message = object()
-
-            async def coro():
-                nonlocal message
-                message = await subscriber.get_one(timeout=0.5)
-
-            await asyncio.wait((asyncio.create_task(coro()),), timeout=3)
-
-            assert message is None
+            mock(await subscriber.get_one(timeout=1e-24))
+            mock.assert_called_once_with(None)
 
     async def test_get_one_pull(
         self,
@@ -562,7 +556,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             async def consume():
                 nonlocal message
-                message = await subscriber.get_one(timeout=0.5)
+                message = await subscriber.get_one(timeout=1e-24)
 
             await asyncio.wait((asyncio.create_task(consume()),), timeout=3)
 
@@ -624,7 +618,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             async def consume():
                 nonlocal message
-                message = await subscriber.get_one(timeout=0.5)
+                message = await subscriber.get_one(timeout=1e-24)
 
             await asyncio.wait((asyncio.create_task(consume()),), timeout=3)
 

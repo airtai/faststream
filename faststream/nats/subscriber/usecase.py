@@ -9,10 +9,12 @@ from typing import (
     Callable,
     Coroutine,
     Dict,
+    Generic,
     Iterable,
     List,
     Optional,
     Sequence,
+    TypeVar,
     Union,
     cast,
 )
@@ -21,7 +23,6 @@ import anyio
 from fast_depends.dependencies import Depends
 from nats.errors import ConnectionClosedError, TimeoutError
 from nats.js.api import ConsumerConfig, ObjectInfo
-from nats.js.kv import KeyValue
 from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.publisher.fake import FakePublisher
@@ -50,6 +51,7 @@ if TYPE_CHECKING:
     from nats.aio.msg import Msg
     from nats.aio.subscription import Subscription
     from nats.js import JetStreamContext
+    from nats.js.kv import KeyValue
     from nats.js.object_store import ObjectStore
 
     from faststream.broker.message import StreamMessage
@@ -64,11 +66,16 @@ if TYPE_CHECKING:
     from faststream.types import Decorator
 
 
-class LogicSubscriber(SubscriberUsecase[MsgType]):
+ConnectionType = TypeVar("ConnectionType")
+
+
+class LogicSubscriber(Generic[ConnectionType, MsgType], SubscriberUsecase[MsgType]):
     """A class to represent a NATS handler."""
 
     subscription: Optional[Unsubscriptable]
+    _fetch_sub: Optional[Unsubscriptable]
     producer: Optional["ProducerProto"]
+    _connection: Optional[ConnectionType]
 
     def __init__(
         self,
@@ -109,9 +116,44 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             include_in_schema=include_in_schema,
         )
 
-        self._connection: Any = None
+        self._connection = None
+        self._fetch_sub = None
         self.subscription = None
         self.producer = None
+
+    @override
+    def setup(  # type: ignore[override]
+        self,
+        *,
+        connection: ConnectionType,
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        apply_types: bool,
+        is_validate: bool,
+        _get_dependant: Optional[Callable[..., Any]],
+        _call_decorators: Iterable["Decorator"],
+    ) -> None:
+        self._connection = connection
+
+        super().setup(
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            apply_types=apply_types,
+            is_validate=is_validate,
+            _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
+        )
 
     @property
     def clear_subject(self) -> str:
@@ -136,13 +178,15 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             await self.subscription.unsubscribe()
             self.subscription = None
 
+        if self._fetch_sub is not None:
+            await self._fetch_sub.unsubscribe()
+            self.subscription = None
+
     @abstractmethod
     async def _create_subscription(
         self,
         *,
-        connection: Union[
-            "Client", "JetStreamContext", "KVBucketDeclarer", "OSBucketDeclarer"
-        ],
+        connection: ConnectionType,
     ) -> None:
         """Create NATS subscription object to consume messages."""
         raise NotImplementedError()
@@ -206,7 +250,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         return hash(subject)
 
 
-class _DefaultSubscriber(LogicSubscriber[MsgType]):
+class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
     def __init__(
         self,
         *,
@@ -277,7 +321,7 @@ class _DefaultSubscriber(LogicSubscriber[MsgType]):
         )
 
 
-class _TasksMixin(LogicSubscriber[Any]):
+class _TasksMixin(LogicSubscriber[Any, Any]):
     def __init__(self, **kwargs: Any) -> None:
         self.tasks: List[asyncio.Task[Any]] = []
 
@@ -344,9 +388,9 @@ class _ConcurrentMixin(_TasksMixin):
             await self.send_stream.send(msg)
 
 
-class CoreSubscriber(_DefaultSubscriber["Msg"]):
+class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
     subscription: Optional["Subscription"]
-    _connection: Optional["Client"]
+    _fetch_sub: Optional["Subscription"]
 
     def __init__(
         self,
@@ -391,40 +435,6 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         )
 
     @override
-    def setup(  # type: ignore[override]
-        self,
-        *,
-        connection: "Client",
-        # basic args
-        logger: Optional["LoggerProto"],
-        producer: Optional["ProducerProto"],
-        graceful_timeout: Optional[float],
-        extra_context: "AnyDict",
-        # broker options
-        broker_parser: Optional["CustomCallable"],
-        broker_decoder: Optional["CustomCallable"],
-        # dependant args
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
-        _call_decorators: Iterable["Decorator"],
-    ) -> None:
-        self._connection = connection
-
-        super().setup(
-            logger=logger,
-            producer=producer,
-            graceful_timeout=graceful_timeout,
-            extra_context=extra_context,
-            broker_parser=broker_parser,
-            broker_decoder=broker_decoder,
-            apply_types=apply_types,
-            is_validate=is_validate,
-            _get_dependant=_get_dependant,
-            _call_decorators=_call_decorators,
-        )
-
-    @override
     async def get_one(
         self,
         *,
@@ -435,15 +445,17 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        if self.subscription is None:
-            self.subscription = await self._connection.subscribe(
+        if self._fetch_sub is None:
+            fetch_sub = self._fetch_sub = await self._connection.subscribe(
                 subject=self.clear_subject,
                 queue=self.queue,
                 **self.extra_options,
             )
+        else:
+            fetch_sub = self._fetch_sub
 
         try:
-            raw_message = await self.subscription.next_msg(timeout)
+            raw_message = await fetch_sub.next_msg(timeout=timeout)
         except TimeoutError:
             return None
 
@@ -462,7 +474,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         raise AssertionError("unreachable")
 
     @override
-    async def _create_subscription(  # type: ignore[override]
+    async def _create_subscription(
         self,
         *,
         connection: "Client",
@@ -493,7 +505,10 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         )
 
 
-class ConcurrentCoreSubscriber(_ConcurrentMixin, CoreSubscriber):
+class ConcurrentCoreSubscriber(
+    _ConcurrentMixin,
+    CoreSubscriber,
+):
     def __init__(
         self,
         *,
@@ -534,7 +549,7 @@ class ConcurrentCoreSubscriber(_ConcurrentMixin, CoreSubscriber):
         )
 
     @override
-    async def _create_subscription(  # type: ignore[override]
+    async def _create_subscription(
         self,
         *,
         connection: "Client",
@@ -553,9 +568,8 @@ class ConcurrentCoreSubscriber(_ConcurrentMixin, CoreSubscriber):
         )
 
 
-class _StreamSubscriber(_DefaultSubscriber["Msg"]):
-    _connection: Optional["JetStreamContext"]
-    __fetch_sub: Optional["JetStreamContext.PullSubscription"]
+class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
+    _fetch_sub: Optional["JetStreamContext.PullSubscription"]
 
     def __init__(
         self,
@@ -582,8 +596,6 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
         self.queue = queue
         self.stream = stream
 
-        self.__fetch_sub = None
-
         super().__init__(
             subject=subject,
             config=config,
@@ -601,40 +613,6 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
             description_=description_,
             title_=title_,
             include_in_schema=include_in_schema,
-        )
-
-    @override
-    def setup(  # type: ignore[override]
-        self,
-        *,
-        connection: "JetStreamContext",
-        # basic args
-        logger: Optional["LoggerProto"],
-        producer: Optional["ProducerProto"],
-        graceful_timeout: Optional[float],
-        extra_context: "AnyDict",
-        # broker options
-        broker_parser: Optional["CustomCallable"],
-        broker_decoder: Optional["CustomCallable"],
-        # dependant args
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
-        _call_decorators: Iterable["Decorator"],
-    ) -> None:
-        self._connection = connection
-
-        super().setup(
-            logger=logger,
-            producer=producer,
-            graceful_timeout=graceful_timeout,
-            extra_context=extra_context,
-            broker_parser=broker_parser,
-            broker_decoder=broker_decoder,
-            apply_types=apply_types,
-            is_validate=is_validate,
-            _get_dependant=_get_dependant,
-            _call_decorators=_call_decorators,
         )
 
     def get_log_context(
@@ -663,7 +641,7 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        if not self.__fetch_sub:
+        if not self._fetch_sub:
             extra_options = {
                 "pending_bytes_limit": self.extra_options["pending_bytes_limit"],
                 "pending_msgs_limit": self.extra_options["pending_msgs_limit"],
@@ -673,7 +651,7 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
             if inbox_prefix := self.extra_options.get("inbox_prefix"):
                 extra_options["inbox_prefix"] = inbox_prefix
 
-            self.__fetch_sub = await self._connection.pull_subscribe(
+            self._fetch_sub = await self._connection.pull_subscribe(
                 subject=self.clear_subject,
                 config=self.config,
                 **extra_options,
@@ -681,7 +659,7 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
 
         try:
             raw_message = (
-                await self.__fetch_sub.fetch(
+                await self._fetch_sub.fetch(
                     batch=1,
                     timeout=timeout,
                 )
@@ -708,7 +686,7 @@ class PushStreamSubscription(_StreamSubscriber):
     subscription: Optional["JetStreamContext.PushSubscription"]
 
     @override
-    async def _create_subscription(  # type: ignore[override]
+    async def _create_subscription(
         self,
         *,
         connection: "JetStreamContext",
@@ -726,7 +704,10 @@ class PushStreamSubscription(_StreamSubscriber):
         )
 
 
-class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
+class ConcurrentPushStreamSubscriber(
+    _ConcurrentMixin,
+    _StreamSubscriber,
+):
     subscription: Optional["JetStreamContext.PushSubscription"]
 
     def __init__(
@@ -771,7 +752,7 @@ class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
         )
 
     @override
-    async def _create_subscription(  # type: ignore[override]
+    async def _create_subscription(
         self,
         *,
         connection: "JetStreamContext",
@@ -791,7 +772,10 @@ class ConcurrentPushStreamSubscriber(_ConcurrentMixin, _StreamSubscriber):
         )
 
 
-class PullStreamSubscriber(_TasksMixin, _StreamSubscriber):
+class PullStreamSubscriber(
+    _TasksMixin,
+    _StreamSubscriber,
+):
     subscription: Optional["JetStreamContext.PullSubscription"]
 
     def __init__(
@@ -836,7 +820,7 @@ class PullStreamSubscriber(_TasksMixin, _StreamSubscriber):
         )
 
     @override
-    async def _create_subscription(  # type: ignore[override]
+    async def _create_subscription(
         self,
         *,
         connection: "JetStreamContext",
@@ -873,7 +857,10 @@ class PullStreamSubscriber(_TasksMixin, _StreamSubscriber):
                         tg.start_soon(cb, msg)
 
 
-class ConcurrentPullStreamSubscriber(_ConcurrentMixin, PullStreamSubscriber):
+class ConcurrentPullStreamSubscriber(
+    _ConcurrentMixin,
+    PullStreamSubscriber,
+):
     def __init__(
         self,
         *,
@@ -916,7 +903,7 @@ class ConcurrentPullStreamSubscriber(_ConcurrentMixin, PullStreamSubscriber):
         )
 
     @override
-    async def _create_subscription(  # type: ignore[override]
+    async def _create_subscription(
         self,
         *,
         connection: "JetStreamContext",
@@ -935,11 +922,14 @@ class ConcurrentPullStreamSubscriber(_ConcurrentMixin, PullStreamSubscriber):
         self.add_task(self._consume_pull(cb=self._put_msg))
 
 
-class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
+class BatchPullStreamSubscriber(
+    _TasksMixin,
+    _DefaultSubscriber["JetStreamContext", List["Msg"]],
+):
     """Batch-message consumer class."""
 
     subscription: Optional["JetStreamContext.PullSubscription"]
-    __fetch_sub: Optional["JetStreamContext.PullSubscription"]
+    _fetch_sub: Optional["JetStreamContext.PullSubscription"]
 
     def __init__(
         self,
@@ -965,8 +955,6 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
 
         self.stream = stream
         self.pull_sub = pull_sub
-
-        self.__fetch_sub = None
 
         super().__init__(
             subject=subject,
@@ -998,14 +986,14 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        if not self.__fetch_sub:
-            fetch_sub = self.__fetch_sub = await self._connection.pull_subscribe(
+        if not self._fetch_sub:
+            fetch_sub = self._fetch_sub = await self._connection.pull_subscribe(
                 subject=self.clear_subject,
                 config=self.config,
                 **self.extra_options,
             )
         else:
-            fetch_sub = self.__fetch_sub
+            fetch_sub = self._fetch_sub
 
         try:
             raw_messages = await fetch_sub.fetch(
@@ -1030,7 +1018,7 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
         raise AssertionError("unreachable")
 
     @override
-    async def _create_subscription(  # type: ignore[override]
+    async def _create_subscription(
         self,
         *,
         connection: "JetStreamContext",
@@ -1061,8 +1049,12 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
                     await self.consume(messages)
 
 
-class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
+class KeyValueWatchSubscriber(
+    _TasksMixin,
+    LogicSubscriber["KVBucketDeclarer", "KeyValue.Entry"],
+):
     subscription: Optional["UnsubscribeAdapter[KeyValue.KeyWatcher]"]
+    _fetch_sub: Optional[UnsubscribeAdapter["KeyValue.KeyWatcher"]]
 
     def __init__(
         self,
@@ -1108,13 +1100,13 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        if not self.subscription:
+        if not self._fetch_sub:
             bucket = await self._connection.create_key_value(
                 bucket=self.kv_watch.name,
                 declare=self.kv_watch.declare,
             )
 
-            self.subscription = UnsubscribeAdapter["KeyValue.KeyWatcher"](
+            fetch_sub = self._fetch_sub = UnsubscribeAdapter["KeyValue.KeyWatcher"](
                 await bucket.watch(
                     keys=self.clear_subject,
                     headers_only=self.kv_watch.headers_only,
@@ -1123,12 +1115,14 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
                     meta_only=self.kv_watch.meta_only,
                 )
             )
+        else:
+            fetch_sub = self._fetch_sub
 
         raw_message = None
         sleep_interval = timeout / 10
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
-                raw_message := await self.subscription.obj.updates(timeout)  # type: ignore[no-untyped-call]
+                raw_message := await fetch_sub.obj.updates(timeout)  # type: ignore[no-untyped-call]
             ) is None:
                 await anyio.sleep(sleep_interval)
 
@@ -1152,7 +1146,7 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
         raise AssertionError("unreachable")
 
     @override
-    async def _create_subscription(  # type: ignore[override]
+    async def _create_subscription(
         self,
         *,
         connection: "KVBucketDeclarer",
@@ -1223,9 +1217,12 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
 OBJECT_STORAGE_CONTEXT_KEY = "__object_storage"
 
 
-class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
+class ObjStoreWatchSubscriber(
+    _TasksMixin,
+    LogicSubscriber["OSBucketDeclarer", ObjectInfo],
+):
     subscription: Optional["UnsubscribeAdapter[ObjectStore.ObjectWatcher]"]
-    __fetch_sub: Optional["ObjectStore.ObjectWatcher"]
+    _fetch_sub: Optional[UnsubscribeAdapter["ObjectStore.ObjectWatcher"]]
 
     def __init__(
         self,
@@ -1244,8 +1241,6 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
 
         self.obj_watch = obj_watch
         self.obj_watch_conn = None
-
-        self.__fetch_sub = None
 
         super().__init__(
             subject=subject,
@@ -1275,25 +1270,28 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        if not self.__fetch_sub:
+        if not self._fetch_sub:
             self.bucket = await self._connection.create_object_store(
                 bucket=self.subject,
                 declare=self.obj_watch.declare,
             )
 
-            fetch_sub = self.__fetch_sub = await self.bucket.watch(
+            obj_watch = await self.bucket.watch(
                 ignore_deletes=self.obj_watch.ignore_deletes,
                 include_history=self.obj_watch.include_history,
                 meta_only=self.obj_watch.meta_only,
             )
+            fetch_sub = self._fetch_sub = UnsubscribeAdapter[
+                "ObjectStore.ObjectWatcher"
+            ](obj_watch)
         else:
-            fetch_sub = self.__fetch_sub
+            fetch_sub = self._fetch_sub
 
         raw_message = None
         sleep_interval = timeout / 10
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
-                raw_message := await fetch_sub.updates(timeout)
+                raw_message := await fetch_sub.obj.updates(timeout)  # type: ignore[no-untyped-call]
             ) is None:
                 await anyio.sleep(sleep_interval)
 
@@ -1317,7 +1315,7 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
         raise AssertionError("unreachable")
 
     @override
-    async def _create_subscription(  # type: ignore[override]
+    async def _create_subscription(
         self,
         *,
         connection: "OSBucketDeclarer",

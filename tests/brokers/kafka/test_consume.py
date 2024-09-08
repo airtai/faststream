@@ -356,7 +356,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             async def coro():
                 nonlocal message
-                message = await subscriber.get_one(timeout=1)
+                message = await subscriber.get_one(timeout=1e-24)
 
             await asyncio.wait((asyncio.create_task(coro()),), timeout=3)
 
