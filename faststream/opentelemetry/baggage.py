@@ -44,10 +44,11 @@ class Baggage:
         """Clear the current baggage."""
         self._baggage.clear()
 
-    def to_headers(self) -> "AnyDict":
+    def to_headers(self, headers: Optional["AnyDict"] = None) -> "AnyDict":
         """Convert baggage items to headers format for propagation."""
         current_context = context.get_current()
-        headers: AnyDict = {}
+        if headers is None:
+            headers = {}
 
         for k, v in self._baggage.items():
             current_context = baggage.set_baggage(k, v, context=current_context)

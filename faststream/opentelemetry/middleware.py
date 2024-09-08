@@ -120,6 +120,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         self._metrics = metrics_container
         self._current_span: Optional[Span] = None
         self._origin_context: Optional[Context] = None
+        self._scope_tokens = []
         self.__settings_provider = settings_provider_factory(msg)
 
     async def publish_scope(
@@ -192,6 +193,9 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             duration = time.perf_counter() - start_time
             self._metrics.observe_publish(metrics_attributes, duration, msg_count)
 
+        for key, token in self._scope_tokens:
+            fs_context.reset_local(key, token)
+
         return result
 
     async def consume_scope(
@@ -241,10 +245,12 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                     SpanAttributes.MESSAGING_OPERATION, MessageAction.PROCESS
                 )
                 self._current_span = span
+
+                self._scope_tokens.append(("span", fs_context.set_local("span", span)))
+                self._scope_tokens.append(("baggage", fs_context.set_local("baggage", Baggage.from_msg(msg))))
+
                 new_context = trace.set_span_in_context(span, current_context)
                 token = context.attach(new_context)
-                fs_context.set_local("span", span)
-                fs_context.set_local("baggage", Baggage.from_msg(msg))
                 result = await call_next(msg)
                 context.detach(token)
 
