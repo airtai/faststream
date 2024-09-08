@@ -184,11 +184,11 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.task = None
 
     @override
-    async def get_one(  # type: ignore[override]
+    async def get_one(
         self,
         *,
         timeout: float = 5.0,
-    ) -> "Optional[KafkaMessage]":
+    ) -> "Optional[StreamMessage[MsgType]]":
         assert self.consumer, "You should start subscriber at first."
         assert (  # nosec B101
             not self.calls
@@ -204,14 +204,16 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         ((raw_message,),) = raw_messages.values()
 
         async with AsyncExitStack() as stack:
-            return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = return_input
+            return_msg: Callable[
+                [StreamMessage[MsgType]], Awaitable[StreamMessage[MsgType]]
+            ] = return_input
 
             for m in self._broker_middlewares:
                 mid = m(raw_message)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
 
-            parsed_msg: KafkaMessage = await self._parser(raw_message)
+            parsed_msg: StreamMessage[MsgType] = await self._parser(raw_message)
             parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return await return_msg(parsed_msg)
 
