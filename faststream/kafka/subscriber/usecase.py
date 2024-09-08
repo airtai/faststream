@@ -183,7 +183,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         self.task = None
 
-    async def get_one(
+    @override
+    async def get_one(  # type: ignore[override]
         self,
         *,
         timeout: float = 5.0,
@@ -213,6 +214,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             parsed_msg: KafkaMessage = await self._parser(raw_message)
             parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return await return_msg(parsed_msg)
+
+        raise AssertionError("unreachable")
 
     def _make_response_publisher(
         self,
