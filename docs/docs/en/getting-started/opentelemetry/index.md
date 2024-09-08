@@ -149,7 +149,7 @@ To initialize the baggage and start distributing it, follow this example:
 from faststream.opentelemetry import Baggage
 
 headers = Baggage({"hello": "world"}).to_headers({"header-type": "custom"})
-await broker.publish("hello", "first", headers=headers)                          
+await broker.publish("hello", "first", headers=headers)
 ```
 
 All interaction with baggage at the **consumption level** occurs through the **CurrentBaggage** object, which is automatically substituted from the context:
@@ -178,7 +178,7 @@ async def response_handler_second(msg: str, baggage: CurrentBaggage):
 
 @broker.subscriber("third")
 async def response_handler_third(msg: str, baggage: CurrentBaggage):
-    print(baggage.get_all())  # {}              
+    print(baggage.get_all())  # {}
 ```
 
 !!! note
