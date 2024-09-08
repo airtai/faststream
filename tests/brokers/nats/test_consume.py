@@ -660,9 +660,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 message = await subscriber.get_one(timeout=1e-24)
 
             await asyncio.wait(
-                (
-                    asyncio.create_task(consume()),
-                ),
+                (asyncio.create_task(consume()),),
                 timeout=10,
             )
 
@@ -722,9 +720,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                 new_object_event = await subscriber.get_one(timeout=1e-24)
 
             await asyncio.wait(
-                (
-                    asyncio.create_task(consume()),
-                ),
+                (asyncio.create_task(consume()),),
                 timeout=10,
             )
 
