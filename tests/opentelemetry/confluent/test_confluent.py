@@ -235,7 +235,7 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
                 ),
                 asyncio.create_task(
                     broker.publish(
-                        "buy", topic=queue, headers=Baggage({"foo": "bar"}).to_headers()
+                        "buy", topic=queue, headers=Baggage({"bar": "baz"}).to_headers()
                     )
                 ),
                 asyncio.create_task(event.wait()),
