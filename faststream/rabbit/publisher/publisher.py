@@ -53,9 +53,9 @@ class SpecificationPublisher(LogicPublisher):
                         amqp=amqp.OperationBinding(
                             cc=self.routing or None,
                             deliveryMode=2 if self.message_kwargs.get("persist") else 1,
-                            mandatory=self.message_kwargs.get("mandatory"),
-                            replyTo=self.message_kwargs.get("reply_to"),
-                            priority=self.message_kwargs.get("priority"),
+                            mandatory=self.message_kwargs.get("mandatory"),  # type: ignore[arg-type]
+                            replyTo=self.message_kwargs.get("reply_to"),  # type: ignore[arg-type]
+                            priority=self.message_kwargs.get("priority"),  # type: ignore[arg-type]
                         ),
                     )
                     if is_routing_exchange(self.exchange)
