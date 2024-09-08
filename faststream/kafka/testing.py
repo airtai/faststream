@@ -21,10 +21,8 @@ from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
-    from faststream.kafka.publisher.producer import AioKafkaFastProducer
     from faststream.kafka.publisher.publisher import SpecificationPublisher
     from faststream.kafka.subscriber.usecase import LogicSubscriber
-    from faststream.testing.broker import TestBroker
     from faststream.types import SendableMessage
 
 __all__ = ("TestKafkaBroker",)

@@ -48,4 +48,3 @@ class OperationBinding(BaseModel):
             replyTo=binding.replyTo,
             bindingVersion=binding.bindingVersion,
         )
-

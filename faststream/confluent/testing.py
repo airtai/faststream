@@ -20,7 +20,6 @@ from faststream.utils.functions import timeout_scope
 if TYPE_CHECKING:
     from faststream.confluent.publisher.publisher import SpecificationPublisher
     from faststream.confluent.subscriber.usecase import LogicSubscriber
-    from faststream.testing.broker import TestBroker
     from faststream.types import SendableMessage
 
 __all__ = (

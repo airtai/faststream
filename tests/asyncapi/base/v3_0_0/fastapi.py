@@ -15,7 +15,7 @@ class FastAPITestCase:
     router_factory: Type[StreamRouter[MsgType]]
     broker_wrapper: Callable[[BrokerUsecase[MsgType, Any]], BrokerUsecase[MsgType, Any]]
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fastapi_full_information(self):
         broker = self.router_factory(
             protocol="custom",
@@ -77,7 +77,7 @@ class FastAPITestCase:
                     }
                 }
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fastapi_asyncapi_routes(self):
         broker = self.router_factory(schema_url="/asyncapi_schema")
 
@@ -100,7 +100,7 @@ class FastAPITestCase:
                 response_html = client.get("/asyncapi_schema")
                 assert response_html.status_code == 200
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fastapi_asyncapi_not_fount(self):
         broker = self.router_factory(include_in_schema=False)
 
@@ -118,7 +118,7 @@ class FastAPITestCase:
                 response_html = client.get("/asyncapi")
                 assert response_html.status_code == 404
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fastapi_asyncapi_not_fount_by_url(self):
         broker = self.router_factory(schema_url=None)
 

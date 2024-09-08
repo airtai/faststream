@@ -68,7 +68,7 @@ class FastAPITestCase:
                     "components": {"messages": {}, "schemas": {}},
                 }
 
-    @pytest.mark.skip()
+    @pytest.mark.skip
     @pytest.mark.asyncio
     async def test_fastapi_asyncapi_routes(self):
         broker = self.broker_class(schema_url="/asyncapi_schema")
