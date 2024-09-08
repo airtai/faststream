@@ -36,7 +36,7 @@ from faststream.nats.broker.registrator import NatsRegistrator
 from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.security import parse_security
-from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.nats.subscriber.subscriber import SpecificationSubscriber
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -66,7 +66,7 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.nats.message import NatsMessage
-    from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.nats.publisher.publisher import SpecificationPublisher
     from faststream.security import BaseSecurity
     from faststream.types import (
         AnyDict,
@@ -633,7 +633,7 @@ class NatsBroker(
                 )
 
             except BadRequestError as e:  # noqa: PERF203
-                log_context = AsyncAPISubscriber.build_log_context(
+                log_context = SpecificationSubscriber.build_log_context(
                     message=None,
                     subject="",
                     queue="",
@@ -844,7 +844,7 @@ class NatsBroker(
     @override
     def setup_subscriber(  # type: ignore[override]
         self,
-        subscriber: "AsyncAPISubscriber",
+        subscriber: "SpecificationSubscriber",
     ) -> None:
         connection: Union[
             Client,
@@ -874,7 +874,7 @@ class NatsBroker(
     @override
     def setup_publisher(  # type: ignore[override]
         self,
-        publisher: "AsyncAPIPublisher",
+        publisher: "SpecificationPublisher",
     ) -> None:
         producer: Optional[ProducerProto] = None
 
@@ -951,7 +951,7 @@ class NatsBroker(
         self,
         error_cb: Optional["ErrorCallback"] = None,
     ) -> "ErrorCallback":
-        c = AsyncAPISubscriber.build_log_context(None, "")
+        c = SpecificationSubscriber.build_log_context(None, "")
 
         async def wrapper(err: Exception) -> None:
             if error_cb is not None:
@@ -969,7 +969,7 @@ class NatsBroker(
         self,
         cb: Optional["Callback"] = None,
     ) -> "Callback":
-        c = AsyncAPISubscriber.build_log_context(None, "")
+        c = SpecificationSubscriber.build_log_context(None, "")
 
         async def wrapper() -> None:
             if cb is not None:

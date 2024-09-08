@@ -9,9 +9,9 @@ from typing import (
 )
 
 from faststream.exceptions import SetupError
-from faststream.kafka.subscriber.asyncapi import (
-    AsyncAPIBatchSubscriber,
-    AsyncAPIDefaultSubscriber,
+from faststream.kafka.subscriber.subscriber import (
+    SpecificationBatchSubscriber,
+    SpecificationDefaultSubscriber,
 )
 
 if TYPE_CHECKING:
@@ -42,11 +42,11 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "AsyncAPIBatchSubscriber": ...
+) -> "SpecificationBatchSubscriber": ...
 
 
 @overload
@@ -68,11 +68,11 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "AsyncAPIDefaultSubscriber": ...
+) -> "SpecificationDefaultSubscriber": ...
 
 
 @overload
@@ -96,13 +96,13 @@ def create_subscriber(
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
     ],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
 ) -> Union[
-    "AsyncAPIDefaultSubscriber",
-    "AsyncAPIBatchSubscriber",
+    "SpecificationDefaultSubscriber",
+    "SpecificationBatchSubscriber",
 ]: ...
 
 
@@ -126,13 +126,13 @@ def create_subscriber(
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
     ],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
 ) -> Union[
-    "AsyncAPIDefaultSubscriber",
-    "AsyncAPIBatchSubscriber",
+    "SpecificationDefaultSubscriber",
+    "SpecificationBatchSubscriber",
 ]:
     if is_manual and not group_id:
         raise SetupError("You must use `group_id` with manual commit mode.")
@@ -149,7 +149,7 @@ def create_subscriber(
         raise SetupError("You can't provide both `partitions` and `pattern`.")
 
     if batch:
-        return AsyncAPIBatchSubscriber(
+        return SpecificationBatchSubscriber(
             *topics,
             batch_timeout_ms=batch_timeout_ms,
             max_records=max_records,
@@ -170,7 +170,7 @@ def create_subscriber(
         )
 
     else:
-        return AsyncAPIDefaultSubscriber(
+        return SpecificationDefaultSubscriber(
             *topics,
             group_id=group_id,
             listener=listener,

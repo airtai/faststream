@@ -32,9 +32,9 @@ from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.redis.broker.broker import RedisBroker as RB
 from faststream.redis.message import UnifyRedisDict
-from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
+from faststream.redis.publisher.publisher import SpecificationPublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.redis.subscriber.subscriber import SpecificationSubscriber
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -637,9 +637,9 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 """
             ),
         ] = False,
-    ) -> AsyncAPISubscriber:
+    ) -> SpecificationSubscriber:
         return cast(
-            AsyncAPISubscriber,
+            SpecificationSubscriber,
             super().subscriber(
                 channel=channel,
                 list=list,
@@ -716,7 +716,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIPublisher:
+    ) -> SpecificationPublisher:
         return self.broker.publisher(
             channel,
             list=list,

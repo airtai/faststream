@@ -19,7 +19,7 @@ from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
-from faststream.kafka.publisher.asyncapi import AsyncAPIPublisher
+from faststream.kafka.publisher.publisher import SpecificationPublisher
 from faststream.kafka.subscriber.factory import create_subscriber
 
 if TYPE_CHECKING:
@@ -35,13 +35,13 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.kafka.message import KafkaMessage
-    from faststream.kafka.publisher.asyncapi import (
-        AsyncAPIBatchPublisher,
-        AsyncAPIDefaultPublisher,
+    from faststream.kafka.publisher.publisher import (
+        SpecificationBatchPublisher,
+        SpecificationDefaultPublisher,
     )
-    from faststream.kafka.subscriber.asyncapi import (
-        AsyncAPIBatchSubscriber,
-        AsyncAPIDefaultSubscriber,
+    from faststream.kafka.subscriber.subscriber import (
+        SpecificationBatchSubscriber,
+        SpecificationDefaultSubscriber,
     )
 
 
@@ -57,11 +57,11 @@ class KafkaRegistrator(
 
     _subscribers: Dict[
         int,
-        Union["AsyncAPIBatchSubscriber", "AsyncAPIDefaultSubscriber"],
+        Union["SpecificationBatchSubscriber", "SpecificationDefaultSubscriber"],
     ]
     _publishers: Dict[
         int,
-        Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"],
+        Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"],
     ]
 
     @overload  # type: ignore[override]
@@ -427,23 +427,23 @@ class KafkaRegistrator(
                 "Whether to disable **FastStream** RPC and Reply To auto responses or not."
             ),
         ] = False,
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber object title."),
+            Doc("Specification subscriber object title."),
         ] = None,
         description: Annotated[
             Optional[str],
             Doc(
-                "AsyncAPI subscriber object description. "
+                "Specification subscriber object description. "
                 "Uses decorated docstring as default."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
-    ) -> "AsyncAPIDefaultSubscriber": ...
+    ) -> "SpecificationDefaultSubscriber": ...
 
     @overload
     def subscriber(
@@ -808,23 +808,23 @@ class KafkaRegistrator(
                 "Whether to disable **FastStream** RPC and Reply To auto responses or not."
             ),
         ] = False,
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber object title."),
+            Doc("Specification subscriber object title."),
         ] = None,
         description: Annotated[
             Optional[str],
             Doc(
-                "AsyncAPI subscriber object description. "
+                "Specification subscriber object description. "
                 "Uses decorated docstring as default."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
-    ) -> "AsyncAPIBatchSubscriber": ...
+    ) -> "SpecificationBatchSubscriber": ...
 
     @overload
     def subscriber(
@@ -1189,25 +1189,25 @@ class KafkaRegistrator(
                 "Whether to disable **FastStream** RPC and Reply To auto responses or not."
             ),
         ] = False,
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber object title."),
+            Doc("Specification subscriber object title."),
         ] = None,
         description: Annotated[
             Optional[str],
             Doc(
-                "AsyncAPI subscriber object description. "
+                "Specification subscriber object description. "
                 "Uses decorated docstring as default."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
     ) -> Union[
-        "AsyncAPIDefaultSubscriber",
-        "AsyncAPIBatchSubscriber",
+        "SpecificationDefaultSubscriber",
+        "SpecificationBatchSubscriber",
     ]: ...
 
     @override
@@ -1573,25 +1573,25 @@ class KafkaRegistrator(
                 "Whether to disable **FastStream** RPC and Reply To auto responses or not."
             ),
         ] = False,
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber object title."),
+            Doc("Specification subscriber object title."),
         ] = None,
         description: Annotated[
             Optional[str],
             Doc(
-                "AsyncAPI subscriber object description. "
+                "Specification subscriber object description. "
                 "Uses decorated docstring as default."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
     ) -> Union[
-        "AsyncAPIDefaultSubscriber",
-        "AsyncAPIBatchSubscriber",
+        "SpecificationDefaultSubscriber",
+        "SpecificationBatchSubscriber",
     ]:
         subscriber = super().subscriber(
             create_subscriber(
@@ -1631,7 +1631,7 @@ class KafkaRegistrator(
                 retry=retry,
                 broker_middlewares=self._middlewares,
                 broker_dependencies=self._dependencies,
-                # AsyncAPI
+                # Specification
                 title_=title,
                 description_=description,
                 include_in_schema=self._solve_include_in_schema(include_in_schema),
@@ -1639,7 +1639,7 @@ class KafkaRegistrator(
         )
 
         if batch:
-            return cast("AsyncAPIBatchSubscriber", subscriber).add_call(
+            return cast("SpecificationBatchSubscriber", subscriber).add_call(
                 filter_=filter,
                 parser_=parser or self._parser,
                 decoder_=decoder or self._decoder,
@@ -1648,7 +1648,7 @@ class KafkaRegistrator(
             )
 
         else:
-            return cast("AsyncAPIDefaultSubscriber", subscriber).add_call(
+            return cast("SpecificationDefaultSubscriber", subscriber).add_call(
                 filter_=filter,
                 parser_=parser or self._parser,
                 decoder_=decoder or self._decoder,
@@ -1708,27 +1708,27 @@ class KafkaRegistrator(
             Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object title."),
+            Doc("Specification publisher object title."),
         ] = None,
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object description."),
+            Doc("Specification publisher object description."),
         ] = None,
         schema: Annotated[
             Optional[Any],
             Doc(
-                "AsyncAPI publishing message type. "
+                "Specification publishing message type. "
                 "Should be any python-native object annotation or `pydantic.BaseModel`."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
-    ) -> "AsyncAPIDefaultPublisher": ...
+    ) -> "SpecificationDefaultPublisher": ...
 
     @overload
     def publisher(
@@ -1782,27 +1782,27 @@ class KafkaRegistrator(
             Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object title."),
+            Doc("Specification publisher object title."),
         ] = None,
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object description."),
+            Doc("Specification publisher object description."),
         ] = None,
         schema: Annotated[
             Optional[Any],
             Doc(
-                "AsyncAPI publishing message type. "
+                "Specification publishing message type. "
                 "Should be any python-native object annotation or `pydantic.BaseModel`."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
-    ) -> "AsyncAPIBatchPublisher": ...
+    ) -> "SpecificationBatchPublisher": ...
 
     @overload
     def publisher(
@@ -1856,29 +1856,29 @@ class KafkaRegistrator(
             Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object title."),
+            Doc("Specification publisher object title."),
         ] = None,
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object description."),
+            Doc("Specification publisher object description."),
         ] = None,
         schema: Annotated[
             Optional[Any],
             Doc(
-                "AsyncAPI publishing message type. "
+                "Specification publishing message type. "
                 "Should be any python-native object annotation or `pydantic.BaseModel`."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
     ) -> Union[
-        "AsyncAPIBatchPublisher",
-        "AsyncAPIDefaultPublisher",
+        "SpecificationBatchPublisher",
+        "SpecificationDefaultPublisher",
     ]: ...
 
     @override
@@ -1933,38 +1933,38 @@ class KafkaRegistrator(
             Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object title."),
+            Doc("Specification publisher object title."),
         ] = None,
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object description."),
+            Doc("Specification publisher object description."),
         ] = None,
         schema: Annotated[
             Optional[Any],
             Doc(
-                "AsyncAPI publishing message type. "
+                "Specification publishing message type. "
                 "Should be any python-native object annotation or `pydantic.BaseModel`."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
     ) -> Union[
-        "AsyncAPIBatchPublisher",
-        "AsyncAPIDefaultPublisher",
+        "SpecificationBatchPublisher",
+        "SpecificationDefaultPublisher",
     ]:
-        """Creates long-living and AsyncAPI-documented publisher object.
+        """Creates long-living and Specification-documented publisher object.
 
         You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
         In such case publisher will publish your handler return value.
 
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
-        publisher = AsyncAPIPublisher.create(
+        publisher = SpecificationPublisher.create(
             # batch flag
             batch=batch,
             # default args
@@ -1977,7 +1977,7 @@ class KafkaRegistrator(
             # publisher-specific
             broker_middlewares=self._middlewares,
             middlewares=middlewares,
-            # AsyncAPI
+            # Specification
             title_=title,
             description_=description,
             schema_=schema,
@@ -1985,6 +1985,6 @@ class KafkaRegistrator(
         )
 
         if batch:
-            return cast("AsyncAPIBatchPublisher", super().publisher(publisher))
+            return cast("SpecificationBatchPublisher", super().publisher(publisher))
         else:
-            return cast("AsyncAPIDefaultPublisher", super().publisher(publisher))
+            return cast("SpecificationDefaultPublisher", super().publisher(publisher))

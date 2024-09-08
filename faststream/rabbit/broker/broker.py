@@ -28,7 +28,7 @@ from faststream.rabbit.schemas import (
     RabbitQueue,
 )
 from faststream.rabbit.security import parse_security
-from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
 from faststream.rabbit.utils import build_url
 from faststream.types import EMPTY
 
@@ -472,7 +472,7 @@ class RabbitBroker(
             )
 
             if max_consumers:
-                c = AsyncAPISubscriber.build_log_context(
+                c = SpecificationSubscriber.build_log_context(
                     None,
                     RabbitQueue(""),
                     RabbitExchange(""),

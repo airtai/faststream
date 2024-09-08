@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from aiokafka import ConsumerRecord
 
 
-class AsyncAPISubscriber(LogicSubscriber[MsgType]):
+class SpecificationSubscriber(LogicSubscriber[MsgType]):
     """A class to handle logic and async API operations."""
 
     def get_name(self) -> str:
@@ -53,15 +53,15 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         return channels
 
 
-class AsyncAPIDefaultSubscriber(
+class SpecificationDefaultSubscriber(
     DefaultSubscriber,
-    AsyncAPISubscriber["ConsumerRecord"],
+    SpecificationSubscriber["ConsumerRecord"],
 ):
     pass
 
 
-class AsyncAPIBatchSubscriber(
+class SpecificationBatchSubscriber(
     BatchSubscriber,
-    AsyncAPISubscriber[Tuple["ConsumerRecord", ...]],
+    SpecificationSubscriber[Tuple["ConsumerRecord", ...]],
 ):
     pass

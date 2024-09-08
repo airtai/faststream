@@ -15,8 +15,8 @@ from faststream.broker.utils import resolve_custom_func
 from faststream.exceptions import WRONG_PUBLISH_ARGS, SubscriberNotFound
 from faststream.rabbit.broker.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser
-from faststream.rabbit.publisher.asyncapi import AsyncAPIPublisher
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
+from faststream.rabbit.publisher.publisher import SpecificationPublisher
 from faststream.rabbit.schemas import (
     ExchangeType,
     RabbitExchange,
@@ -58,7 +58,7 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: RabbitBroker,
-        publisher: AsyncAPIPublisher,
+        publisher: SpecificationPublisher,
     ) -> Tuple["LogicSubscriber", bool]:
         sub: Optional[LogicSubscriber] = None
         for handler in broker._subscribers.values():

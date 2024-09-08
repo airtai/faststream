@@ -4,14 +4,14 @@ from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
-from faststream.rabbit.publisher.asyncapi import AsyncAPIPublisher
+from faststream.rabbit.publisher.publisher import SpecificationPublisher
 from faststream.rabbit.publisher.usecase import PublishKwargs
 from faststream.rabbit.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.rabbit.subscriber.factory import create_subscriber
+from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage  # noqa: F401
@@ -32,8 +32,8 @@ if TYPE_CHECKING:
 class RabbitRegistrator(ABCBroker["IncomingMessage"]):
     """Includable to RabbitBroker router."""
 
-    _subscribers: Dict[int, "AsyncAPISubscriber"]
-    _publishers: Dict[int, "AsyncAPIPublisher"]
+    _subscribers: Dict[int, "SpecificationSubscriber"]
+    _publishers: Dict[int, "SpecificationPublisher"]
 
     @override
     def subscriber(  # type: ignore[override]
@@ -125,9 +125,9 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPISubscriber:
+    ) -> SpecificationSubscriber:
         subscriber = cast(
-            AsyncAPISubscriber,
+            SpecificationSubscriber,
             super().subscriber(
                 create_subscriber(
                     queue=RabbitQueue.validate(queue),
@@ -264,7 +264,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Optional[str],
             Doc("Publisher connection User ID, validated if set."),
         ] = None,
-    ) -> AsyncAPIPublisher:
+    ) -> SpecificationPublisher:
         """Creates long-living and AsyncAPI-documented publisher object.
 
         You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
@@ -288,9 +288,9 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         )
 
         publisher = cast(
-            AsyncAPIPublisher,
+            SpecificationPublisher,
             super().publisher(
-                AsyncAPIPublisher.create(
+                SpecificationPublisher.create(
                     routing_key=routing_key,
                     queue=RabbitQueue.validate(queue),
                     exchange=RabbitExchange.validate(exchange),

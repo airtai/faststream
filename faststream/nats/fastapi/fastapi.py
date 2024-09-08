@@ -37,8 +37,8 @@ from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.nats.broker import NatsBroker
-from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
-from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.nats.publisher.publisher import SpecificationPublisher
+from faststream.nats.subscriber.subscriber import SpecificationSubscriber
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -868,9 +868,9 @@ class NatsRouter(StreamRouter["Msg"]):
                 """
             ),
         ] = False,
-    ) -> "AsyncAPISubscriber":
+    ) -> "SpecificationSubscriber":
         return cast(
-            AsyncAPISubscriber,
+            SpecificationSubscriber,
             super().subscriber(
                 subject=subject,
                 queue=queue,
@@ -969,7 +969,7 @@ class NatsRouter(StreamRouter["Msg"]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIPublisher:
+    ) -> SpecificationPublisher:
         return self.broker.publisher(
             subject,
             headers=headers,

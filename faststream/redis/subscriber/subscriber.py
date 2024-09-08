@@ -17,7 +17,7 @@ from faststream.specification.message import CorrelationId, Message
 from faststream.specification.operation import Operation
 
 
-class AsyncAPISubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
+class SpecificationSubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
     """A class to represent a Redis handler."""
 
     def get_schema(self) -> Dict[str, Channel]:
@@ -42,7 +42,7 @@ class AsyncAPISubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
         }
 
 
-class AsyncAPIChannelSubscriber(ChannelSubscriber, AsyncAPISubscriber):
+class AsyncAPIChannelSubscriber(ChannelSubscriber, SpecificationSubscriber):
     def get_name(self) -> str:
         return f"{self.channel.name}:{self.call_name}"
 
@@ -54,7 +54,7 @@ class AsyncAPIChannelSubscriber(ChannelSubscriber, AsyncAPISubscriber):
         )
 
 
-class _StreamSubscriberMixin(AsyncAPISubscriber):
+class _StreamSubscriberMixin(SpecificationSubscriber):
     stream_sub: StreamSub
 
     def get_name(self) -> str:
@@ -78,7 +78,7 @@ class AsyncAPIStreamBatchSubscriber(BatchStreamSubscriber, _StreamSubscriberMixi
     pass
 
 
-class _ListSubscriberMixin(AsyncAPISubscriber):
+class _ListSubscriberMixin(SpecificationSubscriber):
     list_sub: ListSub
 
     def get_name(self) -> str:

@@ -1,7 +1,7 @@
 import warnings
 from typing import TYPE_CHECKING, Iterable, Optional, Union
 
-from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage
@@ -28,7 +28,7 @@ def create_subscriber(
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> AsyncAPISubscriber:
+) -> SpecificationSubscriber:
     if reply_config:  # pragma: no cover
         warnings.warn(
             (
@@ -40,7 +40,7 @@ def create_subscriber(
             stacklevel=2,
         )
 
-    return AsyncAPISubscriber(
+    return SpecificationSubscriber(
         queue=queue,
         exchange=exchange,
         consume_args=consume_args,

@@ -55,13 +55,13 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.kafka.message import KafkaMessage
-    from faststream.kafka.publisher.asyncapi import (
-        AsyncAPIBatchPublisher,
-        AsyncAPIDefaultPublisher,
+    from faststream.kafka.publisher.publisher import (
+        SpecificationBatchPublisher,
+        SpecificationDefaultPublisher,
     )
-    from faststream.kafka.subscriber.asyncapi import (
-        AsyncAPIBatchSubscriber,
-        AsyncAPIDefaultSubscriber,
+    from faststream.kafka.subscriber.subscriber import (
+        SpecificationBatchSubscriber,
+        SpecificationDefaultSubscriber,
     )
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, LoggerProto
@@ -284,36 +284,36 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
-        # AsyncAPI args
+        # Specification args
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate Specification server security information."
             ),
         ] = None,
         asyncapi_url: Annotated[
             Optional[str],
-            Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
+            Doc("Specification hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
         protocol: Annotated[
             Optional[str],
-            Doc("AsyncAPI server protocol."),
+            Doc("Specification server protocol."),
         ] = None,
         protocol_version: Annotated[
             Optional[str],
-            Doc("AsyncAPI server protocol version."),
+            Doc("Specification server protocol version."),
         ] = "auto",
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI server description."),
+            Doc("Specification server description."),
         ] = None,
         asyncapi_version: Annotated[
             AsyncAPIVersion,
-            Doc("Version of AsyncAPI for schema generation")
+            Doc("Version of Specification for schema generation")
         ] = AsyncAPIVersion.v2_6,
         asyncapi_tags: Annotated[
             Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
-            Doc("AsyncAPI server tags."),
+            Doc("Specification server tags."),
         ] = None,
         # logging args
         logger: Annotated[
@@ -339,7 +339,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         schema_url: Annotated[
             Optional[str],
             Doc(
-                "AsyncAPI schema url. You should set this option to `None` to disable AsyncAPI routes at all."
+                "Specification schema url. You should set this option to `None` to disable Specification routes at all."
             ),
         ] = "/asyncapi",
         # FastAPI args
@@ -591,7 +591,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
-            # AsyncAPI args
+            # Specification args
             security=security,
             protocol=protocol,
             description=description,
@@ -979,21 +979,21 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                 "Whether to disable **FastStream** RPC and Reply To auto responses or not."
             ),
         ] = False,
-        # AsyncAPI information
+        # Specification information
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber object title."),
+            Doc("Specification subscriber object title."),
         ] = None,
         description: Annotated[
             Optional[str],
             Doc(
-                "AsyncAPI subscriber object description. "
+                "Specification subscriber object description. "
                 "Uses decorated docstring as default."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
         # FastAPI args
         response_model: Annotated[
@@ -1118,7 +1118,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                 """
             ),
         ] = False,
-    ) -> "AsyncAPIDefaultSubscriber": ...
+    ) -> "SpecificationDefaultSubscriber": ...
 
     @overload
     def subscriber(
@@ -1480,21 +1480,21 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                 "Whether to disable **FastStream** RPC and Reply To auto responses or not."
             ),
         ] = False,
-        # AsyncAPI information
+        # Specification information
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber object title."),
+            Doc("Specification subscriber object title."),
         ] = None,
         description: Annotated[
             Optional[str],
             Doc(
-                "AsyncAPI subscriber object description. "
+                "Specification subscriber object description. "
                 "Uses decorated docstring as default."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
         # FastAPI args
         response_model: Annotated[
@@ -1619,7 +1619,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                 """
             ),
         ] = False,
-    ) -> "AsyncAPIBatchSubscriber": ...
+    ) -> "SpecificationBatchSubscriber": ...
 
     @overload
     def subscriber(
@@ -1981,21 +1981,21 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                 "Whether to disable **FastStream** RPC and Reply To auto responses or not."
             ),
         ] = False,
-        # AsyncAPI information
+        # Specification information
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber object title."),
+            Doc("Specification subscriber object title."),
         ] = None,
         description: Annotated[
             Optional[str],
             Doc(
-                "AsyncAPI subscriber object description. "
+                "Specification subscriber object description. "
                 "Uses decorated docstring as default."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
         # FastAPI args
         response_model: Annotated[
@@ -2121,8 +2121,8 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             ),
         ] = False,
     ) -> Union[
-        "AsyncAPIBatchSubscriber",
-        "AsyncAPIDefaultSubscriber",
+        "SpecificationBatchSubscriber",
+        "SpecificationDefaultSubscriber",
     ]: ...
 
     @override
@@ -2485,21 +2485,21 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                 "Whether to disable **FastStream** RPC and Reply To auto responses or not."
             ),
         ] = False,
-        # AsyncAPI information
+        # Specification information
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber object title."),
+            Doc("Specification subscriber object title."),
         ] = None,
         description: Annotated[
             Optional[str],
             Doc(
-                "AsyncAPI subscriber object description. "
+                "Specification subscriber object description. "
                 "Uses decorated docstring as default."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
         # FastAPI args
         response_model: Annotated[
@@ -2625,8 +2625,8 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             ),
         ] = False,
     ) -> Union[
-        "AsyncAPIBatchSubscriber",
-        "AsyncAPIDefaultSubscriber",
+        "SpecificationBatchSubscriber",
+        "SpecificationDefaultSubscriber",
     ]:
         subscriber = super().subscriber(
             *topics,
@@ -2679,9 +2679,9 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         )
 
         if batch:
-            return cast("AsyncAPIBatchSubscriber", subscriber)
+            return cast("SpecificationBatchSubscriber", subscriber)
         else:
-            return cast("AsyncAPIDefaultSubscriber", subscriber)
+            return cast("SpecificationDefaultSubscriber", subscriber)
 
     @overload  # type: ignore[override]
     def publisher(
@@ -2735,27 +2735,27 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object title."),
+            Doc("Specification publisher object title."),
         ] = None,
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object description."),
+            Doc("Specification publisher object description."),
         ] = None,
         schema: Annotated[
             Optional[Any],
             Doc(
-                "AsyncAPI publishing message type. "
+                "Specification publishing message type. "
                 "Should be any python-native object annotation or `pydantic.BaseModel`."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
-    ) -> "AsyncAPIDefaultPublisher": ...
+    ) -> "SpecificationDefaultPublisher": ...
 
     @overload
     def publisher(
@@ -2809,27 +2809,27 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object title."),
+            Doc("Specification publisher object title."),
         ] = None,
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object description."),
+            Doc("Specification publisher object description."),
         ] = None,
         schema: Annotated[
             Optional[Any],
             Doc(
-                "AsyncAPI publishing message type. "
+                "Specification publishing message type. "
                 "Should be any python-native object annotation or `pydantic.BaseModel`."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
-    ) -> "AsyncAPIBatchPublisher": ...
+    ) -> "SpecificationBatchPublisher": ...
 
     @overload
     def publisher(
@@ -2883,29 +2883,29 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object title."),
+            Doc("Specification publisher object title."),
         ] = None,
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object description."),
+            Doc("Specification publisher object description."),
         ] = None,
         schema: Annotated[
             Optional[Any],
             Doc(
-                "AsyncAPI publishing message type. "
+                "Specification publishing message type. "
                 "Should be any python-native object annotation or `pydantic.BaseModel`."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
     ) -> Union[
-        "AsyncAPIBatchPublisher",
-        "AsyncAPIDefaultPublisher",
+        "SpecificationBatchPublisher",
+        "SpecificationDefaultPublisher",
     ]: ...
 
     @override
@@ -2960,29 +2960,29 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
-        # AsyncAPI args
+        # Specification args
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object title."),
+            Doc("Specification publisher object title."),
         ] = None,
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI publisher object description."),
+            Doc("Specification publisher object description."),
         ] = None,
         schema: Annotated[
             Optional[Any],
             Doc(
-                "AsyncAPI publishing message type. "
+                "Specification publishing message type. "
                 "Should be any python-native object annotation or `pydantic.BaseModel`."
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
+            Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
     ) -> Union[
-        "AsyncAPIBatchPublisher",
-        "AsyncAPIDefaultPublisher",
+        "SpecificationBatchPublisher",
+        "SpecificationDefaultPublisher",
     ]:
         return self.broker.publisher(
             topic=topic,
@@ -2993,7 +2993,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             reply_to=reply_to,
             # broker options
             middlewares=middlewares,
-            # AsyncAPI options
+            # Specification options
             title=title,
             description=description,
             schema=schema,

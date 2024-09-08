@@ -13,7 +13,7 @@ from faststream.specification.message import CorrelationId, Message
 from faststream.specification.operation import Operation
 
 
-class AsyncAPISubscriber(LogicSubscriber):
+class SpecificationSubscriber(LogicSubscriber):
     """AsyncAPI-compatible Rabbit Subscriber class."""
 
     def get_name(self) -> str:

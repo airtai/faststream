@@ -21,7 +21,7 @@ from faststream.specification.message import CorrelationId, Message
 from faststream.specification.operation import Operation
 
 
-class AsyncAPISubscriber(LogicSubscriber[Any]):
+class SpecificationSubscriber(LogicSubscriber[Any]):
     """A class to represent a NATS handler."""
 
     def get_name(self) -> str:
@@ -52,40 +52,40 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
         }
 
 
-class AsyncAPICoreSubscriber(AsyncAPISubscriber, CoreSubscriber):
-    """One-message core consumer with AsyncAPI methods."""
+class SpecificationCoreSubscriber(SpecificationSubscriber, CoreSubscriber):
+    """One-message core consumer with Specification methods."""
 
 
-class AsyncAPIConcurrentCoreSubscriber(AsyncAPISubscriber, ConcurrentCoreSubscriber):
-    """One-message core concurrent consumer with AsyncAPI methods."""
+class SpecificationConcurrentCoreSubscriber(SpecificationSubscriber, ConcurrentCoreSubscriber):
+    """One-message core concurrent consumer with Specification methods."""
 
 
-class AsyncAPIStreamSubscriber(AsyncAPISubscriber, PushStreamSubscription):
-    """One-message JS Push consumer with AsyncAPI methods."""
+class SpecificationStreamSubscriber(SpecificationSubscriber, PushStreamSubscription):
+    """One-message JS Push consumer with Specification methods."""
 
 
-class AsyncAPIConcurrentPushStreamSubscriber(
-    AsyncAPISubscriber, ConcurrentPushStreamSubscriber
+class SpecificationConcurrentPushStreamSubscriber(
+    SpecificationSubscriber, ConcurrentPushStreamSubscriber
 ):
-    """One-message JS Push concurrent consumer with AsyncAPI methods."""
+    """One-message JS Push concurrent consumer with Specification methods."""
 
 
-class AsyncAPIPullStreamSubscriber(AsyncAPISubscriber, PullStreamSubscriber):
-    """One-message JS Pull consumer with AsyncAPI methods."""
+class SpecificationPullStreamSubscriber(SpecificationSubscriber, PullStreamSubscriber):
+    """One-message JS Pull consumer with Specification methods."""
 
 
-class AsyncAPIConcurrentPullStreamSubscriber(
-    AsyncAPISubscriber, ConcurrentPullStreamSubscriber
+class SpecificationConcurrentPullStreamSubscriber(
+    SpecificationSubscriber, ConcurrentPullStreamSubscriber
 ):
-    """One-message JS Pull concurrent consumer with AsyncAPI methods."""
+    """One-message JS Pull concurrent consumer with Specification methods."""
 
 
-class AsyncAPIBatchPullStreamSubscriber(AsyncAPISubscriber, BatchPullStreamSubscriber):
-    """Batch-message Pull consumer with AsyncAPI methods."""
+class SpecificationBatchPullStreamSubscriber(SpecificationSubscriber, BatchPullStreamSubscriber):
+    """Batch-message Pull consumer with Specification methods."""
 
 
-class AsyncAPIKeyValueWatchSubscriber(AsyncAPISubscriber, KeyValueWatchSubscriber):
-    """KeyValueWatch consumer with AsyncAPI methods."""
+class SpecificationKeyValueWatchSubscriber(SpecificationSubscriber, KeyValueWatchSubscriber):
+    """KeyValueWatch consumer with Specification methods."""
 
     @override
     def get_name(self) -> str:
@@ -96,8 +96,8 @@ class AsyncAPIKeyValueWatchSubscriber(AsyncAPISubscriber, KeyValueWatchSubscribe
         return {}
 
 
-class AsyncAPIObjStoreWatchSubscriber(AsyncAPISubscriber, ObjStoreWatchSubscriber):
-    """ObjStoreWatch consumer with AsyncAPI methods."""
+class SpecificationObjStoreWatchSubscriber(SpecificationSubscriber, ObjStoreWatchSubscriber):
+    """ObjStoreWatch consumer with Specification methods."""
 
     @override
     def get_name(self) -> str:

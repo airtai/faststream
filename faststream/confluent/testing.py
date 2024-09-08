@@ -9,16 +9,18 @@ from faststream.broker.message import encode_message, gen_cor_id
 from faststream.broker.utils import resolve_custom_func
 from faststream.confluent.broker import KafkaBroker
 from faststream.confluent.parser import AsyncConfluentParser
-from faststream.confluent.publisher.asyncapi import AsyncAPIBatchPublisher
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
+from faststream.confluent.publisher.publisher import SpecificationBatchPublisher
 from faststream.confluent.schemas import TopicPartition
-from faststream.confluent.subscriber.asyncapi import AsyncAPIBatchSubscriber
 from faststream.exceptions import SubscriberNotFound
 from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
-    from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.confluent.subscriber.subscriber import SpecificationBatchSubscriber
+    from faststream.testing.broker import TestBroker, call_handler
+    from faststream.broker.wrapper.call import HandlerCallWrapper
+    from faststream.confluent.publisher.publisher import SpecificationPublisher
     from faststream.confluent.subscriber.usecase import LogicSubscriber
     from faststream.types import SendableMessage
 
@@ -40,7 +42,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
-        publisher: "AsyncAPIPublisher[Any]",
+        publisher: "SpecificationPublisher[Any]",
     ) -> Tuple["LogicSubscriber[Any]", bool]:
         sub: Optional[LogicSubscriber[Any]] = None
         for handler in broker._subscribers.values():
@@ -59,13 +61,13 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
                 )
                 sub = broker.subscriber(
                     partitions=[tp],
-                    batch=isinstance(publisher, AsyncAPIBatchPublisher),
+                    batch=isinstance(publisher, SpecificationBatchPublisher),
                     auto_offset_reset="earliest",
                 )
             else:
                 sub = broker.subscriber(
                     publisher.topic,
-                    batch=isinstance(publisher, AsyncAPIBatchPublisher),
+                    batch=isinstance(publisher, SpecificationBatchPublisher),
                     auto_offset_reset="earliest",
                 )
 
@@ -124,7 +126,7 @@ class FakeProducer(AsyncConfluentFastProducer):
             if _is_handler_matches(handler, topic, partition):
                 msg_to_send = (
                     [incoming]
-                    if isinstance(handler, AsyncAPIBatchSubscriber)
+                    if isinstance(handler, SpecificationBatchSubscriber)
                     else incoming
                 )
 
@@ -166,7 +168,7 @@ class FakeProducer(AsyncConfluentFastProducer):
                     for message in msgs
                 )
 
-                if isinstance(handler, AsyncAPIBatchSubscriber):
+                if isinstance(handler, SpecificationBatchSubscriber):
                     await self._execute_handler(list(messages), topic, handler)
 
                 else:
@@ -202,7 +204,7 @@ class FakeProducer(AsyncConfluentFastProducer):
             if _is_handler_matches(handler, topic, partition):
                 msg_to_send = (
                     [incoming]
-                    if isinstance(handler, AsyncAPIBatchSubscriber)
+                    if isinstance(handler, SpecificationBatchSubscriber)
                     else incoming
                 )
 

@@ -31,7 +31,7 @@ PublisherType: TypeAlias = Union[
 ]
 
 
-class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
+class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
     """A class to represent a Redis publisher."""
 
     def get_schema(self) -> Dict[str, Channel]:
@@ -138,7 +138,7 @@ class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
             raise SetupError(INCORRECT_SETUP_MSG)
 
 
-class AsyncAPIChannelPublisher(ChannelPublisher, AsyncAPIPublisher):
+class AsyncAPIChannelPublisher(ChannelPublisher, SpecificationPublisher):
     def get_name(self) -> str:
         return f"{self.channel.name}:Publisher"
 
@@ -150,7 +150,7 @@ class AsyncAPIChannelPublisher(ChannelPublisher, AsyncAPIPublisher):
         )
 
 
-class _ListPublisherMixin(AsyncAPIPublisher):
+class _ListPublisherMixin(SpecificationPublisher):
     list: "ListSub"
 
     def get_name(self) -> str:
@@ -172,7 +172,7 @@ class AsyncAPIListBatchPublisher(ListBatchPublisher, _ListPublisherMixin):
     pass
 
 
-class AsyncAPIStreamPublisher(StreamPublisher, AsyncAPIPublisher):
+class AsyncAPIStreamPublisher(StreamPublisher, SpecificationPublisher):
     def get_name(self) -> str:
         return f"{self.stream.name}:Publisher"
 

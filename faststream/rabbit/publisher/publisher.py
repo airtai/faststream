@@ -21,15 +21,15 @@ if TYPE_CHECKING:
     from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
 
 
-class AsyncAPIPublisher(LogicPublisher):
+class SpecificationPublisher(LogicPublisher):
     """AsyncAPI-compatible Rabbit Publisher class.
 
     Creting by
 
     ```python
-    publisher: AsyncAPIPublisher = broker.publisher(...)
+    publisher: SpecificationPublisher = broker.publisher(...)
     # or
-    publisher: AsyncAPIPublisher = router.publisher(...)
+    publisher: SpecificationPublisher = router.publisher(...)
     ```
     """
 
@@ -119,7 +119,7 @@ class AsyncAPIPublisher(LogicPublisher):
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIPublisher":
+    ) -> "SpecificationPublisher":
         return cls(
             routing_key=routing_key,
             queue=queue,

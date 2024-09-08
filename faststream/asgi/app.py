@@ -18,19 +18,14 @@ from faststream.asgi.response import AsgiResponse
 from faststream.asgi.websocket import WebSocketClose
 from faststream.log.logging import logger
 
+
 if TYPE_CHECKING:
     from faststream.asgi.types import ASGIApp, Receive, Scope, Send
     from faststream.broker.core.usecase import BrokerUsecase
-    from faststream.specification import (
-        LicenseDict,
-        License,
-        Contact,
-        ContactDict,
-        TagDict,
-        Tag,
-        ExternalDocs,
-        ExternalDocsDict,
-    )
+    from faststream.specification.contact import Contact, ContactDict
+    from faststream.specification.docs import ExternalDocs, ExternalDocsDict
+    from faststream.specification.license import License, LicenseDict
+    from faststream.specification.tag import Tag, TagDict
     from faststream.types import (
         AnyCallable,
         AnyDict,

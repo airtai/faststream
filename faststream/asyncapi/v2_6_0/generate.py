@@ -111,7 +111,7 @@ def get_broker_server(
 
     if broker.tags:
         for tag in broker.tags:
-            if isinstance(tag, spec.Tag):
+            if isinstance(tag, spec.tag.Tag):
                 tags.append(Tag(**asdict(tag)))
             elif isinstance(tag, dict):
                 tags.append(dict(tag))
@@ -177,25 +177,25 @@ def get_broker_channels(
 
 
 def specs_contact_to_asyncapi(
-        contact: Union["spec.Contact", "spec.ContactDict", "AnyDict"]
+        contact: Union["spec.contact.Contact", "spec.contact.ContactDict", "AnyDict"]
 ) -> Union["Contact", "AnyDict"]:
-    if isinstance(contact, spec.Contact):
+    if isinstance(contact, spec.contact.Contact):
         return Contact(**contact.dict())
 
     return dict(contact)
 
 
 def specs_license_to_asyncapi(
-        license: Union["spec.License", "spec.LicenseDict", "AnyDict"]
+        license: Union["spec.license.License", "spec.license.LicenseDict", "AnyDict"]
 ) -> Union["License", "AnyDict"]:
-    if isinstance(license, spec.License):
+    if isinstance(license, spec.license.License):
         return License(**license.dict())
 
     return dict(license)
 
 
 
-def specs_channel_to_asyncapi(channel: spec.Channel) -> Channel:
+def specs_channel_to_asyncapi(channel: spec.channel.Channel) -> Channel:
     return Channel(
         description=channel.description,
         servers=channel.servers,
@@ -252,7 +252,7 @@ def specs_channel_binding_to_asyncapi(binding: spec.bindings.ChannelBinding) -> 
     )
 
 
-def specs_operation_to_asyncapi(operation: spec.Operation) -> Operation:
+def specs_operation_to_asyncapi(operation: spec.operation.Operation) -> Operation:
     return Operation(
         operationId=operation.operationId,
         summary=operation.summary,
@@ -311,12 +311,12 @@ def specs_operation_binding_to_asyncapi(binding: spec.bindings.OperationBinding)
 
 
 def specs_tags_to_asyncapi(
-        tags: List[Union[spec.Tag, spec.TagDict, Dict[str, Any]]]
+        tags: List[Union[spec.tag.Tag, spec.tag.TagDict, Dict[str, Any]]]
 ) -> List[Union[Tag, TagDict, Dict[str, Any]]]:
     asyncapi_tags: List[Union[Tag, TagDict, Dict[str, Any]]] = []
 
     for tag in tags:
-        if isinstance(tag, spec.Tag):
+        if isinstance(tag, spec.tag.Tag):
             asyncapi_tags.append(Tag(
                 name=tag.name,
                 description=tag.description,
@@ -333,9 +333,9 @@ def specs_tags_to_asyncapi(
 
 
 def specs_external_docs_to_asyncapi(
-        externalDocs: Union[spec.ExternalDocs, spec.ExternalDocsDict, Dict[str, Any]]
+        externalDocs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, Dict[str, Any]]
 ) -> Union[ExternalDocs, Dict[str, Any]]:
-    if isinstance(externalDocs, spec.ExternalDocs):
+    if isinstance(externalDocs, spec.docs.ExternalDocs):
         return ExternalDocs(
             **asdict(externalDocs)
         )

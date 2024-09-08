@@ -14,24 +14,24 @@ from typing_extensions import override
 
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import MsgType
-from faststream.confluent.publisher.usecase import (
+from faststream.exceptions import SetupError
+from faststream.kafka.publisher.usecase import (
     BatchPublisher,
     DefaultPublisher,
     LogicPublisher,
 )
-from faststream.exceptions import SetupError
 from faststream.specification.bindings import ChannelBinding, kafka
 from faststream.specification.channel import Channel
 from faststream.specification.message import CorrelationId, Message
 from faststream.specification.operation import Operation
 
 if TYPE_CHECKING:
-    from confluent_kafka import Message as ConfluentMsg
+    from aiokafka import ConsumerRecord
 
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
 
 
-class AsyncAPIPublisher(LogicPublisher[MsgType]):
+class SpecificationPublisher(LogicPublisher[MsgType]):
     """A class representing a publisher."""
 
     def get_name(self) -> str:
@@ -67,14 +67,14 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
+        broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
+        # Specification args
         schema_: Optional[Any],
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIBatchPublisher": ...
+    ) -> "SpecificationBatchPublisher": ...
 
     @overload
     @staticmethod
@@ -87,14 +87,14 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
+        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
+        # Specification args
         schema_: Optional[Any],
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIDefaultPublisher": ...
+    ) -> "SpecificationDefaultPublisher": ...
 
     @overload
     @staticmethod
@@ -108,17 +108,17 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         reply_to: str,
         # Publisher args
         broker_middlewares: Iterable[
-            "BrokerMiddleware[Union[Tuple[ConfluentMsg, ...], ConfluentMsg]]"
+            "BrokerMiddleware[Union[Tuple[ConsumerRecord, ...], ConsumerRecord]]"
         ],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
+        # Specification args
         schema_: Optional[Any],
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
     ) -> Union[
-        "AsyncAPIBatchPublisher",
-        "AsyncAPIDefaultPublisher",
+        "SpecificationBatchPublisher",
+        "SpecificationDefaultPublisher",
     ]: ...
 
     @override
@@ -133,23 +133,23 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         reply_to: str,
         # Publisher args
         broker_middlewares: Iterable[
-            "BrokerMiddleware[Union[Tuple[ConfluentMsg, ...], ConfluentMsg]]"
+            "BrokerMiddleware[Union[Tuple[ConsumerRecord, ...], ConsumerRecord]]"
         ],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
+        # Specification args
         schema_: Optional[Any],
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
     ) -> Union[
-        "AsyncAPIBatchPublisher",
-        "AsyncAPIDefaultPublisher",
+        "SpecificationBatchPublisher",
+        "SpecificationDefaultPublisher",
     ]:
         if batch:
             if key:
                 raise SetupError("You can't setup `key` with batch publisher")
 
-            return AsyncAPIBatchPublisher(
+            return SpecificationBatchPublisher(
                 topic=topic,
                 partition=partition,
                 headers=headers,
@@ -162,7 +162,7 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
                 include_in_schema=include_in_schema,
             )
         else:
-            return AsyncAPIDefaultPublisher(
+            return SpecificationDefaultPublisher(
                 key=key,
                 # basic args
                 topic=topic,
@@ -178,15 +178,15 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
             )
 
 
-class AsyncAPIBatchPublisher(
+class SpecificationBatchPublisher(
     BatchPublisher,
-    AsyncAPIPublisher[Tuple["ConfluentMsg", ...]],
+    SpecificationPublisher[Tuple["ConsumerRecord", ...]],
 ):
     pass
 
 
-class AsyncAPIDefaultPublisher(
+class SpecificationDefaultPublisher(
     DefaultPublisher,
-    AsyncAPIPublisher["ConfluentMsg"],
+    SpecificationPublisher["ConsumerRecord"],
 ):
     pass

@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Protocol, Sequence, Union
 from typing_extensions import Annotated, Doc
 
 from faststream.asyncapi.version import AsyncAPIVersion
-from faststream.specification import License, LicenseDict, Contact, ContactDict
+from faststream.specification.contact import Contact, ContactDict
+from faststream.specification.license import License, LicenseDict
 
 if TYPE_CHECKING:
     from faststream.broker.core.usecase import BrokerUsecase

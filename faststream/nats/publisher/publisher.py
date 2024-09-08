@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from faststream.nats.schemas.js_stream import JStream
 
 
-class AsyncAPIPublisher(LogicPublisher):
+class SpecificationPublisher(LogicPublisher):
     """A class to represent a NATS publisher."""
 
     def get_name(self) -> str:
@@ -63,7 +63,7 @@ class AsyncAPIPublisher(LogicPublisher):
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIPublisher":
+    ) -> "SpecificationPublisher":
         return cls(
             subject=subject,
             reply_to=reply_to,

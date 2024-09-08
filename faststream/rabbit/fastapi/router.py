@@ -25,12 +25,12 @@ from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.rabbit.broker.broker import RabbitBroker as RB
-from faststream.rabbit.publisher.asyncapi import AsyncAPIPublisher
+from faststream.rabbit.publisher.publisher import SpecificationPublisher
 from faststream.rabbit.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -696,9 +696,9 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 """
             ),
         ] = False,
-    ) -> AsyncAPISubscriber:
+    ) -> SpecificationSubscriber:
         return cast(
-            AsyncAPISubscriber,
+            SpecificationSubscriber,
             super().subscriber(
                 queue=queue,
                 exchange=exchange,
@@ -834,7 +834,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional[str],
             Doc("Publisher connection User ID, validated if set."),
         ] = None,
-    ) -> AsyncAPIPublisher:
+    ) -> SpecificationPublisher:
         return self.broker.publisher(
             queue=queue,
             exchange=exchange,
