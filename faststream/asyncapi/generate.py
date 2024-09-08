@@ -6,10 +6,10 @@ from faststream.asyncapi.v3_0_0.generate import get_app_schema as get_app_schema
 from faststream.asyncapi.version import AsyncAPIVersion
 
 if TYPE_CHECKING:
-    from faststream.asyncapi.proto import AsyncAPIApplication
+    from faststream.asyncapi.proto import Application
 
 
-def get_app_schema(app: "AsyncAPIApplication") -> BaseSchema:
+def get_app_schema(app: "Application") -> BaseSchema:
     if app.asyncapi_version == AsyncAPIVersion.v3_0:
         return get_app_schema_v3(app)
 

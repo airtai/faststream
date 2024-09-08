@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, Optional, Pr
 
 from typing_extensions import override
 
-from faststream.asyncapi.proto import AsyncAPIProto
+from faststream.asyncapi.proto import SpecificationProto
 from faststream.broker.proto import EndpointProto
 from faststream.broker.types import MsgType
 
@@ -72,7 +72,7 @@ class BasePublisherProto(Protocol):
 
 
 class PublisherProto(
-    AsyncAPIProto,
+    SpecificationProto,
     EndpointProto,
     BasePublisherProto,
     Generic[MsgType],

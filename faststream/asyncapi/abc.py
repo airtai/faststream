@@ -1,11 +1,11 @@
 from abc import abstractmethod
 from typing import Any, Dict, Optional
 
-from faststream.asyncapi.proto import AsyncAPIProto
+from faststream.asyncapi.proto import SpecificationProto
 from faststream.specification.channel import Channel
 
 
-class AsyncAPIOperation(AsyncAPIProto):
+class SpecificationOperation(SpecificationProto):
     """A class representing an asynchronous API operation."""
 
     @property

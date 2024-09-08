@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     )
 
 
-class AsyncAPIApplication(Protocol):
+class Application(Protocol):
     broker: Optional["BrokerUsecase[Any, Any]"]
 
     title: str
@@ -27,13 +27,13 @@ class AsyncAPIApplication(Protocol):
     terms_of_service: Optional["AnyHttpUrl"]
     license: Optional[Union["License", "LicenseDict", "AnyDict"]]
     contact: Optional[Union["Contact", "ContactDict", "AnyDict"]]
-    asyncapi_tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]]
+    specs_tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]]
     external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]]
     asyncapi_version: AsyncAPIVersion
     identifier: Optional[str]
 
 
-class AsyncAPIProto(Protocol):
+class SpecificationProto(Protocol):
     """A class representing an asynchronous API operation."""
 
     title_: Annotated[

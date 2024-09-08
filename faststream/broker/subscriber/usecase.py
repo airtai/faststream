@@ -17,7 +17,7 @@ from typing import (
 
 from typing_extensions import Self, override
 
-from faststream.asyncapi.abc import AsyncAPIOperation
+from faststream.asyncapi.abc import SpecificationOperation
 from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.utils import to_camelcase
 from faststream.broker.response import ensure_response
@@ -77,7 +77,7 @@ class _CallOptions:
 
 
 class SubscriberUsecase(
-    AsyncAPIOperation,
+    SpecificationOperation,
     SubscriberProto[MsgType],
 ):
     """A class representing an asynchronous handler."""

@@ -15,7 +15,7 @@ from faststream.asyncapi.site import (
 
 if TYPE_CHECKING:
     from faststream.asgi.types import ASGIApp, Scope
-    from faststream.asyncapi.proto import AsyncAPIApplication
+    from faststream.asyncapi.proto import Application
     from faststream.broker.core.usecase import BrokerUsecase
 
 
@@ -38,7 +38,7 @@ def make_ping_asgi(
 
 
 def make_asyncapi_asgi(
-    app: "AsyncAPIApplication",
+    app: "Application",
     sidebar: bool = True,
     info: bool = True,
     servers: bool = True,

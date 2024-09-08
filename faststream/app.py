@@ -16,7 +16,7 @@ import anyio
 from typing_extensions import ParamSpec
 
 from faststream._compat import ExceptionGroup
-from faststream.asyncapi.proto import AsyncAPIApplication
+from faststream.asyncapi.proto import Application
 from faststream.asyncapi.version import AsyncAPIVersion
 from faststream.cli.supervisors.utils import set_exit
 from faststream.exceptions import ValidationError
@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     )
 
 
-class FastStream(AsyncAPIApplication):
+class FastStream(Application):
     """A class representing a FastStream application."""
 
     _on_startup_calling: List["AsyncFunc"]
@@ -110,7 +110,7 @@ class FastStream(AsyncAPIApplication):
         self.license = license
         self.contact = contact
         self.identifier = identifier
-        self.asyncapi_tags = tags
+        self.tags = tags
         self.external_docs = external_docs
 
     def set_broker(self, broker: "BrokerUsecase[Any, Any]") -> None:

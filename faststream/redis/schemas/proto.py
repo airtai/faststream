@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Union
 
-from faststream.asyncapi.abc import AsyncAPIOperation
+from faststream.asyncapi.abc import SpecificationOperation
 from faststream.exceptions import SetupError
 
 if TYPE_CHECKING:
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from faststream.specification.bindings import redis
 
 
-class RedisAsyncAPIProtocol(AsyncAPIOperation):
+class RedisAsyncAPIProtocol(SpecificationOperation):
     @property
     @abstractmethod
     def channel_binding(self) -> "redis.ChannelBinding": ...

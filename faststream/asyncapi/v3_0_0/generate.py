@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 from faststream import specification as spec
 from faststream._compat import DEF_KEY
-from faststream.asyncapi.proto import AsyncAPIApplication
+from faststream.asyncapi.proto import Application
 from faststream.asyncapi.v2_6_0.generate import (
     specs_channel_binding_to_asyncapi,
     specs_contact_to_asyncapi,
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from faststream.broker.types import ConnectionType, MsgType
 
 
-def get_app_schema(app: AsyncAPIApplication) -> Schema:
+def get_app_schema(app: Application) -> Schema:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
@@ -75,7 +75,7 @@ def get_app_schema(app: AsyncAPIApplication) -> Schema:
             if app.contact else None,
             license=specs_license_to_asyncapi(app.license)
             if app.license else None,
-            tags=specs_tags_to_asyncapi(list(app.asyncapi_tags)) if app.asyncapi_tags else None,
+            tags=specs_tags_to_asyncapi(list(app.specs_tags)) if app.specs_tags else None,
             externalDocs=specs_external_docs_to_asyncapi(app.external_docs) if app.external_docs else None,
         ),
         defaultContentType=ContentTypes.json.value,

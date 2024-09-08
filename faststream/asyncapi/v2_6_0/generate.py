@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from faststream import specification as spec
 from faststream._compat import DEF_KEY
-from faststream.asyncapi.proto import AsyncAPIApplication
+from faststream.asyncapi.proto import Application
 from faststream.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict
 
 
-def get_app_schema(app: AsyncAPIApplication) -> Schema:
+def get_app_schema(app: Application) -> Schema:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
@@ -86,7 +86,7 @@ def get_app_schema(app: AsyncAPIApplication) -> Schema:
         ),
         defaultContentType=ContentTypes.json.value,
         id=app.identifier,
-        tags=specs_tags_to_asyncapi(list(app.asyncapi_tags)) if app.asyncapi_tags else None,
+        tags=specs_tags_to_asyncapi(list(app.specs_tags)) if app.specs_tags else None,
         externalDocs=specs_external_docs_to_asyncapi(app.external_docs) if app.external_docs else None,
         servers=servers,
         channels=channels,

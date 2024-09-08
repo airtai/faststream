@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional
 
 from typing_extensions import Self, override
 
-from faststream.asyncapi.proto import AsyncAPIProto
+from faststream.asyncapi.proto import SpecificationProto
 from faststream.broker.proto import EndpointProto
 from faststream.broker.types import MsgType
 from faststream.broker.wrapper.proto import WrapperProto
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class SubscriberProto(
-    AsyncAPIProto,
+    SpecificationProto,
     EndpointProto,
     WrapperProto[MsgType],
 ):
