@@ -17,11 +17,11 @@ from faststream.kafka.parser import AioKafkaParser
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
+from faststream.kafka.publisher.publisher import SpecificationBatchPublisher
+from faststream.kafka.subscriber.subscriber import SpecificationBatchSubscriber
 
 if TYPE_CHECKING:
     from faststream.kafka.publisher.producer import AioKafkaFastProducer
-    from faststream.kafka.publisher.publisher import SpecificationBatchPublisher
-    from faststream.kafka.subscriber.subscriber import SpecificationBatchSubscriber
     from faststream.testing.broker import TestBroker
     from faststream.kafka.publisher.publisher import SpecificationPublisher
     from faststream.kafka.subscriber.usecase import LogicSubscriber

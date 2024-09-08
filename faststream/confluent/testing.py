@@ -15,9 +15,9 @@ from faststream.confluent.schemas import TopicPartition
 from faststream.exceptions import SubscriberNotFound
 from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
+from faststream.confluent.subscriber.subscriber import SpecificationBatchSubscriber
 
 if TYPE_CHECKING:
-    from faststream.confluent.subscriber.subscriber import SpecificationBatchSubscriber
     from faststream.testing.broker import TestBroker, call_handler
     from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.confluent.publisher.publisher import SpecificationPublisher

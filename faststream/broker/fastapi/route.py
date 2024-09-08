@@ -210,17 +210,7 @@ def make_fastapi_execution(
                 **kwargs,
             )
 
-<<<<<<< HEAD
             raw_message.background = solved_result.background_tasks  # type: ignore[attr-defined]
-=======
-            (
-                values,
-                errors,
-                raw_message.background,  # type: ignore[attr-defined]
-                _response,
-                _dependency_cache,
-            ) = solved_result
->>>>>>> 2016de36 (feat: add broker.request method (#1649))
 
             if solved_result.errors:
                 raise_fastapi_validation_error(solved_result.errors, request._body)  # type: ignore[arg-type]

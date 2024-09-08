@@ -72,7 +72,7 @@ class Exchange(BaseModel):
         "x-consistent-hash",
         "x-modulus-hash",
     ]
-    
+
     durable: Optional[bool] = None
     autoDelete: Optional[bool] = None
     vhost: str = "/"
