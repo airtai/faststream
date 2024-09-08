@@ -16,9 +16,8 @@ from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
-    from faststream.nats.subscriber.usecase import LogicSubscriber
-    from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.nats.publisher.publisher import SpecificationPublisher
+    from faststream.nats.subscriber.usecase import LogicSubscriber
     from faststream.types import AnyDict, SendableMessage
 
 __all__ = ("TestNatsBroker",)

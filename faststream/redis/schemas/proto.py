@@ -7,7 +7,6 @@ from faststream.specification.proto import SpecificationProto
 if TYPE_CHECKING:
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
     from faststream.specification.schema.bindings import redis
-    from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 
 class RedisAsyncAPIProtocol(SpecificationProto):

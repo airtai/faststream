@@ -1,6 +1,5 @@
 from typing import Dict
 
-from faststream.specification.asyncapi.v2_6_0 import schema as v2_6_0
 from faststream.redis.schemas import ListSub, StreamSub
 from faststream.redis.schemas.proto import RedisAsyncAPIProtocol
 from faststream.redis.subscriber.usecase import (

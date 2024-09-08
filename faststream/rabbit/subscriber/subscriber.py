@@ -1,6 +1,5 @@
 from typing import Dict
 
-from faststream.specification.asyncapi.v2_6_0 import schema as v2_6_0
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.rabbit.utils import is_routing_exchange
 from faststream.specification.asyncapi.utils import resolve_payloads

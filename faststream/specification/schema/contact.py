@@ -18,7 +18,6 @@ from faststream._compat import (
 )
 from faststream.log import logger
 
-
 try:
     import email_validator
 

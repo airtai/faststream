@@ -12,16 +12,15 @@ from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.publisher.publisher import SpecificationBatchPublisher
 from faststream.confluent.schemas import TopicPartition
+from faststream.confluent.subscriber.subscriber import SpecificationBatchSubscriber
 from faststream.exceptions import SubscriberNotFound
 from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
-from faststream.confluent.subscriber.subscriber import SpecificationBatchSubscriber
 
 if TYPE_CHECKING:
-    from faststream.testing.broker import TestBroker, call_handler
-    from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.confluent.publisher.publisher import SpecificationPublisher
     from faststream.confluent.subscriber.usecase import LogicSubscriber
+    from faststream.testing.broker import TestBroker
     from faststream.types import SendableMessage
 
 __all__ = (

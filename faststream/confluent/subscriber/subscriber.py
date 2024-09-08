@@ -10,7 +10,6 @@ from faststream.confluent.subscriber.usecase import (
     DefaultSubscriber,
     LogicSubscriber,
 )
-from faststream.specification.asyncapi.v2_6_0 import schema as v2_6_0
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import ChannelBinding, kafka
 from faststream.specification.schema.channel import Channel

@@ -6,7 +6,6 @@ from faststream.specification.schema.message import Message
 from faststream.specification.schema.tag import Tag
 
 
-
 @dataclass
 class Operation:
     """A class to represent an operation.

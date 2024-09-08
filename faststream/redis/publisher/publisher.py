@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 from typing_extensions import TypeAlias, override
 
-from faststream.specification.asyncapi.v2_6_0 import schema as v2_6_0
 from faststream.exceptions import SetupError
 from faststream.redis.publisher.usecase import (
     ChannelPublisher,

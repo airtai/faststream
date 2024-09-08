@@ -4,13 +4,6 @@ from pydantic import BaseModel
 
 from faststream._compat import model_to_json, model_to_jsonable
 from faststream.specification.asyncapi.base.schema import BaseInfo
-from faststream.specification.schema.channel import Channel
-from faststream.specification.schema.components import Components
-from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-from faststream.specification.schema.info import Info
-from faststream.specification.schema.servers import Server
-from faststream.specification.schema.tag import Tag
-from faststream._compat import model_to_json, model_to_jsonable
 
 
 class BaseSchema(BaseModel):
