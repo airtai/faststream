@@ -287,7 +287,8 @@ class ChannelSubscriber(LogicSubscriber):
 
         await super().close()
 
-    async def get_one(
+    @override
+    async def get_one(  # type: ignore[override]
         self,
         *,
         timeout: float = 5.0,
@@ -312,13 +313,15 @@ class ChannelSubscriber(LogicSubscriber):
             return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
 
             for m in self._broker_middlewares:
-                mid = m(message)
+                mid = m(message)  # type: ignore[arg-type]
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
 
             parsed_msg: RedisMessage = await self._parser(message)
             parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return await return_msg(parsed_msg)
+
+        raise AssertionError("unreachable")
 
     async def _get_message(self, psub: RPubSub) -> Optional[PubSubMessage]:
         raw_msg = await psub.get_message(
@@ -334,7 +337,7 @@ class ChannelSubscriber(LogicSubscriber):
                 pattern=raw_msg["pattern"],
             )
 
-        return
+        return None
 
     async def _get_msgs(self, psub: RPubSub) -> None:
         msg = await self._get_message(psub)
@@ -412,7 +415,8 @@ class _ListHandlerMixin(LogicSubscriber):
 
         await super().start(self._client)
 
-    async def get_one(
+    @override
+    async def get_one(  # type: ignore[override]
         self,
         *,
         timeout: float = 5.0,
@@ -435,7 +439,7 @@ class _ListHandlerMixin(LogicSubscriber):
             return None
 
         async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
+            return_msg: Callable[[RedisListMessage], Awaitable[RedisListMessage]] = return_input
 
             for m in self._broker_middlewares:
                 mid = m(raw_message)
@@ -451,6 +455,8 @@ class _ListHandlerMixin(LogicSubscriber):
             parsed_message: RedisListMessage = await self._parser(message)
             parsed_message._decoded_body = await self._decoder(parsed_message)
             return await return_msg(parsed_message)
+
+        raise AssertionError("unreachable")
 
     def add_prefix(self, prefix: str) -> None:
         new_list = deepcopy(self.list_sub)
@@ -707,7 +713,8 @@ class _StreamHandlerMixin(LogicSubscriber):
 
         await super().start(read)
 
-    async def get_one(
+    @override
+    async def get_one(  # type: ignore[override]
         self,
         *,
         timeout: float = 5.0,
@@ -738,16 +745,18 @@ class _StreamHandlerMixin(LogicSubscriber):
         )
 
         async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
+            return_msg: Callable[[RedisStreamMessage], Awaitable[RedisStreamMessage]] = return_input
 
             for m in self._broker_middlewares:
-                mid = m(msg)
+                mid = m(msg)  # type: ignore[arg-type]
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
 
             parsed_msg: RedisStreamMessage = await self._parser(msg)
             parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return await return_msg(parsed_msg)
+
+        raise AssertionError("unreachable")
 
     def add_prefix(self, prefix: str) -> None:
         new_stream = deepcopy(self.stream_sub)
