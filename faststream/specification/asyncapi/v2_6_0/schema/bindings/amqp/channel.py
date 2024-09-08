@@ -50,17 +50,6 @@ class Exchange(BaseModel):
         vhost : virtual host of the exchange, default is "/"
     """
 
-    type: Literal[
-        "default",
-        "direct",
-        "topic",
-        "fanout",
-        "headers",
-        "x-delayed-message",
-        "x-consistent-hash",
-        "x-modulus-hash",
-    ]
-
     name: Optional[str] = None
     type: Literal[
         "default",
@@ -72,7 +61,6 @@ class Exchange(BaseModel):
         "x-consistent-hash",
         "x-modulus-hash",
     ]
-
     durable: Optional[bool] = None
     autoDelete: Optional[bool] = None
     vhost: str = "/"
