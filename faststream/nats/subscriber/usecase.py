@@ -1,7 +1,6 @@
 import asyncio
 from abc import abstractmethod
-from contextlib import AsyncExitStack, suppress
-from functools import partial
+from contextlib import suppress
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -27,7 +26,8 @@ from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.types import CustomCallable, MsgType
+from faststream.broker.subscriber.utils import process_msg
+from faststream.broker.types import MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.parser import (
     BatchParser,
@@ -41,9 +41,7 @@ from faststream.nats.subscriber.subscription import (
     UnsubscribeAdapter,
     Unsubscriptable,
 )
-from faststream.types import AnyDict, LoggerProto, SendableMessage
 from faststream.utils.context.repository import context
-from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
@@ -59,11 +57,12 @@ if TYPE_CHECKING:
     from faststream.broker.types import (
         AsyncCallable,
         BrokerMiddleware,
+        CustomCallable,
     )
     from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
     from faststream.nats.message import NatsKvMessage, NatsMessage, NatsObjMessage
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
-    from faststream.types import Decorator
+    from faststream.types import AnyDict, Decorator, LoggerProto, SendableMessage
 
 
 ConnectionType = TypeVar("ConnectionType")
@@ -82,7 +81,7 @@ class LogicSubscriber(Generic[ConnectionType, MsgType], SubscriberUsecase[MsgTyp
         *,
         subject: str,
         config: "ConsumerConfig",
-        extra_options: Optional[AnyDict],
+        extra_options: Optional["AnyDict"],
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
@@ -257,7 +256,7 @@ class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
         subject: str,
         config: "ConsumerConfig",
         # default args
-        extra_options: Optional[AnyDict],
+        extra_options: Optional["AnyDict"],
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
@@ -399,7 +398,7 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
         subject: str,
         config: "ConsumerConfig",
         queue: str,
-        extra_options: Optional[AnyDict],
+        extra_options: Optional["AnyDict"],
         # Subscriber args
         no_ack: bool,
         no_reply: bool,
@@ -459,19 +458,13 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
         except TimeoutError:
             return None
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[NatsMessage], Awaitable[NatsMessage]] = return_input
-
-            for m in self._broker_middlewares:
-                mid = m(raw_message)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._parser(raw_message)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: NatsMessage = await process_msg(  # type: ignore[assignment]
+            msg=raw_message,
+            middlewares=self._broker_middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     @override
     async def _create_subscription(
@@ -517,7 +510,7 @@ class ConcurrentCoreSubscriber(
         subject: str,
         config: "ConsumerConfig",
         queue: str,
-        extra_options: Optional[AnyDict],
+        extra_options: Optional["AnyDict"],
         # Subscriber args
         no_ack: bool,
         no_reply: bool,
@@ -579,7 +572,7 @@ class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
         subject: str,
         config: "ConsumerConfig",
         queue: str,
-        extra_options: Optional[AnyDict],
+        extra_options: Optional["AnyDict"],
         # Subscriber args
         no_ack: bool,
         no_reply: bool,
@@ -667,19 +660,13 @@ class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
         except (TimeoutError, ConnectionClosedError):
             return None
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[NatsMessage], Awaitable[NatsMessage]] = return_input
-
-            for m in self._broker_middlewares:
-                mid = m(raw_message)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg: NatsMessage = await self._parser(raw_message)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: NatsMessage = await process_msg(  # type: ignore[assignment]
+            msg=raw_message,
+            middlewares=self._broker_middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
 
 class PushStreamSubscription(_StreamSubscriber):
@@ -719,7 +706,7 @@ class ConcurrentPushStreamSubscriber(
         subject: str,
         config: "ConsumerConfig",
         queue: str,
-        extra_options: Optional[AnyDict],
+        extra_options: Optional["AnyDict"],
         # Subscriber args
         no_ack: bool,
         no_reply: bool,
@@ -786,7 +773,7 @@ class PullStreamSubscriber(
         # default args
         subject: str,
         config: "ConsumerConfig",
-        extra_options: Optional[AnyDict],
+        extra_options: Optional["AnyDict"],
         # Subscriber args
         no_ack: bool,
         no_reply: bool,
@@ -838,7 +825,7 @@ class PullStreamSubscriber(
 
     async def _consume_pull(
         self,
-        cb: Callable[["Msg"], Awaitable[SendableMessage]],
+        cb: Callable[["Msg"], Awaitable["SendableMessage"]],
     ) -> None:
         """Endless task consuming messages using NATS Pull subscriber."""
         assert self.subscription  # nosec B101
@@ -870,7 +857,7 @@ class ConcurrentPullStreamSubscriber(
         stream: "JStream",
         subject: str,
         config: "ConsumerConfig",
-        extra_options: Optional[AnyDict],
+        extra_options: Optional["AnyDict"],
         # Subscriber args
         no_ack: bool,
         no_reply: bool,
@@ -939,7 +926,7 @@ class BatchPullStreamSubscriber(
         config: "ConsumerConfig",
         stream: "JStream",
         pull_sub: "PullSub",
-        extra_options: Optional[AnyDict],
+        extra_options: Optional["AnyDict"],
         # Subscriber args
         no_ack: bool,
         no_reply: bool,
@@ -996,26 +983,20 @@ class BatchPullStreamSubscriber(
             fetch_sub = self._fetch_sub
 
         try:
-            raw_messages = await fetch_sub.fetch(
+            raw_message = await fetch_sub.fetch(
                 batch=1,
                 timeout=timeout,
             )
         except TimeoutError:
             return None
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[NatsMessage], Awaitable[NatsMessage]] = return_input
-
-            for m in self._broker_middlewares:
-                mid = m(raw_messages)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._parser(raw_messages)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: NatsMessage = await process_msg(
+            msg=raw_message,
+            middlewares=self._broker_middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     @override
     async def _create_subscription(
@@ -1126,24 +1107,13 @@ class KeyValueWatchSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
-        if not raw_message:
-            return None
-
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[NatsKvMessage], Awaitable[NatsKvMessage]] = (
-                return_input
-            )
-
-            for m in self._broker_middlewares:
-                mid = m(raw_message)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg: NatsKvMessage = await self._parser(raw_message)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: NatsKvMessage = await process_msg(
+            msg=raw_message,
+            middlewares=self._broker_middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     @override
     async def _create_subscription(
@@ -1295,24 +1265,13 @@ class ObjStoreWatchSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
-        if not raw_message:
-            return None
-
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[NatsObjMessage], Awaitable[NatsObjMessage]] = (
-                return_input
-            )
-
-            for m in self._broker_middlewares:
-                mid = m(raw_message)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg: NatsObjMessage = await self._parser(raw_message)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: NatsObjMessage = await process_msg(
+            msg=raw_message,
+            middlewares=self._broker_middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     @override
     async def _create_subscription(
