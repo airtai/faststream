@@ -37,7 +37,7 @@ class SpecificationSubscriber(LogicSubscriber[MsgType]):
                 description=self.description,
                 subscribe=Operation(
                     message=Message(
-                        title=f"{handler_name}:SubscribeMessage",
+                        title=f"{handler_name}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"

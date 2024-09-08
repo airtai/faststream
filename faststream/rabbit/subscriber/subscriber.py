@@ -34,7 +34,7 @@ class SpecificationSubscriber(LogicSubscriber):
                     if is_routing_exchange(self.exchange)
                     else None,
                     message=Message(
-                        title=f"{self.name}:SubscribeMessage",
+                        title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"

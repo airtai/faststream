@@ -178,6 +178,8 @@ def get_broker_channels(
         channels_schema_v3_0 = {}
         for channel_name, specs_channel in h.schema().items():
             if specs_channel.subscribe:
+                *left, right = specs_channel.subscribe.message.title.split(":")
+                specs_channel.subscribe.message.title = ":".join(left) + f":Subscribe{right}"
                 channels_schema_v3_0[channel_name] = channel_from_spec(
                     specs_channel,
                     specs_channel.subscribe.message,
