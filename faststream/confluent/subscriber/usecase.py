@@ -5,13 +5,14 @@ from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
     Callable,
     Dict,
     Iterable,
     List,
     Optional,
     Sequence,
-    Tuple, Awaitable,
+    Tuple,
 )
 
 import anyio
@@ -21,7 +22,6 @@ from typing_extensions import override
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import MsgType
-from faststream.confluent.message import KafkaMessage
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.schemas import TopicPartition
 from faststream.utils.functions import return_input
@@ -37,6 +37,7 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.confluent.client import AsyncConfluentConsumer
+    from faststream.confluent.message import KafkaMessage
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
@@ -172,7 +173,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.task = None
 
     async def get_one(self, *, timeout: float = 5.0) -> "Optional[KafkaMessage]":
-        assert self.consumer, "You should start subscriber at first."
+        assert self.consumer, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
@@ -183,16 +184,14 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             return None
 
         async with AsyncExitStack() as stack:
-            return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = (
-                return_input
-            )
+            return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = return_input
 
             for m in self._broker_middlewares:
                 mid = m(raw_message)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
 
-            parsed_msg = await self._parser(raw_message)
+            parsed_msg: KafkaMessage = await self._parser(raw_message)
             parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return await return_msg(parsed_msg)
 

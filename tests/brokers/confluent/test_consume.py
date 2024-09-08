@@ -1,5 +1,4 @@
 import asyncio
-import time
 from unittest.mock import patch
 
 import pytest
@@ -331,18 +330,21 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         event: asyncio.Event,
     ):
         broker = self.get_broker(apply_types=True)
-        subscriber = broker.subscriber(queue)
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        subscriber = broker.subscriber(*args, **kwargs)
 
         async with self.patch_broker(broker) as br:
             await br.start()
 
             message = None
+
             async def consume():
                 nonlocal message
                 message = await subscriber.get_one(timeout=5)
 
             async def publish():
-                await asyncio.sleep(3)
                 await br.publish("test_message", queue)
 
             await asyncio.wait(
@@ -350,7 +352,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
                     asyncio.create_task(consume()),
                     asyncio.create_task(publish()),
                 ),
-                timeout=10
+                timeout=10,
             )
 
             assert message is not None
@@ -368,15 +370,11 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
             await br.start()
 
             message = object()
+
             async def coro():
                 nonlocal message
                 message = await subscriber.get_one(timeout=1)
 
-            await asyncio.wait(
-                (
-                    asyncio.create_task(coro()),
-                ),
-                timeout=3
-            )
+            await asyncio.wait((asyncio.create_task(coro()),), timeout=3)
 
             assert message is None

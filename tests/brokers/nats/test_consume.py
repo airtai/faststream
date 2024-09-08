@@ -414,12 +414,12 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             message = None
+
             async def consume():
                 nonlocal message
                 message = await subscriber.get_one(timeout=5)
 
             async def publish():
-                await asyncio.sleep(0.5)
                 await br.publish("test_message", queue)
 
             await asyncio.wait(
@@ -427,7 +427,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                     asyncio.create_task(consume()),
                     asyncio.create_task(publish()),
                 ),
-                timeout=10
+                timeout=10,
             )
 
             assert message is not None
@@ -444,16 +444,12 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             message = object()
+
             async def coro():
                 nonlocal message
                 message = await subscriber.get_one(timeout=1)
 
-            await asyncio.wait(
-                (
-                    asyncio.create_task(coro()),
-                ),
-                timeout=3
-            )
+            await asyncio.wait((asyncio.create_task(coro()),), timeout=3)
 
             assert message is None
 
@@ -470,12 +466,12 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             message = None
+
             async def consume():
                 nonlocal message
                 message = await subscriber.get_one(timeout=5)
 
             async def publish():
-                await asyncio.sleep(0.5)
                 await br.publish("test_message", queue, stream=stream.name)
 
             await asyncio.wait(
@@ -483,7 +479,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                     asyncio.create_task(consume()),
                     asyncio.create_task(publish()),
                 ),
-                timeout=10
+                timeout=10,
             )
 
             assert message is not None
@@ -501,16 +497,12 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             message = object()
+
             async def coro():
                 nonlocal message
                 message = await subscriber.get_one(timeout=0.5)
 
-            await asyncio.wait(
-                (
-                    asyncio.create_task(coro()),
-                ),
-                timeout=3
-            )
+            await asyncio.wait((asyncio.create_task(coro()),), timeout=3)
 
             assert message is None
 
@@ -531,12 +523,12 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             message = None
+
             async def consume():
                 nonlocal message
                 message = await subscriber.get_one(timeout=5)
 
             async def publish():
-                await asyncio.sleep(0.5)
                 await br.publish("test_message", queue)
 
             await asyncio.wait(
@@ -544,7 +536,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                     asyncio.create_task(consume()),
                     asyncio.create_task(publish()),
                 ),
-                timeout=10
+                timeout=10,
             )
 
             assert message is not None
@@ -567,16 +559,12 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             message = object
+
             async def consume():
                 nonlocal message
                 message = await subscriber.get_one(timeout=0.5)
 
-            await asyncio.wait(
-                (
-                    asyncio.create_task(consume()),
-                ),
-                timeout=3
-            )
+            await asyncio.wait((asyncio.create_task(consume()),), timeout=3)
 
             assert message is None
 
@@ -597,12 +585,12 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             message = None
+
             async def consume():
                 nonlocal message
                 message = await subscriber.get_one(timeout=5)
 
             async def publish():
-                await asyncio.sleep(0.5)
                 await br.publish("test_message", queue)
 
             await asyncio.wait(
@@ -610,7 +598,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                     asyncio.create_task(consume()),
                     asyncio.create_task(publish()),
                 ),
-                timeout=10
+                timeout=10,
             )
 
             assert message is not None
@@ -633,16 +621,12 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             message = object
+
             async def consume():
                 nonlocal message
                 message = await subscriber.get_one(timeout=0.5)
 
-            await asyncio.wait(
-                (
-                    asyncio.create_task(consume()),
-                ),
-                timeout=3
-            )
+            await asyncio.wait((asyncio.create_task(consume()),), timeout=3)
 
             assert message is None
 
@@ -662,20 +646,20 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             message = None
+
             async def consume():
                 nonlocal message
                 message = await subscriber.get_one(timeout=5)
 
             async def publish():
-                await asyncio.sleep(0.5)
                 await br.publish("test_message", f"{queue}.a")
 
             await asyncio.wait(
                 (
-                    asyncio.create_task(consume()),
                     asyncio.create_task(publish()),
+                    asyncio.create_task(consume()),
                 ),
-                timeout=10
+                timeout=10,
             )
 
             assert message is not None

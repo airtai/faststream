@@ -219,7 +219,7 @@ class LogicSubscriber(
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
 
-            parsed_msg = await self._parser(raw_message)
+            parsed_msg: RabbitMessage = await self._parser(raw_message)
             parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return await return_msg(parsed_msg)
 

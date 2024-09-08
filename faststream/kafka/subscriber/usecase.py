@@ -6,13 +6,14 @@ from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
     Callable,
     Dict,
     Iterable,
     List,
     Optional,
     Sequence,
-    Tuple, Awaitable,
+    Tuple,
 )
 
 import anyio
@@ -182,30 +183,34 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         self.task = None
 
-    async def get_one(self, *, timeout: float = 5.0,) -> "Optional[KafkaMessage]":
+    async def get_one(
+        self,
+        *,
+        timeout: float = 5.0,
+    ) -> "Optional[KafkaMessage]":
         assert self.consumer, "You should start subscriber at first."
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
-        raw_messages = await self.consumer.getmany(timeout_ms=timeout * 1000, max_records=1)
+        raw_messages = await self.consumer.getmany(
+            timeout_ms=timeout * 1000, max_records=1
+        )
 
         if not raw_messages:
             return None
 
-        (raw_message,) ,= raw_messages.values()
+        ((raw_message,),) = raw_messages.values()
 
         async with AsyncExitStack() as stack:
-            return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = (
-                return_input
-            )
+            return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = return_input
 
             for m in self._broker_middlewares:
                 mid = m(raw_message)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
 
-            parsed_msg = await self._parser(raw_message)
+            parsed_msg: KafkaMessage = await self._parser(raw_message)
             parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return await return_msg(parsed_msg)
 

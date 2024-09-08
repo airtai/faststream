@@ -1,6 +1,6 @@
 import asyncio
 from abc import abstractmethod
-from contextlib import suppress, AsyncExitStack
+from contextlib import AsyncExitStack, suppress
 from copy import deepcopy
 from functools import partial
 from typing import (
@@ -30,8 +30,10 @@ from faststream.redis.message import (
     DefaultListMessage,
     DefaultStreamMessage,
     PubSubMessage,
+    RedisListMessage,
+    RedisMessage,
+    RedisStreamMessage,
     UnifyRedisDict,
-    RedisMessage
 )
 from faststream.redis.parser import (
     RedisBatchListParser,
@@ -162,7 +164,9 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         start_signal = anyio.Event()
 
         if self.calls:
-            self.task = asyncio.create_task(self._consume(*args, start_signal=start_signal))
+            self.task = asyncio.create_task(
+                self._consume(*args, start_signal=start_signal)
+            )
 
             with anyio.fail_after(3.0):
                 await start_signal.wait()
@@ -298,23 +302,21 @@ class ChannelSubscriber(LogicSubscriber):
         message: Optional[PubSubMessage] = None
 
         with anyio.move_on_after(timeout):
-            while (message := await self._get_message(self.subscription)) is None:
+            while (message := await self._get_message(self.subscription)) is None:  # noqa: ASYNC110
                 await anyio.sleep(sleep_interval)
 
         if not message:
             return None
 
         async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = (
-                return_input
-            )
+            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
 
             for m in self._broker_middlewares:
                 mid = m(message)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
 
-            parsed_msg = await self._parser(message)
+            parsed_msg: RedisMessage = await self._parser(message)
             parsed_msg._decoded_body = await self._decoder(parsed_msg)
             return await return_msg(parsed_msg)
 
@@ -333,7 +335,6 @@ class ChannelSubscriber(LogicSubscriber):
             )
 
         return
-
 
     async def _get_msgs(self, psub: RPubSub) -> None:
         msg = await self._get_message(psub)
@@ -411,6 +412,46 @@ class _ListHandlerMixin(LogicSubscriber):
 
         await super().start(self._client)
 
+    async def get_one(
+        self,
+        *,
+        timeout: float = 5.0,
+    ) -> "Optional[RedisListMessage]":
+        assert self._client, "You should start subscriber at first."
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        sleep_interval = timeout / 10
+        raw_message = None
+
+        with anyio.move_on_after(timeout):
+            while (  # noqa: ASYNC110
+                raw_message := await self._client.lpop(name=self.list_sub.name)
+            ) is None:
+                await anyio.sleep(sleep_interval)
+
+        if not raw_message:
+            return None
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
+
+            for m in self._broker_middlewares:
+                mid = m(raw_message)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            message = DefaultListMessage(
+                type="list",
+                data=raw_message,
+                channel=self.list_sub.name,
+            )
+
+            parsed_message: RedisListMessage = await self._parser(message)
+            parsed_message._decoded_body = await self._decoder(parsed_message)
+            return await return_msg(parsed_message)
+
     def add_prefix(self, prefix: str) -> None:
         new_list = deepcopy(self.list_sub)
         new_list.name = "".join((prefix, new_list.name))
@@ -449,49 +490,6 @@ class ListSubscriber(_ListHandlerMixin):
             description_=description_,
             include_in_schema=include_in_schema,
         )
-
-    async def get_one(
-        self,
-        *,
-        timeout: float = 5.0,
-    ) -> "Optional[RedisMessage]":
-        assert self._client, "You should start subscriber at first."
-        assert (  # nosec B101
-            not self.calls
-        ), "You can't use `get_one` method if subscriber has registered handlers."
-
-        sleep_interval = timeout / 10
-        raw_message = None
-
-        with anyio.move_on_after(timeout):
-            while (  # noqa: ASYNC110
-                raw_message := await self._client.lpop(name=self.list_sub.name)
-            ) is None:
-                await anyio.sleep(sleep_interval)
-
-        if not raw_message:
-            return None
-
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = (
-                return_input
-            )
-
-            for m in self._broker_middlewares:
-                mid = m(raw_message)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            message = DefaultListMessage(
-                type="list",
-                data=raw_message,
-                channel=self.list_sub.name,
-            )
-
-            parsed_message = await self._parser(message)
-            parsed_message._decoded_body = await self._decoder(parsed_message)
-
-            return await return_msg(parsed_message)
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
         raw_msg = await client.lpop(name=self.list_sub.name)
@@ -541,49 +539,6 @@ class BatchListSubscriber(_ListHandlerMixin):
             description_=description_,
             include_in_schema=include_in_schema,
         )
-
-    async def get_one(
-        self,
-        *,
-        timeout: float = 5.0,
-    ) -> "Optional[RedisMessage]":
-        assert self._client, "You should start subscriber at first."
-        assert (  # nosec B101
-            not self.calls
-        ), "You can't use `get_one` method if subscriber has registered handlers."
-
-        sleep_interval = timeout / 10
-        raw_message = None
-
-        with anyio.move_on_after(timeout):
-            while (  # noqa: ASYNC110
-                raw_message := await self._client.lpop(name=self.list_sub.name)
-            ) is None:
-                await anyio.sleep(sleep_interval)
-
-        if not raw_message:
-            return None
-
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = (
-                return_input
-            )
-
-            for m in self._broker_middlewares:
-                mid = m(raw_message)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            message = DefaultListMessage(
-                type="list",
-                data=raw_message,
-                channel=self.list_sub.name,
-            )
-
-            parsed_message = await self._parser(message)
-            parsed_message._decoded_body = await self._decoder(parsed_message)
-
-            return await return_msg(parsed_message)
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
         raw_msgs = await client.lpop(
@@ -752,6 +707,48 @@ class _StreamHandlerMixin(LogicSubscriber):
 
         await super().start(read)
 
+    async def get_one(
+        self,
+        *,
+        timeout: float = 5.0,
+    ) -> "Optional[RedisStreamMessage]":
+        assert self._client, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        stream_message = await self._client.xread(
+            {self.stream_sub.name: self.last_id},
+            block=timeout * 1000,
+            count=1,
+        )
+
+        if not stream_message:
+            return None
+
+        ((stream_name, ((message_id, raw_message),)),) = stream_message
+
+        self.last_id = message_id.decode()
+
+        msg = DefaultStreamMessage(
+            type="stream",
+            channel=stream_name.decode(),
+            message_ids=[message_id],
+            data=raw_message,
+        )
+
+        async with AsyncExitStack() as stack:
+            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
+
+            for m in self._broker_middlewares:
+                mid = m(msg)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg: RedisStreamMessage = await self._parser(msg)
+            parsed_msg._decoded_body = await self._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
+
     def add_prefix(self, prefix: str) -> None:
         new_stream = deepcopy(self.stream_sub)
         new_stream.name = "".join((prefix, new_stream.name))
@@ -790,50 +787,6 @@ class StreamSubscriber(_StreamHandlerMixin):
             description_=description_,
             include_in_schema=include_in_schema,
         )
-
-    async def get_one(
-        self,
-        *,
-        timeout: float = 5.0,
-    ) -> "Optional[RedisMessage]":
-        assert self._client, "You should start subscriber at first."  # nosec B101
-        assert (  # nosec B101
-            not self.calls
-        ), "You can't use `get_one` method if subscriber has registered handlers."
-
-        stream_message = await self._client.xread(
-            {self.stream_sub.name: self.last_id},
-            block=timeout * 1000,
-            count=1,
-        )
-
-        if not stream_message:
-            return None
-
-        (stream_name, ((message_id, raw_message),)) ,= stream_message
-
-        self.last_id = message_id.decode()
-
-        msg = DefaultStreamMessage(
-            type="stream",
-            channel=stream_name.decode(),
-            message_ids=[message_id],
-            data=raw_message,
-        )
-
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = (
-                return_input
-            )
-
-            for m in self._broker_middlewares:
-                mid = m(msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._parser(msg)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
 
     async def _get_msgs(
         self,
@@ -903,50 +856,6 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
             description_=description_,
             include_in_schema=include_in_schema,
         )
-
-    async def get_one(
-        self,
-        *,
-        timeout: float = 5.0,
-    ) -> "Optional[RedisMessage]":
-        assert self._client, "You should start subscriber at first."  # nosec B101
-        assert (  # nosec B101
-            not self.calls
-        ), "You can't use `get_one` method if subscriber has registered handlers."
-
-        stream_message = await self._client.xread(
-            {self.stream_sub.name: self.last_id},
-            block=timeout * 1000,
-            count=1,
-        )
-
-        if not stream_message:
-            return None
-
-        (stream_name, ((message_id, raw_message),)) ,= stream_message
-
-        self.last_id = message_id.decode()
-
-        msg = DefaultStreamMessage(
-            type="stream",
-            channel=stream_name.decode(),
-            message_ids=[message_id],
-            data=raw_message,
-        )
-
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = (
-                return_input
-            )
-
-            for m in self._broker_middlewares:
-                mid = m(msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._parser(msg)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
 
     async def _get_msgs(
         self,
