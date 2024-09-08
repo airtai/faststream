@@ -169,7 +169,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.task = None
 
     @override
-    async def get_one(  # type: ignore[override]
+    async def get_one(
         self,
         *,
         timeout: float = 5.0,
