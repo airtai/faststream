@@ -185,7 +185,7 @@ def test_oauthbearer_security_schema():
     async def test_topic(msg: str) -> str:
         pass
 
-    schema = get_app_schema(app).to_jsonable()
+    schema = get_app_schema(app, version="2.6.0").to_jsonable()
 
     sasl_oauthbearer_security_schema = deepcopy(basic_schema)
     sasl_oauthbearer_security_schema["servers"]["development"]["security"] = [
