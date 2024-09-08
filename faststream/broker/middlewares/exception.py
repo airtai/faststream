@@ -28,7 +28,9 @@ if TYPE_CHECKING:
     from faststream.types import AsyncFuncAny
 
 
-GeneralExceptionHandler: TypeAlias = Union[Callable[..., None], Callable[..., Awaitable[None]]]
+GeneralExceptionHandler: TypeAlias = Union[
+    Callable[..., None], Callable[..., Awaitable[None]]
+]
 PublishingExceptionHandler: TypeAlias = Callable[..., "Any"]
 
 CastedGeneralExceptionHandler: TypeAlias = Callable[..., Awaitable[None]]

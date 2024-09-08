@@ -1,4 +1,5 @@
 import asyncio
+import math
 from abc import abstractmethod
 from contextlib import AsyncExitStack, suppress
 from copy import deepcopy
@@ -171,6 +172,9 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
             with anyio.fail_after(3.0):
                 await start_signal.wait()
 
+        else:
+            start_signal.set()
+
     async def _consume(self, *args: Any, start_signal: anyio.Event) -> None:
         connected = True
 
@@ -340,8 +344,8 @@ class ChannelSubscriber(LogicSubscriber):
         return None
 
     async def _get_msgs(self, psub: RPubSub) -> None:
-        msg = await self._get_message(psub)
-        await self.consume(msg)  # type: ignore[arg-type]
+        if msg := await self._get_message(psub):
+            await self.consume(msg)  # type: ignore[arg-type]
 
     def add_prefix(self, prefix: str) -> None:
         new_ch = deepcopy(self.channel)
@@ -728,7 +732,7 @@ class _StreamHandlerMixin(LogicSubscriber):
 
         stream_message = await self._client.xread(
             {self.stream_sub.name: self.last_id},
-            block=int(timeout * 1000) or None,
+            block=math.ceil(timeout * 1000),
             count=1,
         )
 
