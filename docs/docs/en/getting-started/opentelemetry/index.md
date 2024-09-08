@@ -41,7 +41,7 @@ async def third_handler(msg: str):
     await asyncio.sleep(0.075)
 ```
 
-## FastStream Tracing
+### FastStream Tracing
 
 **OpenTelemetry** tracing support in **FastStream** adheres to the [semantic conventions for messaging systems](https://opentelemetry.io/docs/specs/semconv/messaging/){.external-link target="_blank"}.
 
@@ -98,7 +98,22 @@ To visualize traces, you can send them to a backend system that supports distrib
 * **Zipkin**: Similar to **Jaeger**, you can run **Zipkin** using **Docker** and configure the **OpenTelemetry** middleware accordingly. For more details, see the [Zipkin documentation](https://zipkin.io/){.external-link target="_blank"}.
 * **Grafana Tempo**: **Grafana Tempo** is a high-scale distributed tracing backend. You can configure **OpenTelemetry** to export traces to **Tempo**, which can then be visualized using **Grafana**. For more details, see the [Grafana Tempo documentation](https://grafana.com/docs/tempo/latest/){.external-link target="_blank"}.
 
-## Example
+### Context propagation
+
+Quite often it is necessary to communicate with **other** services and to propagate the trace context, you can use the **CurrentSpan** object and follow the example:
+
+```python linenums="1" hl_lines="5-7"
+from opentelemetry import trace, propagate
+from faststream.opentelemetry import CurrentSpan
+
+@broker.subscriber("symbol")
+async def handler(msg: str, span: CurrentSpan) -> None:
+    headers = {}
+    propagate.inject(headers, context=trace.set_span_in_context(span))
+    price = await exchange_client.get_symbol_price(msg, headers=headers)
+```
+
+### Full example
 
 To see how to set up, visualize, and configure tracing for **FastStream** services, go to [example](https://github.com/draincoder/faststream-monitoring){.external-link target="_blank"}.
 
@@ -112,3 +127,60 @@ An example includes:
 
 ![HTML-page](../../../assets/img/distributed-trace.png){ loading=lazy }
 `Visualized via Grafana and Tempo`
+
+## Baggage
+
+[OpenTelemetry Baggage](https://opentelemetry.io/docs/concepts/signals/baggage/){.external-link target="_blank"} is a context propagation mechanism that allows you to pass custom metadata or key-value pairs across service boundaries, providing additional context for distributed tracing and observability.
+
+### FastStream Baggage
+
+**FastStream** provides a convenient abstraction over baggage that allows you to:
+
+* **Initialize** the baggage
+* **Propagate** baggage through headers
+* **Modify** the baggage
+* **Stop** propagating baggage
+
+### Example
+
+To initialize the baggage and start distributing it, follow this example:
+
+```python linenums="1" hl_lines="3-4"
+from faststream.opentelemetry import Baggage
+
+headers = Baggage({"hello": "world"}).to_headers({"header-type": "custom"})
+await broker.publish("hello", "first", headers=headers)                          
+```
+
+All interaction with baggage at the **consumption level** occurs through the **CurrentBaggage** object, which is automatically substituted from the context:
+
+```python linenums="1" hl_lines="6-10 17-18 24"
+from faststream.opentelemetry import CurrentBaggage
+
+@broker.subscriber("first")
+@broker.publisher("second")
+async def response_handler_first(msg: str, baggage: CurrentBaggage):
+    print(baggage.get_all())  # {'hello': 'world'}
+    baggage.remove("hello")
+    baggage.set("user-id", 1)
+    baggage.set("request-id", "UUID")
+    print(baggage.get("user-id"))  # 1
+    return msg
+
+
+@broker.subscriber("second")
+@broker.publisher("third")
+async def response_handler_second(msg: str, baggage: CurrentBaggage):
+    print(baggage.get_all())  # {'user-id': '1', 'request-id': 'UUID'}
+    baggage.clear()
+    return msg
+
+
+@broker.subscriber("third")
+async def response_handler_third(msg: str, baggage: CurrentBaggage):
+    print(baggage.get_all())  # {}              
+```
+
+!!! note
+    If you consume messages in **batches**, then the baggage from each message will be merged into the **common baggage** available
+    through the `get_all` method, but you can still get a list of all the baggage from the batch using the `get_all_batch` method.
