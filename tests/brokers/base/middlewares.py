@@ -34,7 +34,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         raw_broker,
     ):
         async def mid(call_next, msg):
-            mock.start(msg._decoded_body)
+            mock.start(await msg.decode())
             result = await call_next(msg)
             mock.end()
             event.set()
@@ -468,7 +468,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         async def subscriber2(msg=Context("message")):
-            mock(msg.decoded_body)
+            mock(await msg.decode())
             event.set()
 
         broker = self.patch_broker(raw_broker, broker)
@@ -509,7 +509,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args2, **kwargs2)
         async def subscriber2(msg=Context("message")):
-            mock(msg.decoded_body)
+            mock(await msg.decode())
 
         broker = self.patch_broker(raw_broker, broker)
 
@@ -581,7 +581,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args2, **kwargs2)
         async def subscriber2(msg=Context("message")):
-            mock(msg.decoded_body)
+            mock(await msg.decode())
 
         broker = self.patch_broker(raw_broker, broker)
 
@@ -632,7 +632,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args3, **kwargs3)
         async def subscriber3(msg=Context("message")):
-            mock(msg.decoded_body)
+            mock(await msg.decode())
             if mock.call_count > 1:
                 event.set()
 
