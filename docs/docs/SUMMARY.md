@@ -421,6 +421,7 @@ search:
                     - [MultiLock](api/faststream/broker/utils/MultiLock.md)
                     - [default_filter](api/faststream/broker/utils/default_filter.md)
                     - [get_watcher_context](api/faststream/broker/utils/get_watcher_context.md)
+                    - [process_msg](api/faststream/broker/utils/process_msg.md)
                     - [resolve_custom_func](api/faststream/broker/utils/resolve_custom_func.md)
                 - wrapper
                     - call
