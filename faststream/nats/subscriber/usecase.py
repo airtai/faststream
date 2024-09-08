@@ -430,7 +430,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         *,
         timeout: float = 5.0,
     ) -> "Optional[NatsMessage]":
-        assert self._connection, "Please, start() subscriber first"
+        assert self._connection, "Please, start() subscriber first"  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
@@ -658,7 +658,7 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
         *,
         timeout: float = 5,
     ) -> Optional["NatsMessage"]:
-        assert self._connection, "Please, start() subscriber first"
+        assert self._connection, "Please, start() subscriber first"  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
@@ -993,7 +993,7 @@ class BatchPullStreamSubscriber(_TasksMixin, _DefaultSubscriber[List["Msg"]]):
         *,
         timeout: float = 5,
     ) -> Optional["NatsMessage"]:
-        assert self._connection, "Please, start() subscriber first"
+        assert self._connection, "Please, start() subscriber first"  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
@@ -1103,7 +1103,7 @@ class KeyValueWatchSubscriber(_TasksMixin, LogicSubscriber[KeyValue.Entry]):
         *,
         timeout: float = 5,
     ) -> Optional["NatsKvMessage"]:
-        assert self._connection, "Please, start() subscriber first"
+        assert self._connection, "Please, start() subscriber first"  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
@@ -1270,7 +1270,7 @@ class ObjStoreWatchSubscriber(_TasksMixin, LogicSubscriber[ObjectInfo]):
         *,
         timeout: float = 5,
     ) -> Optional["NatsObjMessage"]:
-        assert self._connection, "Please, start() subscriber first"
+        assert self._connection, "Please, start() subscriber first"  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."

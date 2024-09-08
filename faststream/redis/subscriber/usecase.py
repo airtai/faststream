@@ -421,7 +421,7 @@ class _ListHandlerMixin(LogicSubscriber):
         *,
         timeout: float = 5.0,
     ) -> "Optional[RedisListMessage]":
-        assert self._client, "You should start subscriber at first."
+        assert self._client, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."

@@ -189,7 +189,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         *,
         timeout: float = 5.0,
     ) -> "Optional[StreamMessage[MsgType]]":
-        assert self.consumer, "You should start subscriber at first."
+        assert self.consumer, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."

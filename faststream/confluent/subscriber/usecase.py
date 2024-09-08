@@ -193,7 +193,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             ] = return_input
 
             for m in self._broker_middlewares:
-                mid = m(raw_message)  # type: ignore[arg-type]
+                mid = m(raw_message)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
 
