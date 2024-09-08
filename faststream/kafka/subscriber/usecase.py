@@ -1,12 +1,9 @@
 import asyncio
 from abc import ABC, abstractmethod
-from contextlib import AsyncExitStack
-from functools import partial
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     Callable,
     Dict,
     Iterable,
@@ -23,6 +20,7 @@ from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
+from faststream.broker.subscriber.utils import process_msg
 from faststream.broker.types import (
     AsyncCallable,
     BrokerMiddleware,
@@ -31,7 +29,6 @@ from faststream.broker.types import (
 )
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
-from faststream.utils.functions import return_input
 from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
@@ -203,21 +200,13 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         ((raw_message,),) = raw_messages.values()
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[
-                [StreamMessage[MsgType]], Awaitable[StreamMessage[MsgType]]
-            ] = return_input
-
-            for m in self._broker_middlewares:
-                mid = m(raw_message)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg: StreamMessage[MsgType] = await self._parser(raw_message)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: StreamMessage[MsgType] = await process_msg(
+            msg=raw_message,
+            middlewares=self._broker_middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     def _make_response_publisher(
         self,

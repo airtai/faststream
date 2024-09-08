@@ -1,9 +1,6 @@
-from contextlib import AsyncExitStack
-from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     Callable,
     Dict,
     Iterable,
@@ -17,11 +14,11 @@ from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
+from faststream.broker.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import BaseRMQInformation
-from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
@@ -208,23 +205,13 @@ class LogicSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
-        if raw_message is None:
-            return None
-
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RabbitMessage], Awaitable[RabbitMessage]] = (
-                return_input
-            )
-            for m in self._broker_middlewares:
-                mid = m(raw_message)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg: RabbitMessage = await self._parser(raw_message)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: Optional[RabbitMessage] = await process_msg(  # type: ignore[assignment]
+            msg=raw_message,
+            middlewares=self._broker_middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     def _make_response_publisher(
         self,

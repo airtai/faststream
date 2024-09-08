@@ -1,11 +1,8 @@
 import asyncio
 from abc import ABC, abstractmethod
-from contextlib import AsyncExitStack
-from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     Callable,
     Dict,
     Iterable,
@@ -21,10 +18,10 @@ from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
+from faststream.broker.subscriber.utils import process_msg
 from faststream.broker.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.schemas import TopicPartition
-from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -172,11 +169,11 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.task = None
 
     @override
-    async def get_one(
+    async def get_one(  # type: ignore[override]
         self,
         *,
         timeout: float = 5.0,
-    ) -> "Optional[StreamMessage[MsgType]]":
+    ) -> "Optional[StreamMessage[Message]]":
         assert self.consumer, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
             not self.calls
@@ -184,24 +181,13 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         raw_message = await self.consumer.getone(timeout=timeout)
 
-        if not raw_message:
-            return None
-
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[
-                [StreamMessage[MsgType]], Awaitable[StreamMessage[MsgType]]
-            ] = return_input
-
-            for m in self._broker_middlewares:
-                mid = m(raw_message)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg: StreamMessage[MsgType] = await self._parser(raw_message)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg = await process_msg(
+            msg=raw_message,
+            middlewares=self._broker_middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     def _make_response_publisher(
         self,

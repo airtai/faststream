@@ -1,9 +1,8 @@
 import asyncio
 import math
 from abc import abstractmethod
-from contextlib import AsyncExitStack, suppress
+from contextlib import suppress
 from copy import deepcopy
-from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -25,6 +24,7 @@ from typing_extensions import TypeAlias, override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
+from faststream.broker.subscriber.utils import process_msg
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,
@@ -44,7 +44,6 @@ from faststream.redis.parser import (
     RedisStreamParser,
 )
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -310,22 +309,13 @@ class ChannelSubscriber(LogicSubscriber):
             while (message := await self._get_message(self.subscription)) is None:  # noqa: ASYNC110
                 await anyio.sleep(sleep_interval)
 
-        if not message:
-            return None
-
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-
-            for m in self._broker_middlewares:
-                mid = m(message)  # type: ignore[arg-type]
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg: RedisMessage = await self._parser(message)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: Optional[RedisMessage] = await process_msg(  # type: ignore[assignment]
+            msg=message,
+            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     async def _get_message(self, psub: RPubSub) -> Optional[PubSubMessage]:
         raw_msg = await psub.get_message(
@@ -442,27 +432,17 @@ class _ListHandlerMixin(LogicSubscriber):
         if not raw_message:
             return None
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisListMessage], Awaitable[RedisListMessage]] = (
-                return_input
-            )
-
-            for m in self._broker_middlewares:
-                mid = m(raw_message)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            message = DefaultListMessage(
+        msg: RedisListMessage = await process_msg(  # type: ignore[assignment]
+            msg=DefaultListMessage(
                 type="list",
                 data=raw_message,
                 channel=self.list_sub.name,
-            )
-
-            parsed_message: RedisListMessage = await self._parser(message)
-            parsed_message._decoded_body = await self._decoder(parsed_message)
-            return await return_msg(parsed_message)
-
-        raise AssertionError("unreachable")
+            ),
+            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     def add_prefix(self, prefix: str) -> None:
         new_list = deepcopy(self.list_sub)
@@ -743,28 +723,18 @@ class _StreamHandlerMixin(LogicSubscriber):
 
         self.last_id = message_id.decode()
 
-        msg = DefaultStreamMessage(
-            type="stream",
-            channel=stream_name.decode(),
-            message_ids=[message_id],
-            data=raw_message,
+        msg: RedisStreamMessage = await process_msg(  # type: ignore[assignment]
+            msg=DefaultStreamMessage(
+                type="stream",
+                channel=stream_name.decode(),
+                message_ids=[message_id],
+                data=raw_message,
+            ),
+            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
+            parser=self._parser,
+            decoder=self._decoder,
         )
-
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[
-                [RedisStreamMessage], Awaitable[RedisStreamMessage]
-            ] = return_input
-
-            for m in self._broker_middlewares:
-                mid = m(msg)  # type: ignore[arg-type]
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg: RedisStreamMessage = await self._parser(msg)
-            parsed_msg._decoded_body = await self._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        return msg
 
     def add_prefix(self, prefix: str) -> None:
         new_stream = deepcopy(self.stream_sub)
