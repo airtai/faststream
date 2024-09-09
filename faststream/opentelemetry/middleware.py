@@ -1,7 +1,7 @@
 import time
 from collections import defaultdict
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Type, cast
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type, cast
 
 from opentelemetry import baggage, context, metrics, trace
 from opentelemetry.baggage.propagation import W3CBaggagePropagator
@@ -11,6 +11,8 @@ from opentelemetry.trace import Link, Span
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
 from faststream import BaseMiddleware
+from faststream import context as fs_context
+from faststream.opentelemetry.baggage import Baggage
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
     MESSAGING_DESTINATION_PUBLISH_NAME,
@@ -21,6 +23,7 @@ from faststream.opentelemetry.consts import (
 from faststream.opentelemetry.provider import TelemetrySettingsProvider
 
 if TYPE_CHECKING:
+    from contextvars import Token
     from types import TracebackType
 
     from opentelemetry.metrics import Meter, MeterProvider
@@ -118,6 +121,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         self._metrics = metrics_container
         self._current_span: Optional[Span] = None
         self._origin_context: Optional[Context] = None
+        self._scope_tokens: List[Tuple[str, Token[Any]]] = []
         self.__settings_provider = settings_provider_factory(msg)
 
     async def publish_scope(
@@ -134,6 +138,10 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         current_context = context.get_current()
         destination_name = provider.get_publish_destination_name(kwargs)
 
+        current_baggage: Optional[Baggage] = fs_context.get_local("baggage")
+        if current_baggage:
+            headers.update(current_baggage.to_headers())
+
         trace_attributes = provider.get_publish_attrs_from_kwargs(kwargs)
         metrics_attributes = {
             SpanAttributes.MESSAGING_SYSTEM: provider.messaging_system,
@@ -143,6 +151,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         # NOTE: if batch with single message?
         if (msg_count := len((msg, *args))) > 1:
             trace_attributes[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = msg_count
+            current_context = _BAGGAGE_PROPAGATOR.extract(headers, current_context)
             _BAGGAGE_PROPAGATOR.inject(
                 headers, baggage.set_baggage(WITH_BATCH, True, context=current_context)
             )
@@ -184,6 +193,9 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         finally:
             duration = time.perf_counter() - start_time
             self._metrics.observe_publish(metrics_attributes, duration, msg_count)
+
+        for key, token in self._scope_tokens:
+            fs_context.reset_local(key, token)
 
         return result
 
@@ -234,6 +246,12 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                     SpanAttributes.MESSAGING_OPERATION, MessageAction.PROCESS
                 )
                 self._current_span = span
+
+                self._scope_tokens.append(("span", fs_context.set_local("span", span)))
+                self._scope_tokens.append(
+                    ("baggage", fs_context.set_local("baggage", Baggage.from_msg(msg)))
+                )
+
                 new_context = trace.set_span_in_context(span, current_context)
                 token = context.attach(new_context)
                 result = await call_next(msg)
