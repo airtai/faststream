@@ -141,6 +141,12 @@ Using pytest, the test for our service would look like this:
 
 The application can be started using the built-in **FastStream** CLI command.
 
+!!! note
+    Before running the service, install **FastStream CLI** using the following command:
+    ```shell
+    pip install "faststream[cli]"
+    ```
+
 To run the service, use the **FastStream CLI** command and pass the module (in this case, the file where the app implementation is located) and the app symbol to the command.
 
 ```shell
