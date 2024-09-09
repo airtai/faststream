@@ -174,9 +174,9 @@ def get_broker_channels(
     """Get the broker channels for an application."""
     channels = {}
 
-    for h in broker._subscribers.values():
+    for sub in broker._subscribers.values():
         channels_schema_v3_0 = {}
-        for channel_name, specs_channel in h.schema().items():
+        for channel_name, specs_channel in sub.schema().items():
             if specs_channel.subscribe:
                 message = specs_channel.subscribe.message
                 assert message.title
@@ -193,9 +193,9 @@ def get_broker_channels(
 
         channels.update(channels_schema_v3_0)
 
-    for p in broker._publishers.values():
+    for pub in broker._publishers.values():
         channels_schema_v3_0 = {}
-        for channel_name, specs_channel in p.schema().items():
+        for channel_name, specs_channel in pub.schema().items():
             if specs_channel.publish:
                 channels_schema_v3_0[channel_name] = channel_from_spec(
                     specs_channel,
