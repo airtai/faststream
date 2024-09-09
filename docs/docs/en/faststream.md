@@ -142,7 +142,7 @@ Using pytest, the test for our service would look like this:
 The application can be started using the built-in **FastStream** CLI command.
 
 !!! note
-    Before running the service, install *FastStream CLI* using the following command:
+    Before running the service, install **FastStream CLI** using the following command:
     ```shell
     pip install "faststream[cli]"
     ```
