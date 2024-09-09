@@ -30,8 +30,8 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     def create_publisher_fake_subscriber(
         broker: NatsBroker,
         publisher: "AsyncAPIPublisher",
-    ) -> Tuple["LogicSubscriber[Any]", bool]:
-        sub: Optional[LogicSubscriber[Any]] = None
+    ) -> Tuple["LogicSubscriber[Any, Any]", bool]:
+        sub: Optional[LogicSubscriber[Any, Any]] = None
         publisher_stream = publisher.stream.name if publisher.stream else None
         for handler in broker._subscribers.values():
             if _is_handler_suitable(handler, publisher.subject, publisher_stream):
@@ -144,7 +144,10 @@ class FakeProducer(NatsFastProducer):
         raise SubscriberNotFound
 
     async def _execute_handler(
-        self, msg: Any, subject: str, handler: "LogicSubscriber[Any]"
+        self,
+        msg: Any,
+        subject: str,
+        handler: "LogicSubscriber[Any, Any]",
     ) -> "PatchedMessage":
         result = await handler.process_message(msg)
 
@@ -157,7 +160,7 @@ class FakeProducer(NatsFastProducer):
 
 
 def _is_handler_suitable(
-    handler: "LogicSubscriber[Any]",
+    handler: "LogicSubscriber[Any, Any]",
     subject: str,
     stream: Optional[str] = None,
 ) -> bool:
