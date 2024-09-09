@@ -20,7 +20,7 @@ class TestNaming(NamingTestCase):
         assert list(schema["channels"].keys()) == ["test:exchange:Handle"]
 
         assert list(schema["components"]["messages"].keys()) == [
-            "test:exchange:Handle:Message"
+            "test:exchange:Handle:SubscribeMessage"
         ]
 
     def test_publisher_with_exchange(self):
@@ -110,8 +110,8 @@ class TestNaming(NamingTestCase):
                     },
                     "components": {
                         "messages": {
-                            "test:_:Handle:Message": {
-                                "title": "test:_:Handle:Message",
+                            "test:_:Handle:SubscribeMessage": {
+                                "title": "test:_:Handle:SubscribeMessage",
                                 "correlationId": {
                                     "location": "$message.header#/correlation_id"
                                 },

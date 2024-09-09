@@ -54,12 +54,12 @@ class TestNaming(NamingTestCase):
             },
             "components": {
                 "messages": {
-                    "test:Handle:Message": {
+                    "test:Handle:SubscribeMessage": {
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },
                         "payload": {"$ref": "#/components/schemas/EmptyPayload"},
-                        "title": "test:Handle:Message",
+                        "title": "test:Handle:SubscribeMessage",
                     }
                 },
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},

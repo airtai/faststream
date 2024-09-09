@@ -94,8 +94,8 @@ basic_schema = {
     },
     "components": {
         "messages": {
-            "test_1:TestTopic:Message": {
-                "title": "test_1:TestTopic:Message",
+            "test_1:TestTopic:SubscribeMessage": {
+                "title": "test_1:TestTopic:SubscribeMessage",
                 "correlationId": {
                     "location": "$message.header#/correlation_id"
                 },

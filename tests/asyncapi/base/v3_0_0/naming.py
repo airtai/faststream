@@ -26,7 +26,7 @@ class SubscriberNaming(BaseNaming):
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated:SubscribeMessage")
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
@@ -46,7 +46,7 @@ class SubscriberNaming(BaseNaming):
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated:SubscribeMessage")
         ]
 
         assert list(schema["components"]["schemas"].keys()) == ["SimpleModel"]
@@ -66,8 +66,8 @@ class SubscriberNaming(BaseNaming):
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message"),
-            IsStr(regex=r"test2[\w:]*:HandleUserCreated:Message"),
+            IsStr(regex=r"test[\w:]*:HandleUserCreated:SubscribeMessage"),
+            IsStr(regex=r"test2[\w:]*:HandleUserCreated:SubscribeMessage"),
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
@@ -84,7 +84,7 @@ class SubscriberNaming(BaseNaming):
 
         assert list(schema["channels"].keys()) == ["custom"]
 
-        assert list(schema["components"]["messages"].keys()) == ["custom:Message"]
+        assert list(schema["components"]["messages"].keys()) == ["custom:SubscribeMessage"]
 
         assert list(schema["components"]["schemas"].keys()) == [
             "custom:Message:Payload"
@@ -102,7 +102,7 @@ class SubscriberNaming(BaseNaming):
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:Subscriber:Message")
+            IsStr(regex=r"test[\w:]*:Subscriber:SubscribeMessage")
         ]
 
         for key, v in schema["components"]["schemas"].items():
@@ -118,7 +118,7 @@ class SubscriberNaming(BaseNaming):
 
         assert list(schema["channels"].keys()) == ["custom"]
 
-        assert list(schema["components"]["messages"].keys()) == ["custom:Message"]
+        assert list(schema["components"]["messages"].keys()) == ["custom:SubscribeMessage"]
 
         assert list(schema["components"]["schemas"].keys()) == [
             "custom:Message:Payload"
@@ -146,9 +146,9 @@ class SubscriberNaming(BaseNaming):
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message"),
-            IsStr(regex=r"test2[\w:]*:Subscriber:Message"),
-            IsStr(regex=r"test3[\w:]*:Subscriber:Message"),
+            IsStr(regex=r"test[\w:]*:HandleUserCreated:SubscribeMessage"),
+            IsStr(regex=r"test2[\w:]*:Subscriber:SubscribeMessage"),
+            IsStr(regex=r"test3[\w:]*:Subscriber:SubscribeMessage"),
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
@@ -178,7 +178,7 @@ class FilterNaming(BaseNaming):
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated:SubscribeMessage")
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
@@ -202,7 +202,7 @@ class FilterNaming(BaseNaming):
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated:SubscribeMessage")
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
@@ -223,7 +223,7 @@ class FilterNaming(BaseNaming):
 
         assert list(schema["channels"].keys()) == ["custom"]
 
-        assert list(schema["components"]["messages"].keys()) == ["custom:Message"]
+        assert list(schema["components"]["messages"].keys()) == ["custom:SubscribeMessage"]
 
         assert list(schema["components"]["schemas"].keys()) == [
             "HandleUserCreated:Message:Payload",

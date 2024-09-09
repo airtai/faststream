@@ -480,7 +480,7 @@ class FastAPICompatible:
 
         schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
         key = next(iter(schema["components"]["messages"].keys()))
-        assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
+        assert key == IsStr(regex=r"test[\w:]*:Handle:SubscribeMessage")
 
         assert schema["components"] == {
             "messages": {
@@ -539,7 +539,7 @@ class FastAPICompatible:
         schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
 
         key = next(iter(schema["components"]["messages"].keys()))
-        assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
+        assert key == IsStr(regex=r"test[\w:]*:Handle:SubscribeMessage")
         assert schema["components"] == {
             "messages": {
                 key: {

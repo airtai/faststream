@@ -60,8 +60,8 @@ class TestNaming(NamingTestCase):
             },
             "components": {
                 "messages": {
-                    "test:Handle:Message": {
-                        "title": "test:Handle:Message",
+                    "test:Handle:SubscribeMessage": {
+                        "title": "test:Handle:SubscribeMessage",
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },

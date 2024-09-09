@@ -102,8 +102,8 @@ class TestRouter(RouterTestcase):
                     },
                     "components": {
                         "messages": {
-                            "test_test:_:Handle:Message": {
-                                "title": "test_test:_:Handle:Message",
+                            "test_test:_:Handle:SubscribeMessage": {
+                                "title": "test_test:_:Handle:SubscribeMessage",
                                 "correlationId": {
                                     "location": "$message.header#/correlation_id"
                                 },
