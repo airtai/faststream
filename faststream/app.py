@@ -238,17 +238,3 @@ class FastStream(AsyncAPIApplication):
     def _log(self, level: int, message: str) -> None:
         if self.logger is not None:
             self.logger.log(level, message)
-
-    @property
-    def should_exit(self) -> bool:
-        """Get should exit flag state."""
-        return self._should_exit.is_set()
-
-    @should_exit.setter
-    def should_exit(self, value: Literal[True]) -> None:
-        """Set should exit flag state."""
-        if value is not True:
-            msg = "'should_exit' can receive only 'True' value"
-            raise ValueError(msg)
-
-        self._should_exit.set()
