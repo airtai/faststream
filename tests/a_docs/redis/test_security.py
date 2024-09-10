@@ -6,7 +6,7 @@ import pytest
 from redis.exceptions import AuthenticationError
 
 from faststream.app import FastStream
-from faststream.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.generate import get_app_schema
 
 
 @contextmanager
@@ -39,7 +39,7 @@ async def test_base_security():
 
         assert connection.call_args.kwargs["ssl"]
 
-        schema = get_app_schema(FastStream(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker), version="2.6.0").to_jsonable()
         assert schema == {
             "asyncapi": "2.6.0",
             "channels": {},
@@ -69,7 +69,7 @@ async def test_plaintext_security():
 
         assert connection.call_args.kwargs["ssl"]
 
-        schema = get_app_schema(FastStream(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker), version="2.6.0").to_jsonable()
         assert schema == {
             "asyncapi": "2.6.0",
             "channels": {},

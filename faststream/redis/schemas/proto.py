@@ -1,15 +1,15 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Union
 
-from faststream.asyncapi.abc import AsyncAPIOperation
 from faststream.exceptions import SetupError
+from faststream.specification.proto import SpecificationProto
 
 if TYPE_CHECKING:
-    from faststream.asyncapi.schema.bindings import redis
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
+    from faststream.specification.schema.bindings import redis
 
 
-class RedisAsyncAPIProtocol(AsyncAPIOperation):
+class RedisAsyncAPIProtocol(SpecificationProto):
     @property
     @abstractmethod
     def channel_binding(self) -> "redis.ChannelBinding": ...

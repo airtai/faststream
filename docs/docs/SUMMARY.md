@@ -131,9 +131,6 @@ search:
                 - [get](public_api/faststream/asgi/get.md)
                 - [make_asyncapi_asgi](public_api/faststream/asgi/make_asyncapi_asgi.md)
                 - [make_ping_asgi](public_api/faststream/asgi/make_ping_asgi.md)
-            - asyncapi
-                - [get_app_schema](public_api/faststream/asyncapi/get_app_schema.md)
-                - [get_asyncapi_html](public_api/faststream/asyncapi/get_asyncapi_html.md)
             - confluent
                 - [KafkaBroker](public_api/faststream/confluent/KafkaBroker.md)
                 - [KafkaPublisher](public_api/faststream/confluent/KafkaPublisher.md)
@@ -234,111 +231,6 @@ search:
                     - [AsgiResponse](api/faststream/asgi/response/AsgiResponse.md)
                 - websocket
                     - [WebSocketClose](api/faststream/asgi/websocket/WebSocketClose.md)
-            - asyncapi
-                - [get_app_schema](api/faststream/asyncapi/get_app_schema.md)
-                - [get_asyncapi_html](api/faststream/asyncapi/get_asyncapi_html.md)
-                - abc
-                    - [AsyncAPIOperation](api/faststream/asyncapi/abc/AsyncAPIOperation.md)
-                - generate
-                    - [get_app_schema](api/faststream/asyncapi/generate/get_app_schema.md)
-                    - [get_broker_channels](api/faststream/asyncapi/generate/get_broker_channels.md)
-                    - [get_broker_server](api/faststream/asyncapi/generate/get_broker_server.md)
-                - message
-                    - [get_model_schema](api/faststream/asyncapi/message/get_model_schema.md)
-                    - [get_response_schema](api/faststream/asyncapi/message/get_response_schema.md)
-                    - [parse_handler_params](api/faststream/asyncapi/message/parse_handler_params.md)
-                - proto
-                    - [AsyncAPIApplication](api/faststream/asyncapi/proto/AsyncAPIApplication.md)
-                    - [AsyncAPIProto](api/faststream/asyncapi/proto/AsyncAPIProto.md)
-                - schema
-                    - [Channel](api/faststream/asyncapi/schema/Channel.md)
-                    - [ChannelBinding](api/faststream/asyncapi/schema/ChannelBinding.md)
-                    - [Components](api/faststream/asyncapi/schema/Components.md)
-                    - [Contact](api/faststream/asyncapi/schema/Contact.md)
-                    - [ContactDict](api/faststream/asyncapi/schema/ContactDict.md)
-                    - [CorrelationId](api/faststream/asyncapi/schema/CorrelationId.md)
-                    - [ExternalDocs](api/faststream/asyncapi/schema/ExternalDocs.md)
-                    - [ExternalDocsDict](api/faststream/asyncapi/schema/ExternalDocsDict.md)
-                    - [Info](api/faststream/asyncapi/schema/Info.md)
-                    - [License](api/faststream/asyncapi/schema/License.md)
-                    - [LicenseDict](api/faststream/asyncapi/schema/LicenseDict.md)
-                    - [Message](api/faststream/asyncapi/schema/Message.md)
-                    - [Operation](api/faststream/asyncapi/schema/Operation.md)
-                    - [OperationBinding](api/faststream/asyncapi/schema/OperationBinding.md)
-                    - [Reference](api/faststream/asyncapi/schema/Reference.md)
-                    - [Schema](api/faststream/asyncapi/schema/Schema.md)
-                    - [SecuritySchemaComponent](api/faststream/asyncapi/schema/SecuritySchemaComponent.md)
-                    - [Server](api/faststream/asyncapi/schema/Server.md)
-                    - [ServerBinding](api/faststream/asyncapi/schema/ServerBinding.md)
-                    - [Tag](api/faststream/asyncapi/schema/Tag.md)
-                    - [TagDict](api/faststream/asyncapi/schema/TagDict.md)
-                    - bindings
-                        - [ChannelBinding](api/faststream/asyncapi/schema/bindings/ChannelBinding.md)
-                        - [OperationBinding](api/faststream/asyncapi/schema/bindings/OperationBinding.md)
-                        - [ServerBinding](api/faststream/asyncapi/schema/bindings/ServerBinding.md)
-                        - amqp
-                            - [ChannelBinding](api/faststream/asyncapi/schema/bindings/amqp/ChannelBinding.md)
-                            - [Exchange](api/faststream/asyncapi/schema/bindings/amqp/Exchange.md)
-                            - [OperationBinding](api/faststream/asyncapi/schema/bindings/amqp/OperationBinding.md)
-                            - [Queue](api/faststream/asyncapi/schema/bindings/amqp/Queue.md)
-                            - [ServerBinding](api/faststream/asyncapi/schema/bindings/amqp/ServerBinding.md)
-                        - kafka
-                            - [ChannelBinding](api/faststream/asyncapi/schema/bindings/kafka/ChannelBinding.md)
-                            - [OperationBinding](api/faststream/asyncapi/schema/bindings/kafka/OperationBinding.md)
-                            - [ServerBinding](api/faststream/asyncapi/schema/bindings/kafka/ServerBinding.md)
-                        - main
-                            - [ChannelBinding](api/faststream/asyncapi/schema/bindings/main/ChannelBinding.md)
-                            - [OperationBinding](api/faststream/asyncapi/schema/bindings/main/OperationBinding.md)
-                            - [ServerBinding](api/faststream/asyncapi/schema/bindings/main/ServerBinding.md)
-                        - nats
-                            - [ChannelBinding](api/faststream/asyncapi/schema/bindings/nats/ChannelBinding.md)
-                            - [OperationBinding](api/faststream/asyncapi/schema/bindings/nats/OperationBinding.md)
-                            - [ServerBinding](api/faststream/asyncapi/schema/bindings/nats/ServerBinding.md)
-                        - redis
-                            - [ChannelBinding](api/faststream/asyncapi/schema/bindings/redis/ChannelBinding.md)
-                            - [OperationBinding](api/faststream/asyncapi/schema/bindings/redis/OperationBinding.md)
-                            - [ServerBinding](api/faststream/asyncapi/schema/bindings/redis/ServerBinding.md)
-                        - sqs
-                            - [ChannelBinding](api/faststream/asyncapi/schema/bindings/sqs/ChannelBinding.md)
-                            - [OperationBinding](api/faststream/asyncapi/schema/bindings/sqs/OperationBinding.md)
-                            - [ServerBinding](api/faststream/asyncapi/schema/bindings/sqs/ServerBinding.md)
-                    - channels
-                        - [Channel](api/faststream/asyncapi/schema/channels/Channel.md)
-                    - info
-                        - [Contact](api/faststream/asyncapi/schema/info/Contact.md)
-                        - [ContactDict](api/faststream/asyncapi/schema/info/ContactDict.md)
-                        - [EmailStr](api/faststream/asyncapi/schema/info/EmailStr.md)
-                        - [Info](api/faststream/asyncapi/schema/info/Info.md)
-                        - [License](api/faststream/asyncapi/schema/info/License.md)
-                        - [LicenseDict](api/faststream/asyncapi/schema/info/LicenseDict.md)
-                    - main
-                        - [Components](api/faststream/asyncapi/schema/main/Components.md)
-                        - [Schema](api/faststream/asyncapi/schema/main/Schema.md)
-                    - message
-                        - [CorrelationId](api/faststream/asyncapi/schema/message/CorrelationId.md)
-                        - [Message](api/faststream/asyncapi/schema/message/Message.md)
-                    - operations
-                        - [Operation](api/faststream/asyncapi/schema/operations/Operation.md)
-                    - security
-                        - [OauthFlowObj](api/faststream/asyncapi/schema/security/OauthFlowObj.md)
-                        - [OauthFlows](api/faststream/asyncapi/schema/security/OauthFlows.md)
-                        - [SecuritySchemaComponent](api/faststream/asyncapi/schema/security/SecuritySchemaComponent.md)
-                    - servers
-                        - [Server](api/faststream/asyncapi/schema/servers/Server.md)
-                        - [ServerVariable](api/faststream/asyncapi/schema/servers/ServerVariable.md)
-                    - utils
-                        - [ExternalDocs](api/faststream/asyncapi/schema/utils/ExternalDocs.md)
-                        - [ExternalDocsDict](api/faststream/asyncapi/schema/utils/ExternalDocsDict.md)
-                        - [Parameter](api/faststream/asyncapi/schema/utils/Parameter.md)
-                        - [Reference](api/faststream/asyncapi/schema/utils/Reference.md)
-                        - [Tag](api/faststream/asyncapi/schema/utils/Tag.md)
-                        - [TagDict](api/faststream/asyncapi/schema/utils/TagDict.md)
-                - site
-                    - [get_asyncapi_html](api/faststream/asyncapi/site/get_asyncapi_html.md)
-                    - [serve_app](api/faststream/asyncapi/site/serve_app.md)
-                - utils
-                    - [resolve_payloads](api/faststream/asyncapi/utils/resolve_payloads.md)
-                    - [to_camelcase](api/faststream/asyncapi/utils/to_camelcase.md)
             - broker
                 - acknowledgement_watcher
                     - [BaseWatcher](api/faststream/broker/acknowledgement_watcher/BaseWatcher.md)
@@ -520,12 +412,12 @@ search:
                 - parser
                     - [AsyncConfluentParser](api/faststream/confluent/parser/AsyncConfluentParser.md)
                 - publisher
-                    - asyncapi
-                        - [AsyncAPIBatchPublisher](api/faststream/confluent/publisher/asyncapi/AsyncAPIBatchPublisher.md)
-                        - [AsyncAPIDefaultPublisher](api/faststream/confluent/publisher/asyncapi/AsyncAPIDefaultPublisher.md)
-                        - [AsyncAPIPublisher](api/faststream/confluent/publisher/asyncapi/AsyncAPIPublisher.md)
                     - producer
                         - [AsyncConfluentFastProducer](api/faststream/confluent/publisher/producer/AsyncConfluentFastProducer.md)
+                    - publisher
+                        - [SpecificationBatchPublisher](api/faststream/confluent/publisher/publisher/SpecificationBatchPublisher.md)
+                        - [SpecificationDefaultPublisher](api/faststream/confluent/publisher/publisher/SpecificationDefaultPublisher.md)
+                        - [SpecificationPublisher](api/faststream/confluent/publisher/publisher/SpecificationPublisher.md)
                     - usecase
                         - [BatchPublisher](api/faststream/confluent/publisher/usecase/BatchPublisher.md)
                         - [DefaultPublisher](api/faststream/confluent/publisher/usecase/DefaultPublisher.md)
@@ -545,12 +437,12 @@ search:
                 - security
                     - [parse_security](api/faststream/confluent/security/parse_security.md)
                 - subscriber
-                    - asyncapi
-                        - [AsyncAPIBatchSubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPIBatchSubscriber.md)
-                        - [AsyncAPIDefaultSubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPIDefaultSubscriber.md)
-                        - [AsyncAPISubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPISubscriber.md)
                     - factory
                         - [create_subscriber](api/faststream/confluent/subscriber/factory/create_subscriber.md)
+                    - subscriber
+                        - [SpecificationBatchSubscriber](api/faststream/confluent/subscriber/subscriber/SpecificationBatchSubscriber.md)
+                        - [SpecificationDefaultSubscriber](api/faststream/confluent/subscriber/subscriber/SpecificationDefaultSubscriber.md)
+                        - [SpecificationSubscriber](api/faststream/confluent/subscriber/subscriber/SpecificationSubscriber.md)
                     - usecase
                         - [BatchSubscriber](api/faststream/confluent/subscriber/usecase/BatchSubscriber.md)
                         - [DefaultSubscriber](api/faststream/confluent/subscriber/usecase/DefaultSubscriber.md)
@@ -616,12 +508,12 @@ search:
                     - [AioKafkaBatchParser](api/faststream/kafka/parser/AioKafkaBatchParser.md)
                     - [AioKafkaParser](api/faststream/kafka/parser/AioKafkaParser.md)
                 - publisher
-                    - asyncapi
-                        - [AsyncAPIBatchPublisher](api/faststream/kafka/publisher/asyncapi/AsyncAPIBatchPublisher.md)
-                        - [AsyncAPIDefaultPublisher](api/faststream/kafka/publisher/asyncapi/AsyncAPIDefaultPublisher.md)
-                        - [AsyncAPIPublisher](api/faststream/kafka/publisher/asyncapi/AsyncAPIPublisher.md)
                     - producer
                         - [AioKafkaFastProducer](api/faststream/kafka/publisher/producer/AioKafkaFastProducer.md)
+                    - publisher
+                        - [SpecificationBatchPublisher](api/faststream/kafka/publisher/publisher/SpecificationBatchPublisher.md)
+                        - [SpecificationDefaultPublisher](api/faststream/kafka/publisher/publisher/SpecificationDefaultPublisher.md)
+                        - [SpecificationPublisher](api/faststream/kafka/publisher/publisher/SpecificationPublisher.md)
                     - usecase
                         - [BatchPublisher](api/faststream/kafka/publisher/usecase/BatchPublisher.md)
                         - [DefaultPublisher](api/faststream/kafka/publisher/usecase/DefaultPublisher.md)
@@ -638,12 +530,12 @@ search:
                 - security
                     - [parse_security](api/faststream/kafka/security/parse_security.md)
                 - subscriber
-                    - asyncapi
-                        - [AsyncAPIBatchSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIBatchSubscriber.md)
-                        - [AsyncAPIDefaultSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIDefaultSubscriber.md)
-                        - [AsyncAPISubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPISubscriber.md)
                     - factory
                         - [create_subscriber](api/faststream/kafka/subscriber/factory/create_subscriber.md)
+                    - subscriber
+                        - [SpecificationBatchSubscriber](api/faststream/kafka/subscriber/subscriber/SpecificationBatchSubscriber.md)
+                        - [SpecificationDefaultSubscriber](api/faststream/kafka/subscriber/subscriber/SpecificationDefaultSubscriber.md)
+                        - [SpecificationSubscriber](api/faststream/kafka/subscriber/subscriber/SpecificationSubscriber.md)
                     - usecase
                         - [BatchSubscriber](api/faststream/kafka/subscriber/usecase/BatchSubscriber.md)
                         - [DefaultSubscriber](api/faststream/kafka/subscriber/usecase/DefaultSubscriber.md)
@@ -729,11 +621,11 @@ search:
                     - [NatsParser](api/faststream/nats/parser/NatsParser.md)
                     - [ObjParser](api/faststream/nats/parser/ObjParser.md)
                 - publisher
-                    - asyncapi
-                        - [AsyncAPIPublisher](api/faststream/nats/publisher/asyncapi/AsyncAPIPublisher.md)
                     - producer
                         - [NatsFastProducer](api/faststream/nats/publisher/producer/NatsFastProducer.md)
                         - [NatsJSFastProducer](api/faststream/nats/publisher/producer/NatsJSFastProducer.md)
+                    - publisher
+                        - [SpecificationPublisher](api/faststream/nats/publisher/publisher/SpecificationPublisher.md)
                     - usecase
                         - [LogicPublisher](api/faststream/nats/publisher/usecase/LogicPublisher.md)
                 - response
@@ -760,19 +652,19 @@ search:
                 - security
                     - [parse_security](api/faststream/nats/security/parse_security.md)
                 - subscriber
-                    - asyncapi
-                        - [AsyncAPIBatchPullStreamSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIBatchPullStreamSubscriber.md)
-                        - [AsyncAPIConcurrentCoreSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIConcurrentCoreSubscriber.md)
-                        - [AsyncAPIConcurrentPullStreamSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIConcurrentPullStreamSubscriber.md)
-                        - [AsyncAPIConcurrentPushStreamSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIConcurrentPushStreamSubscriber.md)
-                        - [AsyncAPICoreSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPICoreSubscriber.md)
-                        - [AsyncAPIKeyValueWatchSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIKeyValueWatchSubscriber.md)
-                        - [AsyncAPIObjStoreWatchSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIObjStoreWatchSubscriber.md)
-                        - [AsyncAPIPullStreamSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIPullStreamSubscriber.md)
-                        - [AsyncAPIStreamSubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPIStreamSubscriber.md)
-                        - [AsyncAPISubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPISubscriber.md)
                     - factory
                         - [create_subscriber](api/faststream/nats/subscriber/factory/create_subscriber.md)
+                    - subscriber
+                        - [SpecificationBatchPullStreamSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationBatchPullStreamSubscriber.md)
+                        - [SpecificationConcurrentCoreSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationConcurrentCoreSubscriber.md)
+                        - [SpecificationConcurrentPullStreamSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationConcurrentPullStreamSubscriber.md)
+                        - [SpecificationConcurrentPushStreamSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationConcurrentPushStreamSubscriber.md)
+                        - [SpecificationCoreSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationCoreSubscriber.md)
+                        - [SpecificationKeyValueWatchSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationKeyValueWatchSubscriber.md)
+                        - [SpecificationObjStoreWatchSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationObjStoreWatchSubscriber.md)
+                        - [SpecificationPullStreamSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationPullStreamSubscriber.md)
+                        - [SpecificationStreamSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationStreamSubscriber.md)
+                        - [SpecificationSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationSubscriber.md)
                     - subscription
                         - [UnsubscribeAdapter](api/faststream/nats/subscriber/subscription/UnsubscribeAdapter.md)
                         - [Unsubscriptable](api/faststream/nats/subscriber/subscription/Unsubscriptable.md)
@@ -842,10 +734,10 @@ search:
                 - parser
                     - [AioPikaParser](api/faststream/rabbit/parser/AioPikaParser.md)
                 - publisher
-                    - asyncapi
-                        - [AsyncAPIPublisher](api/faststream/rabbit/publisher/asyncapi/AsyncAPIPublisher.md)
                     - producer
                         - [AioPikaFastProducer](api/faststream/rabbit/publisher/producer/AioPikaFastProducer.md)
+                    - publisher
+                        - [SpecificationPublisher](api/faststream/rabbit/publisher/publisher/SpecificationPublisher.md)
                     - usecase
                         - [LogicPublisher](api/faststream/rabbit/publisher/usecase/LogicPublisher.md)
                         - [PublishKwargs](api/faststream/rabbit/publisher/usecase/PublishKwargs.md)
@@ -875,10 +767,10 @@ search:
                 - security
                     - [parse_security](api/faststream/rabbit/security/parse_security.md)
                 - subscriber
-                    - asyncapi
-                        - [AsyncAPISubscriber](api/faststream/rabbit/subscriber/asyncapi/AsyncAPISubscriber.md)
                     - factory
                         - [create_subscriber](api/faststream/rabbit/subscriber/factory/create_subscriber.md)
+                    - subscriber
+                        - [SpecificationSubscriber](api/faststream/rabbit/subscriber/subscriber/SpecificationSubscriber.md)
                     - usecase
                         - [LogicSubscriber](api/faststream/rabbit/subscriber/usecase/LogicSubscriber.md)
                 - testing
@@ -943,14 +835,14 @@ search:
                     - [RedisStreamParser](api/faststream/redis/parser/RedisStreamParser.md)
                     - [SimpleParser](api/faststream/redis/parser/SimpleParser.md)
                 - publisher
-                    - asyncapi
-                        - [AsyncAPIChannelPublisher](api/faststream/redis/publisher/asyncapi/AsyncAPIChannelPublisher.md)
-                        - [AsyncAPIListBatchPublisher](api/faststream/redis/publisher/asyncapi/AsyncAPIListBatchPublisher.md)
-                        - [AsyncAPIListPublisher](api/faststream/redis/publisher/asyncapi/AsyncAPIListPublisher.md)
-                        - [AsyncAPIPublisher](api/faststream/redis/publisher/asyncapi/AsyncAPIPublisher.md)
-                        - [AsyncAPIStreamPublisher](api/faststream/redis/publisher/asyncapi/AsyncAPIStreamPublisher.md)
                     - producer
                         - [RedisFastProducer](api/faststream/redis/publisher/producer/RedisFastProducer.md)
+                    - publisher
+                        - [AsyncAPIChannelPublisher](api/faststream/redis/publisher/publisher/AsyncAPIChannelPublisher.md)
+                        - [AsyncAPIListBatchPublisher](api/faststream/redis/publisher/publisher/AsyncAPIListBatchPublisher.md)
+                        - [AsyncAPIListPublisher](api/faststream/redis/publisher/publisher/AsyncAPIListPublisher.md)
+                        - [AsyncAPIStreamPublisher](api/faststream/redis/publisher/publisher/AsyncAPIStreamPublisher.md)
+                        - [SpecificationPublisher](api/faststream/redis/publisher/publisher/SpecificationPublisher.md)
                     - usecase
                         - [ChannelPublisher](api/faststream/redis/publisher/usecase/ChannelPublisher.md)
                         - [ListBatchPublisher](api/faststream/redis/publisher/usecase/ListBatchPublisher.md)
@@ -979,15 +871,15 @@ search:
                 - security
                     - [parse_security](api/faststream/redis/security/parse_security.md)
                 - subscriber
-                    - asyncapi
-                        - [AsyncAPIChannelSubscriber](api/faststream/redis/subscriber/asyncapi/AsyncAPIChannelSubscriber.md)
-                        - [AsyncAPIListBatchSubscriber](api/faststream/redis/subscriber/asyncapi/AsyncAPIListBatchSubscriber.md)
-                        - [AsyncAPIListSubscriber](api/faststream/redis/subscriber/asyncapi/AsyncAPIListSubscriber.md)
-                        - [AsyncAPIStreamBatchSubscriber](api/faststream/redis/subscriber/asyncapi/AsyncAPIStreamBatchSubscriber.md)
-                        - [AsyncAPIStreamSubscriber](api/faststream/redis/subscriber/asyncapi/AsyncAPIStreamSubscriber.md)
-                        - [AsyncAPISubscriber](api/faststream/redis/subscriber/asyncapi/AsyncAPISubscriber.md)
                     - factory
                         - [create_subscriber](api/faststream/redis/subscriber/factory/create_subscriber.md)
+                    - subscriber
+                        - [AsyncAPIChannelSubscriber](api/faststream/redis/subscriber/subscriber/AsyncAPIChannelSubscriber.md)
+                        - [AsyncAPIListBatchSubscriber](api/faststream/redis/subscriber/subscriber/AsyncAPIListBatchSubscriber.md)
+                        - [AsyncAPIListSubscriber](api/faststream/redis/subscriber/subscriber/AsyncAPIListSubscriber.md)
+                        - [AsyncAPIStreamBatchSubscriber](api/faststream/redis/subscriber/subscriber/AsyncAPIStreamBatchSubscriber.md)
+                        - [AsyncAPIStreamSubscriber](api/faststream/redis/subscriber/subscriber/AsyncAPIStreamSubscriber.md)
+                        - [SpecificationSubscriber](api/faststream/redis/subscriber/subscriber/SpecificationSubscriber.md)
                     - usecase
                         - [BatchListSubscriber](api/faststream/redis/subscriber/usecase/BatchListSubscriber.md)
                         - [BatchStreamSubscriber](api/faststream/redis/subscriber/usecase/BatchStreamSubscriber.md)
@@ -1010,6 +902,258 @@ search:
                 - [SASLPlaintext](api/faststream/security/SASLPlaintext.md)
                 - [SASLScram256](api/faststream/security/SASLScram256.md)
                 - [SASLScram512](api/faststream/security/SASLScram512.md)
+            - specification
+                - asyncapi
+                    - [get_app_schema](api/faststream/specification/asyncapi/get_app_schema.md)
+                    - [get_asyncapi_html](api/faststream/specification/asyncapi/get_asyncapi_html.md)
+                    - base
+                        - schema
+                            - [BaseInfo](api/faststream/specification/asyncapi/base/schema/BaseInfo.md)
+                            - [BaseSchema](api/faststream/specification/asyncapi/base/schema/BaseSchema.md)
+                            - info
+                                - [BaseInfo](api/faststream/specification/asyncapi/base/schema/info/BaseInfo.md)
+                            - schema
+                                - [BaseSchema](api/faststream/specification/asyncapi/base/schema/schema/BaseSchema.md)
+                    - generate
+                        - [get_app_schema](api/faststream/specification/asyncapi/generate/get_app_schema.md)
+                    - message
+                        - [get_model_schema](api/faststream/specification/asyncapi/message/get_model_schema.md)
+                        - [get_response_schema](api/faststream/specification/asyncapi/message/get_response_schema.md)
+                        - [parse_handler_params](api/faststream/specification/asyncapi/message/parse_handler_params.md)
+                    - site
+                        - [get_asyncapi_html](api/faststream/specification/asyncapi/site/get_asyncapi_html.md)
+                        - [serve_app](api/faststream/specification/asyncapi/site/serve_app.md)
+                    - utils
+                        - [resolve_payloads](api/faststream/specification/asyncapi/utils/resolve_payloads.md)
+                        - [to_camelcase](api/faststream/specification/asyncapi/utils/to_camelcase.md)
+                    - v2_6_0
+                        - [get_app_schema](api/faststream/specification/asyncapi/v2_6_0/get_app_schema.md)
+                        - generate
+                            - [get_app_schema](api/faststream/specification/asyncapi/v2_6_0/generate/get_app_schema.md)
+                            - [get_broker_channels](api/faststream/specification/asyncapi/v2_6_0/generate/get_broker_channels.md)
+                            - [get_broker_server](api/faststream/specification/asyncapi/v2_6_0/generate/get_broker_server.md)
+                            - [move_pydantic_refs](api/faststream/specification/asyncapi/v2_6_0/generate/move_pydantic_refs.md)
+                            - [resolve_channel_messages](api/faststream/specification/asyncapi/v2_6_0/generate/resolve_channel_messages.md)
+                        - schema
+                            - [Channel](api/faststream/specification/asyncapi/v2_6_0/schema/Channel.md)
+                            - [Components](api/faststream/specification/asyncapi/v2_6_0/schema/Components.md)
+                            - [Contact](api/faststream/specification/asyncapi/v2_6_0/schema/Contact.md)
+                            - [CorrelationId](api/faststream/specification/asyncapi/v2_6_0/schema/CorrelationId.md)
+                            - [ExternalDocs](api/faststream/specification/asyncapi/v2_6_0/schema/ExternalDocs.md)
+                            - [Info](api/faststream/specification/asyncapi/v2_6_0/schema/Info.md)
+                            - [License](api/faststream/specification/asyncapi/v2_6_0/schema/License.md)
+                            - [Message](api/faststream/specification/asyncapi/v2_6_0/schema/Message.md)
+                            - [Operation](api/faststream/specification/asyncapi/v2_6_0/schema/Operation.md)
+                            - [Parameter](api/faststream/specification/asyncapi/v2_6_0/schema/Parameter.md)
+                            - [Reference](api/faststream/specification/asyncapi/v2_6_0/schema/Reference.md)
+                            - [Schema](api/faststream/specification/asyncapi/v2_6_0/schema/Schema.md)
+                            - [Server](api/faststream/specification/asyncapi/v2_6_0/schema/Server.md)
+                            - [ServerVariable](api/faststream/specification/asyncapi/v2_6_0/schema/ServerVariable.md)
+                            - [Tag](api/faststream/specification/asyncapi/v2_6_0/schema/Tag.md)
+                            - [channel_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/channel_from_spec.md)
+                            - [contact_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/contact_from_spec.md)
+                            - [docs_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/docs_from_spec.md)
+                            - [license_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/license_from_spec.md)
+                            - [message_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/message_from_spec.md)
+                            - [operation_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/operation_from_spec.md)
+                            - [tag_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/tag_from_spec.md)
+                            - bindings
+                                - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/ChannelBinding.md)
+                                - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/OperationBinding.md)
+                                - [channel_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/channel_binding_from_spec.md)
+                                - [operation_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/operation_binding_from_spec.md)
+                                - amqp
+                                    - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/amqp/ChannelBinding.md)
+                                    - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/amqp/OperationBinding.md)
+                                    - [channel_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/amqp/channel_binding_from_spec.md)
+                                    - [operation_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/amqp/operation_binding_from_spec.md)
+                                    - channel
+                                        - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/amqp/channel/ChannelBinding.md)
+                                        - [Exchange](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/amqp/channel/Exchange.md)
+                                        - [Queue](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/amqp/channel/Queue.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/amqp/channel/from_spec.md)
+                                    - operation
+                                        - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/amqp/operation/OperationBinding.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/amqp/operation/from_spec.md)
+                                - kafka
+                                    - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/kafka/ChannelBinding.md)
+                                    - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/kafka/OperationBinding.md)
+                                    - [channel_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/kafka/channel_binding_from_spec.md)
+                                    - [operation_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/kafka/operation_binding_from_spec.md)
+                                    - channel
+                                        - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/kafka/channel/ChannelBinding.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/kafka/channel/from_spec.md)
+                                    - operation
+                                        - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/kafka/operation/OperationBinding.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/kafka/operation/from_spec.md)
+                                - main
+                                    - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/main/ChannelBinding.md)
+                                    - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/main/OperationBinding.md)
+                                    - [channel_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/main/channel_binding_from_spec.md)
+                                    - [operation_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/main/operation_binding_from_spec.md)
+                                    - channel
+                                        - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/main/channel/ChannelBinding.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/main/channel/from_spec.md)
+                                    - operation
+                                        - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/main/operation/OperationBinding.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/main/operation/from_spec.md)
+                                - nats
+                                    - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/nats/ChannelBinding.md)
+                                    - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/nats/OperationBinding.md)
+                                    - [channel_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/nats/channel_binding_from_spec.md)
+                                    - [operation_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/nats/operation_binding_from_spec.md)
+                                    - channel
+                                        - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/nats/channel/ChannelBinding.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/nats/channel/from_spec.md)
+                                    - operation
+                                        - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/nats/operation/OperationBinding.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/nats/operation/from_spec.md)
+                                - redis
+                                    - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/redis/ChannelBinding.md)
+                                    - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/redis/OperationBinding.md)
+                                    - [channel_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/redis/channel_binding_from_spec.md)
+                                    - [operation_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/redis/operation_binding_from_spec.md)
+                                    - channel
+                                        - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/redis/channel/ChannelBinding.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/redis/channel/from_spec.md)
+                                    - operation
+                                        - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/redis/operation/OperationBinding.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/redis/operation/from_spec.md)
+                                - sqs
+                                    - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/sqs/ChannelBinding.md)
+                                    - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/sqs/OperationBinding.md)
+                                    - [channel_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/sqs/channel_binding_from_spec.md)
+                                    - [operation_binding_from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/sqs/operation_binding_from_spec.md)
+                                    - channel
+                                        - [ChannelBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/sqs/channel/ChannelBinding.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/sqs/channel/from_spec.md)
+                                    - operation
+                                        - [OperationBinding](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/sqs/operation/OperationBinding.md)
+                                        - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/bindings/sqs/operation/from_spec.md)
+                            - channels
+                                - [Channel](api/faststream/specification/asyncapi/v2_6_0/schema/channels/Channel.md)
+                                - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/channels/from_spec.md)
+                            - components
+                                - [Components](api/faststream/specification/asyncapi/v2_6_0/schema/components/Components.md)
+                            - contact
+                                - [Contact](api/faststream/specification/asyncapi/v2_6_0/schema/contact/Contact.md)
+                                - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/contact/from_spec.md)
+                            - docs
+                                - [ExternalDocs](api/faststream/specification/asyncapi/v2_6_0/schema/docs/ExternalDocs.md)
+                                - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/docs/from_spec.md)
+                            - info
+                                - [Info](api/faststream/specification/asyncapi/v2_6_0/schema/info/Info.md)
+                            - license
+                                - [License](api/faststream/specification/asyncapi/v2_6_0/schema/license/License.md)
+                                - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/license/from_spec.md)
+                            - message
+                                - [CorrelationId](api/faststream/specification/asyncapi/v2_6_0/schema/message/CorrelationId.md)
+                                - [Message](api/faststream/specification/asyncapi/v2_6_0/schema/message/Message.md)
+                                - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/message/from_spec.md)
+                            - operations
+                                - [Operation](api/faststream/specification/asyncapi/v2_6_0/schema/operations/Operation.md)
+                                - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/operations/from_spec.md)
+                            - schema
+                                - [Schema](api/faststream/specification/asyncapi/v2_6_0/schema/schema/Schema.md)
+                            - servers
+                                - [Server](api/faststream/specification/asyncapi/v2_6_0/schema/servers/Server.md)
+                                - [ServerVariable](api/faststream/specification/asyncapi/v2_6_0/schema/servers/ServerVariable.md)
+                            - tag
+                                - [Tag](api/faststream/specification/asyncapi/v2_6_0/schema/tag/Tag.md)
+                                - [from_spec](api/faststream/specification/asyncapi/v2_6_0/schema/tag/from_spec.md)
+                            - utils
+                                - [Parameter](api/faststream/specification/asyncapi/v2_6_0/schema/utils/Parameter.md)
+                                - [Reference](api/faststream/specification/asyncapi/v2_6_0/schema/utils/Reference.md)
+                    - v3_0_0
+                        - [get_app_schema](api/faststream/specification/asyncapi/v3_0_0/get_app_schema.md)
+                        - generate
+                            - [get_app_schema](api/faststream/specification/asyncapi/v3_0_0/generate/get_app_schema.md)
+                            - [get_broker_channels](api/faststream/specification/asyncapi/v3_0_0/generate/get_broker_channels.md)
+                            - [get_broker_operations](api/faststream/specification/asyncapi/v3_0_0/generate/get_broker_operations.md)
+                            - [get_broker_server](api/faststream/specification/asyncapi/v3_0_0/generate/get_broker_server.md)
+                        - schema
+                            - [Channel](api/faststream/specification/asyncapi/v3_0_0/schema/Channel.md)
+                            - [Components](api/faststream/specification/asyncapi/v3_0_0/schema/Components.md)
+                            - [Info](api/faststream/specification/asyncapi/v3_0_0/schema/Info.md)
+                            - [Operation](api/faststream/specification/asyncapi/v3_0_0/schema/Operation.md)
+                            - [Schema](api/faststream/specification/asyncapi/v3_0_0/schema/Schema.md)
+                            - [Server](api/faststream/specification/asyncapi/v3_0_0/schema/Server.md)
+                            - [channel_from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/channel_from_spec.md)
+                            - [operation_from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/operation_from_spec.md)
+                            - channels
+                                - [Channel](api/faststream/specification/asyncapi/v3_0_0/schema/channels/Channel.md)
+                                - [from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/channels/from_spec.md)
+                            - components
+                                - [Components](api/faststream/specification/asyncapi/v3_0_0/schema/components/Components.md)
+                            - info
+                                - [Info](api/faststream/specification/asyncapi/v3_0_0/schema/info/Info.md)
+                            - operations
+                                - [Action](api/faststream/specification/asyncapi/v3_0_0/schema/operations/Action.md)
+                                - [Operation](api/faststream/specification/asyncapi/v3_0_0/schema/operations/Operation.md)
+                                - [from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/operations/from_spec.md)
+                            - schema
+                                - [Schema](api/faststream/specification/asyncapi/v3_0_0/schema/schema/Schema.md)
+                            - servers
+                                - [Server](api/faststream/specification/asyncapi/v3_0_0/schema/servers/Server.md)
+                - proto
+                    - [Application](api/faststream/specification/proto/Application.md)
+                    - [SpecificationProto](api/faststream/specification/proto/SpecificationProto.md)
+                - schema
+                    - bindings
+                        - [ChannelBinding](api/faststream/specification/schema/bindings/ChannelBinding.md)
+                        - [OperationBinding](api/faststream/specification/schema/bindings/OperationBinding.md)
+                        - amqp
+                            - [ChannelBinding](api/faststream/specification/schema/bindings/amqp/ChannelBinding.md)
+                            - [Exchange](api/faststream/specification/schema/bindings/amqp/Exchange.md)
+                            - [OperationBinding](api/faststream/specification/schema/bindings/amqp/OperationBinding.md)
+                            - [Queue](api/faststream/specification/schema/bindings/amqp/Queue.md)
+                        - kafka
+                            - [ChannelBinding](api/faststream/specification/schema/bindings/kafka/ChannelBinding.md)
+                            - [OperationBinding](api/faststream/specification/schema/bindings/kafka/OperationBinding.md)
+                        - main
+                            - [ChannelBinding](api/faststream/specification/schema/bindings/main/ChannelBinding.md)
+                            - [OperationBinding](api/faststream/specification/schema/bindings/main/OperationBinding.md)
+                        - nats
+                            - [ChannelBinding](api/faststream/specification/schema/bindings/nats/ChannelBinding.md)
+                            - [OperationBinding](api/faststream/specification/schema/bindings/nats/OperationBinding.md)
+                        - redis
+                            - [ChannelBinding](api/faststream/specification/schema/bindings/redis/ChannelBinding.md)
+                            - [OperationBinding](api/faststream/specification/schema/bindings/redis/OperationBinding.md)
+                        - sqs
+                            - [ChannelBinding](api/faststream/specification/schema/bindings/sqs/ChannelBinding.md)
+                            - [OperationBinding](api/faststream/specification/schema/bindings/sqs/OperationBinding.md)
+                    - channel
+                        - [Channel](api/faststream/specification/schema/channel/Channel.md)
+                    - components
+                        - [Components](api/faststream/specification/schema/components/Components.md)
+                    - contact
+                        - [Contact](api/faststream/specification/schema/contact/Contact.md)
+                        - [ContactDict](api/faststream/specification/schema/contact/ContactDict.md)
+                    - docs
+                        - [ExternalDocs](api/faststream/specification/schema/docs/ExternalDocs.md)
+                        - [ExternalDocsDict](api/faststream/specification/schema/docs/ExternalDocsDict.md)
+                    - info
+                        - [Info](api/faststream/specification/schema/info/Info.md)
+                    - license
+                        - [License](api/faststream/specification/schema/license/License.md)
+                        - [LicenseDict](api/faststream/specification/schema/license/LicenseDict.md)
+                    - message
+                        - [CorrelationId](api/faststream/specification/schema/message/CorrelationId.md)
+                        - [Message](api/faststream/specification/schema/message/Message.md)
+                    - operation
+                        - [Operation](api/faststream/specification/schema/operation/Operation.md)
+                    - schema
+                        - [BaseSchema](api/faststream/specification/schema/schema/BaseSchema.md)
+                    - security
+                        - [OauthFlowObj](api/faststream/specification/schema/security/OauthFlowObj.md)
+                        - [OauthFlows](api/faststream/specification/schema/security/OauthFlows.md)
+                        - [SecuritySchemaComponent](api/faststream/specification/schema/security/SecuritySchemaComponent.md)
+                    - servers
+                        - [Server](api/faststream/specification/schema/servers/Server.md)
+                        - [ServerVariable](api/faststream/specification/schema/servers/ServerVariable.md)
+                    - tag
+                        - [Tag](api/faststream/specification/schema/tag/Tag.md)
+                        - [TagDict](api/faststream/specification/schema/tag/TagDict.md)
             - testing
                 - [TestApp](api/faststream/testing/TestApp.md)
                 - app

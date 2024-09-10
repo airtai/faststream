@@ -6,10 +6,10 @@ from typing_extensions import Annotated, Doc, deprecated, override
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
 from faststream.nats.helpers import StreamBuilder
-from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
+from faststream.nats.publisher.publisher import SpecificationPublisher
 from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
-from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.nats.subscriber.factory import create_subscriber
+from faststream.nats.subscriber.subscriber import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -28,8 +28,8 @@ if TYPE_CHECKING:
 class NatsRegistrator(ABCBroker["Msg"]):
     """Includable to NatsBroker router."""
 
-    _subscribers: Dict[int, "AsyncAPISubscriber"]
-    _publishers: Dict[int, "AsyncAPIPublisher"]
+    _subscribers: Dict[int, "SpecificationSubscriber"]
+    _publishers: Dict[int, "SpecificationPublisher"]
 
     def __init__(self, **kwargs: Any) -> None:
         self._stream_builder = StreamBuilder()
@@ -204,7 +204,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPISubscriber:
+    ) -> SpecificationSubscriber:
         """Creates NATS subscriber object.
 
         You can use it as a handler decorator `@broker.subscriber(...)`.
@@ -212,7 +212,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         stream = self._stream_builder.create(stream)
 
         subscriber = cast(
-            AsyncAPISubscriber,
+            SpecificationSubscriber,
             super().subscriber(
                 create_subscriber(
                     subject=subject,
@@ -317,7 +317,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> "AsyncAPIPublisher":
+    ) -> "SpecificationPublisher":
         """Creates long-living and AsyncAPI-documented publisher object.
 
         You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
@@ -328,9 +328,9 @@ class NatsRegistrator(ABCBroker["Msg"]):
         stream = self._stream_builder.create(stream)
 
         publisher = cast(
-            AsyncAPIPublisher,
+            SpecificationPublisher,
             super().publisher(
-                publisher=AsyncAPIPublisher.create(
+                publisher=SpecificationPublisher.create(
                     subject=subject,
                     headers=headers,
                     # Core

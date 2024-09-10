@@ -16,7 +16,7 @@ from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
-    from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.nats.publisher.publisher import SpecificationPublisher
     from faststream.nats.subscriber.usecase import LogicSubscriber
     from faststream.types import AnyDict, SendableMessage
 
@@ -29,7 +29,7 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: NatsBroker,
-        publisher: "AsyncAPIPublisher",
+        publisher: "SpecificationPublisher",
     ) -> Tuple["LogicSubscriber[Any]", bool]:
         sub: Optional[LogicSubscriber[Any]] = None
         publisher_stream = publisher.stream.name if publisher.stream else None

@@ -24,12 +24,12 @@ from faststream.__about__ import SERVICE_NAME
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.rabbit.broker.broker import RabbitBroker as RB
-from faststream.rabbit.publisher.asyncapi import AsyncAPIPublisher
+from faststream.rabbit.publisher.publisher import SpecificationPublisher
 from faststream.rabbit.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -44,7 +44,6 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp, Lifespan
     from yarl import URL
 
-    from faststream.asyncapi import schema as asyncapi
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -55,6 +54,7 @@ if TYPE_CHECKING:
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.schemas.reply import ReplyConfig
     from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import AnyDict, LoggerProto
 
 
@@ -164,7 +164,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 "Security options to connect broker and generate AsyncAPI server security information."
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Optional[str],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -180,8 +180,8 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional[str],
             Doc("AsyncAPI server description."),
         ] = None,
-        asyncapi_tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+        specification_tags: Annotated[
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args
@@ -445,14 +445,14 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             on_return_raises=on_return_raises,
             middlewares=middlewares,
             security=security,
-            asyncapi_url=asyncapi_url,
+            specification_url=specification_url,
             protocol=protocol,
             protocol_version=protocol_version,
             description=description,
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
-            asyncapi_tags=asyncapi_tags,
+            specification_tags=specification_tags,
             schema_url=schema_url,
             setup_state=setup_state,
             # FastAPI kwargs
@@ -690,9 +690,9 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 """
             ),
         ] = False,
-    ) -> AsyncAPISubscriber:
+    ) -> SpecificationSubscriber:
         return cast(
-            AsyncAPISubscriber,
+            SpecificationSubscriber,
             super().subscriber(
                 queue=queue,
                 exchange=exchange,
@@ -828,7 +828,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional[str],
             Doc("Publisher connection User ID, validated if set."),
         ] = None,
-    ) -> AsyncAPIPublisher:
+    ) -> SpecificationPublisher:
         return self.broker.publisher(
             queue=queue,
             exchange=exchange,

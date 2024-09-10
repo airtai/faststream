@@ -40,13 +40,13 @@ if TYPE_CHECKING:
     from confluent_kafka import Message
     from fast_depends.dependencies import Depends
 
-    from faststream.asyncapi import schema as asyncapi
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomCallable,
     )
     from faststream.confluent.config import ConfluentConfig
     from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import (
         AnyDict,
         AsyncFunc,
@@ -281,7 +281,7 @@ class KafkaBroker(
                 "Security options to connect broker and generate AsyncAPI server security information."
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Union[str, Iterable[str], None],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -298,7 +298,7 @@ class KafkaBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args
@@ -344,13 +344,13 @@ class KafkaBroker(
             else list(bootstrap_servers)
         )
 
-        if asyncapi_url is not None:
-            if isinstance(asyncapi_url, str):
-                asyncapi_url = [asyncapi_url]
+        if specification_url is not None:
+            if isinstance(specification_url, str):
+                specification_url = [specification_url]
             else:
-                asyncapi_url = list(asyncapi_url)
+                specification_url = list(specification_url)
         else:
-            asyncapi_url = servers
+            specification_url = servers
 
         super().__init__(
             bootstrap_servers=servers,
@@ -378,7 +378,7 @@ class KafkaBroker(
             middlewares=middlewares,
             # AsyncAPI args
             description=description,
-            asyncapi_url=asyncapi_url,
+            specification_url=specification_url,
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,

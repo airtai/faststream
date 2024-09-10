@@ -5,7 +5,7 @@ from typing_extensions import TypeAlias
 from faststream.exceptions import SetupError
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
-from faststream.redis.subscriber.asyncapi import (
+from faststream.redis.subscriber.subscriber import (
     AsyncAPIChannelSubscriber,
     AsyncAPIListBatchSubscriber,
     AsyncAPIListSubscriber,

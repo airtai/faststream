@@ -36,8 +36,8 @@ from faststream.__about__ import SERVICE_NAME
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.nats.broker import NatsBroker
-from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
-from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.nats.publisher.publisher import SpecificationPublisher
+from faststream.nats.subscriber.subscriber import SpecificationSubscriber
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -57,7 +57,6 @@ if TYPE_CHECKING:
     from starlette.responses import Response
     from starlette.types import ASGIApp, Lifespan
 
-    from faststream.asyncapi import schema as asyncapi
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -68,6 +67,7 @@ if TYPE_CHECKING:
     from faststream.nats.message import NatsBatchMessage, NatsMessage
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
     from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import AnyDict, LoggerProto
 
 
@@ -243,7 +243,7 @@ class NatsRouter(StreamRouter["Msg"]):
                 "Security options to connect broker and generate AsyncAPI server security information."
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Union[str, Iterable[str], None],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -259,8 +259,8 @@ class NatsRouter(StreamRouter["Msg"]):
             Optional[str],
             Doc("AsyncAPI server description."),
         ] = None,
-        asyncapi_tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+        specification_tags: Annotated[
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args
@@ -542,14 +542,14 @@ class NatsRouter(StreamRouter["Msg"]):
             parser=parser,
             middlewares=middlewares,
             security=security,
-            asyncapi_url=asyncapi_url,
+            specification_url=specification_url,
             protocol=protocol,
             protocol_version=protocol_version,
             description=description,
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
-            asyncapi_tags=asyncapi_tags,
+            specification_tags=specification_tags,
             schema_url=schema_url,
             setup_state=setup_state,
             # FastAPI kwargs
@@ -862,9 +862,9 @@ class NatsRouter(StreamRouter["Msg"]):
                 """
             ),
         ] = False,
-    ) -> "AsyncAPISubscriber":
+    ) -> "SpecificationSubscriber":
         return cast(
-            AsyncAPISubscriber,
+            SpecificationSubscriber,
             super().subscriber(
                 subject=subject,
                 queue=queue,
@@ -963,7 +963,7 @@ class NatsRouter(StreamRouter["Msg"]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIPublisher:
+    ) -> SpecificationPublisher:
         return self.broker.publisher(
             subject,
             headers=headers,

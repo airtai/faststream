@@ -11,16 +11,16 @@ from nats.js.client import (
 )
 
 from faststream.exceptions import SetupError
-from faststream.nats.subscriber.asyncapi import (
-    AsyncAPIBatchPullStreamSubscriber,
-    AsyncAPIConcurrentCoreSubscriber,
-    AsyncAPIConcurrentPullStreamSubscriber,
-    AsyncAPIConcurrentPushStreamSubscriber,
-    AsyncAPICoreSubscriber,
-    AsyncAPIKeyValueWatchSubscriber,
-    AsyncAPIObjStoreWatchSubscriber,
-    AsyncAPIPullStreamSubscriber,
-    AsyncAPIStreamSubscriber,
+from faststream.nats.subscriber.subscriber import (
+    SpecificationBatchPullStreamSubscriber,
+    SpecificationConcurrentCoreSubscriber,
+    SpecificationConcurrentPullStreamSubscriber,
+    SpecificationConcurrentPushStreamSubscriber,
+    SpecificationCoreSubscriber,
+    SpecificationKeyValueWatchSubscriber,
+    SpecificationObjStoreWatchSubscriber,
+    SpecificationPullStreamSubscriber,
+    SpecificationStreamSubscriber,
 )
 
 if TYPE_CHECKING:
@@ -63,20 +63,20 @@ def create_subscriber(
     retry: Union[bool, int],
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[Any]"],
-    # AsyncAPI information
+    # Specification information
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
 ) -> Union[
-    "AsyncAPICoreSubscriber",
-    "AsyncAPIConcurrentCoreSubscriber",
-    "AsyncAPIStreamSubscriber",
-    "AsyncAPIConcurrentPushStreamSubscriber",
-    "AsyncAPIPullStreamSubscriber",
-    "AsyncAPIConcurrentPullStreamSubscriber",
-    "AsyncAPIBatchPullStreamSubscriber",
-    "AsyncAPIKeyValueWatchSubscriber",
-    "AsyncAPIObjStoreWatchSubscriber",
+    "SpecificationCoreSubscriber",
+    "SpecificationConcurrentCoreSubscriber",
+    "SpecificationStreamSubscriber",
+    "SpecificationConcurrentPushStreamSubscriber",
+    "SpecificationPullStreamSubscriber",
+    "SpecificationConcurrentPullStreamSubscriber",
+    "SpecificationBatchPullStreamSubscriber",
+    "SpecificationKeyValueWatchSubscriber",
+    "SpecificationObjStoreWatchSubscriber",
 ]:
     if pull_sub is not None and stream is None:
         raise SetupError("Pull subscriber can be used only with a stream")
@@ -123,7 +123,7 @@ def create_subscriber(
         }
 
     if obj_watch is not None:
-        return AsyncAPIObjStoreWatchSubscriber(
+        return SpecificationObjStoreWatchSubscriber(
             subject=subject,
             config=config,
             obj_watch=obj_watch,
@@ -135,7 +135,7 @@ def create_subscriber(
         )
 
     if kv_watch is not None:
-        return AsyncAPIKeyValueWatchSubscriber(
+        return SpecificationKeyValueWatchSubscriber(
             subject=subject,
             config=config,
             kv_watch=kv_watch,
@@ -148,7 +148,7 @@ def create_subscriber(
 
     elif stream is None:
         if max_workers > 1:
-            return AsyncAPIConcurrentCoreSubscriber(
+            return SpecificationConcurrentCoreSubscriber(
                 max_workers=max_workers,
                 subject=subject,
                 config=config,
@@ -161,14 +161,14 @@ def create_subscriber(
                 retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
-                # AsyncAPI information
+                # Specification
                 title_=title_,
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
 
         else:
-            return AsyncAPICoreSubscriber(
+            return SpecificationCoreSubscriber(
                 subject=subject,
                 config=config,
                 queue=queue,
@@ -180,7 +180,7 @@ def create_subscriber(
                 retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
-                # AsyncAPI information
+                # Specification
                 title_=title_,
                 description_=description_,
                 include_in_schema=include_in_schema,
@@ -189,7 +189,7 @@ def create_subscriber(
     else:
         if max_workers > 1:
             if pull_sub is not None:
-                return AsyncAPIConcurrentPullStreamSubscriber(
+                return SpecificationConcurrentPullStreamSubscriber(
                     max_workers=max_workers,
                     pull_sub=pull_sub,
                     stream=stream,
@@ -203,14 +203,14 @@ def create_subscriber(
                     retry=retry,
                     broker_dependencies=broker_dependencies,
                     broker_middlewares=broker_middlewares,
-                    # AsyncAPI information
+                    # Specification
                     title_=title_,
                     description_=description_,
                     include_in_schema=include_in_schema,
                 )
 
             else:
-                return AsyncAPIConcurrentPushStreamSubscriber(
+                return SpecificationConcurrentPushStreamSubscriber(
                     max_workers=max_workers,
                     stream=stream,
                     subject=subject,
@@ -224,7 +224,7 @@ def create_subscriber(
                     retry=retry,
                     broker_dependencies=broker_dependencies,
                     broker_middlewares=broker_middlewares,
-                    # AsyncAPI information
+                    # Specification
                     title_=title_,
                     description_=description_,
                     include_in_schema=include_in_schema,
@@ -233,7 +233,7 @@ def create_subscriber(
         else:
             if pull_sub is not None:
                 if pull_sub.batch:
-                    return AsyncAPIBatchPullStreamSubscriber(
+                    return SpecificationBatchPullStreamSubscriber(
                         pull_sub=pull_sub,
                         stream=stream,
                         subject=subject,
@@ -246,14 +246,14 @@ def create_subscriber(
                         retry=retry,
                         broker_dependencies=broker_dependencies,
                         broker_middlewares=broker_middlewares,
-                        # AsyncAPI information
+                        # Specification
                         title_=title_,
                         description_=description_,
                         include_in_schema=include_in_schema,
                     )
 
                 else:
-                    return AsyncAPIPullStreamSubscriber(
+                    return SpecificationPullStreamSubscriber(
                         pull_sub=pull_sub,
                         stream=stream,
                         subject=subject,
@@ -266,14 +266,14 @@ def create_subscriber(
                         retry=retry,
                         broker_dependencies=broker_dependencies,
                         broker_middlewares=broker_middlewares,
-                        # AsyncAPI information
+                        # Specification
                         title_=title_,
                         description_=description_,
                         include_in_schema=include_in_schema,
                     )
 
             else:
-                return AsyncAPIStreamSubscriber(
+                return SpecificationStreamSubscriber(
                     stream=stream,
                     subject=subject,
                     queue=queue,
@@ -286,7 +286,7 @@ def create_subscriber(
                     retry=retry,
                     broker_dependencies=broker_dependencies,
                     broker_middlewares=broker_middlewares,
-                    # AsyncAPI information
+                    # Specification information
                     title_=title_,
                     description_=description_,
                     include_in_schema=include_in_schema,

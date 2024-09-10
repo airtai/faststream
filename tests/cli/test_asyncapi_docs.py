@@ -9,16 +9,16 @@ import yaml
 from typer.testing import CliRunner
 
 from docs.docs_src.getting_started.asyncapi.serve import (
-    gen_json_cmd,
-    gen_yaml_cmd,
-    serve_cmd,
+    asyncapi_serve_cmd,
+    gen_asyncapi_json_cmd,
+    gen_asyncapi_yaml_cmd,
 )
 from faststream.cli.main import cli
 from tests.marks import require_aiokafka
 
-GEN_JSON_CMD = gen_json_cmd.split(" ")[1:-1]
-GEN_YAML_CMD = gen_yaml_cmd.split(" ")[1:-1]
-SERVE_CMD = serve_cmd.split(" ")[1:-1]
+GEN_JSON_CMD = gen_asyncapi_json_cmd.split(" ")[1:-1]
+GEN_YAML_CMD = gen_asyncapi_yaml_cmd.split(" ")[1:-1]
+SERVE_CMD = asyncapi_serve_cmd.split(" ")[1:-1]
 
 
 @require_aiokafka

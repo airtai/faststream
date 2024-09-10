@@ -6,8 +6,8 @@ from typing import (
 
 from faststream.asgi.handlers import get
 from faststream.asgi.response import AsgiResponse
-from faststream.asyncapi import get_app_schema
-from faststream.asyncapi.site import (
+from faststream.specification.asyncapi import get_app_schema
+from faststream.specification.asyncapi.site import (
     ASYNCAPI_CSS_DEFAULT_URL,
     ASYNCAPI_JS_DEFAULT_URL,
     get_asyncapi_html,
@@ -15,8 +15,8 @@ from faststream.asyncapi.site import (
 
 if TYPE_CHECKING:
     from faststream.asgi.types import ASGIApp, Scope
-    from faststream.asyncapi.proto import AsyncAPIApplication
     from faststream.broker.core.usecase import BrokerUsecase
+    from faststream.specification.proto import Application
 
 
 def make_ping_asgi(
@@ -38,7 +38,7 @@ def make_ping_asgi(
 
 
 def make_asyncapi_asgi(
-    app: "AsyncAPIApplication",
+    app: "Application",
     sidebar: bool = True,
     info: bool = True,
     servers: bool = True,
@@ -53,7 +53,7 @@ def make_asyncapi_asgi(
 ) -> "ASGIApp":
     return AsgiResponse(
         get_asyncapi_html(
-            get_app_schema(app),
+            get_app_schema(app, version="2.6.0"),
             sidebar=sidebar,
             info=info,
             servers=servers,

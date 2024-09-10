@@ -40,7 +40,7 @@ from faststream.testing.broker import TestBroker
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
-    from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.redis.publisher.publisher import SpecificationPublisher
     from faststream.types import AnyDict, SendableMessage
 
 __all__ = ("TestRedisBroker",)
@@ -52,7 +52,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: RedisBroker,
-        publisher: "AsyncAPIPublisher",
+        publisher: "SpecificationPublisher",
     ) -> Tuple["LogicSubscriber", bool]:
         sub: Optional[LogicSubscriber] = None
 

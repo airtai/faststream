@@ -5,9 +5,9 @@ from typing_extensions import Annotated, Doc, deprecated, override
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
 from faststream.redis.message import UnifyRedisDict
-from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
-from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.redis.publisher.publisher import SpecificationPublisher
 from faststream.redis.subscriber.factory import SubsciberType, create_subscriber
+from faststream.redis.subscriber.subscriber import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.redis.message import UnifyRedisMessage
-    from faststream.redis.publisher.asyncapi import PublisherType
+    from faststream.redis.publisher.publisher import PublisherType
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
     from faststream.types import AnyDict
 
@@ -106,9 +106,9 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPISubscriber:
+    ) -> SpecificationSubscriber:
         subscriber = cast(
-            AsyncAPISubscriber,
+            SpecificationSubscriber,
             super().subscriber(
                 create_subscriber(
                     channel=channel,
@@ -187,7 +187,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIPublisher:
+    ) -> SpecificationPublisher:
         """Creates long-living and AsyncAPI-documented publisher object.
 
         You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
@@ -196,9 +196,9 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
         return cast(
-            AsyncAPIPublisher,
+            SpecificationPublisher,
             super().publisher(
-                AsyncAPIPublisher.create(
+                SpecificationPublisher.create(
                     channel=channel,
                     list=list,
                     stream=stream,

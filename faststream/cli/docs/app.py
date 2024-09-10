@@ -1,22 +1,25 @@
 import json
 import sys
 import warnings
+from contextlib import suppress
 from pathlib import Path
 from typing import Optional, Sequence
 
 import typer
+from pydantic import ValidationError
 
 from faststream._compat import json_dumps, model_parse
-from faststream.asyncapi.generate import get_app_schema
-from faststream.asyncapi.schema import Schema
-from faststream.asyncapi.site import serve_app
 from faststream.cli.utils.imports import import_from_string
-from faststream.exceptions import INSTALL_WATCHFILES, INSTALL_YAML
+from faststream.exceptions import INSTALL_WATCHFILES, INSTALL_YAML, SCHEMA_NOT_SUPPORTED
+from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi.site import serve_app
+from faststream.specification.asyncapi.v2_6_0.schema import Schema as SchemaV2_6
+from faststream.specification.asyncapi.v3_0_0.schema import Schema as SchemaV3
 
-docs_app = typer.Typer(pretty_exceptions_short=True)
+asyncapi_app = typer.Typer(pretty_exceptions_short=True)
 
 
-@docs_app.command(name="serve")
+@asyncapi_app.command(name="serve")
 def serve(
     app: str = typer.Argument(
         ...,
@@ -86,7 +89,7 @@ def serve(
         _parse_and_serve(app, host, port, is_factory)
 
 
-@docs_app.command(name="gen")
+@asyncapi_app.command(name="gen")
 def gen(
     app: str = typer.Argument(
         ...,
@@ -116,6 +119,11 @@ def gen(
         is_flag=True,
         help="Treat APP as an application factory.",
     ),
+    asyncapi_version: str = typer.Option(
+        "3.0.0",
+        "--version",
+        help="Version of asyncapi schema. Currently supported only 3.0.0 and 2.6.0"
+    )
 ) -> None:
     """Generate project AsyncAPI schema."""
     if app_dir:  # pragma: no branch
@@ -124,7 +132,7 @@ def gen(
     _, app_obj = import_from_string(app)
     if callable(app_obj) and is_factory:
         app_obj = app_obj()
-    raw_schema = get_app_schema(app_obj)
+    raw_schema = get_app_schema(app_obj, asyncapi_version)
 
     if yaml:
         try:
@@ -158,7 +166,7 @@ def _parse_and_serve(
         _, app_obj = import_from_string(app)
         if callable(app_obj) and is_factory:
             app_obj = app_obj()
-        raw_schema = get_app_schema(app_obj)
+        raw_schema = get_app_schema(app_obj, "2.6.0")
 
     else:
         schema_filepath = Path.cwd() / app
@@ -183,6 +191,12 @@ def _parse_and_serve(
                 f"Unknown extension given - {app}; Please provide app in format [python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation"
             )
 
-        raw_schema = model_parse(Schema, data)
+        for schema in (SchemaV3, SchemaV2_6):
+            with suppress(ValidationError):
+                raw_schema = model_parse(schema, data)
+                break
+        else:
+            typer.echo(SCHEMA_NOT_SUPPORTED.format(schema_filename=app), err=True)
+            raise typer.Exit(1)
 
     serve_app(raw_schema, host, port)

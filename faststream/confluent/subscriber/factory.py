@@ -9,9 +9,9 @@ from typing import (
     overload,
 )
 
-from faststream.confluent.subscriber.asyncapi import (
-    AsyncAPIBatchSubscriber,
-    AsyncAPIDefaultSubscriber,
+from faststream.confluent.subscriber.subscriber import (
+    SpecificationBatchSubscriber,
+    SpecificationDefaultSubscriber,
 )
 
 if TYPE_CHECKING:
@@ -40,11 +40,11 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "AsyncAPIBatchSubscriber": ...
+) -> "SpecificationBatchSubscriber": ...
 
 
 @overload
@@ -64,11 +64,11 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "AsyncAPIDefaultSubscriber": ...
+) -> "SpecificationDefaultSubscriber": ...
 
 
 @overload
@@ -90,13 +90,13 @@ def create_subscriber(
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConfluentMsg, Tuple[ConfluentMsg, ...]]]"
     ],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
 ) -> Union[
-    "AsyncAPIDefaultSubscriber",
-    "AsyncAPIBatchSubscriber",
+    "SpecificationDefaultSubscriber",
+    "SpecificationBatchSubscriber",
 ]: ...
 
 
@@ -118,16 +118,16 @@ def create_subscriber(
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConfluentMsg, Tuple[ConfluentMsg, ...]]]"
     ],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
 ) -> Union[
-    "AsyncAPIDefaultSubscriber",
-    "AsyncAPIBatchSubscriber",
+    "SpecificationDefaultSubscriber",
+    "SpecificationBatchSubscriber",
 ]:
     if batch:
-        return AsyncAPIBatchSubscriber(
+        return SpecificationBatchSubscriber(
             *topics,
             partitions=partitions,
             polling_interval=polling_interval,
@@ -145,7 +145,7 @@ def create_subscriber(
             include_in_schema=include_in_schema,
         )
     else:
-        return AsyncAPIDefaultSubscriber(
+        return SpecificationDefaultSubscriber(
             *topics,
             partitions=partitions,
             polling_interval=polling_interval,

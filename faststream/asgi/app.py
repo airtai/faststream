@@ -20,17 +20,11 @@ from faststream.log.logging import logger
 
 if TYPE_CHECKING:
     from faststream.asgi.types import ASGIApp, Receive, Scope, Send
-    from faststream.asyncapi.schema import (
-        Contact,
-        ContactDict,
-        ExternalDocs,
-        ExternalDocsDict,
-        License,
-        LicenseDict,
-        Tag,
-        TagDict,
-    )
     from faststream.broker.core.usecase import BrokerUsecase
+    from faststream.specification.schema.contact import Contact, ContactDict
+    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
+    from faststream.specification.schema.license import License, LicenseDict
+    from faststream.specification.schema.tag import Tag
     from faststream.types import (
         AnyCallable,
         AnyDict,
@@ -57,7 +51,7 @@ class AsgiFastStream(FastStream):
         terms_of_service: Optional["AnyHttpUrl"] = None,
         license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
         contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
-        tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]] = None,
+        tags: Optional[Sequence[Union["Tag", "AnyDict"]]] = None,
         external_docs: Optional[
             Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,

@@ -1,4 +1,3 @@
-from abc import ABC
 from inspect import unwrap
 from typing import (
     TYPE_CHECKING,
@@ -15,9 +14,6 @@ from fast_depends._compat import create_model, get_config_base
 from fast_depends.core import CallModel, build_call_model
 from typing_extensions import Annotated, Doc, override
 
-from faststream.asyncapi.abc import AsyncAPIOperation
-from faststream.asyncapi.message import get_response_schema
-from faststream.asyncapi.utils import to_camelcase
 from faststream.broker.publisher.proto import PublisherProto
 from faststream.broker.types import (
     MsgType,
@@ -25,6 +21,8 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.wrapper.call import HandlerCallWrapper
+from faststream.specification.asyncapi.message import get_response_schema
+from faststream.specification.asyncapi.utils import to_camelcase
 
 if TYPE_CHECKING:
     from faststream.broker.publisher.proto import ProducerProto
@@ -36,8 +34,6 @@ if TYPE_CHECKING:
 
 
 class PublisherUsecase(
-    ABC,
-    AsyncAPIOperation,
     PublisherProto[MsgType],
 ):
     """A base class for publishers in an asynchronous API."""

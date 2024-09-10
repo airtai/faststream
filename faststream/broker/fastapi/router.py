@@ -30,8 +30,6 @@ from fastapi.utils import generate_unique_id
 from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute, _DefaultLifespan
 
-from faststream.asyncapi.proto import AsyncAPIApplication
-from faststream.asyncapi.site import get_asyncapi_html
 from faststream.broker.fastapi.get_dependant import get_fastapi_dependant
 from faststream.broker.fastapi.route import wrap_callable_to_fastapi_compatible
 from faststream.broker.middlewares import BaseMiddleware
@@ -41,6 +39,8 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
+from faststream.specification.asyncapi.site import get_asyncapi_html
+from faststream.specification.proto import Application
 from faststream.utils.context.repository import context
 from faststream.utils.functions import fake_context, to_async
 
@@ -52,14 +52,14 @@ if TYPE_CHECKING:
     from starlette import routing
     from starlette.types import ASGIApp, AppType, Lifespan
 
-    from faststream.asyncapi import schema as asyncapi
-    from faststream.asyncapi.schema import Schema
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import PublisherProto
     from faststream.broker.schemas import NameRequired
     from faststream.broker.types import BrokerMiddleware
     from faststream.broker.wrapper.call import HandlerCallWrapper
+    from faststream.specification.asyncapi.base.schema import BaseSchema
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import AnyDict
 
 
@@ -83,7 +83,7 @@ class _BackgroundMiddleware(BaseMiddleware):
 
 class StreamRouter(
     APIRouter,
-    AsyncAPIApplication,
+    Application,
     Generic[MsgType],
 ):
     """A class to route streams."""
@@ -93,7 +93,7 @@ class StreamRouter(
     docs_router: Optional[APIRouter]
     _after_startup_hooks: List[Callable[[Any], Awaitable[Optional[Mapping[str, Any]]]]]
     _on_shutdown_hooks: List[Callable[[Any], Awaitable[None]]]
-    schema: Optional["Schema"]
+    schema: Optional["BaseSchema"]
 
     title: str
     description: str
@@ -125,9 +125,9 @@ class StreamRouter(
         generate_unique_id_function: Callable[["APIRoute"], str] = Default(
             generate_unique_id
         ),
-        # AsyncAPI information
-        asyncapi_tags: Optional[
-            Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]
+        # Specification information
+        specification_tags: Optional[
+            Iterable[Union["Tag", "TagDict"]]
         ] = None,
         schema_url: Optional[str] = "/asyncapi",
         **connection_kwars: Any,
@@ -144,18 +144,18 @@ class StreamRouter(
                 _BackgroundMiddleware,
             ),
             _get_dependant=get_fastapi_dependant,
-            tags=asyncapi_tags,
+            tags=specification_tags,
             apply_types=False,
             **connection_kwars,
         )
 
         self.setup_state = setup_state
 
-        # AsyncAPI information
+        # Specification information
         # Empty
         self.terms_of_service = None
         self.identifier = None
-        self.asyncapi_tags = None
+        self.specs_tags = None
         self.external_docs = None
         # parse from FastAPI app on startup
         self.title = ""
@@ -300,7 +300,7 @@ class StreamRouter(
                 self.contact = app.contact
                 self.license = app.license_info
 
-                from faststream.asyncapi.generate import get_app_schema
+                from faststream.specification.asyncapi.generate import get_app_schema
 
                 self.schema = get_app_schema(self)
 

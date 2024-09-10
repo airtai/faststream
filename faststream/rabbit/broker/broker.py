@@ -28,7 +28,7 @@ from faststream.rabbit.schemas import (
     RabbitQueue,
 )
 from faststream.rabbit.security import parse_security
-from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
 from faststream.rabbit.utils import build_url
 from faststream.types import EMPTY
 
@@ -48,7 +48,6 @@ if TYPE_CHECKING:
     from pamqp.common import FieldTable
     from yarl import URL
 
-    from faststream.asyncapi import schema as asyncapi
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -56,6 +55,7 @@ if TYPE_CHECKING:
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
@@ -175,7 +175,7 @@ class RabbitBroker(
                 "Security options to connect broker and generate AsyncAPI server security information."
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Optional[str],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -192,7 +192,7 @@ class RabbitBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args
@@ -240,14 +240,14 @@ class RabbitBroker(
             ssl=security_args.get("ssl"),
         )
 
-        if asyncapi_url is None:
-            asyncapi_url = str(amqp_url)
+        if specification_url is None:
+            specification_url = str(amqp_url)
 
         # respect ascynapi_url argument scheme
-        builded_asyncapi_url = urlparse(asyncapi_url)
-        self.virtual_host = builded_asyncapi_url.path
+        builded_specification_url = urlparse(specification_url)
+        self.virtual_host = builded_specification_url.path
         if protocol is None:
-            protocol = builded_asyncapi_url.scheme
+            protocol = builded_specification_url.scheme
 
         super().__init__(
             url=str(amqp_url),
@@ -267,8 +267,8 @@ class RabbitBroker(
             middlewares=middlewares,
             # AsyncAPI args
             description=description,
-            asyncapi_url=asyncapi_url,
-            protocol=protocol or builded_asyncapi_url.scheme,
+            specification_url=specification_url,
+            protocol=protocol or builded_specification_url.scheme,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
@@ -472,7 +472,7 @@ class RabbitBroker(
             )
 
             if max_consumers:
-                c = AsyncAPISubscriber.build_log_context(
+                c = SpecificationSubscriber.build_log_context(
                     None,
                     RabbitQueue(""),
                     RabbitExchange(""),

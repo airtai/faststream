@@ -1,5 +1,5 @@
 import asyncio
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
-class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
+class LogicSubscriber(SubscriberUsecase[MsgType]):
     """A class to handle logic for consuming messages from Kafka."""
 
     topics: Sequence[str]
