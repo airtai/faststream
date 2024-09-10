@@ -13,7 +13,7 @@ from typing import (
 )
 
 import anyio
-from typing_extensions import Annotated, Literal, ParamSpec, deprecated
+from typing_extensions import Annotated, ParamSpec, deprecated
 
 from faststream._compat import ExceptionGroup
 from faststream.asyncapi.proto import AsyncAPIApplication
