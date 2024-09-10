@@ -156,7 +156,7 @@ class FastStream(AsyncAPIApplication):
         sleep_time: Annotated[
             float,
             deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
+                "Deprecated in **FastStream 0.5.24**. "
                 "Argument will be removed in **FastStream 0.6.0**."
             ),
         ] = 0.1,
