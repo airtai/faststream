@@ -25,7 +25,7 @@ class AsyncAPISubscriber(LogicSubscriber):
 
         return {
             self.name: Channel(
-                description=self.description,  # type: ignore[attr-defined]
+                description=self.description,
                 subscribe=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
@@ -45,7 +45,7 @@ class AsyncAPISubscriber(LogicSubscriber):
                 bindings=ChannelBinding(
                     amqp=amqp.ChannelBinding(
                         **{
-                            "is": "routingKey",  # type: ignore
+                            "is": "routingKey",
                             "queue": amqp.Queue(
                                 name=self.queue.name,
                                 durable=self.queue.durable,
@@ -59,7 +59,7 @@ class AsyncAPISubscriber(LogicSubscriber):
                                 amqp.Exchange(type="default", vhost=self.virtual_host)
                                 if not self.exchange.name
                                 else amqp.Exchange(
-                                    type=self.exchange.type.value,  # type: ignore
+                                    type=self.exchange.type.value,
                                     name=self.exchange.name,
                                     durable=self.exchange.durable,
                                     autoDelete=self.exchange.auto_delete,

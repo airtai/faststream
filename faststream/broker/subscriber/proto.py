@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import BasePublisherProto, ProducerProto
+    from faststream.broker.response import Response
     from faststream.broker.subscriber.call_item import HandlerItem
     from faststream.broker.types import (
         BrokerMiddleware,
@@ -83,7 +84,12 @@ class SubscriberProto(
     async def consume(self, msg: MsgType) -> Any: ...
 
     @abstractmethod
-    async def process_message(self, msg: MsgType) -> Any: ...
+    async def process_message(self, msg: MsgType) -> "Response": ...
+
+    @abstractmethod
+    async def get_one(
+        self, *, timeout: float = 5.0
+    ) -> "Optional[StreamMessage[MsgType]]": ...
 
     @abstractmethod
     def add_call(

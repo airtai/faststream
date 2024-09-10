@@ -20,6 +20,12 @@ Install using `pip`:
 
 ## Basic Usage
 
+!!! note
+    Before continuing with the next steps, make sure you install *Fastream* CLI.
+    ```shell
+    pip install "faststream[cli]"
+    ```
+
 To create a basic application, add the following code to a new file (e.g. `serve.py`):
 
 {! includes/getting_started/index/base.md !}

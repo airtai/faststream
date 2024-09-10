@@ -23,18 +23,14 @@ Just send a message like a regular one and get a response synchronously.
 
 It is very close to the common **requests** syntax:
 
-```python hl_lines="1 4"
-msg = await broker.publish(
+```python hl_lines="3"
+from faststream.nats import NatsMessage
+
+msg: NatsMessage = await broker.request(
     "Hi!",
     subject="test",
-    rpc=True,
 )
 ```
-
-Also, you have two extra options to control this behavior:
-
-* `#!python rpc_timeout: Optional[float] = 30.0` - controls how long you are waiting for a response.
-* `#!python raise_timeout: bool = False` - by default, a timeout request returns `None`, but if you need to raise a `TimeoutException` directly, you can specify this option.
 
 ## Reply-To
 
@@ -47,7 +43,7 @@ So, if you have such one, you can specify it with the `reply_to` argument. This 
 async def consume_responses(msg):
     ...
 
-msg = await broker.publish(
+await broker.publish(
     "Hi!",
     subject="test",
     reply_to="response-subject",

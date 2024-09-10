@@ -10,8 +10,8 @@ from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.redis()
-@pytest.mark.asyncio()
+@pytest.mark.redis
+@pytest.mark.asyncio
 class TestConsume(BrokerRealConsumeTestcase):
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(apply_types=apply_types)
@@ -93,8 +93,8 @@ class TestConsume(BrokerRealConsumeTestcase):
         mock.assert_called_once_with("hello")
 
 
-@pytest.mark.redis()
-@pytest.mark.asyncio()
+@pytest.mark.redis
+@pytest.mark.asyncio
 class TestConsumeList:
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(apply_types=apply_types)
@@ -154,7 +154,7 @@ class TestConsumeList:
 
         mock.assert_called_once_with(b"hello")
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_list_batch_with_one(
         self,
         queue: str,
@@ -183,7 +183,7 @@ class TestConsumeList:
             assert event.is_set()
             mock.assert_called_once_with(["hi"])
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_list_batch_headers(
         self,
         queue: str,
@@ -222,7 +222,7 @@ class TestConsumeList:
             assert event.is_set()
             mock.assert_called_once_with(True)
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_list_batch(
         self,
         queue: str,
@@ -249,7 +249,7 @@ class TestConsumeList:
 
             assert [{1, "hi"}] == [set(r.result()) for r in result]
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_list_batch_complex(
         self,
         queue: str,
@@ -284,7 +284,7 @@ class TestConsumeList:
 
         assert [{Data(m="hi"), Data(m="again")}] == [set(r.result()) for r in result]
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_list_batch_native(
         self,
         queue: str,
@@ -311,9 +311,54 @@ class TestConsumeList:
 
         assert [{1, "hi"}] == [set(r.result()) for r in result]
 
+    async def test_get_one(
+        self,
+        queue: str,
+        event: asyncio.Event,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(list=queue)
 
-@pytest.mark.redis()
-@pytest.mark.asyncio()
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            message = None
+
+            async def consume():
+                nonlocal message
+                message = await subscriber.get_one(timeout=5)
+
+            async def publish():
+                await br.publish("test_message", list=queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume()),
+                    asyncio.create_task(publish()),
+                ),
+                timeout=10,
+            )
+
+            assert message is not None
+            assert await message.decode() == "test_message"
+
+    async def test_get_one_timeout(
+        self,
+        queue: str,
+        mock: MagicMock,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(list=queue)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            mock(await subscriber.get_one(timeout=1e-24))
+            mock.assert_called_once_with(None)
+
+
+@pytest.mark.redis
+@pytest.mark.asyncio
 class TestConsumeStream:
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(apply_types=apply_types)
@@ -321,7 +366,7 @@ class TestConsumeStream:
     def patch_broker(self, broker):
         return broker
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream(
         self,
         event: asyncio.Event,
@@ -348,7 +393,7 @@ class TestConsumeStream:
 
         mock.assert_called_once_with("hello")
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream_native(
         self,
         event: asyncio.Event,
@@ -377,7 +422,7 @@ class TestConsumeStream:
 
         mock.assert_called_once_with({"message": "hello"})
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream_batch(
         self,
         event: asyncio.Event,
@@ -406,7 +451,7 @@ class TestConsumeStream:
 
         mock.assert_called_once_with(["hello"])
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream_batch_headers(
         self,
         queue: str,
@@ -445,7 +490,7 @@ class TestConsumeStream:
             assert event.is_set()
             mock.assert_called_once_with(True)
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream_batch_complex(
         self,
         queue,
@@ -477,7 +522,7 @@ class TestConsumeStream:
 
         assert next(iter(result)).result() == [Data(m="hi")]
 
-    @pytest.mark.slow()
+    @pytest.mark.slow
     async def test_consume_stream_batch_native(
         self,
         event: asyncio.Event,
@@ -592,3 +637,48 @@ class TestConsumeStream:
                 m.mock.assert_called_once()
 
         assert event.is_set()
+
+    async def test_get_one(
+        self,
+        queue: str,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(stream=queue)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            message = None
+
+            async def consume():
+                nonlocal message
+                message = await subscriber.get_one(timeout=3)
+
+            async def publish():
+                await asyncio.sleep(0.1)
+                await br.publish("test_message", stream=queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume()),
+                    asyncio.create_task(publish()),
+                ),
+                timeout=10,
+            )
+
+            assert message is not None
+            assert await message.decode() == "test_message"
+
+    async def test_get_one_timeout(
+        self,
+        queue: str,
+        mock: MagicMock,
+    ):
+        broker = self.get_broker(apply_types=True)
+        subscriber = broker.subscriber(stream=queue)
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            mock(await subscriber.get_one(timeout=1e-24))
+            mock.assert_called_once_with(None)

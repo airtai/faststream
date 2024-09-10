@@ -11,7 +11,7 @@ from tests.marks import (
 
 
 @python39
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_annotated_kafka():
     from docs.docs_src.getting_started.context.kafka.annotated import (
@@ -27,7 +27,7 @@ async def test_annotated_kafka():
 
 
 @python39
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_annotated_confluent():
     from docs.docs_src.getting_started.context.confluent.annotated import (
@@ -43,7 +43,7 @@ async def test_annotated_confluent():
 
 
 @python39
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_annotated_rabbit():
     from docs.docs_src.getting_started.context.rabbit.annotated import (
@@ -59,7 +59,7 @@ async def test_annotated_rabbit():
 
 
 @python39
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_annotated_nats():
     from docs.docs_src.getting_started.context.nats.annotated import (
@@ -75,7 +75,7 @@ async def test_annotated_nats():
 
 
 @python39
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_annotated_redis():
     from docs.docs_src.getting_started.context.redis.annotated import (

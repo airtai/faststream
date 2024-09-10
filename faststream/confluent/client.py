@@ -1,8 +1,11 @@
+import asyncio
 import logging
+from contextlib import suppress
 from time import time
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     Iterable,
     List,
@@ -16,7 +19,7 @@ import anyio
 from confluent_kafka import Consumer, KafkaError, KafkaException, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 
-from faststream.confluent.config import ConfluentConfig
+from faststream.confluent import config as config_module
 from faststream.confluent.schemas import TopicPartition
 from faststream.exceptions import SetupError
 from faststream.log import logger as faststream_logger
@@ -24,7 +27,17 @@ from faststream.types import EMPTY
 from faststream.utils.functions import call_or_await
 
 if TYPE_CHECKING:
+    from typing_extensions import NotRequired, TypedDict
+
     from faststream.types import AnyDict, LoggerProto
+
+    class _SendKwargs(TypedDict):
+        value: Optional[Union[str, bytes]]
+        key: Optional[Union[str, bytes]]
+        headers: Optional[List[Tuple[str, Union[str, bytes]]]]
+        partition: NotRequired[int]
+        timestamp: NotRequired[int]
+        on_delivery: NotRequired[Callable[..., None]]
 
 
 class AsyncConfluentProducer:
@@ -34,6 +47,7 @@ class AsyncConfluentProducer:
         self,
         *,
         logger: Optional["LoggerProto"],
+        config: config_module.ConfluentFastConfig,
         bootstrap_servers: Union[str, List[str]] = "localhost",
         client_id: Optional[str] = None,
         metadata_max_age_ms: int = 300000,
@@ -53,11 +67,8 @@ class AsyncConfluentProducer:
         sasl_mechanism: Optional[str] = None,
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
-        config: Optional[ConfluentConfig] = None,
     ) -> None:
         self.logger = logger
-
-        self.config: Dict[str, Any] = {} if config is None else dict(config)
 
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
@@ -89,10 +100,11 @@ class AsyncConfluentProducer:
             "connections.max.idle.ms": connections_max_idle_ms,
             "allow.auto.create.topics": allow_auto_create_topics,
         }
-        self.config = {**self.config, **config_from_params}
+
+        final_config = {**config.as_config_dict(), **config_from_params}
 
         if sasl_mechanism in ["PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512"]:
-            self.config.update(
+            final_config.update(
                 {
                     "sasl.mechanism": sasl_mechanism,
                     "sasl.username": sasl_plain_username,
@@ -100,11 +112,23 @@ class AsyncConfluentProducer:
                 }
             )
 
-        self.producer = Producer(self.config, logger=self.logger)  # type: ignore[call-arg]
+        self.producer = Producer(final_config, logger=self.logger)
+
+        self.__running = True
+        self._poll_task = asyncio.create_task(self._poll_loop())
+
+    async def _poll_loop(self) -> None:
+        while self.__running:
+            with suppress(Exception):
+                await call_or_await(self.producer.poll, 0.1)
 
     async def stop(self) -> None:
         """Stop the Kafka producer and flush remaining messages."""
-        await call_or_await(self.producer.flush)
+        if self.__running:
+            self.__running = False
+            if not self._poll_task.done():
+                self._poll_task.cancel()
+            await call_or_await(self.producer.flush)
 
     async def send(
         self,
@@ -114,9 +138,10 @@ class AsyncConfluentProducer:
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
         headers: Optional[List[Tuple[str, Union[str, bytes]]]] = None,
+        no_confirm: bool = False,
     ) -> None:
         """Sends a single message to a Kafka topic."""
-        kwargs: AnyDict = {
+        kwargs: _SendKwargs = {
             "value": value,
             "key": key,
             "headers": headers,
@@ -128,16 +153,34 @@ class AsyncConfluentProducer:
         if timestamp_ms is not None:
             kwargs["timestamp"] = timestamp_ms
 
+        if not no_confirm:
+            result_future: asyncio.Future[Optional[Message]] = asyncio.Future()
+
+            def ack_callback(err: Any, msg: Optional[Message]) -> None:
+                if err or (msg is not None and (err := msg.error())):
+                    result_future.set_exception(KafkaException(err))
+                else:
+                    result_future.set_result(msg)
+
+            kwargs["on_delivery"] = ack_callback
+
         # should be sync to prevent segfault
         self.producer.produce(topic, **kwargs)
-        self.producer.poll(0)
+
+        if not no_confirm:
+            await result_future
 
     def create_batch(self) -> "BatchBuilder":
         """Creates a batch for sending multiple messages."""
         return BatchBuilder()
 
     async def send_batch(
-        self, batch: "BatchBuilder", topic: str, *, partition: Optional[int]
+        self,
+        batch: "BatchBuilder",
+        topic: str,
+        *,
+        partition: Optional[int],
+        no_confirm: bool = False,
     ) -> None:
         """Sends a batch of messages to a Kafka topic."""
         async with anyio.create_task_group() as tg:
@@ -150,6 +193,7 @@ class AsyncConfluentProducer:
                     partition,
                     msg["timestamp_ms"],
                     msg["headers"],
+                    no_confirm,
                 )
 
     async def ping(
@@ -180,6 +224,7 @@ class AsyncConfluentConsumer:
         *topics: str,
         partitions: Sequence["TopicPartition"],
         logger: Optional["LoggerProto"],
+        config: config_module.ConfluentFastConfig,
         bootstrap_servers: Union[str, List[str]] = "localhost",
         client_id: Optional[str] = "confluent-kafka-consumer",
         group_id: Optional[str] = None,
@@ -205,14 +250,8 @@ class AsyncConfluentConsumer:
         sasl_mechanism: Optional[str] = None,
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
-        config: Optional[ConfluentConfig] = None,
     ) -> None:
         self.logger = logger
-
-        self.config: Dict[str, Any] = {} if config is None else dict(config)
-
-        if group_id is None:
-            group_id = "faststream-consumer-group"
 
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
@@ -229,13 +268,18 @@ class AsyncConfluentConsumer:
                     for x in partition_assignment_strategy
                 ]
             )
+
+        final_config = config.as_config_dict()
+
         config_from_params = {
             "allow.auto.create.topics": allow_auto_create_topics,
             "topic.metadata.refresh.interval.ms": 1000,
             "bootstrap.servers": bootstrap_servers,
             "client.id": client_id,
-            "group.id": group_id,
-            "group.instance.id": group_instance_id,
+            "group.id": group_id
+            or final_config.get("group.id", "faststream-consumer-group"),
+            "group.instance.id": group_instance_id
+            or final_config.get("group.instance.id", None),
             "fetch.wait.max.ms": fetch_max_wait_ms,
             "fetch.max.bytes": fetch_max_bytes,
             "fetch.min.bytes": fetch_min_bytes,
@@ -256,10 +300,10 @@ class AsyncConfluentConsumer:
             "isolation.level": isolation_level,
         }
         self.allow_auto_create_topics = allow_auto_create_topics
-        self.config = {**self.config, **config_from_params}
+        final_config.update(config_from_params)
 
         if sasl_mechanism in ["PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512"]:
-            self.config.update(
+            final_config.update(
                 {
                     "sasl.mechanism": sasl_mechanism,
                     "sasl.username": sasl_plain_username,
@@ -267,7 +311,8 @@ class AsyncConfluentConsumer:
                 }
             )
 
-        self.consumer = Consumer(self.config, logger=self.logger)  # type: ignore[call-arg]
+        self.config = final_config
+        self.consumer = Consumer(final_config, logger=self.logger)
 
     @property
     def topics_to_create(self) -> List[str]:
@@ -336,7 +381,7 @@ class AsyncConfluentConsumer:
     ) -> Tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
         raw_messages: List[Optional[Message]] = await call_or_await(
-            self.consumer.consume,  # type: ignore[arg-type]
+            self.consumer.consume,
             num_messages=max_records or 10,
             timeout=timeout,
         )

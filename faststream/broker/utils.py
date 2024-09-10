@@ -1,12 +1,14 @@
 import asyncio
 import inspect
-from contextlib import suppress
+from contextlib import AsyncExitStack, suppress
 from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
     AsyncContextManager,
+    Awaitable,
     Callable,
+    Iterable,
     Optional,
     Type,
     Union,
@@ -14,10 +16,11 @@ from typing import (
 )
 
 import anyio
-from typing_extensions import Self
+from typing_extensions import Literal, Self, overload
 
 from faststream.broker.acknowledgement_watcher import WatcherContext, get_watcher
-from faststream.utils.functions import fake_context, to_async
+from faststream.broker.types import MsgType
+from faststream.utils.functions import fake_context, return_input, to_async
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -25,10 +28,56 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         AsyncCallable,
+        BrokerMiddleware,
         CustomCallable,
         SyncCallable,
     )
     from faststream.types import LoggerProto
+
+
+@overload
+async def process_msg(
+    msg: Literal[None],
+    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
+    decoder: Callable[["StreamMessage[MsgType]"], "Any"],
+) -> None: ...
+
+
+@overload
+async def process_msg(
+    msg: MsgType,
+    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
+    decoder: Callable[["StreamMessage[MsgType]"], "Any"],
+) -> "StreamMessage[MsgType]": ...
+
+
+async def process_msg(
+    msg: Optional[MsgType],
+    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
+    decoder: Callable[["StreamMessage[MsgType]"], "Any"],
+) -> Optional["StreamMessage[MsgType]"]:
+    if msg is None:
+        return None
+
+    async with AsyncExitStack() as stack:
+        return_msg: Callable[
+            [StreamMessage[MsgType]],
+            Awaitable[StreamMessage[MsgType]],
+        ] = return_input
+
+        for m in middlewares:
+            mid = m(msg)
+            await stack.enter_async_context(mid)
+            return_msg = partial(mid.consume_scope, return_msg)
+
+        parsed_msg = await parser(msg)
+        parsed_msg._decoded_body = await decoder(parsed_msg)
+        return await return_msg(parsed_msg)
+
+    raise AssertionError("unreachable")
 
 
 async def default_filter(msg: "StreamMessage[Any]") -> bool:
@@ -121,4 +170,4 @@ def resolve_custom_func(
 
     else:
         name = tuple(original_params.items())[1][0]
-        return partial(to_async(custom_func), **{name: default_func})  # type: ignore
+        return partial(to_async(custom_func), **{name: default_func})

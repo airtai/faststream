@@ -7,8 +7,8 @@ from faststream.redis import TestApp, TestRedisBroker
 from tests.tools import spy_decorator
 
 
-@pytest.mark.redis()
-@pytest.mark.asyncio()
+@pytest.mark.redis
+@pytest.mark.asyncio
 async def test_stream_ack():
     from docs.docs_src.redis.stream.ack_errors import app, broker, handle
 

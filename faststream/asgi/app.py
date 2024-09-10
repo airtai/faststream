@@ -1,6 +1,14 @@
 import traceback
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, AsyncIterator, Optional, Sequence, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncIterator,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import anyio
 
@@ -24,6 +32,7 @@ if TYPE_CHECKING:
     )
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.types import (
+        AnyCallable,
         AnyDict,
         AnyHttpUrl,
         Lifespan,
@@ -53,6 +62,10 @@ class AsgiFastStream(FastStream):
             Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,
         identifier: Optional[str] = None,
+        on_startup: Sequence["AnyCallable"] = (),
+        after_startup: Sequence["AnyCallable"] = (),
+        on_shutdown: Sequence["AnyCallable"] = (),
+        after_shutdown: Sequence["AnyCallable"] = (),
     ) -> None:
         super().__init__(
             broker=broker,
@@ -67,6 +80,10 @@ class AsgiFastStream(FastStream):
             tags=tags,
             external_docs=external_docs,
             identifier=identifier,
+            on_startup=on_startup,
+            after_startup=after_startup,
+            on_shutdown=on_shutdown,
+            after_shutdown=after_shutdown,
         )
 
         self.routes = list(asgi_routes)
@@ -94,6 +111,7 @@ class AsgiFastStream(FastStream):
     async def start_lifespan_context(self) -> AsyncIterator[None]:
         async with anyio.create_task_group() as tg, self.lifespan_context():
             tg.start_soon(self._startup)
+
             try:
                 yield
             finally:

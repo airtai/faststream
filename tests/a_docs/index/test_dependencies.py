@@ -3,7 +3,7 @@ import pytest
 from tests.marks import require_aiokafka
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_index_dep():
     from docs.docs_src.index.dependencies import base_handler, broker

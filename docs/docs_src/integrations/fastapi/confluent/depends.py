@@ -5,7 +5,7 @@ from faststream.confluent import KafkaBroker, fastapi
 
 router = fastapi.KafkaRouter("localhost:9092")
 
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 
 
 def broker():

@@ -36,7 +36,7 @@ class CriticalLogMiddleware(BaseMiddleware):
         msg: "StreamMessage[Any]",
     ) -> "StreamMessage[Any]":
         if self.logger is not None:
-            c = context.get_local("log_context") or {}
+            c = context.get_local("log_context", {})
             self.logger.log(self.log_level, "Received", extra=c)
 
         return await super().on_consume(msg)
@@ -49,7 +49,7 @@ class CriticalLogMiddleware(BaseMiddleware):
     ) -> bool:
         """Asynchronously called after processing."""
         if self.logger is not None:
-            c = context.get_local("log_context") or {}
+            c = context.get_local("log_context", {})
 
             if exc_type:
                 if issubclass(exc_type, IgnoredException):

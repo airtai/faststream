@@ -28,8 +28,8 @@ def patch_asyncio_open_connection() -> Tuple[MagicMock, MagicMock]:
         pass
 
 
-@pytest.mark.asyncio()
-@pytest.mark.redis()
+@pytest.mark.asyncio
+@pytest.mark.redis
 async def test_base_security():
     with patch_asyncio_open_connection() as connection:
         from docs.docs_src.redis.security.basic import broker
@@ -57,8 +57,8 @@ async def test_base_security():
         }
 
 
-@pytest.mark.asyncio()
-@pytest.mark.redis()
+@pytest.mark.asyncio
+@pytest.mark.redis
 async def test_plaintext_security():
     with patch_asyncio_open_connection() as connection:
         from docs.docs_src.redis.security.plaintext import broker

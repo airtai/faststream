@@ -36,7 +36,25 @@ def test_log(app: FastStream, app_without_logger: FastStream):
     app_without_logger._log(logging.INFO, "test")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
+async def test_on_startup_calls(async_mock: AsyncMock, mock: Mock):
+    def call1():
+        mock.call_start1()
+        assert not async_mock.call_start2.called
+
+    async def call2():
+        await async_mock.call_start2()
+        assert mock.call_start1.call_count == 1
+
+    test_app = FastStream(on_startup=[call1, call2])
+
+    await test_app.start()
+
+    mock.call_start1.assert_called_once()
+    async_mock.call_start2.assert_called_once()
+
+
+@pytest.mark.asyncio
 async def test_startup_calls_lifespans(mock: Mock, app_without_broker: FastStream):
     def call1():
         mock.call_start1()
@@ -55,7 +73,25 @@ async def test_startup_calls_lifespans(mock: Mock, app_without_broker: FastStrea
     mock.call_start2.assert_called_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
+async def test_on_shutdown_calls(async_mock: AsyncMock, mock: Mock):
+    def call1():
+        mock.call_stop1()
+        assert not async_mock.call_stop2.called
+
+    async def call2():
+        await async_mock.call_stop2()
+        assert mock.call_stop1.call_count == 1
+
+    test_app = FastStream(on_shutdown=[call1, call2])
+
+    await test_app.stop()
+
+    mock.call_stop1.assert_called_once()
+    async_mock.call_stop2.assert_called_once()
+
+
+@pytest.mark.asyncio
 async def test_shutdown_calls_lifespans(mock: Mock, app_without_broker: FastStream):
     def call1():
         mock.call_stop1()
@@ -74,7 +110,26 @@ async def test_shutdown_calls_lifespans(mock: Mock, app_without_broker: FastStre
     mock.call_stop2.assert_called_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
+async def test_after_startup_calls(async_mock: AsyncMock, mock: Mock, broker):
+    def call1():
+        mock.after_startup1()
+        assert not async_mock.after_startup2.called
+
+    async def call2():
+        await async_mock.after_startup2()
+        assert mock.after_startup1.call_count == 1
+
+    test_app = FastStream(broker=broker, after_startup=[call1, call2])
+
+    with patch.object(test_app.broker, "start", async_mock.broker_start):
+        await test_app.start()
+
+    mock.after_startup1.assert_called_once()
+    async_mock.after_startup2.assert_called_once()
+
+
+@pytest.mark.asyncio
 async def test_startup_lifespan_before_broker_started(async_mock, app: FastStream):
     @app.on_startup
     async def call():
@@ -95,7 +150,26 @@ async def test_startup_lifespan_before_broker_started(async_mock, app: FastStrea
     async_mock.before.assert_awaited_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
+async def test_after_shutdown_calls(async_mock: AsyncMock, mock: Mock, broker):
+    def call1():
+        mock.after_shutdown1()
+        assert not async_mock.after_shutdown2.called
+
+    async def call2():
+        await async_mock.after_shutdown2()
+        assert mock.after_shutdown1.call_count == 1
+
+    test_app = FastStream(broker=broker, after_shutdown=[call1, call2])
+
+    with patch.object(test_app.broker, "start", async_mock.broker_start):
+        await test_app.stop()
+
+    mock.after_shutdown1.assert_called_once()
+    async_mock.after_shutdown2.assert_called_once()
+
+
+@pytest.mark.asyncio
 async def test_shutdown_lifespan_after_broker_stopped(
     mock, async_mock, app: FastStream
 ):
@@ -117,7 +191,7 @@ async def test_shutdown_lifespan_after_broker_stopped(
     async_mock.before.assert_awaited_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_running(async_mock, app: FastStream):
     app.exit()
 
@@ -130,7 +204,7 @@ async def test_running(async_mock, app: FastStream):
     async_mock.broker_stopped.assert_called_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_exception_group(async_mock: AsyncMock, app: FastStream):
     async_mock.side_effect = ValueError("Ooops!")
 
@@ -142,7 +216,7 @@ async def test_exception_group(async_mock: AsyncMock, app: FastStream):
         await app.run()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: FastStream):
     @asynccontextmanager
     async def lifespan(env: str):
@@ -165,7 +239,7 @@ async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: Fast
     mock.off.assert_called_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.skipif(IS_WINDOWS, reason="does not run on windows")
 async def test_stop_with_sigint(async_mock, app: FastStream):
     with patch.object(app.broker, "start", async_mock.broker_run_sigint), patch.object(
@@ -179,7 +253,7 @@ async def test_stop_with_sigint(async_mock, app: FastStream):
     async_mock.broker_stopped_sigint.assert_called_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.skipif(IS_WINDOWS, reason="does not run on windows")
 async def test_stop_with_sigterm(async_mock, app: FastStream):
     with patch.object(app.broker, "start", async_mock.broker_run_sigterm), patch.object(
@@ -193,7 +267,7 @@ async def test_stop_with_sigterm(async_mock, app: FastStream):
     async_mock.broker_stopped_sigterm.assert_called_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_test_app(mock: Mock):
     app = FastStream()
 
@@ -207,7 +281,7 @@ async def test_test_app(mock: Mock):
     mock.off.assert_called_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_test_app_with_excp(mock: Mock):
     app = FastStream()
 
@@ -248,7 +322,7 @@ def test_sync_test_app_with_excp(mock: Mock):
     mock.off.assert_called_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_lifespan_contextmanager(async_mock: AsyncMock, app: FastStream):
     @asynccontextmanager
     async def lifespan(env: str):

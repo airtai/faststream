@@ -24,7 +24,7 @@ class BrokerTestclientTestcase(
     def get_fake_producer_class(self) -> type:
         raise NotImplementedError
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_subscriber_mock(self, queue: str):
         test_broker = self.get_broker()
 
@@ -39,7 +39,7 @@ class BrokerTestclientTestcase(
             await test_broker.publish("hello", queue)
             m.mock.assert_called_once_with("hello")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publisher_mock(self, queue: str):
         test_broker = self.get_broker()
 
@@ -57,7 +57,34 @@ class BrokerTestclientTestcase(
             await test_broker.publish("hello", queue)
             publisher.mock.assert_called_with("response")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
+    async def test_publisher_with_subscriber__mock(self, queue: str):
+        test_broker = self.get_broker()
+
+        publisher = test_broker.publisher(queue + "resp")
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @publisher
+        @test_broker.subscriber(*args, **kwargs)
+        async def m(msg):
+            return "response"
+
+        args2, kwargs2 = self.get_subscriber_params(queue + "resp")
+
+        @test_broker.subscriber(*args2, **kwargs2)
+        async def handler_response(msg): ...
+
+        async with self.test_class(test_broker):
+            await test_broker.start()
+
+            assert len(test_broker._subscribers) == 2
+
+            await test_broker.publish("hello", queue)
+            publisher.mock.assert_called_with("response")
+            handler_response.mock.assert_called_once_with("response")
+
+    @pytest.mark.asyncio
     async def test_manual_publisher_mock(self, queue: str):
         test_broker = self.get_broker()
 
@@ -74,7 +101,7 @@ class BrokerTestclientTestcase(
             await test_broker.publish("hello", queue)
             publisher.mock.assert_called_with("response")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_exception_raises(self, queue: str):
         test_broker = self.get_broker()
 
@@ -141,6 +168,7 @@ class BrokerTestclientTestcase(
             m.mock.assert_called_once_with("hello")
 
             with anyio.fail_after(self.timeout):
-                while not publisher.mock.called:
+                while not publisher.mock.called:  # noqa: ASYNC110
                     await asyncio.sleep(0.1)
+
                 publisher.mock.assert_called_once_with("response: hello")

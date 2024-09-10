@@ -1,5 +1,5 @@
 from faststream import FastStream, Logger
-from faststream.redis import RedisBroker
+from faststream.redis import RedisBroker, RedisMessage
 
 broker = RedisBroker("redis://localhost:6379")
 app = FastStream(broker)
@@ -27,23 +27,23 @@ async def handle_stream(msg: str, logger: Logger):
 async def t():
     msg = "Hi!"
 
-    assert msg == await broker.publish(
+    response: RedisMessage = await broker.request(
         "Hi!",
         channel="test-channel",
-        rpc=True,
-        rpc_timeout=3.0,
+        timeout=3.0,
     )
+    assert await response.decode() == msg
 
-    assert msg == await broker.publish(
+    response: RedisMessage = await broker.request(
         "Hi!",
         list="test-list",
-        rpc=True,
-        rpc_timeout=3.0,
+        timeout=3.0,
     )
+    assert await response.decode() == msg
 
-    assert msg == await broker.publish(
+    response: RedisMessage = await broker.request(
         "Hi!",
         stream="test-stream",
-        rpc=True,
-        rpc_timeout=3.0,
+        timeout=3.0,
     )
+    assert await response.decode() == msg

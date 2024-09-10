@@ -8,6 +8,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
 
+from faststream.opentelemetry import Baggage, CurrentBaggage
 from faststream.redis import ListSub, RedisBroker
 from faststream.redis.opentelemetry import RedisTelemetryMiddleware
 from tests.brokers.redis.test_consume import (
@@ -20,7 +21,7 @@ from tests.brokers.redis.test_publish import TestPublish
 from ..basic import LocalTelemetryTestcase
 
 
-@pytest.mark.redis()
+@pytest.mark.redis
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "redis"
     include_messages_counters = True
@@ -44,11 +45,15 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_msg_count = 3
         expected_link_count = 1
         expected_link_attrs = {"messaging.batch.message_count": 3}
+        expected_baggage = {"with_batch": "True"}
+        expected_baggage_batch = [{"with_batch": "True"}] * 3
 
         args, kwargs = self.get_subscriber_params(list=ListSub(queue, batch=True))
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m, baggage: CurrentBaggage):
+            assert baggage.get_all() == expected_baggage
+            assert baggage.get_all_batch() == expected_baggage_batch
             mock(m)
             event.set()
 
@@ -98,11 +103,15 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_link_count = 1
         expected_span_count = 8
         expected_pub_batch_count = 1
+        expected_baggage = {"with_batch": "True"}
+        expected_baggage_batch = []
 
         args, kwargs = self.get_subscriber_params(list=ListSub(queue))
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(msg):
+        async def handler(msg, baggage: CurrentBaggage):
+            assert baggage.get_all() == expected_baggage
+            assert baggage.get_all_batch() == expected_baggage_batch
             await msgs_queue.put(msg)
 
         broker = self.patch_broker(broker)
@@ -158,11 +167,14 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_link_count = 2
         expected_span_count = 6
         expected_process_batch_count = 1
+        expected_baggage = {"foo": "bar", "bar": "baz"}
 
         args, kwargs = self.get_subscriber_params(list=ListSub(queue, batch=True))
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m, baggage: CurrentBaggage):
+            assert len(baggage.get_all_batch()) == expected_msg_count
+            assert baggage.get_all() == expected_baggage
             m.sort()
             mock(m)
             event.set()
@@ -171,8 +183,16 @@ class TestTelemetry(LocalTelemetryTestcase):
 
         async with broker:
             tasks = (
-                asyncio.create_task(broker.publish("hi", list=queue)),
-                asyncio.create_task(broker.publish("buy", list=queue)),
+                asyncio.create_task(
+                    broker.publish(
+                        "hi", list=queue, headers=Baggage({"foo": "bar"}).to_headers()
+                    )
+                ),
+                asyncio.create_task(
+                    broker.publish(
+                        "buy", list=queue, headers=Baggage({"bar": "baz"}).to_headers()
+                    )
+                ),
             )
             await asyncio.wait(tasks, timeout=self.timeout)
             await broker.start()
@@ -196,7 +216,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         mock.assert_called_once_with(["buy", "hi"])
 
 
-@pytest.mark.redis()
+@pytest.mark.redis
 class TestPublishWithTelemetry(TestPublish):
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(
@@ -205,7 +225,7 @@ class TestPublishWithTelemetry(TestPublish):
         )
 
 
-@pytest.mark.redis()
+@pytest.mark.redis
 class TestConsumeWithTelemetry(TestConsume):
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(
@@ -214,7 +234,7 @@ class TestConsumeWithTelemetry(TestConsume):
         )
 
 
-@pytest.mark.redis()
+@pytest.mark.redis
 class TestConsumeListWithTelemetry(TestConsumeList):
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(
@@ -223,7 +243,7 @@ class TestConsumeListWithTelemetry(TestConsumeList):
         )
 
 
-@pytest.mark.redis()
+@pytest.mark.redis
 class TestConsumeStreamWithTelemetry(TestConsumeStream):
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(

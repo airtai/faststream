@@ -1,10 +1,13 @@
 from enum import Enum
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union
 
 from typing_extensions import TypedDict
 
+if TYPE_CHECKING:
+    from faststream.types import AnyDict
 
-class BuiltinFeatures(Enum):
+
+class BuiltinFeatures(str, Enum):
     gzip = "gzip"
     snappy = "snappy"
     ssl = "ssl"
@@ -21,7 +24,7 @@ class BuiltinFeatures(Enum):
     oidc = "oidc"
 
 
-class Debug(Enum):
+class Debug(str, Enum):
     generic = "generic"
     broker = "broker"
     topic = "topic"
@@ -44,41 +47,41 @@ class Debug(Enum):
     all = "all"
 
 
-class BrokerAddressFamily(Enum):
+class BrokerAddressFamily(str, Enum):
     any = "any"
     v4 = "v4"
     v6 = "v6"
 
 
-class SecurityProtocol(Enum):
+class SecurityProtocol(str, Enum):
     plaintext = "plaintext"
     ssl = "ssl"
     sasl_plaintext = "sasl_plaintext"
     sasl_ssl = "sasl_ssl"
 
 
-class SASLOAUTHBearerMethod(Enum):
+class SASLOAUTHBearerMethod(str, Enum):
     default = "default"
     oidc = "oidc"
 
 
-class GroupProtocol(Enum):
+class GroupProtocol(str, Enum):
     classic = "classic"
     consumer = "consumer"
 
 
-class OffsetStoreMethod(Enum):
+class OffsetStoreMethod(str, Enum):
     none = "none"
     file = "file"
     broker = "broker"
 
 
-class IsolationLevel(Enum):
+class IsolationLevel(str, Enum):
     read_uncommitted = "read_uncommitted"
     read_committed = "read_committed"
 
 
-class CompressionCodec(Enum):
+class CompressionCodec(str, Enum):
     none = "none"
     gzip = "gzip"
     snappy = "snappy"
@@ -86,7 +89,7 @@ class CompressionCodec(Enum):
     zstd = "zstd"
 
 
-class CompressionType(Enum):
+class CompressionType(str, Enum):
     none = "none"
     gzip = "gzip"
     snappy = "snappy"
@@ -94,7 +97,7 @@ class CompressionType(Enum):
     zstd = "zstd"
 
 
-class ClientDNSLookup(Enum):
+class ClientDNSLookup(str, Enum):
     use_all_dns_ips = "use_all_dns_ips"
     resolve_canonical_bootstrap_servers_only = (
         "resolve_canonical_bootstrap_servers_only"
@@ -104,7 +107,17 @@ class ClientDNSLookup(Enum):
 ConfluentConfig = TypedDict(
     "ConfluentConfig",
     {
-        "builtin.features": BuiltinFeatures,
+        "compression.codec": Union[CompressionCodec, str],
+        "compression.type": Union[CompressionType, str],
+        "client.dns.lookup": Union[ClientDNSLookup, str],
+        "offset.store.method": Union[OffsetStoreMethod, str],
+        "isolation.level": Union[IsolationLevel, str],
+        "sasl.oauthbearer.method": Union[SASLOAUTHBearerMethod, str],
+        "security.protocol": Union[SecurityProtocol, str],
+        "broker.address.family": Union[BrokerAddressFamily, str],
+        "builtin.features": Union[BuiltinFeatures, str],
+        "debug": Union[Debug, str],
+        "group.protocol": Union[GroupProtocol, str],
         "client.id": str,
         "metadata.broker.list": str,
         "bootstrap.servers": str,
@@ -120,7 +133,6 @@ ConfluentConfig = TypedDict(
         "topic.metadata.refresh.sparse": bool,
         "topic.metadata.propagation.max.ms": int,
         "topic.blacklist": str,
-        "debug": Debug,
         "socket.timeout.ms": int,
         "socket.blocking.max.ms": int,
         "socket.send.buffer.bytes": int,
@@ -129,7 +141,6 @@ ConfluentConfig = TypedDict(
         "socket.nagle.disable": bool,
         "socket.max.fails": int,
         "broker.address.ttl": int,
-        "broker.address.family": BrokerAddressFamily,
         "socket.connection.setup.timeout.ms": int,
         "connections.max.idle.ms": int,
         "reconnect.backoff.jitter.ms": int,
@@ -160,7 +171,6 @@ ConfluentConfig = TypedDict(
         "api.version.fallback.ms": int,
         "broker.version.fallback": str,
         "allow.auto.create.topics": bool,
-        "security.protocol": SecurityProtocol,
         "ssl.cipher.suites": str,
         "ssl.curves.list": str,
         "ssl.sigalgs.list": str,
@@ -197,7 +207,6 @@ ConfluentConfig = TypedDict(
         "sasl.oauthbearer.config": str,
         "enable.sasl.oauthbearer.unsecure.jwt": bool,
         "oauthbearer_token_refresh_cb": Callable[..., Any],
-        "sasl.oauthbearer.method": SASLOAUTHBearerMethod,
         "sasl.oauthbearer.client.id": str,
         "sasl.oauthbearer.client.secret": str,
         "sasl.oauthbearer.scope": str,
@@ -211,7 +220,6 @@ ConfluentConfig = TypedDict(
         "session.timeout.ms": str,
         "heartbeat.interval.ms": str,
         "group.protocol.type": str,
-        "group.protocol": GroupProtocol,
         "group.remote.assignor": str,
         "coordinator.query.interval.ms": int,
         "max.poll.interval.ms": int,
@@ -227,8 +235,6 @@ ConfluentConfig = TypedDict(
         "fetch.max.bytes": int,
         "fetch.min.bytes": int,
         "fetch.error.backoff.ms": int,
-        "offset.store.method": OffsetStoreMethod,
-        "isolation.level": IsolationLevel,
         "consume_cb": Callable[..., Any],
         "rebalance_cb": Callable[..., Any],
         "offset_commit_cb": Callable[..., Any],
@@ -248,15 +254,41 @@ ConfluentConfig = TypedDict(
         "retry.backoff.ms": int,
         "retry.backoff.max.ms": int,
         "queue.buffering.backpressure.threshold": int,
-        "compression.codec": CompressionCodec,
-        "compression.type": CompressionType,
         "batch.num.messages": int,
         "batch.size": int,
         "delivery.report.only.error": bool,
         "dr_cb": Callable[..., Any],
         "dr_msg_cb": Callable[..., Any],
         "sticky.partitioning.linger.ms": int,
-        "client.dns.lookup": ClientDNSLookup,
     },
     total=False,
 )
+
+
+class ConfluentFastConfig:
+    def __init__(self, config: Optional[ConfluentConfig]) -> None:
+        self.config = config
+
+    def as_config_dict(self) -> "AnyDict":
+        if not self.config:
+            return {}
+
+        data = dict(self.config)
+
+        for key, enum in (
+            ("compression.codec", CompressionCodec),
+            ("compression.type", CompressionType),
+            ("client.dns.lookup", ClientDNSLookup),
+            ("offset.store.method", OffsetStoreMethod),
+            ("isolation.level", IsolationLevel),
+            ("sasl.oauthbearer.method", SASLOAUTHBearerMethod),
+            ("security.protocol", SecurityProtocol),
+            ("broker.address.family", BrokerAddressFamily),
+            ("builtin.features", BuiltinFeatures),
+            ("debug", Debug),
+            ("group.protocol", GroupProtocol),
+        ):
+            if key in data:
+                data[key] = enum(data[key]).value
+
+        return data

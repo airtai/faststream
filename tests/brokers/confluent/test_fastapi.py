@@ -4,16 +4,18 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream.confluent.fastapi import KafkaRouter
+from faststream.confluent import KafkaRouter
+from faststream.confluent.fastapi import KafkaRouter as StreamRouter
 from faststream.confluent.testing import TestKafkaBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 from .basic import ConfluentTestcaseConfig
 
 
-@pytest.mark.confluent()
+@pytest.mark.confluent
 class TestConfluentRouter(ConfluentTestcaseConfig, FastAPITestcase):
-    router_class = KafkaRouter
+    router_class = StreamRouter
+    broker_router_class = KafkaRouter
 
     async def test_batch_real(
         self,
@@ -21,7 +23,7 @@ class TestConfluentRouter(ConfluentTestcaseConfig, FastAPITestcase):
         queue: str,
         event: asyncio.Event,
     ):
-        router = KafkaRouter()
+        router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)
 
@@ -45,7 +47,8 @@ class TestConfluentRouter(ConfluentTestcaseConfig, FastAPITestcase):
 
 
 class TestRouterLocal(ConfluentTestcaseConfig, FastAPILocalTestcase):
-    router_class = KafkaRouter
+    router_class = StreamRouter
+    broker_router_class = KafkaRouter
     broker_test = staticmethod(TestKafkaBroker)
     build_message = staticmethod(build_message)
 
@@ -55,7 +58,7 @@ class TestRouterLocal(ConfluentTestcaseConfig, FastAPILocalTestcase):
         queue: str,
         event: asyncio.Event,
     ):
-        router = KafkaRouter()
+        router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)
 

@@ -12,6 +12,145 @@ hide:
 ---
 
 # Release Notes
+## 0.5.23
+
+### What's Changed
+
+We made last release just a few days ago, but there are some big changes here already!
+
+1. First of all - you can't use `faststream run ...` command without `pip install faststream[cli]` distribution anymore. It was made to minify default (and production) distribution by removing **typer** (**rich** and **click**) dependencies. **CLI** is a development-time feature, so if you don't need - just don't install! Special thanks to @RubenRibGarcia for this change
+
+2. The next big change - **Kafka** publish confirmations by default! Previous **FastStream** version was working in *publish & forgot* style, but the new one blocks your `broker.publish(...)` call until **Kafka** confirmation frame received. To fallback to previous logic just use a new flag `broker.publish(..., no_confirm=True)`
+
+3. Also, we made one more step forward to our **1.0.0** features plan! @KrySeyt implements `get_one` feature. Now you can use any broker subscriber to get messages in imperative style:
+
+```python
+subscriber = broker.subscriber("in")
+...
+msg = await subscriber.get_one(timeout=5.0)
+```
+
+4. And the last one: @draincoder continues to develop OTEL support! Now he provides us with an ability to use **OTEL spans** and **baggage** in a comfortable **FastStream**-style. Just take a look at the [new documentation section](https://faststream.airt.ai/latest/getting-started/opentelemetry/#baggage)
+
+Big thanks to all new and old contributors who makes such a great release!
+
+* feat: AsgiFastStream hooks init options by @Lancetnik in https://github.com/airtai/faststream/pull/1768
+* fix (#1748): add Kafka publish no_confirm option by @Lancetnik in https://github.com/airtai/faststream/pull/1749
+* Fix GeneralExceptionHandler typehint by @sheldygg in https://github.com/airtai/faststream/pull/1773
+* Add `broker.subscriber().get_one()` by @KrySeyt in https://github.com/airtai/faststream/pull/1726
+* Add OTel baggage support by @draincoder in https://github.com/airtai/faststream/pull/1692
+* build(#1430): separate cli faststream to its own distribution by @RubenRibGarcia in https://github.com/airtai/faststream/pull/1769
+
+### New Contributors
+* @RubenRibGarcia made their first contribution in https://github.com/airtai/faststream/pull/1769
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.22...0.5.23
+
+## 0.5.22
+
+### What's Changed
+
+* fix: FastAPI 0.112.4+ compatibility by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1766](https://github.com/airtai/faststream/pull/1766){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.21...0.5.22](https://github.com/airtai/faststream/compare/0.5.21...0.5.22){.external-link target="_blank"}
+
+## 0.5.21
+
+### What's Changed
+
+* feat (#1168): allow include regular router to FastAPI integration by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1747](https://github.com/airtai/faststream/pull/1747){.external-link target="_blank"}
+* In case if core-subscriber receive a JetStream message. by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [#1751](https://github.com/airtai/faststream/pull/1751){.external-link target="_blank"}
+* feat: explicit final message commit status by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1754](https://github.com/airtai/faststream/pull/1754){.external-link target="_blank"}
+* Fix/context get local default by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1752](https://github.com/airtai/faststream/pull/1752){.external-link target="_blank"}
+* fix (#1759): correct ConfluentConfig with enums by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1762](https://github.com/airtai/faststream/pull/1762){.external-link target="_blank"}
+* Adds SASLOAuthBearer flow to AIO Kafka's Faststream Security Parsing by [@sifex](https://github.com/sifex){.external-link target="_blank"} in [#1761](https://github.com/airtai/faststream/pull/1761){.external-link target="_blank"}
+* fix: FastAPI 0.112.3 compatibility by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1763](https://github.com/airtai/faststream/pull/1763){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.20...0.5.21](https://github.com/airtai/faststream/compare/0.5.20...0.5.21){.external-link target="_blank"}
+
+## 0.5.20
+
+### What's Changed
+* Refactor: change publisher fake subscriber generation logic by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1729](https://github.com/airtai/faststream/pull/1729){.external-link target="_blank"}
+* Remove docs/api directory before running create_api_docs script by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1730](https://github.com/airtai/faststream/pull/1730){.external-link target="_blank"}
+* CI: automatically approve & merge Dependabot PRs by [@dolfinus](https://github.com/dolfinus){.external-link target="_blank"} in [#1720](https://github.com/airtai/faststream/pull/1720){.external-link target="_blank"}
+* Run check broken links after docs deploy by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1733](https://github.com/airtai/faststream/pull/1733){.external-link target="_blank"}
+* Feature: extend FastStream.__init__ by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1734](https://github.com/airtai/faststream/pull/1734){.external-link target="_blank"}
+* Fix Dependabot group names by [@dolfinus](https://github.com/dolfinus){.external-link target="_blank"} in [#1737](https://github.com/airtai/faststream/pull/1737){.external-link target="_blank"}
+* Fix: respect ignored exceptions by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1735](https://github.com/airtai/faststream/pull/1735){.external-link target="_blank"}
+* Fix: update FastAPI to 0.112.2 by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1736](https://github.com/airtai/faststream/pull/1736){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.5.19...0.5.20](https://github.com/airtai/faststream/compare/0.5.19...0.5.20){.external-link target="_blank"}
+
+## 0.5.19
+
+### What's Changed
+
+The current release is planned as a latest feature release before **0.6.0**. All other **0.5.19+** releases will contain only minor bugfixes and all the team work will be focused on next major one.
+
+There's a lot of changes we want to present you now though!
+
+#### New RPC feature
+
+Our old `broker.publish(..., rpc=True)` implementation was very limited and ugly. Now we present you a much suitable way to do the same thing - `broker.request(...)`
+
+```python
+from faststream import FastStream
+from faststream.nats import NatsBroker, NatsResponse, NatsMessage
+
+broker = NatsBroker()
+
+@broker.subscriber("test")
+async def echo_handler(msg):
+    return NatsResponse(msg, headers={"x-token": "some-token"})
+
+@app.after_startup
+async def test():
+    # The old implementation was returning just a message body,
+    # so you wasn't be able to check response headers, etc
+    msg_body: str = await broker.publish("ping", "test", rpc=True)
+    assert msg_body == "ping"
+
+    # Now request return the whole message and you can validate any part of it
+    # moreover it triggers all your middlewares
+    response: NatsMessage = await broker.request("ping", "test")
+```
+
+#### Exception Middleware
+
+Community asked and community did! Sorry, we've been putting off this job for too long. Thanks for @Rusich90 to help us!
+Now you can wrap your application by a suitable exception handlers. Just check the new [documentation](https://faststream.airt.ai/latest/getting-started/middlewares/exception/) to learn more.
+
+#### Details
+
+Also, there are a lot of minor changes you can find below. Big thanks to all our old and new contributors! You are amazing ones!
+
+* Bug: resolve missing seek on kafka fakeconsumer by @JonathanSerafini in https://github.com/airtai/faststream/pull/1682
+* replace pip with uv in CI by @newonlynew in https://github.com/airtai/faststream/pull/1688
+* Added support for JSON serialization and deserialization by other libraries by @ulbwa in https://github.com/airtai/faststream/pull/1687
+* Fix batch nack by @kumaranvpl in https://github.com/airtai/faststream/pull/1689
+* Remove unused ignores by @kumaranvpl in https://github.com/airtai/faststream/pull/1690
+* docs: add Kafka HowTo section by @Lancetnik in https://github.com/airtai/faststream/pull/1686
+* Add missed out group_instance_id as subscriber and router parameter by @kumaranvpl in https://github.com/airtai/faststream/pull/1695
+* Set warn_unused_ignores mypy config to true by @kumaranvpl in https://github.com/airtai/faststream/pull/1694
+* Skip building docs in pre-commit CI job by @kumaranvpl in https://github.com/airtai/faststream/pull/1704
+* Fix to run check-docs-changes workflow in forks by @kumaranvpl in https://github.com/airtai/faststream/pull/1710
+* feature/exception_middleware add exception middleware by @Rusich90 in https://github.com/airtai/faststream/pull/1604
+* Remove mentions of faststream-gen by @kumaranvpl in https://github.com/airtai/faststream/pull/1717
+* Fix multiple docs issues by @kumaranvpl in https://github.com/airtai/faststream/pull/1718
+* CI: group Dependabot updates into one PR by @dolfinus in https://github.com/airtai/faststream/pull/1719
+* feat: CLI DX improvements by @Lancetnik in https://github.com/airtai/faststream/pull/1723
+* fix: use async test subscribers functions by @Lancetnik in https://github.com/airtai/faststream/pull/1725
+* feat: add broker.request method by @Lancetnik in https://github.com/airtai/faststream/pull/1649
+
+### New Contributors
+* @JonathanSerafini made their first contribution in https://github.com/airtai/faststream/pull/1682
+* @Rusich90 made their first contribution in https://github.com/airtai/faststream/pull/1604
+* @dolfinus made their first contribution in https://github.com/airtai/faststream/pull/1719
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.18...0.5.19
+
 ## 0.5.18
 
 ### What's Changed
@@ -42,7 +181,7 @@ Just a hotfix for the following case:
 @broker.subscriber(...)
 async def handler():
     return NatsResponse(...)
-    
+
 await broker.publish(..., rpc=True)
 ```
 
@@ -58,7 +197,7 @@ await broker.publish(..., rpc=True)
 
 ### What's Changed
 
-Well, seems like it is the biggest patch release ever 😃 
+Well, seems like it is the biggest patch release ever 😃
 
 #### Detail Responses
 

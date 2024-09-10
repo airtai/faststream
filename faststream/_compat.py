@@ -2,14 +2,13 @@ import json
 import os
 import sys
 from importlib.metadata import version as get_version
-from typing import Any, Callable, Dict, List, Mapping, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Mapping, Optional, Type, TypeVar, Union
 
 from fast_depends._compat import PYDANTIC_V2 as PYDANTIC_V2
 from fast_depends._compat import (  # type: ignore[attr-defined]
     PYDANTIC_VERSION as PYDANTIC_VERSION,
 )
 from pydantic import BaseModel as BaseModel
-from typing_extensions import Never
 
 from faststream.types import AnyDict
 
@@ -21,54 +20,40 @@ IS_WINDOWS = (
 ModelVar = TypeVar("ModelVar", bound=BaseModel)
 
 
-IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)
-
-
 def is_test_env() -> bool:
     return bool(os.getenv("PYTEST_CURRENT_TEST"))
 
 
 json_dumps: Callable[..., bytes]
-try:
-    import orjson
+orjson: Any
+ujson: Any
 
+try:
+    import orjson  # type: ignore[no-redef]
+except ImportError:
+    orjson = None
+
+try:
+    import ujson
+except ImportError:
+    ujson = None
+
+if orjson:
     json_loads = orjson.loads
     json_dumps = orjson.dumps
 
-except ImportError:
+elif ujson:
+    json_loads = ujson.loads
+
+    def json_dumps(*a: Any, **kw: Any) -> bytes:
+        return ujson.dumps(*a, **kw).encode()  # type: ignore
+
+else:
     json_loads = json.loads
 
     def json_dumps(*a: Any, **kw: Any) -> bytes:
         return json.dumps(*a, **kw).encode()
 
-
-try:
-    from fastapi import __version__ as FASTAPI_VERSION  # noqa: N812
-
-    major, minor, *_ = map(int, FASTAPI_VERSION.split("."))
-    FASTAPI_V2 = major > 0 or minor > 100
-    FASTAPI_V106 = major > 0 or minor >= 106
-
-    if FASTAPI_V2:
-        from fastapi._compat import _normalize_errors
-        from fastapi.exceptions import RequestValidationError
-
-        def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
-            raise RequestValidationError(_normalize_errors(errors), body=body)
-
-    else:
-        from pydantic import (  # type: ignore[assignment]  # isort: skip
-            ValidationError as RequestValidationError,
-        )
-        from pydantic import create_model
-
-        ROUTER_VALIDATION_ERROR_MODEL = create_model("StreamRoute")
-
-        def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
-            raise RequestValidationError(errors, ROUTER_VALIDATION_ERROR_MODEL)  # type: ignore[misc]
-
-except ImportError:
-    pass
 
 JsonSchemaValue = Mapping[str, Any]
 
@@ -77,7 +62,7 @@ if PYDANTIC_V2:
         from pydantic.annotated_handlers import (
             GetJsonSchemaHandler as GetJsonSchemaHandler,
         )
-        from pydantic_core.core_schema import (  # type: ignore[attr-defined]
+        from pydantic_core.core_schema import (
             with_info_plain_validator_function as with_info_plain_validator_function,
         )
     else:
@@ -173,7 +158,7 @@ if ANYIO_V3:
     from anyio import ExceptionGroup as ExceptionGroup  # type: ignore[attr-defined]
 else:
     if sys.version_info < (3, 11):
-        from exceptiongroup import (  # type: ignore[assignment,no-redef]
+        from exceptiongroup import (
             ExceptionGroup as ExceptionGroup,
         )
     else:

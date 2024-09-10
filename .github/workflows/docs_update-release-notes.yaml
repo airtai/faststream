@@ -39,8 +39,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install requests
+          python -m pip install uv
+          uv pip install --system requests
 
       - name: Run update_releases.py script
         run: python ./docs/update_releases.py
@@ -55,7 +55,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.git-check.outputs.changes_detected
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ steps.generate-token.outputs.token }}
           branch: ${{ env.BRANCH_NAME }}

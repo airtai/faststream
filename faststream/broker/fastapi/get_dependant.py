@@ -12,13 +12,11 @@ if TYPE_CHECKING:
 def get_fastapi_dependant(
     orig_call: Callable[..., Any],
     dependencies: Iterable["params.Depends"],
-    path_name: str = "",
 ) -> Any:
     """Generate FastStream-Compatible FastAPI Dependant object."""
     dependent = get_fastapi_native_dependant(
         orig_call=orig_call,
         dependencies=dependencies,
-        path_name=path_name,
     )
 
     dependent = _patch_fastapi_dependent(dependent)
@@ -29,18 +27,17 @@ def get_fastapi_dependant(
 def get_fastapi_native_dependant(
     orig_call: Callable[..., Any],
     dependencies: Iterable["params.Depends"],
-    path_name: str = "",
 ) -> Any:
     """Generate native FastAPI Dependant."""
     dependent = get_dependant(
-        path=path_name,
+        path="",
         call=orig_call,
     )
 
     for depends in list(dependencies)[::-1]:
         dependent.dependencies.insert(
             0,
-            get_parameterless_sub_dependant(depends=depends, path=path_name),
+            get_parameterless_sub_dependant(depends=depends, path=""),
         )
 
     return dependent
@@ -52,10 +49,10 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
 
     from faststream._compat import PydanticUndefined
 
-    params = dependant.query_params + dependant.body_params  # type: ignore[attr-defined]
+    params = dependant.query_params + dependant.body_params
 
     for d in dependant.dependencies:
-        params.extend(d.query_params + d.body_params)  # type: ignore[attr-defined]
+        params.extend(d.query_params + d.body_params)
 
     params_unique = {}
     for p in params:

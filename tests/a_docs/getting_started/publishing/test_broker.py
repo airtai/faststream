@@ -10,7 +10,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_broker_kafka():
     from docs.docs_src.getting_started.publishing.kafka.broker import (
@@ -26,7 +26,7 @@ async def test_broker_kafka():
         handle_next.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_broker_confluent():
     from docs.docs_src.getting_started.publishing.confluent.broker import (
@@ -42,7 +42,7 @@ async def test_broker_confluent():
         handle_next.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_broker_rabbit():
     from docs.docs_src.getting_started.publishing.rabbit.broker import (
@@ -58,7 +58,7 @@ async def test_broker_rabbit():
         handle_next.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_broker_nats():
     from docs.docs_src.getting_started.publishing.nats.broker import (
@@ -74,7 +74,7 @@ async def test_broker_nats():
         handle_next.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_broker_redis():
     from docs.docs_src.getting_started.publishing.redis.broker import (

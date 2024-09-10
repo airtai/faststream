@@ -1,7 +1,8 @@
 from fastapi import FastAPI
-from faststream.confluent.fastapi import KafkaRouter
+from faststream.kafka import KafkaRouter
+from faststream.kafka.fastapi import KafkaRouter as StreamRouter
 
-core_router = KafkaRouter()
+core_router = StreamRouter()
 nested_router = KafkaRouter()
 
 @core_router.subscriber("core-topic")
@@ -14,5 +15,5 @@ async def nested_handler():
 
 core_router.include_router(nested_router)
 
-app = FastAPI(lifespan=core_router.lifespan_context)
+app = FastAPI()
 app.include_router(core_router)

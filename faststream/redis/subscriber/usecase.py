@@ -1,4 +1,5 @@
 import asyncio
+import math
 from abc import abstractmethod
 from contextlib import suppress
 from copy import deepcopy
@@ -23,12 +24,16 @@ from typing_extensions import TypeAlias, override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
+from faststream.broker.utils import process_msg
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,
     DefaultListMessage,
     DefaultStreamMessage,
     PubSubMessage,
+    RedisListMessage,
+    RedisMessage,
+    RedisStreamMessage,
     UnifyRedisDict,
 )
 from faststream.redis.parser import (
@@ -147,7 +152,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         )
 
     @override
-    async def start(  # type: ignore[override]
+    async def start(
         self,
         *args: Any,
     ) -> None:
@@ -157,10 +162,17 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         await super().start()
 
         start_signal = anyio.Event()
-        self.task = asyncio.create_task(self._consume(*args, start_signal=start_signal))
 
-        with anyio.fail_after(3.0):
-            await start_signal.wait()
+        if self.calls:
+            self.task = asyncio.create_task(
+                self._consume(*args, start_signal=start_signal)
+            )
+
+            with anyio.fail_after(3.0):
+                await start_signal.wait()
+
+        else:
+            start_signal.set()
 
     async def _consume(self, *args: Any, start_signal: anyio.Event) -> None:
         connected = True
@@ -278,19 +290,51 @@ class ChannelSubscriber(LogicSubscriber):
 
         await super().close()
 
-    async def _get_msgs(self, psub: RPubSub) -> None:
+    @override
+    async def get_one(  # type: ignore[override]
+        self,
+        *,
+        timeout: float = 5.0,
+    ) -> "Optional[RedisMessage]":
+        assert self.subscription, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        sleep_interval = timeout / 10
+
+        message: Optional[PubSubMessage] = None
+
+        with anyio.move_on_after(timeout):
+            while (message := await self._get_message(self.subscription)) is None:  # noqa: ASYNC110
+                await anyio.sleep(sleep_interval)
+
+        msg: Optional[RedisMessage] = await process_msg(  # type: ignore[assignment]
+            msg=message,
+            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
+
+    async def _get_message(self, psub: RPubSub) -> Optional[PubSubMessage]:
         raw_msg = await psub.get_message(
             ignore_subscribe_messages=True,
             timeout=self.channel.polling_interval,
         )
 
         if raw_msg:
-            msg = PubSubMessage(
+            return PubSubMessage(
                 type=raw_msg["type"],
                 data=raw_msg["data"],
                 channel=raw_msg["channel"].decode(),
                 pattern=raw_msg["pattern"],
             )
+
+        return None
+
+    async def _get_msgs(self, psub: RPubSub) -> None:
+        if msg := await self._get_message(psub):
             await self.consume(msg)  # type: ignore[arg-type]
 
     def add_prefix(self, prefix: str) -> None:
@@ -362,7 +406,43 @@ class _ListHandlerMixin(LogicSubscriber):
             return
 
         assert self._client, "You should setup subscriber at first."  # nosec B101
+
         await super().start(self._client)
+
+    @override
+    async def get_one(  # type: ignore[override]
+        self,
+        *,
+        timeout: float = 5.0,
+    ) -> "Optional[RedisListMessage]":
+        assert self._client, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        sleep_interval = timeout / 10
+        raw_message = None
+
+        with anyio.move_on_after(timeout):
+            while (  # noqa: ASYNC110
+                raw_message := await self._client.lpop(name=self.list_sub.name)
+            ) is None:
+                await anyio.sleep(sleep_interval)
+
+        if not raw_message:
+            return None
+
+        msg: RedisListMessage = await process_msg(  # type: ignore[assignment]
+            msg=DefaultListMessage(
+                type="list",
+                data=raw_message,
+                channel=self.list_sub.name,
+            ),
+            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     def add_prefix(self, prefix: str) -> None:
         new_list = deepcopy(self.list_sub)
@@ -618,6 +698,43 @@ class _StreamHandlerMixin(LogicSubscriber):
                 )
 
         await super().start(read)
+
+    @override
+    async def get_one(  # type: ignore[override]
+        self,
+        *,
+        timeout: float = 5.0,
+    ) -> "Optional[RedisStreamMessage]":
+        assert self._client, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        stream_message = await self._client.xread(
+            {self.stream_sub.name: self.last_id},
+            block=math.ceil(timeout * 1000),
+            count=1,
+        )
+
+        if not stream_message:
+            return None
+
+        ((stream_name, ((message_id, raw_message),)),) = stream_message
+
+        self.last_id = message_id.decode()
+
+        msg: RedisStreamMessage = await process_msg(  # type: ignore[assignment]
+            msg=DefaultStreamMessage(
+                type="stream",
+                channel=stream_name.decode(),
+                message_ids=[message_id],
+                data=raw_message,
+            ),
+            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     def add_prefix(self, prefix: str) -> None:
         new_stream = deepcopy(self.stream_sub)

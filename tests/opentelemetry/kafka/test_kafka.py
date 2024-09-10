@@ -13,6 +13,7 @@ from opentelemetry.trace import SpanKind
 
 from faststream.kafka import KafkaBroker
 from faststream.kafka.opentelemetry import KafkaTelemetryMiddleware
+from faststream.opentelemetry import Baggage, CurrentBaggage
 from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 from faststream.opentelemetry.middleware import MessageAction as Action
 from tests.brokers.kafka.test_consume import TestConsume
@@ -21,7 +22,7 @@ from tests.brokers.kafka.test_publish import TestPublish
 from ..basic import LocalTelemetryTestcase
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "kafka"
     include_messages_counters = True
@@ -78,11 +79,17 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_msg_count = 3
         expected_link_count = 1
         expected_link_attrs = {"messaging.batch.message_count": 3}
+        expected_baggage = {"with_batch": "True", "foo": "bar"}
+        expected_baggage_batch = [
+            {"with_batch": "True", "foo": "bar"}
+        ] * expected_msg_count
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m, baggage: CurrentBaggage):
+            assert baggage.get_all() == expected_baggage
+            assert baggage.get_all_batch() == expected_baggage_batch
             mock(m)
             event.set()
 
@@ -91,7 +98,15 @@ class TestTelemetry(LocalTelemetryTestcase):
         async with broker:
             await broker.start()
             tasks = (
-                asyncio.create_task(broker.publish_batch(1, "hi", 3, topic=queue)),
+                asyncio.create_task(
+                    broker.publish_batch(
+                        1,
+                        "hi",
+                        3,
+                        topic=queue,
+                        headers=Baggage({"foo": "bar"}).to_headers(),
+                    )
+                ),
                 asyncio.create_task(event.wait()),
             )
             await asyncio.wait(tasks, timeout=self.timeout)
@@ -132,18 +147,23 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_link_count = 1
         expected_span_count = 8
         expected_pub_batch_count = 1
+        expected_baggage = {"with_batch": "True", "foo": "bar"}
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(msg):
+        async def handler(msg, baggage: CurrentBaggage):
+            assert baggage.get_all() == expected_baggage
+            assert baggage.get_all_batch() == []
             await msgs_queue.put(msg)
 
         broker = self.patch_broker(broker)
 
         async with broker:
             await broker.start()
-            await broker.publish_batch(1, "hi", 3, topic=queue)
+            await broker.publish_batch(
+                1, "hi", 3, topic=queue, headers=Baggage({"foo": "bar"}).to_headers()
+            )
             result, _ = await asyncio.wait(
                 (
                     asyncio.create_task(msgs_queue.get()),
@@ -192,11 +212,14 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_link_count = 2
         expected_span_count = 6
         expected_process_batch_count = 1
+        expected_baggage = {"foo": "bar", "bar": "baz"}
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m, baggage: CurrentBaggage):
+            assert baggage.get_all() == expected_baggage
+            assert len(baggage.get_all_batch()) == expected_msg_count
             m.sort()
             mock(m)
             event.set()
@@ -206,8 +229,16 @@ class TestTelemetry(LocalTelemetryTestcase):
         async with broker:
             await broker.start()
             tasks = (
-                asyncio.create_task(broker.publish("hi", topic=queue)),
-                asyncio.create_task(broker.publish("buy", topic=queue)),
+                asyncio.create_task(
+                    broker.publish(
+                        "hi", topic=queue, headers=Baggage({"foo": "bar"}).to_headers()
+                    )
+                ),
+                asyncio.create_task(
+                    broker.publish(
+                        "buy", topic=queue, headers=Baggage({"bar": "baz"}).to_headers()
+                    )
+                ),
                 asyncio.create_task(event.wait()),
             )
             await asyncio.wait(tasks, timeout=self.timeout)
@@ -228,7 +259,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         mock.assert_called_once_with(["buy", "hi"])
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 class TestPublishWithTelemetry(TestPublish):
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(
@@ -237,7 +268,7 @@ class TestPublishWithTelemetry(TestPublish):
         )
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 class TestConsumeWithTelemetry(TestConsume):
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(

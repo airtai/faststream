@@ -8,12 +8,12 @@ from faststream.app import FastStream
 from faststream.cli.main import cli
 
 
-@pytest.fixture()
+@pytest.fixture
 def confluent_basic_project():
     return "docs.docs_src.confluent.basic.basic:app"
 
 
-@pytest.mark.confluent()
+@pytest.mark.confluent
 def test_run_cmd(
     runner: CliRunner,
     mock: Mock,

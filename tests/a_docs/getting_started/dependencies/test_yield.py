@@ -4,7 +4,7 @@ from faststream import TestApp
 from tests.marks import require_aiokafka
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_yield_kafka():
     from docs.docs_src.getting_started.dependencies.yield_kafka import (

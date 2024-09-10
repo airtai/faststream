@@ -632,19 +632,12 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             ),
         ] = False,
     ) -> AsyncAPISubscriber:
-        list_sub = ListSub.validate(list)
-        channel = PubSub.validate(channel)
-        stream_sub = StreamSub.validate(stream)
-
-        any_of = list_sub or channel or stream_sub
-
         return cast(
             AsyncAPISubscriber,
             super().subscriber(
-                path=getattr(any_of, "name", ""),
                 channel=channel,
-                list=list_sub,
-                stream=stream_sub,
+                list=list,
+                stream=stream,
                 dependencies=dependencies,
                 parser=parser,
                 decoder=decoder,
@@ -668,7 +661,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         )
 
     @override
-    def publisher(  # type: ignore[override]
+    def publisher(
         self,
         channel: Annotated[
             Union[str, PubSub, None],

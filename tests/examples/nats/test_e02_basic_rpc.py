@@ -4,7 +4,7 @@ from faststream import TestApp
 from faststream.nats import TestNatsBroker
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_basic():
     from examples.nats.e02_basic_rpc import app, broker, handler
 

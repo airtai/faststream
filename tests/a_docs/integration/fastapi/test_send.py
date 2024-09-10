@@ -10,7 +10,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_fastapi_kafka_send():
     from docs.docs_src.integrations.fastapi.kafka.send import app, router
@@ -26,7 +26,7 @@ async def test_fastapi_kafka_send():
         handler.mock.assert_called_once_with("Hello, Kafka!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_fastapi_confluent_send():
     from docs.docs_src.integrations.fastapi.confluent.send import app, router
@@ -42,7 +42,7 @@ async def test_fastapi_confluent_send():
         handler.mock.assert_called_once_with("Hello, Kafka!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_fastapi_rabbit_send():
     from docs.docs_src.integrations.fastapi.rabbit.send import app, router
@@ -58,7 +58,7 @@ async def test_fastapi_rabbit_send():
         handler.mock.assert_called_once_with("Hello, Rabbit!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_fastapi_nats_send():
     from docs.docs_src.integrations.fastapi.nats.send import app, router
@@ -74,7 +74,7 @@ async def test_fastapi_nats_send():
         handler.mock.assert_called_once_with("Hello, NATS!")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_fastapi_redis_send():
     from docs.docs_src.integrations.fastapi.redis.send import app, router

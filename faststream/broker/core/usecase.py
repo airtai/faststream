@@ -1,5 +1,6 @@
 import logging
 from abc import abstractmethod
+from contextlib import AsyncExitStack
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -32,7 +33,7 @@ from faststream.broker.types import (
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.log.logging import set_logger_fmt
 from faststream.utils.context.repository import context
-from faststream.utils.functions import to_async
+from faststream.utils.functions import return_input, to_async
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -40,6 +41,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.asyncapi.schema import Tag, TagDict
+    from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto, PublisherProto
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, Decorator, LoggerProto
@@ -331,6 +333,7 @@ class BrokerUsecase(
         msg: Any,
         *,
         producer: Optional["ProducerProto"],
+        correlation_id: Optional[str] = None,
         **kwargs: Any,
     ) -> Optional[Any]:
         """Publish message directly."""
@@ -341,7 +344,39 @@ class BrokerUsecase(
         for m in self._middlewares:
             publish = partial(m(None).publish_scope, publish)
 
-        return await publish(msg, **kwargs)
+        return await publish(msg, correlation_id=correlation_id, **kwargs)
+
+    async def request(
+        self,
+        msg: Any,
+        *,
+        producer: Optional["ProducerProto"],
+        correlation_id: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Publish message directly."""
+        assert producer, NOT_CONNECTED_YET  # nosec B101
+
+        request = producer.request
+        for m in self._middlewares:
+            request = partial(m(None).publish_scope, request)
+
+        published_msg = await request(
+            msg,
+            correlation_id=correlation_id,
+            **kwargs,
+        )
+
+        async with AsyncExitStack() as stack:
+            return_msg = return_input
+            for m in self._middlewares:
+                mid = m(published_msg)
+                await stack.enter_async_context(mid)
+                return_msg = partial(mid.consume_scope, return_msg)
+
+            parsed_msg: StreamMessage[Any] = await producer._parser(published_msg)
+            parsed_msg._decoded_body = await producer._decoder(parsed_msg)
+            return await return_msg(parsed_msg)
 
     @abstractmethod
     async def ping(self, timeout: Optional[float]) -> bool:

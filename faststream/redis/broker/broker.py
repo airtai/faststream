@@ -23,7 +23,7 @@ from redis.asyncio.connection import (
     parse_url,
 )
 from redis.exceptions import ConnectionError
-from typing_extensions import Annotated, Doc, TypeAlias, override
+from typing_extensions import Annotated, Doc, TypeAlias, deprecated, override
 
 from faststream.__about__ import __version__
 from faststream.broker.message import gen_cor_id
@@ -46,7 +46,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         CustomCallable,
     )
-    from faststream.redis.message import BaseMessage
+    from faststream.redis.message import BaseMessage, RedisMessage
     from faststream.security import BaseSecurity
     from faststream.types import (
         AnyDict,
@@ -408,16 +408,31 @@ class RedisBroker(
         rpc: Annotated[
             bool,
             Doc("Whether to wait for reply in blocking mode."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = False,
         rpc_timeout: Annotated[
             Optional[float],
             Doc("RPC reply waiting time."),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "Please, use `request` method with `timeout` instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = 30.0,
         raise_timeout: Annotated[
             bool,
             Doc(
                 "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
                 "RPC request returns `None` at timeout by default."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.17**. "
+                "`request` always raises TimeoutError instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
             ),
         ] = False,
     ) -> Optional["DecodedMessage"]:
@@ -428,22 +443,46 @@ class RedisBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        correlation_id = correlation_id or gen_cor_id()
-
         return await super().publish(
             message,
             producer=self._producer,
+            correlation_id=correlation_id or gen_cor_id(),
             channel=channel,
             list=list,
             stream=stream,
             maxlen=maxlen,
             reply_to=reply_to,
             headers=headers,
-            correlation_id=correlation_id,
             rpc=rpc,
             rpc_timeout=rpc_timeout,
             raise_timeout=raise_timeout,
         )
+
+    @override
+    async def request(  # type: ignore[override]
+        self,
+        message: "SendableMessage",
+        channel: Optional[str] = None,
+        *,
+        list: Optional[str] = None,
+        stream: Optional[str] = None,
+        maxlen: Optional[int] = None,
+        correlation_id: Optional[str] = None,
+        headers: Optional["AnyDict"] = None,
+        timeout: Optional[float] = 30.0,
+    ) -> "RedisMessage":
+        msg: RedisMessage = await super().request(
+            message,
+            producer=self._producer,
+            correlation_id=correlation_id or gen_cor_id(),
+            channel=channel,
+            list=list,
+            stream=stream,
+            maxlen=maxlen,
+            headers=headers,
+            timeout=timeout,
+        )
+        return msg
 
     async def publish_batch(
         self,
@@ -481,15 +520,23 @@ class RedisBroker(
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
-        with move_on_after(timeout) as cancel_scope:
-            if cancel_scope.cancel_called:
-                return False
+        sleep_time = (timeout or 10) / 10
 
+        with move_on_after(timeout) as cancel_scope:
             if self._connection is None:
                 return False
 
             while True:
+                if cancel_scope.cancel_called:
+                    return False
+
                 try:
-                    return await self._connection.ping()
-                except ConnectionError:  # noqa: PERF203
-                    await anyio.sleep(0.1)
+                    if await self._connection.ping():
+                        return True
+
+                except ConnectionError:
+                    pass
+
+                await anyio.sleep(sleep_time)
+
+        return False

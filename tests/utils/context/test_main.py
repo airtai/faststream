@@ -12,7 +12,7 @@ def test_context_getattr(context: ContextRepo):
     assert context.key2 is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_context_apply(context: ContextRepo):
     a = 1000
     context.set_global("key", a)
@@ -24,7 +24,7 @@ async def test_context_apply(context: ContextRepo):
     assert await use()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_context_ignore(context: ContextRepo):
     a = 3
     context.set_global("key", a)
@@ -36,7 +36,7 @@ async def test_context_ignore(context: ContextRepo):
     assert await use() is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_context_apply_multi(context: ContextRepo):
     a = 1001
     context.set_global("key_a", a)
@@ -63,7 +63,7 @@ async def test_context_apply_multi(context: ContextRepo):
     assert await use3()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_context_overrides(context: ContextRepo):
     a = 1001
     context.set_global("test", a)
@@ -78,7 +78,7 @@ async def test_context_overrides(context: ContextRepo):
     assert await use()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_context_nested_apply(context: ContextRepo):
     a = 1000
     context.set_global("key", a)
@@ -94,7 +94,7 @@ async def test_context_nested_apply(context: ContextRepo):
     assert await use()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_reset_global(context: ContextRepo):
     a = 1000
     context.set_global("key", a)
@@ -107,7 +107,7 @@ async def test_reset_global(context: ContextRepo):
         await use()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_clear_context(context: ContextRepo):
     a = 1000
     context.set_global("key", a)
@@ -152,6 +152,15 @@ def test_default(context: ContextRepo):
         "key5", {"key6": False}
     ):
         use()
+
+
+def test_local_default(context: ContextRepo):
+    key = "some-key"
+
+    tag = context.set_local(key, "useless")
+    context.reset_local(key, tag)
+
+    assert context.get_local(key, 1) == 1
 
 
 def test_initial():

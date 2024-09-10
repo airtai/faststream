@@ -2,6 +2,7 @@ import logging.config
 from typing import (
     TYPE_CHECKING,
     Any,
+    AsyncIterator,
     Callable,
     Dict,
     List,
@@ -39,6 +40,7 @@ if TYPE_CHECKING:
     )
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.types import (
+        AnyCallable,
         AnyDict,
         AnyHttpUrl,
         AsyncFunc,
@@ -73,6 +75,11 @@ class FastStream(AsyncAPIApplication):
             Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,
         identifier: Optional[str] = None,
+        on_startup: Sequence["AnyCallable"] = (),
+        after_startup: Sequence["AnyCallable"] = (),
+        on_shutdown: Sequence["AnyCallable"] = (),
+        after_shutdown: Sequence["AnyCallable"] = (),
+        # all options should be copied to AsgiFastStream class
     ) -> None:
         context.set_global("app", self)
 
@@ -80,10 +87,12 @@ class FastStream(AsyncAPIApplication):
         self.logger = logger
         self.context = context
 
-        self._on_startup_calling = []
-        self._after_startup_calling = []
-        self._on_shutdown_calling = []
-        self._after_shutdown_calling = []
+        self._on_startup_calling = [apply_types(to_async(x)) for x in on_startup]
+        self._after_startup_calling = [apply_types(to_async(x)) for x in after_startup]
+        self._on_shutdown_calling = [apply_types(to_async(x)) for x in on_shutdown]
+        self._after_shutdown_calling = [
+            apply_types(to_async(x)) for x in after_shutdown
+        ]
 
         self.lifespan_context = (
             apply_types(
@@ -166,7 +175,9 @@ class FastStream(AsyncAPIApplication):
 
         set_exit(lambda *_: self.exit(), sync=False)
 
-        async with self.lifespan_context(**(run_extra_options or {})):
+        async with catch_startup_validation_error(), self.lifespan_context(
+            **(run_extra_options or {})
+        ):
             try:
                 async with anyio.create_task_group() as tg:
                     tg.start_soon(self._startup, log_level, run_extra_options)
@@ -187,20 +198,7 @@ class FastStream(AsyncAPIApplication):
     ) -> None:
         """Executes startup hooks and start broker."""
         for func in self._on_startup_calling:
-            call = func(**run_extra_options)
-
-            try:
-                from pydantic import ValidationError as PValidation
-
-            except ImportError:
-                await call
-
-            else:
-                try:
-                    await call
-                except PValidation as e:
-                    fields = [str(x["loc"][0]) for x in e.errors()]
-                    raise ValidationError(fields=fields) from e
+            await func(**run_extra_options)
 
         if self.broker is not None:
             await self.broker.start()
@@ -238,3 +236,20 @@ class FastStream(AsyncAPIApplication):
     def _log(self, level: int, message: str) -> None:
         if self.logger is not None:
             self.logger.log(level, message)
+
+
+try:
+    from contextlib import asynccontextmanager
+
+    from pydantic import ValidationError as PValidation
+
+    @asynccontextmanager
+    async def catch_startup_validation_error() -> AsyncIterator[None]:
+        try:
+            yield
+        except PValidation as e:
+            fields = [str(x["loc"][0]) for x in e.errors()]
+            raise ValidationError(fields=fields) from e
+
+except ImportError:
+    catch_startup_validation_error = fake_context

@@ -25,22 +25,22 @@ class BaseCase:
                 assert h.running
 
 
-@pytest.mark.kafka()
+@pytest.mark.kafka
 @require_aiokafka
 class TestKafka(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
-        from docs.docs_src.integrations.fastapi.kafka.multiple import app, core_router
+        from docs.docs_src.integrations.fastapi.kafka.router import app, core_router
 
         return (app, core_router.broker)
 
 
-@pytest.mark.confluent()
+@pytest.mark.confluent
 @require_confluent
 class TestConfluent(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
-        from docs.docs_src.integrations.fastapi.confluent.multiple import (
+        from docs.docs_src.integrations.fastapi.confluent.router import (
             app,
             core_router,
         )
@@ -48,31 +48,31 @@ class TestConfluent(BaseCase):
         return (app, core_router.broker)
 
 
-@pytest.mark.nats()
+@pytest.mark.nats
 @require_nats
 class TestNats(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
-        from docs.docs_src.integrations.fastapi.nats.multiple import app, core_router
+        from docs.docs_src.integrations.fastapi.nats.router import app, core_router
 
         return (app, core_router.broker)
 
 
-@pytest.mark.rabbit()
+@pytest.mark.rabbit
 @require_aiopika
 class TestRabbit(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
-        from docs.docs_src.integrations.fastapi.rabbit.multiple import app, core_router
+        from docs.docs_src.integrations.fastapi.rabbit.router import app, core_router
 
         return (app, core_router.broker)
 
 
-@pytest.mark.redis()
+@pytest.mark.redis
 @require_redis
 class TestRedis(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
-        from docs.docs_src.integrations.fastapi.redis.multiple import app, core_router
+        from docs.docs_src.integrations.fastapi.redis.router import app, core_router
 
         return (app, core_router.broker)

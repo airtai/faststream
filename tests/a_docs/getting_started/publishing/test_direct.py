@@ -9,7 +9,7 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiokafka
 async def test_handle_kafka():
     from docs.docs_src.getting_started.publishing.kafka.direct_testing import (
@@ -19,7 +19,7 @@ async def test_handle_kafka():
     await test_handle_k()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_confluent
 async def test_handle_confluent():
     from docs.docs_src.getting_started.publishing.confluent.direct_testing import (
@@ -29,7 +29,7 @@ async def test_handle_confluent():
     await test_handle_confluent()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_aiopika
 async def test_handle_rabbit():
     from docs.docs_src.getting_started.publishing.rabbit.direct_testing import (
@@ -39,7 +39,7 @@ async def test_handle_rabbit():
     await test_handle_r()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_nats
 async def test_handle_nats():
     from docs.docs_src.getting_started.publishing.nats.direct_testing import (
@@ -49,7 +49,7 @@ async def test_handle_nats():
     await test_handle_n()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @require_redis
 async def test_handle_redis():
     from docs.docs_src.getting_started.publishing.redis.direct_testing import (

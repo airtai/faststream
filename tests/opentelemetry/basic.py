@@ -12,9 +12,10 @@ from opentelemetry.sdk.trace import Span, TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.semconv.trace import SpanAttributes as SpanAttr
-from opentelemetry.trace import SpanKind
+from opentelemetry.trace import SpanKind, get_current_span
 
 from faststream.broker.core.usecase import BrokerUsecase
+from faststream.opentelemetry import Baggage, CurrentBaggage, CurrentSpan
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
     MESSAGING_DESTINATION_PUBLISH_NAME,
@@ -24,7 +25,7 @@ from faststream.opentelemetry.middleware import TelemetryMiddleware
 from tests.brokers.base.basic import BaseTestcaseConfig
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class LocalTelemetryTestcase(BaseTestcaseConfig):
     messaging_system: str
     include_messages_counters: bool
@@ -61,22 +62,22 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         metrics = sorted(metrics, key=lambda m: m.name)
         return cast(List[Metric], metrics)
 
-    @pytest.fixture()
+    @pytest.fixture
     def tracer_provider(self) -> TracerProvider:
         tracer_provider = TracerProvider(resource=self.resource)
         return tracer_provider
 
-    @pytest.fixture()
+    @pytest.fixture
     def trace_exporter(self, tracer_provider: TracerProvider) -> InMemorySpanExporter:
         exporter = InMemorySpanExporter()
         tracer_provider.add_span_processor(SimpleSpanProcessor(exporter))
         return exporter
 
-    @pytest.fixture()
+    @pytest.fixture
     def metric_reader(self) -> InMemoryMetricReader:
         return InMemoryMetricReader()
 
-    @pytest.fixture()
+    @pytest.fixture
     def meter_provider(self, metric_reader: InMemoryMetricReader) -> MeterProvider:
         return MeterProvider(metric_readers=(metric_reader,), resource=self.resource)
 
@@ -363,6 +364,174 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         metrics = self.get_metrics(metric_reader)
 
         self.assert_metrics(metrics, error_type=expected_value_type)
+
+        assert event.is_set()
+        mock.assert_called_once_with(msg)
+
+    async def test_span_in_context(
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+        tracer_provider: TracerProvider,
+        trace_exporter: InMemorySpanExporter,
+    ):
+        mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
+        broker = self.broker_class(middlewares=(mid,))
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
+        async def handler(m, span: CurrentSpan):
+            assert span is get_current_span()
+            mock(m)
+            event.set()
+
+        broker = self.patch_broker(broker)
+        msg = "start"
+
+        async with broker:
+            await broker.start()
+            tasks = (
+                asyncio.create_task(broker.publish(msg, queue)),
+                asyncio.create_task(event.wait()),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
+
+        assert event.is_set()
+        mock.assert_called_once_with(msg)
+
+    async def test_get_baggage(
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+    ):
+        mid = self.telemetry_middleware_class()
+        broker = self.broker_class(middlewares=(mid,))
+        expected_baggage = {"foo": "bar"}
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker.subscriber(*args, **kwargs)
+        async def handler1(m, baggage: CurrentBaggage):
+            assert baggage.get("foo") == "bar"
+            assert baggage.get_all() == expected_baggage
+            assert baggage.get_all_batch() == []
+            assert baggage.__repr__() == expected_baggage.__repr__()
+            mock(m)
+            event.set()
+
+        broker = self.patch_broker(broker)
+        msg = "start"
+
+        async with broker:
+            await broker.start()
+            tasks = (
+                asyncio.create_task(
+                    broker.publish(
+                        msg, queue, headers=Baggage({"foo": "bar"}).to_headers()
+                    )
+                ),
+                asyncio.create_task(event.wait()),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
+
+        assert event.is_set()
+        mock.assert_called_once_with(msg)
+
+    async def test_clear_baggage(
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+    ):
+        mid = self.telemetry_middleware_class()
+        broker = self.broker_class(middlewares=(mid,))
+
+        first_queue = queue + "1"
+        second_queue = queue + "2"
+
+        args, kwargs = self.get_subscriber_params(first_queue)
+
+        @broker.subscriber(*args, **kwargs)
+        @broker.publisher(second_queue)
+        async def handler1(m, baggage: CurrentBaggage):
+            baggage.clear()
+            assert baggage.get_all() == {}
+            return m
+
+        args2, kwargs2 = self.get_subscriber_params(second_queue)
+
+        @broker.subscriber(*args2, **kwargs2)
+        async def handler2(m, baggage: CurrentBaggage):
+            assert baggage.get_all() == {}
+            mock(m)
+            event.set()
+
+        broker = self.patch_broker(broker)
+        msg = "start"
+
+        async with broker:
+            await broker.start()
+            tasks = (
+                asyncio.create_task(
+                    broker.publish(
+                        msg, first_queue, headers=Baggage({"foo": "bar"}).to_headers()
+                    )
+                ),
+                asyncio.create_task(event.wait()),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
+
+        assert event.is_set()
+        mock.assert_called_once_with(msg)
+
+    async def test_modify_baggage(
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+    ):
+        mid = self.telemetry_middleware_class()
+        broker = self.broker_class(middlewares=(mid,))
+        expected_baggage = {"baz": "bar", "bar": "baz"}
+
+        first_queue = queue + "1"
+        second_queue = queue + "2"
+
+        args, kwargs = self.get_subscriber_params(first_queue)
+
+        @broker.subscriber(*args, **kwargs)
+        @broker.publisher(second_queue)
+        async def handler1(m, baggage: CurrentBaggage):
+            baggage.set("bar", "baz")
+            baggage.set("baz", "bar")
+            baggage.remove("foo")
+            return m
+
+        args2, kwargs2 = self.get_subscriber_params(second_queue)
+
+        @broker.subscriber(*args2, **kwargs2)
+        async def handler2(m, baggage: CurrentBaggage):
+            assert baggage.get_all() == expected_baggage
+            mock(m)
+            event.set()
+
+        broker = self.patch_broker(broker)
+        msg = "start"
+
+        async with broker:
+            await broker.start()
+            tasks = (
+                asyncio.create_task(
+                    broker.publish(
+                        msg, first_queue, headers=Baggage({"foo": "bar"}).to_headers()
+                    )
+                ),
+                asyncio.create_task(event.wait()),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
 
         assert event.is_set()
         mock.assert_called_once_with(msg)
