@@ -20,7 +20,7 @@ We made last release just a few days ago, but there are some big changes here al
 
 1. First of all - you can't use `faststream run ...` command without `pip install faststream[cli]` distribution anymore. It was made to minify default (and production) distribution by removing **typer** (**rich** and **click**) dependencies. **CLI** is a development-time feature, so if you don't need - just don't install! Special thanks to @RubenRibGarcia for this change
 
-2. The next big change - **Kafka** publish confirmations by default! Previous **FastStream** version was working in *publish & forgot* style, but the new one blocks your `broker.publish(...)` call until **Kafka** confirmation frame recieved. To fallback to previous logic just use a new flag `broker.publish(..., no_confirm=True)`
+2. The next big change - **Kafka** publish confirmations by default! Previous **FastStream** version was working in *publish & forgot* style, but the new one blocks your `broker.publish(...)` call until **Kafka** confirmation frame received. To fallback to previous logic just use a new flag `broker.publish(..., no_confirm=True)`
 
 3. Also, we made one more step forward to our **1.0.0** features plan! @KrySeyt implements `get_one` feature. Now you can use any broker subscriber to get messages in imperative style:
 
