@@ -26,6 +26,7 @@ from faststream.broker.types import (
     CustomCallable,
     MsgType,
 )
+from faststream.broker.utils import process_msg
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 from faststream.utils.path import compile_path
@@ -164,7 +165,8 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         await consumer.start()
         await super().start()
 
-        self.task = asyncio.create_task(self._consume())
+        if self.calls:
+            self.task = asyncio.create_task(self._consume())
 
     async def close(self) -> None:
         await super().close()
@@ -177,6 +179,34 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             self.task.cancel()
 
         self.task = None
+
+    @override
+    async def get_one(
+        self,
+        *,
+        timeout: float = 5.0,
+    ) -> "Optional[StreamMessage[MsgType]]":
+        assert self.consumer, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        raw_messages = await self.consumer.getmany(
+            timeout_ms=timeout * 1000, max_records=1
+        )
+
+        if not raw_messages:
+            return None
+
+        ((raw_message,),) = raw_messages.values()
+
+        msg: StreamMessage[MsgType] = await process_msg(
+            msg=raw_message,
+            middlewares=self._broker_middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     def _make_response_publisher(
         self,

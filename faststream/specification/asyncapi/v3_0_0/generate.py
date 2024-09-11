@@ -49,7 +49,9 @@ def get_app_schema(app: Application) -> Schema:
     payloads: Dict[str, AnyDict] = {}
 
     for channel in channels.values():
-        channel.servers = [{"$ref": f"#/servers/{server_name}"} for server_name in list(servers.keys())]
+        channel.servers = [
+            {"$ref": f"#/servers/{server_name}"} for server_name in list(servers.keys())
+        ]
 
     for channel_name, channel in channels.items():
         msgs: Dict[str, Union[Message, Reference]] = {}
@@ -57,11 +59,7 @@ def get_app_schema(app: Application) -> Schema:
             assert isinstance(message, Message)
 
             msgs[message_name] = _resolve_msg_payloads(
-                message_name,
-                message,
-                channel_name,
-                payloads,
-                messages
+                message_name, message, channel_name, payloads, messages
             )
 
         channel.messages = msgs
@@ -72,18 +70,14 @@ def get_app_schema(app: Application) -> Schema:
             version=app.version,
             description=app.description,
             termsOfService=app.terms_of_service,
-
-            contact=contact_from_spec(app.contact)
-            if app.contact else None,
-
-            license=license_from_spec(app.license)
-            if app.license else None,
-
+            contact=contact_from_spec(app.contact) if app.contact else None,
+            license=license_from_spec(app.license) if app.license else None,
             tags=[tag_from_spec(tag) for tag in app.specs_tags]
-            if app.specs_tags else None,
-
+            if app.specs_tags
+            else None,
             externalDocs=docs_from_spec(app.external_docs)
-            if app.external_docs else None,
+            if app.external_docs
+            else None,
         ),
         defaultContentType=ContentTypes.json.value,
         id=app.identifier,
@@ -102,7 +96,7 @@ def get_app_schema(app: Application) -> Schema:
 
 
 def get_broker_server(
-        broker: "BrokerUsecase[MsgType, ConnectionType]",
+    broker: "BrokerUsecase[MsgType, ConnectionType]",
 ) -> Dict[str, Server]:
     """Get the broker server for an application."""
     servers = {}
@@ -142,7 +136,7 @@ def get_broker_server(
 
 
 def get_broker_operations(
-        broker: "BrokerUsecase[MsgType, ConnectionType]",
+    broker: "BrokerUsecase[MsgType, ConnectionType]",
 ) -> Dict[str, Operation]:
     """Get the broker operations for an application."""
     operations = {}
@@ -151,25 +145,21 @@ def get_broker_operations(
         for channel_name, specs_channel in h.schema().items():
             if specs_channel.subscribe is not None:
                 operations[f"{channel_name}Subscribe"] = operation_from_spec(
-                    specs_channel.subscribe,
-                    Action.RECEIVE,
-                    channel_name
+                    specs_channel.subscribe, Action.RECEIVE, channel_name
                 )
 
     for p in broker._publishers.values():
         for channel_name, specs_channel in p.schema().items():
             if specs_channel.publish is not None:
                 operations[f"{channel_name}"] = operation_from_spec(
-                    specs_channel.publish,
-                    Action.SEND,
-                    channel_name
+                    specs_channel.publish, Action.SEND, channel_name
                 )
 
     return operations
 
 
 def get_broker_channels(
-        broker: "BrokerUsecase[MsgType, ConnectionType]",
+    broker: "BrokerUsecase[MsgType, ConnectionType]",
 ) -> Dict[str, Channel]:
     """Get the broker channels for an application."""
     channels = {}
@@ -210,11 +200,11 @@ def get_broker_channels(
 
 
 def _resolve_msg_payloads(
-        message_name: str,
-        m: Message,
-        channel_name: str,
-        payloads: AnyDict,
-        messages: AnyDict,
+    message_name: str,
+    m: Message,
+    channel_name: str,
+    payloads: AnyDict,
+    messages: AnyDict,
 ) -> Reference:
     assert isinstance(m.payload, dict)
 
@@ -235,7 +225,9 @@ def _resolve_msg_payloads(
         m.payload["oneOf"] = one_of_list
         assert m.title
         messages[m.title] = m
-        return Reference(**{"$ref": f"#/components/messages/{channel_name}:{message_name}"})
+        return Reference(
+            **{"$ref": f"#/components/messages/{channel_name}:{message_name}"}
+        )
 
     else:
         payloads.update(m.payload.pop(DEF_KEY, {}))
@@ -244,4 +236,6 @@ def _resolve_msg_payloads(
         m.payload = {"$ref": f"#/components/schemas/{payload_name}"}
         assert m.title
         messages[m.title] = m
-        return Reference(**{"$ref": f"#/components/messages/{channel_name}:{message_name}"})
+        return Reference(
+            **{"$ref": f"#/components/messages/{channel_name}:{message_name}"}
+        )

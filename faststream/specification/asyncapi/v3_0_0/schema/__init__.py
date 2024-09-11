@@ -10,10 +10,8 @@ from .servers import Server
 __all__ = (
     "Channel",
     "channel_from_spec",
-
     "Operation",
     "operation_from_spec",
-
     "Components",
     "Schema",
     "Server",

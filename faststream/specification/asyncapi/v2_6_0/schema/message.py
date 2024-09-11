@@ -75,9 +75,7 @@ class Message(BaseModel):
     # examples
     # traits
 
-    tags: Optional[List[Union[Tag, AnyDict]]] = (
-        None
-    )
+    tags: Optional[List[Union[Tag, AnyDict]]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}
@@ -95,14 +93,14 @@ class Message(BaseModel):
             summary=message.summary,
             description=message.description,
             messageId=message.messageId,
-
             correlationId=CorrelationId.from_spec(message.correlationId)
-            if message.correlationId is not None else None,
-
+            if message.correlationId is not None
+            else None,
             contentType=message.contentType,
             payload=message.payload,
             tags=[tag_from_spec(tag) for tag in message.tags]
-            if message.tags is not None else None,
+            if message.tags is not None
+            else None,
         )
 
 

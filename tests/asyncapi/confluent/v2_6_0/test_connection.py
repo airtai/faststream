@@ -38,8 +38,7 @@ def test_base():
 
 def test_multi():
     schema = get_app_schema(
-        FastStream(KafkaBroker(["kafka:9092", "kafka:9093"])),
-        version="2.6.0"
+        FastStream(KafkaBroker(["kafka:9092", "kafka:9093"])), version="2.6.0"
     ).to_jsonable()
 
     assert schema == {
@@ -71,7 +70,7 @@ def test_custom():
                 specification_url=["kafka:9094", "kafka:9095"],
             )
         ),
-        version="2.6.0"
+        version="2.6.0",
     ).to_jsonable()
 
     assert schema == {

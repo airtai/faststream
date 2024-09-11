@@ -22,14 +22,13 @@ class TestRouter(RouterTestcase):
 
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
+        schema = get_app_schema(
+            FastStream(broker),
+            version="3.0.0",
+        ).to_jsonable()
 
         assert schema == {
-            "info": {
-                "title": "FastStream",
-                "version": "0.1.0",
-                "description": ""
-            },
+            "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
             "asyncapi": "3.0.0",
             "defaultContentType": "application/json",
             "servers": {
@@ -37,17 +36,13 @@ class TestRouter(RouterTestcase):
                     "host": "localhost:6379",
                     "pathname": "",
                     "protocol": "redis",
-                    "protocolVersion": "custom"
+                    "protocolVersion": "custom",
                 }
             },
             "channels": {
                 "test_test:Handle": {
                     "address": "test_test:Handle",
-                    "servers": [
-                        {
-                            "$ref": "#/servers/development"
-                        }
-                    ],
+                    "servers": [{"$ref": "#/servers/development"}],
                     "messages": {
                         "SubscribeMessage": {
                             "$ref": "#/components/messages/test_test:Handle:SubscribeMessage"
@@ -57,9 +52,9 @@ class TestRouter(RouterTestcase):
                         "redis": {
                             "channel": "test_test",
                             "method": "subscribe",
-                            "bindingVersion": "custom"
+                            "bindingVersion": "custom",
                         }
-                    }
+                    },
                 }
             },
             "operations": {
@@ -70,9 +65,7 @@ class TestRouter(RouterTestcase):
                             "$ref": "#/channels/test_test:Handle/messages/SubscribeMessage"
                         }
                     ],
-                    "channel": {
-                        "$ref": "#/channels/test_test:Handle"
-                    }
+                    "channel": {"$ref": "#/channels/test_test:Handle"},
                 }
             },
             "components": {
@@ -84,15 +77,13 @@ class TestRouter(RouterTestcase):
                         },
                         "payload": {
                             "$ref": "#/components/schemas/Handle:Message:Payload"
-                        }
+                        },
                     }
                 },
                 "schemas": {
-                    "Handle:Message:Payload": {
-                        "title": "Handle:Message:Payload"
-                    }
-                }
-            }
+                    "Handle:Message:Payload": {"title": "Handle:Message:Payload"}
+                },
+            },
         }
 
 

@@ -19,6 +19,7 @@ from typing_extensions import override
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import MsgType
+from faststream.broker.utils import process_msg
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.schemas import TopicPartition
 
@@ -152,7 +153,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         await super().start()
 
-        self.task = asyncio.create_task(self._consume())
+        if self.calls:
+            self.task = asyncio.create_task(self._consume())
 
     async def close(self) -> None:
         await super().close()
@@ -165,6 +167,27 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             self.task.cancel()
 
         self.task = None
+
+    @override
+    async def get_one(
+        self,
+        *,
+        timeout: float = 5.0,
+    ) -> "Optional[StreamMessage[Message]]":
+        assert self.consumer, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        raw_message = await self.consumer.getone(timeout=timeout)
+
+        msg = await process_msg(
+            msg=raw_message,
+            middlewares=self._broker_middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return msg
 
     def _make_response_publisher(
         self,

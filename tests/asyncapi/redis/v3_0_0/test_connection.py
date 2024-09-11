@@ -42,8 +42,7 @@ def test_custom():
     schema = get_app_schema(
         FastStream(
             RedisBroker(
-                "redis://localhost:6379",
-                specification_url="rediss://127.0.0.1:8000"
+                "redis://localhost:6379", specification_url="rediss://127.0.0.1:8000"
             ),
         ),
         version="3.0.0",

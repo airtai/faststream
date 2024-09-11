@@ -55,7 +55,9 @@ class KafkaRegistrator(
     _subscribers: Dict[
         int, Union["SpecificationBatchSubscriber", "SpecificationDefaultSubscriber"]
     ]
-    _publishers: Dict[int, Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"]]
+    _publishers: Dict[
+        int, Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"]
+    ]
 
     @overload  # type: ignore[override]
     def subscriber(

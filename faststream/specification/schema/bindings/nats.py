@@ -2,6 +2,7 @@
 
 References: https://github.com/asyncapi/bindings/tree/master/nats
 """
+
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 

@@ -49,9 +49,5 @@ class Message:
     correlationId: Optional[CorrelationId] = None
     contentType: Optional[str] = None
 
-    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = (
-        None
-    )
-    externalDocs: Optional[Union[ExternalDocs, Dict[str, Any]]] = (
-        None
-    )
+    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
+    externalDocs: Optional[Union[ExternalDocs, Dict[str, Any]]] = None

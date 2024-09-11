@@ -53,15 +53,15 @@ class Channel(BaseModel):
         return cls(
             description=channel.description,
             servers=channel.servers,
-
             bindings=channel_binding_from_spec(channel.bindings)
-            if channel.bindings is not None else None,
-
+            if channel.bindings is not None
+            else None,
             subscribe=operation_from_spec(channel.subscribe)
-            if channel.subscribe is not None else None,
-
+            if channel.subscribe is not None
+            else None,
             publish=operation_from_spec(channel.publish)
-            if channel.publish is not None else None,
+            if channel.publish is not None
+            else None,
         )
 
 

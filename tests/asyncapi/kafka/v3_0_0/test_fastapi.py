@@ -1,4 +1,3 @@
-
 from faststream.kafka.fastapi import KafkaRouter
 from faststream.kafka.testing import TestKafkaBroker
 from faststream.security import SASLPlaintext

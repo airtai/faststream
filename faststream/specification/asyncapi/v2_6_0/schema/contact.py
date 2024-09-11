@@ -135,7 +135,7 @@ def from_spec(contact: AnyDict) -> AnyDict: ...
 
 
 def from_spec(
-        contact: Union[spec.contact.Contact, spec.contact.ContactDict, AnyDict]
+    contact: Union[spec.contact.Contact, spec.contact.ContactDict, AnyDict],
 ) -> Union[Contact, AnyDict]:
     if isinstance(contact, spec.contact.Contact):
         return Contact.from_spec(contact)

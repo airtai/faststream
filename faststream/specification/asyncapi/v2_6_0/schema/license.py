@@ -58,7 +58,7 @@ def from_spec(license: AnyDict) -> AnyDict: ...
 
 
 def from_spec(
-        license: Union[spec.license.License, spec.license.LicenseDict, AnyDict]
+    license: Union[spec.license.License, spec.license.LicenseDict, AnyDict],
 ) -> Union[License, AnyDict]:
     if isinstance(license, spec.license.License):
         return License.from_spec(license)

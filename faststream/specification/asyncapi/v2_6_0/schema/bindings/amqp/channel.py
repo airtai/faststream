@@ -93,16 +93,18 @@ class ChannelBinding(BaseModel):
 
     @classmethod
     def from_spec(cls, binding: spec.bindings.amqp.ChannelBinding) -> Self:
-        return cls(**{
-            "is": binding.is_,
-            "bindingVersion": binding.bindingVersion,
-
-            "queue": Queue.from_spec(binding.queue)
-            if binding.queue is not None else None,
-
-            "exchange": Exchange.from_spec(binding.exchange)
-            if binding.exchange is not None else None,
-        })
+        return cls(
+            **{
+                "is": binding.is_,
+                "bindingVersion": binding.bindingVersion,
+                "queue": Queue.from_spec(binding.queue)
+                if binding.queue is not None
+                else None,
+                "exchange": Exchange.from_spec(binding.exchange)
+                if binding.exchange is not None
+                else None,
+            }
+        )
 
 
 def from_spec(binding: spec.bindings.amqp.ChannelBinding) -> ChannelBinding:

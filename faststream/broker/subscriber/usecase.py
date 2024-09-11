@@ -107,8 +107,8 @@ class SubscriberUsecase(
         """Initialize a new instance of the class."""
         self.calls = []
 
-        self._default_parser = default_parser
-        self._default_decoder = default_decoder
+        self._parser = default_parser
+        self._decoder = default_decoder
         self._no_reply = no_reply
         # Watcher args
         self._no_ack = no_ack
@@ -164,18 +164,17 @@ class SubscriberUsecase(
 
         for call in self.calls:
             if parser := call.item_parser or broker_parser:
-                async_parser = resolve_custom_func(
-                    to_async(parser), self._default_parser
-                )
+                async_parser = resolve_custom_func(to_async(parser), self._parser)
             else:
-                async_parser = self._default_parser
+                async_parser = self._parser
 
             if decoder := call.item_decoder or broker_decoder:
-                async_decoder = resolve_custom_func(
-                    to_async(decoder), self._default_decoder
-                )
+                async_decoder = resolve_custom_func(to_async(decoder), self._decoder)
             else:
-                async_decoder = self._default_decoder
+                async_decoder = self._decoder
+
+            self._parser = async_parser
+            self._decoder = async_decoder
 
             call.setup(
                 parser=async_parser,

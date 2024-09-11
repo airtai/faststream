@@ -15,7 +15,10 @@ class TestNaming(NamingTestCase):
         @broker.subscriber("test")
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
+        schema = get_app_schema(
+            FastStream(broker),
+            version="3.0.0",
+        ).to_jsonable()
 
         assert schema == {
             "asyncapi": "3.0.0",
@@ -29,13 +32,11 @@ class TestNaming(NamingTestCase):
                             "method": "subscribe",
                         }
                     },
-                    "servers": [
-                        {
-                            "$ref": "#/servers/development"
-                        }
-                    ],
+                    "servers": [{"$ref": "#/servers/development"}],
                     "messages": {
-                        "SubscribeMessage": {"$ref": "#/components/messages/test:Handle:SubscribeMessage"}
+                        "SubscribeMessage": {
+                            "$ref": "#/components/messages/test:Handle:SubscribeMessage"
+                        }
                     },
                 }
             },
@@ -46,10 +47,8 @@ class TestNaming(NamingTestCase):
                         "$ref": "#/channels/test:Handle",
                     },
                     "messages": [
-                        {
-                            "$ref": "#/channels/test:Handle/messages/SubscribeMessage"
-                        }
-                    ]
+                        {"$ref": "#/channels/test:Handle/messages/SubscribeMessage"}
+                    ],
                 }
             },
             "components": {

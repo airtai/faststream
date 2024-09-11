@@ -84,7 +84,9 @@ class SubscriberNaming(BaseNaming):
 
         assert list(schema["channels"].keys()) == ["custom"]
 
-        assert list(schema["components"]["messages"].keys()) == ["custom:SubscribeMessage"]
+        assert list(schema["components"]["messages"].keys()) == [
+            "custom:SubscribeMessage"
+        ]
 
         assert list(schema["components"]["schemas"].keys()) == [
             "custom:Message:Payload"
@@ -118,7 +120,9 @@ class SubscriberNaming(BaseNaming):
 
         assert list(schema["channels"].keys()) == ["custom"]
 
-        assert list(schema["components"]["messages"].keys()) == ["custom:SubscribeMessage"]
+        assert list(schema["components"]["messages"].keys()) == [
+            "custom:SubscribeMessage"
+        ]
 
         assert list(schema["components"]["schemas"].keys()) == [
             "custom:Message:Payload"
@@ -223,7 +227,9 @@ class FilterNaming(BaseNaming):
 
         assert list(schema["channels"].keys()) == ["custom"]
 
-        assert list(schema["components"]["messages"].keys()) == ["custom:SubscribeMessage"]
+        assert list(schema["components"]["messages"].keys()) == [
+            "custom:SubscribeMessage"
+        ]
 
         assert list(schema["components"]["schemas"].keys()) == [
             "HandleUserCreated:Message:Payload",
@@ -266,7 +272,6 @@ class PublisherNaming(BaseNaming):
 
         assert list(schema["components"]["schemas"].keys()) == [
             "SimpleModel",
-
         ], list(schema["components"]["schemas"].keys())
 
     def test_publisher_manual_naming(self):

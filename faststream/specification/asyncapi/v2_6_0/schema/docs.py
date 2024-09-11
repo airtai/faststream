@@ -30,10 +30,7 @@ class ExternalDocs(BaseModel):
 
     @classmethod
     def from_spec(cls, docs: spec.docs.ExternalDocs) -> Self:
-        return cls(
-            url=docs.url,
-            description=docs.description
-        )
+        return cls(url=docs.url, description=docs.description)
 
 
 @overload
@@ -49,7 +46,7 @@ def from_spec(docs: AnyDict) -> AnyDict: ...
 
 
 def from_spec(
-        docs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, AnyDict]
+    docs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, AnyDict],
 ) -> Union[ExternalDocs, AnyDict]:
     if isinstance(docs, spec.docs.ExternalDocs):
         return ExternalDocs.from_spec(docs)

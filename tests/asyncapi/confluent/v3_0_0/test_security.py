@@ -4,19 +4,17 @@ from copy import deepcopy
 from faststream.app import FastStream
 from faststream.confluent import KafkaBroker
 from faststream.security import (
+    SASLGSSAPI,
     BaseSecurity,
+    SASLOAuthBearer,
     SASLPlaintext,
     SASLScram256,
-    SASLScram512, SASLGSSAPI, SASLOAuthBearer,
+    SASLScram512,
 )
 from faststream.specification.asyncapi.generate import get_app_schema
 
 basic_schema = {
-    "info": {
-        "title": "FastStream",
-        "version": "0.1.0",
-        "description": ""
-    },
+    "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
     "asyncapi": "3.0.0",
     "defaultContentType": "application/json",
     "servers": {
@@ -25,106 +23,70 @@ basic_schema = {
             "pathname": "",
             "protocol": "kafka-secure",
             "protocolVersion": "auto",
-            "security": []
+            "security": [],
         }
     },
     "channels": {
         "test_1:TestTopic": {
             "address": "test_1:TestTopic",
-            "servers": [
-                {
-                    "$ref": "#/servers/development"
-                }
-            ],
+            "servers": [{"$ref": "#/servers/development"}],
             "messages": {
                 "SubscribeMessage": {
                     "$ref": "#/components/messages/test_1:TestTopic:SubscribeMessage"
                 }
             },
-            "bindings": {
-                "kafka": {
-                    "topic": "test_1",
-                    "bindingVersion": "0.4.0"
-                }
-            }
+            "bindings": {"kafka": {"topic": "test_1", "bindingVersion": "0.4.0"}},
         },
         "test_2:Publisher": {
             "address": "test_2:Publisher",
-            "servers": [
-                {
-                    "$ref": "#/servers/development"
-                }
-            ],
+            "servers": [{"$ref": "#/servers/development"}],
             "messages": {
-                "Message": {
-                    "$ref": "#/components/messages/test_2:Publisher:Message"
-                }
+                "Message": {"$ref": "#/components/messages/test_2:Publisher:Message"}
             },
-            "bindings": {
-                "kafka": {
-                    "topic": "test_2",
-                    "bindingVersion": "0.4.0"
-                }
-            }
-        }
+            "bindings": {"kafka": {"topic": "test_2", "bindingVersion": "0.4.0"}},
+        },
     },
     "operations": {
         "test_1:TestTopicSubscribe": {
             "action": "receive",
             "messages": [
-                {
-                    "$ref": "#/channels/test_1:TestTopic/messages/SubscribeMessage"
-                }
+                {"$ref": "#/channels/test_1:TestTopic/messages/SubscribeMessage"}
             ],
-            "channel": {
-                "$ref": "#/channels/test_1:TestTopic"
-            }
+            "channel": {"$ref": "#/channels/test_1:TestTopic"},
         },
         "test_2:Publisher": {
             "action": "send",
-            "messages": [
-                {
-                    "$ref": "#/channels/test_2:Publisher/messages/Message"
-                }
-            ],
-            "channel": {
-                "$ref": "#/channels/test_2:Publisher"
-            }
-        }
+            "messages": [{"$ref": "#/channels/test_2:Publisher/messages/Message"}],
+            "channel": {"$ref": "#/channels/test_2:Publisher"},
+        },
     },
     "components": {
         "messages": {
             "test_1:TestTopic:SubscribeMessage": {
                 "title": "test_1:TestTopic:SubscribeMessage",
-                "correlationId": {
-                    "location": "$message.header#/correlation_id"
-                },
-                "payload": {
-                    "$ref": "#/components/schemas/TestTopic:Message:Payload"
-                }
+                "correlationId": {"location": "$message.header#/correlation_id"},
+                "payload": {"$ref": "#/components/schemas/TestTopic:Message:Payload"},
             },
             "test_2:Publisher:Message": {
                 "title": "test_2:Publisher:Message",
-                "correlationId": {
-                    "location": "$message.header#/correlation_id"
-                },
+                "correlationId": {"location": "$message.header#/correlation_id"},
                 "payload": {
                     "$ref": "#/components/schemas/test_2:Publisher:Message:Payload"
-                }
-            }
+                },
+            },
         },
         "schemas": {
             "TestTopic:Message:Payload": {
                 "title": "TestTopic:Message:Payload",
-                "type": "string"
+                "type": "string",
             },
             "test_2:Publisher:Message:Payload": {
                 "title": "test_2:Publisher:Message:Payload",
-                "type": "string"
-            }
+                "type": "string",
+            },
         },
-        "securitySchemes": {}
-    }
+        "securitySchemes": {},
+    },
 }
 
 
@@ -276,4 +238,3 @@ def test_gssapi_security_schema():
     }
 
     assert schema == gssapi_security_schema
-

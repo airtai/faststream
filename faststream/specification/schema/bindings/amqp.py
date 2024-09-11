@@ -2,6 +2,7 @@
 
 References: https://github.com/asyncapi/bindings/tree/master/amqp
 """
+
 from dataclasses import dataclass
 from typing import Literal, Optional
 

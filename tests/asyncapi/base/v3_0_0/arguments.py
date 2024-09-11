@@ -487,9 +487,7 @@ class FastAPICompatible:
                 key: {
                     "title": key,
                     "correlationId": {"location": "$message.header#/correlation_id"},
-                    "payload": {
-                        "$ref": "#/components/schemas/Handle:Message:Payload"
-                    },
+                    "payload": {"$ref": "#/components/schemas/Handle:Message:Payload"},
                 }
             },
             "schemas": {

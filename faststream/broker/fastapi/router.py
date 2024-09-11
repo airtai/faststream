@@ -126,9 +126,7 @@ class StreamRouter(
             generate_unique_id
         ),
         # Specification information
-        specification_tags: Optional[
-            Iterable[Union["Tag", "TagDict"]]
-        ] = None,
+        specification_tags: Optional[Iterable[Union["Tag", "TagDict"]]] = None,
         schema_url: Optional[str] = "/asyncapi",
         **connection_kwars: Any,
     ) -> None:

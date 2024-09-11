@@ -145,9 +145,7 @@ class TestArguments(PublisherTestcase):
                     "$ref": "#/channels/_:test-ex:Publisher",
                 },
                 "messages": [
-                    {
-                        "$ref": "#/channels/_:test-ex:Publisher/messages/Message"
-                    }
+                    {"$ref": "#/channels/_:test-ex:Publisher/messages/Message"}
                 ],
             }
         }
@@ -187,7 +185,6 @@ class TestArguments(PublisherTestcase):
                         "$ref": "#/components/messages/key1:test-ex:Publisher:Message",
                     },
                 },
-
             },
             "key2:test-ex:Publisher": {
                 "address": "key2:test-ex:Publisher",
@@ -233,9 +230,7 @@ class TestArguments(PublisherTestcase):
                     }
                 },
                 "messages": [
-                    {
-                        "$ref": "#/channels/key1:test-ex:Publisher/messages/Message"
-                    }
+                    {"$ref": "#/channels/key1:test-ex:Publisher/messages/Message"}
                 ],
             },
             "key2:test-ex:Publisher": {
@@ -254,9 +249,7 @@ class TestArguments(PublisherTestcase):
                     }
                 },
                 "messages": [
-                    {
-                        "$ref": "#/channels/key2:test-ex:Publisher/messages/Message"
-                    }
+                    {"$ref": "#/channels/key2:test-ex:Publisher/messages/Message"}
                 ],
             },
         }

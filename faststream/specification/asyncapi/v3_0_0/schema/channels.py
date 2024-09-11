@@ -51,11 +51,11 @@ class Channel(BaseModel):
 
     @classmethod
     def from_spec(
-            cls,
-            channel: spec.channel.Channel,
-            message: spec.message.Message,
-            channel_name: str,
-            message_name: str
+        cls,
+        channel: spec.channel.Channel,
+        message: spec.message.Message,
+        channel_name: str,
+        message_name: str,
     ) -> Self:
         return cls(
             address=channel_name,
@@ -65,14 +65,15 @@ class Channel(BaseModel):
             description=channel.description,
             servers=channel.servers,
             bindings=channel_binding_from_spec(channel.bindings)
-            if channel.bindings else None,
+            if channel.bindings
+            else None,
         )
 
 
 def from_spec(
-        channel: spec.channel.Channel,
-        message: spec.message.Message,
-        channel_name: str,
-        message_name: str
+    channel: spec.channel.Channel,
+    message: spec.message.Message,
+    channel_name: str,
+    message_name: str,
 ) -> Channel:
     return Channel.from_spec(channel, message, channel_name, message_name)

@@ -15,7 +15,7 @@ def test_base():
                 tags=(Tag(name="some-tag", description="experimental"),),
             )
         ),
-        version="2.6.0"
+        version="2.6.0",
     ).to_jsonable()
 
     assert schema == {

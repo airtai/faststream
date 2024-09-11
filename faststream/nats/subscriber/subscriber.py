@@ -21,7 +21,7 @@ from faststream.specification.schema.message import CorrelationId, Message
 from faststream.specification.schema.operation import Operation
 
 
-class SpecificationSubscriber(LogicSubscriber[Any]):
+class SpecificationSubscriber(LogicSubscriber[Any, Any]):
     """A class to represent a NATS handler."""
 
     def get_name(self) -> str:
@@ -52,39 +52,59 @@ class SpecificationSubscriber(LogicSubscriber[Any]):
         }
 
 
-class SpecificationCoreSubscriber(SpecificationSubscriber, CoreSubscriber):
+class SpecificationCoreSubscriber(
+    SpecificationSubscriber,
+    CoreSubscriber,
+):
     """One-message core consumer with Specification methods."""
 
 
-class SpecificationConcurrentCoreSubscriber(SpecificationSubscriber, ConcurrentCoreSubscriber):
+class SpecificationConcurrentCoreSubscriber(
+    SpecificationSubscriber,
+    ConcurrentCoreSubscriber,
+):
     """One-message core concurrent consumer with Specification methods."""
 
 
-class SpecificationStreamSubscriber(SpecificationSubscriber, PushStreamSubscription):
+class SpecificationStreamSubscriber(
+    SpecificationSubscriber,
+    PushStreamSubscription,
+):
     """One-message JS Push consumer with Specification methods."""
 
 
 class SpecificationConcurrentPushStreamSubscriber(
-    SpecificationSubscriber, ConcurrentPushStreamSubscriber
+    SpecificationSubscriber,
+    ConcurrentPushStreamSubscriber,
 ):
     """One-message JS Push concurrent consumer with Specification methods."""
 
 
-class SpecificationPullStreamSubscriber(SpecificationSubscriber, PullStreamSubscriber):
+class SpecificationPullStreamSubscriber(
+    SpecificationSubscriber,
+    PullStreamSubscriber,
+):
     """One-message JS Pull consumer with Specification methods."""
 
 
 class SpecificationConcurrentPullStreamSubscriber(
-    SpecificationSubscriber, ConcurrentPullStreamSubscriber
+    SpecificationSubscriber,
+    ConcurrentPullStreamSubscriber,
 ):
     """One-message JS Pull concurrent consumer with Specification methods."""
 
 
-class SpecificationBatchPullStreamSubscriber(SpecificationSubscriber, BatchPullStreamSubscriber):
+class SpecificationBatchPullStreamSubscriber(
+    SpecificationSubscriber,
+    BatchPullStreamSubscriber,
+):
     """Batch-message Pull consumer with Specification methods."""
 
 
-class SpecificationKeyValueWatchSubscriber(SpecificationSubscriber, KeyValueWatchSubscriber):
+class SpecificationKeyValueWatchSubscriber(
+    SpecificationSubscriber,
+    KeyValueWatchSubscriber,
+):
     """KeyValueWatch consumer with Specification methods."""
 
     @override
@@ -96,7 +116,10 @@ class SpecificationKeyValueWatchSubscriber(SpecificationSubscriber, KeyValueWatc
         return {}
 
 
-class SpecificationObjStoreWatchSubscriber(SpecificationSubscriber, ObjStoreWatchSubscriber):
+class SpecificationObjStoreWatchSubscriber(
+    SpecificationSubscriber,
+    ObjStoreWatchSubscriber,
+):
     """ObjStoreWatch consumer with Specification methods."""
 
     @override

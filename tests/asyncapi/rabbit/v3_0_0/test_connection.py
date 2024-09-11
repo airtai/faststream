@@ -45,8 +45,8 @@ def test_kwargs():
     )
 
     assert (
-            broker.url
-            == "amqp://guest:guest@127.0.0.1:5672/?heartbeat=300"  # pragma: allowlist secret
+        broker.url
+        == "amqp://guest:guest@127.0.0.1:5672/?heartbeat=300"  # pragma: allowlist secret
     )
 
 
@@ -59,84 +59,79 @@ def test_custom():
     broker.publisher("test")
     schema = get_app_schema(FastStream(broker), version="3.0.0").to_jsonable()
 
-    assert (
-            schema
-            == {
-                "asyncapi": "3.0.0",
-                "channels": {
-                    "test:_:Publisher": {
-                        "address": "test:_:Publisher",
-                        "bindings": {
-                            "amqp": {
-                                "bindingVersion": "0.2.0",
-                                "exchange": {"type": "default", "vhost": "/vh"},
-                                "is": "routingKey",
-                                "queue": {
-                                    "autoDelete": False,
-                                    "durable": False,
-                                    "exclusive": False,
-                                    "name": "test",
-                                    "vhost": "/vh",
-                                },
-                            }
+    assert schema == {
+        "asyncapi": "3.0.0",
+        "channels": {
+            "test:_:Publisher": {
+                "address": "test:_:Publisher",
+                "bindings": {
+                    "amqp": {
+                        "bindingVersion": "0.2.0",
+                        "exchange": {"type": "default", "vhost": "/vh"},
+                        "is": "routingKey",
+                        "queue": {
+                            "autoDelete": False,
+                            "durable": False,
+                            "exclusive": False,
+                            "name": "test",
+                            "vhost": "/vh",
                         },
-                        "servers": [
-                            {
-                                "$ref": "#/servers/development",
-                            }
-                        ],
-                        "messages": {
-                            "Message": {
-                                "$ref": "#/components/messages/test:_:Publisher:Message",
-                            },
-                        }
                     }
                 },
-                "operations": {
-                    "test:_:Publisher": {
-                        "action": "send",
-                        "bindings": {
-                            "amqp": {
-                                "ack": True,
-                                "bindingVersion": "0.2.0",
-                                "cc": "test",
-                                "deliveryMode": 1,
-                                "mandatory": True,
-                            },
-                        },
-                        "channel": {
-                            "$ref": "#/channels/test:_:Publisher",
-                        },
-                        "messages": [
-                            {
-                                "$ref": "#/channels/test:_:Publisher/messages/Message",
-                            },
-                        ],
-                    },
-                },
-                "components": {
-                    "messages": {
-                        "test:_:Publisher:Message": {
-                            "correlationId": {
-                                "location": "$message.header#/correlation_id"
-                            },
-                            "payload": {
-                                "$ref": "#/components/schemas/test:_:Publisher:Message:Payload"
-                            },
-                            "title": "test:_:Publisher:Message",
-                        }
-                    },
-                    "schemas": {"test:_:Publisher:Message:Payload": {}},
-                },
-                "defaultContentType": "application/json",
-                "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
-                "servers": {
-                    "development": {
-                        "protocol": "amqp",
-                        "protocolVersion": "0.9.1",
-                        "host": "guest:guest@127.0.0.1:5672",  # pragma: allowlist secret
-                        "pathname": "/vh",  # pragma: allowlist secret
+                "servers": [
+                    {
+                        "$ref": "#/servers/development",
                     }
+                ],
+                "messages": {
+                    "Message": {
+                        "$ref": "#/components/messages/test:_:Publisher:Message",
+                    },
                 },
             }
-    )
+        },
+        "operations": {
+            "test:_:Publisher": {
+                "action": "send",
+                "bindings": {
+                    "amqp": {
+                        "ack": True,
+                        "bindingVersion": "0.2.0",
+                        "cc": "test",
+                        "deliveryMode": 1,
+                        "mandatory": True,
+                    },
+                },
+                "channel": {
+                    "$ref": "#/channels/test:_:Publisher",
+                },
+                "messages": [
+                    {
+                        "$ref": "#/channels/test:_:Publisher/messages/Message",
+                    },
+                ],
+            },
+        },
+        "components": {
+            "messages": {
+                "test:_:Publisher:Message": {
+                    "correlationId": {"location": "$message.header#/correlation_id"},
+                    "payload": {
+                        "$ref": "#/components/schemas/test:_:Publisher:Message:Payload"
+                    },
+                    "title": "test:_:Publisher:Message",
+                }
+            },
+            "schemas": {"test:_:Publisher:Message:Payload": {}},
+        },
+        "defaultContentType": "application/json",
+        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
+        "servers": {
+            "development": {
+                "protocol": "amqp",
+                "protocolVersion": "0.9.1",
+                "host": "guest:guest@127.0.0.1:5672",  # pragma: allowlist secret
+                "pathname": "/vh",  # pragma: allowlist secret
+            }
+        },
+    }

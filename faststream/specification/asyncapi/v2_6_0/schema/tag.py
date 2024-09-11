@@ -41,8 +41,7 @@ class Tag(BaseModel):
         return cls(
             name=tag.name,
             description=tag.description,
-            externalDocs=docs_from_spec(tag.externalDocs)
-            if tag.externalDocs else None
+            externalDocs=docs_from_spec(tag.externalDocs) if tag.externalDocs else None,
         )
 
 
@@ -59,7 +58,7 @@ def from_spec(tag: AnyDict) -> AnyDict: ...
 
 
 def from_spec(
-        tag: Union[spec.tag.Tag, spec.tag.TagDict, AnyDict]
+    tag: Union[spec.tag.Tag, spec.tag.TagDict, AnyDict],
 ) -> Union[Tag, AnyDict]:
     if isinstance(tag, spec.tag.Tag):
         return Tag.from_spec(tag)

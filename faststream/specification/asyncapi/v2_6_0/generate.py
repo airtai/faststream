@@ -51,20 +51,13 @@ def get_app_schema(app: Application) -> Schema:
             version=app.version,
             description=app.description,
             termsOfService=app.terms_of_service,
-            contact=contact_from_spec(app.contact)
-            if app.contact else None,
-            license=license_from_spec(app.license)
-            if app.license else None,
+            contact=contact_from_spec(app.contact) if app.contact else None,
+            license=license_from_spec(app.license) if app.license else None,
         ),
         defaultContentType=ContentTypes.json.value,
         id=app.identifier,
-
-        tags=[tag_from_spec(tag) for tag in app.specs_tags]
-        if app.specs_tags else None,
-
-        externalDocs=docs_from_spec(app.external_docs)
-        if app.external_docs else None,
-
+        tags=[tag_from_spec(tag) for tag in app.specs_tags] if app.specs_tags else None,
+        externalDocs=docs_from_spec(app.external_docs) if app.external_docs else None,
         servers=servers,
         channels=channels,
         components=Components(
@@ -79,10 +72,10 @@ def get_app_schema(app: Application) -> Schema:
 
 
 def resolve_channel_messages(
-        channel: Channel,
-        channel_name: str,
-        payloads: Dict[str, AnyDict],
-        messages: Dict[str, Message],
+    channel: Channel,
+    channel_name: str,
+    payloads: Dict[str, AnyDict],
+    messages: Dict[str, Message],
 ) -> None:
     if channel.subscribe is not None:
         assert isinstance(channel.subscribe.message, Message)
@@ -106,7 +99,7 @@ def resolve_channel_messages(
 
 
 def get_broker_server(
-        broker: "BrokerUsecase[MsgType, ConnectionType]",
+    broker: "BrokerUsecase[MsgType, ConnectionType]",
 ) -> Dict[str, Server]:
     """Get the broker server for an application."""
     servers = {}
@@ -141,33 +134,31 @@ def get_broker_server(
 
 
 def get_broker_channels(
-        broker: "BrokerUsecase[MsgType, ConnectionType]",
+    broker: "BrokerUsecase[MsgType, ConnectionType]",
 ) -> Dict[str, Channel]:
     """Get the broker channels for an application."""
     channels = {}
 
     for h in broker._subscribers.values():
         schema = h.schema()
-        channels.update({
-            key: channel_from_spec(channel)
-            for key, channel in schema.items()
-        })
+        channels.update(
+            {key: channel_from_spec(channel) for key, channel in schema.items()}
+        )
 
     for p in broker._publishers.values():
         schema = p.schema()
-        channels.update({
-            key: channel_from_spec(channel)
-            for key, channel in schema.items()
-        })
+        channels.update(
+            {key: channel_from_spec(channel) for key, channel in schema.items()}
+        )
 
     return channels
 
 
 def _resolve_msg_payloads(
-        m: Message,
-        channel_name: str,
-        payloads: AnyDict,
-        messages: AnyDict,
+    m: Message,
+    channel_name: str,
+    payloads: AnyDict,
+    messages: AnyDict,
 ) -> Reference:
     """Replace message payload by reference and normalize payloads.
 
@@ -210,8 +201,8 @@ def _resolve_msg_payloads(
 
 
 def move_pydantic_refs(
-        original: Any,
-        key: str,
+    original: Any,
+    key: str,
 ) -> Any:
     """Remove pydantic references and replacem them by real schemas."""
     if not isinstance(original, Dict):

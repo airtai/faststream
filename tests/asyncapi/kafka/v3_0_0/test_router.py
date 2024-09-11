@@ -25,74 +25,59 @@ class TestRouter(RouterTestcase):
         schema = get_app_schema(FastStream(broker), version="3.0.0").to_jsonable()
 
         assert schema == {
-                "info": {
-                    "title": "FastStream",
-                    "version": "0.1.0",
-                    "description": ""
-                },
-                "asyncapi": "3.0.0",
-                "defaultContentType": "application/json",
-                "servers": {
-                    "development": {
-                        "host": "localhost",
-                        "pathname": "",
-                        "protocol": "kafka",
-                        "protocolVersion": "auto"
-                    }
-                },
-                "channels": {
-                    "test_test:Handle": {
-                        "address": "test_test:Handle",
-                        "servers": [
-                            {
-                                "$ref": "#/servers/development"
-                            }
-                        ],
-                        "messages": {
-                            "SubscribeMessage": {
-                                "$ref": "#/components/messages/test_test:Handle:SubscribeMessage"
-                            }
-                        },
-                        "bindings": {
-                            "kafka": {
-                                "topic": "test_test",
-                                "bindingVersion": "0.4.0"
-                            }
-                        }
-                    }
-                },
-                "operations": {
-                    "test_test:HandleSubscribe": {
-                        "action": "receive",
-                        "messages": [
-                            {
-                                "$ref": "#/channels/test_test:Handle/messages/SubscribeMessage"
-                            }
-                        ],
-                        "channel": {
-                            "$ref": "#/channels/test_test:Handle"
-                        }
-                    }
-                },
-                "components": {
+            "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
+            "asyncapi": "3.0.0",
+            "defaultContentType": "application/json",
+            "servers": {
+                "development": {
+                    "host": "localhost",
+                    "pathname": "",
+                    "protocol": "kafka",
+                    "protocolVersion": "auto",
+                }
+            },
+            "channels": {
+                "test_test:Handle": {
+                    "address": "test_test:Handle",
+                    "servers": [{"$ref": "#/servers/development"}],
                     "messages": {
-                        "test_test:Handle:SubscribeMessage": {
-                            "title": "test_test:Handle:SubscribeMessage",
-                            "correlationId": {
-                                "location": "$message.header#/correlation_id"
-                            },
-                            "payload": {
-                                "$ref": "#/components/schemas/Handle:Message:Payload"
-                            }
+                        "SubscribeMessage": {
+                            "$ref": "#/components/messages/test_test:Handle:SubscribeMessage"
                         }
                     },
-                    "schemas": {
-                        "Handle:Message:Payload": {
-                            "title": "Handle:Message:Payload"
-                        }
-                    }
+                    "bindings": {
+                        "kafka": {"topic": "test_test", "bindingVersion": "0.4.0"}
+                    },
                 }
-            }
+            },
+            "operations": {
+                "test_test:HandleSubscribe": {
+                    "action": "receive",
+                    "messages": [
+                        {
+                            "$ref": "#/channels/test_test:Handle/messages/SubscribeMessage"
+                        }
+                    ],
+                    "channel": {"$ref": "#/channels/test_test:Handle"},
+                }
+            },
+            "components": {
+                "messages": {
+                    "test_test:Handle:SubscribeMessage": {
+                        "title": "test_test:Handle:SubscribeMessage",
+                        "correlationId": {
+                            "location": "$message.header#/correlation_id"
+                        },
+                        "payload": {
+                            "$ref": "#/components/schemas/Handle:Message:Payload"
+                        },
+                    }
+                },
+                "schemas": {
+                    "Handle:Message:Payload": {"title": "Handle:Message:Payload"}
+                },
+            },
+        }
 
 
 class TestRouterArguments(ArgumentsTestcase):

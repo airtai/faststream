@@ -2,6 +2,7 @@
 
 References: https://github.com/asyncapi/bindings/tree/master/kafka
 """
+
 from typing import Optional
 
 from pydantic import BaseModel

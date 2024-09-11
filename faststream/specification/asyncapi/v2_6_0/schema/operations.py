@@ -66,15 +66,15 @@ class Operation(BaseModel):
             operationId=operation.operationId,
             summary=operation.summary,
             description=operation.description,
-
             bindings=operation_binding_from_spec(operation.bindings)
-            if operation.bindings is not None else None,
-
+            if operation.bindings is not None
+            else None,
             message=message_from_spec(operation.message)
-            if operation.message is not None else None,
-
+            if operation.message is not None
+            else None,
             tags=[tag_from_spec(tag) for tag in operation.tags]
-            if operation.tags is not None else None,
+            if operation.tags is not None
+            else None,
         )
 
 

@@ -41,9 +41,7 @@ def test_base():
 def test_multi():
     schema = get_app_schema(
         FastStream(
-            NatsBroker(
-                ["nats:9092", "nats:9093"]
-            ),
+            NatsBroker(["nats:9092", "nats:9093"]),
         ),
         version="3.0.0",
     ).to_jsonable()

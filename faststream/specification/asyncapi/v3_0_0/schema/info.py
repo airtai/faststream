@@ -34,6 +34,4 @@ class Info(BaseInfo):
     contact: Optional[Union[Contact, AnyDict]] = None
     license: Optional[Union[License, AnyDict]] = None
     tags: Optional[List[Union["Tag", "AnyDict"]]] = None
-    externalDocs: Optional[
-            Union["ExternalDocs", "AnyDict"]
-    ] = None
+    externalDocs: Optional[Union["ExternalDocs", "AnyDict"]] = None

@@ -20,7 +20,10 @@ def test_base_security_schema():
     )  # pragma: allowlist secret
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
-    schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
+    schema = get_app_schema(
+        FastStream(broker),
+        version="3.0.0",
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",
@@ -58,31 +61,31 @@ def test_plaintext_security_schema():
     )  # pragma: allowlist secret
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
-    schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
-    assert (
-        schema
-        == {
-            "asyncapi": "3.0.0",
-            "channels": {},
-            "operations": {},
-            "components": {
-                "messages": {},
-                "schemas": {},
-                "securitySchemes": {"user-password": {"type": "userPassword"}},
-            },
-            "defaultContentType": "application/json",
-            "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
-            "servers": {
-                "development": {
-                    "protocol": "amqps",
-                    "protocolVersion": "0.9.1",
-                    "security": [{"user-password": []}],
-                    "host": "admin:password@localhost:5671",  # pragma: allowlist secret
-                    "pathname": "/",
-                }
-            },
-        }
-    )
+    schema = get_app_schema(
+        FastStream(broker),
+        version="3.0.0",
+    ).to_jsonable()
+    assert schema == {
+        "asyncapi": "3.0.0",
+        "channels": {},
+        "operations": {},
+        "components": {
+            "messages": {},
+            "schemas": {},
+            "securitySchemes": {"user-password": {"type": "userPassword"}},
+        },
+        "defaultContentType": "application/json",
+        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
+        "servers": {
+            "development": {
+                "protocol": "amqps",
+                "protocolVersion": "0.9.1",
+                "security": [{"user-password": []}],
+                "host": "admin:password@localhost:5671",  # pragma: allowlist secret
+                "pathname": "/",
+            }
+        },
+    }
 
 
 def test_plaintext_security_schema_without_ssl():
@@ -98,28 +101,28 @@ def test_plaintext_security_schema_without_ssl():
         == "amqp://admin:password@localhost:5672/"  # pragma: allowlist secret
     )  # pragma: allowlist secret
 
-    schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
-    assert (
-        schema
-        == {
-            "asyncapi": "3.0.0",
-            "channels": {},
-            "operations": {},
-            "components": {
-                "messages": {},
-                "schemas": {},
-                "securitySchemes": {"user-password": {"type": "userPassword"}},
-            },
-            "defaultContentType": "application/json",
-            "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
-            "servers": {
-                "development": {
-                    "protocol": "amqp",
-                    "protocolVersion": "0.9.1",
-                    "security": [{"user-password": []}],
-                    "host": "admin:password@localhost:5672",  # pragma: allowlist secret
-                    "pathname": "/",  # pragma: allowlist secret
-                }
-            },
-        }
-    )
+    schema = get_app_schema(
+        FastStream(broker),
+        version="3.0.0",
+    ).to_jsonable()
+    assert schema == {
+        "asyncapi": "3.0.0",
+        "channels": {},
+        "operations": {},
+        "components": {
+            "messages": {},
+            "schemas": {},
+            "securitySchemes": {"user-password": {"type": "userPassword"}},
+        },
+        "defaultContentType": "application/json",
+        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
+        "servers": {
+            "development": {
+                "protocol": "amqp",
+                "protocolVersion": "0.9.1",
+                "security": [{"user-password": []}],
+                "host": "admin:password@localhost:5672",  # pragma: allowlist secret
+                "pathname": "/",  # pragma: allowlist secret
+            }
+        },
+    }

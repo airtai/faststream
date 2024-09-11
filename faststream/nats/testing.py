@@ -144,7 +144,10 @@ class FakeProducer(NatsFastProducer):
         raise SubscriberNotFound
 
     async def _execute_handler(
-        self, msg: Any, subject: str, handler: "LogicSubscriber[Any]"
+        self,
+        msg: Any,
+        subject: str,
+        handler: "LogicSubscriber[Any, Any]",
     ) -> "PatchedMessage":
         result = await handler.process_message(msg)
 
@@ -157,7 +160,7 @@ class FakeProducer(NatsFastProducer):
 
 
 def _is_handler_suitable(
-    handler: "LogicSubscriber[Any]",
+    handler: "LogicSubscriber[Any, Any]",
     subject: str,
     stream: Optional[str] = None,
 ) -> bool:

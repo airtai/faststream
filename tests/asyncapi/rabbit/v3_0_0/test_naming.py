@@ -15,7 +15,10 @@ class TestNaming(NamingTestCase):
         @broker.subscriber("test", "exchange")
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
+        schema = get_app_schema(
+            FastStream(broker),
+            version="3.0.0",
+        ).to_jsonable()
 
         assert list(schema["channels"].keys()) == ["test:exchange:Handle"]
 
@@ -29,7 +32,10 @@ class TestNaming(NamingTestCase):
         @broker.publisher("test", "exchange")
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
+        schema = get_app_schema(
+            FastStream(broker),
+            version="3.0.0",
+        ).to_jsonable()
 
         assert list(schema["channels"].keys()) == ["test:exchange:Publisher"]
 
@@ -43,84 +49,82 @@ class TestNaming(NamingTestCase):
         @broker.subscriber("test")
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
+        schema = get_app_schema(
+            FastStream(broker),
+            version="3.0.0",
+        ).to_jsonable()
 
-        assert (
-                schema
-                == {
-                    "asyncapi": "3.0.0",
-                    "defaultContentType": "application/json",
-                    "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
-                    "servers": {
-                        "development": {
-                            "host": "guest:guest@localhost:5672",  # pragma: allowlist secret
-                            "pathname": "/",
-                            "protocol": "amqp",
-                            "protocolVersion": "0.9.1",
+        assert schema == {
+            "asyncapi": "3.0.0",
+            "defaultContentType": "application/json",
+            "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
+            "servers": {
+                "development": {
+                    "host": "guest:guest@localhost:5672",  # pragma: allowlist secret
+                    "pathname": "/",
+                    "protocol": "amqp",
+                    "protocolVersion": "0.9.1",
+                }
+            },
+            "channels": {
+                "test:_:Handle": {
+                    "address": "test:_:Handle",
+                    "servers": [
+                        {
+                            "$ref": "#/servers/development",
+                        }
+                    ],
+                    "bindings": {
+                        "amqp": {
+                            "is": "routingKey",
+                            "bindingVersion": "0.2.0",
+                            "queue": {
+                                "name": "test",
+                                "durable": False,
+                                "exclusive": False,
+                                "autoDelete": False,
+                                "vhost": "/",
+                            },
+                            "exchange": {"type": "default", "vhost": "/"},
                         }
                     },
-                    "channels": {
-                        "test:_:Handle": {
-                            "address": "test:_:Handle",
-                            "servers": [
-                                {
-                                    "$ref": "#/servers/development",
-                                }
-                            ],
-                            "bindings": {
-                                "amqp": {
-                                    "is": "routingKey",
-                                    "bindingVersion": "0.2.0",
-                                    "queue": {
-                                        "name": "test",
-                                        "durable": False,
-                                        "exclusive": False,
-                                        "autoDelete": False,
-                                        "vhost": "/",
-                                    },
-                                    "exchange": {"type": "default", "vhost": "/"},
-                                }
-                            },
-                            "messages": {
-                                "SubscribeMessage": {
-                                    "$ref": "#/components/messages/test:_:Handle:SubscribeMessage"
-                                }
-                            },
+                    "messages": {
+                        "SubscribeMessage": {
+                            "$ref": "#/components/messages/test:_:Handle:SubscribeMessage"
                         }
-                    },
-                    "operations": {
-                        "test:_:HandleSubscribe": {
-                            "action": "receive",
-                            "bindings": {
-                                "amqp": {
-                                    "ack": True,
-                                    "bindingVersion": "0.2.0",
-                                    "cc": "test",
-                                },
-                            },
-                            "channel": {
-                                "$ref": "#/channels/test:_:Handle",
-                            },
-                            "messages": [
-                                {
-                                    "$ref": "#/channels/test:_:Handle/messages/SubscribeMessage",
-                                },
-                            ],
-                        },
-                    },
-                    "components": {
-                        "messages": {
-                            "test:_:Handle:SubscribeMessage": {
-                                "title": "test:_:Handle:SubscribeMessage",
-                                "correlationId": {
-                                    "location": "$message.header#/correlation_id"
-                                },
-                                "payload": {"$ref": "#/components/schemas/EmptyPayload"},
-                            }
-                        },
-                        "schemas": {
-                            "EmptyPayload": {"title": "EmptyPayload", "type": "null"}
-                        },
                     },
                 }
-        )
+            },
+            "operations": {
+                "test:_:HandleSubscribe": {
+                    "action": "receive",
+                    "bindings": {
+                        "amqp": {
+                            "ack": True,
+                            "bindingVersion": "0.2.0",
+                            "cc": "test",
+                        },
+                    },
+                    "channel": {
+                        "$ref": "#/channels/test:_:Handle",
+                    },
+                    "messages": [
+                        {
+                            "$ref": "#/channels/test:_:Handle/messages/SubscribeMessage",
+                        },
+                    ],
+                },
+            },
+            "components": {
+                "messages": {
+                    "test:_:Handle:SubscribeMessage": {
+                        "title": "test:_:Handle:SubscribeMessage",
+                        "correlationId": {
+                            "location": "$message.header#/correlation_id"
+                        },
+                        "payload": {"$ref": "#/components/schemas/EmptyPayload"},
+                    }
+                },
+                "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},
+            },
+        }

@@ -140,7 +140,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python -m pip install uv
-          uv pip install --system .[kafka,test-core]
+          uv pip install --system .[kafka,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -209,7 +209,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python -m pip install uv
-          uv pip install --system .[confluent,test-core]
+          uv pip install --system .[confluent,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -278,7 +278,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python -m pip install uv
-          uv pip install --system .[rabbit,test-core]
+          uv pip install --system .[rabbit,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -336,7 +336,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python -m pip install uv
-          uv pip install --system .[nats,test-core]
+          uv pip install --system .[nats,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -394,7 +394,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python -m pip install uv
-          uv pip install --system .[redis,test-core]
+          uv pip install --system .[redis,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh

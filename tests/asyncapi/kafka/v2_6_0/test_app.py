@@ -73,7 +73,7 @@ def test_full():
                 url="https://extra-docs.py/",
             ),
         ),
-        version="2.6.0"
+        version="2.6.0",
     ).to_jsonable()
 
     assert schema == {
@@ -118,7 +118,7 @@ def test_full_dict():
                 "url": "https://extra-docs.py/",
             },
         ),
-        version="2.6.0"
+        version="2.6.0",
     ).to_jsonable()
 
     assert schema == {
@@ -166,7 +166,7 @@ def test_extra():
                 "x-field": "extra",
             },
         ),
-        version="2.6.0"
+        version="2.6.0",
     ).to_jsonable()
 
     assert schema == {

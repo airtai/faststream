@@ -292,7 +292,9 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         ] = None,
         specification_url: Annotated[
             Optional[str],
-            Doc("Specification hardcoded server addresses. Use `servers` if not specified."),
+            Doc(
+                "Specification hardcoded server addresses. Use `servers` if not specified."
+            ),
         ] = None,
         protocol: Annotated[
             Optional[str],

@@ -36,6 +36,7 @@ class Operation(BaseModel):
         tags : tags associated with the operation
 
     """
+
     action: Action
     summary: Optional[str] = None
     description: Optional[str] = None
@@ -61,32 +62,33 @@ class Operation(BaseModel):
             extra = "allow"
 
     @classmethod
-    def from_spec(cls, operation: spec.operation.Operation, action: Action, channel_name: str) -> Self:
+    def from_spec(
+        cls, operation: spec.operation.Operation, action: Action, channel_name: str
+    ) -> Self:
         return cls(
             action=action,
             summary=operation.summary,
             description=operation.description,
-
             bindings=operation_binding_from_spec(operation.bindings)
-            if operation.bindings else None,
-
+            if operation.bindings
+            else None,
             messages=[
                 Reference(
                     **{
                         "$ref": f"#/channels/{channel_name}/messages/SubscribeMessage"
-                                if action is Action.RECEIVE else
-                                f"#/channels/{channel_name}/messages/Message"
+                        if action is Action.RECEIVE
+                        else f"#/channels/{channel_name}/messages/Message"
                     },
                 )
             ],
-
             channel=Reference(
                 **{"$ref": f"#/channels/{channel_name}"},
             ),
-
             security=operation.security,
         )
 
 
-def from_spec(operation: spec.operation.Operation, action: Action, channel_name: str) -> Operation:
+def from_spec(
+    operation: spec.operation.Operation, action: Action, channel_name: str
+) -> Operation:
     return Operation.from_spec(operation, action, channel_name)

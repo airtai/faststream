@@ -28,7 +28,9 @@ def test_fastapi_security_schema():
 
     router = RabbitRouter(security=security)
 
-    schema = get_app_schema(router,).to_jsonable()
+    schema = get_app_schema(
+        router,
+    ).to_jsonable()
 
     assert schema["servers"]["development"] == {
         "protocol": "amqp",

@@ -3,7 +3,6 @@
 References: https://github.com/asyncapi/bindings/tree/master/sqs
 """
 
-
 from pydantic import BaseModel
 from typing_extensions import Self
 

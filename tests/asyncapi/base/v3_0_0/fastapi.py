@@ -62,19 +62,12 @@ class FastAPITestCase:
                             "protocol": "custom",
                             "description": "Test broker description",
                             "protocolVersion": "1.1.1",
-                            "tags": [
-                                {
-                                    "name": "test"
-                                }
-                            ]
+                            "tags": [{"name": "test"}],
                         }
                     },
                     "channels": {},
                     "operations": {},
-                    "components": {
-                        "messages": {},
-                        "schemas": {}
-                    }
+                    "components": {"messages": {}, "schemas": {}},
                 }
 
     @pytest.mark.asyncio

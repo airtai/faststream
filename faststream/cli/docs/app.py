@@ -122,8 +122,8 @@ def gen(
     asyncapi_version: str = typer.Option(
         "3.0.0",
         "--version",
-        help="Version of asyncapi schema. Currently supported only 3.0.0 and 2.6.0"
-    )
+        help="Version of asyncapi schema. Currently supported only 3.0.0 and 2.6.0",
+    ),
 ) -> None:
     """Generate project AsyncAPI schema."""
     if app_dir:  # pragma: no branch

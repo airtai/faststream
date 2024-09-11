@@ -10,9 +10,7 @@ if TYPE_CHECKING:
     from fast_depends.core import CallModel
 
 
-def parse_handler_params(
-    call: "CallModel[Any, Any]", prefix: str = ""
-) -> AnyDict:
+def parse_handler_params(call: "CallModel[Any, Any]", prefix: str = "") -> AnyDict:
     """Parses the handler parameters."""
     model = call.model
     assert model  # nosec B101
@@ -37,9 +35,7 @@ def get_response_schema(call: None, prefix: str = "") -> None: ...
 
 
 @overload
-def get_response_schema(
-    call: "CallModel[Any, Any]", prefix: str = ""
-) -> AnyDict: ...
+def get_response_schema(call: "CallModel[Any, Any]", prefix: str = "") -> AnyDict: ...
 
 
 def get_response_schema(

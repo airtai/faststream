@@ -28,98 +28,83 @@ class TestRouter(RouterTestcase):
 
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker), version="3.0.0",).to_jsonable()
+        schema = get_app_schema(
+            FastStream(broker),
+            version="3.0.0",
+        ).to_jsonable()
 
-        assert (
-                schema
-                == {
-                    "info": {
-                        "title": "FastStream",
-                        "version": "0.1.0",
-                        "description": ""
-                    },
-                    "asyncapi": "3.0.0",
-                    "defaultContentType": "application/json",
-                    "servers": {
-                        "development": {
-                            "host": "guest:guest@localhost:5672",
-                            "pathname": "/",
-                            "protocol": "amqp",
-                            "protocolVersion": "0.9.1"
-                        }
-                    },
-                    "channels": {
-                        "test_test:_:Handle": {
-                            "address": "test_test:_:Handle",
-                            "servers": [
-                                {
-                                    "$ref": "#/servers/development"
-                                }
-                            ],
-                            "messages": {
-                                "SubscribeMessage": {
-                                    "$ref": "#/components/messages/test_test:_:Handle:SubscribeMessage"
-                                }
-                            },
-                            "bindings": {
-                                "amqp": {
-                                    "is": "routingKey",
-                                    "bindingVersion": "0.2.0",
-                                    "queue": {
-                                        "name": "test_test",
-                                        "durable": False,
-                                        "exclusive": False,
-                                        "autoDelete": False,
-                                        "vhost": "/"
-                                    },
-                                    "exchange": {
-                                        "type": "default",
-                                        "vhost": "/"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "operations": {
-                        "test_test:_:HandleSubscribe": {
-                            "action": "receive",
-                            "bindings": {
-                                "amqp": {
-                                    "cc": "test_key",
-                                    "ack": True,
-                                    "bindingVersion": "0.2.0"
-                                }
-                            },
-                            "messages": [
-                                {
-                                    "$ref": "#/channels/test_test:_:Handle/messages/SubscribeMessage"
-                                }
-                            ],
-                            "channel": {
-                                "$ref": "#/channels/test_test:_:Handle"
-                            }
-                        }
-                    },
-                    "components": {
-                        "messages": {
-                            "test_test:_:Handle:SubscribeMessage": {
-                                "title": "test_test:_:Handle:SubscribeMessage",
-                                "correlationId": {
-                                    "location": "$message.header#/correlation_id"
-                                },
-                                "payload": {
-                                    "$ref": "#/components/schemas/Handle:Message:Payload"
-                                }
-                            }
-                        },
-                        "schemas": {
-                            "Handle:Message:Payload": {
-                                "title": "Handle:Message:Payload"
-                            }
-                        }
-                    }
+        assert schema == {
+            "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
+            "asyncapi": "3.0.0",
+            "defaultContentType": "application/json",
+            "servers": {
+                "development": {
+                    "host": "guest:guest@localhost:5672",
+                    "pathname": "/",
+                    "protocol": "amqp",
+                    "protocolVersion": "0.9.1",
                 }
-        ), schema
+            },
+            "channels": {
+                "test_test:_:Handle": {
+                    "address": "test_test:_:Handle",
+                    "servers": [{"$ref": "#/servers/development"}],
+                    "messages": {
+                        "SubscribeMessage": {
+                            "$ref": "#/components/messages/test_test:_:Handle:SubscribeMessage"
+                        }
+                    },
+                    "bindings": {
+                        "amqp": {
+                            "is": "routingKey",
+                            "bindingVersion": "0.2.0",
+                            "queue": {
+                                "name": "test_test",
+                                "durable": False,
+                                "exclusive": False,
+                                "autoDelete": False,
+                                "vhost": "/",
+                            },
+                            "exchange": {"type": "default", "vhost": "/"},
+                        }
+                    },
+                }
+            },
+            "operations": {
+                "test_test:_:HandleSubscribe": {
+                    "action": "receive",
+                    "bindings": {
+                        "amqp": {
+                            "cc": "test_key",
+                            "ack": True,
+                            "bindingVersion": "0.2.0",
+                        }
+                    },
+                    "messages": [
+                        {
+                            "$ref": "#/channels/test_test:_:Handle/messages/SubscribeMessage"
+                        }
+                    ],
+                    "channel": {"$ref": "#/channels/test_test:_:Handle"},
+                }
+            },
+            "components": {
+                "messages": {
+                    "test_test:_:Handle:SubscribeMessage": {
+                        "title": "test_test:_:Handle:SubscribeMessage",
+                        "correlationId": {
+                            "location": "$message.header#/correlation_id"
+                        },
+                        "payload": {
+                            "$ref": "#/components/schemas/Handle:Message:Payload"
+                        },
+                    }
+                },
+                "schemas": {
+                    "Handle:Message:Payload": {"title": "Handle:Message:Payload"}
+                },
+            },
+        }, schema
 
 
 class TestRouterArguments(ArgumentsTestcase):
