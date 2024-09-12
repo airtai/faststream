@@ -11,9 +11,9 @@ else:
 
 if not has_typer:
     raise ImportError(
-        "\n\nYou're trying to use FastStream CLI, "
-        "\nbut didn't install required dependencies, "
-        "\nplease install them by the following command: "
+        "\n\nYou're trying to use the FastStream CLI, "
+        "\nbut you haven't installed the required dependencies."
+        "\nPlease install them using the following command: "
         '\npip install "faststream[cli]"'
     )
 
