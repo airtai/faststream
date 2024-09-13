@@ -6,11 +6,12 @@ from typing import (
     Optional,
 )
 
-from ..types import (
+from faststream._internal.types import (
     BrokerMiddleware,
     CustomCallable,
     MsgType,
 )
+
 from .abc_broker import ABCBroker
 
 if TYPE_CHECKING:

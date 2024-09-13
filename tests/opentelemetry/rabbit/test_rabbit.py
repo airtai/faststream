@@ -12,8 +12,7 @@ from faststream.rabbit import RabbitBroker, RabbitExchange
 from faststream.rabbit.opentelemetry import RabbitTelemetryMiddleware
 from tests.brokers.rabbit.test_consume import TestConsume
 from tests.brokers.rabbit.test_publish import TestPublish
-
-from ..basic import LocalTelemetryTestcase
+from tests.opentelemetry.basic import LocalTelemetryTestcase
 
 
 @pytest.fixture

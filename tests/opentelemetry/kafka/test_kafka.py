@@ -18,8 +18,7 @@ from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 from faststream.opentelemetry.middleware import MessageAction as Action
 from tests.brokers.kafka.test_consume import TestConsume
 from tests.brokers.kafka.test_publish import TestPublish
-
-from ..basic import LocalTelemetryTestcase
+from tests.opentelemetry.basic import LocalTelemetryTestcase
 
 
 @pytest.mark.kafka

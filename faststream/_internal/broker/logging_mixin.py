@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Any, Optional
 from typing_extensions import Annotated, Doc
 
 from faststream._internal.constants import EMPTY
+from faststream._internal.types import MsgType
 
-from ..types import MsgType
 from .abc_broker import ABCBroker
 
 if TYPE_CHECKING:

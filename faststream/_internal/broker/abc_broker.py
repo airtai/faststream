@@ -8,11 +8,7 @@ from typing import (
     Optional,
 )
 
-from ..types import (
-    BrokerMiddleware,
-    CustomCallable,
-    MsgType,
-)
+from faststream._internal.types import BrokerMiddleware, CustomCallable, MsgType
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends

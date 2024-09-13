@@ -213,6 +213,7 @@ select = [
     "PT",    # flake8-pytest-style    https://docs.astral.sh/ruff/rules/#flake8-pytest-style-pt
     "PTH",   # flake8-use-pathlib     https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
     "TCH",   # flake8-type-checking   https://docs.astral.sh/ruff/rules/#flake8-type-checking-tch
+    "TID",   # flake8-tidy-imports    https://docs.astral.sh/ruff/rules/#flake8-tidy-imports-tid
     "RUF",   # Ruff-specific rules    https://docs.astral.sh/ruff/rules/#ruff-specific-rules-ruf
     "PERF",  # Perflint               https://docs.astral.sh/ruff/rules/#perflint-perf
     "UP",    # pyupgrade              https://docs.astral.sh/ruff/rules/#pyupgrade-up

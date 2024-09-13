@@ -12,8 +12,7 @@ from faststream.nats import JStream, NatsBroker, PullSub
 from faststream.nats.opentelemetry import NatsTelemetryMiddleware
 from tests.brokers.nats.test_consume import TestConsume
 from tests.brokers.nats.test_publish import TestPublish
-
-from ..basic import LocalTelemetryTestcase
+from tests.opentelemetry.basic import LocalTelemetryTestcase
 
 
 @pytest.fixture
