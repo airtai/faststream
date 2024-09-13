@@ -7,15 +7,12 @@ import pytest
 
 from faststream._internal.basic_types import AnyCallable
 from faststream._internal.testing.broker import TestBroker
-from tests.brokers.base.consume import BrokerConsumeTestcase
-from tests.brokers.base.publish import BrokerPublishTestcase
+
+from .consume import BrokerConsumeTestcase
+from .publish import BrokerPublishTestcase
 
 
-class BrokerTestclientTestcase(
-    BrokerPublishTestcase,
-    BrokerConsumeTestcase,
-    # RequestsTestcase,
-):
+class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
     build_message: AnyCallable
     test_class: TestBroker
 
