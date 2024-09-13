@@ -3,8 +3,12 @@ from pathlib import Path
 import pytest
 from typer import BadParameter
 
+from faststream._internal.cli.utils.imports import (
+    get_app_path,
+    import_from_string,
+    import_object,
+)
 from faststream.app import FastStream
-from faststream.cli.utils.imports import get_app_path, import_from_string, import_object
 from tests.marks import require_aiokafka, require_aiopika, require_nats
 
 

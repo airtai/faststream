@@ -4,7 +4,7 @@ from nats.aio.msg import Msg
 from nats.js.api import ObjectInfo
 from nats.js.kv import KeyValue
 
-from faststream.broker.message import StreamMessage
+from faststream.message import StreamMessage
 
 
 class NatsMessage(StreamMessage[Msg]):

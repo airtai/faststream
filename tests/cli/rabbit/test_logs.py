@@ -3,7 +3,7 @@ import logging
 import pytest
 
 from faststream import FastStream
-from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
+from faststream._internal.cli.utils.logs import LogLevels, get_log_level, set_log_level
 from faststream.rabbit import RabbitBroker
 
 

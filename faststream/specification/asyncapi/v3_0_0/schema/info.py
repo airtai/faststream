@@ -6,15 +6,15 @@ from typing import (
 
 from pydantic import AnyHttpUrl
 
+from faststream._internal.basic_types import (
+    AnyDict,
+)
 from faststream.specification.asyncapi.base.schema import BaseInfo
 from faststream.specification.asyncapi.v2_6_0.schema import (
     Contact,
     ExternalDocs,
     License,
     Tag,
-)
-from faststream.types import (
-    AnyDict,
 )
 
 

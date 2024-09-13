@@ -15,22 +15,22 @@ from typing import (
 from aio_pika import IncomingMessage
 from typing_extensions import Annotated, Doc, TypedDict, Unpack, deprecated, override
 
-from faststream.broker.message import gen_cor_id
-from faststream.broker.publisher.usecase import PublisherUsecase
+from faststream._internal.publisher.usecase import PublisherUsecase
+from faststream._internal.utils.functions import return_input
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.message import gen_cor_id
 from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
-from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
 
-    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.basic_types import AnyDict, AsyncFunc
+    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas.exchange import RabbitExchange
     from faststream.rabbit.types import AioPikaSendableMessage
-    from faststream.types import AnyDict, AsyncFunc
 
 
 # should be public to use in imports

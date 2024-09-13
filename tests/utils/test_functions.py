@@ -1,6 +1,6 @@
 import pytest
 
-from faststream.utils.functions import call_or_await
+from faststream._internal.utils.functions import call_or_await
 
 
 def sync_func(a):

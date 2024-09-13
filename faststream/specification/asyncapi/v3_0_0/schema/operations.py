@@ -4,7 +4,8 @@ from typing import Dict, List, Optional, Union
 from pydantic import BaseModel
 from typing_extensions import Self
 
-from faststream._compat import PYDANTIC_V2
+from faststream._internal._compat import PYDANTIC_V2
+from faststream._internal.basic_types import AnyDict
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import OperationBinding
 from faststream.specification.asyncapi.v2_6_0.schema.bindings.main import (
@@ -15,7 +16,6 @@ from faststream.specification.asyncapi.v2_6_0.schema.utils import (
     Reference,
 )
 from faststream.specification.asyncapi.v3_0_0.schema.channels import Channel
-from faststream.types import AnyDict
 
 
 class Action(str, Enum):

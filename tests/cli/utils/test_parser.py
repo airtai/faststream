@@ -2,7 +2,7 @@ from typing import Tuple
 
 import pytest
 
-from faststream.cli.utils.parser import parse_cli_args
+from faststream._internal.cli.utils.parser import parse_cli_args
 
 APPLICATION = "module:app"
 

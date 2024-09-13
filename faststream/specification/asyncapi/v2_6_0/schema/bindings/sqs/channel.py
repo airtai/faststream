@@ -6,8 +6,8 @@ References: https://github.com/asyncapi/bindings/tree/master/sqs
 from pydantic import BaseModel
 from typing_extensions import Self
 
+from faststream._internal.basic_types import AnyDict
 from faststream.specification import schema as spec
-from faststream.types import AnyDict
 
 
 class ChannelBinding(BaseModel):

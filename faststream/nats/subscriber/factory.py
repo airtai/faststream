@@ -27,9 +27,9 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
     from nats.js import api
 
-    from faststream.broker.types import BrokerMiddleware
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import BrokerMiddleware
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
-    from faststream.types import AnyDict
 
 
 def create_subscriber(

@@ -16,8 +16,9 @@ from aio_pika import connect_robust
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.message import gen_cor_id
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.message import gen_cor_id
 from faststream.rabbit.broker.logging import RabbitLoggingBroker
 from faststream.rabbit.broker.registrator import RabbitRegistrator
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
@@ -30,7 +31,6 @@ from faststream.rabbit.schemas import (
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
 from faststream.rabbit.utils import build_url
-from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from ssl import SSLContext
@@ -48,7 +48,8 @@ if TYPE_CHECKING:
     from pamqp.common import FieldTable
     from yarl import URL
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
     )
@@ -56,7 +57,6 @@ if TYPE_CHECKING:
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
-    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 class RabbitBroker(

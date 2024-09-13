@@ -10,9 +10,11 @@ from pamqp import commands as spec
 from pamqp.header import ContentHeader
 from typing_extensions import override
 
-from faststream.broker.message import gen_cor_id
-from faststream.broker.utils import resolve_custom_func
+from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream._internal.testing.broker import TestBroker
+from faststream._internal.utils.functions import timeout_scope
 from faststream.exceptions import WRONG_PUBLISH_ARGS, SubscriberNotFound
+from faststream.message import gen_cor_id
 from faststream.rabbit.broker.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -22,8 +24,6 @@ from faststream.rabbit.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.testing.broker import TestBroker
-from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType

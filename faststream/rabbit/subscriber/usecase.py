@@ -12,11 +12,10 @@ from typing import (
 import anyio
 from typing_extensions import override
 
-from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.utils import process_msg
+from faststream._internal.publisher.fake import FakePublisher
+from faststream._internal.subscriber.usecase import SubscriberUsecase
+from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
-from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import BaseRMQInformation
 
@@ -24,17 +23,16 @@ if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage
-    from faststream.broker.types import BrokerMiddleware, CustomCallable
+    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.types import BrokerMiddleware, CustomCallable
+    from faststream.message import StreamMessage
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas import (
         RabbitExchange,
         RabbitQueue,
-        ReplyConfig,
     )
-    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 class LogicSubscriber(
@@ -56,7 +54,6 @@ class LogicSubscriber(
         queue: "RabbitQueue",
         exchange: "RabbitExchange",
         consume_args: Optional["AnyDict"],
-        reply_config: Optional["ReplyConfig"],
         # Subscriber args
         no_ack: bool,
         no_reply: bool,
@@ -86,7 +83,6 @@ class LogicSubscriber(
         )
 
         self.consume_args = consume_args or {}
-        self.reply_config = reply_config.to_dict() if reply_config else {}
 
         self._consumer_tag = None
         self._queue_obj = None
@@ -224,7 +220,6 @@ class LogicSubscriber(
             FakePublisher(
                 self._producer.publish,
                 publish_kwargs={
-                    **self.reply_config,
                     "routing_key": message.reply_to,
                     "app_id": self.app_id,
                 },

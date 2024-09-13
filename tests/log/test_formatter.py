@@ -1,6 +1,6 @@
 import logging
 
-from faststream.log.formatter import ColourizedFormatter
+from faststream._internal.log.formatter import ColourizedFormatter
 
 
 def test_formatter():

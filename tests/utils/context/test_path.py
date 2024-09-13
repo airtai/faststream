@@ -25,12 +25,13 @@ async def test_aiokafka_path():
 
     async with TestKafkaBroker(broker) as br:
         assert (
-            await br.publish(
-                "",
-                "in.john.1",
-                rpc=True,
-                rpc_timeout=1.0,
-            )
+            await (
+                await br.request(
+                    "",
+                    "in.john.1",
+                    timeout=1.0,
+                )
+            ).decode()
             == 1
         )
 
@@ -53,12 +54,13 @@ async def test_nats_path():
 
     async with TestNatsBroker(broker) as br:
         assert (
-            await br.publish(
-                "",
-                "in.john.1",
-                rpc=True,
-                rpc_timeout=1.0,
-            )
+            await (
+                await br.request(
+                    "",
+                    "in.john.1",
+                    timeout=1.0,
+                )
+            ).decode()
             == 1
         )
 
@@ -119,12 +121,13 @@ async def test_nats_batch_path():
 
     async with TestNatsBroker(broker) as br:
         assert (
-            await br.publish(
-                "",
-                "in.john.1",
-                rpc=True,
-                rpc_timeout=1.0,
-            )
+            await (
+                await br.request(
+                    "",
+                    "in.john.1",
+                    timeout=1.0,
+                )
+            ).decode()
             == 1
         )
 
@@ -147,12 +150,13 @@ async def test_redis_path():
 
     async with TestRedisBroker(broker) as br:
         assert (
-            await br.publish(
-                "",
-                "in.john.1",
-                rpc=True,
-                rpc_timeout=1.0,
-            )
+            await (
+                await br.request(
+                    "",
+                    "in.john.1",
+                    timeout=1.0,
+                )
+            ).decode()
             == 1
         )
 
@@ -190,12 +194,13 @@ async def test_rabbit_path():
 
     async with TestRabbitBroker(broker) as br:
         assert (
-            await br.publish(
-                "",
-                "in.john.1",
-                "test",
-                rpc=True,
-                rpc_timeout=1.0,
-            )
+            await (
+                await br.request(
+                    "",
+                    "in.john.1",
+                    "test",
+                    timeout=1.0,
+                )
+            ).decode()
             == 1
         )

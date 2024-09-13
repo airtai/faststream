@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING, Any, Optional, Union
 
 from typing_extensions import Annotated, Doc, override
 
-from faststream.broker.schemas import NameRequired
+from faststream._internal.basic_types import AnyDict
+from faststream._internal.proto import NameRequired
 from faststream.rabbit.schemas.constants import ExchangeType
-from faststream.types import AnyDict
 
 if TYPE_CHECKING:
     from aio_pika.abc import TimeoutType

@@ -5,10 +5,10 @@ from typing import (
 
 from pydantic import AnyHttpUrl
 
+from faststream._internal.basic_types import AnyDict
 from faststream.specification.asyncapi.base.schema import BaseInfo
 from faststream.specification.asyncapi.v2_6_0.schema.contact import Contact
 from faststream.specification.asyncapi.v2_6_0.schema.license import License
-from faststream.types import AnyDict
 
 
 class Info(BaseInfo):

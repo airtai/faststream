@@ -16,25 +16,25 @@ import anyio
 from confluent_kafka import KafkaException, Message
 from typing_extensions import override
 
-from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.types import MsgType
-from faststream.broker.utils import process_msg
+from faststream._internal.publisher.fake import FakePublisher
+from faststream._internal.subscriber.usecase import SubscriberUsecase
+from faststream._internal.subscriber.utils import process_msg
+from faststream._internal.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.schemas import TopicPartition
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage
-    from faststream.broker.publisher.proto import ProducerProto
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.publisher.proto import ProducerProto
+    from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
         CustomCallable,
     )
     from faststream.confluent.client import AsyncConfluentConsumer
-    from faststream.types import AnyDict, Decorator, LoggerProto
+    from faststream.message import StreamMessage
 
 
 class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):

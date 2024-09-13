@@ -1,9 +1,9 @@
 import aio_pika
 import pytest
 
+from faststream import Depends
 from faststream.rabbit import RabbitBroker
 from faststream.rabbit.annotations import RabbitMessage
-from faststream.utils import Depends
 
 
 @pytest.mark.asyncio
@@ -35,7 +35,7 @@ async def test_broker_depends(
 
     await full_broker.start()
 
-    await full_broker.publish(queue=queue, rpc=True)
+    await full_broker.request(queue=queue)
     assert check_message is True
 
 
@@ -61,8 +61,8 @@ async def test_different_consumers_has_different_messages(
 
     await full_broker.start()
 
-    await full_broker.publish(queue="test_different_consume_1", rpc=True)
-    await full_broker.publish(queue="test_different_consume_2", rpc=True)
+    await full_broker.request(queue="test_different_consume_1")
+    await full_broker.request(queue="test_different_consume_2")
 
     assert isinstance(message1.raw_message, aio_pika.IncomingMessage)
     assert isinstance(message2.raw_message, aio_pika.IncomingMessage)

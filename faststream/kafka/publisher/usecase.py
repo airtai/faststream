@@ -17,17 +17,17 @@ from typing import (
 from aiokafka import ConsumerRecord
 from typing_extensions import Annotated, Doc, override
 
-from faststream.broker.message import gen_cor_id
-from faststream.broker.publisher.usecase import PublisherUsecase
-from faststream.broker.types import MsgType
+from faststream._internal.publisher.usecase import PublisherUsecase
+from faststream._internal.types import MsgType
+from faststream._internal.utils.functions import return_input
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.utils.functions import return_input
+from faststream.message import gen_cor_id
 
 if TYPE_CHECKING:
-    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.basic_types import AsyncFunc, SendableMessage
+    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.kafka.message import KafkaMessage
     from faststream.kafka.publisher.producer import AioKafkaFastProducer
-    from faststream.types import AsyncFunc, SendableMessage
 
 
 class LogicPublisher(PublisherUsecase[MsgType]):

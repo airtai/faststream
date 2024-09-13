@@ -1,7 +1,7 @@
 import warnings
 from typing import Optional
 
-from faststream.broker.schemas import NameRequired
+from faststream._internal.proto import NameRequired
 from faststream.exceptions import SetupError
 
 

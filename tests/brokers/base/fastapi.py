@@ -9,11 +9,11 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
 from faststream import context
-from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.fastapi.context import Context
-from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.router import BrokerRouter
-from faststream.types import AnyCallable
+from faststream._internal.basic_types import AnyCallable
+from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.broker.router import BrokerRouter
+from faststream._internal.fastapi.context import Context
+from faststream._internal.fastapi.router import StreamRouter
 
 from .basic import BaseTestcaseConfig
 
@@ -218,13 +218,12 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             with TestClient(app) as client:
                 assert client.app_state["broker"] is router.broker
 
-                r = await router.broker.publish(
+                r = await router.broker.request(
                     "hi",
                     queue,
-                    rpc=True,
-                    rpc_timeout=0.5,
+                    timeout=0.5,
                 )
-                assert r == "hi", r
+                assert await r.decode() == "hi", r
 
     async def test_base_without_state(self, queue: str):
         router = self.router_class(setup_state=False)
@@ -241,13 +240,12 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             with TestClient(app) as client:
                 assert not client.app_state.get("broker")
 
-                r = await router.broker.publish(
+                r = await router.broker.request(
                     "hi",
                     queue,
-                    rpc=True,
-                    rpc_timeout=0.5,
+                    timeout=0.5,
                 )
-                assert r == "hi"
+                assert await r.decode() == "hi", r
 
     async def test_invalid(self, queue: str):
         router = self.router_class()
@@ -276,14 +274,13 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             return w
 
         async with self.broker_test(router.broker):
-            r = await router.broker.publish(
+            r = await router.broker.request(
                 "",
                 queue,
                 headers={"w": "hi"},
-                rpc=True,
-                rpc_timeout=0.5,
+                timeout=0.5,
             )
-            assert r == "hi"
+            assert await r.decode() == "hi", r
 
     async def test_depends(self, mock: Mock, queue: str):
         router = self.router_class()
@@ -299,13 +296,12 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             return w
 
         async with self.broker_test(router.broker):
-            r = await router.broker.publish(
+            r = await router.broker.request(
                 {"a": "hi"},
                 queue,
-                rpc=True,
-                rpc_timeout=0.5,
+                timeout=0.5,
             )
-            assert r == "hi"
+            assert await r.decode() == "hi", r
 
         mock.assert_called_once_with("hi")
 
@@ -326,13 +322,12 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             return w
 
         async with self.broker_test(router.broker):
-            r = await router.broker.publish(
+            r = await router.broker.request(
                 {"a": "hi"},
                 queue,
-                rpc=True,
-                rpc_timeout=0.5,
+                timeout=0.5,
             )
-            assert r == "hi"
+            assert await r.decode() == "hi", r
 
         mock.start.assert_called_once()
         mock.close.assert_called_once()
@@ -350,8 +345,8 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             return a
 
         async with self.broker_test(router.broker):
-            r = await router.broker.publish("hi", queue, rpc=True, rpc_timeout=0.5)
-            assert r == "hi"
+            r = await router.broker.request("hi", queue, timeout=0.5)
+            assert await r.decode() == "hi", r
 
         mock.assert_called_once()
 
@@ -371,13 +366,12 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             return a
 
         async with self.broker_test(router.broker):
-            r = await router.broker.publish(
+            r = await router.broker.request(
                 "hi",
                 queue,
-                rpc=True,
-                rpc_timeout=0.5,
+                timeout=0.5,
             )
-            assert r == "hi"
+            assert await r.decode() == "hi", r
 
         mock.assert_called_once()
 
@@ -486,21 +480,19 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             with TestClient(app) as client:
                 assert client.app_state["broker"] is router.broker
 
-                r = await router.broker.publish(
+                r = await router.broker.request(
                     "hi",
                     queue,
-                    rpc=True,
-                    rpc_timeout=0.5,
+                    timeout=0.5,
                 )
-                assert r == "hi"
+                assert await r.decode() == "hi", r
 
-                r = await router.broker.publish(
+                r = await router.broker.request(
                     "hi",
                     queue + "1",
-                    rpc=True,
-                    rpc_timeout=0.5,
+                    timeout=0.5,
                 )
-                assert r == "hi"
+                assert await r.decode() == "hi", r
 
     async def test_dependency_overrides(self, mock: Mock, queue: str):
         router = self.router_class()
@@ -526,13 +518,12 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             with TestClient(app) as client:
                 assert client.app_state["broker"] is router.broker
 
-                r = await router.broker.publish(
+                r = await router.broker.request(
                     "hi",
                     queue,
-                    rpc=True,
-                    rpc_timeout=0.5,
+                    timeout=0.5,
                 )
-                assert r == "hi"
+                assert await r.decode() == "hi", r
 
         mock.assert_called_once()
         assert not mock.not_call.called

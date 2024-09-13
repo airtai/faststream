@@ -24,10 +24,11 @@ from nats.errors import ConnectionClosedError, TimeoutError
 from nats.js.api import ConsumerConfig, ObjectInfo
 from typing_extensions import Annotated, Doc, override
 
-from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.types import MsgType
-from faststream.broker.utils import process_msg
+from faststream._internal.context.repository import context
+from faststream._internal.publisher.fake import FakePublisher
+from faststream._internal.subscriber.usecase import SubscriberUsecase
+from faststream._internal.subscriber.utils import process_msg
+from faststream._internal.types import MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.parser import (
     BatchParser,
@@ -41,7 +42,6 @@ from faststream.nats.subscriber.subscription import (
     UnsubscribeAdapter,
     Unsubscriptable,
 )
-from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
     from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
@@ -52,17 +52,22 @@ if TYPE_CHECKING:
     from nats.js.kv import KeyValue
     from nats.js.object_store import ObjectStore
 
-    from faststream.broker.message import StreamMessage
-    from faststream.broker.publisher.proto import ProducerProto
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import (
+        AnyDict,
+        Decorator,
+        LoggerProto,
+        SendableMessage,
+    )
+    from faststream._internal.publisher.proto import ProducerProto
+    from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
         CustomCallable,
     )
+    from faststream.message import StreamMessage
     from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
     from faststream.nats.message import NatsKvMessage, NatsMessage, NatsObjMessage
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
-    from faststream.types import AnyDict, Decorator, LoggerProto, SendableMessage
 
 
 ConnectionType = TypeVar("ConnectionType")

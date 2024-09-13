@@ -2,10 +2,10 @@ from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
-from faststream._compat import PYDANTIC_V2
+from faststream._internal._compat import PYDANTIC_V2
+from faststream._internal.basic_types import AnyDict
 from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
 from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
-from faststream.types import AnyDict
 
 SecurityRequirement = List[Dict[str, List[str]]]
 

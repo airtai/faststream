@@ -4,7 +4,7 @@ from typing import (
     Tuple,
 )
 
-from faststream.broker.types import MsgType
+from faststream._internal.types import MsgType
 from faststream.kafka.subscriber.usecase import (
     BatchSubscriber,
     DefaultSubscriber,

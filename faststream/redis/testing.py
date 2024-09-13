@@ -15,9 +15,11 @@ from unittest.mock import AsyncMock, MagicMock
 import anyio
 from typing_extensions import TypedDict, override
 
-from faststream.broker.message import gen_cor_id
-from faststream.broker.utils import resolve_custom_func
+from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream._internal.testing.broker import TestBroker
+from faststream._internal.utils.functions import timeout_scope
 from faststream.exceptions import WRONG_PUBLISH_ARGS, SetupError, SubscriberNotFound
+from faststream.message import gen_cor_id
 from faststream.redis.broker.broker import RedisBroker
 from faststream.redis.message import (
     BatchListMessage,
@@ -36,12 +38,10 @@ from faststream.redis.subscriber.usecase import (
     _ListHandlerMixin,
     _StreamHandlerMixin,
 )
-from faststream.testing.broker import TestBroker
-from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
+    from faststream._internal.basic_types import AnyDict, SendableMessage
     from faststream.redis.publisher.publisher import SpecificationPublisher
-    from faststream.types import AnyDict, SendableMessage
 
 __all__ = ("TestRedisBroker",)
 

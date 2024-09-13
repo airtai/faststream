@@ -13,27 +13,27 @@ from typing import (
 )
 
 import anyio
-from typing_extensions import Annotated, ParamSpec, deprecated
+from typing_extensions import ParamSpec
 
-from faststream._compat import ExceptionGroup
-from faststream.cli.supervisors.utils import set_exit
+from faststream._internal._compat import ExceptionGroup
+from faststream._internal.cli.supervisors.utils import set_exit
+from faststream._internal.context import context
+from faststream._internal.log.logging import logger
+from faststream._internal.utils import apply_types
+from faststream._internal.utils.functions import (
+    drop_response_type,
+    fake_context,
+    to_async,
+)
 from faststream.exceptions import ValidationError
-from faststream.log.logging import logger
 from faststream.specification.proto import Application
-from faststream.utils import apply_types, context
-from faststream.utils.functions import drop_response_type, fake_context, to_async
 
 P_HookParams = ParamSpec("P_HookParams")
 T_HookReturn = TypeVar("T_HookReturn")
 
 
 if TYPE_CHECKING:
-    from faststream.broker.core.usecase import BrokerUsecase
-    from faststream.specification.schema.contact import Contact, ContactDict
-    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-    from faststream.specification.schema.license import License, LicenseDict
-    from faststream.specification.schema.tag import Tag
-    from faststream.types import (
+    from faststream._internal.basic_types import (
         AnyCallable,
         AnyDict,
         AnyHttpUrl,
@@ -42,6 +42,11 @@ if TYPE_CHECKING:
         LoggerProto,
         SettingField,
     )
+    from faststream._internal.broker.broker import BrokerUsecase
+    from faststream.specification.schema.contact import Contact, ContactDict
+    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
+    from faststream.specification.schema.license import License, LicenseDict
+    from faststream.specification.schema.tag import Tag
 
 
 class FastStream(Application):
@@ -156,13 +161,6 @@ class FastStream(Application):
         self,
         log_level: int = logging.INFO,
         run_extra_options: Optional[Dict[str, "SettingField"]] = None,
-        sleep_time: Annotated[
-            float,
-            deprecated(
-                "Deprecated in **FastStream 0.5.24**. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 0.1,
     ) -> None:
         """Run FastStream Application."""
         assert self.broker, "You should setup a broker"  # nosec B101

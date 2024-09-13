@@ -1,5 +1,5 @@
-from faststream.broker.schemas import NameRequired
-from faststream.utils.path import compile_path
+from faststream._internal.proto import NameRequired
+from faststream._internal.utils.path import compile_path
 
 
 class PubSub(NameRequired):

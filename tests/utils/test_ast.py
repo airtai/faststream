@@ -1,6 +1,6 @@
 import pytest
 
-from faststream.utils.ast import is_contains_context_name
+from faststream._internal.testing.ast import is_contains_context_name
 
 
 class Context:

@@ -19,9 +19,9 @@ from faststream.specification.schema.message import CorrelationId, Message
 from faststream.specification.schema.operation import Operation
 
 if TYPE_CHECKING:
-    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.redis.message import UnifyRedisDict
-    from faststream.types import AnyDict
 
 PublisherType: TypeAlias = Union[
     "AsyncAPIChannelPublisher",

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 from aio_pika import Message
 from aio_pika.abc import DeliveryMode
 
-from faststream.broker.message import (
+from faststream.message import (
     StreamMessage,
     decode_message,
     encode_message,
@@ -17,8 +17,8 @@ if TYPE_CHECKING:
     from aio_pika import IncomingMessage
     from aio_pika.abc import DateType, HeadersType
 
+    from faststream._internal.basic_types import DecodedMessage
     from faststream.rabbit.types import AioPikaSendableMessage
-    from faststream.types import DecodedMessage
 
 
 class AioPikaParser:

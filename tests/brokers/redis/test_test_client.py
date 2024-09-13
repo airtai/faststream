@@ -3,7 +3,6 @@ import asyncio
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.exceptions import SetupError
 from faststream.redis import ListSub, RedisBroker, StreamSub, TestRedisBroker
 from faststream.redis.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
@@ -21,16 +20,6 @@ class TestTestclient(BrokerTestclientTestcase):
 
     def get_fake_producer_class(self) -> type:
         return FakeProducer
-
-    async def test_rpc_conflicts_reply(self, queue):
-        async with TestRedisBroker(RedisBroker()) as br:
-            with pytest.raises(SetupError):
-                await br.publish(
-                    "",
-                    queue,
-                    rpc=True,
-                    reply_to="response",
-                )
 
     @pytest.mark.redis
     async def test_with_real_testclient(
@@ -110,7 +99,7 @@ class TestTestclient(BrokerTestclientTestcase):
             return msg
 
         async with self.patch_broker(broker) as br:
-            assert await br.publish(1, "test.name.useless", rpc=True) == 1
+            assert await (await br.request(1, "test.name.useless")).decode() == 1
             handler.mock.assert_called_once_with(1)
 
     async def test_list(
@@ -124,7 +113,7 @@ class TestTestclient(BrokerTestclientTestcase):
             return msg
 
         async with self.patch_broker(broker) as br:
-            assert await br.publish(1, list=queue, rpc=True) == 1
+            assert await (await br.request(1, list=queue)).decode() == 1
             handler.mock.assert_called_once_with(1)
 
     async def test_batch_pub_by_default_pub(
@@ -185,7 +174,7 @@ class TestTestclient(BrokerTestclientTestcase):
             return msg
 
         async with self.patch_broker(broker) as br:
-            assert await br.publish(1, stream=queue, rpc=True) == 1
+            assert await (await br.request(1, stream=queue)).decode() == 1
             handler.mock.assert_called_once_with(1)
 
     async def test_stream_batch_pub_by_default_pub(

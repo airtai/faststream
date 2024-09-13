@@ -11,12 +11,12 @@ from typing import (
 import anyio
 from typing_extensions import override
 
-from faststream.broker.publisher.proto import ProducerProto
-from faststream.broker.utils import resolve_custom_func
+from faststream._internal.publisher.proto import ProducerProto
+from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream._internal.utils.functions import fake_context, timeout_scope
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import RABBIT_REPLY, RabbitExchange
-from faststream.utils.functions import fake_context, timeout_scope
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -26,13 +26,13 @@ if TYPE_CHECKING:
     from aio_pika.abc import AbstractIncomingMessage, DateType, HeadersType, TimeoutType
     from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.types import (
         AsyncCallable,
         CustomCallable,
     )
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.types import AioPikaSendableMessage
-    from faststream.types import SendableMessage
 
 
 class AioPikaFastProducer(ProducerProto):

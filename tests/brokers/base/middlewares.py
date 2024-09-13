@@ -5,10 +5,10 @@ from unittest.mock import Mock, call
 import pytest
 
 from faststream import Context
-from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.middlewares import BaseMiddleware, ExceptionMiddleware
+from faststream._internal.basic_types import DecodedMessage
+from faststream._internal.broker.broker import BrokerUsecase
 from faststream.exceptions import SkipMessage
-from faststream.types import DecodedMessage
+from faststream.middlewares import BaseMiddleware, ExceptionMiddleware
 
 from .basic import BaseTestcaseConfig
 

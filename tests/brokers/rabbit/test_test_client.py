@@ -3,7 +3,7 @@ import asyncio
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.exceptions import SetupError
+from faststream.exceptions import SubscriberNotFound
 from faststream.rabbit import (
     ExchangeType,
     RabbitBroker,
@@ -28,18 +28,6 @@ class TestTestclient(BrokerTestclientTestcase):
 
     def get_fake_producer_class(self) -> type:
         return FakeProducer
-
-    async def test_rpc_conflicts_reply(self, queue):
-        broker = self.get_broker()
-
-        async with TestRabbitBroker(broker) as br:
-            with pytest.raises(SetupError):
-                await br.publish(
-                    "",
-                    queue,
-                    rpc=True,
-                    reply_to="response",
-                )
 
     @pytest.mark.rabbit
     async def test_with_real_testclient(
@@ -92,9 +80,14 @@ class TestTestclient(BrokerTestclientTestcase):
 
         async with TestRabbitBroker(broker) as br:
             await br.start()
-            assert await br.publish("", queue, rpc=True) == 1
-            assert await br.publish("", queue + "1", exchange="test", rpc=True) == 2
-            assert None is await br.publish("", exchange="test2", rpc=True)
+
+            assert await (await br.request("", queue)).decode() == 1
+            assert (
+                await (await br.request("", queue + "1", exchange="test")).decode() == 2
+            )
+
+            with pytest.raises(SubscriberNotFound):
+                await br.request("", exchange="test2")
 
     async def test_fanout(
         self,
@@ -110,9 +103,10 @@ class TestTestclient(BrokerTestclientTestcase):
             mock()
 
         async with TestRabbitBroker(broker) as br:
-            await br.publish("", exchange=exch, rpc=True)
+            await br.request("", exchange=exch)
 
-            assert None is await br.publish("", exchange="test2", rpc=True)
+            with pytest.raises(SubscriberNotFound):
+                await br.request("", exchange="test2")
 
             assert mock.call_count == 1
 
@@ -192,11 +186,16 @@ class TestTestclient(BrokerTestclientTestcase):
 
         async with TestRabbitBroker(broker) as br:
             assert (
-                await br.publish(exchange=exch, rpc=True, headers={"key": 2, "key2": 2})
+                await (
+                    await br.request(exchange=exch, headers={"key": 2, "key2": 2})
+                ).decode()
                 == 2
             )
-            assert await br.publish(exchange=exch, rpc=True, headers={"key": 2}) == 1
-            assert await br.publish(exchange=exch, rpc=True, headers={}) == 3
+            assert (
+                await (await br.request(exchange=exch, headers={"key": 2})).decode()
+                == 1
+            )
+            assert await (await br.request(exchange=exch, headers={})).decode() == 3
 
     async def test_consume_manual_ack(
         self,

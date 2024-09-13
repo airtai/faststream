@@ -5,7 +5,7 @@ from typing import (
 from pydantic import AnyHttpUrl, BaseModel
 from typing_extensions import Required, TypedDict
 
-from faststream._compat import (
+from faststream._internal._compat import (
     PYDANTIC_V2,
 )
 

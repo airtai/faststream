@@ -1,3 +1,4 @@
+from pprint import pformat
 from typing import Any, Iterable
 
 
@@ -108,6 +109,22 @@ class OperationForbiddenError(FastStreamException, NotImplementedError):
 
 class SubscriberNotFound(FastStreamException):
     """Raises as a service message or in tests."""
+
+
+class ContextError(FastStreamException, KeyError):
+    """Raises if context exception occurred."""
+
+    def __init__(self, context: Any, field: str) -> None:
+        self.context = context
+        self.field = field
+
+    def __str__(self) -> str:
+        return "".join(
+            (
+                f"\n    Key `{self.field}` not found in the context\n    ",
+                pformat(self.context),
+            )
+        )
 
 
 WRONG_PUBLISH_ARGS = SetupError(

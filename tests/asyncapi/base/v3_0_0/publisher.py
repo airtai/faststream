@@ -3,8 +3,8 @@ from typing import Union
 import pydantic
 
 from faststream import FastStream
-from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.fastapi import StreamRouter
+from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.fastapi import StreamRouter
 from faststream.specification.asyncapi.generate import get_app_schema
 
 

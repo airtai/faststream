@@ -7,18 +7,18 @@ from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
 
 from typing_extensions import Annotated, Doc, deprecated, override
 
-from faststream.broker.message import gen_cor_id
-from faststream.broker.publisher.usecase import PublisherUsecase
+from faststream._internal.publisher.usecase import PublisherUsecase
+from faststream._internal.utils.functions import return_input
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
-    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
+    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.redis.message import RedisMessage
     from faststream.redis.publisher.producer import RedisFastProducer
-    from faststream.types import AnyDict, AsyncFunc, SendableMessage
 
 
 class LogicPublisher(PublisherUsecase[UnifyRedisDict]):

@@ -12,10 +12,9 @@ from typing import (
     overload,
 )
 
-from typing_extensions import Annotated, Doc, deprecated, override
+from typing_extensions import Annotated, Doc, override
 
-from faststream.broker.core.abc import ABCBroker
-from faststream.broker.utils import default_filter
+from faststream._internal.broker.abc_broker import ABCBroker
 from faststream.confluent.publisher.publisher import SpecificationPublisher
 from faststream.confluent.subscriber.factory import create_subscriber
 from faststream.exceptions import SetupError
@@ -24,9 +23,8 @@ if TYPE_CHECKING:
     from confluent_kafka import Message
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import (
+    from faststream._internal.types import (
         CustomCallable,
-        Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
@@ -298,17 +296,6 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             bool,
             Doc("Whether to `nack` message at processing exception."),
@@ -580,17 +567,6 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             bool,
             Doc("Whether to `nack` message at processing exception."),
@@ -862,17 +838,6 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             bool,
             Doc("Whether to `nack` message at processing exception."),
@@ -1147,17 +1112,6 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             bool,
             Doc("Whether to `nack` message at processing exception."),
@@ -1235,7 +1189,6 @@ class KafkaRegistrator(
 
         if batch:
             return cast("SpecificationBatchSubscriber", subscriber).add_call(
-                filter_=filter,
                 parser_=parser or self._parser,
                 decoder_=decoder or self._decoder,
                 dependencies_=dependencies,
@@ -1243,7 +1196,6 @@ class KafkaRegistrator(
             )
         else:
             return cast("SpecificationDefaultSubscriber", subscriber).add_call(
-                filter_=filter,
                 parser_=parser or self._parser,
                 decoder_=decoder or self._decoder,
                 dependencies_=dependencies,

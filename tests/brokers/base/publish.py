@@ -10,8 +10,8 @@ import pytest
 from pydantic import BaseModel
 
 from faststream import BaseMiddleware, Context, Response
-from faststream._compat import dump_json, model_to_json
-from faststream.broker.core.usecase import BrokerUsecase
+from faststream._internal._compat import dump_json, model_to_json
+from faststream._internal.broker.broker import BrokerUsecase
 
 from .basic import BaseTestcaseConfig
 

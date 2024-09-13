@@ -3,7 +3,7 @@
 import warnings
 
 try:
-    from faststream.cli.main import cli
+    from faststream._internal.cli.main import cli
 except ImportError:
     has_typer = False
 else:

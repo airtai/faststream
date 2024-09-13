@@ -3,7 +3,8 @@ from typing import Any
 import pytest
 from typing_extensions import Annotated
 
-from faststream.utils import Context, ContextRepo, apply_types
+from faststream import Context, ContextRepo
+from faststream._internal.utils import apply_types
 
 
 @pytest.mark.asyncio

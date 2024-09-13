@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional
 if TYPE_CHECKING:
     from ssl import SSLContext
 
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
 
 
 class BaseSecurity:

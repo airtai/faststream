@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from faststream import Context
-from faststream.rabbit import RabbitBroker, RabbitResponse, ReplyConfig
+from faststream.rabbit import RabbitBroker, RabbitResponse
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
@@ -31,11 +31,9 @@ class TestPublish(BrokerPublishTestcase):
             event.set()
             mock(m)
 
-        with pytest.warns(DeprecationWarning):
-
-            @pub_broker.subscriber(queue, reply_config=ReplyConfig(persist=True))
-            async def handler(m):
-                return m
+        @pub_broker.subscriber(queue)
+        async def handler(m):
+            return RabbitResponse(m, persist=True)
 
         async with self.patch_broker(pub_broker) as br:
             with patch.object(
@@ -121,8 +119,8 @@ class TestPublish(BrokerPublishTestcase):
             await br.start()
 
             response = await asyncio.wait_for(
-                br.publish("", queue, rpc=True),
+                br.request("", queue),
                 timeout=3,
             )
 
-            assert response == "Hi!", response
+            assert await response.decode() == "Hi!", response

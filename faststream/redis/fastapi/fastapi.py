@@ -27,14 +27,13 @@ from starlette.routing import BaseRoute
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.utils import default_filter
+from faststream._internal.constants import EMPTY
+from faststream._internal.fastapi.router import StreamRouter
 from faststream.redis.broker.broker import RedisBroker as RB
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.publisher import SpecificationPublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.redis.subscriber.subscriber import SpecificationSubscriber
-from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -45,17 +44,16 @@ if TYPE_CHECKING:
     from starlette.responses import Response
     from starlette.types import ASGIApp, Lifespan
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
     from faststream.redis.message import UnifyRedisMessage
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
-    from faststream.types import AnyDict, LoggerProto
 
 
 class RedisRouter(StreamRouter[UnifyRedisDict]):
@@ -467,17 +465,6 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Iterable["SubscriberMiddleware[UnifyRedisMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[UnifyRedisMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             bool,
             Doc("Whether to `nack` message at processing exception."),
@@ -642,7 +629,6 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 parser=parser,
                 decoder=decoder,
                 middlewares=middlewares,
-                filter=filter,
                 retry=retry,
                 no_ack=no_ack,
                 no_reply=no_reply,

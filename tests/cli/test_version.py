@@ -1,6 +1,6 @@
 import platform
 
-from faststream.cli.main import cli
+from faststream._internal.cli.main import cli
 
 
 def test_version(runner, version):

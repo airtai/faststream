@@ -2,7 +2,7 @@ from typing import Dict, Literal, Optional
 
 from pydantic import AnyHttpUrl, BaseModel, Field
 
-from faststream._compat import PYDANTIC_V2
+from faststream._internal._compat import PYDANTIC_V2
 
 
 class OauthFlowObj(BaseModel):

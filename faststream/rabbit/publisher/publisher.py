@@ -17,7 +17,7 @@ from faststream.specification.schema.operation import Operation
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage
 
-    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
 
 

@@ -5,9 +5,13 @@ from unittest.mock import Mock
 import pytest
 
 from faststream import BaseMiddleware, Depends
-from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
-from faststream.types import AnyCallable
+from faststream._internal.basic_types import AnyCallable
+from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.broker.router import (
+    ArgsContainer,
+    BrokerRouter,
+    SubscriberRoute,
+)
 from tests.brokers.base.middlewares import LocalMiddlewareTestcase
 from tests.brokers.base.parser import LocalCustomParserTestcase
 

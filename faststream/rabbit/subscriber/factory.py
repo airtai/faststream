@@ -1,4 +1,3 @@
-import warnings
 from typing import TYPE_CHECKING, Iterable, Optional, Union
 
 from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
@@ -7,9 +6,9 @@ if TYPE_CHECKING:
     from aio_pika import IncomingMessage
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import BrokerMiddleware
-    from faststream.rabbit.schemas import RabbitExchange, RabbitQueue, ReplyConfig
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import BrokerMiddleware
+    from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
 
 
 def create_subscriber(
@@ -17,7 +16,6 @@ def create_subscriber(
     queue: "RabbitQueue",
     exchange: "RabbitExchange",
     consume_args: Optional["AnyDict"],
-    reply_config: Optional["ReplyConfig"],
     # Subscriber args
     no_ack: bool,
     no_reply: bool,
@@ -29,22 +27,10 @@ def create_subscriber(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> SpecificationSubscriber:
-    if reply_config:  # pragma: no cover
-        warnings.warn(
-            (
-                "\n`reply_config` was deprecated in **FastStream 0.5.16**."
-                "\nPlease, use `RabbitResponse` object as a handler return instead."
-                "\nArgument will be removed in **FastStream 0.6.0**."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
     return SpecificationSubscriber(
         queue=queue,
         exchange=exchange,
         consume_args=consume_args,
-        reply_config=reply_config,
         no_ack=no_ack,
         no_reply=no_reply,
         retry=retry,

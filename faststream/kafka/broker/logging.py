@@ -1,14 +1,14 @@
 import logging
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, Optional, Tuple, Union
 
-from faststream.broker.core.usecase import BrokerUsecase
-from faststream.log.logging import get_broker_logger
-from faststream.types import EMPTY
+from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.constants import EMPTY
+from faststream._internal.log.logging import get_broker_logger
 
 if TYPE_CHECKING:
     import aiokafka
 
-    from faststream.types import LoggerProto
+    from faststream._internal.basic_types import LoggerProto
 
 
 class KafkaLoggingBroker(

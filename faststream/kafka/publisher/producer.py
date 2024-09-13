@@ -2,18 +2,18 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 from typing_extensions import override
 
-from faststream.broker.message import encode_message
-from faststream.broker.publisher.proto import ProducerProto
-from faststream.broker.utils import resolve_custom_func
+from faststream._internal.publisher.proto import ProducerProto
+from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream.exceptions import OperationForbiddenError
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
+from faststream.message import encode_message
 
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaProducer
 
-    from faststream.broker.types import CustomCallable
-    from faststream.types import SendableMessage
+    from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.types import CustomCallable
 
 
 class AioKafkaFastProducer(ProducerProto):

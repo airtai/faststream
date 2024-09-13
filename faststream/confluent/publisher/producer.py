@@ -2,16 +2,16 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from typing_extensions import override
 
-from faststream.broker.message import encode_message
-from faststream.broker.publisher.proto import ProducerProto
-from faststream.broker.utils import resolve_custom_func
+from faststream._internal.publisher.proto import ProducerProto
+from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.exceptions import OperationForbiddenError
+from faststream.message import encode_message
 
 if TYPE_CHECKING:
-    from faststream.broker.types import CustomCallable
+    from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.types import CustomCallable
     from faststream.confluent.client import AsyncConfluentProducer
-    from faststream.types import SendableMessage
 
 
 class AsyncConfluentFastProducer(ProducerProto):

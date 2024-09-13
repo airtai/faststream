@@ -13,10 +13,13 @@ from typing import (
 )
 
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
-from typing_extensions import Annotated, Doc, deprecated
+from typing_extensions import Annotated, Doc
 
-from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
-from faststream.broker.utils import default_filter
+from faststream._internal.broker.router import (
+    ArgsContainer,
+    BrokerRouter,
+    SubscriberRoute,
+)
 from faststream.kafka.broker.registrator import KafkaRegistrator
 
 if TYPE_CHECKING:
@@ -25,15 +28,14 @@ if TYPE_CHECKING:
     from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
     from faststream.kafka.message import KafkaMessage
-    from faststream.types import SendableMessage
 
 
 class KafkaPublisher(ArgsContainer):
@@ -484,17 +486,6 @@ class KafkaRoute(SubscriberRoute):
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             bool,
             Doc("Whether to `nack` message at processing exception."),
@@ -561,7 +552,6 @@ class KafkaRoute(SubscriberRoute):
             parser=parser,
             decoder=decoder,
             middlewares=middlewares,
-            filter=filter,
             no_reply=no_reply,
             # AsyncAPI args
             title=title,

@@ -10,12 +10,12 @@ from typing import (
 
 from typing_extensions import NotRequired, TypeAlias, TypedDict, override
 
-from faststream.broker.message import StreamMessage as BrokerStreamMessage
+from faststream.message import StreamMessage as BrokerStreamMessage
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis
 
-    from faststream.types import DecodedMessage
+    from faststream._internal.basic_types import DecodedMessage
 
 
 BaseMessage: TypeAlias = Union[

@@ -1,7 +1,7 @@
 from functools import cached_property
 from typing import Optional
 
-from faststream.broker.schemas import NameRequired
+from faststream._internal.proto import NameRequired
 
 
 class ListSub(NameRequired):

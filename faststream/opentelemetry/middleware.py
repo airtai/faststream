@@ -30,8 +30,8 @@ if TYPE_CHECKING:
     from opentelemetry.trace import Tracer, TracerProvider
     from opentelemetry.util.types import Attributes
 
-    from faststream.broker.message import StreamMessage
-    from faststream.types import AnyDict, AsyncFunc, AsyncFuncAny
+    from faststream._internal.basic_types import AnyDict, AsyncFunc, AsyncFuncAny
+    from faststream.message import StreamMessage
 
 
 _BAGGAGE_PROPAGATOR = W3CBaggagePropagator()

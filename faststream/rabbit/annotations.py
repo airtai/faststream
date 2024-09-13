@@ -1,11 +1,12 @@
 from aio_pika import RobustChannel, RobustConnection
 from typing_extensions import Annotated
 
-from faststream.annotations import ContextRepo, Logger, NoCast
+from faststream._internal.context import Context
+from faststream.annotations import ContextRepo, Logger
+from faststream.params import NoCast
 from faststream.rabbit.broker import RabbitBroker as RB
 from faststream.rabbit.message import RabbitMessage as RM
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
-from faststream.utils.context import Context
 
 __all__ = (
     "Logger",

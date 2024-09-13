@@ -3,23 +3,23 @@ from typing import TYPE_CHECKING, Any, Optional
 import anyio
 from typing_extensions import override
 
-from faststream.broker.publisher.proto import ProducerProto
-from faststream.broker.utils import resolve_custom_func
+from faststream._internal.publisher.proto import ProducerProto
+from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream._internal.utils.functions import timeout_scope
+from faststream._internal.utils.nuid import NUID
 from faststream.exceptions import WRONG_PUBLISH_ARGS, SetupError
 from faststream.redis.message import DATA_KEY
 from faststream.redis.parser import RawMessage, RedisPubSubParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
-from faststream.utils.functions import timeout_scope
-from faststream.utils.nuid import NUID
 
 if TYPE_CHECKING:
     from redis.asyncio.client import PubSub, Redis
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, SendableMessage
+    from faststream._internal.types import (
         AsyncCallable,
         CustomCallable,
     )
-    from faststream.types import AnyDict, SendableMessage
 
 
 class RedisFastProducer(ProducerProto):

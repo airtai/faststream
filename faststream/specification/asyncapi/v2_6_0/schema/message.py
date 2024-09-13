@@ -3,13 +3,13 @@ from typing import List, Optional, Union
 import typing_extensions
 from pydantic import BaseModel
 
-from faststream._compat import PYDANTIC_V2
+from faststream._internal._compat import PYDANTIC_V2
+from faststream._internal.basic_types import AnyDict
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
 from faststream.specification.asyncapi.v2_6_0.schema.tag import (
     from_spec as tag_from_spec,
 )
-from faststream.types import AnyDict
 
 
 class CorrelationId(BaseModel):

@@ -1,4 +1,4 @@
-from faststream.broker.response import Response, ensure_response
+from faststream.response import Response, ensure_response
 
 
 def test_raw_data():

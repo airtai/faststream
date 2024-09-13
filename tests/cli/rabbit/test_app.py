@@ -8,8 +8,8 @@ import anyio
 import pytest
 
 from faststream import FastStream, TestApp
-from faststream._compat import IS_WINDOWS
-from faststream.log import logger
+from faststream._internal._compat import IS_WINDOWS
+from faststream._internal.log import logger
 
 
 def test_init(app: FastStream, broker):

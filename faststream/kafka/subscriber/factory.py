@@ -19,8 +19,8 @@ if TYPE_CHECKING:
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import BrokerMiddleware
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import BrokerMiddleware
 
 
 @overload

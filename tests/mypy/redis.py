@@ -1,12 +1,12 @@
 from typing import Awaitable, Callable
 
+from faststream._internal.basic_types import DecodedMessage
 from faststream.redis import RedisBroker as Broker
 from faststream.redis import RedisMessage as Message
 from faststream.redis import RedisRoute as Route
 from faststream.redis import RedisRouter as StreamRouter
 from faststream.redis.fastapi import RedisRouter as FastAPIRouter
 from faststream.redis.message import RedisMessage as Msg
-from faststream.types import DecodedMessage
 
 
 def sync_decoder(msg: Message) -> DecodedMessage:

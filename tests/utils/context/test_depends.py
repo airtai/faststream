@@ -1,7 +1,8 @@
 import pytest
 from typing_extensions import Annotated
 
-from faststream.utils import Depends, apply_types
+from faststream import Depends
+from faststream._internal.utils import apply_types
 
 
 def sync_dep(key):

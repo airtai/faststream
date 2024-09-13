@@ -18,27 +18,27 @@ from aiokafka import TopicPartition
 from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import override
 
-from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.types import (
+from faststream._internal.publisher.fake import FakePublisher
+from faststream._internal.subscriber.usecase import SubscriberUsecase
+from faststream._internal.subscriber.utils import process_msg
+from faststream._internal.types import (
     AsyncCallable,
     BrokerMiddleware,
     CustomCallable,
     MsgType,
 )
-from faststream.broker.utils import process_msg
+from faststream._internal.utils.path import compile_path
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
-from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer, ConsumerRecord
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage
-    from faststream.broker.publisher.proto import ProducerProto
-    from faststream.types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.publisher.proto import ProducerProto
+    from faststream.message import StreamMessage
 
 
 class LogicSubscriber(SubscriberUsecase[MsgType]):

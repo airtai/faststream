@@ -16,7 +16,7 @@ from faststream.redis.subscriber.subscriber import (
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import BrokerMiddleware
+    from faststream._internal.types import BrokerMiddleware
     from faststream.redis.message import UnifyRedisDict
 
 SubsciberType: TypeAlias = Union[

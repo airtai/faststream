@@ -10,26 +10,28 @@ from typing import (
 )
 
 from nats.js import api
-from typing_extensions import Annotated, Doc, deprecated
+from typing_extensions import Annotated, Doc
 
-from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
-from faststream.broker.utils import default_filter
+from faststream._internal.broker.router import (
+    ArgsContainer,
+    BrokerRouter,
+    SubscriberRoute,
+)
 from faststream.nats.broker.registrator import NatsRegistrator
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
     from nats.aio.msg import Msg
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
-    from faststream.nats.message import NatsBatchMessage, NatsMessage
+    from faststream.nats.message import NatsMessage
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
-    from faststream.types import SendableMessage
 
 
 class NatsPublisher(ArgsContainer):
@@ -245,20 +247,6 @@ class NatsRoute(SubscriberRoute):
             Iterable["SubscriberMiddleware[NatsMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            Union[
-                "Filter[NatsMessage]",
-                "Filter[NatsBatchMessage]",
-            ],
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         max_workers: Annotated[
             int,
             Doc("Number of workers to process messages concurrently."),
@@ -320,7 +308,6 @@ class NatsRoute(SubscriberRoute):
             parser=parser,
             decoder=decoder,
             middlewares=middlewares,
-            filter=filter,
             retry=retry,
             no_ack=no_ack,
             no_reply=no_reply,

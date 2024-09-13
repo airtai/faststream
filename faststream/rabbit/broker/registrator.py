@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
 
-from typing_extensions import Annotated, Doc, deprecated, override
+from typing_extensions import Annotated, Doc, override
 
-from faststream.broker.core.abc import ABCBroker
-from faststream.broker.utils import default_filter
+from faststream._internal.broker.abc_broker import ABCBroker
 from faststream.rabbit.publisher.publisher import SpecificationPublisher
 from faststream.rabbit.publisher.usecase import PublishKwargs
 from faststream.rabbit.schemas import (
@@ -18,15 +17,13 @@ if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import (
         CustomCallable,
-        Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
-    from faststream.rabbit.schemas.reply import ReplyConfig
-    from faststream.types import AnyDict
 
 
 class RabbitRegistrator(ABCBroker["IncomingMessage"]):
@@ -58,15 +55,6 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Optional["AnyDict"],
             Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
         ] = None,
-        reply_config: Annotated[
-            Optional["ReplyConfig"],
-            Doc("Extra options to use at replies publishing."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.16**. "
-                "Please, use `RabbitResponse` object as a handler return instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = None,
         # broker arguments
         dependencies: Annotated[
             Iterable["Depends"],
@@ -84,17 +72,6 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Iterable["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[RabbitMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             Union[bool, int],
             Doc("Whether to `nack` message at processing exception."),
@@ -133,7 +110,6 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
                     queue=RabbitQueue.validate(queue),
                     exchange=RabbitExchange.validate(exchange),
                     consume_args=consume_args,
-                    reply_config=reply_config,
                     # subscriber args
                     no_ack=no_ack,
                     no_reply=no_reply,
@@ -149,7 +125,6 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         )
 
         return subscriber.add_call(
-            filter_=filter,
             parser_=parser or self._parser,
             decoder_=decoder or self._decoder,
             dependencies_=dependencies,

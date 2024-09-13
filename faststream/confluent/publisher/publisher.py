@@ -12,7 +12,7 @@ from typing import (
 
 from typing_extensions import override
 
-from faststream.broker.types import MsgType
+from faststream._internal.types import MsgType
 from faststream.confluent.publisher.usecase import (
     BatchPublisher,
     DefaultPublisher,
@@ -28,7 +28,7 @@ from faststream.specification.schema.operation import Operation
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
 
-    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
 
 
 class SpecificationPublisher(LogicPublisher[MsgType]):

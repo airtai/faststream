@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any, Optional, Protocol, Tuple, Union
 
-from faststream.broker.message import StreamMessage
+from faststream.message import StreamMessage
 
 if TYPE_CHECKING:
     from confluent_kafka import Message

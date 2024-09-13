@@ -13,7 +13,7 @@ from docs.docs_src.getting_started.asyncapi.serve import (
     gen_asyncapi_json_cmd,
     gen_asyncapi_yaml_cmd,
 )
-from faststream.cli.main import cli
+from faststream._internal.cli.main import cli
 from tests.marks import require_aiokafka
 
 GEN_JSON_CMD = gen_asyncapi_json_cmd.split(" ")[1:-1]

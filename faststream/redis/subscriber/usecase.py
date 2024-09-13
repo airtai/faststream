@@ -22,9 +22,9 @@ from redis.asyncio.client import Redis
 from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
-from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.utils import process_msg
+from faststream._internal.publisher.fake import FakePublisher
+from faststream._internal.subscriber.usecase import SubscriberUsecase
+from faststream._internal.subscriber.utils import process_msg
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,
@@ -48,14 +48,14 @@ from faststream.redis.schemas import ListSub, PubSub, StreamSub
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage as BrokerStreamMessage
-    from faststream.broker.publisher.proto import ProducerProto
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.publisher.proto import ProducerProto
+    from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
         CustomCallable,
     )
-    from faststream.types import AnyDict, Decorator, LoggerProto
+    from faststream.message import StreamMessage as BrokerStreamMessage
 
 
 TopicName: TypeAlias = bytes

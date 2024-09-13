@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 from urllib.parse import urlparse
 
-from faststream._compat import DEF_KEY
-from faststream.constants import ContentTypes
+from faststream._internal._compat import DEF_KEY
+from faststream._internal.basic_types import AnyDict
+from faststream._internal.constants import ContentTypes
 from faststream.specification.asyncapi.v2_6_0.generate import move_pydantic_refs
 from faststream.specification.asyncapi.v2_6_0.schema import (
     Reference,
@@ -27,11 +28,10 @@ from faststream.specification.asyncapi.v3_0_0.schema.operations import (
     Action,
 )
 from faststream.specification.proto import Application
-from faststream.types import AnyDict
 
 if TYPE_CHECKING:
-    from faststream.broker.core.usecase import BrokerUsecase
-    from faststream.broker.types import ConnectionType, MsgType
+    from faststream._internal.broker.broker import BrokerUsecase
+    from faststream._internal.types import ConnectionType, MsgType
 
 
 def get_app_schema(app: Application) -> Schema:

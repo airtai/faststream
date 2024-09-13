@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from faststream.broker.core.usecase import BrokerUsecase
+from faststream._internal.broker.broker import BrokerUsecase
 from faststream.confluent import KafkaBroker
 
 from .basic import ConfluentTestcaseConfig

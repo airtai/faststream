@@ -17,17 +17,17 @@ from typing import (
 from confluent_kafka import Message
 from typing_extensions import override
 
-from faststream.broker.message import gen_cor_id
-from faststream.broker.publisher.usecase import PublisherUsecase
-from faststream.broker.types import MsgType
+from faststream._internal.publisher.usecase import PublisherUsecase
+from faststream._internal.types import MsgType
+from faststream._internal.utils.functions import return_input
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.utils.functions import return_input
+from faststream.message import gen_cor_id
 
 if TYPE_CHECKING:
-    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
+    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.confluent.message import KafkaMessage
     from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
-    from faststream.types import AnyDict, AsyncFunc, SendableMessage
 
 
 class LogicPublisher(PublisherUsecase[MsgType]):

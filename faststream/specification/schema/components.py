@@ -6,7 +6,7 @@ from typing import (
 
 from pydantic import BaseModel
 
-from faststream._compat import (
+from faststream._internal._compat import (
     PYDANTIC_V2,
 )
 from faststream.specification.schema.message import Message

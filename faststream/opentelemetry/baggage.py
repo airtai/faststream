@@ -5,8 +5,8 @@ from opentelemetry.baggage.propagation import W3CBaggagePropagator
 from typing_extensions import Self
 
 if TYPE_CHECKING:
-    from faststream.broker.message import StreamMessage
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
+    from faststream.message import StreamMessage
 
 _BAGGAGE_PROPAGATOR = W3CBaggagePropagator()
 
@@ -15,7 +15,9 @@ class Baggage:
     __slots__ = ("_baggage", "_batch_baggage")
 
     def __init__(
-        self, payload: "AnyDict", batch_payload: Optional[List["AnyDict"]] = None
+        self,
+        payload: "AnyDict",
+        batch_payload: Optional[List["AnyDict"]] = None,
     ) -> None:
         self._baggage = dict(payload)
         self._batch_baggage = [dict(b) for b in batch_payload] if batch_payload else []

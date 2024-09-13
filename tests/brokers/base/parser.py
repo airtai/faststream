@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream.broker.core.usecase import BrokerUsecase
+from faststream._internal.broker.broker import BrokerUsecase
 
 from .basic import BaseTestcaseConfig
 
@@ -178,11 +178,10 @@ class LocalCustomParserTestcase(BaseTestcaseConfig):
     ):
         broker = self.broker_class()
 
-        args, kwargs = self.get_subscriber_params(
-            queue, filter=lambda m: m.content_type == "application/json"
-        )
+        args, kwargs = self.get_subscriber_params(queue)
+        sub = broker.subscriber(*args, **kwargs)
 
-        @broker.subscriber(*args, **kwargs)
+        @sub(filter=lambda m: m.content_type == "application/json")
         async def handle(m):
             event.set()
 
@@ -193,9 +192,7 @@ class LocalCustomParserTestcase(BaseTestcaseConfig):
             mock(msg.body)
             return msg
 
-        args2, kwargs2 = self.get_subscriber_params(queue, parser=custom_parser)
-
-        @broker.subscriber(*args2, **kwargs2)
+        @sub(parser=custom_parser)
         async def handle2(m):
             event2.set()
 

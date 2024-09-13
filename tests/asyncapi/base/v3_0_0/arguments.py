@@ -9,9 +9,9 @@ from fastapi import Depends as APIDepends
 from typing_extensions import Annotated, Literal
 
 from faststream import Context, FastStream
-from faststream._compat import PYDANTIC_V2
-from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.fastapi import StreamRouter
+from faststream._internal._compat import PYDANTIC_V2
+from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.fastapi import StreamRouter
 from faststream.specification.asyncapi.generate import get_app_schema
 from tests.marks import pydantic_v2
 
@@ -404,13 +404,14 @@ class FastAPICompatible:
 
         broker = self.broker_factory()
 
-        @broker.subscriber(  # pragma: no branch
-            "test",
+        sub = broker.subscriber("test")
+
+        @sub(  # pragma: no branch
             filter=lambda m: m.content_type == "application/json",
         )
         async def handle(id: int): ...
 
-        @broker.subscriber("test")
+        @sub
         async def handle_default(msg): ...
 
         schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()

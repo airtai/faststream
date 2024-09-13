@@ -5,17 +5,16 @@ from unittest.mock import Mock
 import anyio
 import pytest
 
-from faststream.testing.broker import TestBroker
-from faststream.types import AnyCallable
+from faststream._internal.basic_types import AnyCallable
+from faststream._internal.testing.broker import TestBroker
 from tests.brokers.base.consume import BrokerConsumeTestcase
 from tests.brokers.base.publish import BrokerPublishTestcase
-from tests.brokers.base.rpc import BrokerRPCTestcase
 
 
 class BrokerTestclientTestcase(
     BrokerPublishTestcase,
     BrokerConsumeTestcase,
-    BrokerRPCTestcase,
+    # RequestsTestcase,
 ):
     build_message: AnyCallable
     test_class: TestBroker

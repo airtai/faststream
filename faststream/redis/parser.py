@@ -11,13 +11,14 @@ from typing import (
     Union,
 )
 
-from faststream._compat import dump_json, json_loads
-from faststream.broker.message import (
+from faststream._internal._compat import dump_json, json_loads
+from faststream._internal.basic_types import AnyDict, DecodedMessage, SendableMessage
+from faststream._internal.constants import ContentTypes
+from faststream.message import (
     decode_message,
     encode_message,
     gen_cor_id,
 )
-from faststream.constants import ContentTypes
 from faststream.redis.message import (
     RedisBatchListMessage,
     RedisBatchStreamMessage,
@@ -26,12 +27,11 @@ from faststream.redis.message import (
     RedisStreamMessage,
     bDATA_KEY,
 )
-from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 if TYPE_CHECKING:
     from re import Pattern
 
-    from faststream.broker.message import StreamMessage
+    from faststream.message import StreamMessage
 
 
 MsgType = TypeVar("MsgType", bound=Mapping[str, Any])

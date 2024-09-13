@@ -14,8 +14,8 @@ from faststream.specification.asyncapi.site import (
 )
 
 if TYPE_CHECKING:
+    from faststream._internal.broker.broker import BrokerUsecase
     from faststream.asgi.types import ASGIApp, Scope
-    from faststream.broker.core.usecase import BrokerUsecase
     from faststream.specification.proto import Application
 
 

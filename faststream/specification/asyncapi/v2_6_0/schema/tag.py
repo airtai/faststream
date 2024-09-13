@@ -3,7 +3,8 @@ from typing import Optional, Union, overload
 import typing_extensions
 from pydantic import BaseModel
 
-from faststream._compat import PYDANTIC_V2
+from faststream._internal._compat import PYDANTIC_V2
+from faststream._internal.basic_types import AnyDict
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.docs import (
     ExternalDocs,
@@ -11,7 +12,6 @@ from faststream.specification.asyncapi.v2_6_0.schema.docs import (
 from faststream.specification.asyncapi.v2_6_0.schema.docs import (
     from_spec as docs_from_spec,
 )
-from faststream.types import AnyDict
 
 
 class Tag(BaseModel):

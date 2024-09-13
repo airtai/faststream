@@ -11,16 +11,16 @@ from typing import (
 from pydantic import AnyHttpUrl, BaseModel
 from typing_extensions import Self
 
-from faststream._compat import (
+from faststream._internal._compat import (
     PYDANTIC_V2,
     CoreSchema,
     GetJsonSchemaHandler,
     JsonSchemaValue,
     with_info_plain_validator_function,
 )
-from faststream.log import logger
+from faststream._internal.basic_types import AnyDict
+from faststream._internal.log import logger
 from faststream.specification import schema as spec
-from faststream.types import AnyDict
 
 try:
     import email_validator

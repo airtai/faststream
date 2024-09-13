@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from faststream.cli.supervisors.multiprocess import Multiprocess
+from faststream._internal.cli.supervisors.multiprocess import Multiprocess
 
 
 def exit(parent_id):  # pragma: no cover

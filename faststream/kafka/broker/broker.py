@@ -22,15 +22,15 @@ from aiokafka.producer.producer import _missing
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.message import gen_cor_id
+from faststream._internal.constants import EMPTY
+from faststream._internal.utils.data import filter_by_dict
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.broker.logging import KafkaLoggingBroker
 from faststream.kafka.broker.registrator import KafkaRegistrator
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.kafka.security import parse_security
-from faststream.types import EMPTY
-from faststream.utils.data import filter_by_dict
+from faststream.message import gen_cor_id
 
 Partition = TypeVar("Partition")
 
@@ -43,19 +43,19 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
     from typing_extensions import TypedDict, Unpack
 
-    from faststream.broker.types import (
-        BrokerMiddleware,
-        CustomCallable,
-    )
-    from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
-    from faststream.types import (
+    from faststream._internal.basic_types import (
         AnyDict,
         AsyncFunc,
         Decorator,
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.types import (
+        BrokerMiddleware,
+        CustomCallable,
+    )
+    from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
 
     class KafkaInitKwargs(TypedDict, total=False):
         request_timeout_ms: Annotated[

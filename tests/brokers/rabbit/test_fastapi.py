@@ -77,11 +77,10 @@ class TestRouterLocal(FastAPILocalTestcase):
             return name
 
         async with self.broker_test(router.broker):
-            r = await router.broker.publish(
+            r = await router.broker.request(
                 "hi",
                 "in.john",
                 "test",
-                rpc=True,
-                rpc_timeout=0.5,
+                timeout=0.5,
             )
-            assert r == "john"
+            assert await r.decode() == "john"

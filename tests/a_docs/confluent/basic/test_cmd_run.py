@@ -4,8 +4,8 @@ from unittest.mock import Mock
 import pytest
 from typer.testing import CliRunner
 
+from faststream._internal.cli.main import cli
 from faststream.app import FastStream
-from faststream.cli.main import cli
 
 
 @pytest.fixture

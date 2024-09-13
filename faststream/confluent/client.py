@@ -19,17 +19,17 @@ import anyio
 from confluent_kafka import Consumer, KafkaError, KafkaException, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 
+from faststream._internal.constants import EMPTY
+from faststream._internal.log import logger as faststream_logger
+from faststream._internal.utils.functions import call_or_await
 from faststream.confluent import config as config_module
 from faststream.confluent.schemas import TopicPartition
 from faststream.exceptions import SetupError
-from faststream.log import logger as faststream_logger
-from faststream.types import EMPTY
-from faststream.utils.functions import call_or_await
 
 if TYPE_CHECKING:
     from typing_extensions import NotRequired, TypedDict
 
-    from faststream.types import AnyDict, LoggerProto
+    from faststream._internal.basic_types import AnyDict, LoggerProto
 
     class _SendKwargs(TypedDict):
         value: Optional[Union[str, bytes]]

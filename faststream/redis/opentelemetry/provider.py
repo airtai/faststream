@@ -6,8 +6,8 @@ from faststream.opentelemetry import TelemetrySettingsProvider
 from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 
 if TYPE_CHECKING:
-    from faststream.broker.message import StreamMessage
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
+    from faststream.message import StreamMessage
 
 
 class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):

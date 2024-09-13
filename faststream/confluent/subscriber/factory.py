@@ -18,9 +18,9 @@ if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import BrokerMiddleware
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import BrokerMiddleware
     from faststream.confluent.schemas import TopicPartition
-    from faststream.types import AnyDict
 
 
 @overload

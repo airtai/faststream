@@ -33,12 +33,11 @@ from starlette.routing import BaseRoute
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.utils import default_filter
+from faststream._internal.constants import EMPTY
+from faststream._internal.fastapi.router import StreamRouter
 from faststream.nats.broker import NatsBroker
 from faststream.nats.publisher.publisher import SpecificationPublisher
 from faststream.nats.subscriber.subscriber import SpecificationSubscriber
-from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     import ssl
@@ -57,18 +56,17 @@ if TYPE_CHECKING:
     from starlette.responses import Response
     from starlette.types import ASGIApp, Lifespan
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
-    from faststream.nats.message import NatsBatchMessage, NatsMessage
+    from faststream.nats.message import NatsMessage
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
-    from faststream.types import AnyDict, LoggerProto
 
 
 class NatsRouter(StreamRouter["Msg"]):
@@ -691,20 +689,6 @@ class NatsRouter(StreamRouter["Msg"]):
             Iterable["SubscriberMiddleware[NatsMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            Union[
-                "Filter[NatsMessage]",
-                "Filter[NatsBatchMessage]",
-            ],
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         max_workers: Annotated[
             int,
             Doc("Number of workers to process messages concurrently."),
@@ -887,7 +871,6 @@ class NatsRouter(StreamRouter["Msg"]):
                 parser=parser,
                 decoder=decoder,
                 middlewares=middlewares,
-                filter=filter,
                 max_workers=max_workers,
                 retry=retry,
                 no_ack=no_ack,

@@ -3,7 +3,7 @@ from typing import Tuple
 import pytest
 from pydantic import BaseModel
 
-from faststream.utils import apply_types
+from faststream._internal.utils import apply_types
 
 
 class Base(BaseModel):

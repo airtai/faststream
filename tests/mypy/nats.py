@@ -2,9 +2,9 @@ from typing import Awaitable, Callable
 
 from nats.aio.msg import Msg
 
+from faststream._internal.basic_types import DecodedMessage
 from faststream.nats import NatsBroker, NatsMessage, NatsRoute, NatsRouter
 from faststream.nats.fastapi import NatsRouter as FastAPIRouter
-from faststream.types import DecodedMessage
 
 
 def sync_decoder(msg: NatsMessage) -> DecodedMessage:

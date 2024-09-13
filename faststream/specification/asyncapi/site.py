@@ -3,8 +3,8 @@ from http import server
 from typing import TYPE_CHECKING, Any, Dict
 from urllib.parse import parse_qs, urlparse
 
-from faststream._compat import json_dumps
-from faststream.log import logger
+from faststream._internal._compat import json_dumps
+from faststream._internal.log import logger
 
 if TYPE_CHECKING:
     from faststream.specification.asyncapi.base.schema import BaseSchema

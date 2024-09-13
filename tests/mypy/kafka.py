@@ -2,9 +2,9 @@ from typing import Awaitable, Callable
 
 from aiokafka import ConsumerRecord
 
+from faststream._internal.basic_types import DecodedMessage
 from faststream.kafka import KafkaBroker, KafkaMessage, KafkaRoute, KafkaRouter
 from faststream.kafka.fastapi import KafkaRouter as FastAPIRouter
-from faststream.types import DecodedMessage
 
 
 def sync_decoder(msg: KafkaMessage) -> DecodedMessage:

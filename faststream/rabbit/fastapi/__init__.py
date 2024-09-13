@@ -1,6 +1,6 @@
 from typing_extensions import Annotated
 
-from faststream.broker.fastapi.context import Context, ContextRepo, Logger
+from faststream._internal.fastapi.context import Context, ContextRepo, Logger
 from faststream.rabbit.broker import RabbitBroker as RB
 from faststream.rabbit.fastapi.router import RabbitRouter
 from faststream.rabbit.message import RabbitMessage as RM

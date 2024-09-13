@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any, Protocol, Tuple, Union
 
 from aiokafka import TopicPartition as AIOKafkaTopicPartition
 
-from faststream.broker.message import StreamMessage
+from faststream.message import StreamMessage
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord

@@ -4,13 +4,13 @@ from nats.aio.msg import Msg
 from opentelemetry.semconv.trace import SpanAttributes
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.types import MsgType
+from faststream._internal.types import MsgType
 from faststream.opentelemetry import TelemetrySettingsProvider
 from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 
 if TYPE_CHECKING:
-    from faststream.broker.message import StreamMessage
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
+    from faststream.message import StreamMessage
 
 
 class BaseNatsTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):

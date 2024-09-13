@@ -8,9 +8,9 @@ from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage
 
-    from faststream.broker.message import StreamMessage
+    from faststream._internal.basic_types import AnyDict
+    from faststream.message import StreamMessage
     from faststream.rabbit.schemas.exchange import RabbitExchange
-    from faststream.types import AnyDict
 
 
 class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage"]):

@@ -3,8 +3,13 @@ from typing import TYPE_CHECKING, Any, Optional, Sequence, Type, overload
 
 from pydantic import BaseModel, create_model
 
-from faststream._compat import DEF_KEY, PYDANTIC_V2, get_model_fields, model_schema
-from faststream.types import AnyDict
+from faststream._internal._compat import (
+    DEF_KEY,
+    PYDANTIC_V2,
+    get_model_fields,
+    model_schema,
+)
+from faststream._internal.basic_types import AnyDict
 
 if TYPE_CHECKING:
     from fast_depends.core import CallModel

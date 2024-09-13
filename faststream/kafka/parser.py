@@ -1,17 +1,17 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, cast
 
-from faststream.broker.message import decode_message, gen_cor_id
+from faststream._internal.context.repository import context
 from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
-from faststream.utils.context.repository import context
+from faststream.message import decode_message
 
 if TYPE_CHECKING:
     from re import Pattern
 
     from aiokafka import ConsumerRecord
 
-    from faststream.broker.message import StreamMessage
+    from faststream._internal.basic_types import DecodedMessage
     from faststream.kafka.subscriber.usecase import LogicSubscriber
-    from faststream.types import DecodedMessage
+    from faststream.message import StreamMessage
 
 
 class AioKafkaParser:
@@ -39,7 +39,7 @@ class AioKafkaParser:
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
             message_id=f"{message.offset}-{message.timestamp}",
-            correlation_id=headers.get("correlation_id", gen_cor_id()),
+            correlation_id=headers.get("correlation_id"),
             raw_message=message,
             path=self.get_path(message.topic),
             consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
@@ -86,7 +86,7 @@ class AioKafkaBatchParser(AioKafkaParser):
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
             message_id=f"{first.offset}-{last.offset}-{first.timestamp}",
-            correlation_id=headers.get("correlation_id", gen_cor_id()),
+            correlation_id=headers.get("correlation_id"),
             raw_message=message,
             path=self.get_path(first.topic),
             consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,

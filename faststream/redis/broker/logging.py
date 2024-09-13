@@ -1,15 +1,15 @@
 import logging
 from typing import TYPE_CHECKING, Any, ClassVar, Optional
 
-from faststream.broker.core.usecase import BrokerUsecase
-from faststream.log.logging import get_broker_logger
+from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.constants import EMPTY
+from faststream._internal.log.logging import get_broker_logger
 from faststream.redis.message import UnifyRedisDict
-from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from redis.asyncio.client import Redis  # noqa: F401
 
-    from faststream.types import LoggerProto
+    from faststream._internal.basic_types import LoggerProto
 
 
 class RedisLoggingBroker(BrokerUsecase[UnifyRedisDict, "Redis[bytes]"]):

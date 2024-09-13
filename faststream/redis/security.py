@@ -5,7 +5,7 @@ from redis.asyncio.connection import Connection
 from faststream.security import BaseSecurity, SASLPlaintext
 
 if TYPE_CHECKING:
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
 
 
 def parse_security(security: Optional[BaseSecurity]) -> "AnyDict":

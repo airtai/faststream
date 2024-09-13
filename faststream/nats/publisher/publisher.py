@@ -12,7 +12,7 @@ from faststream.specification.schema.operation import Operation
 if TYPE_CHECKING:
     from nats.aio.msg import Msg
 
-    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.nats.schemas.js_stream import JStream
 
 

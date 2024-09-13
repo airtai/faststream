@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, List, Tuple
 
 if TYPE_CHECKING:
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
 
 
 def to_camelcase(*names: str) -> str:

@@ -26,13 +26,13 @@ from redis.exceptions import ConnectionError
 from typing_extensions import Annotated, Doc, TypeAlias, deprecated, override
 
 from faststream.__about__ import __version__
-from faststream.broker.message import gen_cor_id
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.message import gen_cor_id
 from faststream.redis.broker.logging import RedisLoggingBroker
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
-from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -41,14 +41,7 @@ if TYPE_CHECKING:
     from redis.asyncio.connection import BaseParser
     from typing_extensions import TypedDict, Unpack
 
-    from faststream.broker.types import (
-        BrokerMiddleware,
-        CustomCallable,
-    )
-    from faststream.redis.message import BaseMessage, RedisMessage
-    from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
-    from faststream.types import (
+    from faststream._internal.basic_types import (
         AnyDict,
         AsyncFunc,
         DecodedMessage,
@@ -56,6 +49,13 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.types import (
+        BrokerMiddleware,
+        CustomCallable,
+    )
+    from faststream.redis.message import BaseMessage, RedisMessage
+    from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
 
     class RedisInitKwargs(TypedDict, total=False):
         host: Optional[str]

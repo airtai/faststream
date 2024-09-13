@@ -3,8 +3,12 @@ from typing import Type
 from dirty_equals import IsStr
 
 from faststream import FastStream
-from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
+from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.broker.router import (
+    ArgsContainer,
+    BrokerRouter,
+    SubscriberRoute,
+)
 from faststream.specification.asyncapi.generate import get_app_schema
 
 

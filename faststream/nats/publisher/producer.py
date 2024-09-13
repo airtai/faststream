@@ -5,23 +5,23 @@ import anyio
 import nats
 from typing_extensions import override
 
-from faststream.broker.message import encode_message
-from faststream.broker.publisher.proto import ProducerProto
-from faststream.broker.utils import resolve_custom_func
+from faststream._internal.publisher.proto import ProducerProto
+from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream._internal.utils.functions import timeout_scope
 from faststream.exceptions import WRONG_PUBLISH_ARGS
+from faststream.message import encode_message
 from faststream.nats.parser import NatsParser
-from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
     from nats.aio.client import Client
     from nats.aio.msg import Msg
     from nats.js import JetStreamContext
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.types import (
         AsyncCallable,
         CustomCallable,
     )
-    from faststream.types import SendableMessage
 
 
 class NatsFastProducer(ProducerProto):

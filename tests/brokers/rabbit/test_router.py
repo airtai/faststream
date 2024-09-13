@@ -51,11 +51,10 @@ class TestRouter(RouterTestcase):
 
         await pub_broker.start()
 
-        await pub_broker.publish(
+        await pub_broker.request(
             "",
             "in.john.2",
             queue + "1",
-            rpc=True,
         )
 
         assert event.is_set()
@@ -97,11 +96,10 @@ class TestRouter(RouterTestcase):
 
         await pub_broker.start()
 
-        await pub_broker.publish(
+        await pub_broker.request(
             "",
             "in.john.2",
             queue + "1",
-            rpc=True,
         )
 
         assert event.is_set()

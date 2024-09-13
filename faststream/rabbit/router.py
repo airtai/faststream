@@ -1,9 +1,12 @@
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional, Union
 
-from typing_extensions import Annotated, Doc, deprecated
+from typing_extensions import Annotated, Doc
 
-from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
-from faststream.broker.utils import default_filter
+from faststream._internal.broker.router import (
+    ArgsContainer,
+    BrokerRouter,
+    SubscriberRoute,
+)
 from faststream.rabbit.broker.registrator import RabbitRegistrator
 
 if TYPE_CHECKING:
@@ -12,10 +15,10 @@ if TYPE_CHECKING:
     from broker.types import PublisherMiddleware
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
@@ -23,9 +26,7 @@ if TYPE_CHECKING:
         RabbitExchange,
         RabbitQueue,
     )
-    from faststream.rabbit.schemas.reply import ReplyConfig
     from faststream.rabbit.types import AioPikaSendableMessage
-    from faststream.types import AnyDict
 
 
 class RabbitPublisher(ArgsContainer):
@@ -210,15 +211,6 @@ class RabbitRoute(SubscriberRoute):
             Optional["AnyDict"],
             Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
         ] = None,
-        reply_config: Annotated[
-            Optional["ReplyConfig"],
-            Doc("Extra options to use at replies publishing."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.16**. "
-                "Please, use `RabbitResponse` object as a handler return instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = None,
         # broker arguments
         dependencies: Annotated[
             Iterable["Depends"],
@@ -236,17 +228,6 @@ class RabbitRoute(SubscriberRoute):
             Iterable["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[RabbitMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             Union[bool, int],
             Doc("Whether to `nack` message at processing exception."),
@@ -284,12 +265,10 @@ class RabbitRoute(SubscriberRoute):
             queue=queue,
             exchange=exchange,
             consume_args=consume_args,
-            reply_config=reply_config,
             dependencies=dependencies,
             parser=parser,
             decoder=decoder,
             middlewares=middlewares,
-            filter=filter,
             retry=retry,
             no_ack=no_ack,
             no_reply=no_reply,

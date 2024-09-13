@@ -12,26 +12,26 @@ from typing import (
 
 import anyio
 
+from faststream._internal.log.logging import logger
 from faststream.app import FastStream
 from faststream.asgi.factories import make_asyncapi_asgi
 from faststream.asgi.response import AsgiResponse
 from faststream.asgi.websocket import WebSocketClose
-from faststream.log.logging import logger
 
 if TYPE_CHECKING:
-    from faststream.asgi.types import ASGIApp, Receive, Scope, Send
-    from faststream.broker.core.usecase import BrokerUsecase
-    from faststream.specification.schema.contact import Contact, ContactDict
-    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-    from faststream.specification.schema.license import License, LicenseDict
-    from faststream.specification.schema.tag import Tag
-    from faststream.types import (
+    from faststream._internal.basic_types import (
         AnyCallable,
         AnyDict,
         AnyHttpUrl,
         Lifespan,
         LoggerProto,
     )
+    from faststream._internal.broker.broker import BrokerUsecase
+    from faststream.asgi.types import ASGIApp, Receive, Scope, Send
+    from faststream.specification.schema.contact import Contact, ContactDict
+    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
+    from faststream.specification.schema.license import License, LicenseDict
+    from faststream.specification.schema.tag import Tag
 
 
 class AsgiFastStream(FastStream):

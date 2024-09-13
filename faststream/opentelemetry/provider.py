@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, Protocol
 
-from faststream.broker.types import MsgType
+from faststream._internal.types import MsgType
 
 if TYPE_CHECKING:
-    from faststream.broker.message import StreamMessage
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
+    from faststream.message import StreamMessage
 
 
 class TelemetrySettingsProvider(Protocol[MsgType]):

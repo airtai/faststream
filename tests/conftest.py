@@ -6,7 +6,7 @@ import pytest
 from typer.testing import CliRunner
 
 from faststream.__about__ import __version__
-from faststream.utils import context as global_context
+from faststream._internal.context import context as global_context
 
 
 @pytest.hookimpl(tryfirst=True)

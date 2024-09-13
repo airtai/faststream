@@ -30,14 +30,14 @@ from nats.js.errors import BadRequestError
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.message import gen_cor_id
+from faststream._internal.constants import EMPTY
+from faststream.message import gen_cor_id
 from faststream.nats.broker.logging import NatsLoggingBroker
 from faststream.nats.broker.registrator import NatsRegistrator
 from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.security import parse_security
 from faststream.nats.subscriber.subscriber import SpecificationSubscriber
-from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     import ssl
@@ -59,8 +59,15 @@ if TYPE_CHECKING:
     from nats.js.object_store import ObjectStore
     from typing_extensions import TypedDict, Unpack
 
-    from faststream.broker.publisher.proto import ProducerProto
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import (
+        AnyDict,
+        DecodedMessage,
+        Decorator,
+        LoggerProto,
+        SendableMessage,
+    )
+    from faststream._internal.publisher.proto import ProducerProto
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
     )
@@ -68,13 +75,6 @@ if TYPE_CHECKING:
     from faststream.nats.publisher.publisher import SpecificationPublisher
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
-    from faststream.types import (
-        AnyDict,
-        DecodedMessage,
-        Decorator,
-        LoggerProto,
-        SendableMessage,
-    )
 
     class NatsInitKwargs(TypedDict, total=False):
         """NatsBroker.connect() method type hints."""

@@ -6,15 +6,15 @@ from typing_extensions import Annotated, Doc
 from faststream.specification.schema.channel import Channel
 
 if TYPE_CHECKING:
-    from faststream.broker.core.usecase import BrokerUsecase
+    from faststream._internal.basic_types import (
+        AnyDict,
+        AnyHttpUrl,
+    )
+    from faststream._internal.broker.broker import BrokerUsecase
     from faststream.specification.schema.contact import Contact, ContactDict
     from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
     from faststream.specification.schema.license import License, LicenseDict
     from faststream.specification.schema.tag import Tag
-    from faststream.types import (
-        AnyDict,
-        AnyHttpUrl,
-    )
 
 
 class Application(Protocol):

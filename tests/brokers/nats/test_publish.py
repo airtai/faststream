@@ -70,8 +70,8 @@ class TestPublish(BrokerPublishTestcase):
             await br.start()
 
             response = await asyncio.wait_for(
-                br.publish("", queue, rpc=True),
+                br.request("", queue),
                 timeout=3,
             )
 
-            assert response == "Hi!", response
+            assert await response.decode() == "Hi!", response

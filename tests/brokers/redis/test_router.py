@@ -39,11 +39,7 @@ class TestRouterLocal(RouterLocalTestcase):
 
         await pub_broker.start()
 
-        await pub_broker.publish(
-            "",
-            "in.john.2",
-            rpc=True,
-        )
+        await pub_broker.request("", "in.john.2")
 
         assert event.is_set()
         mock.assert_called_once_with(name="john", id=2)
@@ -70,11 +66,7 @@ class TestRouterLocal(RouterLocalTestcase):
 
         await pub_broker.start()
 
-        await pub_broker.publish(
-            "",
-            "test.in.john.2",
-            rpc=True,
-        )
+        await pub_broker.request("", "test.in.john.2")
 
         assert event.is_set()
         mock.assert_called_once_with(name="john", id=2)
@@ -100,11 +92,7 @@ class TestRouterLocal(RouterLocalTestcase):
 
         await pub_broker.start()
 
-        await pub_broker.publish(
-            "",
-            "in.john.2",
-            rpc=True,
-        )
+        await pub_broker.request("", "in.john.2")
 
         assert event.is_set()
         mock.assert_called_once_with(name="john", id=2)

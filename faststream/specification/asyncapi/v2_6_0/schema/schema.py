@@ -1,5 +1,6 @@
 from typing import Dict, List, Literal, Optional, Union
 
+from faststream._internal.basic_types import AnyDict
 from faststream.specification.asyncapi.base.schema import BaseSchema
 from faststream.specification.asyncapi.v2_6_0.schema.channels import Channel
 from faststream.specification.asyncapi.v2_6_0.schema.components import Components
@@ -7,7 +8,6 @@ from faststream.specification.asyncapi.v2_6_0.schema.docs import ExternalDocs
 from faststream.specification.asyncapi.v2_6_0.schema.info import Info
 from faststream.specification.asyncapi.v2_6_0.schema.servers import Server
 from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
-from faststream.types import AnyDict
 
 
 class Schema(BaseSchema):

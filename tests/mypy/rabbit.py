@@ -2,9 +2,9 @@ from typing import Awaitable, Callable
 
 from aio_pika import IncomingMessage
 
+from faststream._internal.basic_types import DecodedMessage
 from faststream.rabbit import RabbitBroker, RabbitMessage, RabbitRoute, RabbitRouter
 from faststream.rabbit.fastapi import RabbitRouter as FastAPIRouter
-from faststream.types import DecodedMessage
 
 
 def sync_decoder(msg: RabbitMessage) -> DecodedMessage:

@@ -26,10 +26,9 @@ from starlette.routing import BaseRoute
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.utils import default_filter
+from faststream._internal.constants import EMPTY
+from faststream._internal.fastapi.router import StreamRouter
 from faststream.confluent.broker.broker import KafkaBroker as KB
-from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -38,10 +37,10 @@ if TYPE_CHECKING:
     from fastapi.types import IncEx
     from starlette.types import ASGIApp, Lifespan
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
@@ -58,7 +57,6 @@ if TYPE_CHECKING:
     )
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
-    from faststream.types import AnyDict, LoggerProto
 
 
 Partition = TypeVar("Partition")
@@ -839,17 +837,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             bool,
             Doc("Whether to `nack` message at processing exception."),
@@ -1244,17 +1231,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         # Specification args
         title: Annotated[
             Optional[str],
@@ -1635,17 +1611,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             bool,
             Doc("Whether to `nack` message at processing exception."),
@@ -2043,17 +2008,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             bool,
             Doc("Whether to `nack` message at processing exception."),
@@ -2237,7 +2191,6 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             parser=parser,
             decoder=decoder,
             middlewares=middlewares,
-            filter=filter,
             retry=retry,
             no_ack=no_ack,
             no_reply=no_reply,

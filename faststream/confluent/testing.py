@@ -5,8 +5,9 @@ from unittest.mock import AsyncMock, MagicMock
 import anyio
 from typing_extensions import override
 
-from faststream.broker.message import encode_message, gen_cor_id
-from faststream.broker.utils import resolve_custom_func
+from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream._internal.testing.broker import TestBroker
+from faststream._internal.utils.functions import timeout_scope
 from faststream.confluent.broker import KafkaBroker
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
@@ -14,13 +15,12 @@ from faststream.confluent.publisher.publisher import SpecificationBatchPublisher
 from faststream.confluent.schemas import TopicPartition
 from faststream.confluent.subscriber.subscriber import SpecificationBatchSubscriber
 from faststream.exceptions import SubscriberNotFound
-from faststream.testing.broker import TestBroker
-from faststream.utils.functions import timeout_scope
+from faststream.message import encode_message, gen_cor_id
 
 if TYPE_CHECKING:
+    from faststream._internal.basic_types import SendableMessage
     from faststream.confluent.publisher.publisher import SpecificationPublisher
     from faststream.confluent.subscriber.usecase import LogicSubscriber
-    from faststream.types import SendableMessage
 
 __all__ = ("TestKafkaBroker",)
 

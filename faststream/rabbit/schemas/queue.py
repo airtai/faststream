@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING, Optional
 
 from typing_extensions import Annotated, Doc
 
-from faststream.broker.schemas import NameRequired
-from faststream.utils.path import compile_path
+from faststream._internal.proto import NameRequired
+from faststream._internal.utils.path import compile_path
 
 if TYPE_CHECKING:
     from aio_pika.abc import TimeoutType
 
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
 
 
 class RabbitQueue(NameRequired):

@@ -7,11 +7,11 @@ from typing import (
 from pydantic import AnyHttpUrl, BaseModel
 from typing_extensions import Self
 
-from faststream._compat import (
+from faststream._internal._compat import (
     PYDANTIC_V2,
 )
+from faststream._internal.basic_types import AnyDict
 from faststream.specification import schema as spec
-from faststream.types import AnyDict
 
 
 class License(BaseModel):

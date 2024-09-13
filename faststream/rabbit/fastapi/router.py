@@ -21,8 +21,8 @@ from starlette.routing import BaseRoute
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.utils import default_filter
+from faststream._internal.constants import EMPTY
+from faststream._internal.fastapi.router import StreamRouter
 from faststream.rabbit.broker.broker import RabbitBroker as RB
 from faststream.rabbit.publisher.publisher import SpecificationPublisher
 from faststream.rabbit.schemas import (
@@ -30,7 +30,6 @@ from faststream.rabbit.schemas import (
     RabbitQueue,
 )
 from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
-from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -44,18 +43,16 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp, Lifespan
     from yarl import URL
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
-    from faststream.rabbit.schemas.reply import ReplyConfig
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
-    from faststream.types import AnyDict, LoggerProto
 
 
 class RabbitRouter(StreamRouter["IncomingMessage"]):
@@ -498,15 +495,6 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional["AnyDict"],
             Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
         ] = None,
-        reply_config: Annotated[
-            Optional["ReplyConfig"],
-            Doc("Extra options to use at replies publishing."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.16**. "
-                "Please, use `RabbitResponse` object as a handler return instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = None,
         # broker arguments
         dependencies: Annotated[
             Iterable["params.Depends"],
@@ -526,17 +514,6 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Iterable["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[RabbitMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             Union[bool, int],
             Doc("Whether to `nack` message at processing exception."),
@@ -697,12 +674,10 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 queue=queue,
                 exchange=exchange,
                 consume_args=consume_args,
-                reply_config=reply_config,
                 dependencies=dependencies,
                 parser=parser,
                 decoder=decoder,
                 middlewares=middlewares,
-                filter=filter,
                 retry=retry,
                 no_ack=no_ack,
                 no_reply=no_reply,

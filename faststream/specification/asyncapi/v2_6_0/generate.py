@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
-from faststream._compat import DEF_KEY
-from faststream.constants import ContentTypes
+from faststream._internal._compat import DEF_KEY
+from faststream._internal.basic_types import AnyDict
+from faststream._internal.constants import ContentTypes
 from faststream.specification.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
@@ -18,11 +19,10 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 from faststream.specification.proto import Application
-from faststream.types import AnyDict
 
 if TYPE_CHECKING:
-    from faststream.broker.core.usecase import BrokerUsecase
-    from faststream.broker.types import ConnectionType, MsgType
+    from faststream._internal.broker.broker import BrokerUsecase
+    from faststream._internal.types import ConnectionType, MsgType
 
 
 def get_app_schema(app: Application) -> Schema:

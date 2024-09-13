@@ -5,20 +5,20 @@ import anyio
 from nats.aio.msg import Msg
 from typing_extensions import override
 
-from faststream.broker.message import encode_message, gen_cor_id
-from faststream.broker.utils import resolve_custom_func
+from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream._internal.testing.broker import TestBroker
+from faststream._internal.utils.functions import timeout_scope
 from faststream.exceptions import WRONG_PUBLISH_ARGS, SubscriberNotFound
+from faststream.message import encode_message, gen_cor_id
 from faststream.nats.broker import NatsBroker
 from faststream.nats.parser import NatsParser
 from faststream.nats.publisher.producer import NatsFastProducer
 from faststream.nats.schemas.js_stream import is_subject_match_wildcard
-from faststream.testing.broker import TestBroker
-from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
+    from faststream._internal.basic_types import AnyDict, SendableMessage
     from faststream.nats.publisher.publisher import SpecificationPublisher
     from faststream.nats.subscriber.usecase import LogicSubscriber
-    from faststream.types import AnyDict, SendableMessage
 
 __all__ = ("TestNatsBroker",)
 

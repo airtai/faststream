@@ -19,7 +19,8 @@ import anyio
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.message import gen_cor_id
+from faststream._internal.constants import EMPTY
+from faststream._internal.utils.data import filter_by_dict
 from faststream.confluent.broker.logging import KafkaLoggingBroker
 from faststream.confluent.broker.registrator import KafkaRegistrator
 from faststream.confluent.client import (
@@ -31,8 +32,7 @@ from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.types import EMPTY
-from faststream.utils.data import filter_by_dict
+from faststream.message import gen_cor_id
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -40,20 +40,20 @@ if TYPE_CHECKING:
     from confluent_kafka import Message
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import (
-        BrokerMiddleware,
-        CustomCallable,
-    )
-    from faststream.confluent.config import ConfluentConfig
-    from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
-    from faststream.types import (
+    from faststream._internal.basic_types import (
         AnyDict,
         AsyncFunc,
         Decorator,
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.types import (
+        BrokerMiddleware,
+        CustomCallable,
+    )
+    from faststream.confluent.config import ConfluentConfig
+    from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
 
 Partition = TypeVar("Partition")
 

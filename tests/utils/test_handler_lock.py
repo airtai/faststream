@@ -4,7 +4,7 @@ import anyio
 import pytest
 from anyio.abc import TaskStatus
 
-from faststream.broker.utils import MultiLock
+from faststream._internal.subscriber.utils import MultiLock
 
 
 @pytest.mark.asyncio

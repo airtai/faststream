@@ -1,6 +1,6 @@
 from typing_extensions import Annotated
 
-from faststream.broker.fastapi.context import Context, ContextRepo, Logger
+from faststream._internal.fastapi.context import Context, ContextRepo, Logger
 from faststream.kafka.broker import KafkaBroker as KB
 from faststream.kafka.fastapi.fastapi import KafkaRouter
 from faststream.kafka.message import KafkaMessage as KM
