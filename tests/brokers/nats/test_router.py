@@ -42,6 +42,30 @@ class TestRouter(RouterTestcase):
         assert event.is_set()
         mock.assert_called_once_with(name="john", id=2)
 
+    async def test_path_as_first_with_prefix(
+        self,
+        event,
+        mock,
+        router: NatsRouter,
+        pub_broker,
+    ):
+        router.prefix = "root."
+
+        @router.subscriber("{name}.nested")
+        async def h(name: str = Path()):
+            event.set()
+            mock(name=name)
+
+        pub_broker._is_apply_types = True
+        pub_broker.include_router(router)
+
+        await pub_broker.start()
+
+        await pub_broker.publish("", "root.john.nested", rpc=True)
+
+        assert event.is_set()
+        mock.assert_called_once_with(name="john")
+
     async def test_router_path_with_prefix(
         self,
         event,
@@ -130,32 +154,6 @@ class TestRouter(RouterTestcase):
         )
 
         assert event.is_set()
-
-    async def test_nested_path_router(
-        self,
-        event,
-        mock,
-        router: NatsRouter,
-        pub_broker,
-    ):
-        router.prefix = "root."
-        nested_router = NatsRouter()
-
-        @nested_router.subscriber("{name}.nested")
-        async def h(name: str = Path()):
-            event.set()
-            mock(name=name)
-
-        pub_broker._is_apply_types = True
-        router.include_router(nested_router)
-        pub_broker.include_router(router)
-
-        await pub_broker.start()
-
-        await pub_broker.publish("", "root.john.nested", rpc=True)
-
-        assert event.is_set()
-        mock.assert_called_once_with(name="john")
 
 
 class TestRouterLocal(RouterLocalTestcase):
