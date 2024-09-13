@@ -15,6 +15,16 @@ search:
 !!! quote ""
     Thanks to [*typer*](https://typer.tiangolo.com/){.external-link target="_blank"} and [*watchfiles*](https://watchfiles.helpmanual.io/){.external-link target="_blank"}. Their work is the basis of this tool.
 
+## Installation
+
+To install the **FastStream CLI**, you need to run the following command:
+
+```shell
+pip install faststream[cli]
+```
+
+After installation, you can check which commands are available by executing:
+
 ```shell
 faststream --help
 ```

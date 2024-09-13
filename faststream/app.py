@@ -1,4 +1,3 @@
-import logging
 import logging.config
 from typing import (
     TYPE_CHECKING,
@@ -14,7 +13,7 @@ from typing import (
 )
 
 import anyio
-from typing_extensions import ParamSpec
+from typing_extensions import Annotated, ParamSpec, deprecated
 
 from faststream._compat import ExceptionGroup
 from faststream.asyncapi.proto import AsyncAPIApplication
@@ -104,7 +103,7 @@ class FastStream(AsyncAPIApplication):
             else fake_context
         )
 
-        self.should_exit = False
+        self._should_exit = anyio.Event()
 
         # AsyncAPI information
         self.title = title
@@ -163,7 +162,13 @@ class FastStream(AsyncAPIApplication):
         self,
         log_level: int = logging.INFO,
         run_extra_options: Optional[Dict[str, "SettingField"]] = None,
-        sleep_time: float = 0.1,
+        sleep_time: Annotated[
+            float,
+            deprecated(
+                "Deprecated in **FastStream 0.5.24**. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = 0.1,
     ) -> None:
         """Run FastStream Application."""
         assert self.broker, "You should setup a broker"  # nosec B101
@@ -176,11 +181,7 @@ class FastStream(AsyncAPIApplication):
             try:
                 async with anyio.create_task_group() as tg:
                     tg.start_soon(self._startup, log_level, run_extra_options)
-
-                    # TODO: mv it to event trigger after nats-py fixing
-                    while not self.should_exit:  # noqa: ASYNC110
-                        await anyio.sleep(sleep_time)
-
+                    await self._should_exit.wait()
                     await self._shutdown(log_level)
                     tg.cancel_scope.cancel()
             except ExceptionGroup as e:
@@ -189,7 +190,7 @@ class FastStream(AsyncAPIApplication):
 
     def exit(self) -> None:
         """Stop application manually."""
-        self.should_exit = True
+        self._should_exit.set()
 
     async def start(
         self,

@@ -12,6 +12,40 @@ hide:
 ---
 
 # Release Notes
+## 0.5.23
+
+### What's Changed
+
+We made last release just a few days ago, but there are some big changes here already!
+
+1. First of all - you can't use `faststream run ...` command without `pip install faststream[cli]` distribution anymore. It was made to minify default (and production) distribution by removing **typer** (**rich** and **click**) dependencies. **CLI** is a development-time feature, so if you don't need - just don't install! Special thanks to @RubenRibGarcia for this change
+
+2. The next big change - **Kafka** publish confirmations by default! Previous **FastStream** version was working in *publish & forgot* style, but the new one blocks your `broker.publish(...)` call until **Kafka** confirmation frame received. To fallback to previous logic just use a new flag `broker.publish(..., no_confirm=True)`
+
+3. Also, we made one more step forward to our **1.0.0** features plan! @KrySeyt implements `get_one` feature. Now you can use any broker subscriber to get messages in imperative style:
+
+```python
+subscriber = broker.subscriber("in")
+...
+msg = await subscriber.get_one(timeout=5.0)
+```
+
+4. And the last one: @draincoder continues to develop OTEL support! Now he provides us with an ability to use **OTEL spans** and **baggage** in a comfortable **FastStream**-style. Just take a look at the [new documentation section](https://faststream.airt.ai/latest/getting-started/opentelemetry/#baggage)
+
+Big thanks to all new and old contributors who makes such a great release!
+
+* feat: AsgiFastStream hooks init options by @Lancetnik in https://github.com/airtai/faststream/pull/1768
+* fix (#1748): add Kafka publish no_confirm option by @Lancetnik in https://github.com/airtai/faststream/pull/1749
+* Fix GeneralExceptionHandler typehint by @sheldygg in https://github.com/airtai/faststream/pull/1773
+* Add `broker.subscriber().get_one()` by @KrySeyt in https://github.com/airtai/faststream/pull/1726
+* Add OTel baggage support by @draincoder in https://github.com/airtai/faststream/pull/1692
+* build(#1430): separate cli faststream to its own distribution by @RubenRibGarcia in https://github.com/airtai/faststream/pull/1769
+
+### New Contributors
+* @RubenRibGarcia made their first contribution in https://github.com/airtai/faststream/pull/1769
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.22...0.5.23
+
 ## 0.5.22
 
 ### What's Changed
