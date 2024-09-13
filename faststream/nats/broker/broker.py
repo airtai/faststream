@@ -27,7 +27,7 @@ from nats.aio.client import (
 )
 from nats.errors import Error
 from nats.js.errors import BadRequestError
-from typing_extensions import Annotated, Doc, deprecated, override
+from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
@@ -712,37 +712,6 @@ class NatsBroker(
             Optional[float],
             Doc("Timeout to send message to NATS."),
         ] = None,
-        *,
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
     ) -> Optional["DecodedMessage"]:
         """Publish message directly.
 
@@ -755,9 +724,6 @@ class NatsBroker(
             "subject": subject,
             "headers": headers,
             "reply_to": reply_to,
-            "rpc": rpc,
-            "rpc_timeout": rpc_timeout,
-            "raise_timeout": raise_timeout,
         }
 
         producer: Optional[ProducerProto]

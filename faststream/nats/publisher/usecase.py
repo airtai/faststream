@@ -81,9 +81,6 @@ class LogicPublisher(PublisherUsecase[Msg]):
         correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
         # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
@@ -103,10 +100,6 @@ class LogicPublisher(PublisherUsecase[Msg]):
             stream (str, optional): This option validates that the target subject is in presented stream (default is `None`).
                 Can be omitted without any effect.
             timeout (float, optional): Timeout to send message to NATS in seconds (default is `None`).
-            rpc (bool): Whether to wait for reply in blocking mode (default is `False`).
-            rpc_timeout (float, optional): RPC reply waiting time (default is `30.0`).
-            raise_timeout (bool): Whetever to raise `TimeoutError` or return `None` at **rpc_timeout** (default is `False`).
-                RPC request returns `None` at timeout by default.
 
             _extra_middlewares (:obj:`Iterable` of :obj:`PublisherMiddleware`): Extra middlewares to wrap publishing process (default is `()`).
         """
@@ -117,10 +110,6 @@ class LogicPublisher(PublisherUsecase[Msg]):
             "headers": headers or self.headers,
             "reply_to": reply_to or self.reply_to,
             "correlation_id": correlation_id or gen_cor_id(),
-            # specific args
-            "rpc": rpc,
-            "rpc_timeout": rpc_timeout,
-            "raise_timeout": raise_timeout,
         }
 
         if stream := stream or getattr(self.stream, "name", None):

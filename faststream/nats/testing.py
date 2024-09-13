@@ -7,8 +7,7 @@ from typing_extensions import override
 
 from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream._internal.testing.broker import TestBroker
-from faststream._internal.utils.functions import timeout_scope
-from faststream.exceptions import WRONG_PUBLISH_ARGS, SubscriberNotFound
+from faststream.exceptions import SubscriberNotFound
 from faststream.message import encode_message, gen_cor_id
 from faststream.nats.broker import NatsBroker
 from faststream.nats.parser import NatsParser
@@ -78,14 +77,7 @@ class FakeProducer(NatsFastProducer):
         # NatsJSFastProducer compatibility
         timeout: Optional[float] = None,
         stream: Optional[str] = None,
-        *,
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = None,
-        raise_timeout: bool = False,
     ) -> Any:
-        if rpc and reply_to:
-            raise WRONG_PUBLISH_ARGS
-
         incoming = build_message(
             message=message,
             subject=subject,
@@ -103,10 +95,7 @@ class FakeProducer(NatsFastProducer):
                 else:
                     msg = incoming
 
-                with timeout_scope(rpc_timeout, raise_timeout):
-                    response = await self._execute_handler(msg, subject, handler)
-                    if rpc:
-                        return await self._decoder(await self._parser(response))
+                await self._execute_handler(msg, subject, handler)
 
         return None
 

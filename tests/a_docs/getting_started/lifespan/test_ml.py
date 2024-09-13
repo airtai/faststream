@@ -17,7 +17,7 @@ async def test_rabbit_ml_lifespan():
     from faststream.rabbit import TestRabbitBroker
 
     async with TestRabbitBroker(broker), TestApp(app):
-        assert await(await broker.request(1.0, "test")).decode() == {"result": 42.0}
+        assert await (await broker.request(1.0, "test")).decode() == {"result": 42.0}
 
         predict.mock.assert_called_once_with(1.0)
 
@@ -29,7 +29,7 @@ async def test_kafka_ml_lifespan():
     from faststream.kafka import TestKafkaBroker
 
     async with TestKafkaBroker(broker), TestApp(app):
-        assert await(await broker.request(1.0, "test")).decode() == {"result": 42.0}
+        assert await (await broker.request(1.0, "test")).decode() == {"result": 42.0}
 
         predict.mock.assert_called_once_with(1.0)
 
@@ -41,7 +41,7 @@ async def test_confluent_ml_lifespan():
     from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
     async with TestConfluentKafkaBroker(broker), TestApp(app):
-        assert await(await broker.request(1.0, "test")).decode() == {"result": 42.0}
+        assert await (await broker.request(1.0, "test")).decode() == {"result": 42.0}
 
         predict.mock.assert_called_once_with(1.0)
 
@@ -53,7 +53,7 @@ async def test_nats_ml_lifespan():
     from faststream.nats import TestNatsBroker
 
     async with TestNatsBroker(broker), TestApp(app):
-        assert await(await broker.request(1.0, "test")).decode() == {"result": 42.0}
+        assert await (await broker.request(1.0, "test")).decode() == {"result": 42.0}
 
         predict.mock.assert_called_once_with(1.0)
 
@@ -65,6 +65,6 @@ async def test_redis_ml_lifespan():
     from faststream.redis import TestRedisBroker
 
     async with TestRedisBroker(broker), TestApp(app):
-        assert await(await broker.request(1.0, "test")).decode() == {"result": 42.0}
+        assert await (await broker.request(1.0, "test")).decode() == {"result": 42.0}
 
         predict.mock.assert_called_once_with(1.0)
