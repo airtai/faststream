@@ -5,7 +5,7 @@ from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
 
-from typing_extensions import Annotated, Doc, deprecated, override
+from typing_extensions import Annotated, Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.utils.functions import return_input
@@ -131,45 +131,13 @@ class ChannelPublisher(LogicPublisher):
                 "**correlation_id** is a useful option to trace messages."
             ),
         ] = None,
-        *,
-        # rpc args
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **kwargs: Any,  # option to suppress maxlen
-    ) -> Optional[Any]:
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         channel_sub = PubSub.validate(channel or self.channel)
@@ -195,10 +163,6 @@ class ChannelPublisher(LogicPublisher):
             reply_to=reply_to,
             headers=headers,
             correlation_id=correlation_id,
-            # RPC args
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
         )
 
     @override
@@ -344,45 +308,13 @@ class ListPublisher(LogicPublisher):
                 "**correlation_id** is a useful option to trace messages."
             ),
         ] = None,
-        *,
-        # rpc args
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **kwargs: Any,  # option to suppress maxlen
-    ) -> Any:
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         list_sub = ListSub.validate(list or self.list)
@@ -407,10 +339,6 @@ class ListPublisher(LogicPublisher):
             reply_to=reply_to,
             headers=headers or self.headers,
             correlation_id=correlation_id,
-            # RPC args
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
         )
 
     @override
@@ -617,43 +545,12 @@ class StreamPublisher(LogicPublisher):
                 "Remove eldest message if maxlen exceeded."
             ),
         ] = None,
-        # rpc args
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
-    ) -> Optional[Any]:
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         stream_sub = StreamSub.validate(stream or self.stream)
@@ -681,10 +578,6 @@ class StreamPublisher(LogicPublisher):
             reply_to=reply_to,
             headers=headers,
             correlation_id=correlation_id,
-            # RPC args
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
         )
 
     @override

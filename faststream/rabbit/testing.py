@@ -211,7 +211,7 @@ class FakeProducer(AioPikaFastProducer):
         message_type: Optional[str] = None,
         user_id: Optional[str] = None,
         app_id: Optional[str] = None,
-    ) -> Optional[Any]:
+    ) -> None:
         """Publish a message to a RabbitMQ queue or exchange."""
         exch = RabbitExchange.validate(exchange)
 

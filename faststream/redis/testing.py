@@ -17,8 +17,7 @@ from typing_extensions import TypedDict, override
 
 from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream._internal.testing.broker import TestBroker
-from faststream._internal.utils.functions import timeout_scope
-from faststream.exceptions import WRONG_PUBLISH_ARGS, SetupError, SubscriberNotFound
+from faststream.exceptions import SetupError, SubscriberNotFound
 from faststream.message import gen_cor_id
 from faststream.redis.broker.broker import RedisBroker
 from faststream.redis.message import (
@@ -121,13 +120,7 @@ class FakeProducer(RedisFastProducer):
         headers: Optional["AnyDict"] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
-    ) -> Optional[Any]:
-        if rpc and reply_to:
-            raise WRONG_PUBLISH_ARGS
-
+    ) -> None:
         correlation_id = correlation_id or gen_cor_id()
 
         body = build_message(
@@ -149,10 +142,7 @@ class FakeProducer(RedisFastProducer):
                         handler,  # type: ignore[arg-type]
                     )
 
-                    with timeout_scope(rpc_timeout, raise_timeout):
-                        response_msg = await self._execute_handler(msg, handler)
-                        if rpc:
-                            return await self._decoder(await self._parser(response_msg))
+                    await self._execute_handler(msg, handler)
 
         return None
 

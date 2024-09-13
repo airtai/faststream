@@ -23,7 +23,7 @@ from redis.asyncio.connection import (
     parse_url,
 )
 from redis.exceptions import ConnectionError
-from typing_extensions import Annotated, Doc, TypeAlias, deprecated, override
+from typing_extensions import Annotated, Doc, TypeAlias, override
 
 from faststream.__about__ import __version__
 from faststream._internal.constants import EMPTY
@@ -44,7 +44,6 @@ if TYPE_CHECKING:
     from faststream._internal.basic_types import (
         AnyDict,
         AsyncFunc,
-        DecodedMessage,
         Decorator,
         LoggerProto,
         SendableMessage,
@@ -405,37 +404,7 @@ class RedisBroker(
                 "Remove eldest message if maxlen exceeded."
             ),
         ] = None,
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-    ) -> Optional["DecodedMessage"]:
+    ) -> None:
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
@@ -453,9 +422,6 @@ class RedisBroker(
             maxlen=maxlen,
             reply_to=reply_to,
             headers=headers,
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
         )
 
     @override
