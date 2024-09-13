@@ -7,7 +7,6 @@ from typing_extensions import override
 
 from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream._internal.testing.broker import TestBroker
-from faststream._internal.utils.functions import timeout_scope
 from faststream.confluent.broker import KafkaBroker
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
@@ -102,10 +101,7 @@ class FakeProducer(AsyncConfluentFastProducer):
         *,
         no_confirm: bool = False,
         reply_to: str = "",
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = None,
-        raise_timeout: bool = False,
-    ) -> Optional[Any]:
+    ) -> None:
         """Publish a message to the Kafka broker."""
         incoming = build_message(
             message=message,
@@ -118,8 +114,6 @@ class FakeProducer(AsyncConfluentFastProducer):
             reply_to=reply_to,
         )
 
-        return_value = None
-
         for handler in self.broker._subscribers.values():  # pragma: no branch
             if _is_handler_matches(handler, topic, partition):
                 msg_to_send = (
@@ -128,16 +122,7 @@ class FakeProducer(AsyncConfluentFastProducer):
                     else incoming
                 )
 
-                with timeout_scope(rpc_timeout, raise_timeout):
-                    response_msg = await self._execute_handler(
-                        msg_to_send, topic, handler
-                    )
-                    if rpc:
-                        return_value = return_value or await self._decoder(
-                            await self._parser(response_msg)
-                        )
-
-        return return_value
+                await self._execute_handler(msg_to_send, topic, handler)
 
     async def publish_batch(
         self,
