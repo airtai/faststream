@@ -13,7 +13,7 @@ from typing import (
 )
 
 from aio_pika import IncomingMessage
-from typing_extensions import Annotated, Doc, TypedDict, Unpack, deprecated, override
+from typing_extensions import Annotated, Doc, TypedDict, Unpack, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.utils.functions import return_input
@@ -23,6 +23,7 @@ from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
 
 if TYPE_CHECKING:
+    import aiormq
     from aio_pika.abc import DateType, HeadersType, TimeoutType
 
     from faststream._internal.basic_types import AnyDict, AsyncFunc
@@ -216,44 +217,13 @@ class LogicPublisher(
             Optional["DateType"],
             Doc("Message publish timestamp. Generated automatically if not presented."),
         ] = None,
-        # rpc args
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **publish_kwargs: "Unpack[PublishKwargs]",
-    ) -> Optional[Any]:
+    ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         kwargs: AnyDict = {
@@ -266,9 +236,6 @@ class LogicPublisher(
             "message_id": message_id,
             "timestamp": timestamp,
             # specific args
-            "rpc": rpc,
-            "rpc_timeout": rpc_timeout,
-            "raise_timeout": raise_timeout,
             "reply_to": self.reply_to,
             **self.message_kwargs,
             **publish_kwargs,

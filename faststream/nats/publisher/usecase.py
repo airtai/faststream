@@ -83,7 +83,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         timeout: Optional[float] = None,
         # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-    ) -> Optional[Any]:
+    ) -> None:
         """Publish message directly.
 
         Args:

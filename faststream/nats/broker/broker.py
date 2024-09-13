@@ -61,7 +61,6 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import (
         AnyDict,
-        DecodedMessage,
         Decorator,
         LoggerProto,
         SendableMessage,
@@ -712,7 +711,7 @@ class NatsBroker(
             Optional[float],
             Doc("Timeout to send message to NATS."),
         ] = None,
-    ) -> Optional["DecodedMessage"]:
+    ) -> None:
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks

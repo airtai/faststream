@@ -51,7 +51,7 @@ class NatsFastProducer(ProducerProto):
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
         **kwargs: Any,  # suprress stream option
-    ) -> Optional[Any]:
+    ) -> None:
         payload, content_type = encode_message(message)
 
         headers_to_send = {

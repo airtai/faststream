@@ -1,7 +1,5 @@
 from typing import (
     TYPE_CHECKING,
-    Any,
-    AsyncContextManager,
     Optional,
     Type,
     Union,
@@ -13,8 +11,6 @@ from typing_extensions import override
 
 from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
-from faststream._internal.utils.functions import fake_context, timeout_scope
-from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import RABBIT_REPLY, RabbitExchange
 
@@ -26,7 +22,6 @@ if TYPE_CHECKING:
     from aio_pika.abc import AbstractIncomingMessage, DateType, HeadersType, TimeoutType
     from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
-    from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import (
         AsyncCallable,
         CustomCallable,
@@ -67,9 +62,6 @@ class AioPikaFastProducer(ProducerProto):
         mandatory: bool = True,
         immediate: bool = False,
         timeout: "TimeoutType" = None,
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
         persist: bool = False,
         reply_to: Optional[str] = None,
         headers: Optional["HeadersType"] = None,
@@ -82,57 +74,29 @@ class AioPikaFastProducer(ProducerProto):
         message_type: Optional[str] = None,
         user_id: Optional[str] = None,
         app_id: Optional[str] = None,
-    ) -> Optional[Any]:
+    ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
         """Publish a message to a RabbitMQ queue."""
-        context: AsyncContextManager[
-            Optional[MemoryObjectReceiveStream[IncomingMessage]]
-        ]
-        if rpc:
-            if reply_to is not None:
-                raise WRONG_PUBLISH_ARGS
-
-            context = _RPCCallback(
-                self._rpc_lock,
-                await self.declarer.declare_queue(RABBIT_REPLY),
-            )
-        else:
-            context = fake_context()
-
-        async with context as response_queue:
-            r = await self._publish(
-                message=message,
-                exchange=exchange,
-                routing_key=routing_key,
-                mandatory=mandatory,
-                immediate=immediate,
-                timeout=timeout,
-                persist=persist,
-                reply_to=reply_to if response_queue is None else RABBIT_REPLY.name,
-                headers=headers,
-                content_type=content_type,
-                content_encoding=content_encoding,
-                priority=priority,
-                correlation_id=correlation_id,
-                expiration=expiration,
-                message_id=message_id,
-                timestamp=timestamp,
-                message_type=message_type,
-                user_id=user_id,
-                app_id=app_id,
-            )
-
-            if response_queue is None:
-                return r
-
-            else:
-                msg: Optional[IncomingMessage] = None
-                with timeout_scope(rpc_timeout, raise_timeout):
-                    msg = await response_queue.receive()
-
-                if msg:  # pragma: no branch
-                    return await self._decoder(await self._parser(msg))
-
-        return None
+        return await self._publish(
+            message=message,
+            exchange=exchange,
+            routing_key=routing_key,
+            mandatory=mandatory,
+            immediate=immediate,
+            timeout=timeout,
+            persist=persist,
+            reply_to=reply_to,
+            headers=headers,
+            content_type=content_type,
+            content_encoding=content_encoding,
+            priority=priority,
+            correlation_id=correlation_id,
+            expiration=expiration,
+            message_id=message_id,
+            timestamp=timestamp,
+            message_type=message_type,
+            user_id=user_id,
+            app_id=app_id,
+        )
 
     @override
     async def request(  # type: ignore[override]
@@ -208,7 +172,7 @@ class AioPikaFastProducer(ProducerProto):
         message_type: Optional[str],
         user_id: Optional[str],
         app_id: Optional[str],
-    ) -> Union["aiormq.abc.ConfirmationFrameType", "SendableMessage"]:
+    ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
         """Publish a message to a RabbitMQ exchange."""
         message = AioPikaParser.encode_message(
             message=message,

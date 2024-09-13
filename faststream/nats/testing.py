@@ -77,7 +77,7 @@ class FakeProducer(NatsFastProducer):
         # NatsJSFastProducer compatibility
         timeout: Optional[float] = None,
         stream: Optional[str] = None,
-    ) -> Any:
+    ) -> None:
         incoming = build_message(
             message=message,
             subject=subject,

@@ -12,8 +12,7 @@ from typing_extensions import override
 
 from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream._internal.testing.broker import TestBroker
-from faststream._internal.utils.functions import timeout_scope
-from faststream.exceptions import WRONG_PUBLISH_ARGS, SubscriberNotFound
+from faststream.exceptions import SubscriberNotFound
 from faststream.message import gen_cor_id
 from faststream.rabbit.broker.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser
@@ -200,9 +199,6 @@ class FakeProducer(AioPikaFastProducer):
         mandatory: bool = True,
         immediate: bool = False,
         timeout: "TimeoutType" = None,
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
         persist: bool = False,
         reply_to: Optional[str] = None,
         headers: Optional["HeadersType"] = None,
@@ -218,9 +214,6 @@ class FakeProducer(AioPikaFastProducer):
     ) -> Optional[Any]:
         """Publish a message to a RabbitMQ queue or exchange."""
         exch = RabbitExchange.validate(exchange)
-
-        if rpc and reply_to:
-            raise WRONG_PUBLISH_ARGS
 
         incoming = build_message(
             message=message,
@@ -245,10 +238,7 @@ class FakeProducer(AioPikaFastProducer):
             if _is_handler_suitable(
                 handler, incoming.routing_key, incoming.headers, exch
             ):
-                with timeout_scope(rpc_timeout, raise_timeout):
-                    response = await self._execute_handler(incoming, handler)
-                    if rpc:
-                        return await self._decoder(await self._parser(response))
+                await self._execute_handler(incoming, handler)
 
         return None
 
