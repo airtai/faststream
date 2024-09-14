@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream._internal.fastapi.context.Context
+::: faststream.specification.asyncapi.utils.clear_key
