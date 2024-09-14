@@ -11,7 +11,7 @@ def compile_path(
     replace_symbol: str,
     patch_regex: Callable[[str], str] = lambda x: x,
 ) -> Tuple[Optional[Pattern[str]], str]:
-    path_regex = "^.*"
+    path_regex = "^.*?"
     original_path = ""
 
     idx = 0
