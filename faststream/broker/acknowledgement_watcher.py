@@ -4,6 +4,7 @@ from collections import Counter
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 from typing import Counter as CounterType
 
+from faststream.broker.message import AckStatus
 from faststream.exceptions import (
     AckMessage,
     HandlerException,
@@ -143,7 +144,11 @@ class WatcherContext:
         exc_tb: Optional["TracebackType"],
     ) -> bool:
         """Exit the asynchronous context manager."""
-        if not exc_type:
+        if self.message.committed:
+            if self.message.committed in (AckStatus.acked, AckStatus.rejected):
+                self.watcher.remove(self.message.message_id)
+
+        elif not exc_type:
             await self.__ack()
 
         elif isinstance(exc_val, HandlerException):
