@@ -47,5 +47,5 @@ def resolve_payloads(
     return payload
 
 
-def clear_json_key(key: str) -> str:
+def clear_key(key: str) -> str:
     return key.replace("/", ".")

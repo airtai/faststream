@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from faststream._internal._compat import DEF_KEY
 from faststream._internal.basic_types import AnyDict
 from faststream._internal.constants import ContentTypes
-from faststream.specification.asyncapi.utils import clear_json_key
+from faststream.specification.asyncapi.utils import clear_key
 from faststream.specification.asyncapi.v2_6_0.schema import (
     Channel,
     Components,
@@ -143,13 +143,13 @@ def get_broker_channels(
     for h in broker._subscribers.values():
         schema = h.schema()
         channels.update(
-            {clear_json_key(key): channel_from_spec(channel) for key, channel in schema.items()}
+            {clear_key(key): channel_from_spec(channel) for key, channel in schema.items()}
         )
 
     for p in broker._publishers.values():
         schema = p.schema()
         channels.update(
-            {clear_json_key(key): channel_from_spec(channel) for key, channel in schema.items()}
+            {clear_key(key): channel_from_spec(channel) for key, channel in schema.items()}
         )
 
     return channels
@@ -174,7 +174,7 @@ def _resolve_msg_payloads(
     one_of = m.payload.get("oneOf")
     if isinstance(one_of, dict):
         for p_title, p in one_of.items():
-            p_title = clear_json_key(p_title)
+            p_title = clear_key(p_title)
             payloads.update(p.pop(DEF_KEY, {}))
             if p_title not in payloads:
                 payloads[p_title] = p
@@ -185,7 +185,7 @@ def _resolve_msg_payloads(
         for p in one_of:
             p_value = next(iter(p.values()))
             p_title = p_value.split("/")[-1]
-            p_title = clear_json_key(p_title)
+            p_title = clear_key(p_title)
             if p_title not in payloads:
                 payloads[p_title] = p
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
@@ -193,7 +193,7 @@ def _resolve_msg_payloads(
     if not one_of_list:
         payloads.update(m.payload.pop(DEF_KEY, {}))
         p_title = m.payload.get("title", f"{channel_name}Payload")
-        p_title = clear_json_key(p_title)
+        p_title = clear_key(p_title)
         if p_title not in payloads:
             payloads[p_title] = m.payload
         m.payload = {"$ref": f"#/components/schemas/{p_title}"}
@@ -202,7 +202,7 @@ def _resolve_msg_payloads(
         m.payload["oneOf"] = one_of_list
 
     assert m.title  # nosec B101
-    message_title = clear_json_key(m.title)
+    message_title = clear_key(m.title)
     messages[message_title] = m
     return Reference(**{"$ref": f"#/components/messages/{message_title}"})
 
