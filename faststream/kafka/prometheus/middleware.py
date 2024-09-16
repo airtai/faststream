@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING
 
+from faststream.kafka.prometheus.provider import settings_provider_factory
 from faststream.prometheus.middleware import BasePrometheusMiddleware
-from faststream.redis.prometheus.provider import settings_provider_factory
 
 if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
 
 
-class RedisPrometheusMiddleware(BasePrometheusMiddleware):
+class KafkaPrometheusMiddleware(BasePrometheusMiddleware):
     def __init__(
         self,
         *,

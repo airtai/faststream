@@ -49,7 +49,7 @@ class BatchRedisMetricsSettingsProvider(BaseRedisMetricsSettingsProvider):
         }
 
 
-def attributes_provider_factory(
+def settings_provider_factory(
     msg: Optional["AnyDict"],
 ) -> Union[
     RedisMetricsSettingsProvider,
