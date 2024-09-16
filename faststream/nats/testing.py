@@ -18,7 +18,7 @@ from faststream.utils.functions import timeout_scope
 if TYPE_CHECKING:
     from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
     from faststream.nats.subscriber.usecase import LogicSubscriber
-    from faststream.types import AnyDict, SendableMessage
+    from faststream.types import SendableMessage
 
 __all__ = ("TestNatsBroker",)
 
@@ -187,7 +187,7 @@ def build_message(
     *,
     reply_to: str = "",
     correlation_id: Optional[str] = None,
-    headers: Optional["AnyDict"] = None,
+    headers: Optional[Dict[str, str]] = None,
 ) -> "PatchedMessage":
     msg, content_type = encode_message(message)
     return PatchedMessage(
