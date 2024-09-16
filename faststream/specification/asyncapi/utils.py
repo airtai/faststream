@@ -45,3 +45,7 @@ def resolve_payloads(
         payload = {}
 
     return payload
+
+
+def clear_key(key: str) -> str:
+    return key.replace("/", ".")

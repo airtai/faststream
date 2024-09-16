@@ -35,6 +35,25 @@ class FastAPICompatible:
         assert key == "custom_name"
         assert schema["channels"][key]["description"] == "test description"
 
+    def test_slash_in_title(self):
+        broker = self.broker_class()
+
+        @broker.subscriber("test", title="/")
+        async def handle(msg): ...
+
+        schema = get_app_schema(self.build_app(broker), version="2.6.0").to_jsonable()
+
+        assert next(iter(schema["channels"].keys())) == "/"
+
+        assert next(iter(schema["components"]["messages"].keys())) == ".:Message"
+        assert schema["components"]["messages"][".:Message"]["title"] == "/:Message"
+
+        assert next(iter(schema["components"]["schemas"].keys())) == ".:Message:Payload"
+        assert (
+            schema["components"]["schemas"][".:Message:Payload"]["title"]
+            == "/:Message:Payload"
+        )
+
     def test_docstring_description(self):
         broker = self.broker_class()
 
