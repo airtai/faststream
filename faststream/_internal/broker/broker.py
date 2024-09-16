@@ -19,7 +19,6 @@ from typing import (
 from typing_extensions import Annotated, Doc, Self
 
 from faststream._internal._compat import is_test_env
-from faststream._internal.context.repository import context
 from faststream._internal.log.logging import set_logger_fmt
 from faststream._internal.proto import SetupAble
 from faststream._internal.subscriber.proto import SubscriberProto
@@ -185,10 +184,6 @@ class BrokerUsecase(
                 *self._middlewares,
             )
 
-        # TODO: move this context to Handlers' extra_context to support multiple brokers
-        context.set_global("logger", self.logger)
-        context.set_global("broker", self)
-
         # FastDepends args
         self._is_apply_types = apply_types
         self._is_validate = validate
@@ -269,7 +264,10 @@ class BrokerUsecase(
             "logger": self.logger,
             "producer": self._producer,
             "graceful_timeout": self.graceful_timeout,
-            "extra_context": {},
+            "extra_context": {
+                "broker": self,
+                "logger": self.logger,
+            },
             # broker options
             "broker_parser": self._parser,
             "broker_decoder": self._decoder,
