@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 from prometheus_client import Counter, Gauge, Histogram
 
 from faststream import BaseMiddleware
+from faststream.broker.message import AckStatus
 from faststream.exceptions import (
     AckMessage,
     NackMessage,
@@ -11,6 +12,7 @@ from faststream.exceptions import (
     SkipMessage,
 )
 from faststream.prometheus.provider import MetricsSettingsProvider
+from faststream.prometheus.types import ProcessingStatus, PublishingStatus
 
 if TYPE_CHECKING:  # pragma: no cover
     from prometheus_client import CollectorRegistry
@@ -137,23 +139,22 @@ class _PrometheusMiddleware(BaseMiddleware):
                 handler=destination_name,
             ).dec()
 
-            status = "acked"
+            status = ProcessingStatus.acked
 
             if msg.committed or err:
                 status = (
-                    msg.committed.value
-                    if msg.committed
-                    else PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP.get(type(err))
-                    or "error"
+                    PROCESSING_STATUS_BY_ACK_STATUS.get(msg.committed)
+                    or PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP.get(type(err))
+                    or ProcessingStatus.error
                 )
 
             self._metrics.received_processed_messages.labels(
                 broker=messaging_system,
                 handler=destination_name,
-                status=status,
+                status=status.value,
             ).inc()
 
-            if status == "error":
+            if status == ProcessingStatus.error:
                 self._metrics.messages_processing_exceptions.labels(
                     broker=messaging_system,
                     handler=destination_name,
@@ -195,16 +196,16 @@ class _PrometheusMiddleware(BaseMiddleware):
                 destination=destination_name,
             ).observe(duration)
 
-            status = "error" if err else "success"
+            status = PublishingStatus.error if err else PublishingStatus.success
             messages_count = len((msg, *args))
 
             self._metrics.published_messages.labels(
                 broker=messaging_system,
                 destination=destination_name,
-                status=status,
+                status=status.value,
             ).inc(messages_count)
 
-            if status == "error":
+            if status == PublishingStatus.error:
                 self._metrics.messages_publishing_exceptions.labels(
                     broker=messaging_system,
                     destination=destination_name,
@@ -215,10 +216,17 @@ class _PrometheusMiddleware(BaseMiddleware):
 
 
 PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP = {
-    AckMessage: "acked",
-    NackMessage: "nacked",
-    RejectMessage: "rejected",
-    SkipMessage: "skipped",
+    AckMessage: ProcessingStatus.acked,
+    NackMessage: ProcessingStatus.nacked,
+    RejectMessage: ProcessingStatus.rejected,
+    SkipMessage: ProcessingStatus.skipped,
+}
+
+
+PROCESSING_STATUS_BY_ACK_STATUS = {
+    AckStatus.acked: ProcessingStatus.acked,
+    AckStatus.nacked: ProcessingStatus.nacked,
+    AckStatus.rejected: ProcessingStatus.rejected,
 }
 
 

@@ -8,9 +8,11 @@ from prometheus_client import CollectorRegistry
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.message import AckStatus, StreamMessage
 from faststream.prometheus.middleware import (
+    PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
     BasePrometheusMiddleware,
 )
+from faststream.prometheus.types import ProcessingStatus
 from tests.brokers.base.basic import BaseTestcaseConfig
 
 
@@ -133,21 +135,21 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         if exception_class:
             status = (
                 PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP.get(exception_class)
-                or "error"
+                or ProcessingStatus.error
             )
         else:
-            status = message.committed.value
+            status = PROCESSING_STATUS_BY_ACK_STATUS[message.committed]
 
         assert metrics.received_processed_messages.labels.mock_calls == [
             call(
                 broker=settings_provider.messaging_system,
                 handler=consume_attrs["destination_name"],
-                status=status,
+                status=status.value,
             ),
             call().inc(),
         ]
 
-        if status == "error":
+        if status == ProcessingStatus.error:
             assert metrics.messages_processing_exceptions.labels.mock_calls == [
                 call(
                     broker=settings_provider.messaging_system,
