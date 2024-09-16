@@ -49,11 +49,19 @@ class FastAPICompatible:
 
         assert next(iter(schema["operations"].keys())) == ".Subscribe"
 
-        assert next(iter(schema["components"]["messages"].keys())) == ".:SubscribeMessage"
-        assert schema["components"]["messages"][".:SubscribeMessage"]["title"] == "/:SubscribeMessage"
-        
+        assert (
+            next(iter(schema["components"]["messages"].keys())) == ".:SubscribeMessage"
+        )
+        assert (
+            schema["components"]["messages"][".:SubscribeMessage"]["title"]
+            == "/:SubscribeMessage"
+        )
+
         assert next(iter(schema["components"]["schemas"].keys())) == ".:Message:Payload"
-        assert schema["components"]["schemas"][".:Message:Payload"]["title"] == "/:Message:Payload"
+        assert (
+            schema["components"]["schemas"][".:Message:Payload"]["title"]
+            == "/:Message:Payload"
+        )
 
     def test_docstring_description(self):
         broker = self.broker_factory()

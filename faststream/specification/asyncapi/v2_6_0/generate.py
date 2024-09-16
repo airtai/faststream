@@ -143,13 +143,13 @@ def get_broker_channels(
     for h in broker._subscribers.values():
         schema = h.schema()
         channels.update(
-            {clear_key(key): channel_from_spec(channel) for key, channel in schema.items()}
+            {key: channel_from_spec(channel) for key, channel in schema.items()}
         )
 
     for p in broker._publishers.values():
         schema = p.schema()
         channels.update(
-            {clear_key(key): channel_from_spec(channel) for key, channel in schema.items()}
+            {key: channel_from_spec(channel) for key, channel in schema.items()}
         )
 
     return channels
