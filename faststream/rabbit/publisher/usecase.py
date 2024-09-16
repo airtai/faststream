@@ -97,7 +97,7 @@ class RequestPublishKwargs(TypedDict, total=False):
     ]
 
 
-class PublishKwargs(RequestPublishKwargs):
+class PublishKwargs(RequestPublishKwargs, total=False):
     """Typed dict to annotate RabbitMQ publishers."""
 
     reply_to: Annotated[
