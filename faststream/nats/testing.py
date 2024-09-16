@@ -15,7 +15,7 @@ from faststream.nats.publisher.producer import NatsFastProducer
 from faststream.nats.schemas.js_stream import is_subject_match_wildcard
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, SendableMessage
+    from faststream._internal.basic_types import SendableMessage
     from faststream.nats.publisher.publisher import SpecificationPublisher
     from faststream.nats.subscriber.usecase import LogicSubscriber
 
@@ -176,7 +176,7 @@ def build_message(
     *,
     reply_to: str = "",
     correlation_id: Optional[str] = None,
-    headers: Optional["AnyDict"] = None,
+    headers: Optional[Dict[str, str]] = None,
 ) -> "PatchedMessage":
     msg, content_type = encode_message(message)
     return PatchedMessage(

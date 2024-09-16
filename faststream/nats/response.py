@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 from typing_extensions import override
 
@@ -13,7 +13,7 @@ class NatsResponse(Response):
         self,
         body: "SendableMessage",
         *,
-        headers: Optional["AnyDict"] = None,
+        headers: Optional[Dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
     ) -> None:

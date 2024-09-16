@@ -98,7 +98,7 @@ class RequestPublishKwargs(TypedDict, total=False):
     ]
 
 
-class PublishKwargs(RequestPublishKwargs):
+class PublishKwargs(RequestPublishKwargs, total=False):
     """Typed dict to annotate RabbitMQ publishers."""
 
     reply_to: Annotated[
@@ -182,7 +182,7 @@ class LogicPublisher(
         )
 
     @override
-    async def publish(  # type: ignore[override]
+    async def publish(
         self,
         message: "AioPikaSendableMessage",
         queue: Annotated[
