@@ -8,7 +8,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, Header
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
-from faststream import context
+from faststream import Response, context
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi.context import Context
 from faststream.broker.fastapi.router import StreamRouter
@@ -225,6 +225,30 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
                     rpc_timeout=0.5,
                 )
                 assert r == "hi", r
+
+    async def test_request(self, queue: str):
+        """Local test due request exists in all TestClients."""
+        router = self.router_class(setup_state=False)
+
+        app = FastAPI()
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
+        async def hello():
+            return Response("Hi!", headers={"x-header": "test"})
+
+        async with self.broker_test(router.broker):
+            with TestClient(app) as client:
+                assert not client.app_state.get("broker")
+
+                r = await router.broker.request(
+                    "hi",
+                    queue,
+                    timeout=0.5,
+                )
+                assert await r.decode() == "Hi!"
+                assert r.headers["x-header"] == "test"
 
     async def test_base_without_state(self, queue: str):
         router = self.router_class(setup_state=False)
