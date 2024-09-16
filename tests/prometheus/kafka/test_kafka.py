@@ -6,10 +6,8 @@ from prometheus_client import CollectorRegistry
 
 from faststream.kafka import KafkaBroker, KafkaMessage
 from faststream.kafka.prometheus.middleware import KafkaPrometheusMiddleware
-from faststream.redis import RedisBroker
-from faststream.redis.prometheus.middleware import RedisPrometheusMiddleware
-from tests.brokers.redis.test_consume import TestConsume
-from tests.brokers.redis.test_publish import TestPublish
+from tests.brokers.kafka.test_consume import TestConsume
+from tests.brokers.kafka.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase
 
 
@@ -62,8 +60,8 @@ class TestPrometheus(LocalPrometheusTestcase):
 @pytest.mark.kafka
 class TestPublishWithPrometheus(TestPublish):
     def get_broker(self, apply_types: bool = False):
-        return RedisBroker(
-            middlewares=(RedisPrometheusMiddleware(registry=CollectorRegistry()),),
+        return KafkaBroker(
+            middlewares=(KafkaPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
         )
 
@@ -71,7 +69,7 @@ class TestPublishWithPrometheus(TestPublish):
 @pytest.mark.kafka
 class TestConsumeWithTelemetry(TestConsume):
     def get_broker(self, apply_types: bool = False):
-        return RedisBroker(
-            middlewares=(RedisPrometheusMiddleware(registry=CollectorRegistry()),),
+        return KafkaBroker(
+            middlewares=(KafkaPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
         )
