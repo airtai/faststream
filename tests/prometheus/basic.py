@@ -1,6 +1,6 @@
 import asyncio
 from typing import Any, Optional, Type
-from unittest.mock import Mock, call, ANY
+from unittest.mock import ANY, Mock, call
 
 import pytest
 from prometheus_client import CollectorRegistry
@@ -11,7 +11,6 @@ from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
     BasePrometheusMiddleware,
 )
-from faststream.prometheus.provider import MetricsSettingsProvider
 from tests.brokers.base.basic import BaseTestcaseConfig
 
 
@@ -20,30 +19,30 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
     broker_class: Type[BrokerUsecase]
     middleware_class: Type[BasePrometheusMiddleware]
     message_class: Type[StreamMessage[Any]]
-    provider: MetricsSettingsProvider
-
-    @pytest.fixture
-    def registry(self):
-        return CollectorRegistry()
 
     @staticmethod
     def consume_destination_name(queue: str) -> str:
         return queue
+
+    @property
+    def settings_provider_factory(self):
+        return self.middleware_class(
+            registry=CollectorRegistry()
+        )._settings_provider_factory
 
     @pytest.mark.parametrize("status", AckStatus)
     @pytest.mark.parametrize(
         "exception_class",
         [*list(PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP.keys()), Exception, None],
     )
-    async def test_subscriber_metrics(
+    async def test_metrics(
         self,
         event: asyncio.Event,
         queue: str,
-        registry: CollectorRegistry,
         status: AckStatus,
         exception_class: Optional[Type[Exception]],
     ):
-        middleware = self.middleware_class(registry=registry)
+        middleware = self.middleware_class(registry=CollectorRegistry())
         metrics_mock = Mock()
         middleware._metrics = metrics_mock
 
@@ -92,41 +91,32 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         message: Any,
         exception_class: Optional[Type[Exception]],
     ):
-        consume_attrs = self.provider.get_consume_attrs_from_message(message)
+        settings_provider = self.settings_provider_factory(message.raw_message)
+        consume_attrs = settings_provider.get_consume_attrs_from_message(message)
         assert metrics.received_messages.labels.mock_calls == [
             call(
-                broker=self.provider.messaging_system,
+                broker=settings_provider.messaging_system,
                 handler=consume_attrs["destination_name"],
             ),
-            call().inc(),
+            call().inc(consume_attrs["messages_count"]),
         ]
 
-        received_messages_size_labels_mock_calls = []
-
-        for size in consume_attrs["messages_sizes"]:
-            received_messages_size_labels_mock_calls.extend(
-                [
-                    call(
-                        broker=self.provider.messaging_system,
-                        handler=consume_attrs["destination_name"],
-                    ),
-                    call().observe(size),
-                ]
-            )
-
-        assert (
-            metrics.received_messages_size.labels.mock_calls
-            == received_messages_size_labels_mock_calls
-        )
+        assert metrics.received_messages_size.labels.mock_calls == [
+            call(
+                broker=settings_provider.messaging_system,
+                handler=consume_attrs["destination_name"],
+            ),
+            call().observe(consume_attrs["message_size"]),
+        ]
 
         assert metrics.received_messages_in_process.labels.mock_calls == [
             call(
-                broker=self.provider.messaging_system,
+                broker=settings_provider.messaging_system,
                 handler=consume_attrs["destination_name"],
             ),
             call().inc(),
             call(
-                broker=self.provider.messaging_system,
+                broker=settings_provider.messaging_system,
                 handler=consume_attrs["destination_name"],
             ),
             call().dec(),
@@ -134,7 +124,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
 
         assert metrics.received_messages_processing_time.labels.mock_calls == [
             call(
-                broker=self.provider.messaging_system,
+                broker=settings_provider.messaging_system,
                 handler=consume_attrs["destination_name"],
             ),
             call().observe(ANY),
@@ -150,7 +140,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
 
         assert metrics.received_processed_messages.labels.mock_calls == [
             call(
-                broker=self.provider.messaging_system,
+                broker=settings_provider.messaging_system,
                 handler=consume_attrs["destination_name"],
                 status=status,
             ),
@@ -160,7 +150,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         if status == "error":
             assert metrics.messages_processing_exceptions.labels.mock_calls == [
                 call(
-                    broker=self.provider.messaging_system,
+                    broker=settings_provider.messaging_system,
                     handler=consume_attrs["destination_name"],
                     exception_type=exception_class.__name__,
                 ),
@@ -168,11 +158,16 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             ]
 
     def assert_publish_metrics(self, metrics: Any):
+        settings_provider = self.settings_provider_factory(None)
         assert metrics.messages_publish_time.labels.mock_calls == [
-            call(broker=self.provider.messaging_system, destination=ANY),
+            call(broker=settings_provider.messaging_system, destination=ANY),
             call().observe(ANY),
         ]
         assert metrics.published_messages.labels.mock_calls == [
-            call(broker=self.provider.messaging_system, destination=ANY, status=ANY),
+            call(
+                broker=settings_provider.messaging_system,
+                destination=ANY,
+                status="success",
+            ),
             call().inc(ANY),
         ]

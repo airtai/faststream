@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Protocol, Sequence, TypedDict
+from typing import TYPE_CHECKING, Protocol, TypedDict
 
 from faststream.broker.message import MsgType, StreamMessage
 
@@ -8,8 +8,9 @@ if TYPE_CHECKING:
 
 
 class ConsumeAttrs(TypedDict):
-    messages_sizes: Sequence[int]
+    message_size: int
     destination_name: str
+    messages_count: int
 
 
 class PublishAttrs(TypedDict):

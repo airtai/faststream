@@ -26,7 +26,8 @@ class RabbitMetricsSettingsProvider(MetricsSettingsProvider["IncomingMessage"]):
 
         return {
             "destination_name": f"{exchange}.{routing_key}",
-            "messages_sizes": [len(msg.body)],
+            "message_size": len(msg.body),
+            "messages_count": 1,
         }
 
     def get_publish_destination_name_from_kwargs(

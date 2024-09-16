@@ -102,15 +102,12 @@ class _PrometheusMiddleware(BaseMiddleware):
         self._metrics.received_messages.labels(
             broker=messaging_system,
             handler=destination_name,
-        ).inc()
+        ).inc(consume_attrs["messages_count"])
 
-        messages_sizes = consume_attrs["messages_sizes"]
-
-        for size in messages_sizes:
-            self._metrics.received_messages_size.labels(
-                broker=messaging_system,
-                handler=destination_name,
-            ).observe(size)
+        self._metrics.received_messages_size.labels(
+            broker=messaging_system,
+            handler=destination_name,
+        ).observe(consume_attrs["message_size"])
 
         err: Optional[Exception] = None
 
