@@ -9,7 +9,7 @@ from faststream.specification.schema.license import LicenseDict, License
 from faststream.specification.schema.tag import Tag
 
 
-class AsyncAPI(Protocol):
+class AsyncAPIProto(Protocol):
     @abstractmethod
     def json(self) -> str:
         ...

@@ -2,15 +2,15 @@ from typing import Any, Optional, Union, Sequence
 
 from faststream._internal.basic_types import AnyHttpUrl, AnyDict
 from faststream._internal.broker.broker import BrokerUsecase
-from faststream.specification.asyncapi.base.asyncapi import AsyncAPI
-from faststream.specification.asyncapi.v2_6_0 import get_app_schema
+from faststream.specification.asyncapi.base.asyncapiproto import AsyncAPIProto
+from faststream.specification.asyncapi.v3_0_0 import get_app_schema
 from faststream.specification.schema.contact import Contact, ContactDict
 from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
 from faststream.specification.schema.license import LicenseDict, License
 from faststream.specification.schema.tag import Tag, TagDict
 
 
-class AsyncAPI3(AsyncAPI):
+class AsyncAPI3(AsyncAPIProto):
     def __init__(
             self,
             broker: BrokerUsecase[Any, Any],
