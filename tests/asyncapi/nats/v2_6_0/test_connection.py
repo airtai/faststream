@@ -1,22 +1,19 @@
-from faststream import FastStream
 from faststream.nats import NatsBroker
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 from faststream.specification.schema.tag import Tag
 
 
 def test_base():
-    schema = get_app_schema(
-        FastStream(
-            NatsBroker(
-                "nats:9092",
-                protocol="plaintext",
-                protocol_version="0.9.0",
-                description="Test description",
-                tags=(Tag(name="some-tag", description="experimental"),),
-            )
+    schema = AsyncAPI(
+        NatsBroker(
+            "nats:9092",
+            protocol="plaintext",
+            protocol_version="0.9.0",
+            description="Test description",
+            tags=(Tag(name="some-tag", description="experimental"),),
         ),
-        version="2.6.0",
-    ).to_jsonable()
+        schema_version="2.6.0",
+    ).jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -37,10 +34,10 @@ def test_base():
 
 
 def test_multi():
-    schema = get_app_schema(
-        FastStream(NatsBroker(["nats:9092", "nats:9093"])),
-        version="2.6.0",
-    ).to_jsonable()
+    schema = AsyncAPI(
+        NatsBroker(["nats:9092", "nats:9093"]),
+        schema_version="2.6.0",
+    ).jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -64,14 +61,12 @@ def test_multi():
 
 
 def test_custom():
-    schema = get_app_schema(
-        FastStream(
-            NatsBroker(
-                ["nats:9092", "nats:9093"], specification_url=["nats:9094", "nats:9095"]
-            )
+    schema = AsyncAPI(
+        NatsBroker(
+            ["nats:9092", "nats:9093"], specification_url=["nats:9094", "nats:9095"]
         ),
-        version="2.6.0",
-    ).to_jsonable()
+        schema_version="2.6.0",
+    ).jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",

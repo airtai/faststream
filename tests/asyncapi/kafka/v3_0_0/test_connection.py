@@ -1,22 +1,19 @@
-from faststream import FastStream
 from faststream.kafka import KafkaBroker
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 from faststream.specification.schema.tag import Tag
 
 
 def test_base():
-    schema = get_app_schema(
-        FastStream(
-            KafkaBroker(
-                "kafka:9092",
-                protocol="plaintext",
-                protocol_version="0.9.0",
-                description="Test description",
-                tags=(Tag(name="some-tag", description="experimental"),),
-            ),
+    schema = AsyncAPI(
+        KafkaBroker(
+            "kafka:9092",
+            protocol="plaintext",
+            protocol_version="0.9.0",
+            description="Test description",
+            tags=(Tag(name="some-tag", description="experimental"),),
         ),
-        version="3.0.0",
-    ).to_jsonable()
+        schema_version="3.0.0",
+    ).jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",
@@ -39,12 +36,10 @@ def test_base():
 
 
 def test_multi():
-    schema = get_app_schema(
-        FastStream(
-            KafkaBroker(["kafka:9092", "kafka:9093"]),
-        ),
-        version="3.0.0",
-    ).to_jsonable()
+    schema = AsyncAPI(
+        KafkaBroker(["kafka:9092", "kafka:9093"]),
+        schema_version="3.0.0",
+    ).jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",
@@ -71,15 +66,13 @@ def test_multi():
 
 
 def test_custom():
-    schema = get_app_schema(
-        FastStream(
-            KafkaBroker(
-                ["kafka:9092", "kafka:9093"],
-                specification_url=["kafka:9094", "kafka:9095"],
-            ),
+    schema = AsyncAPI(
+        KafkaBroker(
+            ["kafka:9092", "kafka:9093"],
+            specification_url=["kafka:9094", "kafka:9095"],
         ),
-        version="3.0.0",
-    ).to_jsonable()
+        schema_version="3.0.0",
+    ).jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",

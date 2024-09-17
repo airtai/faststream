@@ -1,6 +1,5 @@
-from faststream import FastStream
 from faststream.kafka import KafkaBroker
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 from faststream.specification.schema.contact import Contact
 from faststream.specification.schema.docs import ExternalDocs
 from faststream.specification.schema.license import License
@@ -8,7 +7,7 @@ from faststream.specification.schema.tag import Tag
 
 
 def test_base():
-    schema = get_app_schema(FastStream(KafkaBroker()), version="2.6.0").to_jsonable()
+    schema = AsyncAPI(KafkaBroker(), schema_version="2.6.0").jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -27,15 +26,13 @@ def test_base():
 
 
 def test_with_name():
-    schema = get_app_schema(
-        FastStream(
-            KafkaBroker(),
-            title="My App",
-            version="1.0.0",
-            description="Test description",
-        ),
-        version="2.6.0",
-    ).to_jsonable()
+    schema = AsyncAPI(
+        KafkaBroker(),
+        title="My App",
+        version="1.0.0",
+        description="Test description",
+        schema_version="2.6.0",
+    ).jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -58,23 +55,21 @@ def test_with_name():
 
 
 def test_full():
-    schema = get_app_schema(
-        FastStream(
-            KafkaBroker(),
-            title="My App",
-            version="1.0.0",
-            description="Test description",
-            license=License(name="MIT", url="https://mit.com/"),
-            terms_of_service="https://my-terms.com/",
-            contact=Contact(name="support", url="https://help.com/"),
-            tags=(Tag(name="some-tag", description="experimental"),),
-            identifier="some-unique-uuid",
-            external_docs=ExternalDocs(
-                url="https://extra-docs.py/",
-            ),
+    schema = AsyncAPI(
+        KafkaBroker(),
+        title="My App",
+        version="1.0.0",
+        description="Test description",
+        license=License(name="MIT", url="https://mit.com/"),
+        terms_of_service="https://my-terms.com/",
+        contact=Contact(name="support", url="https://help.com/"),
+        tags=(Tag(name="some-tag", description="experimental"),),
+        identifier="some-unique-uuid",
+        external_docs=ExternalDocs(
+            url="https://extra-docs.py/",
         ),
-        version="2.6.0",
-    ).to_jsonable()
+        schema_version="2.6.0",
+    ).jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -103,23 +98,21 @@ def test_full():
 
 
 def test_full_dict():
-    schema = get_app_schema(
-        FastStream(
-            KafkaBroker(),
-            title="My App",
-            version="1.0.0",
-            description="Test description",
-            license={"name": "MIT", "url": "https://mit.com/"},
-            terms_of_service="https://my-terms.com/",
-            contact={"name": "support", "url": "https://help.com/"},
-            tags=({"name": "some-tag", "description": "experimental"},),
-            identifier="some-unique-uuid",
-            external_docs={
-                "url": "https://extra-docs.py/",
-            },
-        ),
-        version="2.6.0",
-    ).to_jsonable()
+    schema = AsyncAPI(
+        KafkaBroker(),
+        title="My App",
+        version="1.0.0",
+        description="Test description",
+        license={"name": "MIT", "url": "https://mit.com/"},
+        terms_of_service="https://my-terms.com/",
+        contact={"name": "support", "url": "https://help.com/"},
+        tags=({"name": "some-tag", "description": "experimental"},),
+        identifier="some-unique-uuid",
+        external_docs={
+            "url": "https://extra-docs.py/",
+        },
+        schema_version="2.6.0",
+    ).jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -148,26 +141,24 @@ def test_full_dict():
 
 
 def test_extra():
-    schema = get_app_schema(
-        FastStream(
-            KafkaBroker(),
-            title="My App",
-            version="1.0.0",
-            description="Test description",
-            license={"name": "MIT", "url": "https://mit.com/", "x-field": "extra"},
-            terms_of_service="https://my-terms.com/",
-            contact={"name": "support", "url": "https://help.com/", "x-field": "extra"},
-            tags=(
-                {"name": "some-tag", "description": "experimental", "x-field": "extra"},
-            ),
-            identifier="some-unique-uuid",
-            external_docs={
-                "url": "https://extra-docs.py/",
-                "x-field": "extra",
-            },
+    schema = AsyncAPI(
+        KafkaBroker(),
+        title="My App",
+        version="1.0.0",
+        description="Test description",
+        license={"name": "MIT", "url": "https://mit.com/", "x-field": "extra"},
+        terms_of_service="https://my-terms.com/",
+        contact={"name": "support", "url": "https://help.com/", "x-field": "extra"},
+        tags=(
+            {"name": "some-tag", "description": "experimental", "x-field": "extra"},
         ),
-        version="2.6.0",
-    ).to_jsonable()
+        identifier="some-unique-uuid",
+        external_docs={
+            "url": "https://extra-docs.py/",
+            "x-field": "extra",
+        },
+        schema_version="2.6.0",
+    ).jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",

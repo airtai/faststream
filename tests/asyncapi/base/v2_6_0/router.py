@@ -2,14 +2,13 @@ from typing import Type
 
 from dirty_equals import IsStr
 
-from faststream import FastStream
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.broker.router import (
     ArgsContainer,
     BrokerRouter,
     SubscriberRoute,
 )
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 
 
 class RouterTestcase:
@@ -29,7 +28,7 @@ class RouterTestcase:
 
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker), version="2.6.0").to_jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
 
         payload = schema["components"]["schemas"]
         key = list(payload.keys())[0]  # noqa: RUF015
@@ -52,8 +51,8 @@ class RouterTestcase:
 
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker))
-        schemas = schema.components.schemas
+        schema = AsyncAPI(broker)
+        schemas = schema.jsonable()["components"]["schemas"]
         del schemas["Handle:Message:Payload"]
 
         for i, j in schemas.items():
@@ -72,8 +71,8 @@ class RouterTestcase:
 
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker))
-        assert schema.channels == {}, schema.channels
+        schema = AsyncAPI(broker)
+        assert schema.jsonable()["channels"] == {}, schema.jsonable()["channels"]
 
     def test_not_include_in_method(self):
         broker = self.broker_class()
@@ -85,8 +84,8 @@ class RouterTestcase:
 
         broker.include_router(router, include_in_schema=False)
 
-        schema = get_app_schema(FastStream(broker))
-        assert schema.channels == {}, schema.channels
+        schema = AsyncAPI(broker)
+        assert schema.jsonable()["channels"] == {}, schema.jsonable()["channels"]
 
     def test_respect_subrouter(self):
         broker = self.broker_class()
@@ -100,9 +99,9 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker))
+        schema = AsyncAPI(broker)
 
-        assert schema.channels == {}, schema.channels
+        assert schema.jsonable()["channels"] == {}, schema.jsonable()["channels"]
 
     def test_not_include_subrouter(self):
         broker = self.broker_class()
@@ -116,9 +115,9 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker))
+        schema = AsyncAPI(broker)
 
-        assert schema.channels == {}
+        assert schema.jsonable()["channels"] == {}
 
     def test_not_include_subrouter_by_method(self):
         broker = self.broker_class()
@@ -132,9 +131,9 @@ class RouterTestcase:
         router.include_router(router2, include_in_schema=False)
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker))
+        schema = AsyncAPI(broker)
 
-        assert schema.channels == {}
+        assert schema.jsonable()["channels"] == {}
 
     def test_all_nested_routers_by_method(self):
         broker = self.broker_class()
@@ -148,9 +147,9 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router, include_in_schema=False)
 
-        schema = get_app_schema(FastStream(broker))
+        schema = AsyncAPI(broker)
 
-        assert schema.channels == {}
+        assert schema.jsonable()["channels"] == {}
 
     def test_include_subrouter(self):
         broker = self.broker_class()
@@ -164,6 +163,6 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker))
+        schema = AsyncAPI(broker)
 
-        assert len(schema.channels) == 2
+        assert len(schema.jsonable()["channels"]) == 2

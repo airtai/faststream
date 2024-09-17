@@ -1,12 +1,11 @@
 import ssl
 
-from faststream.app import FastStream
 from faststream.rabbit import RabbitBroker
 from faststream.security import (
     BaseSecurity,
     SASLPlaintext,
 )
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 
 
 def test_base_security_schema():
@@ -20,10 +19,10 @@ def test_base_security_schema():
     )  # pragma: allowlist secret
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
-    schema = get_app_schema(
-        FastStream(broker),
-        version="3.0.0",
-    ).to_jsonable()
+    schema = AsyncAPI(
+        broker,
+        schema_version="3.0.0",
+    ).jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",
@@ -61,10 +60,10 @@ def test_plaintext_security_schema():
     )  # pragma: allowlist secret
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
-    schema = get_app_schema(
-        FastStream(broker),
-        version="3.0.0",
-    ).to_jsonable()
+    schema = AsyncAPI(
+        broker,
+        schema_version="3.0.0",
+    ).jsonable()
     assert schema == {
         "asyncapi": "3.0.0",
         "channels": {},
@@ -101,10 +100,10 @@ def test_plaintext_security_schema_without_ssl():
         == "amqp://admin:password@localhost:5672/"  # pragma: allowlist secret
     )  # pragma: allowlist secret
 
-    schema = get_app_schema(
-        FastStream(broker),
-        version="3.0.0",
-    ).to_jsonable()
+    schema = AsyncAPI(
+        broker,
+        schema_version="3.0.0",
+    ).jsonable()
     assert schema == {
         "asyncapi": "3.0.0",
         "channels": {},

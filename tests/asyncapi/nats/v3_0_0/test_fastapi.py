@@ -6,7 +6,7 @@ from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 
 
 class TestRouterArguments(FastAPITestCase, FastAPICompatible):
-    broker_factory = staticmethod(lambda: NatsRouter())
+    broker_factory = staticmethod(lambda: NatsRouter().broker)
     router_factory = NatsRouter
     broker_wrapper = staticmethod(TestNatsBroker)
 
@@ -15,7 +15,7 @@ class TestRouterArguments(FastAPITestCase, FastAPICompatible):
 
 
 class TestRouterPublisher(PublisherTestcase):
-    broker_factory = staticmethod(lambda: NatsRouter())
+    broker_factory = staticmethod(lambda: NatsRouter().broker)
 
     def build_app(self, router):
         return router

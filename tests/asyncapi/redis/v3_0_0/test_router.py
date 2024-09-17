@@ -1,6 +1,5 @@
-from faststream import FastStream
 from faststream.redis import RedisBroker, RedisPublisher, RedisRoute, RedisRouter
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 from tests.asyncapi.base.v2_6_0.arguments import ArgumentsTestcase
 from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
 from tests.asyncapi.base.v3_0_0.router import RouterTestcase
@@ -22,10 +21,10 @@ class TestRouter(RouterTestcase):
 
         broker.include_router(router)
 
-        schema = get_app_schema(
-            FastStream(broker),
-            version="3.0.0",
-        ).to_jsonable()
+        schema = AsyncAPI(
+            broker,
+            schema_version="3.0.0",
+        ).jsonable()
 
         assert schema == {
             "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
@@ -93,7 +92,7 @@ class TestRouterArguments(ArgumentsTestcase):
     def build_app(self, router):
         broker = RedisBroker()
         broker.include_router(router)
-        return FastStream(broker)
+        return broker
 
 
 class TestRouterPublisher(PublisherTestcase):
@@ -102,4 +101,4 @@ class TestRouterPublisher(PublisherTestcase):
     def build_app(self, router):
         broker = RedisBroker()
         broker.include_router(router)
-        return FastStream(broker)
+        return broker

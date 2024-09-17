@@ -1,8 +1,7 @@
 import pytest
 
-from faststream import FastStream
 from faststream.redis import RedisBroker
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 from tests.asyncapi.base.v2_6_0.naming import NamingTestCase
 
 
@@ -15,7 +14,7 @@ class TestNaming(NamingTestCase):
         @broker.subscriber("test")
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker), version="2.6.0").to_jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
 
         assert schema == {
             "asyncapi": "2.6.0",
@@ -71,8 +70,8 @@ class TestNaming(NamingTestCase):
         @broker.subscriber(**args)
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker))
-        assert list(schema.channels.keys()) == ["test:Handle"]
+        schema = AsyncAPI(broker)
+        assert list(schema.jsonable()["channels"].keys()) == ["test:Handle"]
 
     @pytest.mark.parametrize(
         "args",
@@ -88,5 +87,5 @@ class TestNaming(NamingTestCase):
         @broker.publisher(**args)
         async def handle(): ...
 
-        schema = get_app_schema(FastStream(broker))
-        assert list(schema.channels.keys()) == ["test:Publisher"]
+        schema = AsyncAPI(broker)
+        assert list(schema.jsonable()["channels"].keys()) == ["test:Publisher"]
