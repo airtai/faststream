@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, Sequence
 
 from faststream._internal._compat import DEF_KEY
-from faststream._internal.basic_types import AnyDict
+from faststream._internal.basic_types import AnyDict, AnyHttpUrl
 from faststream._internal.constants import ContentTypes
 from faststream.specification.asyncapi.utils import clear_key
 from faststream.specification.asyncapi.v2_6_0.schema import (
@@ -19,20 +19,32 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     tag_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
-from faststream.specification.proto import SpecApplication
+from faststream.specification.schema.tag import Tag as SpecsTag
+from faststream.specification.schema.contact import ContactDict, Contact
+from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
+from faststream.specification.schema.license import License, LicenseDict
 
 if TYPE_CHECKING:
     from faststream._internal.broker.broker import BrokerUsecase
     from faststream._internal.types import ConnectionType, MsgType
 
 
-def get_app_schema(app: SpecApplication) -> Schema:
+def get_app_schema(
+        broker: "BrokerUsecase[Any, Any]",
+        /,
+        title: str,
+        app_version: str,
+        schema_version: str,
+        description: str,
+        terms_of_service: Optional["AnyHttpUrl"],
+        contact: Optional[Union["Contact", "ContactDict", "AnyDict"]],
+        license: Optional[Union["License", "LicenseDict", "AnyDict"]],
+        identifier: Optional[str],
+        specs_tags: Optional[Sequence[Union["SpecsTag", "AnyDict"]]],
+        external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]],
+) -> Schema:
     """Get the application schema."""
-    broker = app.broker
-    if broker is None:  # pragma: no cover
-        raise RuntimeError()
-
-    app._setup()
+    broker.setup()
 
     servers = get_broker_server(broker)
     channels = get_broker_channels(broker)
@@ -48,19 +60,18 @@ def get_app_schema(app: SpecApplication) -> Schema:
 
     schema = Schema(
         info=Info(
-            title=app.title,
-            version=app.version,
-            description=app.description,
-            termsOfService=app.terms_of_service,
-            contact=contact_from_spec(app.contact) if app.contact else None,
-            license=license_from_spec(app.license) if app.license else None,
+            title=title,
+            version=app_version,
+            description=description,
+            termsOfService=terms_of_service,
+            contact=contact_from_spec(contact) if contact else None,
+            license=license_from_spec(license) if license else None,
         ),
+        asyncapi=schema_version,
         defaultContentType=ContentTypes.json.value,
-        id=app.identifier,
-        tags=[tag_from_spec(tag) for tag in app.specification_tags]
-        if app.specification_tags
-        else None,
-        externalDocs=docs_from_spec(app.external_docs) if app.external_docs else None,
+        id=identifier,
+        tags=[tag_from_spec(tag) for tag in specs_tags] if specs_tags else None,
+        externalDocs=docs_from_spec(external_docs) if external_docs else None,
         servers=servers,
         channels=channels,
         components=Components(
