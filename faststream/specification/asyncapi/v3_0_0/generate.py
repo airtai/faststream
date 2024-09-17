@@ -40,7 +40,7 @@ def get_app_schema(app: Application) -> Schema:
     broker = app.broker
     if broker is None:  # pragma: no cover
         raise RuntimeError()
-    broker.setup()
+    broker._setup()
 
     servers = get_broker_server(broker)
     channels = get_broker_channels(broker)

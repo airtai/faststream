@@ -4,7 +4,7 @@ from typing import Any, Optional, Protocol, Type, TypeVar, Union, overload
 
 class SetupAble(Protocol):
     @abstractmethod
-    def setup(self) -> None: ...
+    def _setup(self) -> None: ...
 
 
 class Endpoint(SetupAble, Protocol):

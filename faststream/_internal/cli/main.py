@@ -210,9 +210,19 @@ def _run(
 )
 def publish(
     ctx: typer.Context,
-    app: str = typer.Argument(..., help="FastStream app instance, e.g., main:app."),
-    message: str = typer.Argument(..., help="Message to be published."),
-    rpc: bool = typer.Option(False, help="Enable RPC mode and system output."),
+    app: str = typer.Argument(
+        ...,
+        help="FastStream app instance, e.g., main:app.",
+    ),
+    message: str = typer.Argument(
+        ...,
+        help="Message to be published.",
+    ),
+    rpc: bool = typer.Option(
+        False,
+        is_flag=True,
+        help="Enable RPC mode and system output.",
+    ),
     is_factory: bool = typer.Option(
         False,
         "--factory",
@@ -227,15 +237,12 @@ def publish(
     These are parsed and passed to the broker's publish method.
     """
     app, extra = parse_cli_args(app, *ctx.args)
+
     extra["message"] = message
-    extra["rpc"] = rpc
+    if "timeout" in extra:
+        extra["timeout"] = float(extra["timeout"])
 
     try:
-        if not app:
-            raise ValueError("App parameter is required.")
-        if not message:
-            raise ValueError("Message parameter is required.")
-
         _, app_obj = import_from_string(app)
         if callable(app_obj) and is_factory:
             app_obj = app_obj()
@@ -243,7 +250,7 @@ def publish(
         if not app_obj.broker:
             raise ValueError("Broker instance not found in the app.")
 
-        result = anyio.run(publish_message, app_obj.broker, extra)
+        result = anyio.run(publish_message, app_obj.broker, rpc, extra)
 
         if rpc:
             typer.echo(result)
@@ -253,10 +260,16 @@ def publish(
         sys.exit(1)
 
 
-async def publish_message(broker: "BrokerUsecase[Any, Any]", extra: "AnyDict") -> Any:
+async def publish_message(
+    broker: "BrokerUsecase[Any, Any]", rpc: bool, extra: "AnyDict"
+) -> Any:
     try:
         async with broker:
-            return await broker.publish(**extra)
+            if rpc:
+                msg = await broker.request(**extra)
+                return msg
+            else:
+                return await broker.publish(**extra)
     except Exception as e:
         typer.echo(f"Error when broker was publishing: {e}")
         sys.exit(1)

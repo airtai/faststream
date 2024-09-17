@@ -222,7 +222,7 @@ class BrokerUsecase(
             connection_kwargs = self._connection_kwargs.copy()
             connection_kwargs.update(kwargs)
             self._connection = await self._connect(**connection_kwargs)
-        self.setup()
+        self._setup()
         return self._connection
 
     @abstractmethod
@@ -230,7 +230,7 @@ class BrokerUsecase(
         """Connect to a resource."""
         raise NotImplementedError()
 
-    def setup(self) -> None:
+    def _setup(self) -> None:
         """Prepare all Broker entities to startup."""
         for h in self._subscribers.values():
             self.setup_subscriber(h)
@@ -246,7 +246,7 @@ class BrokerUsecase(
         """Setup the Subscriber to prepare it to starting."""
         data = self._subscriber_setup_extra.copy()
         data.update(kwargs)
-        subscriber.setup(**data)
+        subscriber._setup(**data)
 
     def setup_publisher(
         self,
@@ -256,7 +256,7 @@ class BrokerUsecase(
         """Setup the Publisher to prepare it to starting."""
         data = self._publisher_setup_extra.copy()
         data.update(kwargs)
-        publisher.setup(**data)
+        publisher._setup(**data)
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":

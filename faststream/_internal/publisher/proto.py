@@ -94,7 +94,7 @@ class PublisherProto(
 
     @override
     @abstractmethod
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         producer: Optional["ProducerProto"],

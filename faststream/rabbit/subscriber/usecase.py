@@ -96,7 +96,7 @@ class LogicSubscriber(
         self.declarer = None
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         app_id: Optional[str],
@@ -120,7 +120,7 @@ class LogicSubscriber(
         self.virtual_host = virtual_host
         self.declarer = declarer
 
-        super().setup(
+        super()._setup(
             logger=logger,
             producer=producer,
             graceful_timeout=graceful_timeout,

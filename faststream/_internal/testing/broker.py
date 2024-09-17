@@ -120,7 +120,7 @@ class TestBroker(Generic[Broker]):
             yield
 
     def _fake_start(self, broker: Broker, *args: Any, **kwargs: Any) -> None:
-        broker.setup()
+        broker._setup()
 
         patch_broker_calls(broker)
 

@@ -15,6 +15,9 @@ class _EmptyPlaceholder:
     def __repr__(self) -> str:
         return "EMPTY"
 
+    def __bool__(self) -> bool:
+        return False
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, _EmptyPlaceholder):
             return NotImplemented

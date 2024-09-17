@@ -102,7 +102,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.builder = None
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         client_id: Optional[str],
@@ -124,7 +124,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.client_id = client_id
         self.builder = builder
 
-        super().setup(
+        super()._setup(
             logger=logger,
             producer=producer,
             graceful_timeout=graceful_timeout,

@@ -24,7 +24,7 @@ class RequestsTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         async def handler(msg):
-            await anyio.sleep(1.0)
+            await anyio.sleep(0.01)
             return "Response"
 
         async with self.patch_broker(broker):

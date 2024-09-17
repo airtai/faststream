@@ -143,7 +143,7 @@ class SubscriberUsecase(
         self._broker_middlewares = (*self._broker_middlewares, middleware)
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         logger: Optional["LoggerProto"],
@@ -181,7 +181,7 @@ class SubscriberUsecase(
             self._parser = async_parser
             self._decoder = async_decoder
 
-            call.setup(
+            call._setup(
                 parser=async_parser,
                 decoder=async_decoder,
                 apply_types=apply_types,
