@@ -13,7 +13,7 @@ from faststream.specification.schema.tag import Tag, TagDict
 
 class AsyncAPI(AsyncAPIProto):
     def __new__(
-            self,
+            cls,
             broker: BrokerUsecase[Any, Any],
             /,
             title: str = "FastStream",
