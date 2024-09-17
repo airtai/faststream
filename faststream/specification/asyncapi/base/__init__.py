@@ -1,3 +1,5 @@
-from faststream.specification.asyncapi.base import schema
+from .asyncapi import AsyncAPIProto
 
-__all__ = ("schema",)
+__all__ = (
+    "AsyncAPIProto",
+)

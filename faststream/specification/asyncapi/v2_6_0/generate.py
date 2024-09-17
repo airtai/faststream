@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, Sequence
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
 
 from faststream._internal._compat import DEF_KEY
 from faststream._internal.basic_types import AnyDict, AnyHttpUrl
@@ -19,14 +19,19 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     tag_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
-from faststream.specification.schema.tag import Tag as SpecsTag
-from faststream.specification.schema.contact import ContactDict, Contact
-from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-from faststream.specification.schema.license import License, LicenseDict
 
 if TYPE_CHECKING:
     from faststream._internal.broker.broker import BrokerUsecase
     from faststream._internal.types import ConnectionType, MsgType
+    from faststream.specification.schema.contact import Contact, ContactDict
+    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
+    from faststream.specification.schema.license import License, LicenseDict
+    from faststream.specification.schema.tag import (
+        Tag as SpecsTag,
+    )
+    from faststream.specification.schema.tag import (
+        TagDict as SpecsTagDict,
+    )
 
 
 def get_app_schema(
@@ -40,7 +45,7 @@ def get_app_schema(
         contact: Optional[Union["Contact", "ContactDict", "AnyDict"]],
         license: Optional[Union["License", "LicenseDict", "AnyDict"]],
         identifier: Optional[str],
-        specs_tags: Optional[Sequence[Union["SpecsTag", "AnyDict"]]],
+        tags: Optional[Sequence[Union["SpecsTag", "SpecsTagDict", "AnyDict"]]],
         external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]],
 ) -> Schema:
     """Get the application schema."""
@@ -70,7 +75,7 @@ def get_app_schema(
         asyncapi=schema_version,
         defaultContentType=ContentTypes.json.value,
         id=identifier,
-        tags=[tag_from_spec(tag) for tag in specs_tags] if specs_tags else None,
+        tags=[tag_from_spec(tag) for tag in tags] if tags else None,
         externalDocs=docs_from_spec(external_docs) if external_docs else None,
         servers=servers,
         channels=channels,

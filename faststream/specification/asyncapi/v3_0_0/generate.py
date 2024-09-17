@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, List, Optional, Union, Sequence, Any
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
 from urllib.parse import urlparse
 
 from faststream._internal._compat import DEF_KEY
@@ -28,14 +28,19 @@ from faststream.specification.asyncapi.v3_0_0.schema import (
 from faststream.specification.asyncapi.v3_0_0.schema.operations import (
     Action,
 )
-from faststream.specification.schema.tag import Tag as SpecsTag, TagDict as SpecsTagDict
-from faststream.specification.schema.contact import ContactDict, Contact
-from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-from faststream.specification.schema.license import License, LicenseDict
 
 if TYPE_CHECKING:
     from faststream._internal.broker.broker import BrokerUsecase
     from faststream._internal.types import ConnectionType, MsgType
+    from faststream.specification.schema.contact import Contact, ContactDict
+    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
+    from faststream.specification.schema.license import License, LicenseDict
+    from faststream.specification.schema.tag import (
+        Tag as SpecsTag,
+    )
+    from faststream.specification.schema.tag import (
+        TagDict as SpecsTagDict,
+    )
 
 
 def get_app_schema(
@@ -49,7 +54,7 @@ def get_app_schema(
         contact: Optional[Union["Contact", "ContactDict", "AnyDict"]],
         license: Optional[Union["License", "LicenseDict", "AnyDict"]],
         identifier: Optional[str],
-        specs_tags: Optional[Sequence[Union["SpecsTag", "SpecsTagDict", "AnyDict"]]],
+        tags: Optional[Sequence[Union["SpecsTag", "SpecsTagDict", "AnyDict"]]],
         external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]],
 ) -> Schema:
     """Get the application schema."""
@@ -86,8 +91,8 @@ def get_app_schema(
             termsOfService=terms_of_service,
             contact=contact_from_spec(contact) if contact else None,
             license=license_from_spec(license) if license else None,
-            tags=[tag_from_spec(tag) for tag in specs_tags]
-            if specs_tags
+            tags=[tag_from_spec(tag) for tag in tags]
+            if tags
             else None,
             externalDocs=docs_from_spec(external_docs)
             if external_docs
