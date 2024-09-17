@@ -1,3 +1,3 @@
 import pytest
 
-pytest.importorskip("aio_pika")
+pytest.importorskip("aiokafka")
