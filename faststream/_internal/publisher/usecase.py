@@ -91,7 +91,7 @@ class PublisherUsecase(
         self._broker_middlewares = (*self._broker_middlewares, middleware)
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         producer: Optional["ProducerProto"],

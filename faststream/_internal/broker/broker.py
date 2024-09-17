@@ -18,7 +18,6 @@ from typing import (
 from typing_extensions import Annotated, Doc, Self
 
 from faststream._internal._compat import is_test_env
-from faststream._internal.context.repository import context
 from faststream._internal.log.logging import set_logger_fmt
 from faststream._internal.proto import SetupAble
 from faststream._internal.subscriber.proto import SubscriberProto
@@ -184,10 +183,6 @@ class BrokerUsecase(
                 *self._middlewares,
             )
 
-        # TODO: move this context to Handlers' extra_context to support multiple brokers
-        context.set_global("logger", self.logger)
-        context.set_global("broker", self)
-
         # FastDepends args
         self._is_apply_types = apply_types
         self._is_validate = validate
@@ -226,7 +221,7 @@ class BrokerUsecase(
             connection_kwargs = self._connection_kwargs.copy()
             connection_kwargs.update(kwargs)
             self._connection = await self._connect(**connection_kwargs)
-        self.setup()
+        self._setup()
         return self._connection
 
     @abstractmethod
@@ -234,7 +229,7 @@ class BrokerUsecase(
         """Connect to a resource."""
         raise NotImplementedError()
 
-    def setup(self) -> None:
+    def _setup(self) -> None:
         """Prepare all Broker entities to startup."""
         for h in self._subscribers.values():
             self.setup_subscriber(h)
@@ -250,7 +245,7 @@ class BrokerUsecase(
         """Setup the Subscriber to prepare it to starting."""
         data = self._subscriber_setup_extra.copy()
         data.update(kwargs)
-        subscriber.setup(**data)
+        subscriber._setup(**data)
 
     def setup_publisher(
         self,
@@ -260,7 +255,7 @@ class BrokerUsecase(
         """Setup the Publisher to prepare it to starting."""
         data = self._publisher_setup_extra.copy()
         data.update(kwargs)
-        publisher.setup(**data)
+        publisher._setup(**data)
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
@@ -268,7 +263,10 @@ class BrokerUsecase(
             "logger": self.logger,
             "producer": self._producer,
             "graceful_timeout": self.graceful_timeout,
-            "extra_context": {},
+            "extra_context": {
+                "broker": self,
+                "logger": self.logger,
+            },
             # broker options
             "broker_parser": self._parser,
             "broker_decoder": self._decoder,

@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 from faststream._internal._compat import DEF_KEY
 from faststream._internal.basic_types import AnyDict
 from faststream._internal.constants import ContentTypes
+from faststream.specification.asyncapi.utils import clear_key
 from faststream.specification.asyncapi.v2_6_0.generate import move_pydantic_refs
 from faststream.specification.asyncapi.v2_6_0.schema import (
     Reference,
@@ -39,7 +40,7 @@ def get_app_schema(app: Application) -> Schema:
     broker = app.broker
     if broker is None:  # pragma: no cover
         raise RuntimeError()
-    broker.setup()
+    broker._setup()
 
     servers = get_broker_server(broker)
     channels = get_broker_channels(broker)
@@ -143,6 +144,8 @@ def get_broker_operations(
 
     for h in broker._subscribers.values():
         for channel_name, specs_channel in h.schema().items():
+            channel_name = clear_key(channel_name)
+
             if specs_channel.subscribe is not None:
                 operations[f"{channel_name}Subscribe"] = operation_from_spec(
                     specs_channel.subscribe, Action.RECEIVE, channel_name
@@ -150,6 +153,8 @@ def get_broker_operations(
 
     for p in broker._publishers.values():
         for channel_name, specs_channel in p.schema().items():
+            channel_name = clear_key(channel_name)
+
             if specs_channel.publish is not None:
                 operations[f"{channel_name}"] = operation_from_spec(
                     specs_channel.publish, Action.SEND, channel_name
@@ -174,7 +179,7 @@ def get_broker_channels(
                 *left, right = message.title.split(":")
                 message.title = ":".join(left) + f":Subscribe{right}"
 
-                channels_schema_v3_0[channel_name] = channel_from_spec(
+                channels_schema_v3_0[clear_key(channel_name)] = channel_from_spec(
                     specs_channel,
                     message,
                     channel_name,
@@ -187,7 +192,7 @@ def get_broker_channels(
         channels_schema_v3_0 = {}
         for channel_name, specs_channel in pub.schema().items():
             if specs_channel.publish:
-                channels_schema_v3_0[channel_name] = channel_from_spec(
+                channels_schema_v3_0[clear_key(channel_name)] = channel_from_spec(
                     specs_channel,
                     specs_channel.publish.message,
                     channel_name,
@@ -210,6 +215,9 @@ def _resolve_msg_payloads(
 
     m.payload = move_pydantic_refs(m.payload, DEF_KEY)
 
+    message_name = clear_key(message_name)
+    channel_name = clear_key(channel_name)
+
     if DEF_KEY in m.payload:
         payloads.update(m.payload.pop(DEF_KEY))
 
@@ -218,13 +226,13 @@ def _resolve_msg_payloads(
         one_of_list = []
         processed_payloads: Dict[str, AnyDict] = {}
         for name, payload in one_of.items():
-            processed_payloads[name] = payload
+            processed_payloads[clear_key(name)] = payload
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{name}"}))
 
         payloads.update(processed_payloads)
         m.payload["oneOf"] = one_of_list
         assert m.title
-        messages[m.title] = m
+        messages[clear_key(m.title)] = m
         return Reference(
             **{"$ref": f"#/components/messages/{channel_name}:{message_name}"}
         )
@@ -232,10 +240,11 @@ def _resolve_msg_payloads(
     else:
         payloads.update(m.payload.pop(DEF_KEY, {}))
         payload_name = m.payload.get("title", f"{channel_name}:{message_name}:Payload")
+        payload_name = clear_key(payload_name)
         payloads[payload_name] = m.payload
         m.payload = {"$ref": f"#/components/schemas/{payload_name}"}
         assert m.title
-        messages[m.title] = m
+        messages[clear_key(m.title)] = m
         return Reference(
             **{"$ref": f"#/components/messages/{channel_name}:{message_name}"}
         )

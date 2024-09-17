@@ -102,7 +102,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         self.task: Optional[asyncio.Task[None]] = None
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         connection: Optional["Redis[bytes]"],
@@ -122,7 +122,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
     ) -> None:
         self._client = connection
 
-        super().setup(
+        super()._setup(
             logger=logger,
             producer=producer,
             graceful_timeout=graceful_timeout,

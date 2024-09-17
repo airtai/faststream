@@ -71,7 +71,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         return f"<'{self.call_name}': filter='{filter_name}'>"
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         parser: "AsyncCallable",

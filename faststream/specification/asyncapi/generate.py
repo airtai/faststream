@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 
 
 def get_app_schema(
-    app: "Application", version: Union[Literal["3.0.0", "2.6.0"], str] = "3.0.0"
+    app: "Application",
+    version: Union[Literal["3.0.0", "2.6.0"], str] = "3.0.0",
 ) -> BaseSchema:
     if version.startswith("3.0."):
         return get_app_schema_v3(app)

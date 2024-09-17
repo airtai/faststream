@@ -95,7 +95,7 @@ class RequestPublishKwargs(TypedDict, total=False):
     ]
 
 
-class PublishKwargs(RequestPublishKwargs):
+class PublishKwargs(RequestPublishKwargs, total=False):
     """Typed dict to annotate RabbitMQ publishers."""
 
     reply_to: Annotated[
@@ -157,7 +157,7 @@ class LogicPublisher(
         self.virtual_host = ""
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         producer: Optional["AioPikaFastProducer"],
@@ -166,7 +166,7 @@ class LogicPublisher(
     ) -> None:
         self.app_id = app_id
         self.virtual_host = virtual_host
-        super().setup(producer=producer)
+        super()._setup(producer=producer)
 
     @property
     def routing(self) -> str:
@@ -179,7 +179,7 @@ class LogicPublisher(
         )
 
     @override
-    async def publish(  # type: ignore[override]
+    async def publish(
         self,
         message: "AioPikaSendableMessage",
         queue: Annotated[

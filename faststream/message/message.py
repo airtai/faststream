@@ -55,6 +55,26 @@ class StreamMessage(Generic[MsgType]):
         self.committed: Optional[AckStatus] = None
         self.processed = False
 
+    def __repr__(self) -> str:
+        inner = ", ".join(
+            filter(
+                bool,
+                (
+                    f"body={self.body}",
+                    f"content_type={self.content_type}",
+                    f"message_id={self.message_id}",
+                    f"correlation_id={self.correlation_id}",
+                    f"reply_to={self.reply_to}" if self.reply_to else "",
+                    f"headers={self.headers}",
+                    f"path={self.path}",
+                    f"committed={self.committed}",
+                    f"raw_message={self.raw_message}",
+                ),
+            )
+        )
+
+        return f"{self.__class__.__name__}({inner})"
+
     async def decode(self) -> Optional["DecodedMessage"]:
         """Serialize the message by lazy decoder."""
         # TODO: make it lazy after `decoded_body` removed
