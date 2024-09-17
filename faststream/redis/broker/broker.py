@@ -27,6 +27,7 @@ from typing_extensions import Annotated, Doc, TypeAlias, override
 
 from faststream.__about__ import __version__
 from faststream._internal.constants import EMPTY
+from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.redis.broker.logging import RedisLoggingBroker
@@ -437,8 +438,16 @@ class RedisBroker(
         headers: Optional["AnyDict"] = None,
         timeout: Optional[float] = 30.0,
     ) -> "RedisMessage":
+
+        msg_processed = await process_msg(
+            msg=message,
+            middlewares=self._middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+
         msg: RedisMessage = await super().request(
-            message,
+            msg_processed,
             producer=self._producer,
             correlation_id=correlation_id or gen_cor_id(),
             channel=channel,

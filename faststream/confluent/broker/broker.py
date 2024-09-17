@@ -20,6 +20,7 @@ from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
+from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.utils.data import filter_by_dict
 from faststream.confluent.broker.logging import KafkaLoggingBroker
 from faststream.confluent.broker.registrator import KafkaRegistrator
@@ -516,8 +517,15 @@ class KafkaBroker(
     ) -> Optional[Any]:
         correlation_id = correlation_id or gen_cor_id()
 
-        return await super().request(
-            message,
+        msg = await process_msg(
+            msg=message,
+            middlewares=self._middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+
+        await super().request(
+            msg,
             producer=self._producer,
             topic=topic,
             key=key,

@@ -31,6 +31,7 @@ from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
+from faststream._internal.subscriber.utils import process_msg
 from faststream.message import gen_cor_id
 from faststream.nats.broker.logging import NatsLoggingBroker
 from faststream.nats.broker.registrator import NatsRegistrator
@@ -798,8 +799,15 @@ class NatsBroker(
             producer = self._js_producer
             publish_kwargs.update({"stream": stream})
 
+        msg_processed = await process_msg(
+            msg=message,
+            middlewares=self._middlewares,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+
         msg: NatsMessage = await super().request(
-            message,
+            msg_processed,
             producer=producer,
             correlation_id=correlation_id or gen_cor_id(),
             **publish_kwargs,
