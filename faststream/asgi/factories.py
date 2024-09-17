@@ -6,7 +6,7 @@ from typing import (
 
 from faststream.asgi.handlers import get
 from faststream.asgi.response import AsgiResponse
-from faststream.specification.asyncapi import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 from faststream.specification.asyncapi.site import (
     ASYNCAPI_CSS_DEFAULT_URL,
     ASYNCAPI_JS_DEFAULT_URL,
@@ -51,9 +51,12 @@ def make_asyncapi_asgi(
     asyncapi_js_url: str = ASYNCAPI_JS_DEFAULT_URL,
     asyncapi_css_url: str = ASYNCAPI_CSS_DEFAULT_URL,
 ) -> "ASGIApp":
+    if app.broker is None:
+        raise RuntimeError()
+
     return AsgiResponse(
         get_asyncapi_html(
-            get_app_schema(app, version="2.6.0"),
+            AsyncAPI(app.broker, schema_version="2.6.0").schema(),
             sidebar=sidebar,
             info=info,
             servers=servers,

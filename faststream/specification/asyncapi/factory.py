@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, Sequence, Union
 
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream.specification.asyncapi.base.asyncapi import AsyncAPIProto
+from faststream.specification.asyncapi.base.schema import BaseSchema
 from faststream.specification.asyncapi.v2_6_0.asyncapi import AsyncAPI2
 from faststream.specification.asyncapi.v3_0_0.asyncapi import AsyncAPI3
 
@@ -59,3 +60,15 @@ class AsyncAPI(AsyncAPIProto):
             )
         else:
             raise NotImplementedError(f"Unsupported schema version: {schema_version}")
+
+    def json(self) -> str:  # type: ignore[empty-body]
+        pass
+
+    def jsonable(self) -> Any:
+        pass
+
+    def yaml(self) -> str:  # type: ignore[empty-body]
+        pass
+
+    def schema(self) -> BaseSchema:  # type: ignore[empty-body]
+        pass

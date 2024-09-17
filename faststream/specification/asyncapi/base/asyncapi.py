@@ -1,16 +1,18 @@
 from abc import abstractmethod
 from typing import Any, Protocol
 
+from faststream.specification.asyncapi.base.schema import BaseSchema
+
 
 class AsyncAPIProto(Protocol):
-    @abstractmethod
     def json(self) -> str:
         ...
 
-    @abstractmethod
     def jsonable(self) -> Any:
         ...
 
-    @abstractmethod
     def yaml(self) -> str:
+        ...
+
+    def schema(self) -> BaseSchema:
         ...

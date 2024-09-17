@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream.specification.asyncapi.base.asyncapi import AsyncAPIProto
 from faststream.specification.asyncapi.v3_0_0.generate import get_app_schema
+from faststream.specification.asyncapi.v3_0_0.schema import Schema
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, AnyHttpUrl
@@ -84,3 +85,18 @@ class AsyncAPI3(AsyncAPIProto):
             tags=self.tags,
             external_docs=self.external_docs,
         ).to_yaml()
+
+    def schema(self) -> Schema:
+        return get_app_schema(
+            self.broker,
+            title=self.title,
+            app_version=self.app_version,
+            schema_version=self.schema_version,
+            description=self.description,
+            terms_of_service=self.terms_of_service,
+            contact=self.contact,
+            license=self.license,
+            identifier=self.identifier,
+            tags=self.tags,
+            external_docs=self.external_docs,
+        )

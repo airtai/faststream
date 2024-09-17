@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from faststream._internal._compat import json_dumps, model_parse
 from faststream._internal.cli.utils.imports import import_from_string
 from faststream.exceptions import INSTALL_WATCHFILES, INSTALL_YAML, SCHEMA_NOT_SUPPORTED
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 from faststream.specification.asyncapi.site import serve_app
 from faststream.specification.asyncapi.v2_6_0.schema import Schema as SchemaV2_6
 from faststream.specification.asyncapi.v3_0_0.schema import Schema as SchemaV3
@@ -132,7 +132,11 @@ def gen(
     _, app_obj = import_from_string(app)
     if callable(app_obj) and is_factory:
         app_obj = app_obj()
-    raw_schema = get_app_schema(app_obj, asyncapi_version)
+
+    if app_obj.broker is None:
+        raise RuntimeError
+
+    raw_schema = AsyncAPI(app_obj.broker, schema_version=asyncapi_version).schema()
 
     if yaml:
         try:
@@ -166,7 +170,11 @@ def _parse_and_serve(
         _, app_obj = import_from_string(app)
         if callable(app_obj) and is_factory:
             app_obj = app_obj()
-        raw_schema = get_app_schema(app_obj, "2.6.0")
+
+        if app_obj.broker is None:
+            raise RuntimeError
+
+        raw_schema = AsyncAPI(app_obj.broker, schema_version="3.0.0").schema()
 
     else:
         schema_filepath = Path.cwd() / app
