@@ -516,7 +516,7 @@ class KafkaBroker(
     ) -> Optional[Any]:
         correlation_id = correlation_id or gen_cor_id()
 
-        await super().request(
+        return await super().request(
             message,
             producer=self._producer,
             topic=topic,
