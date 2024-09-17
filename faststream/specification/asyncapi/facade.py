@@ -12,7 +12,7 @@ from faststream.specification.schema.tag import Tag, TagDict
 
 
 class AsyncAPI(AsyncAPIProto):
-    def __init__(
+    def __new__(
             self,
             broker: BrokerUsecase[Any, Any],
             /,
@@ -26,9 +26,9 @@ class AsyncAPI(AsyncAPIProto):
             identifier: Optional[str] = None,
             specs_tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]] = None,
             external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]] = None,
-    ):
+    ) -> AsyncAPIProto:
         if schema_version.startswith("3.0."):
-            self.schema = AsyncAPI3(
+            return AsyncAPI3(
                 broker,
                 title=title,
                 version=version,
@@ -42,7 +42,7 @@ class AsyncAPI(AsyncAPIProto):
                 external_docs=external_docs,
             )
         elif schema_version.startswith("2.6."):
-            self.schema = AsyncAPI2(
+            return AsyncAPI2(
                 broker,
                 title=title,
                 version=version,
@@ -57,12 +57,3 @@ class AsyncAPI(AsyncAPIProto):
             )
         else:
             raise NotImplementedError(f"Unsupported schema version: {schema_version}")
-
-    def json(self) -> str:
-        return self.schema.json()
-
-    def jsonable(self) -> str:
-        return self.schema.jsonable()
-
-    def yaml(self) -> str:
-        return self.schema.yaml()
