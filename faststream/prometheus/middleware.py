@@ -97,6 +97,9 @@ class _PrometheusMiddleware(BaseMiddleware):
         call_next: "AsyncFuncAny",
         msg: "StreamMessage[Any]",
     ) -> Any:
+        if self._settings_provider is None:
+            return await call_next(msg)
+
         messaging_system = self._settings_provider.messaging_system
         consume_attrs = self._settings_provider.get_consume_attrs_from_message(msg)
         destination_name = consume_attrs["destination_name"]
@@ -116,7 +119,7 @@ class _PrometheusMiddleware(BaseMiddleware):
         self._metrics.received_messages_in_process.labels(
             broker=messaging_system,
             handler=destination_name,
-        ).inc()
+        ).inc(consume_attrs["messages_count"])
 
         start_time = time.perf_counter()
 
@@ -137,7 +140,7 @@ class _PrometheusMiddleware(BaseMiddleware):
             self._metrics.received_messages_in_process.labels(
                 broker=messaging_system,
                 handler=destination_name,
-            ).dec()
+            ).dec(consume_attrs["messages_count"])
 
             status = ProcessingStatus.acked
 
@@ -170,6 +173,9 @@ class _PrometheusMiddleware(BaseMiddleware):
         *args: Any,
         **kwargs: Any,
     ) -> Any:
+        if self._settings_provider is None:
+            return await call_next(msg, *args, **kwargs)
+
         err: Optional[Exception] = None
         start_time = time.perf_counter()
 

@@ -116,12 +116,12 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                 broker=settings_provider.messaging_system,
                 handler=consume_attrs["destination_name"],
             ),
-            call().inc(),
+            call().inc(consume_attrs["messages_count"]),
             call(
                 broker=settings_provider.messaging_system,
                 handler=consume_attrs["destination_name"],
             ),
-            call().dec(),
+            call().dec(consume_attrs["messages_count"]),
         ]
 
         assert metrics.received_messages_processing_time.labels.mock_calls == [
@@ -132,12 +132,14 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             call().observe(ANY),
         ]
 
+        status = ProcessingStatus.acked
+
         if exception_class:
             status = (
                 PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP.get(exception_class)
                 or ProcessingStatus.error
             )
-        else:
+        elif message.committed:
             status = PROCESSING_STATUS_BY_ACK_STATUS[message.committed]
 
         assert metrics.received_processed_messages.labels.mock_calls == [
