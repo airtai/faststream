@@ -10,7 +10,7 @@ from faststream.specification.schema.license import LicenseDict, License
 from faststream.specification.schema.tag import Tag, TagDict
 
 
-class AsyncAPI2(AsyncAPI):
+class AsyncAPI3(AsyncAPI):
     def __init__(
             self,
             broker: BrokerUsecase[Any, Any],

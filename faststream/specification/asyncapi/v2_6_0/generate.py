@@ -44,7 +44,7 @@ def get_app_schema(
         external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]],
 ) -> Schema:
     """Get the application schema."""
-    broker.setup()
+    broker._setup()
 
     servers = get_broker_server(broker)
     channels = get_broker_channels(broker)
