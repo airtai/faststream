@@ -1,12 +1,9 @@
-from contextlib import AsyncExitStack
 from copy import deepcopy
 from functools import partial
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
-    Callable,
     Iterable,
     Optional,
     Union,
@@ -16,7 +13,7 @@ from aio_pika import IncomingMessage
 from typing_extensions import Annotated, Doc, TypedDict, Unpack, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream._internal.utils.functions import return_input
+from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
@@ -329,20 +326,13 @@ class LogicPublisher(
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RabbitMessage], Awaitable[RabbitMessage]] = (
-                return_input
-            )
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: RabbitMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
     def add_prefix(self, prefix: str) -> None:
         """Include Publisher in router."""

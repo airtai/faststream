@@ -1,11 +1,8 @@
-from contextlib import AsyncExitStack
 from functools import partial
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
-    Callable,
     Dict,
     Iterable,
     Optional,
@@ -18,8 +15,8 @@ from aiokafka import ConsumerRecord
 from typing_extensions import Annotated, Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
+from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
-from faststream._internal.utils.functions import return_input
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 
@@ -168,18 +165,13 @@ class LogicPublisher(PublisherUsecase[MsgType]):
             timestamp_ms=timestamp_ms,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: KafkaMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
 
 class DefaultPublisher(LogicPublisher[ConsumerRecord]):

@@ -1,14 +1,13 @@
 from abc import abstractmethod
-from contextlib import AsyncExitStack
 from copy import deepcopy
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Iterable, Optional
 
 from typing_extensions import Annotated, Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream._internal.utils.functions import return_input
+from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
@@ -223,18 +222,13 @@ class ChannelPublisher(LogicPublisher):
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: RedisMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
 
 class ListPublisher(LogicPublisher):
@@ -400,18 +394,13 @@ class ListPublisher(LogicPublisher):
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: RedisMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
 
 class ListBatchPublisher(ListPublisher):
@@ -646,15 +635,10 @@ class StreamPublisher(LogicPublisher):
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: RedisMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg

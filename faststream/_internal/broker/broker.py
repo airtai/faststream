@@ -1,6 +1,5 @@
 import logging
 from abc import abstractmethod
-from contextlib import AsyncExitStack
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -23,6 +22,7 @@ from faststream._internal.context.repository import context
 from faststream._internal.log.logging import set_logger_fmt
 from faststream._internal.proto import SetupAble
 from faststream._internal.subscriber.proto import SubscriberProto
+from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import (
     AsyncCustomCallable,
     BrokerMiddleware,
@@ -30,7 +30,7 @@ from faststream._internal.types import (
     CustomCallable,
     MsgType,
 )
-from faststream._internal.utils.functions import return_input, to_async
+from faststream._internal.utils.functions import to_async
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.middlewares.logging import CriticalLogMiddleware
 
@@ -46,7 +46,6 @@ if TYPE_CHECKING:
         ProducerProto,
         PublisherProto,
     )
-    from faststream.message import StreamMessage
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
 
@@ -371,16 +370,13 @@ class BrokerUsecase(
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg = return_input
-            for m in self._middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg: StreamMessage[Any] = await producer._parser(published_msg)
-            parsed_msg._decoded_body = await producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
+        msg: Any = await process_msg(
+            msg=published_msg,
+            middlewares=self._middlewares,
+            parser=producer._parser,
+            decoder=producer._decoder,
+        )
+        return msg
 
     @abstractmethod
     async def ping(self, timeout: Optional[float]) -> bool:
