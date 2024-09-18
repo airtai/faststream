@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from redis.exceptions import AuthenticationError
 
-from faststream.app import FastStream
 from faststream.specification.asyncapi import AsyncAPI
 
 

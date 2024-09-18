@@ -1,7 +1,6 @@
 import pytest
 from aiormq.exceptions import AMQPConnectionError
 
-from faststream.app import FastStream
 from faststream.specification.asyncapi import AsyncAPI
 
 

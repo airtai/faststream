@@ -1,4 +1,6 @@
-from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_info import docs_obj
+from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_info import (
+    docs_obj,
+)
 
 
 def test_info_customization():

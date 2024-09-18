@@ -1,5 +1,6 @@
-from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_broker import app, docs_obj
-from faststream.specification.asyncapi import AsyncAPI
+from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_broker import (
+    docs_obj,
+)
 
 
 def test_broker_customization():
