@@ -82,7 +82,15 @@ class FastAPITestCase:
 
         async with self.broker_wrapper(router.broker):
             with TestClient(app) as client:
-                schema = AsyncAPI(router.broker, schema_version="3.0.0")
+                schema = AsyncAPI(
+                    router.broker,
+                    title=router.title,
+                    description=router.description,
+                    app_version=router.version,
+                    contact=router.contact,
+                    license=router.license,
+                    schema_version="3.0.0"
+                )
 
                 response_json = client.get("/asyncapi_schema.json")
                 assert response_json.json() == schema.jsonable(), schema.jsonable()
