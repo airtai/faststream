@@ -26,8 +26,9 @@ from faststream.confluent.schemas import TopicPartition
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
-    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.basic_types import AnyDict, LoggerProto
     from faststream._internal.publisher.proto import ProducerProto
+    from faststream._internal.setup import SetupState
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -116,10 +117,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
-        _call_decorators: Iterable["Decorator"],
+        state: "SetupState",
     ) -> None:
         self.client_id = client_id
         self.builder = builder
@@ -131,10 +129,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
-            apply_types=apply_types,
-            is_validate=is_validate,
-            _get_dependant=_get_dependant,
-            _call_decorators=_call_decorators,
+            state=state,
         )
 
     @override

@@ -1,10 +1,7 @@
 from abc import abstractmethod
 from typing import Any, Optional, Protocol, Type, TypeVar, Union, overload
 
-
-class SetupAble(Protocol):
-    @abstractmethod
-    def _setup(self) -> None: ...
+from .setup import SetupAble
 
 
 class Endpoint(SetupAble, Protocol):

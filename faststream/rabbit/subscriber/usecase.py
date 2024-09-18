@@ -1,7 +1,6 @@
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Dict,
     Iterable,
     Optional,
@@ -23,7 +22,8 @@ if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
     from fast_depends.dependencies import Depends
 
-    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.setup import SetupState
     from faststream._internal.types import BrokerMiddleware, CustomCallable
     from faststream.message import StreamMessage
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
@@ -111,10 +111,7 @@ class LogicSubscriber(
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
-        _call_decorators: Iterable["Decorator"],
+        state: "SetupState",
     ) -> None:
         self.app_id = app_id
         self.virtual_host = virtual_host
@@ -127,10 +124,7 @@ class LogicSubscriber(
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
-            apply_types=apply_types,
-            is_validate=is_validate,
-            _get_dependant=_get_dependant,
-            _call_decorators=_call_decorators,
+            state=state,
         )
 
     @override

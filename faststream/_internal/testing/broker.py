@@ -169,6 +169,7 @@ class TestBroker(Generic[Broker]):
             if getattr(p, "_fake_handler", None):
                 p.reset_test()  # type: ignore[attr-defined]
 
+        # TODO: rewrite this without hash
         for sub in self._fake_subscribers:
             self.broker._subscribers.pop(hash(sub), None)  # type: ignore[attr-defined]
         self._fake_subscribers = []
@@ -193,7 +194,7 @@ class TestBroker(Generic[Broker]):
 
 def patch_broker_calls(broker: "BrokerUsecase[Any, Any]") -> None:
     """Patch broker calls."""
-    broker._abc_start()
+    broker._setup()
 
     for handler in broker._subscribers.values():
         for h in handler.calls:

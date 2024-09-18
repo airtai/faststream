@@ -578,7 +578,7 @@ class KafkaBroker(
         self.client_id = client_id
         self._producer = None
 
-    async def _close(
+    async def close(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
@@ -588,7 +588,7 @@ class KafkaBroker(
             await self._producer.stop()
             self._producer = None
 
-        await super()._close(exc_type, exc_val, exc_tb)
+        await super().close(exc_type, exc_val, exc_tb)
 
     @override
     async def connect(  # type: ignore[override]

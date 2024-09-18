@@ -46,6 +46,7 @@ if TYPE_CHECKING:
         BasePublisherProto,
         ProducerProto,
     )
+    from faststream._internal.setup import SetupState
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -154,10 +155,7 @@ class SubscriberUsecase(
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
-        _call_decorators: Iterable["Decorator"],
+        state: "SetupState",
     ) -> None:
         self.lock = MultiLock()
 
@@ -184,10 +182,13 @@ class SubscriberUsecase(
             call._setup(
                 parser=async_parser,
                 decoder=async_decoder,
-                apply_types=apply_types,
-                is_validate=is_validate,
-                _get_dependant=_get_dependant,
-                _call_decorators=(*self._call_decorators, *_call_decorators),
+                apply_types=state.depends_params.apply_types,
+                is_validate=state.depends_params.is_validate,
+                _get_dependant=state.depends_params.get_dependent,
+                _call_decorators=(
+                    *self._call_decorators,
+                    *state.depends_params.call_decorators,
+                ),
                 broker_dependencies=self._broker_dependencies,
             )
 

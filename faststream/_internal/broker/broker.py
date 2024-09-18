@@ -1,4 +1,3 @@
-import logging
 from abc import abstractmethod
 from contextlib import AsyncExitStack
 from functools import partial
@@ -19,8 +18,14 @@ from typing import (
 from typing_extensions import Annotated, Doc, Self
 
 from faststream._internal._compat import is_test_env
-from faststream._internal.log.logging import set_logger_fmt
-from faststream._internal.proto import SetupAble
+from faststream._internal.setup import (
+    EmptyState,
+    FastDependsData,
+    LoggerState,
+    SetupAble,
+    SetupState,
+)
+from faststream._internal.setup.state import BaseState
 from faststream._internal.subscriber.proto import SubscriberProto
 from faststream._internal.types import (
     AsyncCustomCallable,
@@ -33,14 +38,14 @@ from faststream._internal.utils.functions import return_input, to_async
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.middlewares.logging import CriticalLogMiddleware
 
-from .logging_mixin import LoggingBroker
+from .abc_broker import ABCBroker
 
 if TYPE_CHECKING:
     from types import TracebackType
 
     from fast_depends.dependencies import Depends
 
-    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.basic_types import AnyDict, Decorator
     from faststream._internal.publisher.proto import (
         ProducerProto,
         PublisherProto,
@@ -51,7 +56,7 @@ if TYPE_CHECKING:
 
 
 class BrokerUsecase(
-    LoggingBroker[MsgType],
+    ABCBroker[MsgType],
     SetupAble,
     Generic[MsgType, ConnectionType],
 ):
@@ -60,6 +65,7 @@ class BrokerUsecase(
     url: Union[str, Sequence[str]]
     _connection: Optional[ConnectionType]
     _producer: Optional["ProducerProto"]
+    _state: BaseState
 
     def __init__(
         self,
@@ -87,22 +93,7 @@ class BrokerUsecase(
             ),
         ],
         # Logging args
-        default_logger: Annotated[
-            logging.Logger,
-            Doc("Logger object to use if `logger` is not set."),
-        ],
-        logger: Annotated[
-            Optional["LoggerProto"],
-            Doc("User specified logger to pass into Context and log service messages."),
-        ],
-        log_level: Annotated[
-            int,
-            Doc("Service messages log level."),
-        ],
-        log_fmt: Annotated[
-            Optional[str],
-            Doc("Default logger log format."),
-        ],
+        logger_state: LoggerState,
         # FastDepends args
         apply_types: Annotated[
             bool,
@@ -163,11 +154,6 @@ class BrokerUsecase(
             # Broker is a root router
             include_in_schema=True,
             prefix="",
-            # Logging args
-            default_logger=default_logger,
-            log_level=log_level,
-            log_fmt=log_fmt,
-            logger=logger,
         )
 
         self.running = False
@@ -180,15 +166,19 @@ class BrokerUsecase(
         # TODO: remove useless middleware filter
         if not is_test_env():
             self._middlewares = (
-                CriticalLogMiddleware(self.logger, log_level),
+                CriticalLogMiddleware(logger_state),
                 *self._middlewares,
             )
 
-        # FastDepends args
-        self._is_apply_types = apply_types
-        self._is_validate = validate
-        self._get_dependant = _get_dependant
-        self._call_decorators = _call_decorators
+        self._state = EmptyState(
+            depends_params=FastDependsData(
+                apply_types=apply_types,
+                is_validate=validate,
+                get_dependent=_get_dependant,
+                call_decorators=_call_decorators,
+            ),
+            logger_state=logger_state,
+        )
 
         # AsyncAPI information
         self.url = specification_url
@@ -213,8 +203,13 @@ class BrokerUsecase(
     @abstractmethod
     async def start(self) -> None:
         """Start the broker async use case."""
-        self._abc_start()
-        await self.connect()
+        # TODO: filter by already running handlers after TestClient refactor
+        for handler in self._subscribers.values():
+            self._state.logger_state.log(
+                f"`{handler.call_name}` waiting for messages",
+                extra=handler.get_log_context(None),
+            )
+            await handler.start()
 
     async def connect(self, **kwargs: Any) -> ConnectionType:
         """Connect to a remote server."""
@@ -222,7 +217,7 @@ class BrokerUsecase(
             connection_kwargs = self._connection_kwargs.copy()
             connection_kwargs.update(kwargs)
             self._connection = await self._connect(**connection_kwargs)
-        self._setup()
+
         return self._connection
 
     @abstractmethod
@@ -230,8 +225,33 @@ class BrokerUsecase(
         """Connect to a resource."""
         raise NotImplementedError()
 
-    def _setup(self) -> None:
+    def _setup(self, state: Optional[BaseState] = None) -> None:
         """Prepare all Broker entities to startup."""
+        if not self._state:
+            # Fallback to default state if there no
+            # parent container like FastStream object
+            default_state = self._state.copy_to_state(SetupState)
+
+            if state:
+                self._state = state.copy_with_params(
+                    depends_params=default_state.depends_params,
+                    logger_state=default_state.logger_state,
+                )
+            else:
+                self._state = default_state
+
+        if not self.running:
+            self.running = True
+
+            for h in self._subscribers.values():
+                log_context = h.get_log_context(None)
+                log_context.pop("message_id", None)
+                self._state.logger_state.params_storage.setup_log_contest(log_context)
+
+            self._state._setup()
+
+        # TODO: why we can't move it to running?
+        # TODO: can we setup subscriber in running broker automatically?
         for h in self._subscribers.values():
             self.setup_subscriber(h)
 
@@ -261,21 +281,18 @@ class BrokerUsecase(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
-            "logger": self.logger,
+            "logger": self._state.logger_state.logger,
             "producer": self._producer,
             "graceful_timeout": self.graceful_timeout,
             "extra_context": {
                 "broker": self,
-                "logger": self.logger,
+                "logger": self._state.logger_state.logger,
             },
             # broker options
             "broker_parser": self._parser,
             "broker_decoder": self._decoder,
             # dependant args
-            "apply_types": self._is_apply_types,
-            "is_validate": self._is_validate,
-            "_get_dependant": self._get_dependant,
-            "_call_decorators": self._call_decorators,
+            "state": self._state,
         }
 
     @property
@@ -290,21 +307,6 @@ class BrokerUsecase(
             self.setup_publisher(pub)
         return pub
 
-    def _abc_start(self) -> None:
-        for h in self._subscribers.values():
-            log_context = h.get_log_context(None)
-            log_context.pop("message_id", None)
-            self._setup_log_context(**log_context)
-
-        if not self.running:
-            self.running = True
-
-            if not self.use_custom and self.logger is not None:
-                set_logger_fmt(
-                    cast(logging.Logger, self.logger),
-                    self._get_fmt(),
-                )
-
     async def close(
         self,
         exc_type: Optional[Type[BaseException]] = None,
@@ -312,23 +314,10 @@ class BrokerUsecase(
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         """Closes the object."""
-        self.running = False
-
         for h in self._subscribers.values():
             await h.close()
 
-        if self._connection is not None:
-            await self._close(exc_type, exc_val, exc_tb)
-
-    @abstractmethod
-    async def _close(
-        self,
-        exc_type: Optional[Type[BaseException]] = None,
-        exc_val: Optional[BaseException] = None,
-        exc_tb: Optional["TracebackType"] = None,
-    ) -> None:
-        """Close the object."""
-        self._connection = None
+        self.running = False
 
     async def publish(
         self,

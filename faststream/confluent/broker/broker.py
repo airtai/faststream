@@ -397,7 +397,7 @@ class KafkaBroker(
         self._producer = None
         self.config = ConfluentFastConfig(config)
 
-    async def _close(
+    async def close(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
@@ -407,7 +407,7 @@ class KafkaBroker(
             await self._producer.stop()
             self._producer = None
 
-        await super()._close(exc_type, exc_val, exc_tb)
+        await super().close(exc_type, exc_val, exc_tb)
 
     async def connect(
         self,

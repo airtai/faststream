@@ -19,6 +19,7 @@ from faststream._internal._compat import ExceptionGroup
 from faststream._internal.cli.supervisors.utils import set_exit
 from faststream._internal.context import context
 from faststream._internal.log.logging import logger
+from faststream._internal.setup import EmptyState
 from faststream._internal.utils import apply_types
 from faststream._internal.utils.functions import (
     drop_response_type,
@@ -103,6 +104,7 @@ class FastStream(Application):
         )
 
         self._should_exit = anyio.Event()
+        self._state = EmptyState()
 
         # Specification information
         self.title = title
@@ -192,8 +194,7 @@ class FastStream(Application):
         for func in self._on_startup_calling:
             await func(**run_extra_options)
 
-        if self.broker is not None:
-            await self.broker.start()
+        await self._start_broker()
 
         for func in self._after_startup_calling:
             await func()

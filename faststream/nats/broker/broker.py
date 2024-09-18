@@ -24,15 +24,18 @@ from nats.aio.client import (
     DEFAULT_PENDING_SIZE,
     DEFAULT_PING_INTERVAL,
     DEFAULT_RECONNECT_TIME_WAIT,
+    Client,
 )
+from nats.aio.msg import Msg
 from nats.errors import Error
 from nats.js.errors import BadRequestError
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
+from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream.message import gen_cor_id
-from faststream.nats.broker.logging import NatsLoggingBroker
+from faststream.nats.broker.logging import make_nats_logger_state
 from faststream.nats.broker.registrator import NatsRegistrator
 from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
@@ -46,13 +49,11 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
     from nats.aio.client import (
         Callback,
-        Client,
         Credentials,
         ErrorCallback,
         JWTCallback,
         SignatureCallback,
     )
-    from nats.aio.msg import Msg
     from nats.js.api import Placement, RePublish, StorageType
     from nats.js.client import JetStreamContext
     from nats.js.kv import KeyValue
@@ -213,8 +214,8 @@ if TYPE_CHECKING:
 
 
 class NatsBroker(
+    BrokerUsecase[Msg, Client],
     NatsRegistrator,
-    NatsLoggingBroker,
 ):
     """A class to represent a NATS broker."""
 
@@ -532,9 +533,11 @@ class NatsBroker(
             security=security,
             tags=tags,
             # logging
-            logger=logger,
-            log_level=log_level,
-            log_fmt=log_fmt,
+            logger_state=make_nats_logger_state(
+                logger=logger,
+                log_level=log_level,
+                log_fmt=log_fmt,
+            ),
             # FastDepends args
             apply_types=apply_types,
             validate=validate,
@@ -597,29 +600,29 @@ class NatsBroker(
 
         return connection
 
-    async def _close(
+    async def close(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
-        self._producer = None
-        self._js_producer = None
-        self.stream = None
+        await super().close(exc_type, exc_val, exc_tb)
 
         if self._connection is not None:
             await self._connection.drain()
+            self._connection = None
 
-        await super()._close(exc_type, exc_val, exc_tb)
+        self.stream = None
+        self._producer = None
+        self._js_producer = None
         self.__is_connected = False
 
     async def start(self) -> None:
         """Connect broker to NATS cluster and startup all subscribers."""
-        await super().start()
+        await self.connect()
+        self._setup()
 
-        assert self._connection  # nosec B101
         assert self.stream, "Broker should be started already"  # nosec B101
-        assert self._producer, "Broker should be started already"  # nosec B101
 
         for stream in filter(
             lambda x: x.declare,
@@ -645,7 +648,7 @@ class NatsBroker(
                 ):
                     old_config = (await self.stream.stream_info(stream.name)).config
 
-                    self._log(str(e), logging.WARNING, log_context)
+                    self._state.logger_state.log(str(e), logging.WARNING, log_context)
                     await self.stream.update_stream(
                         config=stream.config,
                         subjects=tuple(
@@ -654,19 +657,15 @@ class NatsBroker(
                     )
 
                 else:  # pragma: no cover
-                    self._log(str(e), logging.ERROR, log_context, exc_info=e)
+                    self._state.logger_state.log(
+                        str(e), logging.ERROR, log_context, exc_info=e
+                    )
 
             finally:
                 # prevent from double declaration
                 stream.declare = False
 
-        # TODO: filter by already running handlers after TestClient refactor
-        for handler in self._subscribers.values():
-            self._log(
-                f"`{handler.call_name}` waiting for messages",
-                extra=handler.get_log_context(None),
-            )
-            await handler.start()
+        await super().start()
 
     @override
     async def publish(  # type: ignore[override]
@@ -923,7 +922,7 @@ class NatsBroker(
                 await error_cb(err)
 
             if isinstance(err, Error) and self.__is_connected:
-                self._log(
+                self._state.logger_state.log(
                     f"Connection broken with {err!r}", logging.WARNING, c, exc_info=err
                 )
                 self.__is_connected = False
@@ -941,7 +940,7 @@ class NatsBroker(
                 await cb()
 
             if not self.__is_connected:
-                self._log("Connection established", logging.INFO, c)
+                self._state.logger_state.log("Connection established", logging.INFO, c)
                 self.__is_connected = True
 
         return wrapper
