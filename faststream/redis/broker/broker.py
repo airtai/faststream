@@ -437,7 +437,6 @@ class RedisBroker(
         headers: Optional["AnyDict"] = None,
         timeout: Optional[float] = 30.0,
     ) -> "RedisMessage":
-
         msg: RedisMessage = await super().request(
             message,
             producer=self._producer,
