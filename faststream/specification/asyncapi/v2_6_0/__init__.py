@@ -1,4 +1,4 @@
-from .asyncapi import AsyncAPI2
+from .facade import AsyncAPI2
 from .generate import get_app_schema
 
 __all__ = (

@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, Sequence, Union
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream.specification.asyncapi.base.asyncapi import AsyncAPIProto
 from faststream.specification.asyncapi.base.schema import BaseSchema
-from faststream.specification.asyncapi.v2_6_0.asyncapi import AsyncAPI2
-from faststream.specification.asyncapi.v3_0_0.asyncapi import AsyncAPI3
+from faststream.specification.asyncapi.v2_6_0.facade import AsyncAPI2
+from faststream.specification.asyncapi.v3_0_0.facade import AsyncAPI3
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, AnyHttpUrl
