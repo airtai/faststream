@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -14,16 +15,11 @@ from tests.tools import spy_decorator
 
 @pytest.mark.asyncio
 class TestTestclient(BrokerTestclientTestcase):
-    test_class = TestKafkaBroker
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
+        return KafkaBroker(apply_types=apply_types, **kwargs)
 
-    def get_broker(self, apply_types: bool = False):
-        return KafkaBroker(apply_types=apply_types)
-
-    def patch_broker(self, broker: KafkaBroker) -> TestKafkaBroker:
-        return TestKafkaBroker(broker)
-
-    def get_fake_producer_class(self) -> type:
-        return FakeProducer
+    def patch_broker(self, broker: KafkaBroker, **kwargs: Any) -> TestKafkaBroker:
+        return TestKafkaBroker(broker, **kwargs)
 
     async def test_partition_match(
         self,
@@ -104,7 +100,7 @@ class TestTestclient(BrokerTestclientTestcase):
         def subscriber(m):
             event.set()
 
-        async with TestKafkaBroker(broker, with_real=True) as br:
+        async with self.patch_broker(broker, with_real=True) as br:
             await asyncio.wait(
                 (
                     asyncio.create_task(br.publish("hello", queue)),
@@ -125,7 +121,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def m(msg):
             pass
 
-        async with TestKafkaBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", queue)
             m.mock.assert_called_once_with(["hello"])
 
@@ -139,7 +135,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def m(msg):
             pass
 
-        async with TestKafkaBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish_batch("hello", topic=queue)
             m.mock.assert_called_once_with(["hello"])
 
@@ -156,7 +152,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def m(msg):
             return 1, 2, 3
 
-        async with TestKafkaBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", queue)
             m.mock.assert_called_once_with("hello")
             publisher.mock.assert_called_once_with([1, 2, 3])
@@ -169,15 +165,15 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = KafkaBroker(middlewares=(Middleware,))
+        broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
-        async def h1(): ...
+        async def h1(msg): ...
 
         @broker.subscriber(queue + "1")
-        async def h2(): ...
+        async def h2(msg): ...
 
-        async with TestKafkaBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("", queue)
             await br.publish("", queue + "1")
 
@@ -192,15 +188,15 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = KafkaBroker(middlewares=(Middleware,))
+        broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
-        async def h1(): ...
+        async def h1(msg): ...
 
         @broker.subscriber(queue + "1")
-        async def h2(): ...
+        async def h2(msg): ...
 
-        async with TestKafkaBroker(broker, with_real=True) as br:
+        async with self.patch_broker(broker, with_real=True) as br:
             await br.publish("", queue)
             await br.publish("", queue + "1")
             await h1.wait_call(3)
@@ -211,74 +207,82 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_multiple_subscribers_different_groups(
         self,
         queue: str,
-        test_broker: KafkaBroker,
     ):
+        test_broker = self.get_broker()
+
         @test_broker.subscriber(queue, group_id="group1")
-        async def subscriber1(): ...
+        async def subscriber1(msg): ...
 
         @test_broker.subscriber(queue, group_id="group2")
-        async def subscriber2(): ...
+        async def subscriber2(msg): ...
 
-        await test_broker.start()
-        await test_broker.publish("", queue)
+        async with self.patch_broker(test_broker) as br:
+            await br.start()
+            await br.publish("", queue)
 
-        assert subscriber1.mock.call_count == 1
-        assert subscriber2.mock.call_count == 1
+            assert subscriber1.mock.call_count == 1
+            assert subscriber2.mock.call_count == 1
 
     async def test_multiple_subscribers_same_group(
         self,
         queue: str,
-        test_broker: KafkaBroker,
     ):
-        @test_broker.subscriber(queue, group_id="group1")
-        async def subscriber1(): ...
+        broker = self.get_broker()
 
-        @test_broker.subscriber(queue, group_id="group1")
-        async def subscriber2(): ...
+        @broker.subscriber(queue, group_id="group1")
+        async def subscriber1(msg): ...
 
-        await test_broker.start()
-        await test_broker.publish("", queue)
+        @broker.subscriber(queue, group_id="group1")
+        async def subscriber2(msg): ...
 
-        assert subscriber1.mock.call_count == 1
-        assert subscriber2.mock.call_count == 0
+        async with self.patch_broker(broker) as br:
+            await br.start()
+            await br.publish("", queue)
+
+            assert subscriber1.mock.call_count == 1
+            assert subscriber2.mock.call_count == 0
 
     async def test_multiple_batch_subscriber_with_different_group(
         self,
         queue: str,
-        test_broker: KafkaBroker,
     ):
-        @test_broker.subscriber(queue, batch=True, group_id="group1")
-        async def subscriber1(): ...
+        broker = self.get_broker()
 
-        @test_broker.subscriber(queue, batch=True, group_id="group2")
-        async def subscriber2(): ...
+        @broker.subscriber(queue, batch=True, group_id="group1")
+        async def subscriber1(msg): ...
 
-        await test_broker.start()
-        await test_broker.publish("", queue)
+        @broker.subscriber(queue, batch=True, group_id="group2")
+        async def subscriber2(msg): ...
 
-        assert subscriber1.mock.call_count == 1
-        assert subscriber2.mock.call_count == 1
+        async with self.patch_broker(broker) as br:
+            await br.start()
+            await br.publish("", queue)
+
+            assert subscriber1.mock.call_count == 1
+            assert subscriber2.mock.call_count == 1
 
     async def test_multiple_batch_subscriber_with_same_group(
         self,
         queue: str,
-        test_broker: KafkaBroker,
     ):
-        @test_broker.subscriber(queue, batch=True, group_id="group1")
-        async def subscriber1(): ...
+        broker = self.get_broker()
 
-        @test_broker.subscriber(queue, batch=True, group_id="group1")
-        async def subscriber2(): ...
+        @broker.subscriber(queue, batch=True, group_id="group1")
+        async def subscriber1(msg): ...
 
-        await test_broker.start()
-        await test_broker.publish("", queue)
+        @broker.subscriber(queue, batch=True, group_id="group1")
+        async def subscriber2(msg): ...
 
-        assert subscriber1.mock.call_count == 1
-        assert subscriber2.mock.call_count == 0
+        async with self.patch_broker(broker) as br:
+            await br.start()
+            await br.publish("", queue)
+
+            assert subscriber1.mock.call_count == 1
+            assert subscriber2.mock.call_count == 0
 
     @pytest.mark.kafka
     async def test_broker_gets_patched_attrs_within_cm(self):
-        await super().test_broker_gets_patched_attrs_within_cm()
+        await super().test_broker_gets_patched_attrs_within_cm(FakeProducer)
 
     @pytest.mark.kafka
     async def test_broker_with_real_doesnt_get_patched(self):

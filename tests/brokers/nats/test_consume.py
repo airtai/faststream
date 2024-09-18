@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
@@ -13,8 +14,8 @@ from tests.tools import spy_decorator
 
 @pytest.mark.nats
 class TestConsume(BrokerRealConsumeTestcase):
-    def get_broker(self, apply_types: bool = False) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types)
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types, **kwargs)
 
     async def test_consume_js(
         self,

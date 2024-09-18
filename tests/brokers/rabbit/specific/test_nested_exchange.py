@@ -2,12 +2,14 @@ from asyncio import Event, wait_for
 
 import pytest
 
-from faststream.rabbit import ExchangeType, RabbitBroker, RabbitExchange, RabbitQueue
+from faststream.rabbit import ExchangeType, RabbitBroker, RabbitExchange
 
 
 @pytest.mark.asyncio
 @pytest.mark.rabbit
-async def test_bind_to(queue: RabbitQueue, broker: RabbitBroker):
+async def test_bind_to(queue: str):
+    broker = RabbitBroker(apply_types=False)
+
     consume = Event()
 
     async with broker:

@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -13,8 +14,8 @@ from tests.tools import spy_decorator
 @pytest.mark.redis
 @pytest.mark.asyncio
 class TestPublish(BrokerPublishTestcase):
-    def get_broker(self, apply_types: bool = False):
-        return RedisBroker(apply_types=apply_types)
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
+        return RedisBroker(apply_types=apply_types, **kwargs)
 
     async def test_list_publisher(
         self,
@@ -184,7 +185,6 @@ class TestPublish(BrokerPublishTestcase):
             correlation_id="1",
         )
 
-    @pytest.mark.asyncio
     async def test_response_for_rpc(
         self,
         queue: str,

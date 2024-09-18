@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -10,8 +11,8 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 
 @pytest.mark.kafka
 class TestPublish(BrokerPublishTestcase):
-    def get_broker(self, apply_types: bool = False):
-        return KafkaBroker(apply_types=apply_types)
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
+        return KafkaBroker(apply_types=apply_types, **kwargs)
 
     @pytest.mark.asyncio
     async def test_publish_batch(self, queue: str):

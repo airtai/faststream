@@ -1,9 +1,17 @@
 import asyncio
+from typing import Any
 
 import pytest
 
 from faststream import Path
-from faststream.nats import JStream, NatsBroker, NatsPublisher, NatsRoute, NatsRouter
+from faststream.nats import (
+    JStream,
+    NatsBroker,
+    NatsPublisher,
+    NatsRoute,
+    NatsRouter,
+    TestNatsBroker,
+)
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
@@ -13,13 +21,17 @@ class TestRouter(RouterTestcase):
     route_class = NatsRoute
     publisher_class = NatsPublisher
 
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types, **kwargs)
+
     async def test_router_path(
         self,
         event,
         mock,
         router: NatsRouter,
-        pub_broker,
     ):
+        pub_broker = self.get_broker(apply_types=True)
+
         @router.subscriber("in.{name}.{id}")
         async def h(
             name: str = Path(),
@@ -28,7 +40,6 @@ class TestRouter(RouterTestcase):
             event.set()
             mock(name=name, id=id)
 
-        pub_broker._is_apply_types = True
         pub_broker.include_router(router)
 
         await pub_broker.start()
@@ -43,8 +54,9 @@ class TestRouter(RouterTestcase):
         event,
         mock,
         router: NatsRouter,
-        pub_broker,
     ):
+        pub_broker = self.get_broker(apply_types=True)
+
         router.prefix = "root."
 
         @router.subscriber("{name}.nested")
@@ -52,7 +64,6 @@ class TestRouter(RouterTestcase):
             event.set()
             mock(name=name)
 
-        pub_broker._is_apply_types = True
         pub_broker.include_router(router)
 
         await pub_broker.start()
@@ -67,8 +78,9 @@ class TestRouter(RouterTestcase):
         event,
         mock,
         router: NatsRouter,
-        pub_broker,
     ):
+        pub_broker = self.get_broker(apply_types=True)
+
         router.prefix = "test."
 
         @router.subscriber("in.{name}.{id}")
@@ -79,7 +91,6 @@ class TestRouter(RouterTestcase):
             event.set()
             mock(name=name, id=id)
 
-        pub_broker._is_apply_types = True
         pub_broker.include_router(router)
 
         await pub_broker.start()
@@ -94,8 +105,9 @@ class TestRouter(RouterTestcase):
         event,
         mock,
         router: NatsRouter,
-        pub_broker,
     ):
+        pub_broker = self.get_broker(apply_types=True)
+
         async def h(
             name: str = Path(),
             id: int = Path("id"),
@@ -105,7 +117,6 @@ class TestRouter(RouterTestcase):
 
         r = type(router)(handlers=(self.route_class(h, subject="in.{name}.{id}"),))
 
-        pub_broker._is_apply_types = True
         pub_broker.include_router(r)
 
         await pub_broker.start()
@@ -120,8 +131,9 @@ class TestRouter(RouterTestcase):
         event,
         router: NatsRouter,
         queue: str,
-        pub_broker,
     ):
+        pub_broker = self.get_broker()
+
         def response(m):
             event.set()
 
@@ -145,15 +157,21 @@ class TestRouter(RouterTestcase):
 
 
 class TestRouterLocal(RouterLocalTestcase):
-    broker_class = NatsRouter
     route_class = NatsRoute
     publisher_class = NatsPublisher
+
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types, **kwargs)
+
+    def patch_broker(self, broker: NatsBroker, **kwargs: Any) -> NatsBroker:
+        return TestNatsBroker(broker, **kwargs)
 
     async def test_include_stream(
         self,
         router: NatsRouter,
-        pub_broker: NatsBroker,
     ):
+        pub_broker = self.get_broker()
+
         @router.subscriber("test", stream="stream")
         async def handler(): ...
 
@@ -175,7 +193,7 @@ class TestRouterLocal(RouterLocalTestcase):
 
         router.include_router(sub_router)
 
-        broker = NatsBroker()
+        broker = self.get_broker()
         broker.include_router(router)
 
         assert set(stream.subjects) == {

@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import Any, Callable, Type, TypeVar
+from typing import Any, Type, TypeVar
 from unittest.mock import Mock
 
 import pytest
@@ -9,7 +9,6 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
 from faststream import Response, context
-from faststream._internal.basic_types import AnyCallable
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.broker.router import BrokerRouter
 from faststream._internal.fastapi.context import Context
@@ -199,8 +198,6 @@ class FastAPITestcase(BaseTestcaseConfig):
 @pytest.mark.asyncio
 class FastAPILocalTestcase(BaseTestcaseConfig):
     router_class: Type[StreamRouter[BrokerUsecase]]
-    broker_test: Callable[[Broker], Broker]
-    build_message: AnyCallable
 
     async def test_base(self, queue: str):
         router = self.router_class()
@@ -214,11 +211,11 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         async def hello():
             return "hi"
 
-        async with self.broker_test(router.broker):
+        async with self.patch_broker(router.broker) as br:
             with TestClient(app) as client:
-                assert client.app_state["broker"] is router.broker
+                assert client.app_state["broker"] is br
 
-                r = await router.broker.request(
+                r = await br.request(
                     "hi",
                     queue,
                     timeout=0.5,
@@ -237,11 +234,11 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         async def hello():
             return Response("Hi!", headers={"x-header": "test"})
 
-        async with self.broker_test(router.broker):
+        async with self.patch_broker(router.broker) as br:
             with TestClient(app) as client:
                 assert not client.app_state.get("broker")
 
-                r = await router.broker.request(
+                r = await br.request(
                     "hi",
                     queue,
                     timeout=0.5,
@@ -260,11 +257,11 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         async def hello():
             return "hi"
 
-        async with self.broker_test(router.broker):
+        async with self.patch_broker(router.broker) as br:
             with TestClient(app) as client:
                 assert not client.app_state.get("broker")
 
-                r = await router.broker.request(
+                r = await br.request(
                     "hi",
                     queue,
                     timeout=0.5,
@@ -283,10 +280,10 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
 
         app.include_router(router)
 
-        async with self.broker_test(router.broker):
+        async with self.patch_broker(router.broker) as br:
             with TestClient(app):
                 with pytest.raises(RequestValidationError):
-                    await router.broker.publish("hi", queue)
+                    await br.publish("hi", queue)
 
     async def test_headers(self, queue: str):
         router = self.router_class()
@@ -297,8 +294,8 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         async def hello(w=Header()):
             return w
 
-        async with self.broker_test(router.broker):
-            r = await router.broker.request(
+        async with self.patch_broker(router.broker) as br:
+            r = await br.request(
                 "",
                 queue,
                 headers={"w": "hi"},
@@ -319,8 +316,8 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         async def hello(a, w=Depends(dep)):
             return w
 
-        async with self.broker_test(router.broker):
-            r = await router.broker.request(
+        async with self.patch_broker(router.broker) as br:
+            r = await br.request(
                 {"a": "hi"},
                 queue,
                 timeout=0.5,
@@ -345,8 +342,8 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             assert not mock.close.call_count
             return w
 
-        async with self.broker_test(router.broker):
-            r = await router.broker.request(
+        async with self.patch_broker(router.broker) as br:
+            r = await br.request(
                 {"a": "hi"},
                 queue,
                 timeout=0.5,
@@ -368,8 +365,8 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         async def hello(a):
             return a
 
-        async with self.broker_test(router.broker):
-            r = await router.broker.request("hi", queue, timeout=0.5)
+        async with self.patch_broker(router.broker) as br:
+            r = await br.request("hi", queue, timeout=0.5)
             assert await r.decode() == "hi", r
 
         mock.assert_called_once()
@@ -389,8 +386,8 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         async def hello(a):
             return a
 
-        async with self.broker_test(router.broker):
-            r = await router.broker.request(
+        async with self.patch_broker(router.broker) as br:
+            r = await br.request(
                 "hi",
                 queue,
                 timeout=0.5,
@@ -421,7 +418,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         async def test_shutdown_async(app):
             mock.async_shutdown_called()
 
-        async with self.broker_test(router.broker), router.lifespan_context(app):
+        async with self.patch_broker(router.broker), router.lifespan_context(app):
             pass
 
         mock.sync_called.assert_called_once()
@@ -441,7 +438,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         app = FastAPI()
         app.include_router(router)
 
-        async with self.broker_test(router.broker), router.lifespan_context(
+        async with self.patch_broker(router.broker), router.lifespan_context(
             app
         ) as context:
             assert context["lifespan"]
@@ -458,7 +455,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         async def m():
             return "hi"
 
-        async with self.broker_test(router.broker) as rb:
+        async with self.patch_broker(router.broker) as rb:
             await rb.publish("hello", queue)
             m.mock.assert_called_once_with("hello")
 
@@ -475,7 +472,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         async def m():
             return "response"
 
-        async with self.broker_test(router.broker) as rb:
+        async with self.patch_broker(router.broker) as rb:
             await rb.publish("hello", queue)
             publisher.mock.assert_called_with("response")
 
@@ -500,18 +497,18 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         router.include_router(router2)
         app.include_router(router)
 
-        async with self.broker_test(router.broker):
+        async with self.patch_broker(router.broker) as br:
             with TestClient(app) as client:
-                assert client.app_state["broker"] is router.broker
+                assert client.app_state["broker"] is br
 
-                r = await router.broker.request(
+                r = await br.request(
                     "hi",
                     queue,
                     timeout=0.5,
                 )
                 assert await r.decode() == "hi", r
 
-                r = await router.broker.request(
+                r = await br.request(
                     "hi",
                     queue + "1",
                     timeout=0.5,
@@ -538,11 +535,11 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         router.include_router(router2)
         app.include_router(router)
 
-        async with self.broker_test(router.broker):
+        async with self.patch_broker(router.broker) as br:
             with TestClient(app) as client:
-                assert client.app_state["broker"] is router.broker
+                assert client.app_state["broker"] is br
 
-                r = await router.broker.request(
+                r = await br.request(
                     "hi",
                     queue,
                     timeout=0.5,

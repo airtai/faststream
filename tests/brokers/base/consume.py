@@ -1,6 +1,4 @@
 import asyncio
-from abc import abstractmethod
-from typing import Any
 from unittest.mock import MagicMock
 
 import anyio
@@ -8,7 +6,6 @@ import pytest
 from pydantic import BaseModel
 
 from faststream import Context, Depends
-from faststream._internal.broker.broker import BrokerUsecase
 from faststream.exceptions import StopConsume
 
 from .basic import BaseTestcaseConfig
@@ -16,13 +13,6 @@ from .basic import BaseTestcaseConfig
 
 @pytest.mark.asyncio
 class BrokerConsumeTestcase(BaseTestcaseConfig):
-    @abstractmethod
-    def get_broker(self, broker: BrokerUsecase) -> BrokerUsecase[Any, Any]:
-        raise NotImplementedError
-
-    def patch_broker(self, broker: BrokerUsecase[Any, Any]) -> BrokerUsecase[Any, Any]:
-        return broker
-
     async def test_consume(
         self,
         queue: str,
@@ -213,10 +203,10 @@ class BrokerConsumeTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         mock: MagicMock,
     ):
-        consume_broker = self.get_broker()
-
-        consume_broker._is_apply_types = True
-        consume_broker._is_validate = False
+        consume_broker = self.get_broker(
+            apply_types=True,
+            validate=False,
+        )
 
         class Foo(BaseModel):
             x: int
@@ -293,7 +283,6 @@ class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
     async def test_get_one(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: MagicMock,
     ):
         broker = self.get_broker(apply_types=True)

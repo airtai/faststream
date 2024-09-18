@@ -8,10 +8,9 @@ from faststream.rabbit.annotations import RabbitMessage
 
 @pytest.mark.asyncio
 @pytest.mark.rabbit
-async def test_broker_depends(
-    queue,
-    full_broker: RabbitBroker,
-):
+async def test_broker_depends(queue: str):
+    full_broker = RabbitBroker(apply_types=True)
+
     def sync_depends(message: RabbitMessage):
         return message
 
@@ -43,8 +42,9 @@ async def test_broker_depends(
 @pytest.mark.rabbit
 async def test_different_consumers_has_different_messages(
     context,
-    full_broker: RabbitBroker,
 ):
+    full_broker = RabbitBroker(apply_types=True)
+
     message1 = None
 
     @full_broker.subscriber("test_different_consume_1")

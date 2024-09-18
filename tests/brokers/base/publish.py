@@ -1,5 +1,4 @@
 import asyncio
-from abc import abstractmethod
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Tuple
@@ -11,7 +10,6 @@ from pydantic import BaseModel
 
 from faststream import BaseMiddleware, Context, Response
 from faststream._internal._compat import dump_json, model_to_json
-from faststream._internal.broker.broker import BrokerUsecase
 
 from .basic import BaseTestcaseConfig
 
@@ -29,13 +27,6 @@ now = datetime.now()
 
 
 class BrokerPublishTestcase(BaseTestcaseConfig):
-    @abstractmethod
-    def get_broker(self, apply_types: bool = False) -> BrokerUsecase[Any, Any]:
-        raise NotImplementedError
-
-    def patch_broker(self, broker: BrokerUsecase[Any, Any]) -> BrokerUsecase[Any, Any]:
-        return broker
-
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("message", "message_type", "expected_message"),

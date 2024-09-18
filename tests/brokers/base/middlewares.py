@@ -1,12 +1,10 @@
 import asyncio
-from typing import Type
 from unittest.mock import Mock, call
 
 import pytest
 
 from faststream import Context
 from faststream._internal.basic_types import DecodedMessage
-from faststream._internal.broker.broker import BrokerUsecase
 from faststream.exceptions import SkipMessage
 from faststream.middlewares import BaseMiddleware, ExceptionMiddleware
 
@@ -15,23 +13,11 @@ from .basic import BaseTestcaseConfig
 
 @pytest.mark.asyncio
 class LocalMiddlewareTestcase(BaseTestcaseConfig):
-    broker_class: Type[BrokerUsecase]
-
-    @pytest.fixture
-    def raw_broker(self):
-        return None
-
-    def patch_broker(
-        self, raw_broker: BrokerUsecase, broker: BrokerUsecase
-    ) -> BrokerUsecase:
-        return broker
-
     async def test_subscriber_middleware(
         self,
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-        raw_broker,
     ):
         async def mid(call_next, msg):
             mock.start(await msg.decode())
@@ -40,7 +26,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             event.set()
             return result
 
-        broker = self.broker_class()
+        broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue, middlewares=(mid,))
 
@@ -49,13 +35,11 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             mock.inner(m)
             return "end"
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("start", queue)),
+                    asyncio.create_task(br.publish("start", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -72,7 +56,6 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-        raw_broker,
     ):
         async def mid(call_next, msg, **kwargs):
             mock.enter()
@@ -82,7 +65,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
                 event.set()
             return result
 
-        broker = self.broker_class()
+        broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -93,13 +76,11 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             mock.inner(m)
             return "end"
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("start", queue)),
+                    asyncio.create_task(br.publish("start", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -111,7 +92,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         assert mock.end.call_count == 2
 
     async def test_local_middleware_not_shared_between_subscribers(
-        self, queue: str, mock: Mock, raw_broker
+        self, queue: str, mock: Mock
     ):
         event1 = asyncio.Event()
         event2 = asyncio.Event()
@@ -122,7 +103,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             mock.end()
             return result
 
-        broker = self.broker_class()
+        broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
         args2, kwargs2 = self.get_subscriber_params(
@@ -140,10 +121,8 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             mock()
             return ""
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
                     asyncio.create_task(broker.publish("", queue)),
@@ -161,7 +140,9 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         assert mock.call_count == 2
 
     async def test_local_middleware_consume_not_shared_between_filters(
-        self, queue: str, mock: Mock, raw_broker
+        self,
+        queue: str,
+        mock: Mock,
     ):
         event1 = asyncio.Event()
         event2 = asyncio.Event()
@@ -172,7 +153,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             mock.end()
             return result
 
-        broker = self.broker_class()
+        broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(
             queue,
@@ -192,14 +173,12 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             mock()
             return ""
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish({"msg": "hi"}, queue)),
-                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(br.publish({"msg": "hi"}, queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event1.wait()),
                     asyncio.create_task(event2.wait()),
                 ),
@@ -212,7 +191,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         mock.end.assert_called_once()
         assert mock.call_count == 2
 
-    async def test_error_traceback(self, queue: str, mock: Mock, event, raw_broker):
+    async def test_error_traceback(self, queue: str, mock: Mock, event):
         async def mid(call_next, msg):
             try:
                 result = await call_next(msg)
@@ -222,7 +201,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             else:
                 return result
 
-        broker = self.broker_class()
+        broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue, middlewares=(mid,))
 
@@ -231,14 +210,12 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             event.set()
             raise ValueError()
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
 
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -251,7 +228,10 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
 @pytest.mark.asyncio
 class MiddlewareTestcase(LocalMiddlewareTestcase):
     async def test_global_middleware(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
     ):
         class mid(BaseMiddleware):  # noqa: N801
             async def on_receive(self):
@@ -262,7 +242,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                 mock.end()
                 return await super().after_processed(exc_type, exc_val, exc_tb)
 
-        broker = self.broker_class(
+        broker = self.get_broker(
             middlewares=(mid,),
         )
 
@@ -273,13 +253,11 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
             event.set()
             return ""
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -294,7 +272,6 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-        raw_broker,
     ):
         class mid(BaseMiddleware):  # noqa: N801
             async def on_receive(self):
@@ -305,7 +282,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                 mock.end()
                 return await super().after_processed(exc_type, exc_val, exc_tb)
 
-        broker = self.broker_class()
+        broker = self.get_broker()
 
         # already registered subscriber
         args, kwargs = self.get_subscriber_params(queue)
@@ -328,14 +305,12 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
             event2.set()
             return ""
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("", queue)),
-                    asyncio.create_task(broker.publish("", f"{queue}1")),
+                    asyncio.create_task(br.publish("", queue)),
+                    asyncio.create_task(br.publish("", f"{queue}1")),
                     asyncio.create_task(event.wait()),
                     asyncio.create_task(event2.wait()),
                 ),
@@ -346,12 +321,17 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         assert mock.start.call_count == 2
         assert mock.end.call_count == 2
 
-    async def test_patch_publish(self, queue: str, mock: Mock, event, raw_broker):
+    async def test_patch_publish(
+        self,
+        queue: str,
+        mock: Mock,
+        event: asyncio.Event,
+    ):
         class Mid(BaseMiddleware):
             async def on_publish(self, msg: str, *args, **kwargs) -> str:
                 return msg * 2
 
-        broker = self.broker_class(middlewares=(Mid,))
+        broker = self.get_broker(middlewares=(Mid,))
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -366,16 +346,12 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
             mock(m)
             event.set()
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
 
             await asyncio.wait(
                 (
-                    asyncio.create_task(
-                        broker.publish("r", queue, reply_to=queue + "r")
-                    ),
+                    asyncio.create_task(br.publish("r", queue, reply_to=queue + "r")),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -389,7 +365,6 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-        raw_broker,
     ):
         class Mid(BaseMiddleware):
             async def on_publish(self, msg: str, *args, **kwargs) -> str:
@@ -403,7 +378,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                 if mock.end.call_count > 2:
                     event.set()
 
-        broker = self.broker_class(middlewares=(Mid,))
+        broker = self.get_broker(middlewares=(Mid,))
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -414,13 +389,11 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
             mock.inner(m)
             return m
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("1", queue)),
+                    asyncio.create_task(br.publish("1", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -435,19 +408,11 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
 
 @pytest.mark.asyncio
 class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
-    broker_class: Type[BrokerUsecase]
-
-    @pytest.fixture
-    def raw_broker(self):
-        return None
-
-    def patch_broker(
-        self, raw_broker: BrokerUsecase, broker: BrokerUsecase
-    ) -> BrokerUsecase:
-        return broker
-
     async def test_exception_middleware_default_msg(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
     ):
         mid = ExceptionMiddleware()
 
@@ -455,7 +420,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             return "value"
 
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(apply_types=True, middlewares=(mid,))
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -471,13 +436,11 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
             mock(await msg.decode())
             event.set()
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -488,7 +451,10 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         mock.assert_called_once_with("value")
 
     async def test_exception_middleware_skip_msg(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
     ):
         mid = ExceptionMiddleware()
 
@@ -497,7 +463,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
             event.set()
             raise SkipMessage()
 
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,))
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
@@ -511,13 +477,11 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def subscriber2(msg=Context("message")):
             mock(await msg.decode())
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -527,7 +491,10 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         assert mock.call_count == 0
 
     async def test_exception_middleware_do_not_catch_skip_msg(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
     ):
         mid = ExceptionMiddleware()
 
@@ -535,7 +502,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             mock()
 
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,))
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
@@ -543,13 +510,11 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
             event.set()
             raise SkipMessage
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -560,7 +525,10 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         assert mock.call_count == 0
 
     async def test_exception_middleware_reraise(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
     ):
         mid = ExceptionMiddleware()
 
@@ -569,7 +537,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
             event.set()
             raise exc
 
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,))
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
@@ -583,13 +551,11 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def subscriber2(msg=Context("message")):
             mock(await msg.decode())
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -599,7 +565,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         assert mock.call_count == 0
 
     async def test_exception_middleware_different_handler(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+        self, event: asyncio.Event, queue: str, mock: Mock
     ):
         mid = ExceptionMiddleware()
 
@@ -611,7 +577,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             return "value"
 
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(apply_types=True, middlewares=(mid,))
         args, kwargs = self.get_subscriber_params(queue)
 
         publisher = broker.publisher(queue + "2")
@@ -636,14 +602,12 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
             if mock.call_count > 1:
                 event.set()
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("", queue)),
-                    asyncio.create_task(broker.publish("", queue + "1")),
+                    asyncio.create_task(br.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue + "1")),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -678,7 +642,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         ]
 
     async def test_exception_middleware_decoder_error(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+        self, event: asyncio.Event, queue: str, mock: Mock
     ):
         async def decoder(
             msg,
@@ -692,7 +656,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             event.set()
 
-        broker = self.broker_class(middlewares=(mid,), decoder=decoder)
+        broker = self.get_broker(middlewares=(mid,), decoder=decoder)
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -700,13 +664,11 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def subscriber1(m):
             raise ZeroDivisionError
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(br.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,

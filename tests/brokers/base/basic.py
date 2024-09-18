@@ -1,11 +1,31 @@
+from abc import abstractmethod
 from typing import Any, Dict, Tuple
+
+from faststream._internal.broker.broker import BrokerUsecase
 
 
 class BaseTestcaseConfig:
     timeout: float = 3.0
 
+    @abstractmethod
+    def get_broker(
+        self,
+        apply_types: bool = False,
+        **kwargs: Any,
+    ) -> BrokerUsecase[Any, Any]:
+        raise NotImplementedError
+
+    def patch_broker(
+        self,
+        broker: BrokerUsecase,
+        **kwargs: Any,
+    ) -> BrokerUsecase:
+        return broker
+
     def get_subscriber_params(
-        self, *args: Any, **kwargs: Any
+        self,
+        *args: Any,
+        **kwargs: Any,
     ) -> Tuple[
         Tuple[Any, ...],
         Dict[str, Any],

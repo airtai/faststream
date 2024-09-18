@@ -1,12 +1,12 @@
 import asyncio
-from typing import List
+from typing import Any, List
 from unittest.mock import Mock
 
 import pytest
 
-from faststream.confluent import KafkaRouter
+from faststream.confluent import KafkaBroker, KafkaRouter
 from faststream.confluent.fastapi import KafkaRouter as StreamRouter
-from faststream.confluent.testing import TestKafkaBroker, build_message
+from faststream.confluent.testing import TestKafkaBroker
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 from .basic import ConfluentTestcaseConfig
@@ -32,11 +32,11 @@ class TestConfluentRouter(ConfluentTestcaseConfig, FastAPITestcase):
             event.set()
             return mock(msg)
 
-        async with router.broker:
-            await router.broker.start()
+        async with self.patch_broker(router.broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(router.broker.publish("hi", queue)),
+                    asyncio.create_task(br.publish("hi", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -49,8 +49,9 @@ class TestConfluentRouter(ConfluentTestcaseConfig, FastAPITestcase):
 class TestRouterLocal(ConfluentTestcaseConfig, FastAPILocalTestcase):
     router_class = StreamRouter
     broker_router_class = KafkaRouter
-    broker_test = staticmethod(TestKafkaBroker)
-    build_message = staticmethod(build_message)
+
+    def patch_broker(self, broker: KafkaBroker, **kwargs: Any) -> TestKafkaBroker:
+        return TestKafkaBroker(broker, **kwargs)
 
     async def test_batch_testclient(
         self,
@@ -67,10 +68,10 @@ class TestRouterLocal(ConfluentTestcaseConfig, FastAPILocalTestcase):
             event.set()
             return mock(msg)
 
-        async with TestKafkaBroker(router.broker):
+        async with self.patch_broker(router.broker) as br:
             await asyncio.wait(
                 (
-                    asyncio.create_task(router.broker.publish("hi", queue)),
+                    asyncio.create_task(br.publish("hi", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,

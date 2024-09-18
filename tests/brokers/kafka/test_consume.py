@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -13,8 +14,8 @@ from tests.tools import spy_decorator
 
 @pytest.mark.kafka
 class TestConsume(BrokerRealConsumeTestcase):
-    def get_broker(self, apply_types: bool = False):
-        return KafkaBroker(apply_types=apply_types)
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
+        return KafkaBroker(apply_types=apply_types, **kwargs)
 
     @pytest.mark.asyncio
     async def test_consume_by_pattern(

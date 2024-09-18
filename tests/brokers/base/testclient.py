@@ -5,17 +5,11 @@ from unittest.mock import Mock
 import anyio
 import pytest
 
-from faststream._internal.basic_types import AnyCallable
-from faststream._internal.testing.broker import TestBroker
-
 from .consume import BrokerConsumeTestcase
 from .publish import BrokerPublishTestcase
 
 
 class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
-    build_message: AnyCallable
-    test_class: TestBroker
-
     @abstractmethod
     def get_fake_producer_class(self) -> type:
         raise NotImplementedError
@@ -30,9 +24,9 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         async def m(msg):
             pass
 
-        async with self.test_class(test_broker):
-            await test_broker.start()
-            await test_broker.publish("hello", queue)
+        async with self.patch_broker(test_broker) as br:
+            await br.start()
+            await br.publish("hello", queue)
             m.mock.assert_called_once_with("hello")
 
     @pytest.mark.asyncio
@@ -48,9 +42,9 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         async def m(msg):
             return "response"
 
-        async with self.test_class(test_broker):
-            await test_broker.start()
-            await test_broker.publish("hello", queue)
+        async with self.patch_broker(test_broker) as br:
+            await br.start()
+            await br.publish("hello", queue)
             publisher.mock.assert_called_with("response")
 
     @pytest.mark.asyncio
@@ -71,12 +65,12 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         @test_broker.subscriber(*args2, **kwargs2)
         async def handler_response(msg): ...
 
-        async with self.test_class(test_broker):
-            await test_broker.start()
+        async with self.patch_broker(test_broker) as br:
+            await br.start()
 
-            assert len(test_broker._subscribers) == 2
+            assert len(br._subscribers) == 2
 
-            await test_broker.publish("hello", queue)
+            await br.publish("hello", queue)
             publisher.mock.assert_called_with("response")
             handler_response.mock.assert_called_once_with("response")
 
@@ -92,9 +86,9 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         async def m(msg):
             await publisher.publish("response")
 
-        async with self.test_class(test_broker):
-            await test_broker.start()
-            await test_broker.publish("hello", queue)
+        async with self.patch_broker(test_broker) as br:
+            await br.start()
+            await br.publish("hello", queue)
             publisher.mock.assert_called_with("response")
 
     @pytest.mark.asyncio
@@ -107,34 +101,33 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         async def m(msg):  # pragma: no cover
             raise ValueError()
 
-        async with self.test_class(test_broker):
-            await test_broker.start()
+        async with self.patch_broker(test_broker) as br:
+            await br.start()
 
             with pytest.raises(ValueError):  # noqa: PT011
-                await test_broker.publish("hello", queue)
+                await br.publish("hello", queue)
 
-    async def test_broker_gets_patched_attrs_within_cm(self):
+    async def test_broker_gets_patched_attrs_within_cm(self, fake_producer_cls):
         test_broker = self.get_broker()
-        fake_producer_class = self.get_fake_producer_class()
         await test_broker.start()
 
-        async with self.test_class(test_broker) as br:
+        async with self.patch_broker(test_broker) as br:
             assert isinstance(br.start, Mock)
             assert isinstance(br._connect, Mock)
             assert isinstance(br.close, Mock)
-            assert isinstance(br._producer, fake_producer_class)
+            assert isinstance(br._producer, fake_producer_cls)
 
         assert not isinstance(br.start, Mock)
         assert not isinstance(br._connect, Mock)
         assert not isinstance(br.close, Mock)
         assert br._connection is not None
-        assert not isinstance(br._producer, fake_producer_class)
+        assert not isinstance(br._producer, fake_producer_cls)
 
     async def test_broker_with_real_doesnt_get_patched(self):
         test_broker = self.get_broker()
         await test_broker.start()
 
-        async with self.test_class(test_broker, with_real=True) as br:
+        async with self.patch_broker(test_broker, with_real=True) as br:
             assert not isinstance(br.start, Mock)
             assert not isinstance(br._connect, Mock)
             assert not isinstance(br.close, Mock)
@@ -156,7 +149,7 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
 
         await test_broker.start()
 
-        async with self.test_class(test_broker, with_real=True) as br:
+        async with self.patch_broker(test_broker, with_real=True) as br:
             await br.publish("hello", queue)
 
             await m.wait_call(self.timeout)

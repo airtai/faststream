@@ -5,7 +5,7 @@ import pytest
 
 from faststream.rabbit import ExchangeType, RabbitExchange, RabbitQueue, RabbitRouter
 from faststream.rabbit.fastapi import RabbitRouter as StreamRouter
-from faststream.rabbit.testing import TestRabbitBroker, build_message
+from faststream.rabbit.testing import TestRabbitBroker
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
@@ -57,8 +57,9 @@ class TestRouter(FastAPITestcase):
 class TestRouterLocal(FastAPILocalTestcase):
     router_class = StreamRouter
     broker_router_class = RabbitRouter
-    broker_test = staticmethod(TestRabbitBroker)
-    build_message = staticmethod(build_message)
+
+    def patch_broker(self, broker, **kwargs):
+        return TestRabbitBroker(broker, **kwargs)
 
     async def test_path(self):
         router = self.router_class()
@@ -76,8 +77,8 @@ class TestRouterLocal(FastAPILocalTestcase):
         async def hello(name):
             return name
 
-        async with self.broker_test(router.broker):
-            r = await router.broker.request(
+        async with self.patch_broker(router.broker) as br:
+            r = await br.request(
                 "hi",
                 "in.john",
                 "test",

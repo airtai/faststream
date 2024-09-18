@@ -8,11 +8,11 @@ from faststream.asgi import AsgiFastStream, AsgiResponse, get, make_ping_asgi
 
 
 class AsgiTestcase:
-    def get_broker(self) -> Any:
-        raise NotImplementedError()
+    def get_broker(self, **kwargs) -> Any:
+        raise NotImplementedError
 
     def get_test_broker(self, broker) -> Any:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def test_not_found(self):
         app = AsgiFastStream()

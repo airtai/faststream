@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 import pytest
 
@@ -12,14 +13,11 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 class TestTestclient(BrokerTestclientTestcase):
     test_class = TestRedisBroker
 
-    def get_broker(self, apply_types: bool = False) -> RedisBroker:
-        return RedisBroker(apply_types=apply_types)
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
+        return RedisBroker(apply_types=apply_types, **kwargs)
 
-    def patch_broker(self, broker: RedisBroker) -> TestRedisBroker:
-        return TestRedisBroker(broker)
-
-    def get_fake_producer_class(self) -> type:
-        return FakeProducer
+    def patch_broker(self, broker: RedisBroker, **kwargs: Any) -> TestRedisBroker:
+        return TestRedisBroker(broker, **kwargs)
 
     @pytest.mark.redis
     async def test_with_real_testclient(
@@ -33,7 +31,7 @@ class TestTestclient(BrokerTestclientTestcase):
         def subscriber(m):
             event.set()
 
-        async with TestRedisBroker(broker, with_real=True) as br:
+        async with self.patch_broker(broker, with_real=True) as br:
             await asyncio.wait(
                 (
                     asyncio.create_task(br.publish("hello", queue)),
@@ -52,15 +50,15 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RedisBroker(middlewares=(Middleware,))
+        broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
-        async def h1(): ...
+        async def h1(m): ...
 
         @broker.subscriber(queue + "1")
-        async def h2(): ...
+        async def h2(m): ...
 
-        async with TestRedisBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("", queue)
             await br.publish("", queue + "1")
 
@@ -75,15 +73,15 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RedisBroker(middlewares=(Middleware,))
+        broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
-        async def h1(): ...
+        async def h1(m): ...
 
         @broker.subscriber(queue + "1")
-        async def h2(): ...
+        async def h2(m): ...
 
-        async with TestRedisBroker(broker, with_real=True) as br:
+        async with self.patch_broker(broker, with_real=True) as br:
             await br.publish("", queue)
             await br.publish("", queue + "1")
             await h1.wait_call(3)
@@ -222,7 +220,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
     @pytest.mark.redis
     async def test_broker_gets_patched_attrs_within_cm(self):
-        await super().test_broker_gets_patched_attrs_within_cm()
+        await super().test_broker_gets_patched_attrs_within_cm(FakeProducer)
 
     @pytest.mark.redis
     async def test_broker_with_real_doesnt_get_patched(self):

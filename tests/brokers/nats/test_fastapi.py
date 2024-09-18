@@ -1,12 +1,11 @@
 import asyncio
-from typing import List
+from typing import Any, List
 from unittest.mock import MagicMock
 
 import pytest
 
-from faststream.nats import JStream, NatsRouter, PullSub
+from faststream.nats import JStream, NatsBroker, NatsRouter, PullSub, TestNatsBroker
 from faststream.nats.fastapi import NatsRouter as StreamRouter
-from faststream.nats.testing import TestNatsBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
@@ -23,7 +22,7 @@ class TestRouter(FastAPITestcase):
     ):
         router = self.router_class()
 
-        @router.subscriber("in.{name}")
+        @router.subscriber(queue + ".{name}")
         def subscriber(msg: str, name: str):
             mock(msg=msg, name=name)
             event.set()
@@ -32,7 +31,9 @@ class TestRouter(FastAPITestcase):
             await router.broker.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(router.broker.publish("hello", "in.john")),
+                    asyncio.create_task(
+                        router.broker.publish("hello", f"{queue}.john")
+                    ),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -76,8 +77,9 @@ class TestRouter(FastAPITestcase):
 class TestRouterLocal(FastAPILocalTestcase):
     router_class = StreamRouter
     broker_router_class = NatsRouter
-    broker_test = staticmethod(TestNatsBroker)
-    build_message = staticmethod(build_message)
+
+    def patch_broker(self, broker: NatsBroker, **kwargs: Any) -> NatsBroker:
+        return TestNatsBroker(broker, **kwargs)
 
     async def test_consume_batch(
         self,
@@ -97,10 +99,10 @@ class TestRouterLocal(FastAPILocalTestcase):
             mock(m)
             event.set()
 
-        async with self.broker_test(router.broker):
+        async with self.patch_broker(router.broker) as br:
             await asyncio.wait(
                 (
-                    asyncio.create_task(router.broker.publish(b"hello", queue)),
+                    asyncio.create_task(br.publish(b"hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -116,8 +118,8 @@ class TestRouterLocal(FastAPILocalTestcase):
         async def hello(name):
             return name
 
-        async with self.broker_test(router.broker):
-            r = await router.broker.request(
+        async with self.patch_broker(router.broker) as br:
+            r = await br.request(
                 "hi",
                 f"{queue}.john",
                 timeout=0.5,

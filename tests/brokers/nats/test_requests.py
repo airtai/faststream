@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from faststream import BaseMiddleware
@@ -19,8 +21,8 @@ class NatsRequestsTestcase(RequestsTestcase):
     def get_middleware(self, **kwargs):
         return Mid
 
-    def get_broker(self, **kwargs):
-        return NatsBroker(**kwargs)
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types, **kwargs)
 
     def get_router(self, **kwargs):
         return NatsRouter(**kwargs)

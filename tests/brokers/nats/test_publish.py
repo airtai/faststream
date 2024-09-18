@@ -12,8 +12,8 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 class TestPublish(BrokerPublishTestcase):
     """Test publish method of NATS broker."""
 
-    def get_broker(self, apply_types: bool = False) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types)
+    def get_broker(self, apply_types: bool = False, **kwargs) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types, **kwargs)
 
     @pytest.mark.asyncio
     async def test_response(

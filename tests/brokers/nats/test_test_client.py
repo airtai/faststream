@@ -1,37 +1,39 @@
 import asyncio
+from typing import Any
 
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.nats import ConsumerConfig, JStream, NatsBroker, PullSub, TestNatsBroker
+from faststream.nats import (
+    ConsumerConfig,
+    JStream,
+    NatsBroker,
+    PullSub,
+    TestNatsBroker,
+)
 from faststream.nats.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
 @pytest.mark.asyncio
 class TestTestclient(BrokerTestclientTestcase):
-    test_class = TestNatsBroker
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types, **kwargs)
 
-    def get_broker(self, apply_types: bool = False) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types)
-
-    def patch_broker(self, broker: NatsBroker) -> TestNatsBroker:
-        return TestNatsBroker(broker)
-
-    def get_fake_producer_class(self) -> type:
-        return FakeProducer
+    def patch_broker(self, broker: NatsBroker, **kwargs: Any) -> NatsBroker:
+        return TestNatsBroker(broker, **kwargs)
 
     @pytest.mark.asyncio
     async def test_stream_publish(
         self,
         queue: str,
     ):
-        pub_broker = NatsBroker(apply_types=False)
+        pub_broker = self.get_broker(apply_types=False)
 
         @pub_broker.subscriber(queue, stream="test")
         async def m(msg): ...
 
-        async with TestNatsBroker(pub_broker) as br:
+        async with self.patch_broker(pub_broker) as br:
             await br.publish("Hi!", queue, stream="test")
             m.mock.assert_called_once_with("Hi!")
 
@@ -40,12 +42,12 @@ class TestTestclient(BrokerTestclientTestcase):
         self,
         queue: str,
     ):
-        pub_broker = NatsBroker(apply_types=False)
+        pub_broker = self.get_broker(apply_types=False)
 
         @pub_broker.subscriber(queue)
         async def m(msg): ...
 
-        async with TestNatsBroker(pub_broker) as br:
+        async with self.patch_broker(pub_broker) as br:
             await br.publish("Hi!", queue, stream="test")
             assert not m.mock.called
 
@@ -61,7 +63,7 @@ class TestTestclient(BrokerTestclientTestcase):
         def subscriber(m):
             event.set()
 
-        async with TestNatsBroker(broker, with_real=True) as br:
+        async with self.patch_broker(broker, with_real=True) as br:
             await asyncio.wait(
                 (
                     asyncio.create_task(br.publish("hello", queue)),
@@ -77,9 +79,9 @@ class TestTestclient(BrokerTestclientTestcase):
         self,
         queue: str,
     ):
-        broker = NatsBroker(inbox_prefix="test")
+        broker = self.get_broker(inbox_prefix="test")
 
-        async with TestNatsBroker(broker, with_real=True) as br:
+        async with self.patch_broker(broker, with_real=True) as br:
             assert br._connection._inbox_prefix == b"test"
             assert "test" in str(br._connection.new_inbox())
 
@@ -91,15 +93,15 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = NatsBroker(middlewares=(Middleware,))
+        broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
-        async def h1(): ...
+        async def h1(m): ...
 
         @broker.subscriber(queue + "1")
-        async def h2(): ...
+        async def h2(m): ...
 
-        async with TestNatsBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("", queue)
             await br.publish("", queue + "1")
 
@@ -114,15 +116,15 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = NatsBroker(middlewares=(Middleware,))
+        broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
-        async def h1(): ...
+        async def h1(m): ...
 
         @broker.subscriber(queue + "1")
-        async def h2(): ...
+        async def h2(m): ...
 
-        async with TestNatsBroker(broker, with_real=True) as br:
+        async with self.patch_broker(broker, with_real=True) as br:
             await br.publish("", queue)
             await br.publish("", queue + "1")
             await h1.wait_call(3)
@@ -141,7 +143,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def m(msg):
             pass
 
-        async with TestNatsBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", queue, stream=stream.name)
             m.mock.assert_called_once_with("hello")
 
@@ -159,7 +161,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def m(msg):
             return "response"
 
-        async with TestNatsBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", queue, stream=stream.name)
             publisher.mock.assert_called_with("response")
 
@@ -169,7 +171,7 @@ class TestTestclient(BrokerTestclientTestcase):
         @broker.subscriber("test.*.subj.*")
         def subscriber(msg): ...
 
-        async with TestNatsBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", "test.a.subj.b")
             subscriber.mock.assert_called_once_with("hello")
 
@@ -179,7 +181,7 @@ class TestTestclient(BrokerTestclientTestcase):
         @broker.subscriber("test.>")
         def subscriber(msg): ...
 
-        async with TestNatsBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", "test.a.subj.b")
             subscriber.mock.assert_called_once_with("hello")
 
@@ -189,7 +191,7 @@ class TestTestclient(BrokerTestclientTestcase):
         @broker.subscriber("*.*.subj.>")
         def subscriber(msg): ...
 
-        async with TestNatsBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", "test.a.subj.b.c")
             subscriber.mock.assert_called_once_with("hello")
 
@@ -203,7 +205,7 @@ class TestTestclient(BrokerTestclientTestcase):
         @broker.subscriber(queue, stream=stream, pull_sub=PullSub(1))
         def subscriber(m): ...
 
-        async with TestNatsBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", queue)
             subscriber.mock.assert_called_once_with("hello")
 
@@ -222,7 +224,7 @@ class TestTestclient(BrokerTestclientTestcase):
         def subscriber(m):
             pass
 
-        async with TestNatsBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", queue)
             subscriber.mock.assert_called_once_with(["hello"])
 
@@ -239,14 +241,14 @@ class TestTestclient(BrokerTestclientTestcase):
         def subscriber(m):
             pass
 
-        async with TestNatsBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish(1, f"{queue}.b")
             await br.publish(2, f"{queue}.a")
             subscriber.mock.assert_called_once_with(2)
 
     @pytest.mark.nats
     async def test_broker_gets_patched_attrs_within_cm(self):
-        await super().test_broker_gets_patched_attrs_within_cm()
+        await super().test_broker_gets_patched_attrs_within_cm(FakeProducer)
 
     @pytest.mark.nats
     async def test_broker_with_real_doesnt_get_patched(self):

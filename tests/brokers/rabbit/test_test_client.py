@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 import pytest
 
@@ -20,14 +21,11 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 class TestTestclient(BrokerTestclientTestcase):
     test_class = TestRabbitBroker
 
-    def get_broker(self, apply_types: bool = False) -> RabbitBroker:
-        return RabbitBroker(apply_types=apply_types)
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
+        return RabbitBroker(apply_types=apply_types, **kwargs)
 
-    def patch_broker(self, broker: RabbitBroker) -> RabbitBroker:
-        return TestRabbitBroker(broker)
-
-    def get_fake_producer_class(self) -> type:
-        return FakeProducer
+    def patch_broker(self, broker: RabbitBroker, **kwargs: Any) -> RabbitBroker:
+        return TestRabbitBroker(broker, **kwargs)
 
     @pytest.mark.rabbit
     async def test_with_real_testclient(
@@ -41,7 +39,7 @@ class TestTestclient(BrokerTestclientTestcase):
         def subscriber(m):
             event.set()
 
-        async with TestRabbitBroker(broker, with_real=True) as br:
+        async with self.patch_broker(broker, with_real=True) as br:
             await asyncio.wait(
                 (
                     asyncio.create_task(br.publish("hello", queue)),
@@ -59,7 +57,7 @@ class TestTestclient(BrokerTestclientTestcase):
             exchange=RabbitExchange("test", type=ExchangeType.TOPIC), routing_key="up"
         )
 
-        async with TestRabbitBroker(broker):
+        async with self.patch_broker(broker):
             await publisher.publish("Hi!")
 
             publisher.mock.assert_called_once_with("Hi!")
@@ -78,7 +76,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def handler2(m):
             return 2
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.start()
 
             assert await (await br.request("", queue)).decode() == 1
@@ -102,7 +100,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def handler(m):
             mock()
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.request("", exchange=exch)
 
             with pytest.raises(SubscriberNotFound):
@@ -121,7 +119,7 @@ class TestTestclient(BrokerTestclientTestcase):
         )
         def subscriber(msg): ...
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", "test.a.subj.b", exchange=exch)
             subscriber.mock.assert_called_once_with("hello")
 
@@ -136,7 +134,7 @@ class TestTestclient(BrokerTestclientTestcase):
         )
         def subscriber(msg): ...
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", "test.a.subj.b", exchange=exch)
             subscriber.mock.assert_called_once_with("hello")
 
@@ -151,7 +149,7 @@ class TestTestclient(BrokerTestclientTestcase):
         )
         def subscriber(msg): ...
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", "test.a.subj.b.c", exchange=exch)
             subscriber.mock.assert_called_once_with("hello")
 
@@ -184,7 +182,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def handler3(msg):
             return 3
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             assert (
                 await (
                     await br.request(exchange=exch, headers={"key": 2, "key2": 2})
@@ -225,7 +223,7 @@ class TestTestclient(BrokerTestclientTestcase):
             consume3.set()
             raise ValueError()
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await asyncio.wait(
                 (
                     asyncio.create_task(
@@ -256,7 +254,7 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RabbitBroker(middlewares=(Middleware,))
+        broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
         async def h1(msg): ...
@@ -264,7 +262,7 @@ class TestTestclient(BrokerTestclientTestcase):
         @broker.subscriber(queue + "1")
         async def h2(msg): ...
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("", queue)
             await br.publish("", queue + "1")
 
@@ -279,7 +277,7 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RabbitBroker(middlewares=(Middleware,))
+        broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
         async def h1(msg): ...
@@ -287,7 +285,7 @@ class TestTestclient(BrokerTestclientTestcase):
         @broker.subscriber(queue + "1")
         async def h2(msg): ...
 
-        async with TestRabbitBroker(broker, with_real=True) as br:
+        async with self.patch_broker(broker, with_real=True) as br:
             await br.publish("", queue)
             await br.publish("", queue + "1")
             await h1.wait_call(3)
@@ -297,7 +295,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
     @pytest.mark.rabbit
     async def test_broker_gets_patched_attrs_within_cm(self):
-        await super().test_broker_gets_patched_attrs_within_cm()
+        await super().test_broker_gets_patched_attrs_within_cm(FakeProducer)
 
     @pytest.mark.rabbit
     async def test_broker_with_real_doesnt_get_patched(self):

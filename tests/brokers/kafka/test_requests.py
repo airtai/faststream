@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from faststream import BaseMiddleware
@@ -16,14 +18,14 @@ class Mid(BaseMiddleware):
 
 @pytest.mark.asyncio
 class TestRequestTestClient(RequestsTestcase):
-    def get_middleware(self, **kwargs):
+    def get_middleware(self, **kwargs: Any):
         return Mid
 
-    def get_broker(self, **kwargs):
-        return KafkaBroker(**kwargs)
-
-    def get_router(self, **kwargs):
+    def get_router(self, **kwargs: Any):
         return KafkaRouter(**kwargs)
 
-    def patch_broker(self, broker, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
+        return KafkaBroker(apply_types=apply_types, **kwargs)
+
+    def patch_broker(self, broker: KafkaBroker, **kwargs: Any) -> TestKafkaBroker:
         return TestKafkaBroker(broker, **kwargs)

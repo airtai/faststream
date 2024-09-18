@@ -1,12 +1,12 @@
 import asyncio
-from typing import List
+from typing import Any, List
 from unittest.mock import Mock
 
 import pytest
 
-from faststream.redis import ListSub, RedisRouter, StreamSub
+from faststream.redis import ListSub, RedisBroker, RedisRouter, StreamSub
 from faststream.redis.fastapi import RedisRouter as StreamRouter
-from faststream.redis.testing import TestRedisBroker, build_message
+from faststream.redis.testing import TestRedisBroker
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
@@ -138,8 +138,9 @@ class TestRouter(FastAPITestcase):
 class TestRouterLocal(FastAPILocalTestcase):
     router_class = StreamRouter
     broker_router_class = RedisRouter
-    broker_test = staticmethod(TestRedisBroker)
-    build_message = staticmethod(build_message)
+
+    def patch_broker(self, broker: RedisBroker, **kwargs: Any) -> RedisBroker:
+        return TestRedisBroker(broker, **kwargs)
 
     async def test_batch_testclient(
         self,
@@ -154,10 +155,10 @@ class TestRouterLocal(FastAPILocalTestcase):
             event.set()
             return mock(msg)
 
-        async with TestRedisBroker(router.broker):
+        async with self.patch_broker(router.broker) as br:
             await asyncio.wait(
                 (
-                    asyncio.create_task(router.broker.publish("hi", list=queue)),
+                    asyncio.create_task(br.publish("hi", list=queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -179,10 +180,10 @@ class TestRouterLocal(FastAPILocalTestcase):
             event.set()
             return mock(msg)
 
-        async with TestRedisBroker(router.broker):
+        async with self.patch_broker(router.broker) as br:
             await asyncio.wait(
                 (
-                    asyncio.create_task(router.broker.publish("hi", stream=queue)),
+                    asyncio.create_task(br.publish("hi", stream=queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -198,8 +199,8 @@ class TestRouterLocal(FastAPILocalTestcase):
         async def hello(name):
             return name
 
-        async with self.broker_test(router.broker):
-            r = await router.broker.request(
+        async with self.patch_broker(router.broker) as br:
+            r = await br.request(
                 "hi",
                 f"{queue}.john",
                 timeout=0.5,

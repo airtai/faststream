@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from faststream import BaseMiddleware
@@ -20,8 +22,8 @@ class RabbitRequestsTestcase(RequestsTestcase):
     def get_middleware(self, **kwargs):
         return Mid
 
-    def get_broker(self, **kwargs):
-        return RabbitBroker(**kwargs)
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
+        return RabbitBroker(apply_types=apply_types, **kwargs)
 
     def get_router(self, **kwargs):
         return RabbitRouter(**kwargs)

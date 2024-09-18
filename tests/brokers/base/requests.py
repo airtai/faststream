@@ -8,14 +8,8 @@ class RequestsTestcase(BaseTestcaseConfig):
     def get_middleware(self, **kwargs):
         raise NotImplementedError
 
-    def get_broker(self, **kwargs):
-        raise NotImplementedError
-
     def get_router(self, **kwargs):
         raise NotImplementedError
-
-    def patch_broker(self, broker, **kwargs):
-        return broker
 
     async def test_request_timeout(self, queue: str):
         broker = self.get_broker()
