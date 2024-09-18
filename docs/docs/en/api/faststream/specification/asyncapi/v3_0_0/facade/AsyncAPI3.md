@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.specification.asyncapi.v2_6_0.asyncapi.AsyncAPI2
+::: faststream.specification.asyncapi.v3_0_0.facade.AsyncAPI3
