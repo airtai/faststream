@@ -22,15 +22,17 @@ from aiokafka.producer.producer import _missing
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
+from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream._internal.utils.data import filter_by_dict
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.kafka.broker.logging import KafkaLoggingBroker
-from faststream.kafka.broker.registrator import KafkaRegistrator
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.kafka.security import parse_security
 from faststream.message import gen_cor_id
+
+from .logging import make_kafka_logger_state
+from .registrator import KafkaRegistrator
 
 Partition = TypeVar("Partition")
 
@@ -229,8 +231,11 @@ if TYPE_CHECKING:
 
 
 class KafkaBroker(
+    BrokerUsecase[
+        Union[aiokafka.ConsumerRecord, Tuple[aiokafka.ConsumerRecord, ...]],
+        Callable[..., aiokafka.AIOKafkaConsumer],
+    ],
     KafkaRegistrator,
-    KafkaLoggingBroker,
 ):
     url: List[str]
     _producer: Optional["AioKafkaFastProducer"]
@@ -565,9 +570,11 @@ class KafkaBroker(
             security=security,
             tags=tags,
             # Logging args
-            logger=logger,
-            log_level=log_level,
-            log_fmt=log_fmt,
+            logger_state=make_kafka_logger_state(
+                logger=logger,
+                log_level=log_level,
+                log_fmt=log_fmt,
+            ),
             # FastDepends args
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
@@ -584,11 +591,13 @@ class KafkaBroker(
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
+        await super().close(exc_type, exc_val, exc_tb)
+
         if self._producer is not None:  # pragma: no branch
             await self._producer.stop()
             self._producer = None
 
-        await super().close(exc_type, exc_val, exc_tb)
+        self._connection = None
 
     @override
     async def connect(  # type: ignore[override]
@@ -643,14 +652,9 @@ class KafkaBroker(
 
     async def start(self) -> None:
         """Connect broker to Kafka and startup all subscribers."""
+        await self.connect()
+        self._setup()
         await super().start()
-
-        for handler in self._subscribers.values():
-            self._log(
-                f"`{handler.call_name}` waiting for messages",
-                extra=handler.get_log_context(None),
-            )
-            await handler.start()
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":

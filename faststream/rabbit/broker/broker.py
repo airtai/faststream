@@ -20,7 +20,6 @@ from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
-from faststream.rabbit.broker.registrator import RabbitRegistrator
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from faststream.rabbit.schemas import (
@@ -32,6 +31,7 @@ from faststream.rabbit.security import parse_security
 from faststream.rabbit.utils import build_url
 
 from .logging import make_rabbit_logger_state
+from .registrator import RabbitRegistrator
 
 if TYPE_CHECKING:
     from ssl import SSLContext

@@ -30,12 +30,12 @@ from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
-from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
 
 from .logging import make_redis_logger_state
+from .registrator import RedisRegistrator
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -343,10 +343,11 @@ class RedisBroker(
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
+        await super().close(exc_type, exc_val, exc_tb)
+
         if self._connection is not None:
             await self._connection.aclose()  # type: ignore[attr-defined]
-
-        await super().close(exc_type, exc_val, exc_tb)
+            self._connection = None
 
     async def start(self) -> None:
         await self.connect()
