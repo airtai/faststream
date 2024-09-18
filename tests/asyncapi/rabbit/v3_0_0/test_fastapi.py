@@ -30,14 +30,15 @@ def test_fastapi_security_schema():
 
     schema = AsyncAPI(
         router.broker,
+        schema_version="3.0.0"
     ).jsonable()
 
     assert schema["servers"]["development"] == {
         "protocol": "amqp",
         "protocolVersion": "0.9.1",
         "security": [{"user-password": []}],
-        "host": "user:pass@localhost:5672",  # pragma: allowlist secret
-        "pathname": "/",  # pragma: allowlist secret
+        'host': 'user:pass@localhost:5672',
+        'pathname': '/',
     }
     assert schema["components"]["securitySchemes"] == {
         "user-password": {"type": "userPassword"}

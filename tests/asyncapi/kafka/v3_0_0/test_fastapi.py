@@ -8,7 +8,7 @@ from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 
 
 class TestRouterArguments(FastAPITestCase, FastAPICompatible):
-    broker_factory = KafkaRouter
+    broker_factory = staticmethod(lambda: KafkaRouter().broker)
     router_factory = KafkaRouter
     broker_wrapper = staticmethod(TestKafkaBroker)
 
@@ -28,7 +28,7 @@ def test_fastapi_security_schema():
 
     router = KafkaRouter("localhost:9092", security=security)
 
-    schema = AsyncAPI(router.broker).jsonable()
+    schema = AsyncAPI(router.broker, schema_version="3.0.0").jsonable()
 
     assert schema["servers"]["development"] == {
         "protocol": "kafka",

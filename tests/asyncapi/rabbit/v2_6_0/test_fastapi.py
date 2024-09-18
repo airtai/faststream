@@ -27,9 +27,9 @@ class TestRouterPublisher(PublisherTestcase):
 def test_fastapi_security_schema():
     security = SASLPlaintext(username="user", password="pass", use_ssl=False)
 
-    broker = RabbitRouter(security=security)
+    router = RabbitRouter(security=security)
 
-    schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+    schema = AsyncAPI(router.broker, schema_version="2.6.0").jsonable()
 
     assert schema["servers"]["development"] == {
         "protocol": "amqp",

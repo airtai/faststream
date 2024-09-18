@@ -305,7 +305,15 @@ class StreamRouter(
 
                 from faststream.specification.asyncapi import AsyncAPI
 
-                self.schema = AsyncAPI(self.broker, schema_version="3.0.0").schema()
+                self.schema = AsyncAPI(
+                    self.broker,
+                    title=self.title,
+                    description=self.description,
+                    app_version=self.version,
+                    contact=self.contact,
+                    license=self.license,
+                    schema_version="3.0.0"
+                ).schema()
 
                 app.include_router(self.docs_router)
 

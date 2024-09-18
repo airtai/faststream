@@ -68,27 +68,27 @@ class FastAPITestCase:
                     "channels": {},
                     "operations": {},
                     "components": {"messages": {}, "schemas": {}},
-                }
+                }, response_json.json()
 
     @pytest.mark.asyncio
     async def test_fastapi_asyncapi_routes(self):
-        broker = self.router_factory(schema_url="/asyncapi_schema")
+        router = self.router_factory(schema_url="/asyncapi_schema")
 
-        @broker.subscriber("test")
+        @router.subscriber("test")
         async def handler(): ...
 
-        app = FastAPI(lifespan=broker.lifespan_context)
-        app.include_router(broker)
+        app = FastAPI(lifespan=router.lifespan_context)
+        app.include_router(router)
 
-        async with self.broker_wrapper(broker.broker):
+        async with self.broker_wrapper(router.broker):
             with TestClient(app) as client:
-                schema = AsyncAPI(broker, schema_version="3.0.0")
+                schema = AsyncAPI(router.broker, schema_version="3.0.0")
 
                 response_json = client.get("/asyncapi_schema.json")
-                assert response_json.json() == schema.jsonable()
+                assert response_json.json() == schema.jsonable(), schema.jsonable()
 
                 response_yaml = client.get("/asyncapi_schema.yaml")
-                assert response_yaml.text == schema.to_yaml()
+                assert response_yaml.text == schema.yaml()
 
                 response_html = client.get("/asyncapi_schema")
                 assert response_html.status_code == 200

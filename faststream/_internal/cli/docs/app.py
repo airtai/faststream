@@ -174,7 +174,7 @@ def _parse_and_serve(
         if app_obj.broker is None:
             raise RuntimeError
 
-        raw_schema = AsyncAPI(app_obj.broker, schema_version="3.0.0").schema()
+        raw_schema = AsyncAPI(app_obj.broker, schema_version="2.6.0").schema()
 
     else:
         schema_filepath = Path.cwd() / app
