@@ -29,7 +29,7 @@ def test_with_name():
     schema = AsyncAPI(
         KafkaBroker(),
         title="My App",
-        version="1.0.0",
+        app_version="1.0.0",
         description="Test description",
         schema_version="2.6.0",
     ).jsonable()
@@ -58,7 +58,7 @@ def test_full():
     schema = AsyncAPI(
         KafkaBroker(),
         title="My App",
-        version="1.0.0",
+        app_version="1.0.0",
         description="Test description",
         license=License(name="MIT", url="https://mit.com/"),
         terms_of_service="https://my-terms.com/",
@@ -101,7 +101,7 @@ def test_full_dict():
     schema = AsyncAPI(
         KafkaBroker(),
         title="My App",
-        version="1.0.0",
+        app_version="1.0.0",
         description="Test description",
         license={"name": "MIT", "url": "https://mit.com/"},
         terms_of_service="https://my-terms.com/",
@@ -144,7 +144,7 @@ def test_extra():
     schema = AsyncAPI(
         KafkaBroker(),
         title="My App",
-        version="1.0.0",
+        app_version="1.0.0",
         description="Test description",
         license={"name": "MIT", "url": "https://mit.com/", "x-field": "extra"},
         terms_of_service="https://my-terms.com/",

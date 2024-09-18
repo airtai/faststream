@@ -12,13 +12,13 @@ from faststream.specification.asyncapi import AsyncAPI
 
 
 class FastAPITestCase:
-    broker_class: Type[StreamRouter[MsgType]]
+    router_class: Type[StreamRouter[MsgType]]
     broker_wrapper: Callable[[BrokerUsecase[MsgType, Any]], BrokerUsecase[MsgType, Any]]
 
     @pytest.mark.skip
     @pytest.mark.asyncio
     async def test_fastapi_full_information(self):
-        broker = self.broker_class(
+        router = self.router_class(
             protocol="custom",
             protocol_version="1.1.1",
             description="Test broker description",
@@ -33,9 +33,9 @@ class FastAPITestCase:
             contact={"name": "support", "url": "https://support.com"},
             license_info={"name": "some", "url": "https://some.com"},
         )
-        app.include_router(broker)
+        app.include_router(router)
 
-        async with self.broker_wrapper(broker.broker):
+        async with self.broker_wrapper(router.broker):
             with TestClient(app) as client:
                 response_json = client.get("/asyncapi_schema.json")
 
@@ -71,35 +71,35 @@ class FastAPITestCase:
     @pytest.mark.skip
     @pytest.mark.asyncio
     async def test_fastapi_asyncapi_routes(self):
-        broker = self.broker_class(schema_url="/asyncapi_schema")
+        router = self.router_class(schema_url="/asyncapi_schema")
 
-        @broker.subscriber("test")
+        @router.subscriber("test")
         async def handler(): ...
 
         app = FastAPI()
-        app.include_router(broker)
+        app.include_router(router)
 
-        async with self.broker_wrapper(broker.broker):
+        async with self.broker_wrapper(router.broker):
             with TestClient(app) as client:
-                schema = AsyncAPI(broker, schema_version="2.6.0")
+                schema = AsyncAPI(router.broker, schema_version="2.6.0")
 
                 response_json = client.get("/asyncapi_schema.json")
                 assert response_json.json() == schema.jsonable()
 
                 response_yaml = client.get("/asyncapi_schema.yaml")
-                assert response_yaml.text == schema.to_yaml()
+                assert response_yaml.text == schema.yaml()
 
                 response_html = client.get("/asyncapi_schema")
                 assert response_html.status_code == 200
 
     @pytest.mark.asyncio
     async def test_fastapi_asyncapi_not_fount(self):
-        broker = self.broker_class(include_in_schema=False)
+        router = self.router_class(include_in_schema=False)
 
         app = FastAPI()
-        app.include_router(broker)
+        app.include_router(router)
 
-        async with self.broker_wrapper(broker.broker):
+        async with self.broker_wrapper(router.broker):
             with TestClient(app) as client:
                 response_json = client.get("/asyncapi.json")
                 assert response_json.status_code == 404
@@ -112,12 +112,12 @@ class FastAPITestCase:
 
     @pytest.mark.asyncio
     async def test_fastapi_asyncapi_not_fount_by_url(self):
-        broker = self.broker_class(schema_url=None)
+        router = self.router_class(schema_url=None)
 
         app = FastAPI()
-        app.include_router(broker)
+        app.include_router(router)
 
-        async with self.broker_wrapper(broker.broker):
+        async with self.broker_wrapper(router.broker):
             with TestClient(app) as client:
                 response_json = client.get("/asyncapi.json")
                 assert response_json.status_code == 404

@@ -10,7 +10,8 @@ from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
 
 
 class TestRouterArguments(FastAPITestCase, FastAPICompatible):
-    broker_class: Type[KafkaRouter] = KafkaRouter
+    broker_class = staticmethod(lambda: KafkaRouter().broker)
+    router_class = KafkaRouter
     broker_wrapper = staticmethod(TestKafkaBroker)
 
     def build_app(self, router):
@@ -18,7 +19,7 @@ class TestRouterArguments(FastAPITestCase, FastAPICompatible):
 
 
 class TestRouterPublisher(PublisherTestcase):
-    broker_class = KafkaRouter
+    broker_class = staticmethod(lambda: KafkaRouter().broker)
 
     def build_app(self, router):
         return router
