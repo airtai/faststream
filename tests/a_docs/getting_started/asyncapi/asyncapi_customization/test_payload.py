@@ -1,11 +1,11 @@
-from docs.docs_src.getting_started.asyncapi.asyncapi_customization.payload_info import (
-    app,
-)
-from faststream.specification.asyncapi.generate import get_app_schema
+from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_info import docs_obj
+from docs.docs_src.getting_started.asyncapi.asyncapi_customization.payload_info import app, docs_obj
+
+from faststream.specification.asyncapi import AsyncAPI
 
 
 def test_payload_customization():
-    schema = get_app_schema(app, version="2.6.0").to_jsonable()
+    schema = docs_obj.jsonable()
 
     assert schema["components"]["schemas"] == {
         "DataBasic": {

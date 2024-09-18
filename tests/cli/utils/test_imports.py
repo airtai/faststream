@@ -4,7 +4,7 @@ import pytest
 from typer import BadParameter
 
 from faststream._internal.cli.utils.imports import (
-    get_app_path,
+    get_obj_path,
     import_from_string,
     import_object,
 )
@@ -13,7 +13,7 @@ from tests.marks import require_aiokafka, require_aiopika, require_nats
 
 
 def test_import_wrong():
-    dir, app = get_app_path("tests:test_object")
+    dir, app = get_obj_path("tests:test_object")
     with pytest.raises(FileNotFoundError):
         import_object(dir, app)
 
@@ -36,14 +36,14 @@ def test_import_wrong():
     ),
 )
 def test_get_app_path(test_input, exp_module, exp_app):
-    dir, app = get_app_path(test_input)
+    dir, app = get_obj_path(test_input)
     assert app == exp_app
     assert dir == Path.cwd() / exp_module
 
 
 def test_get_app_path_wrong():
-    with pytest.raises(ValueError, match="`module.app` is not a FastStream"):
-        get_app_path("module.app")
+    with pytest.raises(ValueError, match="`module.app` is not a path to object"):
+        get_obj_path("module.app")
 
 
 def test_import_from_string_import_wrong():

@@ -1,17 +1,14 @@
 import importlib
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import TYPE_CHECKING, Tuple
+from typing import Tuple
 
 import typer
 
 from faststream.exceptions import SetupError
 
-if TYPE_CHECKING:
-    from faststream.app import FastStream
 
-
-def try_import_app(module: Path, app: str) -> "FastStream":
+def try_import_app(module: Path, app: str) -> object:
     """Tries to import a FastStream app from a module."""
     try:
         app_object = import_object(module, app)
@@ -19,11 +16,11 @@ def try_import_app(module: Path, app: str) -> "FastStream":
     except FileNotFoundError as e:
         typer.echo(e, err=True)
         raise typer.BadParameter(
-            "Please, input module like [python_file:faststream_app_name] or [module:attribute]"
+            "Please, input module like [python_file:docs_object] or [module:attribute]"
         ) from e
 
     else:
-        return app_object  # type: ignore
+        return app_object
 
 
 def import_object(module: Path, app: str) -> object:
@@ -53,12 +50,12 @@ def import_object(module: Path, app: str) -> object:
     return obj
 
 
-def get_app_path(app: str) -> Tuple[Path, str]:
+def get_obj_path(obj_path: str) -> Tuple[Path, str]:
     """Get the application path."""
-    if ":" not in app:
-        raise SetupError(f"`{app}` is not a FastStream")
+    if ":" not in obj_path:
+        raise SetupError(f"`{obj_path}` is not a path to object")
 
-    module, app_name = app.split(":", 2)
+    module, app_name = obj_path.split(":", 2)
 
     mod_path = Path.cwd()
     for i in module.split("."):
@@ -67,7 +64,7 @@ def get_app_path(app: str) -> Tuple[Path, str]:
     return mod_path, app_name
 
 
-def import_from_string(import_str: str) -> Tuple[Path, "FastStream"]:
+def import_from_string(import_str: str) -> Tuple[Path, object]:
     """Import FastStream application from module specified by a string."""
     if not isinstance(import_str, str):
         raise typer.BadParameter("Given value is not of type string")
@@ -84,15 +81,15 @@ def import_from_string(import_str: str) -> Tuple[Path, "FastStream"]:
         )
 
     except ModuleNotFoundError:
-        module_path, app_name = get_app_path(import_str)
-        instance = try_import_app(module_path, app_name)
+        module_path, import_obj_name = get_obj_path(import_str)
+        instance = try_import_app(module_path, import_obj_name)
 
     else:
         attr = module
         try:
             for attr_str in attrs_str.split("."):
                 attr = getattr(attr, attr_str)
-            instance = attr  # type: ignore[assignment]
+            instance = attr
 
         except AttributeError as e:
             typer.echo(e, err=True)

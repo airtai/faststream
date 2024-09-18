@@ -20,7 +20,7 @@ class AsyncAPI3(AsyncAPIProto):
             /,
             title: str = "FastStream",
             app_version: str = "0.1.0",
-            schema_version: str = "2.6.0",
+            schema_version: str = "3.0.0",
             description: str = "",
             terms_of_service: Optional["AnyHttpUrl"] = None,
             contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,

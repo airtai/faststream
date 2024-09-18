@@ -1,11 +1,8 @@
-from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_handler import (
-    app,
-)
-from faststream.specification.asyncapi.generate import get_app_schema
+from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_handler import docs_obj
 
 
 def test_handler_customization():
-    schema = get_app_schema(app, version="2.6.0").to_jsonable()
+    schema = docs_obj.jsonable()
 
     assert schema["channels"] == {
         "input_data:Consume": {
