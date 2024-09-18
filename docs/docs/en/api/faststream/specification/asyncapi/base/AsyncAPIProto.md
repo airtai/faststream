@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.specification.asyncapi.get_app_schema
+::: faststream.specification.asyncapi.base.AsyncAPIProto
