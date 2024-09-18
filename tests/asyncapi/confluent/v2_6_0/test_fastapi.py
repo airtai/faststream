@@ -1,4 +1,3 @@
-from typing import Type
 
 from faststream.confluent.fastapi import KafkaRouter
 from faststream.confluent.testing import TestKafkaBroker

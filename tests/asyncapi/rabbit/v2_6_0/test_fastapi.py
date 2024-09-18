@@ -1,4 +1,3 @@
-from typing import Type
 
 from faststream.rabbit.fastapi import RabbitRouter
 from faststream.rabbit.testing import TestRabbitBroker

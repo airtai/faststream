@@ -1,6 +1,7 @@
 from typing import Union
 
 import pydantic
+
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.fastapi import StreamRouter
 from faststream.specification.asyncapi import AsyncAPI

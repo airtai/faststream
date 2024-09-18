@@ -1,4 +1,3 @@
-from typing import Type
 
 from faststream.nats import TestNatsBroker
 from faststream.nats.fastapi import NatsRouter
