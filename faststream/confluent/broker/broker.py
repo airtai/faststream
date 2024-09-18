@@ -16,23 +16,23 @@ from typing import (
 )
 
 import anyio
+import confluent_kafka
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
+from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream._internal.utils.data import filter_by_dict
-from faststream.confluent.broker.logging import KafkaLoggingBroker
-from faststream.confluent.broker.registrator import KafkaRegistrator
-from faststream.confluent.client import (
-    AsyncConfluentConsumer,
-    AsyncConfluentProducer,
-)
+from faststream.confluent.client import AsyncConfluentConsumer, AsyncConfluentProducer
 from faststream.confluent.config import ConfluentFastConfig
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
+
+from .logging import make_kafka_logger_state
+from .registrator import KafkaRegistrator
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -59,8 +59,14 @@ Partition = TypeVar("Partition")
 
 
 class KafkaBroker(
+    BrokerUsecase[
+        Union[
+            confluent_kafka.Message,
+            Tuple[confluent_kafka.Message, ...],
+        ],
+        Callable[..., AsyncConfluentConsumer],
+    ],
     KafkaRegistrator,
-    KafkaLoggingBroker,
 ):
     url: List[str]
     _producer: Optional[AsyncConfluentFastProducer]
@@ -384,9 +390,11 @@ class KafkaBroker(
             security=security,
             tags=tags,
             # Logging args
-            logger=logger,
-            log_level=log_level,
-            log_fmt=log_fmt,
+            logger_state=make_kafka_logger_state(
+                logger=logger,
+                log_level=log_level,
+                log_fmt=log_fmt,
+            ),
             # FastDepends args
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
@@ -403,11 +411,13 @@ class KafkaBroker(
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
+        await super().close(exc_type, exc_val, exc_tb)
+
         if self._producer is not None:  # pragma: no branch
             await self._producer.stop()
             self._producer = None
 
-        await super().close(exc_type, exc_val, exc_tb)
+        self._connection = None
 
     async def connect(
         self,
@@ -453,14 +463,9 @@ class KafkaBroker(
         )
 
     async def start(self) -> None:
+        await self.connect()
+        self._setup()
         await super().start()
-
-        for handler in self._subscribers.values():
-            self._log(
-                f"`{handler.call_name}` waiting for messages",
-                extra=handler.get_log_context(None),
-            )
-            await handler.start()
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
