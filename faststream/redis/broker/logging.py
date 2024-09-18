@@ -1,11 +1,11 @@
 from functools import partial
 from typing import TYPE_CHECKING, Optional
 
-from faststream._ibnternal.setup.logger import (
+from faststream._internal.log.logging import get_broker_logger
+from faststream._internal.setup.logger import (
     DefaultLoggerStorage,
     make_logger_state,
 )
-from faststream._intbernal.log.logging import get_broker_logger
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, LoggerProto

@@ -169,10 +169,12 @@ class TestBroker(Generic[Broker]):
             if getattr(p, "_fake_handler", None):
                 p.reset_test()  # type: ignore[attr-defined]
 
-        # TODO: rewrite this without hash
-        for sub in self._fake_subscribers:
-            self.broker._subscribers.pop(hash(sub), None)  # type: ignore[attr-defined]
-        self._fake_subscribers = []
+        self.broker._subscribers = {
+            hash(sub): sub
+            for sub in self.broker._subscribers.values()
+            if sub not in self._fake_subscribers
+        }
+        self._fake_subscribers.clear()
 
         for h in broker._subscribers.values():
             h.running = False
