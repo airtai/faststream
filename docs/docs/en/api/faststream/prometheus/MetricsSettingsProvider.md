@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.prometheus.provider.MetricsSettingsProvider
+::: faststream.prometheus.MetricsSettingsProvider
