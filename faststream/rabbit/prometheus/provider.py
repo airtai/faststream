@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Union
 
-from faststream.prometheus.provider import (
+from faststream.prometheus import (
     ConsumeAttrs,
     MetricsSettingsProvider,
 )
@@ -14,7 +14,9 @@ if TYPE_CHECKING:
 
 
 class RabbitMetricsSettingsProvider(MetricsSettingsProvider["IncomingMessage"]):
-    def __init__(self):
+    __slots__ = ("messaging_system",)
+
+    def __init__(self) -> None:
         self.messaging_system = "rabbitmq"
 
     def get_consume_attrs_from_message(

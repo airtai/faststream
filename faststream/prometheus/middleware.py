@@ -4,12 +4,9 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 from prometheus_client import Counter, Gauge, Histogram
 
 from faststream import BaseMiddleware
-from faststream.broker.message import AckStatus
-from faststream.exceptions import (
-    AckMessage,
-    NackMessage,
-    RejectMessage,
-    SkipMessage,
+from faststream.prometheus.consts import (
+    PROCESSING_STATUS_BY_ACK_STATUS,
+    PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
 )
 from faststream.prometheus.provider import MetricsSettingsProvider
 from faststream.prometheus.types import ProcessingStatus, PublishingStatus
@@ -22,6 +19,18 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class _MetricsContainer:
+    __slots__ = (
+        "received_messages",
+        "received_messages_size",
+        "received_messages_processing_time",
+        "received_messages_in_process",
+        "received_processed_messages",
+        "messages_processing_exceptions",
+        "published_messages",
+        "messages_publish_time",
+        "messages_publishing_exceptions",
+    )
+
     def __init__(self, registry: "CollectorRegistry"):
         self.received_messages = Counter(
             name="received_messages",
@@ -80,12 +89,12 @@ class _MetricsContainer:
         )
 
 
-class _PrometheusMiddleware(BaseMiddleware):
+class PrometheusMiddleware(BaseMiddleware):
     def __init__(
         self,
         msg: Optional[Any] = None,
         *,
-        settings_provider_factory: Callable[[Any], MetricsSettingsProvider[Any]],
+        settings_provider_factory: Callable[[Any], Optional[MetricsSettingsProvider[Any]]],
         metrics_container: _MetricsContainer,
     ) -> None:
         self._metrics = metrics_container
@@ -146,7 +155,7 @@ class _PrometheusMiddleware(BaseMiddleware):
 
             if msg.committed or err:
                 status = (
-                    PROCESSING_STATUS_BY_ACK_STATUS.get(msg.committed)
+                    PROCESSING_STATUS_BY_ACK_STATUS.get(msg.committed)  # type: ignore[arg-type]
                     or PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP.get(type(err))
                     or ProcessingStatus.error
                 )
@@ -221,33 +230,20 @@ class _PrometheusMiddleware(BaseMiddleware):
         return result
 
 
-PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP = {
-    AckMessage: ProcessingStatus.acked,
-    NackMessage: ProcessingStatus.nacked,
-    RejectMessage: ProcessingStatus.rejected,
-    SkipMessage: ProcessingStatus.skipped,
-}
-
-
-PROCESSING_STATUS_BY_ACK_STATUS = {
-    AckStatus.acked: ProcessingStatus.acked,
-    AckStatus.nacked: ProcessingStatus.nacked,
-    AckStatus.rejected: ProcessingStatus.rejected,
-}
-
-
 class BasePrometheusMiddleware:
+    __slots__ = ("_metrics", "_settings_provider_factory")
+
     def __init__(
         self,
         *,
-        settings_provider_factory: Callable[[Any], MetricsSettingsProvider[Any]],
+        settings_provider_factory: Callable[[Any], Optional[MetricsSettingsProvider[Any]]],
         registry: "CollectorRegistry",
     ):
         self._metrics = _MetricsContainer(registry)
         self._settings_provider_factory = settings_provider_factory
 
     def __call__(self, msg: Optional[Any]) -> BaseMiddleware:
-        return _PrometheusMiddleware(
+        return PrometheusMiddleware(
             msg=msg,
             metrics_container=self._metrics,
             settings_provider_factory=self._settings_provider_factory,

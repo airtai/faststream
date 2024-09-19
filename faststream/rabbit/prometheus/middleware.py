@@ -12,7 +12,7 @@ class RabbitPrometheusMiddleware(BasePrometheusMiddleware):
         self,
         *,
         registry: "CollectorRegistry",
-    ):
+    ) -> None:
         super().__init__(
             settings_provider_factory=lambda _: RabbitMetricsSettingsProvider(),
             registry=registry,

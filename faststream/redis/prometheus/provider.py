@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union, Sized, cast
 
-from faststream.prometheus.provider import (
+from faststream.prometheus import (
     ConsumeAttrs,
     MetricsSettingsProvider,
 )
@@ -11,7 +11,9 @@ if TYPE_CHECKING:
 
 
 class BaseRedisMetricsSettingsProvider(MetricsSettingsProvider["AnyDict"]):
-    def __init__(self):
+    __slots__ = ("messaging_system",)
+
+    def __init__(self) -> None:
         self.messaging_system = "redis"
 
     def get_publish_destination_name_from_kwargs(
@@ -45,7 +47,7 @@ class BatchRedisMetricsSettingsProvider(BaseRedisMetricsSettingsProvider):
         return {
             "destination_name": self._get_destination(msg.raw_message),
             "message_size": len(msg.body),
-            "messages_count": len(msg._decoded_body),
+            "messages_count": len(cast(Sized, msg._decoded_body)),
         }
 
 

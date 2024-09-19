@@ -1,7 +1,8 @@
-from enum import StrEnum
+from enum import Enum
+from typing import TypedDict
 
 
-class ProcessingStatus(StrEnum):
+class ProcessingStatus(str, Enum):
     acked = "acked"
     nacked = "nacked"
     rejected = "rejected"
@@ -9,6 +10,12 @@ class ProcessingStatus(StrEnum):
     error = "error"
 
 
-class PublishingStatus(StrEnum):
+class PublishingStatus(str, Enum):
     success = "success"
     error = "error"
+
+
+class ConsumeAttrs(TypedDict):
+    message_size: int
+    destination_name: str
+    messages_count: int

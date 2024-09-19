@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Sequence, Tuple, Union, cast
 
 from faststream.broker.message import MsgType, StreamMessage
-from faststream.prometheus.provider import (
+from faststream.prometheus import (
     ConsumeAttrs,
     MetricsSettingsProvider,
 )
@@ -13,14 +13,16 @@ if TYPE_CHECKING:
 
 
 class BaseConfluentMetricsSettingsProvider(MetricsSettingsProvider[MsgType]):
-    def __init__(self):
+    __slots__ = ("messaging_system",)
+
+    def __init__(self) -> None:
         self.messaging_system = "kafka"
 
     def get_publish_destination_name_from_kwargs(
         self,
         kwargs: "AnyDict",
     ) -> str:
-        return kwargs["topic"]
+        return cast(str, kwargs["topic"])
 
 
 class ConfluentMetricsSettingsProvider(BaseConfluentMetricsSettingsProvider["Message"]):
@@ -29,7 +31,7 @@ class ConfluentMetricsSettingsProvider(BaseConfluentMetricsSettingsProvider["Mes
         msg: "StreamMessage[Message]",
     ) -> ConsumeAttrs:
         return {
-            "destination_name": msg.raw_message.topic(),
+            "destination_name": cast(str, msg.raw_message.topic()),
             "message_size": len(msg.body),
             "messages_count": 1,
         }
@@ -44,8 +46,8 @@ class BatchConfluentMetricsSettingsProvider(
     ) -> ConsumeAttrs:
         raw_message = msg.raw_message[0]
         return {
-            "destination_name": raw_message.topic(),
-            "message_size": len(bytearray().join(msg.body)),
+            "destination_name": cast(str, raw_message.topic()),
+            "message_size": len(bytearray().join(cast(Sequence[bytes], msg.body))),
             "messages_count": len(msg.raw_message),
         }
 
