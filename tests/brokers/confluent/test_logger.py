@@ -22,10 +22,12 @@ class TestLogger(ConfluentTestcaseConfig):
         def subscriber(m): ...
 
         await broker.start()
-        async with broker:
-            for sub in broker._subscribers.values():
-                consumer_logger = sub.consumer.logger
-                assert consumer_logger == test_logger
 
-            producer_logger = broker._producer._producer.logger
-            assert producer_logger == test_logger
+        for sub in broker._subscribers.values():
+            consumer_logger = sub.consumer.logger
+            assert consumer_logger == test_logger
+
+        producer_logger = broker._producer._producer.logger
+        assert producer_logger == test_logger
+
+        await broker.close()

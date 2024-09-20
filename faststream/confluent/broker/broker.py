@@ -463,8 +463,8 @@ class KafkaBroker(
         )
 
     async def start(self) -> None:
-        await self.connect()
         self._setup()
+        await self.connect()
         await super().start()
 
     @property
