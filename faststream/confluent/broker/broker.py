@@ -445,7 +445,7 @@ class KafkaBroker(
         native_producer = AsyncConfluentProducer(
             **kwargs,
             client_id=client_id,
-            logger=self.logger,
+            logger=self._state.logger_state.logger.logger,
             config=self.config,
         )
 
@@ -458,7 +458,7 @@ class KafkaBroker(
         return partial(
             AsyncConfluentConsumer,
             **filter_by_dict(ConsumerConnectionParams, kwargs),
-            logger=self.logger,
+            logger=self._state.logger_state.logger.logger,
             config=self.config,
         )
 
