@@ -85,8 +85,8 @@ Channel: TypeAlias = str
 
 
 class RedisBroker(
-    BrokerUsecase[UnifyRedisDict, "Redis[bytes]"],
     RedisRegistrator,
+    BrokerUsecase[UnifyRedisDict, "Redis[bytes]"],
 ):
     """Redis broker."""
 

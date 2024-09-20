@@ -231,11 +231,11 @@ if TYPE_CHECKING:
 
 
 class KafkaBroker(
+    KafkaRegistrator,
     BrokerUsecase[
         Union[aiokafka.ConsumerRecord, Tuple[aiokafka.ConsumerRecord, ...]],
         Callable[..., aiokafka.AIOKafkaConsumer],
     ],
-    KafkaRegistrator,
 ):
     url: List[str]
     _producer: Optional["AioKafkaFastProducer"]

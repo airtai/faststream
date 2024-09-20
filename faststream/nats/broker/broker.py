@@ -215,8 +215,8 @@ if TYPE_CHECKING:
 
 
 class NatsBroker(
-    BrokerUsecase[Msg, Client],
     NatsRegistrator,
+    BrokerUsecase[Msg, Client],
 ):
     """A class to represent a NATS broker."""
 

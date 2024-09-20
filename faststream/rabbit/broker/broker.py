@@ -60,8 +60,8 @@ if TYPE_CHECKING:
 
 
 class RabbitBroker(
-    BrokerUsecase[IncomingMessage, RobustConnection],
     RabbitRegistrator,
+    BrokerUsecase[IncomingMessage, RobustConnection],
 ):
     """A class to represent a RabbitMQ broker."""
 

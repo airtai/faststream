@@ -111,14 +111,8 @@ class AsyncConfluentProducer:
                 }
             )
 
-        self.config = final_config
-        self.__running = False
+        self.producer = Producer(final_config)
 
-    def _setup(self, logger_state: "LoggerState") -> None:
-        self.producer = Producer(
-            self.config,
-            logger=logger_state.logger.logger,
-        )
         self.__running = True
         self._poll_task = asyncio.create_task(self._poll_loop())
 
