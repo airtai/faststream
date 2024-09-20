@@ -43,7 +43,9 @@ class _MetricsContainer:
             documentation="Received messages size (in bytes)",
             labelnames=["broker", "handler"],
             registry=registry,
-            buckets=[pow(2, x) for x in range(31)],  # from 2^0 (1 byte) to 2^30 (1024 mb)
+            buckets=[
+                pow(2, x) for x in range(31)
+            ],  # from 2^0 (1 byte) to 2^30 (1024 mb)
         )
         self.received_messages_processing_time = Histogram(
             name="received_messages_processing_time",
@@ -94,7 +96,9 @@ class PrometheusMiddleware(BaseMiddleware):
         self,
         msg: Optional[Any] = None,
         *,
-        settings_provider_factory: Callable[[Any], Optional[MetricsSettingsProvider[Any]]],
+        settings_provider_factory: Callable[
+            [Any], Optional[MetricsSettingsProvider[Any]]
+        ],
         metrics_container: _MetricsContainer,
     ) -> None:
         self._metrics = metrics_container
@@ -236,7 +240,9 @@ class BasePrometheusMiddleware:
     def __init__(
         self,
         *,
-        settings_provider_factory: Callable[[Any], Optional[MetricsSettingsProvider[Any]]],
+        settings_provider_factory: Callable[
+            [Any], Optional[MetricsSettingsProvider[Any]]
+        ],
         registry: "CollectorRegistry",
     ):
         self._metrics = _MetricsContainer(registry)
