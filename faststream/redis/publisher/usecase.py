@@ -2,7 +2,7 @@ from abc import abstractmethod
 from copy import deepcopy
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
 
 from typing_extensions import Annotated, Doc, override
 
@@ -14,7 +14,7 @@ from faststream.redis.message import UnifyRedisDict
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
+    from faststream._internal.basic_types import AnyDict, SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.redis.message import RedisMessage
     from faststream.redis.publisher.producer import RedisFastProducer
@@ -144,7 +144,7 @@ class ChannelPublisher(LogicPublisher):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
@@ -155,7 +155,7 @@ class ChannelPublisher(LogicPublisher):
         ):
             call = partial(m, call)
 
-        return await call(
+        await call(
             message,
             channel=channel_sub.name,
             # basic args
@@ -206,7 +206,7 @@ class ChannelPublisher(LogicPublisher):
             "correlation_id": correlation_id or gen_cor_id(),
             "timeout": timeout,
         }
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -315,7 +315,7 @@ class ListPublisher(LogicPublisher):
         reply_to = reply_to or self.reply_to
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
@@ -326,7 +326,7 @@ class ListPublisher(LogicPublisher):
         ):
             call = partial(m, call)
 
-        return await call(
+        await call(
             message,
             list=list_sub.name,
             # basic args
@@ -378,7 +378,7 @@ class ListPublisher(LogicPublisher):
             "timeout": timeout,
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -396,7 +396,7 @@ class ListPublisher(LogicPublisher):
 
         msg: RedisMessage = await process_msg(
             msg=published_msg,
-            middlewares=self._middlewares,
+            middlewares=self._broker_middlewares,
             parser=self._producer._parser,
             decoder=self._producer._decoder,
         )
@@ -436,7 +436,7 @@ class ListBatchPublisher(ListPublisher):
         list_sub = ListSub.validate(list or self.list)
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish_batch
+        call: Callable[..., Awaitable[None]] = self._producer.publish_batch
 
         for m in chain(
             (
@@ -548,7 +548,7 @@ class StreamPublisher(LogicPublisher):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
@@ -559,7 +559,7 @@ class StreamPublisher(LogicPublisher):
         ):
             call = partial(m, call)
 
-        return await call(
+        await call(
             message,
             stream=stream_sub.name,
             maxlen=maxlen,
@@ -619,7 +619,7 @@ class StreamPublisher(LogicPublisher):
             "timeout": timeout,
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -637,7 +637,7 @@ class StreamPublisher(LogicPublisher):
 
         msg: RedisMessage = await process_msg(
             msg=published_msg,
-            middlewares=self._middlewares,
+            middlewares=self._broker_middlewares,
             parser=self._producer._parser,
             decoder=self._producer._decoder,
         )

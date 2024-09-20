@@ -412,7 +412,7 @@ class RedisBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        return await super().publish(
+        await super().publish(
             message,
             producer=self._producer,
             correlation_id=correlation_id or gen_cor_id(),
