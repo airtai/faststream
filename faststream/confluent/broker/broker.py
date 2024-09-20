@@ -47,6 +47,7 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.setup.state import BaseState
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -445,7 +446,7 @@ class KafkaBroker(
         native_producer = AsyncConfluentProducer(
             **kwargs,
             client_id=client_id,
-            logger=self._state.logger_state.logger.logger,
+            logger=self._state.logger_state,
             config=self.config,
         )
 
@@ -458,14 +459,18 @@ class KafkaBroker(
         return partial(
             AsyncConfluentConsumer,
             **filter_by_dict(ConsumerConnectionParams, kwargs),
-            logger=self._state.logger_state.logger.logger,
+            logger=self._state.logger_state,
             config=self.config,
         )
 
     async def start(self) -> None:
-        self._setup()
         await self.connect()
+        self._setup()
         await super().start()
+
+    def _setup(self, state: Optional["BaseState"] = None) -> None:
+        super()._setup(state)
+        self._producer._setup(self._state.logger_state)
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":

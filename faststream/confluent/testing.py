@@ -18,6 +18,7 @@ from faststream.message import encode_message, gen_cor_id
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.setup.logger import LoggerState
     from faststream.confluent.publisher.publisher import SpecificationPublisher
     from faststream.confluent.subscriber.usecase import LogicSubscriber
 
@@ -87,6 +88,9 @@ class FakeProducer(AsyncConfluentFastProducer):
 
         self._parser = resolve_custom_func(broker._parser, default.parse_message)
         self._decoder = resolve_custom_func(broker._decoder, default.decode_message)
+
+    def _setup(self, logger_stater: "LoggerState") -> None:
+        pass
 
     @override
     async def publish(  # type: ignore[override]

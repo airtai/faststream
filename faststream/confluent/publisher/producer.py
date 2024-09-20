@@ -10,6 +10,7 @@ from faststream.message import encode_message
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.setup.logger import LoggerState
     from faststream._internal.types import CustomCallable
     from faststream.confluent.client import AsyncConfluentProducer
 
@@ -29,6 +30,9 @@ class AsyncConfluentFastProducer(ProducerProto):
         default = AsyncConfluentParser
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
+
+    def _setup(self, logger_state: "LoggerState") -> None:
+        self._producer._setup(logger_state)
 
     @override
     async def publish(  # type: ignore[override]
