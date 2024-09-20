@@ -15,7 +15,7 @@ Sometimes, you need to register exception processors at the top level of your ap
 For this purpose, **FastStream** provides a special `ExceptionMiddleware`. You just need to create it, register handlers, and add it to the broker, router, or subscribers you want (as a [regular middleware](index.md){.internal-link}).
 
 ```python linenums="1"
-from faststream. import ExceptionMiddleware
+from faststream import ExceptionMiddleware
 
 exception_middleware = ExceptionMiddleware()
 
