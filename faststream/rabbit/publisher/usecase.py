@@ -4,6 +4,8 @@ from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
+    Callable,
     Iterable,
     Optional,
     Union,
@@ -23,7 +25,7 @@ if TYPE_CHECKING:
     import aiormq
     from aio_pika.abc import DateType, HeadersType, TimeoutType
 
-    from faststream._internal.basic_types import AnyDict, AsyncFunc
+    from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -238,7 +240,10 @@ class LogicPublisher(
             **publish_kwargs,
         }
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[
+            ...,
+            Awaitable[Optional[aiormq.abc.ConfirmationFrameType]],
+        ] = self._producer.publish
 
         for m in chain(
             (
@@ -310,7 +315,7 @@ class LogicPublisher(
             **publish_kwargs,
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
