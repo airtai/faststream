@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Union, Sized, cast
+from typing import TYPE_CHECKING, Optional, Sized, Union, cast
 
 from faststream.prometheus import (
     ConsumeAttrs,
