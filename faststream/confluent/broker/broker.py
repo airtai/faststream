@@ -470,7 +470,8 @@ class KafkaBroker(
 
     def _setup(self, state: Optional["BaseState"] = None) -> None:
         super()._setup(state)
-        self._producer._setup(self._state.logger_state)
+        if self._producer:
+            self._producer._setup(self._state.logger_state)
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
