@@ -117,11 +117,10 @@ class TestBroker(Generic[Broker]):
             "ping",
             return_value=True,
         ):
+            broker._setup()
             yield
 
     def _fake_start(self, broker: Broker, *args: Any, **kwargs: Any) -> None:
-        broker._setup()
-
         patch_broker_calls(broker)
 
         for p in broker._publishers.values():
