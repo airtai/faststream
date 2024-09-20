@@ -47,7 +47,6 @@ class AsyncConfluentProducer:
     def __init__(
         self,
         *,
-        logger: Optional["LoggerProto"],
         config: config_module.ConfluentFastConfig,
         bootstrap_servers: Union[str, List[str]] = "localhost",
         client_id: Optional[str] = None,
