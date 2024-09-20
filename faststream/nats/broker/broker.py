@@ -719,7 +719,7 @@ class NatsBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        publish_kwargs = {
+        publish_kwargs: AnyDict = {
             "subject": subject,
             "headers": headers,
             "reply_to": reply_to,
@@ -737,7 +737,7 @@ class NatsBroker(
                 }
             )
 
-        return await super().publish(
+        await super().publish(
             message,
             producer=producer,
             correlation_id=correlation_id or gen_cor_id(),

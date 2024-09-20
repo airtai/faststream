@@ -489,10 +489,10 @@ class KafkaBroker(
         no_confirm: bool = False,
         # extra options to be compatible with test client
         **kwargs: Any,
-    ) -> Optional[Any]:
+    ) -> None:
         correlation_id = correlation_id or gen_cor_id()
 
-        return await super().publish(
+        await super().publish(
             message,
             producer=self._producer,
             topic=topic,

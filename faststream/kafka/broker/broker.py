@@ -729,7 +729,7 @@ class KafkaBroker(
         ] = False,
         # extra options to be compatible with test client
         **kwargs: Any,
-    ) -> Optional[Any]:
+    ) -> None:
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
@@ -739,7 +739,7 @@ class KafkaBroker(
         """
         correlation_id = correlation_id or gen_cor_id()
 
-        return await super().publish(
+        await super().publish(
             message,
             producer=self._producer,
             topic=topic,

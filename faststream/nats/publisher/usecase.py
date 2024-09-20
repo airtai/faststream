@@ -1,4 +1,3 @@
-from contextlib import AsyncExitStack
 from functools import partial
 from itertools import chain
 from typing import (
@@ -16,12 +15,12 @@ from nats.aio.msg import Msg
 from typing_extensions import Annotated, Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream._internal.utils.functions import return_input
+from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
+    from faststream._internal.basic_types import AnyDict, SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
@@ -115,7 +114,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         if stream := stream or getattr(self.stream, "name", None):
             kwargs.update({"stream": stream, "timeout": timeout or self.timeout})
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[Any]] = self._producer.publish
 
         for m in chain(
             (
@@ -126,7 +125,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         ):
             call = partial(m, call)
 
-        return await call(message, **kwargs)
+        await call(message, **kwargs)
 
     @override
     async def request(
@@ -176,7 +175,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             "correlation_id": correlation_id or gen_cor_id(),
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -192,18 +191,13 @@ class LogicPublisher(PublisherUsecase[Msg]):
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[NatsMessage], Awaitable[NatsMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: NatsMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
     def add_prefix(self, prefix: str) -> None:
         self.subject = prefix + self.subject

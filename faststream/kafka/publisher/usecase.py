@@ -1,4 +1,3 @@
-from contextlib import AsyncExitStack
 from functools import partial
 from itertools import chain
 from typing import (
@@ -18,8 +17,8 @@ from aiokafka import ConsumerRecord
 from typing_extensions import Annotated, Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
+from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
-from faststream._internal.utils.functions import return_input
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 
@@ -146,7 +145,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -168,18 +167,13 @@ class LogicPublisher(PublisherUsecase[MsgType]):
             timestamp_ms=timestamp_ms,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: KafkaMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
 
 class DefaultPublisher(LogicPublisher[ConsumerRecord]):
@@ -285,7 +279,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
-    ) -> Optional[Any]:
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         topic = topic or self.topic
@@ -295,7 +289,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         reply_to = reply_to or self.reply_to
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
@@ -306,7 +300,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         ):
             call = partial(m, call)
 
-        return await call(
+        await call(
             message,
             topic=topic,
             key=key,

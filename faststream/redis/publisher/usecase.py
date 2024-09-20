@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from contextlib import AsyncExitStack
 from copy import deepcopy
 from functools import partial
 from itertools import chain
@@ -8,14 +7,14 @@ from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
 from typing_extensions import Annotated, Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream._internal.utils.functions import return_input
+from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
+    from faststream._internal.basic_types import AnyDict, SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.redis.message import RedisMessage
     from faststream.redis.publisher.producer import RedisFastProducer
@@ -145,7 +144,7 @@ class ChannelPublisher(LogicPublisher):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
@@ -156,7 +155,7 @@ class ChannelPublisher(LogicPublisher):
         ):
             call = partial(m, call)
 
-        return await call(
+        await call(
             message,
             channel=channel_sub.name,
             # basic args
@@ -207,7 +206,7 @@ class ChannelPublisher(LogicPublisher):
             "correlation_id": correlation_id or gen_cor_id(),
             "timeout": timeout,
         }
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -223,18 +222,13 @@ class ChannelPublisher(LogicPublisher):
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: RedisMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
 
 class ListPublisher(LogicPublisher):
@@ -321,7 +315,7 @@ class ListPublisher(LogicPublisher):
         reply_to = reply_to or self.reply_to
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
@@ -332,7 +326,7 @@ class ListPublisher(LogicPublisher):
         ):
             call = partial(m, call)
 
-        return await call(
+        await call(
             message,
             list=list_sub.name,
             # basic args
@@ -384,7 +378,7 @@ class ListPublisher(LogicPublisher):
             "timeout": timeout,
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -400,18 +394,13 @@ class ListPublisher(LogicPublisher):
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: RedisMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
 
 class ListBatchPublisher(ListPublisher):
@@ -447,7 +436,7 @@ class ListBatchPublisher(ListPublisher):
         list_sub = ListSub.validate(list or self.list)
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish_batch
+        call: Callable[..., Awaitable[None]] = self._producer.publish_batch
 
         for m in chain(
             (
@@ -559,7 +548,7 @@ class StreamPublisher(LogicPublisher):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
@@ -570,7 +559,7 @@ class StreamPublisher(LogicPublisher):
         ):
             call = partial(m, call)
 
-        return await call(
+        await call(
             message,
             stream=stream_sub.name,
             maxlen=maxlen,
@@ -630,7 +619,7 @@ class StreamPublisher(LogicPublisher):
             "timeout": timeout,
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -646,15 +635,10 @@ class StreamPublisher(LogicPublisher):
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: RedisMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
