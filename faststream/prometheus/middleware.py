@@ -27,7 +27,7 @@ class _MetricsContainer:
         "received_processed_messages",
         "messages_processing_exceptions",
         "published_messages",
-        "messages_publish_time",
+        "messages_publishing_time",
         "messages_publishing_exceptions",
     )
 
@@ -40,14 +40,14 @@ class _MetricsContainer:
         )
         self.received_messages_size = Histogram(
             name="received_messages_size",
-            documentation="Received messages size",
+            documentation="Received messages size (in bytes)",
             labelnames=["broker", "handler"],
             registry=registry,
-            buckets=[pow(2, x) for x in range(30)],  # from 2^0 to 2^30
+            buckets=[pow(2, x) for x in range(31)],  # from 2^0 (1 byte) to 2^30 (1024 mb)
         )
         self.received_messages_processing_time = Histogram(
             name="received_messages_processing_time",
-            documentation="Received messages processing time",
+            documentation="Received messages processing time (in seconds)",
             labelnames=["broker", "handler"],
             registry=registry,
         )
@@ -65,7 +65,7 @@ class _MetricsContainer:
         )
         self.messages_processing_exceptions = Counter(
             name="messages_processing_exceptions",
-            documentation="messages processing exceptions",
+            documentation="Messages processing exceptions",
             labelnames=["broker", "handler", "exception_type"],
             registry=registry,
         )
@@ -75,15 +75,15 @@ class _MetricsContainer:
             labelnames=["broker", "destination", "status"],
             registry=registry,
         )
-        self.messages_publish_time = Histogram(
-            name="messages_publish_time",
-            documentation="Messages publish time",
+        self.messages_publishing_time = Histogram(
+            name="messages_publishing_time",
+            documentation="Messages publishing time (in seconds)",
             labelnames=["broker", "destination"],
             registry=registry,
         )
         self.messages_publishing_exceptions = Counter(
             name="messages_publishing_exceptions",
-            documentation="messages publishing exceptions",
+            documentation="Messages publishing exceptions",
             labelnames=["broker", "destination", "exception_type"],
             registry=registry,
         )
@@ -206,7 +206,7 @@ class PrometheusMiddleware(BaseMiddleware):
             )
             messaging_system = self._settings_provider.messaging_system
 
-            self._metrics.messages_publish_time.labels(
+            self._metrics.messages_publishing_time.labels(
                 broker=messaging_system,
                 destination=destination_name,
             ).observe(duration)

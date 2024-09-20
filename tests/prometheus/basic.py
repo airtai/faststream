@@ -163,7 +163,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
 
     def assert_publish_metrics(self, metrics: Any):
         settings_provider = self.settings_provider_factory(None)
-        assert metrics.messages_publish_time.labels.mock_calls == [
+        assert metrics.messages_publishing_time.labels.mock_calls == [
             call(broker=settings_provider.messaging_system, destination=ANY),
             call().observe(ANY),
         ]
