@@ -122,7 +122,9 @@ async def test_after_startup_calls(async_mock: AsyncMock, mock: Mock, broker):
 
     test_app = FastStream(broker=broker, after_startup=[call1, call2])
 
-    with patch.object(test_app.broker, "start", async_mock.broker_start):
+    with patch.object(test_app.broker, "start", async_mock.broker_start), patch.object(
+        test_app.broker, "connect", async_mock.broker_connect
+    ):
         await test_app.start()
 
     mock.after_startup1.assert_called_once()
@@ -144,7 +146,9 @@ async def test_startup_lifespan_before_broker_started(
         async_mock.before.assert_awaited_once()
         async_mock.broker_start.assert_called_once()
 
-    with patch.object(app.broker, "start", async_mock.broker_start):
+    with patch.object(app.broker, "start", async_mock.broker_start), patch.object(
+        app.broker, "connect", async_mock.broker_connect
+    ):
         await app.start()
 
     async_mock.broker_start.assert_called_once()
@@ -164,7 +168,9 @@ async def test_after_shutdown_calls(async_mock: AsyncMock, mock: Mock, broker):
 
     test_app = FastStream(broker=broker, after_shutdown=[call1, call2])
 
-    with patch.object(test_app.broker, "start", async_mock.broker_start):
+    with patch.object(test_app.broker, "start", async_mock.broker_start), patch.object(
+        test_app.broker, "connect", async_mock.broker_connect
+    ):
         await test_app.stop()
 
     mock.after_shutdown1.assert_called_once()
@@ -341,8 +347,8 @@ async def test_lifespan_contextmanager(async_mock: AsyncMock, app: FastStream):
     app = FastStream(app.broker, lifespan=lifespan)
 
     with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
-        app.broker, "close", async_mock.broker_stopped
-    ):
+        app.broker, "connect", async_mock.broker_connect
+    ), patch.object(app.broker, "close", async_mock.broker_stopped):
         async with TestApp(app, {"env": "test"}):
             pass
 
@@ -363,7 +369,9 @@ def test_sync_lifespan_contextmanager(async_mock: AsyncMock, app: FastStream):
 
     with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
         app.broker, "close", async_mock.broker_stopped
-    ), TestApp(app, {"env": "test"}):
+    ), patch.object(app.broker, "connect", async_mock.broker_connect), TestApp(
+        app, {"env": "test"}
+    ):
         pass
 
     async_mock.on.assert_awaited_once_with("test")
