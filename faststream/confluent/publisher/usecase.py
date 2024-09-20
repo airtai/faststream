@@ -3,6 +3,8 @@ from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
+    Callable,
     Dict,
     Iterable,
     Optional,
@@ -99,7 +101,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
             "correlation_id": correlation_id or gen_cor_id(),
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -171,7 +173,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         no_confirm: bool = False,
         # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-    ) -> Optional[Any]:
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         kwargs: AnyDict = {
@@ -186,7 +188,7 @@ class DefaultPublisher(LogicPublisher[Message]):
             "correlation_id": correlation_id or gen_cor_id(),
         }
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
