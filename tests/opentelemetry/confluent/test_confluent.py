@@ -1,5 +1,5 @@
 import asyncio
-from typing import Optional
+from typing import Any, Optional
 from unittest.mock import Mock
 
 import pytest
@@ -24,8 +24,10 @@ from tests.opentelemetry.basic import LocalTelemetryTestcase
 class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
     messaging_system = "kafka"
     include_messages_counters = True
-    broker_class = KafkaBroker
     telemetry_middleware_class = KafkaTelemetryMiddleware
+
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
+        return KafkaBroker(apply_types=apply_types, **kwargs)
 
     def assert_span(
         self,
@@ -73,7 +75,7 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider, tracer_provider=tracer_provider
         )
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_msg_count = 3
         expected_link_count = 1
         expected_link_attrs = {"messaging.batch.message_count": 3}
@@ -91,13 +93,11 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
             mock(m)
             event.set()
 
-        broker = self.patch_broker(broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             tasks = (
                 asyncio.create_task(
-                    broker.publish_batch(
+                    br.publish_batch(
                         1,
                         "hi",
                         3,
@@ -139,7 +139,7 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider, tracer_provider=tracer_provider
         )
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,), apply_types=True)
         msgs_queue = asyncio.Queue(maxsize=3)
         expected_msg_count = 3
         expected_link_count = 1
@@ -155,11 +155,9 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
             assert baggage.get_all_batch() == []
             await msgs_queue.put(msg)
 
-        broker = self.patch_broker(broker)
-
-        async with broker:
-            await broker.start()
-            await broker.publish_batch(
+        async with self.patch_broker(broker) as br:
+            await br.start()
+            await br.publish_batch(
                 1, "hi", 3, topic=queue, headers=Baggage({"foo": "bar"}).to_headers()
             )
             result, _ = await asyncio.wait(
@@ -205,7 +203,7 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider, tracer_provider=tracer_provider
         )
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_msg_count = 2
         expected_link_count = 2
         expected_span_count = 6
@@ -222,18 +220,16 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
             mock(m)
             event.set()
 
-        broker = self.patch_broker(broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             tasks = (
                 asyncio.create_task(
-                    broker.publish(
+                    br.publish(
                         "hi", topic=queue, headers=Baggage({"foo": "bar"}).to_headers()
                     )
                 ),
                 asyncio.create_task(
-                    broker.publish(
+                    br.publish(
                         "buy", topic=queue, headers=Baggage({"bar": "baz"}).to_headers()
                     )
                 ),

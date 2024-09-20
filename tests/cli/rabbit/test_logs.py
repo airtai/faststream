@@ -20,12 +20,14 @@ from faststream.rabbit import RabbitBroker
 )
 def test_set_level(level, app: FastStream):
     level = get_log_level(level)
+    app._setup()
     set_log_level(level, app)
-    assert app.logger.level is app.broker.logger.level is level
+    broker_logger = app.broker._state.logger_state.logger.logger
+    assert app.logger.level is broker_logger.level is level
 
 
 @pytest.mark.parametrize(
-    ("level", "broker"),
+    ("level", "app"),
     (  # noqa: PT007
         pytest.param(
             logging.CRITICAL,
@@ -50,6 +52,7 @@ def test_set_level(level, app: FastStream):
     ),
 )
 def test_set_level_to_none(level, app: FastStream):
+    app._setup()
     set_log_level(get_log_level(level), app)
 
 

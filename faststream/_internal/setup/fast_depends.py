@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from faststream._internal.basic_types import Decorator
 
 
-@dataclass(slots=True)
+@dataclass
 class FastDependsData:
     apply_types: bool
     is_validate: bool

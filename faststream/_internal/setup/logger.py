@@ -43,6 +43,8 @@ def make_logger_state(
 
 
 class _LoggerObject(Protocol):
+    logger: Optional["LoggerProto"]
+
     def log(
         self,
         message: str,
@@ -53,6 +55,9 @@ class _LoggerObject(Protocol):
 
 
 class _NotSetLoggerObject(_LoggerObject):
+    def __init__(self) -> None:
+        self.logger = None
+
     def log(
         self,
         message: str,
@@ -64,6 +69,9 @@ class _NotSetLoggerObject(_LoggerObject):
 
 
 class _EmptyLoggerObject(_LoggerObject):
+    def __init__(self) -> None:
+        self.logger = None
+
     def log(
         self,
         message: str,
@@ -123,7 +131,7 @@ class DefaultLoggerStorage(LoggerParamsStorage):
         self._log_fmt = log_fmt
 
 
-@dataclass(slots=True)
+@dataclass
 class LoggerState(SetupAble):
     log_level: int
     params_storage: LoggerParamsStorage

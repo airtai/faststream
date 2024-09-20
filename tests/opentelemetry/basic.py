@@ -1,5 +1,5 @@
 import asyncio
-from typing import List, Optional, Tuple, Type, cast
+from typing import Any, List, Optional, Tuple, cast
 from unittest.mock import Mock
 
 import pytest
@@ -29,12 +29,21 @@ from tests.brokers.base.basic import BaseTestcaseConfig
 class LocalTelemetryTestcase(BaseTestcaseConfig):
     messaging_system: str
     include_messages_counters: bool
-    broker_class: Type[BrokerUsecase]
     resource: Resource = Resource.create(attributes={"service.name": "faststream.test"})
-
     telemetry_middleware_class: TelemetryMiddleware
 
-    def patch_broker(self, broker: BrokerUsecase) -> BrokerUsecase:
+    def get_broker(
+        self,
+        apply_types: bool = False,
+        **kwargs: Any,
+    ) -> BrokerUsecase[Any, Any]:
+        raise NotImplementedError
+
+    def patch_broker(
+        self,
+        broker: BrokerUsecase[Any, Any],
+        **kwargs: Any,
+    ) -> BrokerUsecase[Any, Any]:
         return broker
 
     def destination_name(self, queue: str) -> str:
@@ -163,7 +172,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,))
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -202,7 +211,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,))
 
         first_queue = queue
         second_queue = queue + "2"
@@ -262,7 +271,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,))
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -301,7 +310,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         metric_reader: InMemoryMetricReader,
     ):
         mid = self.telemetry_middleware_class(meter_provider=meter_provider)
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,))
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -337,7 +346,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         metric_reader: InMemoryMetricReader,
     ):
         mid = self.telemetry_middleware_class(meter_provider=meter_provider)
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,))
         expected_value_type = "ValueError"
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -377,7 +386,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,), apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -408,7 +417,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         mock: Mock,
     ):
         mid = self.telemetry_middleware_class()
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_baggage = {"foo": "bar"}
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -447,7 +456,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         mock: Mock,
     ):
         mid = self.telemetry_middleware_class()
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,), apply_types=True)
 
         first_queue = queue + "1"
         second_queue = queue + "2"
@@ -494,7 +503,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         mock: Mock,
     ):
         mid = self.telemetry_middleware_class()
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_baggage = {"baz": "bar", "bar": "baz"}
 
         first_queue = queue + "1"

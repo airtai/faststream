@@ -281,12 +281,12 @@ class BrokerUsecase(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
-            "logger": self._state.logger_state.logger,
+            "logger": self._state.logger_state.logger.logger,
             "producer": self._producer,
             "graceful_timeout": self.graceful_timeout,
             "extra_context": {
                 "broker": self,
-                "logger": self._state.logger_state.logger,
+                "logger": self._state.logger_state.logger.logger,
             },
             # broker options
             "broker_parser": self._parser,

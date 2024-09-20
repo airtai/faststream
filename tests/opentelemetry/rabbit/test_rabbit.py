@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 import pytest
 from dirty_equals import IsInt, IsUUID
@@ -24,8 +24,10 @@ def exchange(queue):
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "rabbitmq"
     include_messages_counters = False
-    broker_class = RabbitBroker
     telemetry_middleware_class = RabbitTelemetryMiddleware
+
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
+        return RabbitBroker(apply_types=apply_types, **kwargs)
 
     def destination_name(self, queue: str) -> str:
         return f"default.{queue}"
@@ -66,17 +68,19 @@ class TestTelemetry(LocalTelemetryTestcase):
 
 @pytest.mark.rabbit
 class TestPublishWithTelemetry(TestPublish):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
         return RabbitBroker(
             middlewares=(RabbitTelemetryMiddleware(),),
             apply_types=apply_types,
+            **kwargs,
         )
 
 
 @pytest.mark.rabbit
 class TestConsumeWithTelemetry(TestConsume):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
         return RabbitBroker(
             middlewares=(RabbitTelemetryMiddleware(),),
             apply_types=apply_types,
+            **kwargs,
         )
