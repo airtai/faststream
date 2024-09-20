@@ -29,8 +29,8 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     def create_publisher_fake_subscriber(
         broker: NatsBroker,
         publisher: "SpecificationPublisher",
-    ) -> Tuple["LogicSubscriber[Any]", bool]:
-        sub: Optional[LogicSubscriber[Any]] = None
+    ) -> Tuple["LogicSubscriber[Any, Any]", bool]:
+        sub: Optional[LogicSubscriber[Any, Any]] = None
         publisher_stream = publisher.stream.name if publisher.stream else None
         for handler in broker._subscribers.values():
             if _is_handler_suitable(handler, publisher.subject, publisher_stream):

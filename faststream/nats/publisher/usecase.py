@@ -3,6 +3,8 @@ from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
+    Callable,
     Dict,
     Iterable,
     Optional,
@@ -18,7 +20,7 @@ from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
+    from faststream._internal.basic_types import AnyDict, SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
@@ -112,7 +114,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         if stream := stream or getattr(self.stream, "name", None):
             kwargs.update({"stream": stream, "timeout": timeout or self.timeout})
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[Any]] = self._producer.publish
 
         for m in chain(
             (
@@ -123,7 +125,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         ):
             call = partial(m, call)
 
-        return await call(message, **kwargs)
+        await call(message, **kwargs)
 
     @override
     async def request(
@@ -173,7 +175,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             "correlation_id": correlation_id or gen_cor_id(),
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
