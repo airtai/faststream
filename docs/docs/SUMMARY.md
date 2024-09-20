@@ -181,10 +181,6 @@ search:
                 - [Baggage](public_api/faststream/opentelemetry/Baggage.md)
                 - [TelemetryMiddleware](public_api/faststream/opentelemetry/TelemetryMiddleware.md)
                 - [TelemetrySettingsProvider](public_api/faststream/opentelemetry/TelemetrySettingsProvider.md)
-            - prometheus
-                - [BasePrometheusMiddleware](api/faststream/prometheus/BasePrometheusMiddleware.md)
-                - [ConsumeAttrs](api/faststream/prometheus/ConsumeAttrs.md)
-                - [MetricsSettingsProvider](api/faststream/prometheus/MetricsSettingsProvider.md)
             - rabbit
                 - [ExchangeType](public_api/faststream/rabbit/ExchangeType.md)
                 - [RabbitBroker](public_api/faststream/rabbit/RabbitBroker.md)
@@ -532,8 +528,8 @@ search:
                         - [KafkaPrometheusMiddleware](api/faststream/confluent/prometheus/middleware/KafkaPrometheusMiddleware.md)
                     - provider
                         - [BaseConfluentMetricsSettingsProvider](api/faststream/confluent/prometheus/provider/BaseConfluentMetricsSettingsProvider.md)
-                        - [ConfluentMetricsSettingsProvider](api/faststream/confluent/prometheus/provider/ConfluentMetricsSettingsProvider.md)
                         - [BatchConfluentMetricsSettingsProvider](api/faststream/confluent/prometheus/provider/BatchConfluentMetricsSettingsProvider.md)
+                        - [ConfluentMetricsSettingsProvider](api/faststream/confluent/prometheus/provider/ConfluentMetricsSettingsProvider.md)
                         - [settings_provider_factory](api/faststream/confluent/prometheus/provider/settings_provider_factory.md)
                 - publisher
                     - asyncapi
@@ -637,8 +633,8 @@ search:
                         - [KafkaPrometheusMiddleware](api/faststream/kafka/prometheus/middleware/KafkaPrometheusMiddleware.md)
                     - provider
                         - [BaseKafkaMetricsSettingsProvider](api/faststream/kafka/prometheus/provider/BaseKafkaMetricsSettingsProvider.md)
-                        - [KafkaMetricsSettingsProvider](api/faststream/kafka/prometheus/provider/KafkaMetricsSettingsProvider.md)
                         - [BatchKafkaMetricsSettingsProvider](api/faststream/kafka/prometheus/provider/BatchKafkaMetricsSettingsProvider.md)
+                        - [KafkaMetricsSettingsProvider](api/faststream/kafka/prometheus/provider/KafkaMetricsSettingsProvider.md)
                         - [settings_provider_factory](api/faststream/kafka/prometheus/provider/settings_provider_factory.md)
                 - publisher
                     - asyncapi
@@ -759,8 +755,8 @@ search:
                         - [NatsPrometheusMiddleware](api/faststream/nats/prometheus/middleware/NatsPrometheusMiddleware.md)
                     - provider
                         - [BaseNatsMetricsSettingsProvider](api/faststream/nats/prometheus/provider/BaseNatsMetricsSettingsProvider.md)
-                        - [NatsMetricsSettingsProvider](api/faststream/nats/prometheus/provider/NatsMetricsSettingsProvider.md)
                         - [BatchNatsMetricsSettingsProvider](api/faststream/nats/prometheus/provider/BatchNatsMetricsSettingsProvider.md)
+                        - [NatsMetricsSettingsProvider](api/faststream/nats/prometheus/provider/NatsMetricsSettingsProvider.md)
                         - [settings_provider_factory](api/faststream/nats/prometheus/provider/settings_provider_factory.md)
                 - publisher
                     - asyncapi
@@ -847,7 +843,6 @@ search:
                 - middleware
                     - [BasePrometheusMiddleware](api/faststream/prometheus/middleware/BasePrometheusMiddleware.md)
                     - [PrometheusMiddleware](api/faststream/prometheus/middleware/PrometheusMiddleware.md)
-                    - [PublishingStatus](api/faststream/prometheus/types/PublishingStatus.md)
                 - provider
                     - [MetricsSettingsProvider](api/faststream/prometheus/provider/MetricsSettingsProvider.md)
                 - types
@@ -1005,8 +1000,8 @@ search:
                         - [RedisPrometheusMiddleware](api/faststream/redis/prometheus/middleware/RedisPrometheusMiddleware.md)
                     - provider
                         - [BaseRedisMetricsSettingsProvider](api/faststream/redis/prometheus/provider/BaseRedisMetricsSettingsProvider.md)
-                        - [RedisMetricsSettingsProvider](api/faststream/redis/prometheus/provider/RedisMetricsSettingsProvider.md)
                         - [BatchRedisMetricsSettingsProvider](api/faststream/redis/prometheus/provider/BatchRedisMetricsSettingsProvider.md)
+                        - [RedisMetricsSettingsProvider](api/faststream/redis/prometheus/provider/RedisMetricsSettingsProvider.md)
                         - [settings_provider_factory](api/faststream/redis/prometheus/provider/settings_provider_factory.md)
                 - publisher
                     - asyncapi
