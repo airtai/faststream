@@ -11,7 +11,7 @@ class ContentTypes(str, Enum):
     json = "application/json"
 
 
-class _EmptyPlaceholder:
+class EmptyPlaceholder:
     def __repr__(self) -> str:
         return "EMPTY"
 
@@ -19,10 +19,10 @@ class _EmptyPlaceholder:
         return False
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, _EmptyPlaceholder):
+        if not isinstance(other, EmptyPlaceholder):
             return NotImplemented
 
         return True
 
 
-EMPTY: Any = _EmptyPlaceholder()
+EMPTY: Any = EmptyPlaceholder()

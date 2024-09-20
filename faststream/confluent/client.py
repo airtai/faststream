@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from typing_extensions import NotRequired, TypedDict
 
     from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.setup.logger import LoggerState
 
     class _SendKwargs(TypedDict):
         value: Optional[Union[str, bytes]]
@@ -46,7 +47,6 @@ class AsyncConfluentProducer:
     def __init__(
         self,
         *,
-        logger: Optional["LoggerProto"],
         config: config_module.ConfluentFastConfig,
         bootstrap_servers: Union[str, List[str]] = "localhost",
         client_id: Optional[str] = None,
@@ -68,8 +68,6 @@ class AsyncConfluentProducer:
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
     ) -> None:
-        self.logger = logger
-
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
         ):
@@ -112,7 +110,7 @@ class AsyncConfluentProducer:
                 }
             )
 
-        self.producer = Producer(final_config, logger=self.logger)
+        self.producer = Producer(final_config)
 
         self.__running = True
         self._poll_task = asyncio.create_task(self._poll_loop())
@@ -223,7 +221,7 @@ class AsyncConfluentConsumer:
         self,
         *topics: str,
         partitions: Sequence["TopicPartition"],
-        logger: Optional["LoggerProto"],
+        logger: "LoggerState",
         config: config_module.ConfluentFastConfig,
         bootstrap_servers: Union[str, List[str]] = "localhost",
         client_id: Optional[str] = "confluent-kafka-consumer",
@@ -251,7 +249,7 @@ class AsyncConfluentConsumer:
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
     ) -> None:
-        self.logger = logger
+        self.logger_state = logger
 
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
@@ -312,7 +310,7 @@ class AsyncConfluentConsumer:
             )
 
         self.config = final_config
-        self.consumer = Consumer(final_config, logger=self.logger)
+        self.consumer = Consumer(final_config)
 
     @property
     def topics_to_create(self) -> List[str]:
@@ -322,13 +320,16 @@ class AsyncConfluentConsumer:
         """Starts the Kafka consumer and subscribes to the specified topics."""
         if self.allow_auto_create_topics:
             await call_or_await(
-                create_topics, self.topics_to_create, self.config, self.logger
+                create_topics,
+                self.topics_to_create,
+                self.config,
+                self.logger_state.logger.logger,
             )
 
-        elif self.logger:
-            self.logger.log(
-                logging.WARNING,
-                "Auto create topics is disabled. Make sure the topics exist.",
+        else:
+            self.logger_state.log(
+                log_level=logging.WARNING,
+                message="Auto create topics is disabled. Make sure the topics exist.",
             )
 
         if self.topics:
@@ -359,10 +360,10 @@ class AsyncConfluentConsumer:
             # No offset stored issue is not a problem - https://github.com/confluentinc/confluent-kafka-python/issues/295#issuecomment-355907183
             if "No offset stored" in str(e):
                 pass
-            elif self.logger:
-                self.logger.log(
-                    logging.ERROR,
-                    "Consumer closing error occurred.",
+            else:
+                self.logger_state.log(
+                    log_level=logging.ERROR,
+                    message="Consumer closing error occurred.",
                     exc_info=e,
                 )
 

@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -24,8 +25,10 @@ def stream(queue):
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "nats"
     include_messages_counters = True
-    broker_class = NatsBroker
     telemetry_middleware_class = NatsTelemetryMiddleware
+
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types, **kwargs)
 
     async def test_batch(
         self,
@@ -41,7 +44,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider, tracer_provider=tracer_provider
         )
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,))
         expected_msg_count = 1
         expected_span_count = 4
         expected_proc_batch_count = 1
@@ -57,12 +60,10 @@ class TestTelemetry(LocalTelemetryTestcase):
             mock(m)
             event.set()
 
-        broker = self.patch_broker(broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             tasks = (
-                asyncio.create_task(broker.publish("hi", queue)),
+                asyncio.create_task(br.publish("hi", queue)),
                 asyncio.create_task(event.wait()),
             )
             await asyncio.wait(tasks, timeout=self.timeout)
@@ -90,17 +91,19 @@ class TestTelemetry(LocalTelemetryTestcase):
 
 @pytest.mark.nats
 class TestPublishWithTelemetry(TestPublish):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
         return NatsBroker(
             middlewares=(NatsTelemetryMiddleware(),),
             apply_types=apply_types,
+            **kwargs,
         )
 
 
 @pytest.mark.nats
 class TestConsumeWithTelemetry(TestConsume):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
         return NatsBroker(
             middlewares=(NatsTelemetryMiddleware(),),
             apply_types=apply_types,
+            **kwargs,
         )

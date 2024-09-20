@@ -26,13 +26,16 @@ from redis.exceptions import ConnectionError
 from typing_extensions import Annotated, Doc, TypeAlias, override
 
 from faststream.__about__ import __version__
+from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
-from faststream.redis.broker.logging import RedisLoggingBroker
-from faststream.redis.broker.registrator import RedisRegistrator
+from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
+
+from .logging import make_redis_logger_state
+from .registrator import RedisRegistrator
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -83,7 +86,7 @@ Channel: TypeAlias = str
 
 class RedisBroker(
     RedisRegistrator,
-    RedisLoggingBroker,
+    BrokerUsecase[UnifyRedisDict, "Redis[bytes]"],
 ):
     """Redis broker."""
 
@@ -239,9 +242,9 @@ class RedisBroker(
             security=security,
             tags=tags,
             # logging
-            logger=logger,
-            log_level=log_level,
-            log_fmt=log_fmt,
+            logger_state=make_redis_logger_state(
+                logger=logger, log_level=log_level, log_fmt=log_fmt
+            ),
             # FastDepends args
             apply_types=apply_types,
             validate=validate,
@@ -334,26 +337,22 @@ class RedisBroker(
         )
         return client
 
-    async def _close(
+    async def close(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
+        await super().close(exc_type, exc_val, exc_tb)
+
         if self._connection is not None:
             await self._connection.aclose()  # type: ignore[attr-defined]
-
-        await super()._close(exc_type, exc_val, exc_tb)
+            self._connection = None
 
     async def start(self) -> None:
+        await self.connect()
+        self._setup()
         await super().start()
-
-        for handler in self._subscribers.values():
-            self._log(
-                f"`{handler.call_name}` waiting for messages",
-                extra=handler.get_log_context(None),
-            )
-            await handler.start()
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":

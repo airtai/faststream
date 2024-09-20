@@ -111,6 +111,10 @@ class SubscriberNotFound(FastStreamException):
     """Raises as a service message or in tests."""
 
 
+class IncorrectState(FastStreamException):
+    """Raises in FSM at wrong state calling."""
+
+
 class ContextError(FastStreamException, KeyError):
     """Raises if context exception occurred."""
 

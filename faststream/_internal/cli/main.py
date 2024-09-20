@@ -250,6 +250,7 @@ def publish(
         if not app_obj.broker:
             raise ValueError("Broker instance not found in the app.")
 
+        app_obj._setup()
         result = anyio.run(publish_message, app_obj.broker, rpc, extra)
 
         if rpc:

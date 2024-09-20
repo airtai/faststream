@@ -49,24 +49,18 @@ def get_broker_logger(
     name: str,
     default_context: Mapping[str, str],
     message_id_ln: int,
+    fmt: str,
 ) -> logging.Logger:
     logger = logging.getLogger(f"faststream.access.{name}")
+    logger.setLevel(logging.INFO)
     logger.propagate = False
     logger.addFilter(ExtendedFilter(default_context, message_id_ln))
-    logger.setLevel(logging.INFO)
-    return logger
-
-
-def set_logger_fmt(
-    logger: logging.Logger,
-    fmt: str = "%(asctime)s %(levelname)s - %(message)s",
-) -> None:
     handler = logging.StreamHandler(stream=sys.stdout)
-
-    formatter = ColourizedFormatter(
-        fmt=fmt,
-        use_colors=True,
+    handler.setFormatter(
+        ColourizedFormatter(
+            fmt=fmt,
+            use_colors=True,
+        )
     )
-    handler.setFormatter(formatter)
-
     logger.addHandler(handler)
+    return logger

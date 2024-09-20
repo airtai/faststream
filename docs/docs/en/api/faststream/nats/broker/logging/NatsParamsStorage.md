@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.kafka.broker.logging.KafkaLoggingBroker
+::: faststream.nats.broker.logging.NatsParamsStorage

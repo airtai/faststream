@@ -14,7 +14,7 @@ from typing import (
 
 from typing_extensions import override
 
-from faststream._internal.proto import SetupAble
+from faststream._internal.setup import SetupAble
 from faststream._internal.types import MsgType
 from faststream.exceptions import IgnoredException, SetupError
 

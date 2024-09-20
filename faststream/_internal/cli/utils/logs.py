@@ -69,6 +69,9 @@ def set_log_level(level: int, app: "FastStream") -> None:
     if app.logger and getattr(app.logger, "setLevel", None):
         app.logger.setLevel(level)  # type: ignore[attr-defined]
 
-    broker_logger: Optional[LoggerProto] = getattr(app.broker, "logger", None)
-    if broker_logger is not None and getattr(broker_logger, "setLevel", None):
-        broker_logger.setLevel(level)  # type: ignore[attr-defined]
+    if app.broker:
+        broker_logger: Optional[LoggerProto] = (
+            app.broker._state.logger_state.logger.logger
+        )
+        if broker_logger is not None and getattr(broker_logger, "setLevel", None):
+            broker_logger.setLevel(level)  # type: ignore[attr-defined]

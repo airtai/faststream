@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -24,8 +25,10 @@ from tests.opentelemetry.basic import LocalTelemetryTestcase
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "redis"
     include_messages_counters = True
-    broker_class = RedisBroker
     telemetry_middleware_class = RedisTelemetryMiddleware
+
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
+        return RedisBroker(apply_types=apply_types, **kwargs)
 
     async def test_batch(
         self,
@@ -40,7 +43,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider, tracer_provider=tracer_provider
         )
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_msg_count = 3
         expected_link_count = 1
         expected_link_attrs = {"messaging.batch.message_count": 3}
@@ -56,12 +59,10 @@ class TestTelemetry(LocalTelemetryTestcase):
             mock(m)
             event.set()
 
-        broker = self.patch_broker(broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             tasks = (
-                asyncio.create_task(broker.publish_batch(1, "hi", 3, list=queue)),
+                asyncio.create_task(br.publish_batch(1, "hi", 3, list=queue)),
                 asyncio.create_task(event.wait()),
             )
             await asyncio.wait(tasks, timeout=self.timeout)
@@ -96,7 +97,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider, tracer_provider=tracer_provider
         )
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,), apply_types=True)
         msgs_queue = asyncio.Queue(maxsize=3)
         expected_msg_count = 3
         expected_link_count = 1
@@ -113,11 +114,9 @@ class TestTelemetry(LocalTelemetryTestcase):
             assert baggage.get_all_batch() == expected_baggage_batch
             await msgs_queue.put(msg)
 
-        broker = self.patch_broker(broker)
-
-        async with broker:
-            await broker.start()
-            await broker.publish_batch(1, "hi", 3, list=queue)
+        async with self.patch_broker(broker) as br:
+            await br.start()
+            await br.publish_batch(1, "hi", 3, list=queue)
             result, _ = await asyncio.wait(
                 (
                     asyncio.create_task(msgs_queue.get()),
@@ -161,7 +160,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider, tracer_provider=tracer_provider
         )
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_msg_count = 2
         expected_link_count = 2
         expected_span_count = 6
@@ -178,17 +177,15 @@ class TestTelemetry(LocalTelemetryTestcase):
             mock(m)
             event.set()
 
-        broker = self.patch_broker(broker)
-
-        async with broker:
+        async with self.patch_broker(broker) as br:
             tasks = (
                 asyncio.create_task(
-                    broker.publish(
+                    br.publish(
                         "hi", list=queue, headers=Baggage({"foo": "bar"}).to_headers()
                     )
                 ),
                 asyncio.create_task(
-                    broker.publish(
+                    br.publish(
                         "buy", list=queue, headers=Baggage({"bar": "baz"}).to_headers()
                     )
                 ),
@@ -217,35 +214,39 @@ class TestTelemetry(LocalTelemetryTestcase):
 
 @pytest.mark.redis
 class TestPublishWithTelemetry(TestPublish):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
         return RedisBroker(
             middlewares=(RedisTelemetryMiddleware(),),
             apply_types=apply_types,
+            **kwargs,
         )
 
 
 @pytest.mark.redis
 class TestConsumeWithTelemetry(TestConsume):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
         return RedisBroker(
             middlewares=(RedisTelemetryMiddleware(),),
             apply_types=apply_types,
+            **kwargs,
         )
 
 
 @pytest.mark.redis
 class TestConsumeListWithTelemetry(TestConsumeList):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
         return RedisBroker(
             middlewares=(RedisTelemetryMiddleware(),),
             apply_types=apply_types,
+            **kwargs,
         )
 
 
 @pytest.mark.redis
 class TestConsumeStreamWithTelemetry(TestConsumeStream):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
         return RedisBroker(
             middlewares=(RedisTelemetryMiddleware(),),
             apply_types=apply_types,
+            **kwargs,
         )

@@ -36,6 +36,7 @@ from faststream._internal.fastapi.get_dependant import get_fastapi_dependant
 from faststream._internal.fastapi.route import (
     wrap_callable_to_fastapi_compatible,
 )
+from faststream._internal.setup import EmptyState
 from faststream._internal.types import (
     MsgType,
     P_HandlerParams,
@@ -165,6 +166,8 @@ class StreamRouter(
         self.contact = None
 
         self.schema = None
+
+        self._state = EmptyState()
 
         super().__init__(
             prefix=prefix,
@@ -316,7 +319,7 @@ class StreamRouter(
                     context = dict(maybe_context)
 
                 context.update({"broker": self.broker})
-                await self.broker.start()
+                await self._start_broker()
 
                 for h in self._after_startup_hooks:
                     h_context = await h(app)

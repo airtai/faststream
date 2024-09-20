@@ -15,6 +15,24 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         raise NotImplementedError
 
     @pytest.mark.asyncio
+    async def test_correct_clean_fake_subscribers(self):
+        broker = self.get_broker()
+
+        @broker.subscriber("test")
+        async def handler1(msg): ...
+
+        broker.publisher("test2")
+        broker.publisher("test")
+
+        assert len(broker._subscribers) == 1
+
+        test_client = self.patch_broker(broker)
+        async with test_client as br:
+            assert len(br._subscribers) == 2
+
+        assert len(broker._subscribers) == 1
+
+    @pytest.mark.asyncio
     async def test_subscriber_mock(self, queue: str):
         test_broker = self.get_broker()
 

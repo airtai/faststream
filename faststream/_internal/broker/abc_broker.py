@@ -90,43 +90,37 @@ class ABCBroker(Generic[MsgType]):
         for h in router._subscribers.values():
             h.add_prefix("".join((self.prefix, prefix)))
 
-            if (key := hash(h)) not in self._subscribers:
-                if include_in_schema is None:
-                    h.include_in_schema = self._solve_include_in_schema(
-                        h.include_in_schema
-                    )
-                else:
-                    h.include_in_schema = include_in_schema
+            if include_in_schema is None:
+                h.include_in_schema = self._solve_include_in_schema(h.include_in_schema)
+            else:
+                h.include_in_schema = include_in_schema
 
-                h._broker_middlewares = (
-                    *self._middlewares,
-                    *middlewares,
-                    *h._broker_middlewares,
-                )
-                h._broker_dependencies = (
-                    *self._dependencies,
-                    *dependencies,
-                    *h._broker_dependencies,
-                )
-                self._subscribers = {**self._subscribers, key: h}
+            h._broker_middlewares = (
+                *self._middlewares,
+                *middlewares,
+                *h._broker_middlewares,
+            )
+            h._broker_dependencies = (
+                *self._dependencies,
+                *dependencies,
+                *h._broker_dependencies,
+            )
+            self._subscribers = {**self._subscribers, hash(h): h}
 
         for p in router._publishers.values():
             p.add_prefix(self.prefix)
 
-            if (key := hash(p)) not in self._publishers:
-                if include_in_schema is None:
-                    p.include_in_schema = self._solve_include_in_schema(
-                        p.include_in_schema
-                    )
-                else:
-                    p.include_in_schema = include_in_schema
+            if include_in_schema is None:
+                p.include_in_schema = self._solve_include_in_schema(p.include_in_schema)
+            else:
+                p.include_in_schema = include_in_schema
 
-                p._broker_middlewares = (
-                    *self._middlewares,
-                    *middlewares,
-                    *p._broker_middlewares,
-                )
-                self._publishers = {**self._publishers, key: p}
+            p._broker_middlewares = (
+                *self._middlewares,
+                *middlewares,
+                *p._broker_middlewares,
+            )
+            self._publishers = {**self._publishers, hash(p): p}
 
     def include_routers(
         self,

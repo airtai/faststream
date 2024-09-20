@@ -12,15 +12,14 @@ from typing import (
 from urllib.parse import urlparse
 
 import anyio
-from aio_pika import connect_robust
+from aio_pika import IncomingMessage, RobustConnection, connect_robust
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
+from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
-from faststream.rabbit.broker.logging import RabbitLoggingBroker
-from faststream.rabbit.broker.registrator import RabbitRegistrator
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from faststream.rabbit.schemas import (
@@ -29,8 +28,10 @@ from faststream.rabbit.schemas import (
     RabbitQueue,
 )
 from faststream.rabbit.security import parse_security
-from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
 from faststream.rabbit.utils import build_url
+
+from .logging import make_rabbit_logger_state
+from .registrator import RabbitRegistrator
 
 if TYPE_CHECKING:
     from ssl import SSLContext
@@ -38,9 +39,7 @@ if TYPE_CHECKING:
 
     import aiormq
     from aio_pika import (
-        IncomingMessage,
         RobustChannel,
-        RobustConnection,
         RobustExchange,
         RobustQueue,
     )
@@ -62,7 +61,7 @@ if TYPE_CHECKING:
 
 class RabbitBroker(
     RabbitRegistrator,
-    RabbitLoggingBroker,
+    BrokerUsecase[IncomingMessage, RobustConnection],
 ):
     """A class to represent a RabbitMQ broker."""
 
@@ -274,9 +273,11 @@ class RabbitBroker(
             security=security,
             tags=tags,
             # Logging args
-            logger=logger,
-            log_level=log_level,
-            log_fmt=log_fmt,
+            logger_state=make_rabbit_logger_state(
+                logger=logger,
+                log_level=log_level,
+                log_fmt=log_fmt,
+            ),
             # FastDepends args
             apply_types=apply_types,
             validate=validate,
@@ -453,7 +454,6 @@ class RabbitBroker(
         )
 
         if self._channel is None:  # pragma: no branch
-            max_consumers = self._max_consumers
             channel = self._channel = cast(
                 "RobustChannel",
                 await connection.channel(
@@ -472,40 +472,39 @@ class RabbitBroker(
                 parser=self._parser,
             )
 
-            if max_consumers:
-                c = SpecificationSubscriber.build_log_context(
-                    None,
-                    RabbitQueue(""),
-                    RabbitExchange(""),
-                )
-                self._log(f"Set max consumers to {max_consumers}", extra=c)
-                await channel.set_qos(prefetch_count=int(max_consumers))
+            if self._max_consumers:
+                await channel.set_qos(prefetch_count=int(self._max_consumers))
 
         return connection
 
-    async def _close(
+    async def close(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
+        await super().close(exc_type, exc_val, exc_tb)
+
         if self._channel is not None:
             if not self._channel.is_closed:
                 await self._channel.close()
 
             self._channel = None
 
+        if self._connection is not None:
+            await self._connection.close()
+            self._connection = None
+
         self.declarer = None
         self._producer = None
 
-        if self._connection is not None:
-            await self._connection.close()
-
-        await super()._close(exc_type, exc_val, exc_tb)
-
     async def start(self) -> None:
         """Connect broker to RabbitMQ and startup all subscribers."""
-        await super().start()
+        await self.connect()
+        self._setup()
+
+        if self._max_consumers:
+            self._state.logger_state.log(f"Set max consumers to {self._max_consumers}")
 
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
 
@@ -513,12 +512,7 @@ class RabbitBroker(
             if publisher.exchange is not None:
                 await self.declare_exchange(publisher.exchange)
 
-        for subscriber in self._subscribers.values():
-            self._log(
-                f"`{subscriber.call_name}` waiting for messages",
-                extra=subscriber.get_log_context(None),
-            )
-            await subscriber.start()
+        await super().start()
 
     @override
     async def publish(  # type: ignore[override]
