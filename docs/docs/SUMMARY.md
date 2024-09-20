@@ -245,7 +245,7 @@ search:
                     - broker
                         - [KafkaBroker](api/faststream/confluent/broker/broker/KafkaBroker.md)
                     - logging
-                        - [KafkaLoggingBroker](api/faststream/confluent/broker/logging/KafkaLoggingBroker.md)
+                        - [KafkaParamsStorage](api/faststream/confluent/broker/logging/KafkaParamsStorage.md)
                     - registrator
                         - [KafkaRegistrator](api/faststream/confluent/broker/registrator/KafkaRegistrator.md)
                 - client
@@ -335,6 +335,7 @@ search:
                 - [FastStreamException](api/faststream/exceptions/FastStreamException.md)
                 - [HandlerException](api/faststream/exceptions/HandlerException.md)
                 - [IgnoredException](api/faststream/exceptions/IgnoredException.md)
+                - [IncorrectState](api/faststream/exceptions/IncorrectState.md)
                 - [NackMessage](api/faststream/exceptions/NackMessage.md)
                 - [OperationForbiddenError](api/faststream/exceptions/OperationForbiddenError.md)
                 - [RejectMessage](api/faststream/exceptions/RejectMessage.md)
@@ -358,7 +359,7 @@ search:
                     - broker
                         - [KafkaBroker](api/faststream/kafka/broker/broker/KafkaBroker.md)
                     - logging
-                        - [KafkaLoggingBroker](api/faststream/kafka/broker/logging/KafkaLoggingBroker.md)
+                        - [KafkaParamsStorage](api/faststream/kafka/broker/logging/KafkaParamsStorage.md)
                     - registrator
                         - [KafkaRegistrator](api/faststream/kafka/broker/registrator/KafkaRegistrator.md)
                 - fastapi
@@ -444,6 +445,7 @@ search:
                     - [ignore_handler](api/faststream/middlewares/exception/ignore_handler.md)
                 - logging
                     - [CriticalLogMiddleware](api/faststream/middlewares/logging/CriticalLogMiddleware.md)
+                    - [LoggingMiddleware](api/faststream/middlewares/logging/LoggingMiddleware.md)
             - nats
                 - [AckPolicy](api/faststream/nats/AckPolicy.md)
                 - [ConsumerConfig](api/faststream/nats/ConsumerConfig.md)
@@ -473,7 +475,7 @@ search:
                     - broker
                         - [NatsBroker](api/faststream/nats/broker/broker/NatsBroker.md)
                     - logging
-                        - [NatsLoggingBroker](api/faststream/nats/broker/logging/NatsLoggingBroker.md)
+                        - [NatsParamsStorage](api/faststream/nats/broker/logging/NatsParamsStorage.md)
                     - registrator
                         - [NatsRegistrator](api/faststream/nats/broker/registrator/NatsRegistrator.md)
                 - fastapi
@@ -617,7 +619,7 @@ search:
                     - broker
                         - [RabbitBroker](api/faststream/rabbit/broker/broker/RabbitBroker.md)
                     - logging
-                        - [RabbitLoggingBroker](api/faststream/rabbit/broker/logging/RabbitLoggingBroker.md)
+                        - [RabbitParamsStorage](api/faststream/rabbit/broker/logging/RabbitParamsStorage.md)
                     - registrator
                         - [RabbitRegistrator](api/faststream/rabbit/broker/registrator/RabbitRegistrator.md)
                 - fastapi
@@ -699,7 +701,7 @@ search:
                     - broker
                         - [RedisBroker](api/faststream/redis/broker/broker/RedisBroker.md)
                     - logging
-                        - [RedisLoggingBroker](api/faststream/redis/broker/logging/RedisLoggingBroker.md)
+                        - [RedisParamsStorage](api/faststream/redis/broker/logging/RedisParamsStorage.md)
                     - registrator
                         - [RedisRegistrator](api/faststream/redis/broker/registrator/RedisRegistrator.md)
                 - fastapi

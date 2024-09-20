@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.confluent.broker.logging.KafkaLoggingBroker
+::: faststream.redis.broker.logging.RedisParamsStorage
