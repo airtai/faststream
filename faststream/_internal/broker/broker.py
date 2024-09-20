@@ -368,13 +368,13 @@ class BrokerUsecase(
             **kwargs,
         )
 
-        msg: Any = await process_msg(
+        message: Any = await process_msg(
             msg=published_msg,
             middlewares=self._middlewares,
             parser=producer._parser,
             decoder=producer._decoder,
         )
-        return msg
+        return message
 
     @abstractmethod
     async def ping(self, timeout: Optional[float]) -> bool:
