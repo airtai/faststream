@@ -309,7 +309,8 @@ class AsyncConfluentConsumer:
                 }
             )
 
-        self.consumer = Consumer(self.final_config)
+        self.config = final_config
+        self.consumer = Consumer(final_config)
 
     @property
     def topics_to_create(self) -> List[str]:
