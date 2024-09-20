@@ -309,7 +309,7 @@ class AsyncConfluentConsumer:
                 }
             )
 
-        self.config = final_config
+        self.consumer = Consumer(self.final_config)
 
     @property
     def topics_to_create(self) -> List[str]:
@@ -317,11 +317,6 @@ class AsyncConfluentConsumer:
 
     async def start(self) -> None:
         """Starts the Kafka consumer and subscribes to the specified topics."""
-        self.consumer = Consumer(
-            self.config,
-            logger=self.logger_state.logger.logger,
-        )
-
         if self.allow_auto_create_topics:
             await call_or_await(
                 create_topics,
