@@ -7,6 +7,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/faststream-people/</loc>
+        <lastmod>2024-09-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/faststream-people/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/faststream/</loc>
         <lastmod>2024-09-23</lastmod>
         <changefreq>daily</changefreq>
