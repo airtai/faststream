@@ -481,7 +481,13 @@ jobs:
 
   # https://github.com/marketplace/actions/alls-green#why
   check: # This job does nothing and is only used for the branch protection
-    if: github.event.pull_request.draft == false
+    # from: https://github.com/re-actors/alls-green
+    # Important: For this to work properly, it is a must to have the job always
+    # run, otherwise GitHub will make it skipped when any of the dependencies
+    # fail. In some contexts, skipped is interpreted as success which may lead
+    # to undesired, unobvious and even dangerous (as in security breach
+    # "dangerous") side-effects.
+    if: always()
 
     needs:
       - pre-commit-check
