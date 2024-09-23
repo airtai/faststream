@@ -169,10 +169,12 @@ class FilterNaming(BaseNaming):
     def test_subscriber_filter_base(self):
         broker = self.broker_class()
 
-        @broker.subscriber("test")
+        sub = broker.subscriber("test")
+
+        @sub
         async def handle_user_created(msg: str): ...
 
-        @broker.subscriber("test")
+        @sub
         async def handle_user_id(msg: int): ...
 
         schema = get_app_schema(FastStream(broker), version="3.0.0").to_jsonable()
@@ -193,10 +195,12 @@ class FilterNaming(BaseNaming):
     def test_subscriber_filter_pydantic(self):
         broker = self.broker_class()
 
-        @broker.subscriber("test")
+        sub = broker.subscriber("test")
+
+        @sub
         async def handle_user_created(msg: create_model("SimpleModel")): ...
 
-        @broker.subscriber("test")
+        @sub
         async def handle_user_id(msg: int): ...
 
         schema = get_app_schema(FastStream(broker), version="3.0.0").to_jsonable()
@@ -217,10 +221,12 @@ class FilterNaming(BaseNaming):
     def test_subscriber_filter_with_title(self):
         broker = self.broker_class()
 
-        @broker.subscriber("test", title="custom")
+        sub = broker.subscriber("test", title="custom")
+
+        @sub
         async def handle_user_created(msg: str): ...
 
-        @broker.subscriber("test", title="custom")
+        @sub
         async def handle_user_id(msg: int): ...
 
         schema = get_app_schema(FastStream(broker), version="3.0.0").to_jsonable()

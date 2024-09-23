@@ -399,7 +399,7 @@ class RouterTestcase(
         router.include_router(router2)
         pub_broker.include_routers(router)
 
-        sub = next(iter(pub_broker._subscribers.values()))
+        sub = next(iter(pub_broker._subscribers))
         assert len((*sub._broker_dependencies, *sub.calls[0].dependencies)) == 3
 
     async def test_router_include_with_dependencies(
@@ -422,7 +422,7 @@ class RouterTestcase(
         router.include_router(router2, dependencies=(Depends(lambda: 2),))
         pub_broker.include_router(router, dependencies=(Depends(lambda: 1),))
 
-        sub = next(iter(pub_broker._subscribers.values()))
+        sub = next(iter(pub_broker._subscribers))
         dependencies = (*sub._broker_dependencies, *sub.calls[0].dependencies)
         assert len(dependencies) == 3, dependencies
 
@@ -445,8 +445,8 @@ class RouterTestcase(
         router.include_router(router2)
         pub_broker.include_routers(router)
 
-        sub = next(iter(pub_broker._subscribers.values()))
-        publisher = next(iter(pub_broker._publishers.values()))
+        sub = next(iter(pub_broker._subscribers))
+        publisher = next(iter(pub_broker._publishers))
 
         assert len((*sub._broker_middlewares, *sub.calls[0].item_middlewares)) == 3
         assert len((*publisher._broker_middlewares, *publisher._middlewares)) == 3
@@ -469,8 +469,8 @@ class RouterTestcase(
         router.include_router(router2, middlewares=(BaseMiddleware,))
         pub_broker.include_router(router, middlewares=(BaseMiddleware,))
 
-        sub = next(iter(pub_broker._subscribers.values()))
-        publisher = next(iter(pub_broker._publishers.values()))
+        sub = next(iter(pub_broker._subscribers))
+        publisher = next(iter(pub_broker._publishers))
 
         sub_middlewares = (*sub._broker_middlewares, *sub.calls[0].item_middlewares)
         assert len(sub_middlewares) == 3, sub_middlewares

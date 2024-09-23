@@ -67,9 +67,6 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
         self._producer = None
 
-    def __hash__(self) -> int:
-        return hash(self.topic)
-
     def add_prefix(self, prefix: str) -> None:
         self.topic = "".join((prefix, self.topic))
 

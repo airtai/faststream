@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Union, cast
 
 from typing_extensions import Annotated, Doc, override
 
@@ -25,8 +25,8 @@ if TYPE_CHECKING:
 class RedisRegistrator(ABCBroker[UnifyRedisDict]):
     """Includable to RedisBroker router."""
 
-    _subscribers: Dict[int, "SubsciberType"]
-    _publishers: Dict[int, "PublisherType"]
+    _subscribers: List["SubsciberType"]
+    _publishers: List["PublisherType"]
 
     @override
     def subscriber(  # type: ignore[override]

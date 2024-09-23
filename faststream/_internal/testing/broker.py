@@ -123,7 +123,7 @@ class TestBroker(Generic[Broker]):
     def _fake_start(self, broker: Broker, *args: Any, **kwargs: Any) -> None:
         patch_broker_calls(broker)
 
-        for p in broker._publishers.values():
+        for p in broker._publishers:
             if getattr(p, "_fake_handler", None):
                 continue
 
@@ -154,7 +154,7 @@ class TestBroker(Generic[Broker]):
                 assert handler.mock  # nosec B101
                 p.set_test(mock=handler.mock, with_fake=True)  # type: ignore[attr-defined]
 
-        for subscriber in broker._subscribers.values():
+        for subscriber in broker._subscribers:
             subscriber.running = True
 
     def _fake_close(
@@ -164,18 +164,16 @@ class TestBroker(Generic[Broker]):
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
-        for p in broker._publishers.values():
+        for p in broker._publishers:
             if getattr(p, "_fake_handler", None):
                 p.reset_test()  # type: ignore[attr-defined]
 
-        self.broker._subscribers = {
-            hash(sub): sub
-            for sub in self.broker._subscribers.values()
-            if sub not in self._fake_subscribers
-        }
+        self.broker._subscribers = [
+            sub for sub in self.broker._subscribers if sub not in self._fake_subscribers
+        ]
         self._fake_subscribers.clear()
 
-        for h in broker._subscribers.values():
+        for h in broker._subscribers:
             h.running = False
             for call in h.calls:
                 call.handler.reset_test()
@@ -197,6 +195,6 @@ def patch_broker_calls(broker: "BrokerUsecase[Any, Any]") -> None:
     """Patch broker calls."""
     broker._setup()
 
-    for handler in broker._subscribers.values():
+    for handler in broker._subscribers:
         for h in handler.calls:
             h.handler.set_test()

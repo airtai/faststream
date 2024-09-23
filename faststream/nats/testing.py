@@ -1,4 +1,14 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generator,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 from unittest.mock import AsyncMock
 
 import anyio
@@ -32,8 +42,8 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     ) -> Tuple["LogicSubscriber[Any, Any]", bool]:
         sub: Optional[LogicSubscriber[Any, Any]] = None
         publisher_stream = publisher.stream.name if publisher.stream else None
-        for handler in broker._subscribers.values():
-            if _is_handler_suitable(handler, publisher.subject, publisher_stream):
+        for handler in broker._subscribers:
+            if _is_handler_matches(handler, publisher.subject, publisher_stream):
                 sub = handler
                 break
 
@@ -86,16 +96,19 @@ class FakeProducer(NatsFastProducer):
             reply_to=reply_to,
         )
 
-        for handler in self.broker._subscribers.values():  # pragma: no branch
-            if _is_handler_suitable(handler, subject, stream):
-                msg: Union[List[PatchedMessage], PatchedMessage]
+        for handler in _find_handler(
+            self.broker._subscribers,
+            subject,
+            stream,
+        ):
+            msg: Union[List[PatchedMessage], PatchedMessage]
 
-                if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
-                    msg = [incoming]
-                else:
-                    msg = incoming
+            if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
+                msg = [incoming]
+            else:
+                msg = incoming
 
-                await self._execute_handler(msg, subject, handler)
+            await self._execute_handler(msg, subject, handler)
 
         return None
 
@@ -118,17 +131,20 @@ class FakeProducer(NatsFastProducer):
             correlation_id=correlation_id,
         )
 
-        for handler in self.broker._subscribers.values():  # pragma: no branch
-            if _is_handler_suitable(handler, subject, stream):
-                msg: Union[List[PatchedMessage], PatchedMessage]
+        for handler in _find_handler(
+            self.broker._subscribers,
+            subject,
+            stream,
+        ):
+            msg: Union[List[PatchedMessage], PatchedMessage]
 
-                if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
-                    msg = [incoming]
-                else:
-                    msg = incoming
+            if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
+                msg = [incoming]
+            else:
+                msg = incoming
 
-                with anyio.fail_after(timeout):
-                    return await self._execute_handler(msg, subject, handler)
+            with anyio.fail_after(timeout):
+                return await self._execute_handler(msg, subject, handler)
 
         raise SubscriberNotFound
 
@@ -148,7 +164,23 @@ class FakeProducer(NatsFastProducer):
         )
 
 
-def _is_handler_suitable(
+def _find_handler(
+    subscribers: Iterable["LogicSubscriber[Any]"],
+    subject: str,
+    stream: Optional[str] = None,
+) -> Generator["LogicSubscriber[Any]", None, None]:
+    published_queues = set()
+    for handler in subscribers:  # pragma: no branch
+        if _is_handler_matches(handler, subject, stream):
+            if queue := getattr(handler, "queue", None):
+                if queue in published_queues:
+                    continue
+                else:
+                    published_queues.add(queue)
+            yield handler
+
+
+def _is_handler_matches(
     handler: "LogicSubscriber[Any, Any]",
     subject: str,
     stream: Optional[str] = None,

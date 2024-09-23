@@ -231,16 +231,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             return [f"{p.topic}-{p.partition}" for p in self.partitions]
 
     @staticmethod
-    def get_routing_hash(topics: Iterable[str], group_id: Optional[str] = None) -> int:
-        return hash("".join((*topics, group_id or "")))
-
-    def __hash__(self) -> int:
-        return self.get_routing_hash(
-            topics=self.topic_names,
-            group_id=self.group_id,
-        )
-
-    @staticmethod
     def build_log_context(
         message: Optional["StreamMessage[Any]"],
         topic: str,

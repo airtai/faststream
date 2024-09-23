@@ -4,6 +4,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    List,
     Literal,
     Optional,
     Sequence,
@@ -53,12 +54,10 @@ class KafkaRegistrator(
 ):
     """Includable to KafkaBroker router."""
 
-    _subscribers: Dict[
-        int,
+    _subscribers: List[
         Union["SpecificationBatchSubscriber", "SpecificationDefaultSubscriber"],
     ]
-    _publishers: Dict[
-        int,
+    _publishers: List[
         Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"],
     ]
 

@@ -23,7 +23,7 @@ class TestLogger(ConfluentTestcaseConfig):
 
         await broker.start()
 
-        for sub in broker._subscribers.values():
+        for sub in broker._subscribers:
             consumer_logger = sub.consumer.logger_state.logger.logger
             assert consumer_logger == test_logger
 

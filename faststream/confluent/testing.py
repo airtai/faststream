@@ -1,5 +1,15 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+)
 from unittest.mock import AsyncMock, MagicMock
 
 import anyio
@@ -43,7 +53,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         publisher: "SpecificationPublisher[Any]",
     ) -> Tuple["LogicSubscriber[Any]", bool]:
         sub: Optional[LogicSubscriber[Any]] = None
-        for handler in broker._subscribers.values():
+        for handler in broker._subscribers:
             if _is_handler_matches(
                 handler, topic=publisher.topic, partition=publisher.partition
             ):
@@ -118,15 +128,18 @@ class FakeProducer(AsyncConfluentFastProducer):
             reply_to=reply_to,
         )
 
-        for handler in self.broker._subscribers.values():  # pragma: no branch
-            if _is_handler_matches(handler, topic, partition):
-                msg_to_send = (
-                    [incoming]
-                    if isinstance(handler, SpecificationBatchSubscriber)
-                    else incoming
-                )
+        for handler in _find_handler(
+            self.broker._subscribers,
+            topic,
+            partition,
+        ):
+            msg_to_send = (
+                [incoming]
+                if isinstance(handler, SpecificationBatchSubscriber)
+                else incoming
+            )
 
-                await self._execute_handler(msg_to_send, topic, handler)
+            await self._execute_handler(msg_to_send, topic, handler)
 
     async def publish_batch(
         self,
@@ -140,27 +153,30 @@ class FakeProducer(AsyncConfluentFastProducer):
         no_confirm: bool = False,
     ) -> None:
         """Publish a batch of messages to the Kafka broker."""
-        for handler in self.broker._subscribers.values():  # pragma: no branch
-            if _is_handler_matches(handler, topic, partition):
-                messages = (
-                    build_message(
-                        message=message,
-                        topic=topic,
-                        partition=partition,
-                        timestamp_ms=timestamp_ms,
-                        headers=headers,
-                        correlation_id=correlation_id or gen_cor_id(),
-                        reply_to=reply_to,
-                    )
-                    for message in msgs
+        for handler in _find_handler(
+            self.broker._subscribers,
+            topic,
+            partition,
+        ):
+            messages = (
+                build_message(
+                    message=message,
+                    topic=topic,
+                    partition=partition,
+                    timestamp_ms=timestamp_ms,
+                    headers=headers,
+                    correlation_id=correlation_id or gen_cor_id(),
+                    reply_to=reply_to,
                 )
+                for message in msgs
+            )
 
-                if isinstance(handler, SpecificationBatchSubscriber):
-                    await self._execute_handler(list(messages), topic, handler)
+            if isinstance(handler, SpecificationBatchSubscriber):
+                await self._execute_handler(list(messages), topic, handler)
 
-                else:
-                    for m in messages:
-                        await self._execute_handler(m, topic, handler)
+            else:
+                for m in messages:
+                    await self._execute_handler(m, topic, handler)
 
         return None
 
@@ -187,16 +203,19 @@ class FakeProducer(AsyncConfluentFastProducer):
             correlation_id=correlation_id or gen_cor_id(),
         )
 
-        for handler in self.broker._subscribers.values():  # pragma: no branch
-            if _is_handler_matches(handler, topic, partition):
-                msg_to_send = (
-                    [incoming]
-                    if isinstance(handler, SpecificationBatchSubscriber)
-                    else incoming
-                )
+        for handler in _find_handler(
+            self.broker._subscribers,
+            topic,
+            partition,
+        ):
+            msg_to_send = (
+                [incoming]
+                if isinstance(handler, SpecificationBatchSubscriber)
+                else incoming
+            )
 
-                with anyio.fail_after(timeout):
-                    return await self._execute_handler(msg_to_send, topic, handler)
+            with anyio.fail_after(timeout):
+                return await self._execute_handler(msg_to_send, topic, handler)
 
         raise SubscriberNotFound
 
@@ -305,6 +324,22 @@ def _fake_connection(*args: Any, **kwargs: Any) -> AsyncMock:
     mock.getone.return_value = MagicMock()
     mock.getmany.return_value = [MagicMock()]
     return mock
+
+
+def _find_handler(
+    subscribers: Iterable["LogicSubscriber[Any]"],
+    topic: str,
+    partition: Optional[int],
+) -> Generator["LogicSubscriber[Any]", None, None]:
+    published_groups = set()
+    for handler in subscribers:  # pragma: no branch
+        if _is_handler_matches(handler, topic, partition):
+            if handler.group_id:
+                if handler.group_id in published_groups:
+                    continue
+                else:
+                    published_groups.add(handler.group_id)
+            yield handler
 
 
 def _is_handler_matches(

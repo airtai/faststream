@@ -4,7 +4,7 @@ from typing import (
     Any,
     Generic,
     Iterable,
-    Mapping,
+    List,
     Optional,
 )
 
@@ -18,8 +18,8 @@ if TYPE_CHECKING:
 
 
 class ABCBroker(Generic[MsgType]):
-    _subscribers: Mapping[int, "SubscriberProto[MsgType]"]
-    _publishers: Mapping[int, "PublisherProto[MsgType]"]
+    _subscribers: List["SubscriberProto[MsgType]"]
+    _publishers: List["PublisherProto[MsgType]"]
 
     def __init__(
         self,
@@ -34,8 +34,8 @@ class ABCBroker(Generic[MsgType]):
         self.prefix = prefix
         self.include_in_schema = include_in_schema
 
-        self._subscribers = {}
-        self._publishers = {}
+        self._subscribers = []
+        self._publishers = []
 
         self._dependencies = dependencies
         self._middlewares = middlewares
@@ -49,10 +49,10 @@ class ABCBroker(Generic[MsgType]):
         """
         self._middlewares = (*self._middlewares, middleware)
 
-        for sub in self._subscribers.values():
+        for sub in self._subscribers:
             sub.add_middleware(middleware)
 
-        for pub in self._publishers.values():
+        for pub in self._publishers:
             pub.add_middleware(middleware)
 
     @abstractmethod
@@ -61,9 +61,7 @@ class ABCBroker(Generic[MsgType]):
         subscriber: "SubscriberProto[MsgType]",
     ) -> "SubscriberProto[MsgType]":
         subscriber.add_prefix(self.prefix)
-        key = hash(subscriber)
-        subscriber = self._subscribers.get(key, subscriber)
-        self._subscribers = {**self._subscribers, key: subscriber}
+        self._subscribers.append(subscriber)
         return subscriber
 
     @abstractmethod
@@ -72,9 +70,7 @@ class ABCBroker(Generic[MsgType]):
         publisher: "PublisherProto[MsgType]",
     ) -> "PublisherProto[MsgType]":
         publisher.add_prefix(self.prefix)
-        key = hash(publisher)
-        publisher = self._publishers.get(key, publisher)
-        self._publishers = {**self._publishers, key: publisher}
+        self._publishers.append(publisher)
         return publisher
 
     def include_router(
@@ -87,7 +83,7 @@ class ABCBroker(Generic[MsgType]):
         include_in_schema: Optional[bool] = None,
     ) -> None:
         """Includes a router in the current object."""
-        for h in router._subscribers.values():
+        for h in router._subscribers:
             h.add_prefix("".join((self.prefix, prefix)))
 
             if include_in_schema is None:
@@ -105,9 +101,9 @@ class ABCBroker(Generic[MsgType]):
                 *dependencies,
                 *h._broker_dependencies,
             )
-            self._subscribers = {**self._subscribers, hash(h): h}
+            self._subscribers.append(h)
 
-        for p in router._publishers.values():
+        for p in router._publishers:
             p.add_prefix(self.prefix)
 
             if include_in_schema is None:
@@ -120,7 +116,7 @@ class ABCBroker(Generic[MsgType]):
                 *middlewares,
                 *p._broker_middlewares,
             )
-            self._publishers = {**self._publishers, hash(p): p}
+            self._publishers.append(p)
 
     def include_routers(
         self,

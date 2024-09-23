@@ -220,17 +220,6 @@ class LogicSubscriber(
             ),
         )
 
-    def __hash__(self) -> int:
-        return self.get_routing_hash(self.queue, self.exchange)
-
-    @staticmethod
-    def get_routing_hash(
-        queue: "RabbitQueue",
-        exchange: Optional["RabbitExchange"] = None,
-    ) -> int:
-        """Calculate the routing hash for a RabbitMQ queue and exchange."""
-        return hash(queue) + hash(exchange or "")
-
     @staticmethod
     def build_log_context(
         message: Optional["StreamMessage[Any]"],

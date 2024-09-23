@@ -203,7 +203,7 @@ class BrokerUsecase(
     async def start(self) -> None:
         """Start the broker async use case."""
         # TODO: filter by already running handlers after TestClient refactor
-        for handler in self._subscribers.values():
+        for handler in self._subscribers:
             self._state.logger_state.log(
                 f"`{handler.call_name}` waiting for messages",
                 extra=handler.get_log_context(None),
@@ -242,7 +242,7 @@ class BrokerUsecase(
         if not self.running:
             self.running = True
 
-            for h in self._subscribers.values():
+            for h in self._subscribers:
                 log_context = h.get_log_context(None)
                 log_context.pop("message_id", None)
                 self._state.logger_state.params_storage.setup_log_contest(log_context)
@@ -251,10 +251,10 @@ class BrokerUsecase(
 
         # TODO: why we can't move it to running?
         # TODO: can we setup subscriber in running broker automatically?
-        for h in self._subscribers.values():
+        for h in self._subscribers:
             self.setup_subscriber(h)
 
-        for p in self._publishers.values():
+        for p in self._publishers:
             self.setup_publisher(p)
 
     def setup_subscriber(
@@ -313,7 +313,7 @@ class BrokerUsecase(
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         """Closes the object."""
-        for h in self._subscribers.values():
+        for h in self._subscribers:
             await h.close()
 
         self.running = False

@@ -142,7 +142,7 @@ def get_broker_operations(
     """Get the broker operations for an application."""
     operations = {}
 
-    for h in broker._subscribers.values():
+    for h in broker._subscribers:
         for channel_name, specs_channel in h.schema().items():
             channel_name = clear_key(channel_name)
 
@@ -151,7 +151,7 @@ def get_broker_operations(
                     specs_channel.subscribe, Action.RECEIVE, channel_name
                 )
 
-    for p in broker._publishers.values():
+    for p in broker._publishers:
         for channel_name, specs_channel in p.schema().items():
             channel_name = clear_key(channel_name)
 
@@ -169,7 +169,7 @@ def get_broker_channels(
     """Get the broker channels for an application."""
     channels = {}
 
-    for sub in broker._subscribers.values():
+    for sub in broker._subscribers:
         channels_schema_v3_0 = {}
         for channel_name, specs_channel in sub.schema().items():
             if specs_channel.subscribe:
@@ -188,7 +188,7 @@ def get_broker_channels(
 
         channels.update(channels_schema_v3_0)
 
-    for pub in broker._publishers.values():
+    for pub in broker._publishers:
         channels_schema_v3_0 = {}
         for channel_name, specs_channel in pub.schema().items():
             if specs_channel.publish:

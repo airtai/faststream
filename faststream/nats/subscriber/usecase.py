@@ -231,22 +231,6 @@ class LogicSubscriber(Generic[ConnectionType, MsgType], SubscriberUsecase[MsgTyp
     def _resolved_subject_string(self) -> str:
         return self.subject or ", ".join(self.config.filter_subjects or ())
 
-    def __hash__(self) -> int:
-        return self.get_routing_hash(self._resolved_subject_string)
-
-    @staticmethod
-    def get_routing_hash(
-        subject: Annotated[
-            str,
-            Doc("NATS subject to consume messages"),
-        ],
-    ) -> int:
-        """Get handler hash by outer data.
-
-        Using to find handler in `broker.handlers` dictionary.
-        """
-        return hash(subject)
-
 
 class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
     def __init__(
@@ -1165,9 +1149,6 @@ class KeyValueWatchSubscriber(
         """Create FakePublisher object to use it as one of `publishers` in `self.consume` scope."""
         return ()
 
-    def __hash__(self) -> int:
-        return hash(self.kv_watch) + hash(self.subject)
-
     def get_log_context(
         self,
         message: Annotated[
@@ -1320,9 +1301,6 @@ class ObjStoreWatchSubscriber(
     ) -> Sequence[FakePublisher]:
         """Create FakePublisher object to use it as one of `publishers` in `self.consume` scope."""
         return ()
-
-    def __hash__(self) -> int:
-        return hash(self.subject)
 
     def get_log_context(
         self,

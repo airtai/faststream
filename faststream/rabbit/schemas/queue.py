@@ -35,6 +35,7 @@ class RabbitQueue(NameRequired):
     )
 
     def __hash__(self) -> int:
+        """Supports hash to store real objects in declarer."""
         return sum(
             (
                 hash(self.name),

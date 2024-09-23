@@ -30,6 +30,3 @@ class ListSub(NameRequired):
     @cached_property
     def records(self) -> Optional[int]:
         return self.max_records if self.batch else None
-
-    def __hash__(self) -> int:
-        return hash(f"list:{self.name}")

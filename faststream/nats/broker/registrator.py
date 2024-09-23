@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union, cast
 
 from nats.js import api
 from typing_extensions import Annotated, Doc, override
@@ -26,8 +26,8 @@ if TYPE_CHECKING:
 class NatsRegistrator(ABCBroker["Msg"]):
     """Includable to NatsBroker router."""
 
-    _subscribers: Dict[int, "SpecificationSubscriber"]
-    _publishers: Dict[int, "SpecificationPublisher"]
+    _subscribers: List["SpecificationSubscriber"]
+    _publishers: List["SpecificationPublisher"]
 
     def __init__(self, **kwargs: Any) -> None:
         self._stream_builder = StreamBuilder()
@@ -350,7 +350,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
     ) -> None:
         sub_streams = router._stream_builder.objects.copy()
 
-        sub_router_subjects = [sub.subject for sub in router._subscribers.values()]
+        sub_router_subjects = [sub.subject for sub in router._subscribers]
 
         for stream in sub_streams.values():
             new_subjects = []

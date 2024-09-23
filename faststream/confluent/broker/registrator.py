@@ -3,6 +3,7 @@ from typing import (
     Any,
     Dict,
     Iterable,
+    List,
     Literal,
     Optional,
     Sequence,
@@ -50,11 +51,11 @@ class KafkaRegistrator(
 ):
     """Includable to KafkaBroker router."""
 
-    _subscribers: Dict[
-        int, Union["SpecificationBatchSubscriber", "SpecificationDefaultSubscriber"]
+    _subscribers: List[
+        Union["SpecificationBatchSubscriber", "SpecificationDefaultSubscriber"]
     ]
-    _publishers: Dict[
-        int, Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"]
+    _publishers: List[
+        Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"]
     ]
 
     @overload  # type: ignore[override]

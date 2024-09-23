@@ -88,9 +88,6 @@ class ChannelPublisher(LogicPublisher):
 
         self.channel = channel
 
-    def __hash__(self) -> int:
-        return hash(f"publisher:pubsub:{self.channel.name}")
-
     @override
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":
         return {
@@ -259,9 +256,6 @@ class ListPublisher(LogicPublisher):
         )
 
         self.list = list
-
-    def __hash__(self) -> int:
-        return hash(f"publisher:list:{self.list.name}")
 
     @override
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":
@@ -483,9 +477,6 @@ class StreamPublisher(LogicPublisher):
         )
 
         self.stream = stream
-
-    def __hash__(self) -> int:
-        return hash(f"publisher:stream:{self.stream.name}")
 
     @override
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":

@@ -32,6 +32,3 @@ class PubSub(NameRequired):
         self.path_regex = reg
         self.pattern = channel if pattern else None
         self.polling_interval = polling_interval
-
-    def __hash__(self) -> int:
-        return hash(f"pubsub:{self.name}")

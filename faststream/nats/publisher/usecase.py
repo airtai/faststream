@@ -66,9 +66,6 @@ class LogicPublisher(PublisherUsecase[Msg]):
         self.headers = headers
         self.reply_to = reply_to
 
-    def __hash__(self) -> int:
-        return hash(self.subject)
-
     @override
     async def publish(
         self,

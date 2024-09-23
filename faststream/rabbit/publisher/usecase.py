@@ -19,7 +19,6 @@ from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
-from faststream.rabbit.subscriber.usecase import LogicSubscriber
 
 if TYPE_CHECKING:
     import aiormq
@@ -174,11 +173,6 @@ class LogicPublisher(
     def routing(self) -> str:
         """Return real routing_key of Publisher."""
         return self.routing_key or self.queue.routing
-
-    def __hash__(self) -> int:
-        return LogicSubscriber.get_routing_hash(self.queue, self.exchange) + hash(
-            self.routing_key
-        )
 
     @override
     async def publish(

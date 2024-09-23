@@ -20,11 +20,11 @@ async def test_delay_router_kafka():
     from faststream.kafka import TestKafkaBroker
 
     async with TestKafkaBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[
-            0
-        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        next(iter(br._subscribers)).calls[0].handler.mock.assert_called_once_with(
+            {"name": "John", "user_id": 1}
+        )
 
-        next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
+        next(iter(br._publishers)).mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
@@ -37,11 +37,11 @@ async def test_delay_router_confluent():
     from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
     async with TestConfluentKafkaBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[
-            0
-        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        next(iter(br._subscribers)).calls[0].handler.mock.assert_called_once_with(
+            {"name": "John", "user_id": 1}
+        )
 
-        next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
+        next(iter(br._publishers)).mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
@@ -54,11 +54,11 @@ async def test_delay_router_rabbit():
     from faststream.rabbit import TestRabbitBroker
 
     async with TestRabbitBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[
-            0
-        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        next(iter(br._subscribers)).calls[0].handler.mock.assert_called_once_with(
+            {"name": "John", "user_id": 1}
+        )
 
-        next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
+        next(iter(br._publishers)).mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
@@ -71,11 +71,11 @@ async def test_delay_router_nats():
     from faststream.nats import TestNatsBroker
 
     async with TestNatsBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[
-            0
-        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        next(iter(br._subscribers)).calls[0].handler.mock.assert_called_once_with(
+            {"name": "John", "user_id": 1}
+        )
 
-        next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
+        next(iter(br._publishers)).mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
@@ -88,8 +88,8 @@ async def test_delay_router_redis():
     from faststream.redis import TestRedisBroker
 
     async with TestRedisBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[
-            0
-        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        next(iter(br._subscribers)).calls[0].handler.mock.assert_called_once_with(
+            {"name": "John", "user_id": 1}
+        )
 
-        next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
+        next(iter(br._publishers)).mock.assert_called_once_with("Hi!")

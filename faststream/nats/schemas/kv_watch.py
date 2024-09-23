@@ -50,6 +50,3 @@ class KvWatch(NameRequired):
         self.timeout = timeout
 
         self.declare = declare
-
-    def __hash__(self) -> int:
-        return hash(self.name)

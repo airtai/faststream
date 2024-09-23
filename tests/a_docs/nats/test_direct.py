@@ -4,7 +4,7 @@ from faststream.nats import TestApp, TestNatsBroker
 
 
 @pytest.mark.asyncio
-async def test_pattern():
+async def test_direct():
     from docs.docs_src.nats.direct import (
         app,
         base_handler1,

@@ -140,13 +140,13 @@ def get_broker_channels(
     """Get the broker channels for an application."""
     channels = {}
 
-    for h in broker._subscribers.values():
+    for h in broker._subscribers:
         schema = h.schema()
         channels.update(
             {key: channel_from_spec(channel) for key, channel in schema.items()}
         )
 
-    for p in broker._publishers.values():
+    for p in broker._publishers:
         schema = p.schema()
         channels.update(
             {key: channel_from_spec(channel) for key, channel in schema.items()}

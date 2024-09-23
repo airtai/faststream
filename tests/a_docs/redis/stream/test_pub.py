@@ -7,7 +7,7 @@ from faststream.redis import TestRedisBroker
 async def test_stream_pub():
     from docs.docs_src.redis.stream.pub import broker, on_input_data
 
-    publisher = list(broker._publishers.values())[0]  # noqa: RUF015
+    publisher = list(broker._publishers)[0]  # noqa: RUF015
 
     async with TestRedisBroker(broker) as br:
         await br.publish({"data": 1.0}, stream="input-stream")

@@ -508,7 +508,7 @@ class RabbitBroker(
 
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
 
-        for publisher in self._publishers.values():
+        for publisher in self._publishers:
             if publisher.exchange is not None:
                 await self.declare_exchange(publisher.exchange)
 

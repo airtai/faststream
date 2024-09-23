@@ -58,7 +58,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         named_property = publisher.subscriber_property(name_only=True)
         visitors = (ChannelVisitor(), ListVisitor(), StreamVisitor())
 
-        for handler in broker._subscribers.values():  # pragma: no branch
+        for handler in broker._subscribers:  # pragma: no branch
             for visitor in visitors:
                 if visitor.visit(**named_property, sub=handler):
                     sub = handler
@@ -133,7 +133,7 @@ class FakeProducer(RedisFastProducer):
         destination = _make_destionation_kwargs(channel, list, stream)
         visitors = (ChannelVisitor(), ListVisitor(), StreamVisitor())
 
-        for handler in self.broker._subscribers.values():  # pragma: no branch
+        for handler in self.broker._subscribers:  # pragma: no branch
             for visitor in visitors:
                 if visited_ch := visitor.visit(**destination, sub=handler):
                     msg = visitor.get_message(
@@ -170,7 +170,7 @@ class FakeProducer(RedisFastProducer):
         destination = _make_destionation_kwargs(channel, list, stream)
         visitors = (ChannelVisitor(), ListVisitor(), StreamVisitor())
 
-        for handler in self.broker._subscribers.values():  # pragma: no branch
+        for handler in self.broker._subscribers:  # pragma: no branch
             for visitor in visitors:
                 if visited_ch := visitor.visit(**destination, sub=handler):
                     msg = visitor.get_message(
@@ -201,7 +201,7 @@ class FakeProducer(RedisFastProducer):
         ]
 
         visitor = ListVisitor()
-        for handler in self.broker._subscribers.values():  # pragma: no branch
+        for handler in self.broker._subscribers:  # pragma: no branch
             if visitor.visit(list=list, sub=handler):
                 casted_handler = cast(_ListHandlerMixin, handler)
 

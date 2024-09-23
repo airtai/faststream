@@ -249,9 +249,6 @@ class ChannelSubscriber(LogicSubscriber):
         self.channel = channel
         self.subscription = None
 
-    def __hash__(self) -> int:
-        return hash(self.channel)
-
     def get_log_context(
         self,
         message: Optional["BrokerStreamMessage[Any]"],
@@ -372,9 +369,6 @@ class _ListHandlerMixin(LogicSubscriber):
         )
 
         self.list_sub = list
-
-    def __hash__(self) -> int:
-        return hash(self.list_sub)
 
     def get_log_context(
         self,
@@ -581,9 +575,6 @@ class _StreamHandlerMixin(LogicSubscriber):
 
         self.stream_sub = stream
         self.last_id = stream.last_id
-
-    def __hash__(self) -> int:
-        return hash(self.stream_sub)
 
     def get_log_context(
         self,

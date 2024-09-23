@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Union, cast
 
 from typing_extensions import Annotated, Doc, override
 
@@ -29,8 +29,8 @@ if TYPE_CHECKING:
 class RabbitRegistrator(ABCBroker["IncomingMessage"]):
     """Includable to RabbitBroker router."""
 
-    _subscribers: Dict[int, "SpecificationSubscriber"]
-    _publishers: Dict[int, "SpecificationPublisher"]
+    _subscribers: List["SpecificationSubscriber"]
+    _publishers: List["SpecificationPublisher"]
 
     @override
     def subscriber(  # type: ignore[override]

@@ -60,8 +60,8 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
         publisher: SpecificationPublisher,
     ) -> Tuple["LogicSubscriber", bool]:
         sub: Optional[LogicSubscriber] = None
-        for handler in broker._subscribers.values():
-            if _is_handler_suitable(
+        for handler in broker._subscribers:
+            if _is_handler_matches(
                 handler,
                 publisher.routing,
                 {},
@@ -234,8 +234,8 @@ class FakeProducer(AioPikaFastProducer):
             timestamp=timestamp,
         )
 
-        for handler in self.broker._subscribers.values():  # pragma: no branch
-            if _is_handler_suitable(
+        for handler in self.broker._subscribers:  # pragma: no branch
+            if _is_handler_matches(
                 handler, incoming.routing_key, incoming.headers, exch
             ):
                 await self._execute_handler(incoming, handler)
@@ -286,8 +286,8 @@ class FakeProducer(AioPikaFastProducer):
             timestamp=timestamp,
         )
 
-        for handler in self.broker._subscribers.values():  # pragma: no branch
-            if _is_handler_suitable(
+        for handler in self.broker._subscribers:  # pragma: no branch
+            if _is_handler_matches(
                 handler, incoming.routing_key, incoming.headers, exch
             ):
                 with anyio.fail_after(timeout):
@@ -308,7 +308,7 @@ class FakeProducer(AioPikaFastProducer):
         )
 
 
-def _is_handler_suitable(
+def _is_handler_matches(
     handler: "LogicSubscriber",
     routing_key: str,
     headers: "Mapping[Any, Any]",

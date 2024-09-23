@@ -81,9 +81,7 @@ class _CallOptions:
         self.dependencies = dependencies
 
 
-class SubscriberUsecase(
-    SubscriberProto[MsgType],
-):
+class SubscriberUsecase(SubscriberProto[MsgType]):
     """A class representing an asynchronous handler."""
 
     lock: ContextManager[Any]

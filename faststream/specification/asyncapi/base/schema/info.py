@@ -6,13 +6,12 @@ from faststream._internal._compat import (
 
 
 class BaseInfo(BaseModel):
-    """A class to represent information.
+    """A class to represent AsyncAPI application information.
 
     Attributes:
-        title : title of the information
-        version : version of the information (default: "1.0.0")
-        description : description of the information (default: "")
-
+        title : application title
+        version : application version (default: "1.0.0")
+        description : application description (default: "")
     """
 
     title: str

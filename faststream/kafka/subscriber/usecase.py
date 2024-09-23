@@ -247,13 +247,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
                 if msg:
                     await self.consume(msg)
 
-    @staticmethod
-    def get_routing_hash(
-        topics: Iterable[str],
-        group_id: Optional[str] = None,
-    ) -> int:
-        return hash("".join((*topics, group_id or "")))
-
     @property
     def topic_names(self) -> List[str]:
         if self._pattern:
@@ -262,12 +255,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             return list(self.topics)
         else:
             return [f"{p.topic}-{p.partition}" for p in self.partitions]
-
-    def __hash__(self) -> int:
-        return self.get_routing_hash(
-            topics=self.topic_names,
-            group_id=self.group_id,
-        )
 
     @staticmethod
     def build_log_context(
