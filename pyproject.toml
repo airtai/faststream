@@ -83,7 +83,7 @@ cli = [
 optionals = ["faststream[rabbit,kafka,confluent,nats,redis,otel,cli]"]
 
 devdocs = [
-    "mkdocs-material==9.5.34",
+    "mkdocs-material==9.5.36",
     "mkdocs-static-i18n==1.2.3",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.26.1",
@@ -114,9 +114,9 @@ types = [
 
 lint = [
     "faststream[types]",
-    "ruff==0.6.5",
+    "ruff==0.6.7",
     "bandit==1.7.9",
-    "semgrep==1.87.0",
+    "semgrep==1.89.0",
     "codespell==2.3.0",
 ]
 
@@ -130,7 +130,7 @@ test-core = [
 
 testing = [
     "faststream[test-core]",
-    "fastapi==0.114.2",
+    "fastapi==0.115.0",
     "pydantic-settings>=2.0.0,<3.0.0",
     "httpx==0.27.2",
     "PyYAML==6.0.2",
