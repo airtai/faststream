@@ -240,34 +240,6 @@ async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: Fast
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(IS_WINDOWS, reason="does not run on windows")
-async def test_stop_with_sigint(async_mock, app: FastStream):
-    with patch.object(app.broker, "start", async_mock.broker_run_sigint), patch.object(
-        app.broker, "close", async_mock.broker_stopped_sigint
-    ):
-        async with anyio.create_task_group() as tg:
-            tg.start_soon(app.run)
-            tg.start_soon(_kill, signal.SIGINT)
-
-    async_mock.broker_run_sigint.assert_called_once()
-    async_mock.broker_stopped_sigint.assert_called_once()
-
-
-@pytest.mark.asyncio
-@pytest.mark.skipif(IS_WINDOWS, reason="does not run on windows")
-async def test_stop_with_sigterm(async_mock, app: FastStream):
-    with patch.object(app.broker, "start", async_mock.broker_run_sigterm), patch.object(
-        app.broker, "close", async_mock.broker_stopped_sigterm
-    ):
-        async with anyio.create_task_group() as tg:
-            tg.start_soon(app.run)
-            tg.start_soon(_kill, signal.SIGTERM)
-
-    async_mock.broker_run_sigterm.assert_called_once()
-    async_mock.broker_stopped_sigterm.assert_called_once()
-
-
-@pytest.mark.asyncio
 async def test_test_app(mock: Mock):
     app = FastStream()
 
@@ -365,6 +337,35 @@ def test_sync_lifespan_contextmanager(async_mock: AsyncMock, app: FastStream):
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(IS_WINDOWS, reason="does not run on windows")
+async def test_stop_with_sigint(async_mock, app: FastStream):
+    with patch.object(app.broker, "start", async_mock.broker_run_sigint), patch.object(
+        app.broker, "close", async_mock.broker_stopped_sigint
+    ):
+        async with anyio.create_task_group() as tg:
+            tg.start_soon(app.run)
+            tg.start_soon(_kill, signal.SIGINT)
+
+    async_mock.broker_run_sigint.assert_called_once()
+    async_mock.broker_stopped_sigint.assert_called_once()
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(IS_WINDOWS, reason="does not run on windows")
+async def test_stop_with_sigterm(async_mock, app: FastStream):
+    with patch.object(app.broker, "start", async_mock.broker_run_sigterm), patch.object(
+        app.broker, "close", async_mock.broker_stopped_sigterm
+    ):
+        async with anyio.create_task_group() as tg:
+            tg.start_soon(app.run)
+            tg.start_soon(_kill, signal.SIGTERM)
+
+    async_mock.broker_run_sigterm.assert_called_once()
+    async_mock.broker_stopped_sigterm.assert_called_once()
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(IS_WINDOWS, reason="does not run on windows")
 async def test_run_asgi(async_mock: AsyncMock, app: FastStream):
     asgi_routes = [("/", lambda scope, receive, send: None)]
     asgi_app = app.as_asgi(asgi_routes=asgi_routes)
