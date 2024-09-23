@@ -142,7 +142,7 @@ app = FastStream(broker).as_asgi(
   For app which use ASGI you may use cli command like for default FastStream app
 
   ```shell
-  faststream run main:app --host 0.0.0.0 --port 1337 --workers 4
+  faststream run main:app --host 0.0.0.0 --port 8000 --workers 4
   ```
 
 ## Other ASGI Compatibility
