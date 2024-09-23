@@ -1070,6 +1070,7 @@ search:
                     - [NUID](api/faststream/utils/nuid/NUID.md)
                 - path
                     - [compile_path](api/faststream/utils/path/compile_path.md)
+- [FastStream People](faststream-people.md)
 - Contributing
     - [Development](getting-started/contributing/CONTRIBUTING.md)
     - [Documentation](getting-started/contributing/docs.md)
