@@ -50,9 +50,7 @@ async def test_publish1():
     await broker1.publish("message", "test-queue")
 
 
-broker2 = RabbitBroker(
-    "amqp://guest:guest@localhost:5672/",
-)
+broker2 = RabbitBroker()
 app2 = FastStream(broker2)
 
 
