@@ -7,7 +7,6 @@ from typing import (
     Sequence,
     Tuple,
     TypeVar,
-    Union,
 )
 
 import anyio
@@ -15,7 +14,7 @@ from typing_extensions import ParamSpec
 
 from faststream._internal._compat import ExceptionGroup
 from faststream._internal.application import Application
-from faststream._internal.basic_types import AnyDict, AnyHttpUrl, Lifespan, LoggerProto
+from faststream._internal.basic_types import Lifespan, LoggerProto
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.cli.supervisors.utils import set_exit
 from faststream._internal.log import logger

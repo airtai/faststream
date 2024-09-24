@@ -12,7 +12,6 @@ from typing import (
     Protocol,
     Sequence,
     Tuple,
-    Union,
 )
 
 import anyio
@@ -32,18 +31,12 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import (
         AnyCallable,
-        AnyDict,
-        AnyHttpUrl,
         Lifespan,
         LoggerProto,
         SettingField,
     )
     from faststream._internal.broker.broker import BrokerUsecase
     from faststream.asgi.types import ASGIApp, Receive, Scope, Send
-    from faststream.specification.schema.contact import Contact, ContactDict
-    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-    from faststream.specification.schema.license import License, LicenseDict
-    from faststream.specification.schema.tag import Tag, TagDict
 
     class UvicornServerProtocol(Protocol):
         should_exit: bool
@@ -129,15 +122,6 @@ class AsgiFastStream(Application):
             asyncapi_path=asyncapi_path,
             logger=app.logger,
             lifespan=None,
-            title=app.title,
-            version=app.version,
-            description=app.description,
-            terms_of_service=app.terms_of_service,
-            license=app.license,
-            contact=app.contact,
-            tags=app.specification_tags,
-            external_docs=app.external_docs,
-            identifier=app.identifier,
         )
         asgi_app.lifespan_context = app.lifespan_context
         asgi_app._on_startup_calling = app._on_startup_calling
