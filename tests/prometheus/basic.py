@@ -7,6 +7,7 @@ from prometheus_client import CollectorRegistry
 
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.message import AckStatus, StreamMessage
+from faststream.exceptions import RejectMessage
 from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
@@ -32,10 +33,16 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             registry=CollectorRegistry()
         )._settings_provider_factory
 
-    @pytest.mark.parametrize("status", AckStatus)
     @pytest.mark.parametrize(
-        "exception_class",
-        [*list(PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP.keys()), Exception, None],
+        (
+            "status",
+            "exception_class",
+        ),
+        [
+            (AckStatus.acked, RejectMessage),
+            (AckStatus.acked, Exception),
+            *[(status, None) for status in AckStatus],
+        ],
     )
     async def test_metrics(
         self,
