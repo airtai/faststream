@@ -154,7 +154,6 @@ markdown_extensions:
       alternate_style: true      # create tabs group
   - attr_list                    # specify html attrs in markdown
   - md_in_html                   # render md wrapped to html tags
-  - attr_list                    # specify html attrs in markdown
 
 extra:
   analytics:
