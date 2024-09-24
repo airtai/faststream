@@ -9,11 +9,11 @@ from faststream.specification.asyncapi.v3_0_0.generate import (
 )
 
 if TYPE_CHECKING:
-    from faststream.specification.proto import Application
+    from faststream.specification.proto import SpecApplication
 
 
 def get_app_schema(
-    app: "Application",
+    app: "SpecApplication",
     version: Union[Literal["3.0.0", "2.6.0"], str] = "3.0.0",
 ) -> BaseSchema:
     if version.startswith("3.0."):

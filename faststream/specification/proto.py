@@ -11,16 +11,13 @@ if TYPE_CHECKING:
         AnyHttpUrl,
     )
     from faststream._internal.broker.broker import BrokerUsecase
-    from faststream._internal.setup import SetupState
     from faststream.specification.schema.contact import Contact, ContactDict
     from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
     from faststream.specification.schema.license import License, LicenseDict
-    from faststream.specification.schema.tag import Tag
+    from faststream.specification.schema.tag import Tag, TagDict
 
 
-class Application(Protocol):
-    _state: "SetupState"
-
+class SpecApplication(Protocol):
     broker: Optional["BrokerUsecase[Any, Any]"]
 
     title: str
@@ -29,19 +26,9 @@ class Application(Protocol):
     terms_of_service: Optional["AnyHttpUrl"]
     license: Optional[Union["License", "LicenseDict", "AnyDict"]]
     contact: Optional[Union["Contact", "ContactDict", "AnyDict"]]
-    specs_tags: Optional[Sequence[Union["Tag", "AnyDict"]]]
+    specification_tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]]
     external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]]
     identifier: Optional[str]
-
-    def _setup(self) -> None:
-        if self.broker is not None:
-            self.broker._setup(self._state)
-
-    async def _start_broker(self) -> None:
-        if self.broker is not None:
-            await self.broker.connect()
-            self._setup()
-            await self.broker.start()
 
 
 class SpecificationProto(Protocol):

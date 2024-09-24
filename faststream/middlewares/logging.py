@@ -50,19 +50,19 @@ class LoggingMiddleware(BaseMiddleware):
         if exc_type:
             if issubclass(exc_type, IgnoredException):
                 self.logger.log(
-                    logging.INFO,
-                    exc_val,
+                    log_level=logging.INFO,
+                    message=exc_val,
                     extra=c,
                 )
             else:
                 self.logger.log(
-                    logging.ERROR,
-                    f"{exc_type.__name__}: {exc_val}",
+                    log_level=logging.ERROR,
+                    message=f"{exc_type.__name__}: {exc_val}",
                     exc_info=exc_val,
                     extra=c,
                 )
 
-        self.logger.log("Processed", extra=c)
+        self.logger.log(message="Processed", extra=c)
 
         await super().after_processed(exc_type, exc_val, exc_tb)
 

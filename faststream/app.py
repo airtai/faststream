@@ -1,13 +1,11 @@
-import logging.config
+import logging
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncIterator,
-    Callable,
     Dict,
-    List,
     Optional,
     Sequence,
+    Tuple,
     TypeVar,
     Union,
 )
@@ -16,18 +14,12 @@ import anyio
 from typing_extensions import ParamSpec
 
 from faststream._internal._compat import ExceptionGroup
+from faststream._internal.application import Application
+from faststream._internal.basic_types import AnyDict, AnyHttpUrl, Lifespan, LoggerProto
+from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.cli.supervisors.utils import set_exit
-from faststream._internal.context import context
-from faststream._internal.log.logging import logger
-from faststream._internal.setup import EmptyState
-from faststream._internal.utils import apply_types
-from faststream._internal.utils.functions import (
-    drop_response_type,
-    fake_context,
-    to_async,
-)
-from faststream.exceptions import ValidationError
-from faststream.specification.proto import Application
+from faststream._internal.log import logger
+from faststream.asgi.app import AsgiFastStream
 
 P_HookParams = ParamSpec("P_HookParams")
 T_HookReturn = TypeVar("T_HookReturn")
@@ -38,12 +30,12 @@ if TYPE_CHECKING:
         AnyCallable,
         AnyDict,
         AnyHttpUrl,
-        AsyncFunc,
         Lifespan,
         LoggerProto,
         SettingField,
     )
     from faststream._internal.broker.broker import BrokerUsecase
+    from faststream.asgi.types import ASGIApp
     from faststream.specification.schema.contact import Contact, ContactDict
     from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
     from faststream.specification.schema.license import License, LicenseDict
@@ -53,17 +45,14 @@ if TYPE_CHECKING:
 class FastStream(Application):
     """A class representing a FastStream application."""
 
-    _on_startup_calling: List["AsyncFunc"]
-    _after_startup_calling: List["AsyncFunc"]
-    _on_shutdown_calling: List["AsyncFunc"]
-    _after_shutdown_calling: List["AsyncFunc"]
-
     def __init__(
         self,
         broker: Optional["BrokerUsecase[Any, Any]"] = None,
+        /,
+        # regular broker args
         logger: Optional["LoggerProto"] = logger,
         lifespan: Optional["Lifespan"] = None,
-        # Specification args,
+        # AsyncAPI args,
         title: str = "FastStream",
         version: str = "0.1.0",
         description: str = "",
@@ -75,89 +64,31 @@ class FastStream(Application):
             Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,
         identifier: Optional[str] = None,
+        # hooks
         on_startup: Sequence["AnyCallable"] = (),
         after_startup: Sequence["AnyCallable"] = (),
         on_shutdown: Sequence["AnyCallable"] = (),
         after_shutdown: Sequence["AnyCallable"] = (),
-        # all options should be copied to AsgiFastStream class
     ) -> None:
-        context.set_global("app", self)
-
-        self.broker = broker
-        self.logger = logger
-        self.context = context
-
-        self._on_startup_calling = [apply_types(to_async(x)) for x in on_startup]
-        self._after_startup_calling = [apply_types(to_async(x)) for x in after_startup]
-        self._on_shutdown_calling = [apply_types(to_async(x)) for x in on_shutdown]
-        self._after_shutdown_calling = [
-            apply_types(to_async(x)) for x in after_shutdown
-        ]
-
-        self.lifespan_context = (
-            apply_types(
-                func=lifespan,
-                wrap_model=drop_response_type,
-            )
-            if lifespan is not None
-            else fake_context
+        super().__init__(
+            broker=broker,
+            logger=logger,
+            lifespan=lifespan,
+            title=title,
+            version=version,
+            description=description,
+            terms_of_service=terms_of_service,
+            license=license,
+            contact=contact,
+            tags=tags,
+            external_docs=external_docs,
+            identifier=identifier,
+            on_startup=on_startup,
+            after_startup=after_startup,
+            on_shutdown=on_shutdown,
+            after_shutdown=after_shutdown,
         )
-
         self._should_exit = anyio.Event()
-        self._state = EmptyState()
-
-        # Specification information
-        self.title = title
-        self.version = version
-        self.description = description
-        self.terms_of_service = terms_of_service
-        self.license = license
-        self.contact = contact
-        self.identifier = identifier
-        self.specs_tags = tags
-        self.external_docs = external_docs
-
-    def set_broker(self, broker: "BrokerUsecase[Any, Any]") -> None:
-        """Set already existed App object broker.
-
-        Useful then you create/init broker in `on_startup` hook.
-        """
-        self.broker = broker
-
-    def on_startup(
-        self,
-        func: Callable[P_HookParams, T_HookReturn],
-    ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running BEFORE broker connected.
-
-        This hook also takes an extra CLI options as a kwargs.
-        """
-        self._on_startup_calling.append(apply_types(to_async(func)))
-        return func
-
-    def on_shutdown(
-        self,
-        func: Callable[P_HookParams, T_HookReturn],
-    ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running BEFORE broker disconnected."""
-        self._on_shutdown_calling.append(apply_types(to_async(func)))
-        return func
-
-    def after_startup(
-        self,
-        func: Callable[P_HookParams, T_HookReturn],
-    ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running AFTER broker connected."""
-        self._after_startup_calling.append(apply_types(to_async(func)))
-        return func
-
-    def after_shutdown(
-        self,
-        func: Callable[P_HookParams, T_HookReturn],
-    ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running AFTER broker disconnected."""
-        self._after_shutdown_calling.append(apply_types(to_async(func)))
-        return func
 
     async def run(
         self,
@@ -169,9 +100,7 @@ class FastStream(Application):
 
         set_exit(lambda *_: self.exit(), sync=False)
 
-        async with catch_startup_validation_error(), self.lifespan_context(
-            **(run_extra_options or {})
-        ):
+        async with self.lifespan_context(**(run_extra_options or {})):
             try:
                 async with anyio.create_task_group() as tg:
                     tg.start_soon(self._startup, log_level, run_extra_options)
@@ -186,63 +115,9 @@ class FastStream(Application):
         """Stop application manually."""
         self._should_exit.set()
 
-    async def start(
+    def as_asgi(
         self,
-        **run_extra_options: "SettingField",
-    ) -> None:
-        """Executes startup hooks and start broker."""
-        for func in self._on_startup_calling:
-            await func(**run_extra_options)
-
-        await self._start_broker()
-
-        for func in self._after_startup_calling:
-            await func()
-
-    async def stop(self) -> None:
-        """Executes shutdown hooks and stop broker."""
-        for func in self._on_shutdown_calling:
-            await func()
-
-        if self.broker is not None:
-            await self.broker.close()
-
-        for func in self._after_shutdown_calling:
-            await func()
-
-    async def _startup(
-        self,
-        log_level: int = logging.INFO,
-        run_extra_options: Optional[Dict[str, "SettingField"]] = None,
-    ) -> None:
-        self._log(log_level, "FastStream app starting...")
-        await self.start(**(run_extra_options or {}))
-        self._log(
-            log_level, "FastStream app started successfully! To exit, press CTRL+C"
-        )
-
-    async def _shutdown(self, log_level: int = logging.INFO) -> None:
-        self._log(log_level, "FastStream app shutting down...")
-        await self.stop()
-        self._log(log_level, "FastStream app shut down gracefully.")
-
-    def _log(self, level: int, message: str) -> None:
-        if self.logger is not None:
-            self.logger.log(level, message)
-
-
-try:
-    from contextlib import asynccontextmanager
-
-    from pydantic import ValidationError as PValidation
-
-    @asynccontextmanager
-    async def catch_startup_validation_error() -> AsyncIterator[None]:
-        try:
-            yield
-        except PValidation as e:
-            fields = [str(x["loc"][0]) for x in e.errors()]
-            raise ValidationError(fields=fields) from e
-
-except ImportError:
-    catch_startup_validation_error = fake_context
+        asgi_routes: Sequence[Tuple[str, "ASGIApp"]] = (),
+        asyncapi_path: Optional[str] = None,
+    ) -> AsgiFastStream:
+        return AsgiFastStream.from_app(self, asgi_routes, asyncapi_path)

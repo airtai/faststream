@@ -30,6 +30,7 @@ from fastapi.utils import generate_unique_id
 from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute, _DefaultLifespan
 
+from faststream._internal.application import StartAbleApplication
 from faststream._internal.broker.router import BrokerRouter
 from faststream._internal.context.repository import context
 from faststream._internal.fastapi.get_dependant import get_fastapi_dependant
@@ -45,7 +46,6 @@ from faststream._internal.types import (
 from faststream._internal.utils.functions import fake_context, to_async
 from faststream.middlewares import BaseMiddleware
 from faststream.specification.asyncapi.site import get_asyncapi_html
-from faststream.specification.proto import Application
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -86,7 +86,7 @@ class _BackgroundMiddleware(BaseMiddleware):
 
 class StreamRouter(
     APIRouter,
-    Application,
+    StartAbleApplication,
     Generic[MsgType],
 ):
     """A class to route streams."""
@@ -156,7 +156,7 @@ class StreamRouter(
         # Empty
         self.terms_of_service = None
         self.identifier = None
-        self.specs_tags = None
+        self.specification_tags = None
         self.external_docs = None
         # parse from FastAPI app on startup
         self.title = ""

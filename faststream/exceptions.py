@@ -96,11 +96,22 @@ class SetupError(FastStreamException, ValueError):
     """Exception to raise at wrong method usage."""
 
 
-class ValidationError(FastStreamException, ValueError):
+class StartupValidationError(FastStreamException, ValueError):
     """Exception to raise at startup hook validation error."""
 
-    def __init__(self, fields: Iterable[str] = ()) -> None:
-        self.fields = fields
+    def __init__(
+        self,
+        missed_fields: Iterable[str] = (),
+        invalid_fields: Iterable[str] = (),
+    ) -> None:
+        self.missed_fields = missed_fields
+        self.invalid_fields = invalid_fields
+
+    def __str__(self) -> str:
+        return (
+            f"\n    Incorrect options `{' / '.join(f'--{i}' for i in (*self.missed_fields, *self.invalid_fields))}`"
+            "\n    You registered extra options in your application `lifespan/on_startup` hook, but set them wrong in CLI."
+        )
 
 
 class OperationForbiddenError(FastStreamException, NotImplementedError):

@@ -28,6 +28,15 @@ json_dumps: Callable[..., bytes]
 orjson: Any
 ujson: Any
 
+
+try:
+    import typer as typer
+
+    HAS_TYPER = True
+except ImportError:
+    HAS_TYPER = False
+
+
 try:
     import orjson  # type: ignore[no-redef]
 except ImportError:

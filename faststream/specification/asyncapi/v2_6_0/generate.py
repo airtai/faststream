@@ -19,14 +19,14 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     tag_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
-from faststream.specification.proto import Application
+from faststream.specification.proto import SpecApplication
 
 if TYPE_CHECKING:
     from faststream._internal.broker.broker import BrokerUsecase
     from faststream._internal.types import ConnectionType, MsgType
 
 
-def get_app_schema(app: Application) -> Schema:
+def get_app_schema(app: SpecApplication) -> Schema:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
@@ -57,7 +57,9 @@ def get_app_schema(app: Application) -> Schema:
         ),
         defaultContentType=ContentTypes.json.value,
         id=app.identifier,
-        tags=[tag_from_spec(tag) for tag in app.specs_tags] if app.specs_tags else None,
+        tags=[tag_from_spec(tag) for tag in app.specification_tags]
+        if app.specification_tags
+        else None,
         externalDocs=docs_from_spec(app.external_docs) if app.external_docs else None,
         servers=servers,
         channels=channels,
