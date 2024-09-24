@@ -60,7 +60,7 @@ class Context(CustomField):
         """
         name = f"{self.prefix}{self.name or self.param_name}"
 
-        if EMPTY != (
+        if EMPTY != (  # noqa: SIM300
             v := resolve_context_by_name(
                 name=name,
                 default=self.default,
@@ -86,7 +86,7 @@ def resolve_context_by_name(
         value = context.resolve(name)
 
     except (KeyError, AttributeError):
-        if EMPTY != default:
+        if EMPTY != default:  # noqa: SIM300
             value = default
 
         elif initial is not None:
