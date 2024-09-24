@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.app.catch_startup_validation_error
+::: faststream.asgi.app.CliRunState

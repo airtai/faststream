@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.specification.proto.Application
+::: faststream.specification.proto.SpecApplication

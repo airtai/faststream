@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.exceptions.ValidationError
+::: faststream.exceptions.StartupValidationError
