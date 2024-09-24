@@ -10,7 +10,6 @@ if TYPE_CHECKING:
 
 
 class User:
-
     def __init__(self, user_id: int):
         self.user_id = user_id
 
@@ -24,7 +23,6 @@ class User:
 
 
 class AuthenticationMiddleware(BaseMiddleware):
-
     async def on_consume(
         self,
         msg: "StreamMessage[Any]",
@@ -33,15 +31,15 @@ class AuthenticationMiddleware(BaseMiddleware):
         return await super().on_consume(msg)
 
 
-broker1 = RabbitBroker(
-    "amqp://guest:guest@localhost:5672/",
-    middlewares=(AuthenticationMiddleware,),
-)
+broker1 = RabbitBroker(middlewares=(AuthenticationMiddleware,))
 app1 = FastStream(broker1)
 
 
 @broker1.subscriber("test-queue")
-async def handle1(msg, user: Annotated[User, Context("user")]):
+async def handle1(
+    msg,
+    user: Annotated[User, Context("user")],
+):
     assert msg == "message"
     assert isinstance(user, User)
     assert user == User(user_id=1)
@@ -59,7 +57,10 @@ app2 = FastStream(broker2)
 
 
 @broker2.subscriber("test-queue")
-async def handle2(msg, user: Annotated[User, Context("user", default=User(user_id=2))]):
+async def handle2(
+    msg,
+    user: Annotated[User, Context("user", default=User(user_id=2))],
+):
     assert msg == "message"
     assert isinstance(user, User)
     assert user == User(user_id=2)
