@@ -114,6 +114,37 @@ app = AsgiFastStream(
 
 Now, your **AsyncAPI HTML** representation can be found by the `/docs` url.
 
+### FastStream object reusage
+
+You may also use regular `FastStream` application object for similar result
+
+```python linenums="1" hl_lines="2 9"
+from faststream import FastStream
+from faststream.nats import NatsBroker
+from faststream.asgi import make_ping_asgi, AsgiResponse
+
+broker = NatsBroker()
+
+async def liveness_ping(scope, receive, send):
+    return AsgiResponse(b"", status_code=200)
+
+
+app = FastStream(broker).as_asgi(
+    asgi_routes=[
+        ("/liveness", liveness_ping),
+        ("/readiness", make_ping_asgi(broker, timeout=5.0)),
+    ],
+    asyncapi_path="/docs",
+)
+```
+
+``` tip
+  For app which use ASGI you may use cli command like for default FastStream app
+
+  ```shell
+  faststream run main:app --host 0.0.0.0 --port 8000 --workers 4
+  ```
+
 ## Other ASGI Compatibility
 
 Moreover, our wrappers can be used as ready-to-use endpoins for other **ASGI** frameworks. This can be very helpful When you are running **FastStream** in the same runtime as any other **ASGI** frameworks.
