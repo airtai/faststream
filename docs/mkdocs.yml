@@ -72,7 +72,8 @@ plugins:
   - search:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   # - meta                         # (insiders) use .meta.yml files
-  - glightbox                    # image zoom
+  - glightbox:                   # image zoom
+      manual: true
   - macros:                      # Jinja templates
       include_dir: includes
   - mkdocstrings:                # Generate References
@@ -151,6 +152,7 @@ markdown_extensions:
       alternate_style: true      # create tabs group
   - attr_list                    # specify html attrs in markdown
   - md_in_html                   # render md wrapped to html tags
+  - attr_list                    # specify html attrs in markdown
 
 extra:
   analytics:

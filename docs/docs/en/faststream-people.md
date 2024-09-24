@@ -17,63 +17,75 @@ These dedicated individuals not only focus on developing and enhancing the **Fas
 
 <div class="user-list user-list-center">
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
-        </div>
-        <div class="title">
-            Pastukhov&nbsp;Nikita<br/>
-            <a href="https://github.com/Lancetnik" target="_blank">@Lancetnik</a>
-        </div>
+        <a href="https://github.com/Lancetnik" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
+            </div>
+            <div class="title">
+                Pastukhov&nbsp;Nikita<br/>
+                @Lancetnik
+            </div>
+        </a>
     </div>
 
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/24715380?v=4"/>
-        </div>
-        <div class="title">
-            Davor&nbsp;Runje<br/>
-            <a href="https://github.com/davorrunje" target="_blank">@davorrunje</a>
-        </div>
+        <a href="https://github.com/davorrunje" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/24715380?v=4"/>
+            </div>
+            <div class="title">
+                Davor&nbsp;Runje<br/>
+                @davorrunje
+            </div>
+        </a>
     </div>
 
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/7011056?v=4"/>
-        </div>
-        <div class="title">
-            Kumaran&nbsp;Rajendhiran<br/>
-            <a href="https://github.com/kumaranvpl" target="_blank">@kumaranvpl</a>
-        </div>
+        <a href="https://github.com/kumaranvpl" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/7011056?v=4"/>
+            </div>
+            <div class="title">
+                Kumaran&nbsp;Rajendhiran<br/>
+                @kumaranvpl
+            </div>
+        </a>
     </div>
 
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/117077296?v=4"/>
-        </div>
-        <div class="title">
-            Tvrtko&nbsp;Sternak<br/>
-            <a href="https://github.com/sternakt" target="_blank">@sternakt</a>
-        </div>
+        <a href="https://github.com/sternakt" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/117077296?v=4"/>
+            </div>
+            <div class="title">
+                Tvrtko&nbsp;Sternak<br/>
+                @sternakt
+            </div>
+        </a>
     </div>
 
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/8857109?v=4"/>
-        </div>
-        <div class="title">
-            Harish&nbsp;Mohan&nbsp;Raj<br/>
-            <a href="https://github.com/harishmohanraj" target="_blank">@harishmohanraj</a>
-        </div>
+        <a href="https://github.com/harishmohanraj" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/8857109?v=4"/>
+            </div>
+            <div class="title">
+                Harish&nbsp;Mohan&nbsp;Raj<br/>
+                @harishmohanraj
+            </div>
+        </a>
     </div>
 
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/32619626?v=4"/>
-        </div>
-        <div class="title">
-            Robert&nbsp;Jambrecic<br/>
-            <a href="https://github.com/rjambrecic" target="_blank">@rjambrecic</a>
-        </div>
+        <a href="https://github.com/rjambrecic" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/32619626?v=4"/>
+            </div>
+            <div class="title">
+                Robert&nbsp;Jambrecic<br/>
+                @rjambrecic
+            </div>
+        </a>
     </div>
 </div>
 
@@ -85,41 +97,48 @@ These dedicated individuals not only focus on developing and enhancing the **Fas
 
 <div class="user-list user-list-center">
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/7011056?v=4"/>
-        </div>
-        <div class="title">
-            Kumaran&nbsp;Rajendhiran<br/>
-            <a href="https://github.com/kumaranvpl" target="_blank">@kumaranvpl</a>
-        </div>
+        <a href="https://github.com/kumaranvpl" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/7011056?v=4"/>
+            </div>
+            <div class="title">
+                Kumaran&nbsp;Rajendhiran<br/>
+                @kumaranvpl
+            </div>
+        </a>
     </div>
 
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/117077296?v=4"/>
-        </div>
-        <div class="title">
-            Tvrtko&nbsp;Sternak<br/>
-            <a href="https://github.com/sternakt" target="_blank">@sternakt</a>
-        </div>
+        <a href="https://github.com/sternakt" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/117077296?v=4"/>
+            </div>
+            <div class="title">
+                Tvrtko&nbsp;Sternak<br/>
+                @sternakt
+            </div>
+        </a>
     </div>
 
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
-        </div>
-        <div class="title">
-            Pastukhov&nbsp;Nikita<br/>
-            <a href="https://github.com/Lancetnik" target="_blank">@Lancetnik</a>
-        </div>
+        <a href="https://github.com/Lancetnik" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
+            </div>
+            <div class="title">
+                Pastukhov&nbsp;Nikita<br/>
+                @Lancetnik
+            </div>
+        </a>
     </div>
 
-
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/93342746?v=4"/>
-        </div>
-        <div class="title"><a href="https://github.com/spataphore1337" target="_blank">@spataphore1337</a></div>
+        <a href="https://github.com/spataphore1337" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/93342746?v=4"/>
+            </div>
+            <div class="title">@spataphore1337</div>
+        </a>
     </div>
 </div>
 
@@ -127,13 +146,15 @@ These dedicated individuals not only focus on developing and enhancing the **Fas
 
 <div class="user-list user-list-center">
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
-        </div>
-        <div class="title">
-            Pastukhov&nbsp;Nikita<br/>
-            <a href="https://github.com/Lancetnik" target="_blank">@Lancetnik</a>
-        </div>
+        <a href="https://github.com/Lancetnik" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
+            </div>
+            <div class="title">
+                Pastukhov&nbsp;Nikita<br/>
+                @Lancetnik
+            </div>
+        </a>
     </div>
 </div>
 
@@ -141,45 +162,52 @@ These dedicated individuals not only focus on developing and enhancing the **Fas
 
 <div class="user-list user-list-center">
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
-        </div>
-        <div class="title">
-            Pastukhov&nbsp;Nikita<br/>
-            <a href="https://github.com/Lancetnik" target="_blank">@Lancetnik</a>
-        </div>
+        <a href="https://github.com/Lancetnik" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
+            </div>
+            <div class="title">
+                Pastukhov&nbsp;Nikita<br/>
+                @Lancetnik
+            </div>
+        </a>
     </div>
 
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/85823514?v=4"/>
-        </div>
-        <div class="title"><a href="https://github.com/sheldygg" target="_blank">@sheldygg</a></div>
+        <a href="https://github.com/sheldygg" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/85823514?v=4"/>
+            </div>
+            <div class="title">@sheldygg</div>
+        </a>
     </div>
 </div>
 
 ### Redis
 
-
 <div class="user-list user-list-center">
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/7011056?v=4"/>
-        </div>
-        <div class="title">
-            Kumaran&nbsp;Rajendhiran<br/>
-            <a href="https://github.com/kumaranvpl" target="_blank">@kumaranvpl</a>
-        </div>
+        <a href="https://github.com/kumaranvpl" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/7011056?v=4"/>
+            </div>
+            <div class="title">
+                Kumaran&nbsp;Rajendhiran<br/>
+                @kumaranvpl
+            </div>
+        </a>
     </div>
 
     <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
-        </div>
-        <div class="title">
-            Pastukhov&nbsp;Nikita<br/>
-            <a href="https://github.com/Lancetnik" target="_blank">@Lancetnik</a>
-        </div>
+        <a href="https://github.com/Lancetnik" target="_blank">
+            <div class="avatar-wrapper">
+                <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
+            </div>
+            <div class="title">
+                Pastukhov&nbsp;Nikita<br/>
+                @Lancetnik
+            </div>
+        </a>
     </div>
 </div>
 
