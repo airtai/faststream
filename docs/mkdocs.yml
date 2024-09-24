@@ -76,6 +76,8 @@ plugins:
       manual: true
   - macros:                      # Jinja templates
       include_dir: includes
+      include_yaml:
+        - people: ../docs/data/people.yml
   - mkdocstrings:                # Generate References
       default_handler: python
       handlers:
