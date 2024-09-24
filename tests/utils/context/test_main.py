@@ -174,3 +174,38 @@ def test_initial():
 
     assert use(1) == [1]
     assert use(2) == [1, 2]
+
+
+@pytest.mark.asyncio
+async def test_context_with_custom_object_implementing_comparison(context: ContextRepo):
+    class User:
+        def __init__(self, user_id: int):
+            self.user_id = user_id
+
+        def __eq__(self, other):
+            if not isinstance(other, User):
+                return NotImplemented
+            return self.user_id == other.user_id
+
+        def __ne__(self, other):
+            return not self.__eq__(other)
+
+    user2 = User(user_id=2)
+    user3 = User(user_id=3)
+
+    @apply_types
+    async def use(
+        key1=Context("user1"),
+        key2=Context("user2", default=user2),
+        key3=Context("user3", default=user3),
+    ):
+        return (
+            key1 == User(user_id=1)
+            and key2 == User(user_id=2)
+            and key3 == User(user_id=4)
+        )
+
+    with context.scope("user1", User(user_id=1)), context.scope(
+        "user3", User(user_id=4)
+    ):
+        assert await use()
