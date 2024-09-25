@@ -117,6 +117,7 @@ search:
 {public_api}
     - All API
 {api}
+- [FastStream People](faststream-people.md)
 - Contributing
     - [Development](getting-started/contributing/CONTRIBUTING.md)
     - [Documentation](getting-started/contributing/docs.md)
