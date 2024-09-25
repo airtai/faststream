@@ -112,6 +112,7 @@ def run(
     if app_dir:  # pragma: no branch
         sys.path.insert(0, app_dir)
 
+    # Should be imported after sys.path changes
     module_path, app_obj = import_from_string(app)
 
     args = (app, extra, is_factory, casted_log_level)
