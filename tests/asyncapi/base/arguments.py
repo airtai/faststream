@@ -416,7 +416,7 @@ class FastAPICompatible:
                     "discriminator": {
                         "default": 0,
                         "title": "Discriminator",
-                        "type": "integer"
+                        "type": "integer",
                     },
                 },
                 "title": key,
