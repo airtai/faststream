@@ -74,7 +74,9 @@ class TestRouter(RouterTestcase):
                     "action": "receive",
                     "bindings": {
                         "amqp": {
-                            "cc": "test_key",
+                            "cc": [
+                                "test_key",
+                            ],
                             "ack": True,
                             "bindingVersion": "0.3.0",
                         }

@@ -224,7 +224,9 @@ class TestArguments(PublisherTestcase):
                     "amqp": {
                         "ack": True,
                         "bindingVersion": "0.3.0",
-                        "cc": "key1",
+                        "cc": [
+                            "key1",
+                        ],
                         "deliveryMode": 1,
                         "mandatory": True,
                     }
@@ -242,7 +244,9 @@ class TestArguments(PublisherTestcase):
                     "amqp": {
                         "ack": True,
                         "bindingVersion": "0.3.0",
-                        "cc": "key2",
+                        "cc": [
+                            "key2",
+                        ],
                         "deliveryMode": 1,
                         "priority": 10,
                         "mandatory": True,

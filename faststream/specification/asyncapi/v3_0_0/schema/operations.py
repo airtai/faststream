@@ -7,11 +7,11 @@ from typing_extensions import Self
 from faststream._internal._compat import PYDANTIC_V2
 from faststream._internal.basic_types import AnyDict
 from faststream.specification import schema as spec
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import OperationBinding
 from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
 from faststream.specification.asyncapi.v2_6_0.schema.utils import (
     Reference,
 )
+from faststream.specification.asyncapi.v3_0_0.schema.bindings import OperationBinding
 from faststream.specification.asyncapi.v3_0_0.schema.bindings.main import (
     operation_binding_from_spec,
 )

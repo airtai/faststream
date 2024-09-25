@@ -51,7 +51,7 @@ class RouterTestcase:
 
         broker.include_router(router)
 
-        schema = AsyncAPI(broker)
+        schema = AsyncAPI(broker, schema_version="2.6.0")
         schemas = schema.jsonable()["components"]["schemas"]
         del schemas["Handle:Message:Payload"]
 
@@ -71,7 +71,7 @@ class RouterTestcase:
 
         broker.include_router(router)
 
-        schema = AsyncAPI(broker)
+        schema = AsyncAPI(broker, schema_version="2.6.0")
         assert schema.jsonable()["channels"] == {}, schema.jsonable()["channels"]
 
     def test_not_include_in_method(self):
@@ -84,7 +84,7 @@ class RouterTestcase:
 
         broker.include_router(router, include_in_schema=False)
 
-        schema = AsyncAPI(broker)
+        schema = AsyncAPI(broker, schema_version="2.6.0")
         assert schema.jsonable()["channels"] == {}, schema.jsonable()["channels"]
 
     def test_respect_subrouter(self):
@@ -99,7 +99,7 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router)
 
-        schema = AsyncAPI(broker)
+        schema = AsyncAPI(broker, schema_version="2.6.0")
 
         assert schema.jsonable()["channels"] == {}, schema.jsonable()["channels"]
 
@@ -115,7 +115,7 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router)
 
-        schema = AsyncAPI(broker)
+        schema = AsyncAPI(broker, schema_version="2.6.0")
 
         assert schema.jsonable()["channels"] == {}
 
@@ -131,7 +131,7 @@ class RouterTestcase:
         router.include_router(router2, include_in_schema=False)
         broker.include_router(router)
 
-        schema = AsyncAPI(broker)
+        schema = AsyncAPI(broker, schema_version="2.6.0")
 
         assert schema.jsonable()["channels"] == {}
 
@@ -147,7 +147,7 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router, include_in_schema=False)
 
-        schema = AsyncAPI(broker)
+        schema = AsyncAPI(broker, schema_version="2.6.0")
 
         assert schema.jsonable()["channels"] == {}
 
@@ -163,6 +163,6 @@ class RouterTestcase:
         router.include_router(router2)
         broker.include_router(router)
 
-        schema = AsyncAPI(broker)
+        schema = AsyncAPI(broker, schema_version="2.6.0")
 
         assert len(schema.jsonable()["channels"]) == 2

@@ -94,7 +94,9 @@ def test_custom():
                     "amqp": {
                         "ack": True,
                         "bindingVersion": "0.3.0",
-                        "cc": "test",
+                        "cc": [
+                            "test",
+                        ],
                         "deliveryMode": 1,
                         "mandatory": True,
                     },
