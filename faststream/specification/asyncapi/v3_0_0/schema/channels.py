@@ -6,14 +6,14 @@ from typing_extensions import Self
 from faststream._internal._compat import PYDANTIC_V2
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import ChannelBinding
-from faststream.specification.asyncapi.v2_6_0.schema.bindings.main import (
-    channel_binding_from_spec,
-)
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
     from_spec as message_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
+from faststream.specification.asyncapi.v3_0_0.schema.bindings.main import (
+    channel_binding_from_spec,
+)
 
 
 class Channel(BaseModel):

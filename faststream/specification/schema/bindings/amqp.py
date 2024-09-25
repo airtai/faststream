@@ -67,7 +67,6 @@ class ChannelBinding:
     """
 
     is_: Literal["queue", "routingKey"]
-    bindingVersion: str = "0.2.0"
     queue: Optional[Queue] = None
     exchange: Optional[Exchange] = None
 
@@ -89,4 +88,3 @@ class OperationBinding:
     deliveryMode: Optional[int] = None
     mandatory: Optional[bool] = None
     priority: Optional[int] = None
-    bindingVersion: str = "0.2.0"

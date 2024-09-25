@@ -56,7 +56,7 @@ class TestRouter(RouterTestcase):
                     "bindings": {
                         "amqp": {
                             "is": "routingKey",
-                            "bindingVersion": "0.2.0",
+                            "bindingVersion": "0.3.0",
                             "queue": {
                                 "name": "test_test",
                                 "durable": False,
@@ -76,7 +76,7 @@ class TestRouter(RouterTestcase):
                         "amqp": {
                             "cc": "test_key",
                             "ack": True,
-                            "bindingVersion": "0.2.0",
+                            "bindingVersion": "0.3.0",
                         }
                     },
                     "messages": [

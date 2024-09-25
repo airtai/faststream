@@ -76,7 +76,7 @@ class TestNaming(NamingTestCase):
                     "bindings": {
                         "amqp": {
                             "is": "routingKey",
-                            "bindingVersion": "0.2.0",
+                            "bindingVersion": "0.3.0",
                             "queue": {
                                 "name": "test",
                                 "durable": False,
@@ -100,7 +100,7 @@ class TestNaming(NamingTestCase):
                     "bindings": {
                         "amqp": {
                             "ack": True,
-                            "bindingVersion": "0.2.0",
+                            "bindingVersion": "0.3.0",
                             "cc": "test",
                         },
                     },

@@ -63,7 +63,7 @@ def test_custom():
                 "address": "test:_:Publisher",
                 "bindings": {
                     "amqp": {
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "exchange": {"type": "default", "vhost": "/vh"},
                         "is": "routingKey",
                         "queue": {
@@ -93,7 +93,7 @@ def test_custom():
                 "bindings": {
                     "amqp": {
                         "ack": True,
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "cc": "test",
                         "deliveryMode": 1,
                         "mandatory": True,

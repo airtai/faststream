@@ -19,7 +19,7 @@ class TestArguments(PublisherTestcase):
                 "address": "_:test-ex:Publisher",
                 "bindings": {
                     "amqp": {
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "exchange": {
                             "autoDelete": False,
                             "durable": False,
@@ -49,7 +49,7 @@ class TestArguments(PublisherTestcase):
                 "bindings": {
                     "amqp": {
                         "ack": True,
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "deliveryMode": 1,
                         "mandatory": True,
                     }
@@ -79,7 +79,7 @@ class TestArguments(PublisherTestcase):
 
         assert schema["channels"][key]["bindings"] == {
             "amqp": {
-                "bindingVersion": "0.2.0",
+                "bindingVersion": "0.3.0",
                 "exchange": {
                     "autoDelete": False,
                     "durable": False,
@@ -114,7 +114,7 @@ class TestArguments(PublisherTestcase):
                 "address": "_:test-ex:Publisher",
                 "bindings": {
                     "amqp": {
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "exchange": {
                             "autoDelete": False,
                             "durable": False,
@@ -164,7 +164,7 @@ class TestArguments(PublisherTestcase):
                 "address": "key1:test-ex:Publisher",
                 "bindings": {
                     "amqp": {
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "exchange": {
                             "autoDelete": False,
                             "durable": False,
@@ -190,7 +190,7 @@ class TestArguments(PublisherTestcase):
                 "address": "key2:test-ex:Publisher",
                 "bindings": {
                     "amqp": {
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "exchange": {
                             "autoDelete": False,
                             "durable": False,
@@ -223,7 +223,7 @@ class TestArguments(PublisherTestcase):
                 "bindings": {
                     "amqp": {
                         "ack": True,
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "cc": "key1",
                         "deliveryMode": 1,
                         "mandatory": True,
@@ -241,7 +241,7 @@ class TestArguments(PublisherTestcase):
                 "bindings": {
                     "amqp": {
                         "ack": True,
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "cc": "key2",
                         "deliveryMode": 1,
                         "priority": 10,

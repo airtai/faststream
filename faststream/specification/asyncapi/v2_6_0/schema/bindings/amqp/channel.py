@@ -96,7 +96,6 @@ class ChannelBinding(BaseModel):
         return cls(
             **{
                 "is": binding.is_,
-                "bindingVersion": binding.bindingVersion,
                 "queue": Queue.from_spec(binding.queue)
                 if binding.queue is not None
                 else None,

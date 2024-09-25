@@ -20,7 +20,7 @@ class TestArguments(ArgumentsTestcase):
 
         assert schema["channels"][key]["bindings"] == {
             "amqp": {
-                "bindingVersion": "0.2.0",
+                "bindingVersion": "0.3.0",
                 "exchange": {
                     "autoDelete": False,
                     "durable": False,
@@ -53,7 +53,7 @@ class TestArguments(ArgumentsTestcase):
 
         assert schema["channels"][key]["bindings"] == {
             "amqp": {
-                "bindingVersion": "0.2.0",
+                "bindingVersion": "0.3.0",
                 "exchange": {
                     "autoDelete": False,
                     "durable": False,
