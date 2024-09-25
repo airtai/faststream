@@ -16,7 +16,7 @@ search:
 
 Tracing is a form of observability that tracks the flow of requests as they move through various services in a distributed system. It provides insights into the interactions between services, highlighting performance bottlenecks and errors. The result of implementing tracing is a detailed map of the service interactions, often visualized as a trace diagram. This helps developers understand the behavior and performance of their applications. For an in-depth explanation, refer to the [OpenTelemetry tracing specification](https://opentelemetry.io/docs/concepts/signals/traces/){.external-link target="_blank"}.
 
-![HTML-page](../../../assets/img/simple-trace.png){ loading=lazy }
+![HTML-page](../../../assets/img/simple-trace.png){ .on-glb loading=lazy }
 `Visualized via Grafana and Tempo`
 
 This trace is derived from this relationship between handlers:
@@ -125,7 +125,7 @@ An example includes:
 * Examples with custom spans
 * Configured `docker-compose` with the entire infrastructure
 
-![HTML-page](../../../assets/img/distributed-trace.png){ loading=lazy }
+![HTML-page](../../../assets/img/distributed-trace.png){ .on-glb loading=lazy }
 `Visualized via Grafana and Tempo`
 
 ## Baggage
