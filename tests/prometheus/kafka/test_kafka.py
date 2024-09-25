@@ -67,7 +67,7 @@ class TestPublishWithPrometheus(TestPublish):
 
 
 @pytest.mark.kafka
-class TestConsumeWithTelemetry(TestConsume):
+class TestConsumeWithPrometheus(TestConsume):
     def get_broker(self, apply_types: bool = False):
         return KafkaBroker(
             middlewares=(KafkaPrometheusMiddleware(registry=CollectorRegistry()),),

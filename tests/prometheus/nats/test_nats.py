@@ -74,7 +74,7 @@ class TestPublishWithPrometheus(TestPublish):
 
 
 @pytest.mark.nats
-class TestConsumeWithTelemetry(TestConsume):
+class TestConsumeWithPrometheus(TestConsume):
     def get_broker(self, apply_types: bool = False):
         return NatsBroker(
             middlewares=(NatsPrometheusMiddleware(registry=CollectorRegistry()),),

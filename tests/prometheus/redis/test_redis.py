@@ -65,7 +65,7 @@ class TestPublishWithPrometheus(TestPublish):
 
 
 @pytest.mark.redis
-class TestConsumeWithTelemetry(TestConsume):
+class TestConsumeWithPrometheus(TestConsume):
     def get_broker(self, apply_types: bool = False):
         return RedisBroker(
             middlewares=(RedisPrometheusMiddleware(registry=CollectorRegistry()),),

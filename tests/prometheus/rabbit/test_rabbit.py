@@ -30,7 +30,7 @@ class TestPublishWithPrometheus(TestPublish):
 
 
 @pytest.mark.rabbit
-class TestConsumeWithTelemetry(TestConsume):
+class TestConsumeWithPrometheus(TestConsume):
     def get_broker(self, apply_types: bool = False):
         return RabbitBroker(
             middlewares=(RabbitPrometheusMiddleware(registry=CollectorRegistry()),),
