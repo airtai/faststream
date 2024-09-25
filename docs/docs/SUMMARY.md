@@ -1004,6 +1004,23 @@ search:
                             - [Server](api/faststream/specification/asyncapi/v3_0_0/schema/Server.md)
                             - [channel_from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/channel_from_spec.md)
                             - [operation_from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/operation_from_spec.md)
+                            - bindings
+                                - [channel_binding_from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/bindings/channel_binding_from_spec.md)
+                                - [operation_binding_from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/bindings/operation_binding_from_spec.md)
+                                - amqp
+                                    - [channel_binding_from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/bindings/amqp/channel_binding_from_spec.md)
+                                    - [operation_binding_from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/bindings/amqp/operation_binding_from_spec.md)
+                                    - channel
+                                        - [from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/bindings/amqp/channel/from_spec.md)
+                                    - operation
+                                        - [from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/bindings/amqp/operation/from_spec.md)
+                                - main
+                                    - [channel_binding_from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/bindings/main/channel_binding_from_spec.md)
+                                    - [operation_binding_from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/bindings/main/operation_binding_from_spec.md)
+                                    - channel
+                                        - [from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/bindings/main/channel/from_spec.md)
+                                    - operation
+                                        - [from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/bindings/main/operation/from_spec.md)
                             - channels
                                 - [Channel](api/faststream/specification/asyncapi/v3_0_0/schema/channels/Channel.md)
                                 - [from_spec](api/faststream/specification/asyncapi/v3_0_0/schema/channels/from_spec.md)
