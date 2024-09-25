@@ -396,6 +396,33 @@ class FastAPICompatible:
                 "type": "object",
             }
 
+    def test_pydantic_model_with_keyword_property(self):
+        class TestModel(pydantic.BaseModel):
+            discriminator: int = 0
+
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle(user: TestModel): ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        for key, v in payload.items():
+            assert key == "TestModel"
+            assert v == {
+                "properties": {
+                    "discriminator": {
+                        "default": 0,
+                        "title": "Discriminator",
+                        "type": "integer"
+                    },
+                },
+                "title": key,
+                "type": "object",
+            }
+
     def test_ignores_depends(self):
         broker = self.broker_class()
 
