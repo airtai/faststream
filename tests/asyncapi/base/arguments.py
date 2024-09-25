@@ -403,7 +403,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: TestModel): ...
+        async def handle(model: TestModel): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
