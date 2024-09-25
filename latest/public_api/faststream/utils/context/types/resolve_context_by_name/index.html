@@ -37,7 +37,7 @@
 <a id=__codelineno-0-86 name=__codelineno-0-86></a>        <span class=n>value</span> <span class=o>=</span> <span class=n>context</span><span class=o>.</span><span class=n>resolve</span><span class=p>(</span><span class=n>name</span><span class=p>)</span>
 <a id=__codelineno-0-87 name=__codelineno-0-87></a>
 <a id=__codelineno-0-88 name=__codelineno-0-88></a>    <span class=k>except</span> <span class=p>(</span><span class=ne>KeyError</span><span class=p>,</span> <span class=ne>AttributeError</span><span class=p>):</span>
-<a id=__codelineno-0-89 name=__codelineno-0-89></a>        <span class=k>if</span> <span class=n>default</span> <span class=o>!=</span> <span class=n>EMPTY</span><span class=p>:</span>
+<a id=__codelineno-0-89 name=__codelineno-0-89></a>        <span class=k>if</span> <span class=n>EMPTY</span> <span class=o>!=</span> <span class=n>default</span><span class=p>:</span>  <span class=c1># noqa: SIM300</span>
 <a id=__codelineno-0-90 name=__codelineno-0-90></a>            <span class=n>value</span> <span class=o>=</span> <span class=n>default</span>
 <a id=__codelineno-0-91 name=__codelineno-0-91></a>
 <a id=__codelineno-0-92 name=__codelineno-0-92></a>        <span class=k>elif</span> <span class=n>initial</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>

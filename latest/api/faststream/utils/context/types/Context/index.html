@@ -118,13 +118,13 @@
 <a id=__codelineno-0-60 name=__codelineno-0-60></a><span class=sd>    &quot;&quot;&quot;</span>
 <a id=__codelineno-0-61 name=__codelineno-0-61></a>    <span class=n>name</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&quot;</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>prefix</span><span class=si>}{</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=w> </span><span class=ow>or</span><span class=w> </span><span class=bp>self</span><span class=o>.</span><span class=n>param_name</span><span class=si>}</span><span class=s2>&quot;</span>
 <a id=__codelineno-0-62 name=__codelineno-0-62></a>
-<a id=__codelineno-0-63 name=__codelineno-0-63></a>    <span class=k>if</span> <span class=p>(</span>
+<a id=__codelineno-0-63 name=__codelineno-0-63></a>    <span class=k>if</span> <span class=n>EMPTY</span> <span class=o>!=</span> <span class=p>(</span>  <span class=c1># noqa: SIM300</span>
 <a id=__codelineno-0-64 name=__codelineno-0-64></a>        <span class=n>v</span> <span class=o>:=</span> <span class=n>resolve_context_by_name</span><span class=p>(</span>
 <a id=__codelineno-0-65 name=__codelineno-0-65></a>            <span class=n>name</span><span class=o>=</span><span class=n>name</span><span class=p>,</span>
 <a id=__codelineno-0-66 name=__codelineno-0-66></a>            <span class=n>default</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>default</span><span class=p>,</span>
 <a id=__codelineno-0-67 name=__codelineno-0-67></a>            <span class=n>initial</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>initial</span><span class=p>,</span>
 <a id=__codelineno-0-68 name=__codelineno-0-68></a>        <span class=p>)</span>
-<a id=__codelineno-0-69 name=__codelineno-0-69></a>    <span class=p>)</span> <span class=o>!=</span> <span class=n>EMPTY</span><span class=p>:</span>
+<a id=__codelineno-0-69 name=__codelineno-0-69></a>    <span class=p>):</span>
 <a id=__codelineno-0-70 name=__codelineno-0-70></a>        <span class=n>kwargs</span><span class=p>[</span><span class=bp>self</span><span class=o>.</span><span class=n>param_name</span><span class=p>]</span> <span class=o>=</span> <span class=n>v</span>
 <a id=__codelineno-0-71 name=__codelineno-0-71></a>
 <a id=__codelineno-0-72 name=__codelineno-0-72></a>    <span class=k>else</span><span class=p>:</span>
