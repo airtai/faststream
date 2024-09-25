@@ -6,13 +6,14 @@ from prometheus_client import CollectorRegistry
 
 from faststream.confluent import KafkaBroker, KafkaMessage
 from faststream.confluent.prometheus.middleware import KafkaPrometheusMiddleware
+from tests.brokers.confluent.basic import ConfluentTestcaseConfig
 from tests.brokers.confluent.test_consume import TestConsume
 from tests.brokers.confluent.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase
 
 
 @pytest.mark.confluent
-class TestPrometheus(LocalPrometheusTestcase):
+class TestPrometheus(ConfluentTestcaseConfig, LocalPrometheusTestcase):
     broker_class = KafkaBroker
     middleware_class = KafkaPrometheusMiddleware
     message_class = KafkaMessage
