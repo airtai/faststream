@@ -41,28 +41,28 @@ class SpecificationSubscriber(LogicSubscriber):
                 ),
                 bindings=ChannelBinding(
                     amqp=amqp.ChannelBinding(
-                        is_="routingKey",
-                        queue=amqp.Queue(
-                            name=self.queue.name,
-                            durable=self.queue.durable,
-                            exclusive=self.queue.exclusive,
-                            autoDelete=self.queue.auto_delete,
-                            vhost=self.virtual_host,
-                        )
-                        if is_routing_exchange(self.exchange) and self.queue.name
-                        else None,
-                        exchange=(
-                            amqp.Exchange(type="default", vhost=self.virtual_host)
-                            if not self.exchange.name
-                            else amqp.Exchange(
-                                type=self.exchange.type.value,
-                                name=self.exchange.name,
-                                durable=self.exchange.durable,
-                                autoDelete=self.exchange.auto_delete,
+                        **{
+                            "is_": "queue",  # type: ignore
+                            "queue": amqp.Queue(
+                                name=self.queue.name,
+                                durable=self.queue.durable,
+                                exclusive=self.queue.exclusive,
+                                autoDelete=self.queue.auto_delete,
                                 vhost=self.virtual_host,
-                            )
-                        ),
-                    ),
+                            ),
+                            "exchange": (
+                                amqp.Exchange(type="default", vhost=self.virtual_host)
+                                if not self.exchange.name
+                                else amqp.Exchange(
+                                    type=self.exchange.type.value,
+                                    name=self.exchange.name,
+                                    durable=self.exchange.durable,
+                                    autoDelete=self.exchange.auto_delete,
+                                    vhost=self.virtual_host,
+                                )
+                            ),
+                        }
+                    )
                 ),
             ),
         }

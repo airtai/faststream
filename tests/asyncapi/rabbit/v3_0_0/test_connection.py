@@ -66,14 +66,7 @@ def test_custom():
                         "bindingVersion": "0.3.0",
                         "exchange": {"type": "default", "vhost": "/vh"},
                         "is": "routingKey",
-                        "queue": {
-                            "autoDelete": False,
-                            "durable": False,
-                            "exclusive": False,
-                            "name": "test",
-                            "vhost": "/vh",
-                        },
-                    },
+                    }
                 },
                 "servers": [
                     {

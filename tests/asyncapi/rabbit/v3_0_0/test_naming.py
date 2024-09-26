@@ -75,7 +75,7 @@ class TestNaming(NamingTestCase):
                     ],
                     "bindings": {
                         "amqp": {
-                            "is": "routingKey",
+                            "is": "queue",
                             "bindingVersion": "0.3.0",
                             "queue": {
                                 "name": "test",
@@ -84,8 +84,7 @@ class TestNaming(NamingTestCase):
                                 "autoDelete": False,
                                 "vhost": "/",
                             },
-                            "exchange": {"type": "default", "vhost": "/"},
-                        },
+                        }
                     },
                     "messages": {
                         "SubscribeMessage": {

@@ -88,14 +88,7 @@ class TestArguments(PublisherTestcase):
                     "vhost": "/",
                 },
                 "is": "routingKey",
-                "queue": {
-                    "autoDelete": True,
-                    "durable": False,
-                    "exclusive": False,
-                    "name": "test",
-                    "vhost": "/",
-                },
-            },
+            }
         }
 
     def test_useless_queue_bindings(self):

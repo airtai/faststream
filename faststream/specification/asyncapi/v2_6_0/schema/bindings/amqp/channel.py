@@ -95,10 +95,15 @@ class ChannelBinding(BaseModel):
     def from_spec(cls, binding: spec.bindings.amqp.ChannelBinding) -> Self:
         return cls(
             **{
-                "is": binding.is_,
+                "is": "routingKey",
+
                 "queue": Queue.from_spec(binding.queue)
                 if binding.queue is not None
+                   and binding.queue.name
+                   and binding.exchange
+                   and binding.exchange.type in ("default", "direct", "topic")
                 else None,
+
                 "exchange": Exchange.from_spec(binding.exchange)
                 if binding.exchange is not None
                 else None,
