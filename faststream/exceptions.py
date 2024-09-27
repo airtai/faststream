@@ -37,7 +37,7 @@ class SkipMessage(HandlerException):
 class AckMessage(HandlerException):
     """Exception raised to acknowledge a message immediately.
 
-    This exception can be used to ack a message with additional options.
+    This exception can be used to nack a message with additional options.
     To watch all allowed parameters, please take a look at your broker `message.ack(**extra_options)` method
     signature.
 
