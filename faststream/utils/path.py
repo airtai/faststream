@@ -18,7 +18,8 @@ def compile_path(
     params = set()
     duplicated_params = set()
     for match in PARAM_REGEX.finditer(path):
-        param_name = match.groups("str")[0]
+        #param_name = match.groups("str")[0]
+        param_name = match.group(1)
 
         path_regex += re.escape(path[idx : match.start()])
         path_regex += f"(?P<{param_name.replace('+', '')}>[^.]+)"
