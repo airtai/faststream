@@ -3,7 +3,7 @@
 # taken from: https://jaredkhan.com/blog/mypy-pre-commit
 
 # A script for running mypy,
-# with all its dependencies installed.
+# with all the dependencies installed.
 
 set -o errexit
 
@@ -11,8 +11,8 @@ set -o errexit
 cd "$(dirname "$0")"/..
 
 # Install the dependencies into the mypy env.
-# Note that this can take seconds to run.
-# In my case, I need to use a custom index URL.
+# Note that this can take few seconds to run.
+# In my case, I had to use a custom index URL.
 # Avoid pip spending time quietly retrying since
 # likely cause of failure is lack of VPN connection.
 pip install --editable ".[dev]" \
@@ -22,7 +22,7 @@ pip install --editable ".[dev]" \
 
 # Run on all files,
 # ignoring the paths passed to this script,
-# so as not to miss type errors.
+# so as not to miss any type errors.
 # My repo makes use of namespace packages.
 # Use the namespace-packages flag
 # and specify the package to run on explicitly.
