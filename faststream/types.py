@@ -18,6 +18,7 @@ from typing import (
 
 from typing_extensions import ParamSpec, TypeAlias
 
+# Type Aliases
 AnyDict: TypeAlias = Dict[str, Any]
 AnyHttpUrl: TypeAlias = str
 
@@ -35,7 +36,6 @@ DecoratedCallableNone: TypeAlias = NoneCallable
 Decorator: TypeAlias = Callable[[AnyCallable], AnyCallable]
 
 JsonArray: TypeAlias = Sequence["DecodedMessage"]
-
 JsonTable: TypeAlias = Dict[str, "DecodedMessage"]
 
 JsonDecodable: TypeAlias = Union[
@@ -55,10 +55,9 @@ DecodedMessage: TypeAlias = Union[
 ]
 
 SendableArray: TypeAlias = Sequence["BaseSendableMessage"]
-
 SendableTable: TypeAlias = Dict[str, "BaseSendableMessage"]
 
-
+# Protocol for Dataclasses
 class StandardDataclass(Protocol):
     """Protocol to check type is dataclass."""
 
@@ -75,6 +74,7 @@ BaseSendableMessage: TypeAlias = Union[
     None,
 ]
 
+# Handling ImportError for BaseModel
 try:
     from faststream._compat import BaseModel
 
@@ -86,6 +86,7 @@ try:
 except ImportError:
     SendableMessage: TypeAlias = BaseSendableMessage  # type: ignore[no-redef,misc]
 
+# Type alias for configuration settings
 SettingField: TypeAlias = Union[
     bool,
     str,
@@ -94,9 +95,11 @@ SettingField: TypeAlias = Union[
     List[bool],
 ]
 
+# Alias for a callable context manager used for lifespan
 Lifespan: TypeAlias = Callable[..., AsyncContextManager[None]]
 
 
+# Protocol for Logger with type hints
 class LoggerProto(Protocol):
     def log(
         self,
@@ -109,6 +112,7 @@ class LoggerProto(Protocol):
     ) -> None: ...
 
 
+# Placeholder class with type hints
 class _EmptyPlaceholder:
     def __repr__(self) -> str:
         return "EMPTY"
