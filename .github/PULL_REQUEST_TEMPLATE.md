@@ -1,6 +1,6 @@
 # Description
 
-Please include a summary of the change and specify which issue is being addressed. Additionally, provide relevant motivation and context.
+Please include a summary of the changes and specify which issue is being addressed. Additionally, provide relevant motivation and context.
 
 Fixes # (issue number)
 
