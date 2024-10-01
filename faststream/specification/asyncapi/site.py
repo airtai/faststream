@@ -7,7 +7,7 @@ from faststream._internal._compat import json_dumps
 from faststream._internal.log import logger
 
 if TYPE_CHECKING:
-    from faststream.specification.asyncapi.base.schema import BaseSchema
+    from faststream.specification.base.specification import Specification
 
 
 ASYNCAPI_JS_DEFAULT_URL = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.54/browser/standalone/index.js"
@@ -18,7 +18,7 @@ ASYNCAPI_CSS_DEFAULT_URL = (
 
 
 def get_asyncapi_html(
-    schema: "BaseSchema",
+    schema: "Specification",
     sidebar: bool = True,
     info: bool = True,
     servers: bool = True,
@@ -27,7 +27,6 @@ def get_asyncapi_html(
     schemas: bool = True,
     errors: bool = True,
     expand_message_examples: bool = True,
-    title: str = "FastStream",
     asyncapi_js_url: str = ASYNCAPI_JS_DEFAULT_URL,
     asyncapi_css_url: str = ASYNCAPI_CSS_DEFAULT_URL,
 ) -> str:
@@ -63,7 +62,7 @@ def get_asyncapi_html(
         <head>
     """
         f"""
-        <title>{title} AsyncAPI</title>
+        <title>{schema.schema.info.title} AsyncAPI</title>
     """
         """
         <link rel="icon" href="https://www.asyncapi.com/favicon.ico">
@@ -103,7 +102,7 @@ def get_asyncapi_html(
 
 
 def serve_app(
-    schema: "BaseSchema",
+    schema: "Specification",
     host: str,
     port: int,
 ) -> None:
@@ -121,7 +120,7 @@ class _Handler(server.BaseHTTPRequestHandler):
     def __init__(
         self,
         *args: Any,
-        schema: "BaseSchema",
+        schema: "Specification",
         **kwargs: Any,
     ) -> None:
         self.schema = schema
@@ -148,7 +147,6 @@ class _Handler(server.BaseHTTPRequestHandler):
             schemas=query_dict.get("schemas", True),
             errors=query_dict.get("errors", True),
             expand_message_examples=query_dict.get("expandMessageExamples", True),
-            title=self.schema.info.title,
         )
         body = html.encode(encoding=encoding)
 

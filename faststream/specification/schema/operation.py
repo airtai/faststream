@@ -18,7 +18,6 @@ class Operation:
         message : message of the operation
         security : security details of the operation
         tags : tags associated with the operation
-
     """
 
     message: Message

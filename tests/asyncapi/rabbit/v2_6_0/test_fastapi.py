@@ -1,4 +1,3 @@
-
 from faststream.rabbit.fastapi import RabbitRouter
 from faststream.rabbit.testing import TestRabbitBroker
 from faststream.security import SASLPlaintext
@@ -29,7 +28,7 @@ def test_fastapi_security_schema():
 
     router = RabbitRouter(security=security)
 
-    schema = AsyncAPI(router.broker, schema_version="2.6.0").jsonable()
+    schema = AsyncAPI(router.broker, schema_version="2.6.0").to_jsonable()
 
     assert schema["servers"]["development"] == {
         "protocol": "amqp",

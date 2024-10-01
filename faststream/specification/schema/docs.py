@@ -10,7 +10,6 @@ class ExternalDocsDict(TypedDict, total=False):
     Attributes:
         url : Required URL for the external documentation
         description : Description of the external documentation
-
     """
 
     url: Required[str]
@@ -24,7 +23,6 @@ class ExternalDocs:
     Attributes:
         url : URL of the external documentation
         description : optional description of the external documentation
-
     """
 
     url: str

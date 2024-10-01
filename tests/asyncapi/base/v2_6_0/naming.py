@@ -18,7 +18,7 @@ class SubscriberNaming(BaseNaming):
         @broker.subscriber("test")
         async def handle_user_created(msg: str): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
             IsStr(regex=r"test[\w:]*:HandleUserCreated")
@@ -38,7 +38,7 @@ class SubscriberNaming(BaseNaming):
         @broker.subscriber("test")
         async def handle_user_created(msg: create_model("SimpleModel")): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
             IsStr(regex=r"test[\w:]*:HandleUserCreated")
@@ -57,7 +57,7 @@ class SubscriberNaming(BaseNaming):
         @broker.subscriber("test2")
         async def handle_user_created(msg: str): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
             IsStr(regex=r"test[\w:]*:HandleUserCreated"),
@@ -79,7 +79,7 @@ class SubscriberNaming(BaseNaming):
         @broker.subscriber("test", title="custom")
         async def handle_user_created(msg: str): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == ["custom"]
 
@@ -94,7 +94,7 @@ class SubscriberNaming(BaseNaming):
 
         broker.subscriber("test")
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
             IsStr(regex=r"test[\w:]*:Subscriber")
@@ -113,7 +113,7 @@ class SubscriberNaming(BaseNaming):
 
         broker.subscriber("test", title="custom")
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == ["custom"]
 
@@ -136,7 +136,7 @@ class SubscriberNaming(BaseNaming):
         broker.subscriber("test2")
         broker.subscriber("test3")
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
             IsStr(regex=r"test[\w:]*:HandleUserCreated"),
@@ -172,7 +172,7 @@ class FilterNaming(BaseNaming):
         @sub
         async def handle_user_id(msg: int): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
             IsStr(regex=r"test[\w:]*:HandleUserCreated")
@@ -198,7 +198,7 @@ class FilterNaming(BaseNaming):
         @sub
         async def handle_user_id(msg: int): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
             IsStr(regex=r"test[\w:]*:HandleUserCreated")
@@ -224,7 +224,7 @@ class FilterNaming(BaseNaming):
         @sub
         async def handle_user_id(msg: int): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == ["custom"]
 
@@ -243,7 +243,7 @@ class PublisherNaming(BaseNaming):
         @broker.publisher("test")
         async def handle_user_created() -> str: ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [IsStr(regex=r"test[\w:]*:Publisher")]
 
@@ -261,7 +261,7 @@ class PublisherNaming(BaseNaming):
         @broker.publisher("test")
         async def handle_user_created() -> create_model("SimpleModel"): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [IsStr(regex=r"test[\w:]*:Publisher")]
 
@@ -279,7 +279,7 @@ class PublisherNaming(BaseNaming):
         @broker.publisher("test", title="custom")
         async def handle_user_created() -> str: ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == ["custom"]
 
@@ -295,7 +295,7 @@ class PublisherNaming(BaseNaming):
         @broker.publisher("test", schema=str)
         async def handle_user_created(): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [IsStr(regex=r"test[\w:]*:Publisher")]
 
@@ -313,7 +313,7 @@ class PublisherNaming(BaseNaming):
         @broker.publisher("test", title="custom", schema=str)
         async def handle_user_created(): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == ["custom"]
 
@@ -330,7 +330,7 @@ class PublisherNaming(BaseNaming):
         @broker.publisher("test2")
         async def handle_user_created() -> str: ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         names = list(schema["channels"].keys())
         assert names == Contains(
@@ -361,7 +361,7 @@ class PublisherNaming(BaseNaming):
         @pub
         async def handle() -> int: ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
             IsStr(regex=r"test[\w:]*:Publisher"),
@@ -387,7 +387,7 @@ class PublisherNaming(BaseNaming):
         @pub
         async def handle() -> int: ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == ["custom"]
 

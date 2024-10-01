@@ -13,7 +13,7 @@ def test_base():
             tags=(Tag(name="some-tag", description="experimental"),),
         ),
         schema_version="2.6.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -39,7 +39,7 @@ def test_custom():
             "redis://localhost:6379", specification_url="rediss://127.0.0.1:8000"
         ),
         schema_version="2.6.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",

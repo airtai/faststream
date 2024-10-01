@@ -1,12 +1,10 @@
 from pydantic import BaseModel
 
-from faststream._internal._compat import (
-    PYDANTIC_V2,
-)
+from faststream._internal._compat import PYDANTIC_V2
 
 
 class BaseInfo(BaseModel):
-    """A class to represent AsyncAPI application information.
+    """A class to represent basic application information.
 
     Attributes:
         title : application title

@@ -13,7 +13,6 @@ class OauthFlowObj(BaseModel):
         tokenUrl : Optional[AnyHttpUrl] : The URL for token
         refreshUrl : Optional[AnyHttpUrl] : The URL for refresh
         scopes : Dict[str, str] : The scopes for the OAuth flow
-
     """
 
     authorizationUrl: Optional[AnyHttpUrl] = None
@@ -38,7 +37,6 @@ class OauthFlows(BaseModel):
         password : Optional[OauthFlowObj] : Password OAuth flow object
         clientCredentials : Optional[OauthFlowObj] : Client credentials OAuth flow object
         authorizationCode : Optional[OauthFlowObj] : Authorization code OAuth flow object
-
     """
 
     implicit: Optional[OauthFlowObj] = None
@@ -67,7 +65,6 @@ class SecuritySchemaComponent(BaseModel):
         bearerFormat : optional bearer format of the security schema component
         openIdConnectUrl : optional OpenID Connect URL of the security schema component
         flows : optional OAuth flows of the security schema component
-
     """
 
     type: Literal[

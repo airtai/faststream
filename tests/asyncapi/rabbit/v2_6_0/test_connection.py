@@ -13,7 +13,7 @@ def test_base():
             tags=(Tag(name="some-tag", description="experimental"),),
         ),
         schema_version="2.6.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -52,7 +52,7 @@ def test_custom():
     )
 
     broker.publisher("test")
-    schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+    schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
     assert (
         schema

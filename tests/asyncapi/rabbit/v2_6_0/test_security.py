@@ -19,7 +19,7 @@ def test_base_security_schema():
     )  # pragma: allowlist secret
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
-    schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+    schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -55,7 +55,7 @@ def test_plaintext_security_schema():
     )  # pragma: allowlist secret
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
-    schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+    schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
     assert (
         schema
         == {
@@ -93,7 +93,7 @@ def test_plaintext_security_schema_without_ssl():
         == "amqp://admin:password@localhost:5672/"  # pragma: allowlist secret
     )  # pragma: allowlist secret
 
-    schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+    schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
     assert (
         schema
         == {

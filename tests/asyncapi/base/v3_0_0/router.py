@@ -28,7 +28,7 @@ class RouterTestcase:
 
         broker.include_router(router)
 
-        schema = AsyncAPI(broker, schema_version="3.0.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
         key = list(payload.keys())[0]  # noqa: RUF015
@@ -52,7 +52,7 @@ class RouterTestcase:
         broker.include_router(router)
 
         schema = AsyncAPI(broker, schema_version="3.0.0")
-        schemas = schema.jsonable()["components"]["schemas"]
+        schemas = schema.to_jsonable()["components"]["schemas"]
         del schemas["Handle:Message:Payload"]
 
         for i, j in schemas.items():
@@ -72,7 +72,7 @@ class RouterTestcase:
         broker.include_router(router)
 
         schema = AsyncAPI(broker, schema_version="3.0.0")
-        assert schema.jsonable()["channels"] == {}, schema.jsonable()["channels"]
+        assert schema.to_jsonable()["channels"] == {}, schema.to_jsonable()["channels"]
 
     def test_not_include_in_method(self):
         broker = self.broker_class()
@@ -85,7 +85,7 @@ class RouterTestcase:
         broker.include_router(router, include_in_schema=False)
 
         schema = AsyncAPI(broker, schema_version="3.0.0")
-        assert schema.jsonable()["channels"] == {}, schema.jsonable()["channels"]
+        assert schema.to_jsonable()["channels"] == {}, schema.to_jsonable()["channels"]
 
     def test_respect_subrouter(self):
         broker = self.broker_class()
@@ -101,7 +101,7 @@ class RouterTestcase:
 
         schema = AsyncAPI(broker, schema_version="3.0.0")
 
-        assert schema.jsonable()["channels"] == {}, schema.jsonable()["channels"]
+        assert schema.to_jsonable()["channels"] == {}, schema.to_jsonable()["channels"]
 
     def test_not_include_subrouter(self):
         broker = self.broker_class()
@@ -117,7 +117,7 @@ class RouterTestcase:
 
         schema = AsyncAPI(broker, schema_version="3.0.0")
 
-        assert schema.jsonable()["channels"] == {}
+        assert schema.to_jsonable()["channels"] == {}
 
     def test_not_include_subrouter_by_method(self):
         broker = self.broker_class()
@@ -133,7 +133,7 @@ class RouterTestcase:
 
         schema = AsyncAPI(broker, schema_version="3.0.0")
 
-        assert schema.jsonable()["channels"] == {}
+        assert schema.to_jsonable()["channels"] == {}
 
     def test_all_nested_routers_by_method(self):
         broker = self.broker_class()
@@ -149,7 +149,7 @@ class RouterTestcase:
 
         schema = AsyncAPI(broker, schema_version="3.0.0")
 
-        assert schema.jsonable()["channels"] == {}
+        assert schema.to_jsonable()["channels"] == {}
 
     def test_include_subrouter(self):
         broker = self.broker_class()
@@ -165,4 +165,4 @@ class RouterTestcase:
 
         schema = AsyncAPI(broker, schema_version="3.0.0")
 
-        assert len(schema.jsonable()["channels"]) == 2
+        assert len(schema.to_jsonable()["channels"]) == 2

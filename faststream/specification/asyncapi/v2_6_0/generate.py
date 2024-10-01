@@ -35,18 +35,18 @@ if TYPE_CHECKING:
 
 
 def get_app_schema(
-        broker: "BrokerUsecase[Any, Any]",
-        /,
-        title: str,
-        app_version: str,
-        schema_version: str,
-        description: str,
-        terms_of_service: Optional["AnyHttpUrl"],
-        contact: Optional[Union["Contact", "ContactDict", "AnyDict"]],
-        license: Optional[Union["License", "LicenseDict", "AnyDict"]],
-        identifier: Optional[str],
-        tags: Optional[Sequence[Union["SpecsTag", "SpecsTagDict", "AnyDict"]]],
-        external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]],
+    broker: "BrokerUsecase[Any, Any]",
+    /,
+    title: str,
+    app_version: str,
+    schema_version: str,
+    description: str,
+    terms_of_service: Optional["AnyHttpUrl"],
+    contact: Optional[Union["Contact", "ContactDict", "AnyDict"]],
+    license: Optional[Union["License", "LicenseDict", "AnyDict"]],
+    identifier: Optional[str],
+    tags: Optional[Sequence[Union["SpecsTag", "SpecsTagDict", "AnyDict"]]],
+    external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]],
 ) -> Schema:
     """Get the application schema."""
     broker._setup()

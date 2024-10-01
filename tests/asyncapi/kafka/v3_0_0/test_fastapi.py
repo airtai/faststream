@@ -28,7 +28,7 @@ def test_fastapi_security_schema():
 
     router = KafkaRouter("localhost:9092", security=security)
 
-    schema = AsyncAPI(router.broker, schema_version="3.0.0").jsonable()
+    schema = AsyncAPI(router.broker, schema_version="3.0.0").to_jsonable()
 
     assert schema["servers"]["development"] == {
         "protocol": "kafka",

@@ -32,10 +32,7 @@ class OperationBinding(BaseModel):
     @classmethod
     def from_spec(cls, binding: spec.bindings.amqp.OperationBinding) -> Self:
         return cls(
-            cc=[binding.cc]
-            if binding.cc is not None
-            else None,
-
+            cc=[binding.cc] if binding.cc is not None else None,
             ack=binding.ack,
             replyTo=binding.replyTo,
             deliveryMode=binding.deliveryMode,

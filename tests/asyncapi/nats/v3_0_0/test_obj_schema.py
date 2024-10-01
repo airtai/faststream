@@ -8,6 +8,6 @@ def test_obj_schema():
     @broker.subscriber("test", obj_watch=True)
     async def handle(): ...
 
-    schema = AsyncAPI(broker, schema_version="3.0.0").jsonable()
+    schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
     assert schema["channels"] == {}

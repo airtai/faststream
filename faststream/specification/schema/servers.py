@@ -16,7 +16,6 @@ class ServerVariable(BaseModel):
         default : default value for the server variable (optional)
         description : description of the server variable (optional)
         examples : list of example values for the server variable (optional)
-
     """
 
     enum: Optional[List[str]] = None
@@ -47,11 +46,6 @@ class Server(BaseModel):
 
     Note:
         The attributes `description`, `protocolVersion`, `tags`, `security`, `variables`, and `bindings` are all optional.
-
-    Configurations:
-        If `PYDANTIC_V2` is True, the model configuration is set to allow extra attributes.
-        Otherwise, the `Config` class is defined with the `extra` attribute set to "allow".
-
     """
 
     url: str

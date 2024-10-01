@@ -13,7 +13,7 @@ def test_base():
             tags=(Tag(name="some-tag", description="experimental"),),
         ),
         schema_version="3.0.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",
@@ -39,7 +39,7 @@ def test_multi():
     schema = AsyncAPI(
         NatsBroker(["nats:9092", "nats:9093"]),
         schema_version="3.0.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",
@@ -72,7 +72,7 @@ def test_custom():
             specification_url=["nats:9094", "nats:9095"],
         ),
         schema_version="3.0.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",

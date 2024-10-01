@@ -3,7 +3,7 @@ from faststream.specification.asyncapi import AsyncAPI
 
 
 def test_basic_customization():
-    schema = AsyncAPI(app.broker, schema_version="2.6.0").jsonable()
+    schema = AsyncAPI(app.broker, schema_version="2.6.0").to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",

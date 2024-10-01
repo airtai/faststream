@@ -7,7 +7,7 @@ from faststream.specification.schema.tag import Tag
 
 
 def test_base():
-    schema = AsyncAPI(KafkaBroker(), schema_version="2.6.0").jsonable()
+    schema = AsyncAPI(KafkaBroker(), schema_version="2.6.0").to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -32,7 +32,7 @@ def test_with_name():
         app_version="1.0.0",
         description="Test description",
         schema_version="2.6.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -69,7 +69,7 @@ def test_full():
             url="https://extra-docs.py/",
         ),
         schema_version="2.6.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -112,7 +112,7 @@ def test_full_dict():
             "url": "https://extra-docs.py/",
         },
         schema_version="2.6.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -149,16 +149,14 @@ def test_extra():
         license={"name": "MIT", "url": "https://mit.com/", "x-field": "extra"},
         terms_of_service="https://my-terms.com/",
         contact={"name": "support", "url": "https://help.com/", "x-field": "extra"},
-        tags=(
-            {"name": "some-tag", "description": "experimental", "x-field": "extra"},
-        ),
+        tags=({"name": "some-tag", "description": "experimental", "x-field": "extra"},),
         identifier="some-unique-uuid",
         external_docs={
             "url": "https://extra-docs.py/",
             "x-field": "extra",
         },
         schema_version="2.6.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",

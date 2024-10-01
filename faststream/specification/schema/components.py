@@ -25,7 +25,6 @@ class Components(BaseModel):
         - serverVariables
         - channels
         - securitySchemes
-
     """
 
     messages: Optional[Dict[str, Message]] = None

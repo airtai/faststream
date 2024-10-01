@@ -1,5 +1,5 @@
 import logging
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from contextlib import asynccontextmanager
 from typing import (
     TYPE_CHECKING,
@@ -11,7 +11,6 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
-    Union,
 )
 
 from typing_extensions import ParamSpec
@@ -25,29 +24,51 @@ from faststream._internal.utils.functions import (
     fake_context,
     to_async,
 )
-from faststream.specification.proto import SpecApplication
-
-P_HookParams = ParamSpec("P_HookParams")
-T_HookReturn = TypeVar("T_HookReturn")
-
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import (
-        AnyDict,
-        AnyHttpUrl,
+        AnyCallable,
         AsyncFunc,
         Lifespan,
         LoggerProto,
         SettingField,
     )
     from faststream._internal.broker.broker import BrokerUsecase
-    from faststream.specification.schema.contact import Contact, ContactDict
-    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-    from faststream.specification.schema.license import License, LicenseDict
-    from faststream.specification.schema.tag import Tag, TagDict
 
 
-class StartAbleApplication(ABC, SpecApplication):
+try:
+    from pydantic import ValidationError as PValidation
+
+    from faststream.exceptions import StartupValidationError
+
+    @asynccontextmanager
+    async def catch_startup_validation_error() -> AsyncIterator[None]:
+        try:
+            yield
+        except PValidation as e:
+            missed_fields = []
+            invalid_fields = []
+            for x in e.errors():
+                location = str(x["loc"][0])
+                if x["type"] == "missing":
+                    missed_fields.append(location)
+                else:
+                    invalid_fields.append(location)
+
+            raise StartupValidationError(
+                missed_fields=missed_fields,
+                invalid_fields=invalid_fields,
+            ) from e
+
+except ImportError:
+    catch_startup_validation_error = fake_context
+
+
+P_HookParams = ParamSpec("P_HookParams")
+T_HookReturn = TypeVar("T_HookReturn")
+
+
+class StartAbleApplication:
     def __init__(
         self,
         broker: Optional["BrokerUsecase[Any, Any]"] = None,
@@ -70,25 +91,14 @@ class StartAbleApplication(ABC, SpecApplication):
 class Application(StartAbleApplication):
     def __init__(
         self,
+        *,
         broker: Optional["BrokerUsecase[Any, Any]"] = None,
         logger: Optional["LoggerProto"] = logger,
         lifespan: Optional["Lifespan"] = None,
-        # AsyncAPI args,
-        title: str = "FastStream",
-        version: str = "0.1.0",
-        description: str = "",
-        terms_of_service: Optional["AnyHttpUrl"] = None,
-        license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
-        contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
-        tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]] = None,
-        external_docs: Optional[
-            Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
-        ] = None,
-        identifier: Optional[str] = None,
-        on_startup: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
-        after_startup: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
-        on_shutdown: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
-        after_shutdown: Sequence[Callable[P_HookParams, T_HookReturn]] = (),
+        on_startup: Sequence["AnyCallable"] = (),
+        after_startup: Sequence["AnyCallable"] = (),
+        on_shutdown: Sequence["AnyCallable"] = (),
+        after_shutdown: Sequence["AnyCallable"] = (),
     ) -> None:
         super().__init__(broker)
 
@@ -112,21 +122,11 @@ class Application(StartAbleApplication):
 
         if lifespan is not None:
             self.lifespan_context = apply_types(
-                func=lifespan, wrap_model=drop_response_type
+                func=lifespan,
+                wrap_model=drop_response_type,
             )
         else:
             self.lifespan_context = fake_context
-
-        # AsyncAPI information
-        self.title = title
-        self.version = version
-        self.description = description
-        self.terms_of_service = terms_of_service
-        self.license = license
-        self.contact = contact
-        self.identifier = identifier
-        self.specification_tags = tags
-        self.external_docs = external_docs
 
     @abstractmethod
     def exit(self) -> None:
@@ -218,7 +218,10 @@ class Application(StartAbleApplication):
         self, log_level: int = logging.INFO
     ) -> AsyncIterator[None]:
         """Separated startup logging."""
-        self._log(log_level, "FastStream app shutting down...")
+        self._log(
+            log_level,
+            "FastStream app shutting down...",
+        )
 
         yield
 
@@ -276,31 +279,3 @@ class Application(StartAbleApplication):
         """Add hook running AFTER broker disconnected."""
         self._after_shutdown_calling.append(apply_types(to_async(func)))
         return func
-
-
-try:
-    from pydantic import ValidationError as PValidation
-
-    from faststream.exceptions import StartupValidationError
-
-    @asynccontextmanager
-    async def catch_startup_validation_error() -> AsyncIterator[None]:
-        try:
-            yield
-        except PValidation as e:
-            missed_fields = []
-            invalid_fields = []
-            for x in e.errors():
-                location = str(x["loc"][0])
-                if x["type"] == "missing":
-                    missed_fields.append(location)
-                else:
-                    invalid_fields.append(location)
-
-            raise StartupValidationError(
-                missed_fields=missed_fields,
-                invalid_fields=invalid_fields,
-            ) from e
-
-except ImportError:
-    catch_startup_validation_error = fake_context

@@ -22,7 +22,7 @@ def test_base_security_schema():
     schema = AsyncAPI(
         broker,
         schema_version="3.0.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "3.0.0",
@@ -63,7 +63,7 @@ def test_plaintext_security_schema():
     schema = AsyncAPI(
         broker,
         schema_version="3.0.0",
-    ).jsonable()
+    ).to_jsonable()
     assert schema == {
         "asyncapi": "3.0.0",
         "channels": {},
@@ -103,7 +103,7 @@ def test_plaintext_security_schema_without_ssl():
     schema = AsyncAPI(
         broker,
         schema_version="3.0.0",
-    ).jsonable()
+    ).to_jsonable()
     assert schema == {
         "asyncapi": "3.0.0",
         "channels": {},

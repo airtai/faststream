@@ -89,14 +89,16 @@ class FastAPITestCase:
                     app_version=router.version,
                     contact=router.contact,
                     license=router.license,
-                    schema_version="3.0.0"
+                    schema_version="3.0.0",
                 )
 
                 response_json = client.get("/asyncapi_schema.json")
-                assert response_json.json() == schema.jsonable(), schema.jsonable()
+                assert (
+                    response_json.json() == schema.to_jsonable()
+                ), schema.to_jsonable()
 
                 response_yaml = client.get("/asyncapi_schema.yaml")
-                assert response_yaml.text == schema.yaml()
+                assert response_yaml.text == schema.to_yaml()
 
                 response_html = client.get("/asyncapi_schema")
                 assert response_html.status_code == 200

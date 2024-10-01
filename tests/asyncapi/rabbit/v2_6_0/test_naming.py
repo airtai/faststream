@@ -14,7 +14,7 @@ class TestNaming(NamingTestCase):
         @broker.subscriber("test", "exchange")
         async def handle(): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == ["test:exchange:Handle"]
 
@@ -28,7 +28,7 @@ class TestNaming(NamingTestCase):
         @broker.publisher("test", "exchange")
         async def handle(): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == ["test:exchange:Publisher"]
 
@@ -42,7 +42,7 @@ class TestNaming(NamingTestCase):
         @broker.subscriber("test")
         async def handle(): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert (
             schema

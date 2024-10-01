@@ -15,7 +15,6 @@ class Channel:
         bindings : optional channel binding
         subscribe : optional operation for subscribing to the channel
         publish : optional operation for publishing to the channel
-
     """
 
     description: Optional[str] = None

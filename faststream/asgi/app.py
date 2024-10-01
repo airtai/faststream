@@ -19,7 +19,6 @@ import anyio
 from faststream._internal._compat import HAS_TYPER, ExceptionGroup
 from faststream._internal.application import Application
 from faststream._internal.log import logger
-from faststream.asgi.factories import make_asyncapi_asgi
 from faststream.asgi.response import AsgiResponse
 from faststream.asgi.websocket import WebSocketClose
 from faststream.exceptions import StartupValidationError
@@ -82,7 +81,6 @@ class AsgiFastStream(Application):
         broker: Optional["BrokerUsecase[Any, Any]"] = None,
         /,
         asgi_routes: Sequence[Tuple[str, "ASGIApp"]] = (),
-        asyncapi_path: Optional[str] = None,
         # regular broker args
         logger: Optional["LoggerProto"] = logger,
         lifespan: Optional["Lifespan"] = None,
@@ -105,9 +103,6 @@ class AsgiFastStream(Application):
         self.routes = list(asgi_routes)
 
         self._server = OuterRunState()
-
-        if asyncapi_path:
-            self.mount(asyncapi_path, make_asyncapi_asgi(self))
 
     @classmethod
     def from_app(

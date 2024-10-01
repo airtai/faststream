@@ -12,7 +12,7 @@ class TestNaming(NamingTestCase):
         @broker.subscriber("test")
         async def handle(): ...
 
-        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert schema == {
             "asyncapi": "2.6.0",

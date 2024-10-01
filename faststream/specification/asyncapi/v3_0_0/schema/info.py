@@ -9,13 +9,13 @@ from pydantic import AnyHttpUrl
 from faststream._internal.basic_types import (
     AnyDict,
 )
-from faststream.specification.asyncapi.base.schema import BaseInfo
 from faststream.specification.asyncapi.v2_6_0.schema import (
     Contact,
     ExternalDocs,
     License,
     Tag,
 )
+from faststream.specification.base.info import BaseInfo
 
 
 class Info(BaseInfo):
@@ -27,7 +27,6 @@ class Info(BaseInfo):
         license : license information for the information (default: None)
         tags : optional list of tags
         externalDocs : optional external documentation
-
     """
 
     termsOfService: Optional[AnyHttpUrl] = None

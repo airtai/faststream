@@ -13,7 +13,7 @@ def test_base():
             tags=(Tag(name="some-tag", description="experimental"),),
         ),
         schema_version="2.6.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -37,7 +37,7 @@ def test_multi():
     schema = AsyncAPI(
         KafkaBroker(["kafka:9092", "kafka:9093"]),
         schema_version="2.6.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
@@ -67,7 +67,7 @@ def test_custom():
             specification_url=["kafka:9094", "kafka:9095"],
         ),
         schema_version="2.6.0",
-    ).jsonable()
+    ).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",

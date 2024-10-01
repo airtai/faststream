@@ -21,7 +21,7 @@ class TestRouter(RouterTestcase):
 
         broker.include_router(router)
 
-        schema = AsyncAPI(broker, schema_version="3.0.0").jsonable()
+        schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
         assert schema == {
             "info": {"title": "FastStream", "version": "0.1.0", "description": ""},

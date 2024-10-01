@@ -10,8 +10,17 @@ from . import (
     security,
     tag,
 )
+from .contact import Contact
+from .docs import ExternalDocs
+from .license import License
+from .tag import Tag
 
 __all__ = (
+    "ExternalDocs",
+    "License",
+    "Tag",
+    "Contact",
+    # module aliases
     "bindings",
     "channel",
     "contact",

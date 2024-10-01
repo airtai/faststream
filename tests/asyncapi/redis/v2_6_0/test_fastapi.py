@@ -1,4 +1,3 @@
-
 from faststream.redis import TestRedisBroker
 from faststream.redis.fastapi import RedisRouter
 from tests.asyncapi.base.v2_6_0.arguments import FastAPICompatible

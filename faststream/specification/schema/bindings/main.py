@@ -18,7 +18,6 @@ class ChannelBinding:
         sqs : SQS channel binding (optional)
         nats : NATS channel binding (optional)d
         redis : Redis channel binding (optional)
-
     """
 
     amqp: Optional[amqp_bindings.ChannelBinding] = None
@@ -38,7 +37,6 @@ class OperationBinding:
         sqs : SQS operation binding (optional)
         nats : NATS operation binding (optional)
         redis : Redis operation binding (optional)
-
     """
 
     amqp: Optional[amqp_bindings.OperationBinding] = None

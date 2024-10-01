@@ -62,7 +62,7 @@ if TYPE_CHECKING:
     from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
     from faststream._internal.types import BrokerMiddleware
     from faststream.message import StreamMessage
-    from faststream.specification.asyncapi.base.schema import BaseSchema
+    from faststream.specification.base.specification import Specification
     from faststream.specification.schema.tag import Tag, TagDict
 
 
@@ -96,7 +96,7 @@ class StreamRouter(
     docs_router: Optional[APIRouter]
     _after_startup_hooks: List[Callable[[Any], Awaitable[Optional[Mapping[str, Any]]]]]
     _on_shutdown_hooks: List[Callable[[Any], Awaitable[None]]]
-    schema: Optional["BaseSchema"]
+    schema: Optional["Specification"]
 
     title: str
     description: str
@@ -312,8 +312,8 @@ class StreamRouter(
                     app_version=self.version,
                     contact=self.contact,
                     license=self.license,
-                    schema_version="3.0.0"
-                ).schema()
+                    schema_version="3.0.0",
+                )
 
                 app.include_router(self.docs_router)
 
@@ -475,7 +475,6 @@ class StreamRouter(
                     schemas=schemas,
                     errors=errors,
                     expand_message_examples=expandMessageExamples,
-                    title=self.schema.info.title,
                 )
             )
 

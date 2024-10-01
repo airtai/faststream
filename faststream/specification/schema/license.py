@@ -16,7 +16,6 @@ class LicenseDict(TypedDict, total=False):
     Attributes:
         name : required name of the license (type: str)
         url : URL of the license (type: AnyHttpUrl)
-
     """
 
     name: Required[str]
@@ -32,7 +31,6 @@ class License(BaseModel):
 
     Config:
         extra : allow additional attributes in the model (PYDANTIC_V2)
-
     """
 
     name: str

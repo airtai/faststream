@@ -15,7 +15,6 @@ class CorrelationId:
 
     Configurations:
         extra : allows extra fields in the correlation ID model
-
     """
 
     location: str
@@ -37,7 +36,6 @@ class Message:
         payload : dictionary representing the payload of the message
         tags : list of tags associated with the message
         externalDocs : external documentation associated with the message
-
     """
 
     payload: Dict[str, Any]

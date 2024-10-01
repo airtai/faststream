@@ -17,7 +17,7 @@ class TestNaming(NamingTestCase):
         schema = AsyncAPI(
             broker,
             schema_version="3.0.0",
-        ).jsonable()
+        ).to_jsonable()
 
         assert schema == {
             "asyncapi": "3.0.0",
@@ -89,7 +89,7 @@ class TestNaming(NamingTestCase):
         async def handle(): ...
 
         schema = AsyncAPI(broker)
-        assert list(schema.jsonable()["channels"].keys()) == ["test:Handle"]
+        assert list(schema.to_jsonable()["channels"].keys()) == ["test:Handle"]
 
     @pytest.mark.parametrize(
         "args",
@@ -106,4 +106,4 @@ class TestNaming(NamingTestCase):
         async def handle(): ...
 
         schema = AsyncAPI(broker)
-        assert list(schema.jsonable()["channels"].keys()) == ["test:Publisher"]
+        assert list(schema.to_jsonable()["channels"].keys()) == ["test:Publisher"]

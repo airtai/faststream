@@ -17,7 +17,7 @@ class TestNaming(NamingTestCase):
         schema = AsyncAPI(
             broker,
             schema_version="3.0.0",
-        ).jsonable()
+        ).to_jsonable()
 
         assert list(schema["channels"].keys()) == ["test:exchange:Handle"]
 
@@ -34,7 +34,7 @@ class TestNaming(NamingTestCase):
         schema = AsyncAPI(
             broker,
             schema_version="3.0.0",
-        ).jsonable()
+        ).to_jsonable()
 
         assert list(schema["channels"].keys()) == ["test:exchange:Publisher"]
 
@@ -51,7 +51,7 @@ class TestNaming(NamingTestCase):
         schema = AsyncAPI(
             broker,
             schema_version="3.0.0",
-        ).jsonable()
+        ).to_jsonable()
 
         assert schema == {
             "asyncapi": "3.0.0",

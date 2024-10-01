@@ -94,12 +94,11 @@ class ContactDict(TypedDict, total=False):
         name : required name of the contact (type: str)
         url : URL of the contact (type: AnyHttpUrl)
         email : email address of the contact (type: EmailStr)
-
     """
 
     name: Required[str]
     url: AnyHttpUrl
-    # email: EmailStr
+    email: EmailStr
 
 
 class Contact(BaseModel):
@@ -109,7 +108,6 @@ class Contact(BaseModel):
         name : name of the contact (str)
         url : URL of the contact (Optional[AnyHttpUrl])
         email : email of the contact (Optional[EmailStr])
-
     """
 
     name: str

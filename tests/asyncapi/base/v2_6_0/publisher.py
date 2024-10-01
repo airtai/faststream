@@ -19,7 +19,7 @@ class PublisherTestcase:
         @broker.publisher("test", description="test description")
         async def handle(msg): ...
 
-        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
         assert schema["channels"][key]["description"] == "test description"
@@ -30,7 +30,7 @@ class PublisherTestcase:
         @broker.publisher("test")
         async def handle(msg): ...
 
-        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
         assert schema["channels"][key].get("description") is None
@@ -46,7 +46,7 @@ class PublisherTestcase:
         @broker.publisher("test")
         async def handle(msg): ...
 
-        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
         for v in payload.values():
@@ -58,7 +58,7 @@ class PublisherTestcase:
         @broker.publisher("test")
         async def handle(msg) -> int: ...
 
-        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
         for v in payload.values():
@@ -74,7 +74,7 @@ class PublisherTestcase:
         @broker.publisher("test")
         async def handle(msg) -> User: ...
 
-        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
 
@@ -97,7 +97,7 @@ class PublisherTestcase:
         @pub
         async def handle(msg) -> int: ...
 
-        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
         for v in payload.values():
@@ -108,7 +108,7 @@ class PublisherTestcase:
 
         broker.publisher("test", title="Custom", schema=int)
 
-        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
         for v in payload.values():
@@ -124,4 +124,4 @@ class PublisherTestcase:
 
         schema = AsyncAPI(self.build_app(broker))
 
-        assert schema.jsonable()["channels"] == {}, schema.jsonable()["channels"]
+        assert schema.to_jsonable()["channels"] == {}, schema.to_jsonable()["channels"]

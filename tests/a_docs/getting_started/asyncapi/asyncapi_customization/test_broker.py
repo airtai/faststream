@@ -4,7 +4,7 @@ from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_broker
 
 
 def test_broker_customization():
-    schema = docs_obj.jsonable()
+    schema = docs_obj.to_jsonable()
 
     assert schema["servers"] == {
         "development": {

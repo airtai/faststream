@@ -11,10 +11,10 @@ from pydantic import ValidationError
 from faststream._internal._compat import json_dumps, model_parse
 from faststream._internal.cli.utils.imports import import_from_string
 from faststream.exceptions import INSTALL_WATCHFILES, INSTALL_YAML, SCHEMA_NOT_SUPPORTED
-from faststream.specification.asyncapi import AsyncAPIProto
 from faststream.specification.asyncapi.site import serve_app
 from faststream.specification.asyncapi.v2_6_0.schema import Schema as SchemaV2_6
 from faststream.specification.asyncapi.v3_0_0.schema import Schema as SchemaV3
+from faststream.specification.base.specification import Specification
 
 asyncapi_app = typer.Typer(pretty_exceptions_short=True)
 
@@ -23,7 +23,7 @@ asyncapi_app = typer.Typer(pretty_exceptions_short=True)
 def serve(
     docs: str = typer.Argument(
         ...,
-        help="[python_module:AsyncAPIProto] or [asyncapi.yaml/.json] - path to your application or documentation.",
+        help="[python_module:Specification] or [asyncapi.yaml/.json] - path to your application or documentation.",
     ),
     host: str = typer.Option(
         "localhost",
@@ -93,7 +93,7 @@ def serve(
 def gen(
     asyncapi: str = typer.Argument(
         ...,
-        help="[python_module:AsyncAPIProto] - path to your AsyncAPI object.",
+        help="[python_module:Specification] - path to your AsyncAPI object.",
     ),
     yaml: bool = typer.Option(
         False,
@@ -134,9 +134,9 @@ def gen(
     if callable(asyncapi_obj) and is_factory:
         asyncapi_obj = asyncapi_obj()
 
-    assert isinstance(asyncapi_obj, AsyncAPIProto)
+    assert isinstance(asyncapi_obj, Specification)
 
-    raw_schema = asyncapi_obj.schema()
+    raw_schema = asyncapi_obj.schema
 
     if yaml:
         try:
@@ -171,9 +171,9 @@ def _parse_and_serve(
         if callable(docs_obj) and is_factory:
             docs_obj = docs_obj()
 
-        assert isinstance(docs_obj, AsyncAPIProto)
+        assert isinstance(docs_obj, Specification)
 
-        raw_schema = docs_obj.schema()
+        raw_schema = docs_obj
 
     else:
         schema_filepath = Path.cwd() / docs
@@ -195,7 +195,7 @@ def _parse_and_serve(
 
         else:
             raise ValueError(
-                f"Unknown extension given - {docs}; Please provide app in format [python_module:AsyncAPIProto] or [asyncapi.yaml/.json] - path to your application or documentation"
+                f"Unknown extension given - {docs}; Please provide app in format [python_module:Specification] or [asyncapi.yaml/.json] - path to your application or documentation"
             )
 
         for schema in (SchemaV3, SchemaV2_6):

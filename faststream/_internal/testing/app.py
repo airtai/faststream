@@ -1,18 +1,14 @@
 from contextlib import ExitStack
 from functools import partial
-from typing import TYPE_CHECKING, Any, Dict, Optional, Type, TypeVar
+from typing import TYPE_CHECKING, Dict, Optional, Type
 
 from anyio.from_thread import start_blocking_portal
-
-from faststream._internal.broker.broker import BrokerUsecase
 
 if TYPE_CHECKING:
     from types import TracebackType
 
+    from faststream._internal.application import Application
     from faststream._internal.basic_types import SettingField
-    from faststream.app import FastStream
-
-Broker = TypeVar("Broker", bound=BrokerUsecase[Any, Any])
 
 
 class TestApp:
@@ -20,18 +16,18 @@ class TestApp:
 
     __test__ = False
 
-    app: "FastStream"
+    app: "Application"
     _extra_options: Dict[str, "SettingField"]
 
     def __init__(
         self,
-        app: "FastStream",
+        app: "Application",
         run_extra_options: Optional[Dict[str, "SettingField"]] = None,
     ) -> None:
         self.app = app
         self._extra_options = run_extra_options or {}
 
-    def __enter__(self) -> "FastStream":
+    def __enter__(self) -> "Application":
         with ExitStack() as stack:
             portal = stack.enter_context(start_blocking_portal())
 
@@ -55,7 +51,7 @@ class TestApp:
     ) -> None:
         self.exit_stack.close()
 
-    async def __aenter__(self) -> "FastStream":
+    async def __aenter__(self) -> "Application":
         self.lifespan_scope = self.app.lifespan_context(**self._extra_options)
         await self.lifespan_scope.__aenter__()
         await self.app.start(**self._extra_options)

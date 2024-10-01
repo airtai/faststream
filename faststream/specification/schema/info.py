@@ -21,7 +21,6 @@ class Info(BaseModel):
         termsOfService : terms of service for the information (default: None)
         contact : contact information for the information (default: None)
         license : license information for the information (default: None)
-
     """
 
     termsOfService: Optional[AnyHttpUrl] = None
