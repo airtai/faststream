@@ -234,8 +234,11 @@ def publish(
 
     try:
         _, app_obj = import_from_string(app)
+
         if callable(app_obj) and is_factory:
             app_obj = app_obj()
+
+        assert isinstance(app_obj, FastStream), app_obj
 
         if not app_obj.broker:
             raise ValueError("Broker instance not found in the app.")

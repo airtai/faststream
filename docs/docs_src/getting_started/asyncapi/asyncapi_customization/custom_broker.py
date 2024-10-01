@@ -1,5 +1,6 @@
 from faststream import FastStream
 from faststream.kafka import KafkaBroker
+from faststream.specification.asyncapi import AsyncAPI
 
 broker = KafkaBroker(
     "localhost:9092",
@@ -7,6 +8,10 @@ broker = KafkaBroker(
     specification_url="non-sensitive-url:9092",
 )
 app = FastStream(broker)
+docs_obj = AsyncAPI(
+    broker,
+    schema_version="2.6.0",
+)
 
 
 @broker.publisher("output_data")

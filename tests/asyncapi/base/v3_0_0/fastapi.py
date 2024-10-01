@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.fastapi.router import StreamRouter
 from faststream._internal.types import MsgType
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 
 
 class FastAPITestCase:
@@ -68,27 +68,35 @@ class FastAPITestCase:
                     "channels": {},
                     "operations": {},
                     "components": {"messages": {}, "schemas": {}},
-                }
+                }, response_json.json()
 
     @pytest.mark.asyncio
     async def test_fastapi_asyncapi_routes(self):
-        broker = self.router_factory(schema_url="/asyncapi_schema")
+        router = self.router_factory(schema_url="/asyncapi_schema")
 
-        @broker.subscriber("test")
+        @router.subscriber("test")
         async def handler(): ...
 
-        app = FastAPI(lifespan=broker.lifespan_context)
-        app.include_router(broker)
+        app = FastAPI(lifespan=router.lifespan_context)
+        app.include_router(router)
 
-        async with self.broker_wrapper(broker.broker):
+        async with self.broker_wrapper(router.broker):
             with TestClient(app) as client:
-                schema = get_app_schema(broker, version="3.0.0")
+                schema = AsyncAPI(
+                    router.broker,
+                    title=router.title,
+                    description=router.description,
+                    app_version=router.version,
+                    contact=router.contact,
+                    license=router.license,
+                    schema_version="3.0.0"
+                )
 
                 response_json = client.get("/asyncapi_schema.json")
-                assert response_json.json() == schema.to_jsonable()
+                assert response_json.json() == schema.jsonable(), schema.jsonable()
 
                 response_yaml = client.get("/asyncapi_schema.yaml")
-                assert response_yaml.text == schema.to_yaml()
+                assert response_yaml.text == schema.yaml()
 
                 response_html = client.get("/asyncapi_schema")
                 assert response_html.status_code == 200

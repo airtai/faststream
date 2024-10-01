@@ -7,7 +7,6 @@ from typing import (
     Sequence,
     Tuple,
     TypeVar,
-    Union,
 )
 
 import anyio
@@ -15,7 +14,7 @@ from typing_extensions import ParamSpec
 
 from faststream._internal._compat import ExceptionGroup
 from faststream._internal.application import Application
-from faststream._internal.basic_types import AnyDict, AnyHttpUrl, Lifespan, LoggerProto
+from faststream._internal.basic_types import Lifespan, LoggerProto
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.cli.supervisors.utils import set_exit
 from faststream._internal.log import logger
@@ -28,18 +27,12 @@ T_HookReturn = TypeVar("T_HookReturn")
 if TYPE_CHECKING:
     from faststream._internal.basic_types import (
         AnyCallable,
-        AnyDict,
-        AnyHttpUrl,
         Lifespan,
         LoggerProto,
         SettingField,
     )
     from faststream._internal.broker.broker import BrokerUsecase
     from faststream.asgi.types import ASGIApp
-    from faststream.specification.schema.contact import Contact, ContactDict
-    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-    from faststream.specification.schema.license import License, LicenseDict
-    from faststream.specification.schema.tag import Tag
 
 
 class FastStream(Application):
@@ -52,19 +45,6 @@ class FastStream(Application):
         # regular broker args
         logger: Optional["LoggerProto"] = logger,
         lifespan: Optional["Lifespan"] = None,
-        # AsyncAPI args,
-        title: str = "FastStream",
-        version: str = "0.1.0",
-        description: str = "",
-        terms_of_service: Optional["AnyHttpUrl"] = None,
-        license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
-        contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
-        tags: Optional[Sequence[Union["Tag", "AnyDict"]]] = None,
-        external_docs: Optional[
-            Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
-        ] = None,
-        identifier: Optional[str] = None,
-        # hooks
         on_startup: Sequence["AnyCallable"] = (),
         after_startup: Sequence["AnyCallable"] = (),
         on_shutdown: Sequence["AnyCallable"] = (),
@@ -74,15 +54,6 @@ class FastStream(Application):
             broker=broker,
             logger=logger,
             lifespan=lifespan,
-            title=title,
-            version=version,
-            description=description,
-            terms_of_service=terms_of_service,
-            license=license,
-            contact=contact,
-            tags=tags,
-            external_docs=external_docs,
-            identifier=identifier,
             on_startup=on_startup,
             after_startup=after_startup,
             on_shutdown=on_shutdown,

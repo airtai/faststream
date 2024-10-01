@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.specification.proto.Application
+::: faststream.specification.asyncapi.v3_0_0.schema.bindings.amqp.channel_binding_from_spec

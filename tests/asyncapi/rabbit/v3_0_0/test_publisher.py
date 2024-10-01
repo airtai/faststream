@@ -1,5 +1,5 @@
 from faststream.rabbit import ExchangeType, RabbitBroker, RabbitExchange, RabbitQueue
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 
 
@@ -12,14 +12,14 @@ class TestArguments(PublisherTestcase):
         @broker.publisher(exchange="test-ex")
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="3.0.0").jsonable()
 
         assert schema["channels"] == {
             "_:test-ex:Publisher": {
                 "address": "_:test-ex:Publisher",
                 "bindings": {
                     "amqp": {
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "exchange": {
                             "autoDelete": False,
                             "durable": False,
@@ -49,7 +49,7 @@ class TestArguments(PublisherTestcase):
                 "bindings": {
                     "amqp": {
                         "ack": True,
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "deliveryMode": 1,
                         "mandatory": True,
                     }
@@ -74,12 +74,12 @@ class TestArguments(PublisherTestcase):
         )
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="3.0.0").jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "amqp": {
-                "bindingVersion": "0.2.0",
+                "bindingVersion": "0.3.0",
                 "exchange": {
                     "autoDelete": False,
                     "durable": False,
@@ -107,14 +107,14 @@ class TestArguments(PublisherTestcase):
         )
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="3.0.0").jsonable()
 
         assert schema["channels"] == {
             "_:test-ex:Publisher": {
                 "address": "_:test-ex:Publisher",
                 "bindings": {
                     "amqp": {
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "exchange": {
                             "autoDelete": False,
                             "durable": False,
@@ -157,14 +157,14 @@ class TestArguments(PublisherTestcase):
         @broker.publisher(exchange="test-ex", routing_key="key2", priority=10)
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="3.0.0").jsonable()
 
         assert schema["channels"] == {
             "key1:test-ex:Publisher": {
                 "address": "key1:test-ex:Publisher",
                 "bindings": {
                     "amqp": {
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "exchange": {
                             "autoDelete": False,
                             "durable": False,
@@ -190,7 +190,7 @@ class TestArguments(PublisherTestcase):
                 "address": "key2:test-ex:Publisher",
                 "bindings": {
                     "amqp": {
-                        "bindingVersion": "0.2.0",
+                        "bindingVersion": "0.3.0",
                         "exchange": {
                             "autoDelete": False,
                             "durable": False,
@@ -223,8 +223,10 @@ class TestArguments(PublisherTestcase):
                 "bindings": {
                     "amqp": {
                         "ack": True,
-                        "bindingVersion": "0.2.0",
-                        "cc": "key1",
+                        "bindingVersion": "0.3.0",
+                        "cc": [
+                            "key1",
+                        ],
                         "deliveryMode": 1,
                         "mandatory": True,
                     }
@@ -241,8 +243,10 @@ class TestArguments(PublisherTestcase):
                 "bindings": {
                     "amqp": {
                         "ack": True,
-                        "bindingVersion": "0.2.0",
-                        "cc": "key2",
+                        "bindingVersion": "0.3.0",
+                        "cc": [
+                            "key2",
+                        ],
                         "deliveryMode": 1,
                         "priority": 10,
                         "mandatory": True,

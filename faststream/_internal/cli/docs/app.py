@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from faststream._internal._compat import json_dumps, model_parse
 from faststream._internal.cli.utils.imports import import_from_string
 from faststream.exceptions import INSTALL_WATCHFILES, INSTALL_YAML, SCHEMA_NOT_SUPPORTED
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPIProto
 from faststream.specification.asyncapi.site import serve_app
 from faststream.specification.asyncapi.v2_6_0.schema import Schema as SchemaV2_6
 from faststream.specification.asyncapi.v3_0_0.schema import Schema as SchemaV3
@@ -21,9 +21,9 @@ asyncapi_app = typer.Typer(pretty_exceptions_short=True)
 
 @asyncapi_app.command(name="serve")
 def serve(
-    app: str = typer.Argument(
+    docs: str = typer.Argument(
         ...,
-        help="[python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation.",
+        help="[python_module:AsyncAPIProto] or [asyncapi.yaml/.json] - path to your application or documentation.",
     ),
     host: str = typer.Option(
         "localhost",
@@ -55,18 +55,18 @@ def serve(
     ),
 ) -> None:
     """Serve project AsyncAPI schema."""
-    if ":" in app:
+    if ":" in docs:
         if app_dir:  # pragma: no branch
             sys.path.insert(0, app_dir)
 
-        module, _ = import_from_string(app)
+        module, _ = import_from_string(docs)
 
         module_parent = module.parent
         extra_extensions: Sequence[str] = ()
 
     else:
         module_parent = Path.cwd()
-        schema_filepath = module_parent / app
+        schema_filepath = module_parent / docs
         extra_extensions = (schema_filepath.suffix,)
 
     if reload:
@@ -75,25 +75,25 @@ def serve(
 
         except ImportError:
             warnings.warn(INSTALL_WATCHFILES, category=ImportWarning, stacklevel=1)
-            _parse_and_serve(app, host, port, is_factory)
+            _parse_and_serve(docs, host, port, is_factory)
 
         else:
             WatchReloader(
                 target=_parse_and_serve,
-                args=(app, host, port, is_factory),
+                args=(docs, host, port, is_factory),
                 reload_dirs=(str(module_parent),),
                 extra_extensions=extra_extensions,
             ).run()
 
     else:
-        _parse_and_serve(app, host, port, is_factory)
+        _parse_and_serve(docs, host, port, is_factory)
 
 
 @asyncapi_app.command(name="gen")
 def gen(
-    app: str = typer.Argument(
+    asyncapi: str = typer.Argument(
         ...,
-        help="[python_module:FastStream] - path to your application.",
+        help="[python_module:AsyncAPIProto] - path to your AsyncAPI object.",
     ),
     yaml: bool = typer.Option(
         False,
@@ -129,10 +129,14 @@ def gen(
     if app_dir:  # pragma: no branch
         sys.path.insert(0, app_dir)
 
-    _, app_obj = import_from_string(app)
-    if callable(app_obj) and is_factory:
-        app_obj = app_obj()
-    raw_schema = get_app_schema(app_obj, asyncapi_version)
+    _, asyncapi_obj = import_from_string(asyncapi)
+
+    if callable(asyncapi_obj) and is_factory:
+        asyncapi_obj = asyncapi_obj()
+
+    assert isinstance(asyncapi_obj, AsyncAPIProto)
+
+    raw_schema = asyncapi_obj.schema()
 
     if yaml:
         try:
@@ -157,19 +161,22 @@ def gen(
 
 
 def _parse_and_serve(
-    app: str,
+    docs: str,
     host: str = "localhost",
     port: int = 8000,
     is_factory: bool = False,
 ) -> None:
-    if ":" in app:
-        _, app_obj = import_from_string(app)
-        if callable(app_obj) and is_factory:
-            app_obj = app_obj()
-        raw_schema = get_app_schema(app_obj, "2.6.0")
+    if ":" in docs:
+        _, docs_obj = import_from_string(docs)
+        if callable(docs_obj) and is_factory:
+            docs_obj = docs_obj()
+
+        assert isinstance(docs_obj, AsyncAPIProto)
+
+        raw_schema = docs_obj.schema()
 
     else:
-        schema_filepath = Path.cwd() / app
+        schema_filepath = Path.cwd() / docs
 
         if schema_filepath.suffix == ".json":
             data = schema_filepath.read_bytes()
@@ -188,7 +195,7 @@ def _parse_and_serve(
 
         else:
             raise ValueError(
-                f"Unknown extension given - {app}; Please provide app in format [python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation"
+                f"Unknown extension given - {docs}; Please provide app in format [python_module:AsyncAPIProto] or [asyncapi.yaml/.json] - path to your application or documentation"
             )
 
         for schema in (SchemaV3, SchemaV2_6):
@@ -196,7 +203,7 @@ def _parse_and_serve(
                 raw_schema = model_parse(schema, data)
                 break
         else:
-            typer.echo(SCHEMA_NOT_SUPPORTED.format(schema_filename=app), err=True)
+            typer.echo(SCHEMA_NOT_SUPPORTED.format(schema_filename=docs), err=True)
             raise typer.Exit(1)
 
     serve_app(raw_schema, host, port)

@@ -1,6 +1,5 @@
-from faststream import FastStream
 from faststream.kafka import KafkaBroker, KafkaPublisher, KafkaRoute, KafkaRouter
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 from tests.asyncapi.base.v2_6_0.arguments import ArgumentsTestcase
 from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
 from tests.asyncapi.base.v2_6_0.router import RouterTestcase
@@ -22,7 +21,7 @@ class TestRouter(RouterTestcase):
 
         broker.include_router(router)
 
-        schema = get_app_schema(FastStream(broker), version="2.6.0").to_jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").jsonable()
 
         assert schema == {
             "asyncapi": "2.6.0",
@@ -73,7 +72,7 @@ class TestRouterArguments(ArgumentsTestcase):
     def build_app(self, router):
         broker = KafkaBroker()
         broker.include_router(router)
-        return FastStream(broker)
+        return broker
 
 
 class TestRouterPublisher(PublisherTestcase):
@@ -82,4 +81,4 @@ class TestRouterPublisher(PublisherTestcase):
     def build_app(self, router):
         broker = KafkaBroker()
         broker.include_router(router)
-        return FastStream(broker)
+        return broker

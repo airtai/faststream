@@ -61,4 +61,4 @@ def context():
 
 @pytest.fixture
 def kafka_basic_project():
-    return "docs.docs_src.kafka.basic.basic:app"
+    return "docs.docs_src.kafka.basic.basic:asyncapi"

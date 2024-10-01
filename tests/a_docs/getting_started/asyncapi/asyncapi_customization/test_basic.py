@@ -1,9 +1,9 @@
 from docs.docs_src.getting_started.asyncapi.asyncapi_customization.basic import app
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 
 
 def test_basic_customization():
-    schema = get_app_schema(app, version="2.6.0").to_jsonable()
+    schema = AsyncAPI(app.broker, schema_version="2.6.0").jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",

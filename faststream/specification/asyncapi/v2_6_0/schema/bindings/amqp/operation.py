@@ -38,7 +38,6 @@ class OperationBinding(BaseModel):
             deliveryMode=binding.deliveryMode,
             mandatory=binding.mandatory,
             priority=binding.priority,
-            bindingVersion=binding.bindingVersion,
         )
 
 

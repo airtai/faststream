@@ -1,5 +1,5 @@
 from faststream.rabbit import ExchangeType, RabbitBroker, RabbitExchange, RabbitQueue
-from faststream.specification.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 from tests.asyncapi.base.v3_0_0.arguments import ArgumentsTestcase
 
 
@@ -15,12 +15,12 @@ class TestArguments(ArgumentsTestcase):
         )
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="3.0.0").jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "amqp": {
-                "bindingVersion": "0.2.0",
+                "bindingVersion": "0.3.0",
                 "exchange": {
                     "autoDelete": False,
                     "durable": False,
@@ -48,12 +48,12 @@ class TestArguments(ArgumentsTestcase):
         )
         async def handle(msg): ...
 
-        schema = get_app_schema(self.build_app(broker), version="3.0.0").to_jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="3.0.0").jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "amqp": {
-                "bindingVersion": "0.2.0",
+                "bindingVersion": "0.3.0",
                 "exchange": {
                     "autoDelete": False,
                     "durable": False,
