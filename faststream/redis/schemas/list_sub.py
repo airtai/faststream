@@ -1,14 +1,14 @@
 from functools import cached_property
 from typing import Optional
 
-from faststream._internal.proto import NameRequired
+from faststream._internal.proto import NameProxy
 
 
-class ListSub(NameRequired):
+class ListSub(NameProxy):
     """A class to represent a Redis List subscriber."""
 
     __slots__ = (
-        "name",
+        "list_name",
         "batch",
         "max_records",
         "polling_interval",
@@ -16,7 +16,7 @@ class ListSub(NameRequired):
 
     def __init__(
         self,
-        list_name: str,
+        list_name: Optional[str] = None,
         batch: bool = False,
         max_records: int = 10,
         polling_interval: float = 0.1,

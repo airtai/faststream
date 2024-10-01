@@ -1,15 +1,15 @@
 import warnings
 from typing import Optional
 
-from faststream._internal.proto import NameRequired
+from faststream._internal.proto import NameProxy
 from faststream.exceptions import SetupError
 
 
-class StreamSub(NameRequired):
+class StreamSub(NameProxy):
     """A class to represent a Redis Stream subscriber."""
 
     __slots__ = (
-        "name",
+        "stream",
         "polling_interval",
         "last_id",
         "group",
@@ -22,7 +22,7 @@ class StreamSub(NameRequired):
 
     def __init__(
         self,
-        stream: str,
+        stream: Optional[str] = None,
         polling_interval: Optional[int] = 100,
         group: Optional[str] = None,
         consumer: Optional[str] = None,

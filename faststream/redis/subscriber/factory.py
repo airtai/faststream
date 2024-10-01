@@ -46,7 +46,7 @@ def create_subscriber(
 ) -> SubsciberType:
     validate_options(channel=channel, list=list, stream=stream)
 
-    if (channel_sub := PubSub.validate(channel)) is not None:
+    if (channel_sub := PubSub.validate(channel))._value  is not None:
         return AsyncAPIChannelSubscriber(
             channel=channel_sub,
             # basic args
@@ -61,7 +61,7 @@ def create_subscriber(
             include_in_schema=include_in_schema,
         )
 
-    elif (stream_sub := StreamSub.validate(stream)) is not None:
+    elif (stream_sub := StreamSub.validate(stream))._value is not None:
         if stream_sub.batch:
             return AsyncAPIStreamBatchSubscriber(
                 stream=stream_sub,
@@ -91,7 +91,7 @@ def create_subscriber(
                 include_in_schema=include_in_schema,
             )
 
-    elif (list_sub := ListSub.validate(list)) is not None:
+    elif (list_sub := ListSub.validate(list))._value is not None:
         if list_sub.batch:
             return AsyncAPIListBatchSubscriber(
                 list=list_sub,

@@ -1,12 +1,14 @@
-from faststream._internal.proto import NameRequired
+from typing import Optional
+
+from faststream._internal.proto import NameProxy
 from faststream._internal.utils.path import compile_path
 
 
-class PubSub(NameRequired):
+class PubSub(NameProxy):
     """A class to represent a Redis PubSub channel."""
 
     __slots__ = (
-        "name",
+        "channel",
         "polling_interval",
         "pattern",
         "path_regex",
@@ -14,10 +16,12 @@ class PubSub(NameRequired):
 
     def __init__(
         self,
-        channel: str,
+        channel: Optional[str] = None,
         pattern: bool = False,
         polling_interval: float = 1.0,
     ) -> None:
+        if channel is None:
+            channel = ""
         reg, path = compile_path(
             channel,
             replace_symbol="*",

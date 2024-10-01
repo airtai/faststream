@@ -1,5 +1,14 @@
 from abc import abstractmethod
-from typing import Any, Optional, Protocol, Type, TypeVar, Union, overload
+from typing import (
+    Any,
+    Optional,
+    Protocol,
+    Type,
+    TypeVar,
+    Union,
+    overload,
+    runtime_checkable,
+)
 
 from .setup import SetupAble
 
@@ -54,3 +63,64 @@ class NameRequired:
         if value is not None and isinstance(value, str):
             value = cls(value, **kwargs)
         return value
+
+
+@runtime_checkable
+class NamedEntity(Protocol):
+    def __init__(self, name: Optional[str]) -> None:
+        raise NotImplementedError
+
+    @property
+    def name(self) -> str:
+        raise NotImplementedError
+
+
+class SimpleName(NamedEntity):
+    def __init__(self, name: Optional[str]) -> None:
+        self.__name = name or ""
+
+    @property
+    def name(self) -> str:
+        return self.__name
+
+
+class NameProxy(NamedEntity):
+    _prefix: "NamedEntity"
+    _value: Union[str, "NamedEntity", None]
+
+    def __init__(
+        self,
+        name: Optional[str] = None,
+    ) -> None:
+        self._prefix = SimpleName("")
+        self._value = SimpleName(name) if name else None
+
+    def add_prefix(self, prefix: str) -> "NamedEntity":
+        obj = type(self)(None)
+        obj._value = self
+        obj._prefix = SimpleName(prefix)
+        return obj
+
+    @property
+    def name(self) -> str:
+        if self._value is None:
+            raise ValueError
+
+        if isinstance(self._value, NamedEntity):
+            return f"{self._prefix.name}{self._value.name}"
+
+        else:
+            return f"{self._prefix.name}{self._value}"
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._value = value
+
+    @classmethod
+    def validate(
+        cls,
+        name: Union[str, None, "NamedEntity"] = None,
+    ) -> "NamedEntity":
+        if name and isinstance(name, NamedEntity):
+            return name
+        return cls(name)
