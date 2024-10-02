@@ -86,7 +86,8 @@ app = AsgiFastStream(
 Or you can write the **ASGI** endpoint yourself:
 
 ```python
-async def liveness_ping(scope, receive, send):
+@get
+async def liveness_ping(scope):
     return AsgiResponse(b"", status_code=200)
 ```
 
@@ -125,7 +126,8 @@ from faststream.asgi import make_ping_asgi, AsgiResponse
 
 broker = NatsBroker()
 
-async def liveness_ping(scope, receive, send):
+@get
+async def liveness_ping(scope):
     return AsgiResponse(b"", status_code=200)
 
 app = FastStream(broker).as_asgi(
