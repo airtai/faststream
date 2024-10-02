@@ -111,7 +111,7 @@ Now, your **AsyncAPI HTML** representation can be found by the `/docs` url.
 
 You may also use regular `FastStream` application object for similar result.
 
-```python linenums="1" hl_lines="2 10"
+```python linenums="1" hl_lines="2 11"
 from faststream import FastStream
 from faststream.nats import NatsBroker
 from faststream.asgi import make_ping_asgi, AsgiResponse
