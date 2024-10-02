@@ -117,7 +117,7 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
 
         @test_broker.subscriber(*args, **kwargs)
         async def m(msg):  # pragma: no cover
-            raise ValueError()
+            raise ValueError
 
         async with self.patch_broker(test_broker) as br:
             await br.start()
@@ -153,7 +153,8 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
             assert br._producer is not None
 
     async def test_broker_with_real_patches_publishers_and_subscribers(
-        self, queue: str
+        self,
+        queue: str,
     ):
         test_broker = self.get_broker()
 

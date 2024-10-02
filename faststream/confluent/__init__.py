@@ -9,11 +9,11 @@ from faststream.confluent.testing import TestKafkaBroker
 __all__ = (
     "KafkaBroker",
     "KafkaMessage",
-    "KafkaRouter",
-    "KafkaRoute",
     "KafkaPublisher",
     "KafkaResponse",
-    "TopicPartition",
-    "TestKafkaBroker",
+    "KafkaRoute",
+    "KafkaRouter",
     "TestApp",
+    "TestKafkaBroker",
+    "TopicPartition",
 )

@@ -19,7 +19,7 @@ async def test_global_broker_kafka():
             {
                 "name": "John",
                 "user_id": 1,
-            }
+            },
         )
 
         with pytest.raises(ValueError):  # noqa: PT011

@@ -40,7 +40,9 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
 
         async with self.patch_broker(broker) as br:
             with patch.object(
-                FAKE_CONSUMER, "seek", spy_decorator(FAKE_CONSUMER.seek)
+                FAKE_CONSUMER,
+                "seek",
+                spy_decorator(FAKE_CONSUMER.seek),
             ) as mocked:
                 await br.publish("hello", queue)
                 m.mock.assert_called_once_with("hello")
@@ -254,6 +256,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
 
     @pytest.mark.confluent
     async def test_broker_with_real_patches_publishers_and_subscribers(
-        self, queue: str
+        self,
+        queue: str,
     ):
         await super().test_broker_with_real_patches_publishers_and_subscribers(queue)

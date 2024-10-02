@@ -17,5 +17,5 @@ def from_spec(binding: spec.bindings.amqp.ChannelBinding) -> ChannelBinding:
             "exchange": Exchange.from_spec(binding.exchange)
             if binding.exchange is not None
             else None,
-        }
+        },
     )

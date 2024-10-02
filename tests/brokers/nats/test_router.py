@@ -138,7 +138,8 @@ class TestRouter(RouterTestcase):
             event.set()
 
         r = type(router)(
-            prefix="test.", handlers=(self.route_class(response, subject=queue),)
+            prefix="test.",
+            handlers=(self.route_class(response, subject=queue),),
         )
 
         pub_broker.include_router(r)

@@ -1,14 +1,12 @@
 import logging
 import warnings
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Dict,
-    Iterable,
-    List,
     Optional,
-    Type,
     Union,
 )
 
@@ -29,7 +27,7 @@ from nats.aio.client import (
 from nats.aio.msg import Msg
 from nats.errors import Error
 from nats.js.errors import BadRequestError
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
@@ -97,7 +95,8 @@ if TYPE_CHECKING:
             Doc("Callback to report when a new server joins the cluster."),
         ]
         reconnected_cb: Annotated[
-            Optional["Callback"], Doc("Callback to report success reconnection.")
+            Optional["Callback"],
+            Doc("Callback to report success reconnection."),
         ]
         name: Annotated[
             Optional[str],
@@ -107,7 +106,7 @@ if TYPE_CHECKING:
             bool,
             Doc(
                 "Turn on NATS server pedantic mode that performs extra checks on the protocol. "
-                "https://docs.nats.io/using-nats/developer/connecting/misc#turn-on-pedantic-mode"
+                "https://docs.nats.io/using-nats/developer/connecting/misc#turn-on-pedantic-mode",
             ),
         ]
         verbose: Annotated[
@@ -141,11 +140,12 @@ if TYPE_CHECKING:
         dont_randomize: Annotated[
             bool,
             Doc(
-                "Boolean indicating should client randomly shuffle servers list for reconnection randomness."
+                "Boolean indicating should client randomly shuffle servers list for reconnection randomness.",
             ),
         ]
         flusher_queue_size: Annotated[
-            int, Doc("Max count of commands awaiting to be flushed to the socket")
+            int,
+            Doc("Max count of commands awaiting to be flushed to the socket"),
         ]
         no_echo: Annotated[
             bool,
@@ -180,14 +180,14 @@ if TYPE_CHECKING:
             Doc(
                 "A callback used to sign a nonce from the server while "
                 "authenticating with nkeys. The user should sign the nonce and "
-                "return the base64 encoded signature."
+                "return the base64 encoded signature.",
             ),
         ]
         user_jwt_cb: Annotated[
             Optional["JWTCallback"],
             Doc(
                 "A callback used to fetch and return the account "
-                "signed JWT for this user."
+                "signed JWT for this user.",
             ),
         ]
         user_credentials: Annotated[
@@ -201,7 +201,7 @@ if TYPE_CHECKING:
         inbox_prefix: Annotated[
             Union[str, bytes],
             Doc(
-                "Prefix for generating unique inboxes, subjects with that prefix and NUID.ß"
+                "Prefix for generating unique inboxes, subjects with that prefix and NUID.ß",
             ),
         ]
         pending_size: Annotated[
@@ -220,7 +220,7 @@ class NatsBroker(
 ):
     """A class to represent a NATS broker."""
 
-    url: List[str]
+    url: list[str]
     stream: Optional["JetStreamContext"]
 
     _producer: Optional["NatsFastProducer"]
@@ -252,7 +252,8 @@ class NatsBroker(
             Doc("Callback to report when a new server joins the cluster."),
         ] = None,
         reconnected_cb: Annotated[
-            Optional["Callback"], Doc("Callback to report success reconnection.")
+            Optional["Callback"],
+            Doc("Callback to report success reconnection."),
         ] = None,
         name: Annotated[
             Optional[str],
@@ -262,7 +263,7 @@ class NatsBroker(
             bool,
             Doc(
                 "Turn on NATS server pedantic mode that performs extra checks on the protocol. "
-                "https://docs.nats.io/using-nats/developer/connecting/misc#turn-on-pedantic-mode"
+                "https://docs.nats.io/using-nats/developer/connecting/misc#turn-on-pedantic-mode",
             ),
         ] = False,
         verbose: Annotated[
@@ -296,11 +297,12 @@ class NatsBroker(
         dont_randomize: Annotated[
             bool,
             Doc(
-                "Boolean indicating should client randomly shuffle servers list for reconnection randomness."
+                "Boolean indicating should client randomly shuffle servers list for reconnection randomness.",
             ),
         ] = False,
         flusher_queue_size: Annotated[
-            int, Doc("Max count of commands awaiting to be flushed to the socket")
+            int,
+            Doc("Max count of commands awaiting to be flushed to the socket"),
         ] = DEFAULT_MAX_FLUSHER_QUEUE_SIZE,
         no_echo: Annotated[
             bool,
@@ -335,14 +337,14 @@ class NatsBroker(
             Doc(
                 "A callback used to sign a nonce from the server while "
                 "authenticating with nkeys. The user should sign the nonce and "
-                "return the base64 encoded signature."
+                "return the base64 encoded signature.",
             ),
         ] = None,
         user_jwt_cb: Annotated[
             Optional["JWTCallback"],
             Doc(
                 "A callback used to fetch and return the account "
-                "signed JWT for this user."
+                "signed JWT for this user.",
             ),
         ] = None,
         user_credentials: Annotated[
@@ -356,7 +358,7 @@ class NatsBroker(
         inbox_prefix: Annotated[
             Union[str, bytes],
             Doc(
-                "Prefix for generating unique inboxes, subjects with that prefix and NUID.ß"
+                "Prefix for generating unique inboxes, subjects with that prefix and NUID.ß",
             ),
         ] = DEFAULT_INBOX_PREFIX,
         pending_size: Annotated[
@@ -371,7 +373,7 @@ class NatsBroker(
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ] = None,
         decoder: Annotated[
@@ -394,7 +396,7 @@ class NatsBroker(
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
         specification_url: Annotated[
@@ -603,7 +605,7 @@ class NatsBroker(
 
     async def close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
@@ -653,13 +655,16 @@ class NatsBroker(
                     await self.stream.update_stream(
                         config=stream.config,
                         subjects=tuple(
-                            set(old_config.subjects or ()).union(stream.subjects)
+                            set(old_config.subjects or ()).union(stream.subjects),
                         ),
                     )
 
                 else:  # pragma: no cover
                     self._state.logger_state.log(
-                        str(e), logging.ERROR, log_context, exc_info=e
+                        str(e),
+                        logging.ERROR,
+                        log_context,
+                        exc_info=e,
                     )
 
             finally:
@@ -675,7 +680,7 @@ class NatsBroker(
             "SendableMessage",
             Doc(
                 "Message body to send. "
-                "Can be any encodable object (native python types or `pydantic.BaseModel`)."
+                "Can be any encodable object (native python types or `pydantic.BaseModel`).",
             ),
         ],
         subject: Annotated[
@@ -683,10 +688,10 @@ class NatsBroker(
             Doc("NATS subject to send message."),
         ],
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be set automatically by framework anyway."
+                "**content-type** and **correlation_id** will be set automatically by framework anyway.",
             ),
         ] = None,
         reply_to: Annotated[
@@ -697,14 +702,14 @@ class NatsBroker(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         stream: Annotated[
             Optional[str],
             Doc(
                 "This option validates that the target subject is in presented stream. "
-                "Can be omitted without any effect."
+                "Can be omitted without any effect.",
             ),
         ] = None,
         timeout: Annotated[
@@ -734,7 +739,7 @@ class NatsBroker(
                 {
                     "stream": stream,
                     "timeout": timeout,
-                }
+                },
             )
 
         await super().publish(
@@ -751,7 +756,7 @@ class NatsBroker(
             "SendableMessage",
             Doc(
                 "Message body to send. "
-                "Can be any encodable object (native python types or `pydantic.BaseModel`)."
+                "Can be any encodable object (native python types or `pydantic.BaseModel`).",
             ),
         ],
         subject: Annotated[
@@ -759,24 +764,24 @@ class NatsBroker(
             Doc("NATS subject to send message."),
         ],
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be set automatically by framework anyway."
+                "**content-type** and **correlation_id** will be set automatically by framework anyway.",
             ),
         ] = None,
         correlation_id: Annotated[
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         stream: Annotated[
             Optional[str],
             Doc(
                 "This option validates that the target subject is in presented stream. "
-                "Can be omitted without any effect."
+                "Can be omitted without any effect.",
             ),
         ] = None,
         timeout: Annotated[
@@ -924,7 +929,10 @@ class NatsBroker(
 
             if isinstance(err, Error) and self.__is_connected:
                 self._state.logger_state.log(
-                    f"Connection broken with {err!r}", logging.WARNING, c, exc_info=err
+                    f"Connection broken with {err!r}",
+                    logging.WARNING,
+                    c,
+                    exc_info=err,
                 )
                 self.__is_connected = False
 

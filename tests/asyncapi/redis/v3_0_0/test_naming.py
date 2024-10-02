@@ -29,15 +29,15 @@ class TestNaming(NamingTestCase):
                             "bindingVersion": "custom",
                             "channel": "test",
                             "method": "subscribe",
-                        }
+                        },
                     },
                     "servers": [{"$ref": "#/servers/development"}],
                     "messages": {
                         "SubscribeMessage": {
-                            "$ref": "#/components/messages/test:Handle:SubscribeMessage"
-                        }
+                            "$ref": "#/components/messages/test:Handle:SubscribeMessage",
+                        },
                     },
-                }
+                },
             },
             "operations": {
                 "test:HandleSubscribe": {
@@ -46,19 +46,19 @@ class TestNaming(NamingTestCase):
                         "$ref": "#/channels/test:Handle",
                     },
                     "messages": [
-                        {"$ref": "#/channels/test:Handle/messages/SubscribeMessage"}
+                        {"$ref": "#/channels/test:Handle/messages/SubscribeMessage"},
                     ],
-                }
+                },
             },
             "components": {
                 "messages": {
                     "test:Handle:SubscribeMessage": {
                         "correlationId": {
-                            "location": "$message.header#/correlation_id"
+                            "location": "$message.header#/correlation_id",
                         },
                         "payload": {"$ref": "#/components/schemas/EmptyPayload"},
                         "title": "test:Handle:SubscribeMessage",
-                    }
+                    },
                 },
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},
             },
@@ -70,7 +70,7 @@ class TestNaming(NamingTestCase):
                     "protocolVersion": "custom",
                     "host": "localhost:6379",
                     "pathname": "",
-                }
+                },
             },
         }, schema
 

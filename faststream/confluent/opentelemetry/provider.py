@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Sequence, Tuple, Union, cast
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Union, cast
 
 from opentelemetry.semconv.trace import SpanAttributes
 
@@ -45,7 +46,7 @@ class BaseConfluentTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType])
 
 
 class ConfluentTelemetrySettingsProvider(
-    BaseConfluentTelemetrySettingsProvider["Message"]
+    BaseConfluentTelemetrySettingsProvider["Message"],
 ):
     def get_consume_attrs_from_message(
         self,
@@ -74,30 +75,28 @@ class ConfluentTelemetrySettingsProvider(
 
 
 class BatchConfluentTelemetrySettingsProvider(
-    BaseConfluentTelemetrySettingsProvider[Tuple["Message", ...]]
+    BaseConfluentTelemetrySettingsProvider[tuple["Message", ...]],
 ):
     def get_consume_attrs_from_message(
         self,
-        msg: "StreamMessage[Tuple[Message, ...]]",
+        msg: "StreamMessage[tuple[Message, ...]]",
     ) -> "AnyDict":
         raw_message = msg.raw_message[0]
-        attrs = {
+        return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
             SpanAttributes.MESSAGING_MESSAGE_ID: msg.message_id,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: len(msg.raw_message),
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(
-                bytearray().join(cast(Sequence[bytes], msg.body))
+                bytearray().join(cast(Sequence[bytes], msg.body)),
             ),
             SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: raw_message.partition(),
             MESSAGING_DESTINATION_PUBLISH_NAME: raw_message.topic(),
         }
 
-        return attrs
-
     def get_consume_destination_name(
         self,
-        msg: "StreamMessage[Tuple[Message, ...]]",
+        msg: "StreamMessage[tuple[Message, ...]]",
     ) -> str:
         return cast(str, msg.raw_message[0].topic())
 
@@ -110,5 +109,4 @@ def telemetry_attributes_provider_factory(
 ]:
     if isinstance(msg, Sequence):
         return BatchConfluentTelemetrySettingsProvider()
-    else:
-        return ConfluentTelemetrySettingsProvider()
+    return ConfluentTelemetrySettingsProvider()

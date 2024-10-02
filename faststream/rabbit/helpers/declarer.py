@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, cast
+from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     import aio_pika
@@ -10,8 +10,8 @@ class RabbitDeclarer:
     """An utility class to declare RabbitMQ queues and exchanges."""
 
     __channel: "aio_pika.RobustChannel"
-    __queues: Dict["RabbitQueue", "aio_pika.RobustQueue"]
-    __exchanges: Dict["RabbitExchange", "aio_pika.RobustExchange"]
+    __queues: dict["RabbitQueue", "aio_pika.RobustQueue"]
+    __exchanges: dict["RabbitExchange", "aio_pika.RobustExchange"]
 
     def __init__(self, channel: "aio_pika.RobustChannel") -> None:
         self.__channel = channel

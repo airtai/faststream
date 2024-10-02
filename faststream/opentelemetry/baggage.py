@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, List, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from opentelemetry import baggage, context
 from opentelemetry.baggage.propagation import W3CBaggagePropagator
@@ -17,7 +17,7 @@ class Baggage:
     def __init__(
         self,
         payload: "AnyDict",
-        batch_payload: Optional[List["AnyDict"]] = None,
+        batch_payload: Optional[list["AnyDict"]] = None,
     ) -> None:
         self._baggage = dict(payload)
         self._batch_baggage = [dict(b) for b in batch_payload] if batch_payload else []
@@ -26,7 +26,7 @@ class Baggage:
         """Get a copy of the current baggage."""
         return self._baggage.copy()
 
-    def get_all_batch(self) -> List["AnyDict"]:
+    def get_all_batch(self) -> list["AnyDict"]:
         """Get a copy of all batch baggage if exists."""
         return self._batch_baggage.copy()
 
@@ -66,7 +66,7 @@ class Baggage:
             return cls(cast("AnyDict", payload))
 
         cumulative_baggage: AnyDict = {}
-        batch_baggage: List[AnyDict] = []
+        batch_baggage: list[AnyDict] = []
 
         for headers in msg.batch_headers:
             payload = baggage.get_all(_BAGGAGE_PROPAGATOR.extract(headers))

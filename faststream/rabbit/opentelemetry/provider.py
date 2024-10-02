@@ -49,7 +49,9 @@ class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage
         return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
             SpanAttributes.MESSAGING_DESTINATION_NAME: getattr(
-                exchange, "name", exchange or ""
+                exchange,
+                "name",
+                exchange or "",
             ),
             SpanAttributes.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY: kwargs[
                 "routing_key"

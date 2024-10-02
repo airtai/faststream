@@ -1,5 +1,4 @@
 from typing import (
-    List,
     Optional,
     Union,
 )
@@ -32,5 +31,5 @@ class Info(BaseInfo):
     termsOfService: Optional[AnyHttpUrl] = None
     contact: Optional[Union[Contact, AnyDict]] = None
     license: Optional[Union[License, AnyDict]] = None
-    tags: Optional[List[Union["Tag", "AnyDict"]]] = None
+    tags: Optional[list[Union["Tag", "AnyDict"]]] = None
     externalDocs: Optional[Union["ExternalDocs", "AnyDict"]] = None

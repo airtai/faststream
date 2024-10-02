@@ -1,18 +1,17 @@
+from collections.abc import Awaitable, Iterable
 from functools import partial
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
-    Awaitable,
     Callable,
-    Dict,
-    Iterable,
     Optional,
     Union,
 )
 
 from nats.aio.msg import Msg
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.subscriber.utils import process_msg
@@ -37,7 +36,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         *,
         subject: str,
         reply_to: str,
-        headers: Optional[Dict[str, str]],
+        headers: Optional[dict[str, str]],
         stream: Optional["JStream"],
         timeout: Optional[float],
         # Publisher args
@@ -72,7 +71,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         message: "SendableMessage",
         subject: str = "",
         *,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
@@ -131,7 +130,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             "SendableMessage",
             Doc(
                 "Message body to send. "
-                "Can be any encodable object (native python types or `pydantic.BaseModel`)."
+                "Can be any encodable object (native python types or `pydantic.BaseModel`).",
             ),
         ],
         subject: Annotated[
@@ -140,17 +139,17 @@ class LogicPublisher(PublisherUsecase[Msg]):
         ] = "",
         *,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be set automatically by framework anyway."
+                "**content-type** and **correlation_id** will be set automatically by framework anyway.",
             ),
         ] = None,
         correlation_id: Annotated[
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         timeout: Annotated[

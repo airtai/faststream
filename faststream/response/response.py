@@ -29,8 +29,7 @@ class Response:
             self.headers = {**extra_headers, **self.headers}
 
     def as_publish_kwargs(self) -> "AnyDict":
-        publish_options = {
+        return {
             "headers": self.headers,
             "correlation_id": self.correlation_id,
         }
-        return publish_options

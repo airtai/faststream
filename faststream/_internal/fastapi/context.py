@@ -1,8 +1,7 @@
 import logging
-from typing import Any, Callable, Optional
+from typing import Annotated, Any, Callable, Optional
 
 from fastapi import params
-from typing_extensions import Annotated
 
 from faststream._internal.constants import EMPTY
 from faststream._internal.context import ContextRepo as CR

@@ -1,12 +1,8 @@
+from collections.abc import Generator, Iterable
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    Generator,
-    Iterable,
-    List,
     Optional,
-    Tuple,
     Union,
 )
 from unittest.mock import AsyncMock
@@ -39,7 +35,7 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     def create_publisher_fake_subscriber(
         broker: NatsBroker,
         publisher: "SpecificationPublisher",
-    ) -> Tuple["LogicSubscriber[Any, Any]", bool]:
+    ) -> tuple["LogicSubscriber[Any, Any]", bool]:
         sub: Optional[LogicSubscriber[Any, Any]] = None
         publisher_stream = publisher.stream.name if publisher.stream else None
         for handler in broker._subscribers:
@@ -82,7 +78,7 @@ class FakeProducer(NatsFastProducer):
         message: "SendableMessage",
         subject: str,
         reply_to: str = "",
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         # NatsJSFastProducer compatibility
         timeout: Optional[float] = None,
@@ -101,7 +97,7 @@ class FakeProducer(NatsFastProducer):
             subject,
             stream,
         ):
-            msg: Union[List[PatchedMessage], PatchedMessage]
+            msg: Union[list[PatchedMessage], PatchedMessage]
 
             if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
                 msg = [incoming]
@@ -110,8 +106,6 @@ class FakeProducer(NatsFastProducer):
 
             await self._execute_handler(msg, subject, handler)
 
-        return None
-
     @override
     async def request(  # type: ignore[override]
         self,
@@ -119,7 +113,7 @@ class FakeProducer(NatsFastProducer):
         subject: str,
         *,
         correlation_id: Optional[str] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         timeout: float = 0.5,
         # NatsJSFastProducer compatibility
         stream: Optional[str] = None,
@@ -136,7 +130,7 @@ class FakeProducer(NatsFastProducer):
             subject,
             stream,
         ):
-            msg: Union[List[PatchedMessage], PatchedMessage]
+            msg: Union[list[PatchedMessage], PatchedMessage]
 
             if (pull := getattr(handler, "pull_sub", None)) and pull.batch:
                 msg = [incoming]
@@ -165,10 +159,10 @@ class FakeProducer(NatsFastProducer):
 
 
 def _find_handler(
-    subscribers: Iterable["LogicSubscriber[Any]"],
+    subscribers: Iterable["LogicSubscriber[Any, Any]"],
     subject: str,
     stream: Optional[str] = None,
-) -> Generator["LogicSubscriber[Any]", None, None]:
+) -> Generator["LogicSubscriber[Any, Any]", None, None]:
     published_queues = set()
     for handler in subscribers:  # pragma: no branch
         if _is_handler_matches(handler, subject, stream):
@@ -208,11 +202,11 @@ def build_message(
     *,
     reply_to: str = "",
     correlation_id: Optional[str] = None,
-    headers: Optional[Dict[str, str]] = None,
+    headers: Optional[dict[str, str]] = None,
 ) -> "PatchedMessage":
     msg, content_type = encode_message(message)
     return PatchedMessage(
-        _client=None,  # type: ignore
+        _client=None,  # type: ignore[arg-type]
         subject=subject,
         reply=reply_to,
         data=msg,
@@ -234,7 +228,7 @@ class PatchedMessage(Msg):
     ) -> "PatchedMessage":  # pragma: no cover
         return self
 
-    async def nak(self, delay: Union[int, float, None] = None) -> None:
+    async def nak(self, delay: Optional[float] = None) -> None:
         pass
 
     async def term(self) -> None:

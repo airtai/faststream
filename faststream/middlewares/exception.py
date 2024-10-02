@@ -1,15 +1,10 @@
+from collections.abc import Awaitable
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     Callable,
-    ContextManager,
-    Dict,
-    List,
     NoReturn,
     Optional,
-    Tuple,
-    Type,
     Union,
     cast,
     overload,
@@ -24,6 +19,7 @@ from faststream.exceptions import IgnoredException
 from faststream.middlewares.base import BaseMiddleware
 
 if TYPE_CHECKING:
+    from contextlib import AbstractContextManager
     from types import TracebackType
 
     from faststream._internal.basic_types import AsyncFuncAny
@@ -31,21 +27,22 @@ if TYPE_CHECKING:
 
 
 GeneralExceptionHandler: TypeAlias = Union[
-    Callable[..., None], Callable[..., Awaitable[None]]
+    Callable[..., None],
+    Callable[..., Awaitable[None]],
 ]
 PublishingExceptionHandler: TypeAlias = Callable[..., "Any"]
 
 CastedGeneralExceptionHandler: TypeAlias = Callable[..., Awaitable[None]]
 CastedPublishingExceptionHandler: TypeAlias = Callable[..., Awaitable["Any"]]
-CastedHandlers: TypeAlias = List[
-    Tuple[
-        Type[Exception],
+CastedHandlers: TypeAlias = list[
+    tuple[
+        type[Exception],
         CastedGeneralExceptionHandler,
     ]
 ]
-CastedPublishingHandlers: TypeAlias = List[
-    Tuple[
-        Type[Exception],
+CastedPublishingHandlers: TypeAlias = list[
+    tuple[
+        type[Exception],
         CastedPublishingExceptionHandler,
     ]
 ]
@@ -77,11 +74,11 @@ class BaseExceptionMiddleware(BaseMiddleware):
                 if issubclass(exc_type, handler_type):
                     return await handler(exc)
 
-            raise exc
+            raise
 
     async def after_processed(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
@@ -90,7 +87,7 @@ class BaseExceptionMiddleware(BaseMiddleware):
                 if issubclass(exc_type, handler_type):
                     # TODO: remove it after context will be moved to middleware
                     # In case parser/decoder error occurred
-                    scope: ContextManager[Any]
+                    scope: AbstractContextManager[Any]
                     if not context.get_local("message"):
                         scope = context.scope("message", self.msg)
                     else:
@@ -115,14 +112,14 @@ class ExceptionMiddleware:
     def __init__(
         self,
         handlers: Optional[
-            Dict[
-                Type[Exception],
+            dict[
+                type[Exception],
                 GeneralExceptionHandler,
             ]
         ] = None,
         publish_handlers: Optional[
-            Dict[
-                Type[Exception],
+            dict[
+                type[Exception],
                 PublishingExceptionHandler,
             ]
         ] = None,
@@ -133,7 +130,7 @@ class ExceptionMiddleware:
                 (
                     exc_type,
                     apply_types(
-                        cast(Callable[..., Awaitable[None]], to_async(handler))
+                        cast(Callable[..., Awaitable[None]], to_async(handler)),
                     ),
                 )
                 for exc_type, handler in (handlers or {}).items()
@@ -151,20 +148,20 @@ class ExceptionMiddleware:
     @overload
     def add_handler(
         self,
-        exc: Type[Exception],
+        exc: type[Exception],
         publish: Literal[False] = False,
     ) -> Callable[[GeneralExceptionHandler], GeneralExceptionHandler]: ...
 
     @overload
     def add_handler(
         self,
-        exc: Type[Exception],
+        exc: type[Exception],
         publish: Literal[True],
     ) -> Callable[[PublishingExceptionHandler], PublishingExceptionHandler]: ...
 
     def add_handler(
         self,
-        exc: Type[Exception],
+        exc: type[Exception],
         publish: bool = False,
     ) -> Union[
         Callable[[GeneralExceptionHandler], GeneralExceptionHandler],
@@ -179,26 +176,24 @@ class ExceptionMiddleware:
                     (
                         exc,
                         apply_types(to_async(func)),
-                    )
+                    ),
                 )
                 return func
 
             return pub_wrapper
 
-        else:
+        def default_wrapper(
+            func: GeneralExceptionHandler,
+        ) -> GeneralExceptionHandler:
+            self._handlers.append(
+                (
+                    exc,
+                    apply_types(to_async(func)),
+                ),
+            )
+            return func
 
-            def default_wrapper(
-                func: GeneralExceptionHandler,
-            ) -> GeneralExceptionHandler:
-                self._handlers.append(
-                    (
-                        exc,
-                        apply_types(to_async(func)),
-                    )
-                )
-                return func
-
-            return default_wrapper
+        return default_wrapper
 
     def __call__(self, msg: Optional[Any]) -> BaseExceptionMiddleware:
         """Real middleware runtime constructor."""

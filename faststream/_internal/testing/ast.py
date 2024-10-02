@@ -1,8 +1,9 @@
 import ast
 import traceback
+from collections.abc import Iterator
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, List, Optional, Union, cast
+from typing import Optional, Union, cast
 
 
 def is_contains_context_name(scip_name: str, name: str) -> bool:
@@ -21,7 +22,7 @@ def is_contains_context_name(scip_name: str, name: str) -> bool:
 
 @lru_cache
 def _read_source_ast(filename: str) -> ast.Module:
-    return ast.parse(Path(filename).read_text())
+    return ast.parse(Path(filename).read_text(encoding="utf-8"))
 
 
 def _find_ast_node(module: ast.Module, lineno: Optional[int]) -> Optional[ast.AST]:
@@ -45,7 +46,7 @@ def _find_withitems(node: Union[ast.With, ast.AsyncWith]) -> Iterator[ast.withit
         yield from _find_withitems(i)
 
 
-def _get_withitem_calls(node: Union[ast.With, ast.AsyncWith]) -> List[str]:
+def _get_withitem_calls(node: Union[ast.With, ast.AsyncWith]) -> list[str]:
     return [
         id
         for i in _find_withitems(node)

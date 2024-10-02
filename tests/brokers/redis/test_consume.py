@@ -164,7 +164,7 @@ class TestConsumeList:
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
-            list=ListSub(queue, batch=True, polling_interval=0.01)
+            list=ListSub(queue, batch=True, polling_interval=0.01),
         )
         async def handler(msg):
             mock(msg)
@@ -193,7 +193,7 @@ class TestConsumeList:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(
-            list=ListSub(queue, batch=True, polling_interval=0.01)
+            list=ListSub(queue, batch=True, polling_interval=0.01),
         )
         def subscriber(m, msg: RedisMessage):
             check = all(
@@ -202,7 +202,7 @@ class TestConsumeList:
                     msg.headers["correlation_id"]
                     == msg.batch_headers[0]["correlation_id"],
                     msg.headers.get("custom") == "1",
-                )
+                ),
             )
             mock(check)
             event.set()
@@ -212,7 +212,7 @@ class TestConsumeList:
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        br.publish("", list=queue, headers={"custom": "1"})
+                        br.publish("", list=queue, headers={"custom": "1"}),
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -232,7 +232,7 @@ class TestConsumeList:
         msgs_queue = asyncio.Queue(maxsize=1)
 
         @consume_broker.subscriber(
-            list=ListSub(queue, batch=True, polling_interval=0.01)
+            list=ListSub(queue, batch=True, polling_interval=0.01),
         )
         async def handler(msg):
             await msgs_queue.put(msg)
@@ -267,7 +267,7 @@ class TestConsumeList:
         msgs_queue = asyncio.Queue(maxsize=1)
 
         @consume_broker.subscriber(
-            list=ListSub(queue, batch=True, polling_interval=0.01)
+            list=ListSub(queue, batch=True, polling_interval=0.01),
         )
         async def handler(msg: List[Data]):
             await msgs_queue.put(msg)
@@ -294,7 +294,7 @@ class TestConsumeList:
         msgs_queue = asyncio.Queue(maxsize=1)
 
         @consume_broker.subscriber(
-            list=ListSub(queue, batch=True, polling_interval=0.01)
+            list=ListSub(queue, batch=True, polling_interval=0.01),
         )
         async def handler(msg):
             await msgs_queue.put(msg)
@@ -413,7 +413,7 @@ class TestConsumeStream:
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        br._connection.xadd(queue, {"message": "hello"})
+                        br._connection.xadd(queue, {"message": "hello"}),
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -432,7 +432,7 @@ class TestConsumeStream:
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
-            stream=StreamSub(queue, polling_interval=10, batch=True)
+            stream=StreamSub(queue, polling_interval=10, batch=True),
         )
         async def handler(msg):
             mock(msg)
@@ -461,7 +461,7 @@ class TestConsumeStream:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(
-            stream=StreamSub(queue, polling_interval=10, batch=True)
+            stream=StreamSub(queue, polling_interval=10, batch=True),
         )
         def subscriber(m, msg: RedisMessage):
             check = all(
@@ -470,7 +470,7 @@ class TestConsumeStream:
                     msg.headers["correlation_id"]
                     == msg.batch_headers[0]["correlation_id"],
                     msg.headers.get("custom") == "1",
-                )
+                ),
             )
             mock(check)
             event.set()
@@ -480,7 +480,7 @@ class TestConsumeStream:
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        br.publish("", stream=queue, headers={"custom": "1"})
+                        br.publish("", stream=queue, headers={"custom": "1"}),
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -505,7 +505,7 @@ class TestConsumeStream:
         msgs_queue = asyncio.Queue(maxsize=1)
 
         @consume_broker.subscriber(
-            stream=StreamSub(queue, polling_interval=10, batch=True)
+            stream=StreamSub(queue, polling_interval=10, batch=True),
         )
         async def handler(msg: List[Data]):
             await msgs_queue.put(msg)
@@ -532,7 +532,7 @@ class TestConsumeStream:
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
-            stream=StreamSub(queue, polling_interval=10, batch=True)
+            stream=StreamSub(queue, polling_interval=10, batch=True),
         )
         async def handler(msg):
             mock(msg)
@@ -544,7 +544,7 @@ class TestConsumeStream:
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        br._connection.xadd(queue, {"message": "hello"})
+                        br._connection.xadd(queue, {"message": "hello"}),
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -560,7 +560,7 @@ class TestConsumeStream:
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
-            stream=StreamSub(queue, group="group", consumer=queue)
+            stream=StreamSub(queue, group="group", consumer=queue),
         )
         async def handler(msg: RedisMessage): ...
 
@@ -573,7 +573,7 @@ class TestConsumeStream:
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
-            stream=StreamSub(queue, group="group", consumer=queue, last_id="0")
+            stream=StreamSub(queue, group="group", consumer=queue, last_id="0"),
         )
         async def handler(msg: RedisMessage): ...
 
@@ -587,7 +587,7 @@ class TestConsumeStream:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(
-            stream=StreamSub(queue, group="group", consumer=queue)
+            stream=StreamSub(queue, group="group", consumer=queue),
         )
         async def handler(msg: RedisMessage):
             event.set()
@@ -617,7 +617,7 @@ class TestConsumeStream:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(
-            stream=StreamSub(queue, group="group", consumer=queue)
+            stream=StreamSub(queue, group="group", consumer=queue),
         )
         async def handler(msg: RedisMessage):
             event.set()

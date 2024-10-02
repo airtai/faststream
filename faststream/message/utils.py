@@ -1,11 +1,10 @@
 import json
+from collections.abc import Sequence
 from contextlib import suppress
 from typing import (
     TYPE_CHECKING,
     Any,
     Optional,
-    Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -49,7 +48,7 @@ def decode_message(message: "StreamMessage[Any]") -> "DecodedMessage":
 
 def encode_message(
     msg: Union[Sequence["SendableMessage"], "SendableMessage"],
-) -> Tuple[bytes, Optional[str]]:
+) -> tuple[bytes, Optional[str]]:
     """Encodes a message."""
     if msg is None:
         return (

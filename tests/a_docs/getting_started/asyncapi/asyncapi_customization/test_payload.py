@@ -15,10 +15,10 @@ def test_payload_customization():
                     "minimum": 0,
                     "title": "Data",
                     "type": "number",
-                }
+                },
             },
             "required": ["data"],
             "title": "DataBasic",
             "type": "object",
-        }
+        },
     }

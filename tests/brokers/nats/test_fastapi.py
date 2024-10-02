@@ -32,7 +32,7 @@ class TestRouter(FastAPITestcase):
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        router.broker.publish("hello", f"{queue}.john")
+                        router.broker.publish("hello", f"{queue}.john"),
                     ),
                     asyncio.create_task(event.wait()),
                 ),

@@ -1,15 +1,13 @@
 import asyncio
 import inspect
+from collections.abc import Awaitable, Iterable
 from contextlib import AsyncExitStack
 from functools import wraps
 from itertools import dropwhile
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     Callable,
-    Iterable,
-    List,
     Optional,
     Union,
 )
@@ -45,14 +43,14 @@ class StreamMessage(Request):
 
     scope: "AnyDict"
     _cookies: "AnyDict"
-    _headers: "AnyDict"  # type: ignore
-    _body: Union["AnyDict", List[Any]]  # type: ignore
-    _query_params: "AnyDict"  # type: ignore
+    _headers: "AnyDict"  # type: ignore[assignment]
+    _body: Union["AnyDict", list[Any]]  # type: ignore[assignment]
+    _query_params: "AnyDict"  # type: ignore[assignment]
 
     def __init__(
         self,
         *,
-        body: Union["AnyDict", List[Any]],
+        body: Union["AnyDict", list[Any]],
         headers: "AnyDict",
         path: "AnyDict",
     ) -> None:
@@ -149,7 +147,7 @@ def build_faststream_to_fastapi_parser(
         """Wrapper, that parser FastStream message to FastAPI compatible one."""
         body = await message.decode()
 
-        fastapi_body: Union[AnyDict, List[Any]]
+        fastapi_body: Union[AnyDict, list[Any]]
         if first_arg is not None:
             if isinstance(body, dict):
                 path = fastapi_body = body or {}
@@ -240,6 +238,7 @@ def make_fastapi_execution(
 
             return response
 
-        raise AssertionError("unreachable")
+        msg = "unreachable"
+        raise AssertionError(msg)
 
     return app

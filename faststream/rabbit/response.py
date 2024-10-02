@@ -48,7 +48,7 @@ class RabbitResponse(Response):
 
     @override
     def as_publish_kwargs(self) -> "AnyDict":
-        publish_options = {
+        return {
             **super().as_publish_kwargs(),
             "message_id": self.message_id,
             "mandatory": self.mandatory,
@@ -61,4 +61,3 @@ class RabbitResponse(Response):
             "expiration": self.expiration,
             "content_encoding": self.content_encoding,
         }
-        return publish_options

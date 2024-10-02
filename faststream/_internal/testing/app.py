@@ -1,6 +1,6 @@
 from contextlib import ExitStack
 from functools import partial
-from typing import TYPE_CHECKING, Dict, Optional, Type
+from typing import TYPE_CHECKING, Optional
 
 from anyio.from_thread import start_blocking_portal
 
@@ -17,12 +17,12 @@ class TestApp:
     __test__ = False
 
     app: "Application"
-    _extra_options: Dict[str, "SettingField"]
+    _extra_options: dict[str, "SettingField"]
 
     def __init__(
         self,
         app: "Application",
-        run_extra_options: Optional[Dict[str, "SettingField"]] = None,
+        run_extra_options: Optional[dict[str, "SettingField"]] = None,
     ) -> None:
         self.app = app
         self._extra_options = run_extra_options or {}
@@ -45,7 +45,7 @@ class TestApp:
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
@@ -59,7 +59,7 @@ class TestApp:
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:

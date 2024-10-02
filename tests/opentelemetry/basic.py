@@ -123,7 +123,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
         if action == Action.PROCESS:
             assert attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES] == len(
-                msg
+                msg,
             ), attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES]
             assert attrs[SpanAttr.MESSAGING_OPERATION] == action, attrs[
                 SpanAttr.MESSAGING_OPERATION
@@ -439,8 +439,10 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
             tasks = (
                 asyncio.create_task(
                     broker.publish(
-                        msg, queue, headers=Baggage({"foo": "bar"}).to_headers()
-                    )
+                        msg,
+                        queue,
+                        headers=Baggage({"foo": "bar"}).to_headers(),
+                    ),
                 ),
                 asyncio.create_task(event.wait()),
             )
@@ -486,8 +488,10 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
             tasks = (
                 asyncio.create_task(
                     broker.publish(
-                        msg, first_queue, headers=Baggage({"foo": "bar"}).to_headers()
-                    )
+                        msg,
+                        first_queue,
+                        headers=Baggage({"foo": "bar"}).to_headers(),
+                    ),
                 ),
                 asyncio.create_task(event.wait()),
             )
@@ -535,8 +539,10 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
             tasks = (
                 asyncio.create_task(
                     broker.publish(
-                        msg, first_queue, headers=Baggage({"foo": "bar"}).to_headers()
-                    )
+                        msg,
+                        first_queue,
+                        headers=Baggage({"foo": "bar"}).to_headers(),
+                    ),
                 ),
                 asyncio.create_task(event.wait()),
             )

@@ -1,15 +1,12 @@
 import logging
 from abc import abstractmethod
+from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncIterator,
     Callable,
-    Dict,
-    List,
     Optional,
-    Sequence,
     TypeVar,
 )
 
@@ -107,16 +104,16 @@ class Application(StartAbleApplication):
         self.logger = logger
         self.context = context
 
-        self._on_startup_calling: List[AsyncFunc] = [
+        self._on_startup_calling: list[AsyncFunc] = [
             apply_types(to_async(x)) for x in on_startup
         ]
-        self._after_startup_calling: List[AsyncFunc] = [
+        self._after_startup_calling: list[AsyncFunc] = [
             apply_types(to_async(x)) for x in after_startup
         ]
-        self._on_shutdown_calling: List[AsyncFunc] = [
+        self._on_shutdown_calling: list[AsyncFunc] = [
             apply_types(to_async(x)) for x in on_shutdown
         ]
-        self._after_shutdown_calling: List[AsyncFunc] = [
+        self._after_shutdown_calling: list[AsyncFunc] = [
             apply_types(to_async(x)) for x in after_shutdown
         ]
 
@@ -137,7 +134,7 @@ class Application(StartAbleApplication):
     async def run(
         self,
         log_level: int,
-        run_extra_options: Optional[Dict[str, "SettingField"]] = None,
+        run_extra_options: Optional[dict[str, "SettingField"]] = None,
     ) -> None: ...
 
     # Startup
@@ -145,7 +142,7 @@ class Application(StartAbleApplication):
     async def _startup(
         self,
         log_level: int = logging.INFO,
-        run_extra_options: Optional[Dict[str, "SettingField"]] = None,
+        run_extra_options: Optional[dict[str, "SettingField"]] = None,
     ) -> None:
         """Private method calls `start` with logging."""
         async with self._startup_logging(log_level=log_level):
@@ -175,7 +172,8 @@ class Application(StartAbleApplication):
 
     @asynccontextmanager
     async def _startup_logging(
-        self, log_level: int = logging.INFO
+        self,
+        log_level: int = logging.INFO,
     ) -> AsyncIterator[None]:
         """Separated startup logging."""
         self._log(
@@ -215,7 +213,8 @@ class Application(StartAbleApplication):
 
     @asynccontextmanager
     async def _shutdown_logging(
-        self, log_level: int = logging.INFO
+        self,
+        log_level: int = logging.INFO,
     ) -> AsyncIterator[None]:
         """Separated startup logging."""
         self._log(

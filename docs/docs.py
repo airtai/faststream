@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent
 CONFIG = BASE_DIR / "mkdocs.yml"
 DOCS_DIR = BASE_DIR / "docs"
 LANGUAGES_DIRS = tuple(
-    filter(lambda f: f.is_dir() and f.name not in IGNORE_DIRS, DOCS_DIR.iterdir())
+    filter(lambda f: f.is_dir() and f.name not in IGNORE_DIRS, DOCS_DIR.iterdir()),
 )
 BUILD_DIR = BASE_DIR / "site"
 
@@ -125,7 +125,7 @@ def add(path=typer.Argument(...)):
             not_exists.append(i)
             file.write_text(
                 f"# {title or get_default_title(file)} \n"
-                "{! " + get_in_progress(i.name) + " !}"
+                "{! " + get_in_progress(i.name) + " !}",
             )
             typer.echo(f"{file} - write `in progress`")
 
@@ -134,7 +134,7 @@ def add(path=typer.Argument(...)):
             file = i / path
             file.write_text(
                 f"# {title or get_default_title(file)} \n"
-                "{! " + get_missing_translation(i.name) + " !}"
+                "{! " + get_missing_translation(i.name) + " !}",
             )
             typer.echo(f"{file} - write `missing translation`")
 
@@ -172,9 +172,8 @@ def mv(path: str = typer.Argument(...), new_path: str = typer.Argument(...)):
 @app.command()
 def update_readme() -> None:
     """Update README.md by expanding embeddings in docs/docs/en/index.md."""
-    # todo: fix this function
+    # TODO: fix this function
     typer.echo("Skipping updating README.md for now")
-    return None
 
     # typer.echo(f"Updating README.md")
     # expand_markdown(input_markdown_path=EN_INDEX_PATH, output_markdown_path=README_PATH)
@@ -208,9 +207,9 @@ def update_contributing():
             (
                 f"> **_NOTE:_**  This is an auto-generated file. Please edit {relative_path} instead.",
                 *content,
-            )
+            ),
         )
-        + "\n"
+        + "\n",
     )
 
 

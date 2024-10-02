@@ -1,14 +1,10 @@
-from datetime import datetime
+from collections.abc import Generator, Iterable
+from datetime import datetime, timezone
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    Generator,
-    Iterable,
-    List,
     Optional,
-    Tuple,
 )
 from unittest.mock import AsyncMock, MagicMock
 
@@ -51,11 +47,13 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
         publisher: "SpecificationPublisher[Any]",
-    ) -> Tuple["LogicSubscriber[Any]", bool]:
+    ) -> tuple["LogicSubscriber[Any]", bool]:
         sub: Optional[LogicSubscriber[Any]] = None
         for handler in broker._subscribers:
             if _is_handler_matches(
-                handler, topic=publisher.topic, partition=publisher.partition
+                handler,
+                topic=publisher.topic,
+                partition=publisher.partition,
             ):
                 sub = handler
                 break
@@ -65,7 +63,8 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
 
             if publisher.partition:
                 tp = TopicPartition(
-                    topic=publisher.topic, partition=publisher.partition
+                    topic=publisher.topic,
+                    partition=publisher.partition,
                 )
                 sub = broker.subscriber(
                     partitions=[tp],
@@ -110,7 +109,7 @@ class FakeProducer(AsyncConfluentFastProducer):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         *,
         no_confirm: bool = False,
@@ -147,7 +146,7 @@ class FakeProducer(AsyncConfluentFastProducer):
         topic: str,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
         no_confirm: bool = False,
@@ -178,8 +177,6 @@ class FakeProducer(AsyncConfluentFastProducer):
                 for m in messages:
                     await self._execute_handler(m, topic, handler)
 
-        return None
-
     @override
     async def request(  # type: ignore[override]
         self,
@@ -188,7 +185,7 @@ class FakeProducer(AsyncConfluentFastProducer):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         *,
         timeout: Optional[float] = 0.5,
@@ -241,13 +238,13 @@ class MockConfluentMessage:
         raw_msg: bytes,
         topic: str,
         key: bytes,
-        headers: List[Tuple[str, bytes]],
+        headers: list[tuple[str, bytes]],
         offset: int,
         partition: int,
         timestamp_type: int,
         timestamp_ms: int,
         error: Optional[str] = None,
-    ):
+    ) -> None:
         self._raw_msg = raw_msg
         self._topic = topic
         self._key = key
@@ -263,7 +260,7 @@ class MockConfluentMessage:
     def error(self) -> Optional[str]:
         return self._error
 
-    def headers(self) -> List[Tuple[str, bytes]]:
+    def headers(self) -> list[tuple[str, bytes]]:
         return self._headers
 
     def key(self) -> bytes:
@@ -275,7 +272,7 @@ class MockConfluentMessage:
     def partition(self) -> int:
         return self._partition
 
-    def timestamp(self) -> Tuple[int, int]:
+    def timestamp(self) -> tuple[int, int]:
         return self._timestamp
 
     def topic(self) -> str:
@@ -293,7 +290,7 @@ def build_message(
     partition: Optional[int] = None,
     timestamp_ms: Optional[int] = None,
     key: Optional[bytes] = None,
-    headers: Optional[Dict[str, str]] = None,
+    headers: Optional[dict[str, str]] = None,
     reply_to: str = "",
 ) -> MockConfluentMessage:
     """Build a mock confluent_kafka.Message for a sendable message."""
@@ -315,7 +312,7 @@ def build_message(
         offset=0,
         partition=partition or 0,
         timestamp_type=0 + 1,
-        timestamp_ms=timestamp_ms or int(datetime.now().timestamp()),
+        timestamp_ms=timestamp_ms or int(datetime.now(timezone.utc).timestamp()),
     )
 
 
@@ -352,5 +349,5 @@ def _is_handler_matches(
             p.topic == topic and (partition is None or p.partition == partition)
             for p in handler.partitions
         )
-        or topic in handler.topics
+        or topic in handler.topics,
     )

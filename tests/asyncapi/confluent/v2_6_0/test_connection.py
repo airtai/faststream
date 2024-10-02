@@ -28,14 +28,15 @@ def test_base():
                 "protocolVersion": "0.9.0",
                 "tags": [{"description": "experimental", "name": "some-tag"}],
                 "url": "kafka:9092",
-            }
+            },
         },
     }
 
 
 def test_multi():
     schema = AsyncAPI(
-        KafkaBroker(["kafka:9092", "kafka:9093"]), schema_version="2.6.0"
+        KafkaBroker(["kafka:9092", "kafka:9093"]),
+        schema_version="2.6.0",
     ).to_jsonable()
 
     assert schema == {

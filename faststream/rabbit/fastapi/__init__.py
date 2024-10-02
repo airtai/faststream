@@ -1,4 +1,4 @@
-from typing_extensions import Annotated
+from typing import Annotated
 
 from faststream._internal.fastapi.context import Context, ContextRepo, Logger
 from faststream.rabbit.broker import RabbitBroker as RB
@@ -12,10 +12,10 @@ RabbitProducer = Annotated[AioPikaFastProducer, Context("broker._producer")]
 
 __all__ = (
     "Context",
-    "Logger",
     "ContextRepo",
-    "RabbitMessage",
+    "Logger",
     "RabbitBroker",
+    "RabbitMessage",
     "RabbitProducer",
     "RabbitRouter",
 )

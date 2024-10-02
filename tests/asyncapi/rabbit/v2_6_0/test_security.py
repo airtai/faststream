@@ -33,7 +33,7 @@ def test_base_security_schema():
                 "protocolVersion": "0.9.1",
                 "security": [],
                 "url": "amqps://guest:guest@localhost:5672/",  # pragma: allowlist secret
-            }
+            },
         },
     }
 
@@ -74,7 +74,7 @@ def test_plaintext_security_schema():
                     "protocolVersion": "0.9.1",
                     "security": [{"user-password": []}],
                     "url": "amqps://admin:password@localhost:5671/",  # pragma: allowlist secret
-                }
+                },
             },
         }
     )
@@ -112,7 +112,7 @@ def test_plaintext_security_schema_without_ssl():
                     "protocolVersion": "0.9.1",
                     "security": [{"user-password": []}],
                     "url": "amqp://admin:password@localhost:5672/",  # pragma: allowlist secret
-                }
+                },
             },
         }
     )

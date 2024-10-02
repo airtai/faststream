@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from faststream._internal._compat import DEF_KEY
 from faststream._internal.basic_types import AnyDict, AnyHttpUrl
@@ -28,8 +29,6 @@ if TYPE_CHECKING:
     from faststream.specification.schema.license import License, LicenseDict
     from faststream.specification.schema.tag import (
         Tag as SpecsTag,
-    )
-    from faststream.specification.schema.tag import (
         TagDict as SpecsTagDict,
     )
 
@@ -54,8 +53,8 @@ def get_app_schema(
     servers = get_broker_server(broker)
     channels = get_broker_channels(broker)
 
-    messages: Dict[str, Message] = {}
-    payloads: Dict[str, AnyDict] = {}
+    messages: dict[str, Message] = {}
+    payloads: dict[str, AnyDict] = {}
 
     for channel in channels.values():
         channel.servers = list(servers.keys())
@@ -63,7 +62,7 @@ def get_app_schema(
     for channel_name, ch in channels.items():
         resolve_channel_messages(ch, channel_name, payloads, messages)
 
-    schema = Schema(
+    return Schema(
         info=Info(
             title=title,
             version=app_version,
@@ -87,14 +86,13 @@ def get_app_schema(
             else broker.security.get_schema(),
         ),
     )
-    return schema
 
 
 def resolve_channel_messages(
     channel: Channel,
     channel_name: str,
-    payloads: Dict[str, AnyDict],
-    messages: Dict[str, Message],
+    payloads: dict[str, AnyDict],
+    messages: dict[str, Message],
 ) -> None:
     if channel.subscribe is not None:
         assert isinstance(channel.subscribe.message, Message)
@@ -119,11 +117,11 @@ def resolve_channel_messages(
 
 def get_broker_server(
     broker: "BrokerUsecase[MsgType, ConnectionType]",
-) -> Dict[str, Server]:
+) -> dict[str, Server]:
     """Get the broker server for an application."""
     servers = {}
 
-    tags: Optional[List[Union[Tag, AnyDict]]] = None
+    tags: Optional[list[Union[Tag, AnyDict]]] = None
     if broker.tags:
         tags = [tag_from_spec(tag) for tag in broker.tags]
 
@@ -131,7 +129,7 @@ def get_broker_server(
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,
-        "tags": tags if tags else None,
+        "tags": tags or None,
         # TODO
         # "variables": "",
         # "bindings": "",
@@ -154,20 +152,20 @@ def get_broker_server(
 
 def get_broker_channels(
     broker: "BrokerUsecase[MsgType, ConnectionType]",
-) -> Dict[str, Channel]:
+) -> dict[str, Channel]:
     """Get the broker channels for an application."""
     channels = {}
 
     for h in broker._subscribers:
         schema = h.schema()
         channels.update(
-            {key: channel_from_spec(channel) for key, channel in schema.items()}
+            {key: channel_from_spec(channel) for key, channel in schema.items()},
         )
 
     for p in broker._publishers:
         schema = p.schema()
         channels.update(
-            {key: channel_from_spec(channel) for key, channel in schema.items()}
+            {key: channel_from_spec(channel) for key, channel in schema.items()},
         )
 
     return channels
@@ -183,7 +181,7 @@ def _resolve_msg_payloads(
 
     Payloads and messages are editable dicts to store schemas for reference in AsyncAPI.
     """
-    one_of_list: List[Reference] = []
+    one_of_list: list[Reference] = []
     m.payload = move_pydantic_refs(m.payload, DEF_KEY)
 
     if DEF_KEY in m.payload:
@@ -192,11 +190,13 @@ def _resolve_msg_payloads(
     one_of = m.payload.get("oneOf")
     if isinstance(one_of, dict):
         for p_title, p in one_of.items():
-            p_title = clear_key(p_title)
+            formatted_payload_title = clear_key(p_title)
             payloads.update(p.pop(DEF_KEY, {}))
-            if p_title not in payloads:
-                payloads[p_title] = p
-            one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
+            if formatted_payload_title not in payloads:
+                payloads[formatted_payload_title] = p
+            one_of_list.append(
+                Reference(**{"$ref": f"#/components/schemas/{formatted_payload_title}"})
+            )
 
     elif one_of is not None:
         # Descriminator case
@@ -230,7 +230,7 @@ def move_pydantic_refs(
     key: str,
 ) -> Any:
     """Remove pydantic references and replacem them by real schemas."""
-    if not isinstance(original, Dict):
+    if not isinstance(original, dict):
         return original
 
     data = original.copy()
@@ -245,7 +245,7 @@ def move_pydantic_refs(
         elif isinstance(item, dict):
             data[k] = move_pydantic_refs(data[k], key)
 
-        elif isinstance(item, List):
+        elif isinstance(item, list):
             for i in range(len(data[k])):
                 data[k][i] = move_pydantic_refs(item[i], key)
 

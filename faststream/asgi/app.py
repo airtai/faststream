@@ -2,16 +2,13 @@ import inspect
 import logging
 import traceback
 from abc import abstractmethod
+from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncIterator,
-    Dict,
     Optional,
     Protocol,
-    Sequence,
-    Tuple,
 )
 
 import anyio
@@ -45,7 +42,7 @@ if TYPE_CHECKING:
 
 
 class ServerState(Protocol):
-    extra_options: Dict[str, "SettingField"]
+    extra_options: dict[str, "SettingField"]
 
     @abstractmethod
     def stop(self) -> None: ...
@@ -64,7 +61,7 @@ class CliRunState(ServerState):
     def __init__(
         self,
         server: "UvicornServerProtocol",
-        extra_options: Dict[str, "SettingField"],
+        extra_options: dict[str, "SettingField"],
     ) -> None:
         self.server = server
         self.extra_options = extra_options
@@ -80,7 +77,7 @@ class AsgiFastStream(Application):
         self,
         broker: Optional["BrokerUsecase[Any, Any]"] = None,
         /,
-        asgi_routes: Sequence[Tuple[str, "ASGIApp"]] = (),
+        asgi_routes: Sequence[tuple[str, "ASGIApp"]] = (),
         # regular broker args
         logger: Optional["LoggerProto"] = logger,
         lifespan: Optional["Lifespan"] = None,
@@ -108,7 +105,7 @@ class AsgiFastStream(Application):
     def from_app(
         cls,
         app: Application,
-        asgi_routes: Sequence[Tuple[str, "ASGIApp"]],
+        asgi_routes: Sequence[tuple[str, "ASGIApp"]],
         asyncapi_path: Optional[str] = None,
     ) -> "AsgiFastStream":
         asgi_app = cls(
@@ -151,7 +148,7 @@ class AsgiFastStream(Application):
     async def run(
         self,
         log_level: int = logging.INFO,
-        run_extra_options: Optional[Dict[str, "SettingField"]] = None,
+        run_extra_options: Optional[dict[str, "SettingField"]] = None,
     ) -> None:
         """Method to be compatible with FastStream CLI."""
         import uvicorn
@@ -186,7 +183,7 @@ class AsgiFastStream(Application):
     @asynccontextmanager
     async def start_lifespan_context(
         self,
-        run_extra_options: Optional[Dict[str, "SettingField"]] = None,
+        run_extra_options: Optional[dict[str, "SettingField"]] = None,
     ) -> AsyncIterator[None]:
         run_extra_options = run_extra_options or self._server.extra_options
 
@@ -208,7 +205,7 @@ class AsgiFastStream(Application):
     async def __start(
         self,
         log_level: int,
-        run_extra_options: Dict[str, "SettingField"],
+        run_extra_options: dict[str, "SettingField"],
         *,
         task_status: "TaskStatus[None]" = anyio.TASK_STATUS_IGNORED,
     ) -> None:

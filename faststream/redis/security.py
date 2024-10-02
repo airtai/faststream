@@ -11,12 +11,12 @@ if TYPE_CHECKING:
 def parse_security(security: Optional[BaseSecurity]) -> "AnyDict":
     if security is None:
         return {}
-    elif isinstance(security, SASLPlaintext):
+    if isinstance(security, SASLPlaintext):
         return _parse_sasl_plaintext(security)
-    elif isinstance(security, BaseSecurity):
+    if isinstance(security, BaseSecurity):
         return _parse_base_security(security)
-    else:
-        raise NotImplementedError(f"RedisBroker does not support {type(security)}")
+    msg = f"RedisBroker does not support {type(security)}"
+    raise NotImplementedError(msg)
 
 
 def _parse_base_security(security: BaseSecurity) -> "AnyDict":
@@ -38,8 +38,7 @@ def _parse_base_security(security: BaseSecurity) -> "AnyDict":
                 }
 
         return {"connection_class": SSLConnection}
-    else:
-        return {}
+    return {}
 
 
 def _parse_sasl_plaintext(security: SASLPlaintext) -> "AnyDict":

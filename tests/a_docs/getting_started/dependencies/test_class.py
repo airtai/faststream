@@ -19,5 +19,5 @@ async def test_basic_kafka():
             {
                 "name": "John",
                 "user_id": 1,
-            }
+            },
         )

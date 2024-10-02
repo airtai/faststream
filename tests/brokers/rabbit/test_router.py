@@ -91,7 +91,7 @@ class TestRouter(RouterTestcase):
                         type=ExchangeType.TOPIC,
                     ),
                 ),
-            )
+            ),
         )
 
         pub_broker = self.get_broker(apply_types=True)
@@ -132,7 +132,7 @@ class TestRouter(RouterTestcase):
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        broker.publish("hello", f"test/{r_queue.name}")
+                        broker.publish("hello", f"test/{r_queue.name}"),
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -166,7 +166,7 @@ class TestRouter(RouterTestcase):
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        broker.publish("hello", f"test/{queue}1", exchange=exchange)
+                        broker.publish("hello", f"test/{queue}1", exchange=exchange),
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -187,7 +187,8 @@ class TestRouter(RouterTestcase):
         r_queue = RabbitQueue(queue)
 
         r = type(router)(
-            prefix="test/", handlers=(self.route_class(response, queue=r_queue),)
+            prefix="test/",
+            handlers=(self.route_class(response, queue=r_queue),),
         )
 
         pub_broker = self.get_broker()
@@ -199,7 +200,7 @@ class TestRouter(RouterTestcase):
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        pub_broker.publish("hello", f"test/{r_queue.name}")
+                        pub_broker.publish("hello", f"test/{r_queue.name}"),
                     ),
                     asyncio.create_task(event.wait()),
                 ),

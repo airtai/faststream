@@ -197,7 +197,7 @@ def test_publish_command_with_rabbit_options(runner):
         assert producer_mock.publish.call_args.kwargs == IsPartialDict(
             {
                 "correlation_id": "someId",
-            }
+            },
         )
 
 

@@ -54,7 +54,8 @@ class TestTestclient(BrokerTestclientTestcase):
         broker = self.get_broker()
 
         publisher = broker.publisher(
-            exchange=RabbitExchange("test", type=ExchangeType.TOPIC), routing_key="up"
+            exchange=RabbitExchange("test", type=ExchangeType.TOPIC),
+            routing_key="up",
         )
 
         async with self.patch_broker(broker):
@@ -215,25 +216,25 @@ class TestTestclient(BrokerTestclientTestcase):
         async def handler2(msg: RabbitMessage):
             await msg.raw_message.nack()
             consume2.set()
-            raise ValueError()
+            raise ValueError
 
         @broker.subscriber(queue=queue + "2", exchange=exchange, retry=1)
         async def handler3(msg: RabbitMessage):
             await msg.raw_message.reject()
             consume3.set()
-            raise ValueError()
+            raise ValueError
 
         async with self.patch_broker(broker) as br:
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        br.publish("hello", queue=queue, exchange=exchange)
+                        br.publish("hello", queue=queue, exchange=exchange),
                     ),
                     asyncio.create_task(
-                        br.publish("hello", queue=queue + "1", exchange=exchange)
+                        br.publish("hello", queue=queue + "1", exchange=exchange),
                     ),
                     asyncio.create_task(
-                        br.publish("hello", queue=queue + "2", exchange=exchange)
+                        br.publish("hello", queue=queue + "2", exchange=exchange),
                     ),
                     asyncio.create_task(consume.wait()),
                     asyncio.create_task(consume2.wait()),
@@ -303,7 +304,8 @@ class TestTestclient(BrokerTestclientTestcase):
 
     @pytest.mark.rabbit
     async def test_broker_with_real_patches_publishers_and_subscribers(
-        self, queue: str
+        self,
+        queue: str,
     ):
         await super().test_broker_with_real_patches_publishers_and_subscribers(queue)
 
@@ -321,7 +323,10 @@ class TestTestclient(BrokerTestclientTestcase):
         pytest.param("#.test.*.*", "1.2.test.1.2", True, id="#.test.*."),
         pytest.param("#.test.*.*.*", "1.2.test.1.2", False, id="#.test.*.*.* - broken"),
         pytest.param(
-            "#.test.*.test.#", "1.2.test.1.test.1.2", True, id="#.test.*.test.#"
+            "#.test.*.test.#",
+            "1.2.test.1.test.1.2",
+            True,
+            id="#.test.*.test.#",
         ),
         pytest.param("#.*.test", "1.2.2.test", True, id="#.*.test"),
         pytest.param("#.2.*.test", "1.2.2.test", True, id="#.2.*.test"),

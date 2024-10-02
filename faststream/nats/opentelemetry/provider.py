@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, List, Optional, Sequence, Union, overload
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Optional, Union, overload
 
 from nats.aio.msg import Msg
 from opentelemetry.semconv.trace import SpanAttributes
@@ -58,11 +59,11 @@ class NatsTelemetrySettingsProvider(BaseNatsTelemetrySettingsProvider["Msg"]):
 
 
 class NatsBatchTelemetrySettingsProvider(
-    BaseNatsTelemetrySettingsProvider[List["Msg"]]
+    BaseNatsTelemetrySettingsProvider[list["Msg"]],
 ):
     def get_consume_attrs_from_message(
         self,
-        msg: "StreamMessage[List[Msg]]",
+        msg: "StreamMessage[list[Msg]]",
     ) -> "AnyDict":
         return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
@@ -75,7 +76,7 @@ class NatsBatchTelemetrySettingsProvider(
 
     def get_consume_destination_name(
         self,
-        msg: "StreamMessage[List[Msg]]",
+        msg: "StreamMessage[list[Msg]]",
     ) -> str:
         return msg.raw_message[0].subject
 
@@ -110,8 +111,7 @@ def telemetry_attributes_provider_factory(
 ]:
     if isinstance(msg, Sequence):
         return NatsBatchTelemetrySettingsProvider()
-    elif isinstance(msg, Msg) or msg is None:
+    if isinstance(msg, Msg) or msg is None:
         return NatsTelemetrySettingsProvider()
-    else:
-        # KeyValue and Object Storage watch cases
-        return None
+    # KeyValue and Object Storage watch cases
+    return None

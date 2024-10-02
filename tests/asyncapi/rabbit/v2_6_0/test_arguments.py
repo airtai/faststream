@@ -36,7 +36,7 @@ class TestArguments(ArgumentsTestcase):
                     "name": "test",
                     "vhost": "/",
                 },
-            }
+            },
         }
 
     def test_subscriber_fanout_bindings(self):
@@ -62,7 +62,7 @@ class TestArguments(ArgumentsTestcase):
                     "vhost": "/",
                 },
                 "is": "routingKey",
-            }
+            },
         }
 
     def test_subscriber_headers_bindings(self):
@@ -88,7 +88,7 @@ class TestArguments(ArgumentsTestcase):
                     "vhost": "/",
                 },
                 "is": "routingKey",
-            }
+            },
         }
 
     def test_subscriber_xdelay_bindings(self):
@@ -114,7 +114,7 @@ class TestArguments(ArgumentsTestcase):
                     "vhost": "/",
                 },
                 "is": "routingKey",
-            }
+            },
         }
 
     def test_subscriber_consistent_hash_bindings(self):
@@ -140,7 +140,7 @@ class TestArguments(ArgumentsTestcase):
                     "vhost": "/",
                 },
                 "is": "routingKey",
-            }
+            },
         }
 
     def test_subscriber_modules_hash_bindings(self):
@@ -166,5 +166,5 @@ class TestArguments(ArgumentsTestcase):
                     "vhost": "/",
                 },
                 "is": "routingKey",
-            }
+            },
         }

@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from typing_extensions import TypeAlias, override
 
@@ -34,7 +35,7 @@ PublisherType: TypeAlias = Union[
 class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
     """A class to represent a Redis publisher."""
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
@@ -45,14 +46,14 @@ class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads, "Publisher"),
                         correlationId=CorrelationId(
-                            location="$message.header#/correlation_id"
+                            location="$message.header#/correlation_id",
                         ),
                     ),
                 ),
                 bindings=ChannelBinding(
                     redis=self.channel_binding,
                 ),
-            )
+            ),
         }
 
     @override
@@ -89,7 +90,7 @@ class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
                 include_in_schema=include_in_schema,
             )
 
-        elif (stream := StreamSub.validate(stream)) is not None:
+        if (stream := StreamSub.validate(stream)) is not None:
             return AsyncAPIStreamPublisher(
                 stream=stream,
                 # basic args
@@ -104,7 +105,7 @@ class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
                 include_in_schema=include_in_schema,
             )
 
-        elif (list := ListSub.validate(list)) is not None:
+        if (list := ListSub.validate(list)) is not None:
             if list.batch:
                 return AsyncAPIListBatchPublisher(
                     list=list,
@@ -119,23 +120,21 @@ class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
                     schema_=schema_,
                     include_in_schema=include_in_schema,
                 )
-            else:
-                return AsyncAPIListPublisher(
-                    list=list,
-                    # basic args
-                    headers=headers,
-                    reply_to=reply_to,
-                    broker_middlewares=broker_middlewares,
-                    middlewares=middlewares,
-                    # AsyncAPI args
-                    title_=title_,
-                    description_=description_,
-                    schema_=schema_,
-                    include_in_schema=include_in_schema,
-                )
+            return AsyncAPIListPublisher(
+                list=list,
+                # basic args
+                headers=headers,
+                reply_to=reply_to,
+                broker_middlewares=broker_middlewares,
+                middlewares=middlewares,
+                # AsyncAPI args
+                title_=title_,
+                description_=description_,
+                schema_=schema_,
+                include_in_schema=include_in_schema,
+            )
 
-        else:
-            raise SetupError(INCORRECT_SETUP_MSG)
+        raise SetupError(INCORRECT_SETUP_MSG)
 
 
 class AsyncAPIChannelPublisher(ChannelPublisher, SpecificationPublisher):

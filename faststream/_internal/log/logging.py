@@ -1,7 +1,7 @@
 import logging
 import sys
+from collections.abc import Mapping
 from logging import LogRecord
-from typing import Mapping
 
 from faststream._internal.context.repository import context
 from faststream._internal.log.formatter import ColourizedFormatter
@@ -14,7 +14,7 @@ main_handler.setFormatter(
     ColourizedFormatter(
         fmt="%(asctime)s %(levelname)8s - %(message)s",
         use_colors=True,
-    )
+    ),
 )
 logger.addHandler(main_handler)
 
@@ -33,7 +33,8 @@ class ExtendedFilter(logging.Filter):
     def filter(self, record: LogRecord) -> bool:
         if is_suitable := super().filter(record):
             log_context: Mapping[str, str] = context.get_local(
-                "log_context", self.default_context
+                "log_context",
+                self.default_context,
             )
 
             for k, v in log_context.items():
@@ -60,7 +61,7 @@ def get_broker_logger(
         ColourizedFormatter(
             fmt=fmt,
             use_colors=True,
-        )
+        ),
     )
     logger.addHandler(handler)
     return logger

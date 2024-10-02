@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 from faststream.specification.schema.docs import ExternalDocs
 from faststream.specification.schema.tag import Tag
@@ -38,7 +38,7 @@ class Message:
         externalDocs : external documentation associated with the message
     """
 
-    payload: Dict[str, Any]
+    payload: dict[str, Any]
     title: Optional[str] = None
     name: Optional[str] = None
     summary: Optional[str] = None
@@ -47,5 +47,5 @@ class Message:
     correlationId: Optional[CorrelationId] = None
     contentType: Optional[str] = None
 
-    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
-    externalDocs: Optional[Union[ExternalDocs, Dict[str, Any]]] = None
+    tags: Optional[list[Union[Tag, dict[str, Any]]]] = None
+    externalDocs: Optional[Union[ExternalDocs, dict[str, Any]]] = None

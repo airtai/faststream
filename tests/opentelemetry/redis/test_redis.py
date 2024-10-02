@@ -41,7 +41,8 @@ class TestTelemetry(LocalTelemetryTestcase):
         trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(
-            meter_provider=meter_provider, tracer_provider=tracer_provider
+            meter_provider=meter_provider,
+            tracer_provider=tracer_provider,
         )
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_msg_count = 3
@@ -95,7 +96,8 @@ class TestTelemetry(LocalTelemetryTestcase):
         trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(
-            meter_provider=meter_provider, tracer_provider=tracer_provider
+            meter_provider=meter_provider,
+            tracer_provider=tracer_provider,
         )
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         msgs_queue = asyncio.Queue(maxsize=3)
@@ -158,7 +160,8 @@ class TestTelemetry(LocalTelemetryTestcase):
         trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(
-            meter_provider=meter_provider, tracer_provider=tracer_provider
+            meter_provider=meter_provider,
+            tracer_provider=tracer_provider,
         )
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_msg_count = 2
@@ -181,19 +184,24 @@ class TestTelemetry(LocalTelemetryTestcase):
             tasks = (
                 asyncio.create_task(
                     br.publish(
-                        "hi", list=queue, headers=Baggage({"foo": "bar"}).to_headers()
-                    )
+                        "hi",
+                        list=queue,
+                        headers=Baggage({"foo": "bar"}).to_headers(),
+                    ),
                 ),
                 asyncio.create_task(
                     br.publish(
-                        "buy", list=queue, headers=Baggage({"bar": "baz"}).to_headers()
-                    )
+                        "buy",
+                        list=queue,
+                        headers=Baggage({"bar": "baz"}).to_headers(),
+                    ),
                 ),
             )
             await asyncio.wait(tasks, timeout=self.timeout)
             await broker.start()
             await asyncio.wait(
-                (asyncio.create_task(event.wait()),), timeout=self.timeout
+                (asyncio.create_task(event.wait()),),
+                timeout=self.timeout,
             )
 
         metrics = self.get_metrics(metric_reader)

@@ -18,7 +18,8 @@ async def async_decoder(msg: Message) -> DecodedMessage:
 
 
 async def custom_decoder(
-    msg: Message, original: Callable[[Message], Awaitable[DecodedMessage]]
+    msg: Message,
+    original: Callable[[Message], Awaitable[DecodedMessage]],
 ) -> DecodedMessage:
     return await original(msg)
 
@@ -37,7 +38,8 @@ async def async_parser(msg: Msg) -> Message:
 
 
 async def custom_parser(
-    msg: Msg, original: Callable[[Msg], Awaitable[Message]]
+    msg: Msg,
+    original: Callable[[Msg], Awaitable[Message]],
 ) -> Message:
     return await original(msg)
 
@@ -201,7 +203,7 @@ StreamRouter(
             parser=custom_parser,
             decoder=custom_decoder,
         ),
-    )
+    ),
 )
 
 

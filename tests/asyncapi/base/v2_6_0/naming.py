@@ -21,15 +21,15 @@ class SubscriberNaming(BaseNaming):
         schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated"),
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message"),
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
-            "HandleUserCreated:Message:Payload"
+            "HandleUserCreated:Message:Payload",
         ]
 
     def test_pydantic_subscriber_naming(self):
@@ -41,11 +41,11 @@ class SubscriberNaming(BaseNaming):
         schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated"),
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message"),
         ]
 
         assert list(schema["components"]["schemas"].keys()) == ["SimpleModel"]
@@ -70,7 +70,7 @@ class SubscriberNaming(BaseNaming):
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
-            "HandleUserCreated:Message:Payload"
+            "HandleUserCreated:Message:Payload",
         ]
 
     def test_subscriber_naming_manual(self):
@@ -86,7 +86,7 @@ class SubscriberNaming(BaseNaming):
         assert list(schema["components"]["messages"].keys()) == ["custom:Message"]
 
         assert list(schema["components"]["schemas"].keys()) == [
-            "custom:Message:Payload"
+            "custom:Message:Payload",
         ]
 
     def test_subscriber_naming_default(self):
@@ -97,11 +97,11 @@ class SubscriberNaming(BaseNaming):
         schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
-            IsStr(regex=r"test[\w:]*:Subscriber")
+            IsStr(regex=r"test[\w:]*:Subscriber"),
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:Subscriber:Message")
+            IsStr(regex=r"test[\w:]*:Subscriber:Message"),
         ]
 
         for key, v in schema["components"]["schemas"].items():
@@ -120,11 +120,11 @@ class SubscriberNaming(BaseNaming):
         assert list(schema["components"]["messages"].keys()) == ["custom:Message"]
 
         assert list(schema["components"]["schemas"].keys()) == [
-            "custom:Message:Payload"
+            "custom:Message:Payload",
         ]
 
         assert schema["components"]["schemas"]["custom:Message:Payload"] == {
-            "title": "custom:Message:Payload"
+            "title": "custom:Message:Payload",
         }
 
     def test_multi_subscribers_naming_default(self):
@@ -156,7 +156,7 @@ class SubscriberNaming(BaseNaming):
         ]
 
         assert schema["components"]["schemas"]["Subscriber:Message:Payload"] == {
-            "title": "Subscriber:Message:Payload"
+            "title": "Subscriber:Message:Payload",
         }
 
 
@@ -175,11 +175,11 @@ class FilterNaming(BaseNaming):
         schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated"),
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message"),
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
@@ -201,11 +201,11 @@ class FilterNaming(BaseNaming):
         schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
         assert list(schema["channels"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated"),
         ]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message")
+            IsStr(regex=r"test[\w:]*:HandleUserCreated:Message"),
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
@@ -248,11 +248,11 @@ class PublisherNaming(BaseNaming):
         assert list(schema["channels"].keys()) == [IsStr(regex=r"test[\w:]*:Publisher")]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:Publisher:Message")
+            IsStr(regex=r"test[\w:]*:Publisher:Message"),
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
-            IsStr(regex=r"test[\w:]*:Publisher:Message:Payload")
+            IsStr(regex=r"test[\w:]*:Publisher:Message:Payload"),
         ]
 
     def test_publisher_naming_pydantic(self):
@@ -266,7 +266,7 @@ class PublisherNaming(BaseNaming):
         assert list(schema["channels"].keys()) == [IsStr(regex=r"test[\w:]*:Publisher")]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:Publisher:Message")
+            IsStr(regex=r"test[\w:]*:Publisher:Message"),
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
@@ -286,7 +286,7 @@ class PublisherNaming(BaseNaming):
         assert list(schema["components"]["messages"].keys()) == ["custom:Message"]
 
         assert list(schema["components"]["schemas"].keys()) == [
-            "custom:Message:Payload"
+            "custom:Message:Payload",
         ]
 
     def test_publisher_with_schema_naming(self):
@@ -300,11 +300,11 @@ class PublisherNaming(BaseNaming):
         assert list(schema["channels"].keys()) == [IsStr(regex=r"test[\w:]*:Publisher")]
 
         assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:Publisher:Message")
+            IsStr(regex=r"test[\w:]*:Publisher:Message"),
         ]
 
         assert list(schema["components"]["schemas"].keys()) == [
-            IsStr(regex=r"test[\w:]*:Publisher:Message:Payload")
+            IsStr(regex=r"test[\w:]*:Publisher:Message:Payload"),
         ]
 
     def test_publisher_manual_naming_with_schema(self):
@@ -320,7 +320,7 @@ class PublisherNaming(BaseNaming):
         assert list(schema["components"]["messages"].keys()) == ["custom:Message"]
 
         assert list(schema["components"]["schemas"].keys()) == [
-            "custom:Message:Payload"
+            "custom:Message:Payload",
         ]
 
     def test_multi_publishers_naming(self):

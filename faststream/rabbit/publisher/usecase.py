@@ -1,18 +1,18 @@
+from collections.abc import Awaitable, Iterable
 from copy import deepcopy
 from functools import partial
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
-    Awaitable,
     Callable,
-    Iterable,
     Optional,
     Union,
 )
 
 from aio_pika import IncomingMessage
-from typing_extensions import Annotated, Doc, TypedDict, Unpack, override
+from typing_extensions import Doc, TypedDict, Unpack, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.subscriber.utils import process_msg
@@ -40,21 +40,21 @@ class RequestPublishKwargs(TypedDict, total=False):
         Optional["HeadersType"],
         Doc(
             "Message headers to store metainformation. "
-            "Can be overridden by `publish.headers` if specified."
+            "Can be overridden by `publish.headers` if specified.",
         ),
     ]
     mandatory: Annotated[
         Optional[bool],
         Doc(
             "Client waits for confirmation that the message is placed to some queue. "
-            "RabbitMQ returns message to client if there is no suitable queue."
+            "RabbitMQ returns message to client if there is no suitable queue.",
         ),
     ]
     immediate: Annotated[
         Optional[bool],
         Doc(
             "Client expects that there is consumer ready to take the message to work. "
-            "RabbitMQ returns message to client if there is no suitable consumer."
+            "RabbitMQ returns message to client if there is no suitable consumer.",
         ),
     ]
     timeout: Annotated[
@@ -79,7 +79,7 @@ class RequestPublishKwargs(TypedDict, total=False):
         Doc(
             "Message **content-type** header. "
             "Used by application, not core RabbitMQ. "
-            "Will be set automatically if not specified."
+            "Will be set automatically if not specified.",
         ),
     ]
     user_id: Annotated[
@@ -102,7 +102,7 @@ class PublishKwargs(RequestPublishKwargs, total=False):
     reply_to: Annotated[
         Optional[str],
         Doc(
-            "Reply message routing key to send with (always sending to default exchange)."
+            "Reply message routing key to send with (always sending to default exchange).",
         ),
     ]
 
@@ -191,7 +191,7 @@ class LogicPublisher(
             str,
             Doc(
                 "Message routing key to publish with. "
-                "Overrides `queue` option if presented."
+                "Overrides `queue` option if presented.",
             ),
         ] = "",
         # message args
@@ -199,7 +199,7 @@ class LogicPublisher(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         message_id: Annotated[
@@ -267,7 +267,7 @@ class LogicPublisher(
             str,
             Doc(
                 "Message routing key to publish with. "
-                "Overrides `queue` option if presented."
+                "Overrides `queue` option if presented.",
             ),
         ] = "",
         # message args
@@ -275,7 +275,7 @@ class LogicPublisher(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         message_id: Annotated[

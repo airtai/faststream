@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Literal, Optional, Sequence, Union
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 from faststream.specification.base.specification import Specification
 
@@ -46,7 +47,7 @@ class AsyncAPI(Specification):
                 tags=tags,
                 external_docs=external_docs,
             )
-        elif schema_version.startswith("2.6."):
+        if schema_version.startswith("2.6."):
             return AsyncAPI2(
                 broker,
                 title=title,
@@ -60,8 +61,8 @@ class AsyncAPI(Specification):
                 tags=tags,
                 external_docs=external_docs,
             )
-        else:
-            raise NotImplementedError(f"Unsupported schema version: {schema_version}")
+        msg = f"Unsupported schema version: {schema_version}"
+        raise NotImplementedError(msg)
 
     def to_json(self) -> str:
         raise NotImplementedError

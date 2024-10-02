@@ -37,7 +37,7 @@ class ColourizedFormatter(logging.Formatter):
         use one of %-formatting, :meth:`str.format` (``{}``) formatting or
         :class:`string.Template` formatting in your format string.
         """
-        if use_colors in (True, False):
+        if use_colors in {True, False}:
             self.use_colors = use_colors
         else:
             self.use_colors = sys.stdout.isatty()

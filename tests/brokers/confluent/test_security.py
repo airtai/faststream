@@ -34,9 +34,13 @@ async def test_base_security_pass_ssl_context():
 
     basic_broker = KafkaBroker("localhost:9092", security=security)
 
-    with patch_aio_consumer_and_producer(), pytest.raises(
-        SetupError, match="not supported"
-    ) as e:
+    with (
+        patch_aio_consumer_and_producer(),
+        pytest.raises(
+            SetupError,
+            match="not supported",
+        ) as e,
+    ):
         async with basic_broker:
             pass
 

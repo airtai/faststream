@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import watchfiles
 
@@ -38,7 +39,7 @@ class WatchReloader(BaseReload):
     def __init__(
         self,
         target: "DecoratedCallable",
-        args: Tuple[Any, ...],
+        args: tuple[Any, ...],
         reload_dirs: Sequence[Union[Path, str]],
         reload_delay: float = 0.3,
         extra_extensions: Sequence[str] = (),

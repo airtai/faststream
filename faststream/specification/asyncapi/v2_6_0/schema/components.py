@@ -1,5 +1,4 @@
 from typing import (
-    Dict,
     Optional,
 )
 
@@ -40,9 +39,9 @@ class Components(BaseModel):
 
     """
 
-    messages: Optional[Dict[str, Message]] = None
-    schemas: Optional[Dict[str, AnyDict]] = None
-    securitySchemes: Optional[Dict[str, AnyDict]] = None
+    messages: Optional[dict[str, Message]] = None
+    schemas: Optional[dict[str, AnyDict]] = None
+    securitySchemes: Optional[dict[str, AnyDict]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

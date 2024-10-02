@@ -1,6 +1,7 @@
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
-from typing import Any, Dict, Iterator, Mapping
+from typing import Any
 
 from faststream._internal.basic_types import AnyDict
 from faststream._internal.constants import EMPTY
@@ -13,7 +14,7 @@ class ContextRepo:
     """A class to represent a context repository."""
 
     _global_context: AnyDict
-    _scope_context: Dict[str, ContextVar[Any]]
+    _scope_context: dict[str, ContextVar[Any]]
 
     def __init__(self) -> None:
         """Initialize the class.
@@ -132,19 +133,18 @@ class ContextRepo:
         """
         if (glob := self._global_context.get(key, EMPTY)) is EMPTY:
             return self.get_local(key, default)
-        else:
-            return glob
+        return glob
 
-    def __getattr__(self, __name: str) -> Any:
+    def __getattr__(self, name: str, /) -> Any:
         """This is a function that is part of a class. It is used to get an attribute value using the `__getattr__` method.
 
         Args:
-            __name: The name of the attribute to get.
+            name: The name of the attribute to get.
 
         Returns:
             The value of the attribute.
         """
-        return self.get(__name)
+        return self.get(name)
 
     def resolve(self, argument: str) -> Any:
         """Resolve the context of an argument.

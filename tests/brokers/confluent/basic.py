@@ -8,7 +8,9 @@ class ConfluentTestcaseConfig(_Base):
     timeout: float = 10.0
 
     def get_subscriber_params(
-        self, *topics: Any, **kwargs: Any
+        self,
+        *topics: Any,
+        **kwargs: Any,
     ) -> Tuple[
         Tuple[Any, ...],
         Dict[str, Any],

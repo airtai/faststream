@@ -2,7 +2,7 @@ import logging
 import sys
 import warnings
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import anyio
 import typer
@@ -31,10 +31,10 @@ def version_callback(version: bool) -> None:
 
         typer.echo(
             f"Running FastStream {__version__} with {platform.python_implementation()} "
-            f"{platform.python_version()} on {platform.system()}"
+            f"{platform.python_version()} on {platform.system()}",
         )
 
-        raise typer.Exit()
+        raise typer.Exit
 
 
 @cli.callback()
@@ -52,7 +52,7 @@ def main(
 
 
 @cli.command(
-    context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
+    context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
 )
 def run(
     ctx: typer.Context,
@@ -76,7 +76,7 @@ def run(
         is_flag=True,
         help="Restart app at directory files changes.",
     ),
-    watch_extensions: List[str] = typer.Option(
+    watch_extensions: list[str] = typer.Option(
         (),
         "--extension",
         "--ext",
@@ -103,7 +103,7 @@ def run(
     if watch_extensions and not reload:
         typer.echo(
             "Extra reload extensions has no effect without `--reload` flag."
-            "\nProbably, you forgot it?"
+            "\nProbably, you forgot it?",
         )
 
     app, extra = parse_cli_args(app, *ctx.args)
@@ -116,7 +116,8 @@ def run(
     args = (app, extra, is_factory, casted_log_level)
 
     if reload and workers > 1:
-        raise SetupError("You can't use reload option with multiprocessing")
+        msg = "You can't use reload option with multiprocessing"
+        raise SetupError(msg)
 
     if reload:
         try:
@@ -157,7 +158,7 @@ def run(
 def _run(
     # NOTE: we should pass `str` due FastStream is not picklable
     app: str,
-    extra_options: Dict[str, "SettingField"],
+    extra_options: dict[str, "SettingField"],
     is_factory: bool,
     log_level: int = logging.NOTSET,
     app_level: int = logging.INFO,
@@ -168,14 +169,15 @@ def _run(
         app_obj = app_obj()
 
     if not isinstance(app_obj, Application):
+        msg = f'Imported object "{app_obj}" must be "Application" type.'
         raise typer.BadParameter(
-            f'Imported object "{app_obj}" must be "Application" type.',
+            msg,
         )
 
     if log_level > 0:
         set_log_level(log_level, app_obj)
 
-    if sys.platform not in ("win32", "cygwin", "cli"):  # pragma: no cover
+    if sys.platform not in {"win32", "cygwin", "cli"}:  # pragma: no cover
         with suppress(ImportError):
             import uvloop
 
@@ -196,7 +198,7 @@ def _run(
 
 
 @cli.command(
-    context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
+    context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
 )
 def publish(
     ctx: typer.Context,
@@ -241,7 +243,8 @@ def publish(
         assert isinstance(app_obj, FastStream), app_obj
 
         if not app_obj.broker:
-            raise ValueError("Broker instance not found in the app.")
+            msg = "Broker instance not found in the app."
+            raise ValueError(msg)
 
         app_obj._setup()
         result = anyio.run(publish_message, app_obj.broker, rpc, extra)
@@ -255,15 +258,15 @@ def publish(
 
 
 async def publish_message(
-    broker: "BrokerUsecase[Any, Any]", rpc: bool, extra: "AnyDict"
+    broker: "BrokerUsecase[Any, Any]",
+    rpc: bool,
+    extra: "AnyDict",
 ) -> Any:
     try:
         async with broker:
             if rpc:
-                msg = await broker.request(**extra)
-                return msg
-            else:
-                return await broker.publish(**extra)
+                return await broker.request(**extra)
+            return await broker.publish(**extra)
     except Exception as e:
         typer.echo(f"Error when broker was publishing: {e}")
         sys.exit(1)

@@ -1,20 +1,18 @@
 from abc import abstractmethod
+from collections.abc import Iterable, Sequence
 from functools import partial
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
     Generic,
-    Iterable,
-    List,
     Optional,
-    Sequence,
-    Type,
     Union,
     cast,
 )
 
-from typing_extensions import Annotated, Doc, Self
+from typing_extensions import Doc, Self
 
 from faststream._internal._compat import is_test_env
 from faststream._internal.setup import (
@@ -88,7 +86,7 @@ class BrokerUsecase(
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ],
         # Logging args
@@ -128,13 +126,13 @@ class BrokerUsecase(
             Doc("AsyncAPI server tags."),
         ],
         specification_url: Annotated[
-            Union[str, List[str]],
+            Union[str, list[str]],
             Doc("AsyncAPI hardcoded server addresses."),
         ],
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security."
+                "Security options to connect broker and generate AsyncAPI server security.",
             ),
         ],
         **connection_kwargs: Any,
@@ -193,7 +191,7 @@ class BrokerUsecase(
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]],
+        exc_type: Optional[type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional["TracebackType"],
     ) -> None:
@@ -222,7 +220,7 @@ class BrokerUsecase(
     @abstractmethod
     async def _connect(self) -> ConnectionType:
         """Connect to a resource."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _setup(self, state: Optional[BaseState] = None) -> None:
         """Prepare all Broker entities to startup."""
@@ -308,7 +306,7 @@ class BrokerUsecase(
 
     async def close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
@@ -368,4 +366,4 @@ class BrokerUsecase(
     @abstractmethod
     async def ping(self, timeout: Optional[float]) -> bool:
         """Check connection alive."""
-        raise NotImplementedError()
+        raise NotImplementedError

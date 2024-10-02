@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from typing_extensions import override
 
@@ -27,7 +27,7 @@ class SpecificationSubscriber(LogicSubscriber[Any, Any]):
     def get_name(self) -> str:
         return f"{self.subject}:{self.call_name}"
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
@@ -38,7 +38,7 @@ class SpecificationSubscriber(LogicSubscriber[Any, Any]):
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
-                            location="$message.header#/correlation_id"
+                            location="$message.header#/correlation_id",
                         ),
                     ),
                 ),
@@ -46,9 +46,9 @@ class SpecificationSubscriber(LogicSubscriber[Any, Any]):
                     nats=nats.ChannelBinding(
                         subject=self.subject,
                         queue=getattr(self, "queue", "") or None,
-                    )
+                    ),
                 ),
-            )
+            ),
         }
 
 
@@ -112,7 +112,7 @@ class SpecificationKeyValueWatchSubscriber(
         return ""
 
     @override
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> dict[str, Channel]:
         return {}
 
 
@@ -127,5 +127,5 @@ class SpecificationObjStoreWatchSubscriber(
         return ""
 
     @override
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> dict[str, Channel]:
         return {}

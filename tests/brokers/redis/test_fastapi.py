@@ -43,7 +43,8 @@ class TestRouter(FastAPITestcase):
 
     async def test_connection_params(self, settings):
         broker = self.router_class(
-            host="fake-host", port=6377
+            host="fake-host",
+            port=6377,
         ).broker  # kwargs will be ignored
         await broker.connect(
             host=settings.host,

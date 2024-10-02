@@ -140,12 +140,12 @@ class FastAPICompatible:
                 {
                     "anyOf": [{"type": "integer"}, {"type": "null"}],
                     "title": key,
-                }
+                },
             ) | IsDict(
                 {  # TODO: remove when deprecating PydanticV1
                     "title": key,
                     "type": "integer",
-                }
+                },
             ), v
 
     def test_simple_type_with_default(self):
@@ -230,13 +230,13 @@ class FastAPICompatible:
                             "anyOf": [{"type": "integer"}, {"type": "null"}],
                             "default": None,
                             "title": "Another",
-                        }
+                        },
                     )
                     | IsDict(
                         {  # TODO: remove when deprecating PydanticV1
                             "title": "Another",
                             "type": "integer",
-                        }
+                        },
                     ),
                     "msg": {"title": "Msg", "type": "string"},
                 },
@@ -323,7 +323,7 @@ class FastAPICompatible:
                     "enum": ["registered", "banned"],
                     "title": "Status",
                     "type": "string",
-                }
+                },
             ),
             "User": {
                 "properties": {
@@ -394,7 +394,7 @@ class FastAPICompatible:
 
             if PYDANTIC_V2:
                 model_config = {
-                    "json_schema_extra": {"examples": [{"name": "john", "id": 1}]}
+                    "json_schema_extra": {"examples": [{"name": "john", "id": 1}]},
                 }
 
             else:
@@ -447,7 +447,7 @@ class FastAPICompatible:
             len(
                 next(iter(schema["components"]["messages"].values()))["payload"][
                     "oneOf"
-                ]
+                ],
             )
             == 2
         )
@@ -498,7 +498,8 @@ class FastAPICompatible:
             type: Literal["sub"]
 
         descriminator = Annotated[
-            Union[Sub2, Sub], pydantic.Field(discriminator="type")
+            Union[Sub2, Sub],
+            pydantic.Field(discriminator="type"),
         ]
 
         broker = self.broker_factory()
@@ -516,12 +517,12 @@ class FastAPICompatible:
                     "title": key,
                     "correlationId": {"location": "$message.header#/correlation_id"},
                     "payload": {"$ref": "#/components/schemas/Handle:Message:Payload"},
-                }
+                },
             },
             "schemas": {
                 "Sub": {
                     "properties": {
-                        "type": IsPartialDict({"const": "sub", "title": "Type"})
+                        "type": IsPartialDict({"const": "sub", "title": "Type"}),
                     },
                     "required": ["type"],
                     "title": "Sub",
@@ -529,7 +530,7 @@ class FastAPICompatible:
                 },
                 "Sub2": {
                     "properties": {
-                        "type": IsPartialDict({"const": "sub2", "title": "Type"})
+                        "type": IsPartialDict({"const": "sub2", "title": "Type"}),
                     },
                     "required": ["type"],
                     "title": "Sub2",
@@ -572,12 +573,12 @@ class FastAPICompatible:
                     "title": key,
                     "correlationId": {"location": "$message.header#/correlation_id"},
                     "payload": {"$ref": "#/components/schemas/Model"},
-                }
+                },
             },
             "schemas": {
                 "Sub": {
                     "properties": {
-                        "type": IsPartialDict({"const": "sub", "title": "Type"})
+                        "type": IsPartialDict({"const": "sub", "title": "Type"}),
                     },
                     "required": ["type"],
                     "title": "Sub",
@@ -585,7 +586,7 @@ class FastAPICompatible:
                 },
                 "Sub2": {
                     "properties": {
-                        "type": IsPartialDict({"const": "sub2", "title": "Type"})
+                        "type": IsPartialDict({"const": "sub2", "title": "Type"}),
                     },
                     "required": ["type"],
                     "title": "Sub2",
@@ -600,7 +601,7 @@ class FastAPICompatible:
                                 {"$ref": "#/components/schemas/Sub"},
                             ],
                             "title": "Msg",
-                        }
+                        },
                     },
                     "required": ["msg"],
                     "title": "Model",
@@ -666,7 +667,7 @@ class ArgumentsTestcase(FastAPICompatible):
                     "required": ["id"],
                     "title": key,
                     "type": "object",
-                }
+                },
             ) | IsDict(  # TODO: remove when deprecating PydanticV1
                 {
                     "properties": {
@@ -676,5 +677,5 @@ class ArgumentsTestcase(FastAPICompatible):
                     "required": ["id"],
                     "title": "Handle:Message:Payload",
                     "type": "object",
-                }
+                },
             )

@@ -149,8 +149,13 @@ def test_default(context: ContextRepo):
         assert key4 == 1
         assert key5 is False
 
-    with context.scope("key", 0), context.scope("key2", True), context.scope(
-        "key5", {"key6": False}
+    with (
+        context.scope("key", 0),
+        context.scope("key2", True),
+        context.scope(
+            "key5",
+            {"key6": False},
+        ),
     ):
         use()
 

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 from typing_extensions import Self
@@ -9,8 +9,8 @@ from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     ChannelBinding,
     channel_binding_from_spec,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.operations import Operation
 from faststream.specification.asyncapi.v2_6_0.schema.operations import (
+    Operation,
     from_spec as operation_from_spec,
 )
 
@@ -32,7 +32,7 @@ class Channel(BaseModel):
     """
 
     description: Optional[str] = None
-    servers: Optional[List[str]] = None
+    servers: Optional[list[str]] = None
     bindings: Optional[ChannelBinding] = None
     subscribe: Optional[Operation] = None
     publish: Optional[Operation] = None

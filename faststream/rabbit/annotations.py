@@ -1,5 +1,6 @@
+from typing import Annotated
+
 from aio_pika import RobustChannel, RobustConnection
-from typing_extensions import Annotated
 
 from faststream._internal.context import Context
 from faststream.annotations import ContextRepo, Logger
@@ -9,14 +10,14 @@ from faststream.rabbit.message import RabbitMessage as RM
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 
 __all__ = (
-    "Logger",
-    "ContextRepo",
-    "NoCast",
-    "RabbitMessage",
-    "RabbitBroker",
-    "RabbitProducer",
     "Channel",
     "Connection",
+    "ContextRepo",
+    "Logger",
+    "NoCast",
+    "RabbitBroker",
+    "RabbitMessage",
+    "RabbitProducer",
 )
 
 RabbitMessage = Annotated[RM, Context("message")]
@@ -25,10 +26,3 @@ RabbitProducer = Annotated[AioPikaFastProducer, Context("broker._producer")]
 
 Channel = Annotated[RobustChannel, Context("broker._channel")]
 Connection = Annotated[RobustConnection, Context("broker._connection")]
-
-# NOTE: transaction is not for the public usage yet
-# async def _get_transaction(connection: Connection) -> RabbitTransaction:
-#     async with connection.channel(publisher_confirms=False) as channel:
-#         yield channel.transaction()
-
-# Transaction = Annotated[RabbitTransaction, Depends(_get_transaction)]

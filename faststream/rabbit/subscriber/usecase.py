@@ -1,10 +1,8 @@
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    Iterable,
     Optional,
-    Sequence,
     Union,
 )
 
@@ -131,7 +129,8 @@ class LogicSubscriber(
     async def start(self) -> None:
         """Starts the consumer for the RabbitMQ queue."""
         if self.declarer is None:
-            raise SetupError("You should setup subscriber at first.")
+            msg = "You should setup subscriber at first."
+            raise SetupError(msg)
 
         self._queue_obj = queue = await self.declarer.declare_queue(self.queue)
 
@@ -225,7 +224,7 @@ class LogicSubscriber(
         message: Optional["StreamMessage[Any]"],
         queue: "RabbitQueue",
         exchange: Optional["RabbitExchange"] = None,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return {
             "queue": queue.name,
             "exchange": getattr(exchange, "name", ""),
@@ -235,7 +234,7 @@ class LogicSubscriber(
     def get_log_context(
         self,
         message: Optional["StreamMessage[Any]"],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return self.build_log_context(
             message=message,
             queue=self.queue,

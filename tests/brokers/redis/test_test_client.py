@@ -228,6 +228,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
     @pytest.mark.redis
     async def test_broker_with_real_patches_publishers_and_subscribers(
-        self, queue: str
+        self,
+        queue: str,
     ):
         await super().test_broker_with_real_patches_publishers_and_subscribers(queue)

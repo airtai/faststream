@@ -92,7 +92,9 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         assert mock.end.call_count == 2
 
     async def test_local_middleware_not_shared_between_subscribers(
-        self, queue: str, mock: Mock
+        self,
+        queue: str,
+        mock: Mock,
     ):
         event1 = asyncio.Event()
         event2 = asyncio.Event()
@@ -208,7 +210,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         @broker.subscriber(*args, **kwargs)
         async def handler2(m):
             event.set()
-            raise ValueError()
+            raise ValueError
 
         async with self.patch_broker(broker) as br:
             await br.start()
@@ -565,7 +567,10 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         assert mock.call_count == 0
 
     async def test_exception_middleware_different_handler(
-        self, event: asyncio.Event, queue: str, mock: Mock
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
     ):
         mid = ExceptionMiddleware()
 
@@ -642,7 +647,10 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         ]
 
     async def test_exception_middleware_decoder_error(
-        self, event: asyncio.Event, queue: str, mock: Mock
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
     ):
         async def decoder(
             msg,

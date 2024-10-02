@@ -90,7 +90,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                     msg.headers,
                     [msg.headers] == msg.batch_headers,
                     msg.headers.get("custom") == "1",
-                )
+                ),
             )
             mock(check)
             event.set()
@@ -126,7 +126,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AIOKafkaConsumer,
+                "commit",
+                spy_decorator(AIOKafkaConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -134,7 +136,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             consume_broker.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -189,7 +191,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AIOKafkaConsumer,
+                "commit",
+                spy_decorator(AIOKafkaConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -197,7 +201,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             br.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -225,7 +229,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AIOKafkaConsumer,
+                "commit",
+                spy_decorator(AIOKafkaConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -233,7 +239,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             br.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -261,7 +267,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AIOKafkaConsumer,
+                "commit",
+                spy_decorator(AIOKafkaConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -269,7 +277,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             br.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -296,7 +304,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AIOKafkaConsumer,
+                "commit",
+                spy_decorator(AIOKafkaConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -304,7 +314,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             br.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),

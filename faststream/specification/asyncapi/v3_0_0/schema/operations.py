@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from pydantic import BaseModel
 from typing_extensions import Self
@@ -43,15 +43,15 @@ class Operation(BaseModel):
 
     bindings: Optional[OperationBinding] = None
 
-    messages: List[Reference]
+    messages: list[Reference]
     channel: Union[Channel, Reference]
 
-    security: Optional[Dict[str, List[str]]] = None
+    security: Optional[dict[str, list[str]]] = None
 
     # TODO
     # traits
 
-    tags: Optional[List[Union[Tag, AnyDict]]] = None
+    tags: Optional[list[Union[Tag, AnyDict]]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}
@@ -63,7 +63,10 @@ class Operation(BaseModel):
 
     @classmethod
     def from_spec(
-        cls, operation: spec.operation.Operation, action: Action, channel_name: str
+        cls,
+        operation: spec.operation.Operation,
+        action: Action,
+        channel_name: str,
     ) -> Self:
         return cls(
             action=action,
@@ -77,9 +80,9 @@ class Operation(BaseModel):
                     **{
                         "$ref": f"#/channels/{channel_name}/messages/SubscribeMessage"
                         if action is Action.RECEIVE
-                        else f"#/channels/{channel_name}/messages/Message"
+                        else f"#/channels/{channel_name}/messages/Message",
                     },
-                )
+                ),
             ],
             channel=Reference(
                 **{"$ref": f"#/channels/{channel_name}"},
@@ -89,6 +92,8 @@ class Operation(BaseModel):
 
 
 def from_spec(
-    operation: spec.operation.Operation, action: Action, channel_name: str
+    operation: spec.operation.Operation,
+    action: Action,
+    channel_name: str,
 ) -> Operation:
     return Operation.from_spec(operation, action, channel_name)

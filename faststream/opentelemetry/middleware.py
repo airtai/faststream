@@ -1,7 +1,7 @@
 import time
 from collections import defaultdict
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
 from opentelemetry import baggage, context, metrics, trace
 from opentelemetry.baggage.propagation import W3CBaggagePropagator
@@ -10,8 +10,10 @@ from opentelemetry.semconv.trace import SpanAttributes
 from opentelemetry.trace import Link, Span
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
-from faststream import BaseMiddleware
-from faststream import context as fs_context
+from faststream import (
+    BaseMiddleware,
+    context as fs_context,
+)
 from faststream.opentelemetry.baggage import Baggage
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
@@ -41,10 +43,10 @@ _TRACE_PROPAGATOR = TraceContextTextMapPropagator()
 class _MetricsContainer:
     __slots__ = (
         "include_messages_counters",
-        "publish_duration",
-        "publish_counter",
-        "process_duration",
         "process_counter",
+        "process_duration",
+        "publish_counter",
+        "publish_duration",
     )
 
     def __init__(self, meter: "Meter", include_messages_counters: bool) -> None:
@@ -74,7 +76,10 @@ class _MetricsContainer:
             )
 
     def observe_publish(
-        self, attrs: "AnyDict", duration: float, msg_count: int
+        self,
+        attrs: "AnyDict",
+        duration: float,
+        msg_count: int,
     ) -> None:
         self.publish_duration.record(
             amount=duration,
@@ -89,7 +94,10 @@ class _MetricsContainer:
             )
 
     def observe_consume(
-        self, attrs: "AnyDict", duration: float, msg_count: int
+        self,
+        attrs: "AnyDict",
+        duration: float,
+        msg_count: int,
     ) -> None:
         self.process_duration.record(
             amount=duration,
@@ -110,7 +118,8 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         *,
         tracer: "Tracer",
         settings_provider_factory: Callable[
-            [Any], Optional[TelemetrySettingsProvider[Any]]
+            [Any],
+            Optional[TelemetrySettingsProvider[Any]],
         ],
         metrics_container: _MetricsContainer,
         msg: Optional[Any] = None,
@@ -121,7 +130,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         self._metrics = metrics_container
         self._current_span: Optional[Span] = None
         self._origin_context: Optional[Context] = None
-        self._scope_tokens: List[Tuple[str, Token[Any]]] = []
+        self._scope_tokens: list[tuple[str, Token[Any]]] = []
         self.__settings_provider = settings_provider_factory(msg)
 
     async def publish_scope(
@@ -153,12 +162,14 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             trace_attributes[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = msg_count
             current_context = _BAGGAGE_PROPAGATOR.extract(headers, current_context)
             _BAGGAGE_PROPAGATOR.inject(
-                headers, baggage.set_baggage(WITH_BATCH, True, context=current_context)
+                headers,
+                baggage.set_baggage(WITH_BATCH, True, context=current_context),
             )
 
         if self._current_span and self._current_span.is_recording():
             current_context = trace.set_span_in_context(
-                self._current_span, current_context
+                self._current_span,
+                current_context,
             )
             _TRACE_PROPAGATOR.inject(headers, context=self._origin_context)
 
@@ -182,7 +193,8 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 context=current_context,
             ) as span:
                 span.set_attribute(
-                    SpanAttributes.MESSAGING_OPERATION, MessageAction.PUBLISH
+                    SpanAttributes.MESSAGING_OPERATION,
+                    MessageAction.PUBLISH,
                 )
                 result = await call_next(msg, *args, headers=headers, **kwargs)
 
@@ -243,13 +255,14 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 end_on_exit=False,
             ) as span:
                 span.set_attribute(
-                    SpanAttributes.MESSAGING_OPERATION, MessageAction.PROCESS
+                    SpanAttributes.MESSAGING_OPERATION,
+                    MessageAction.PROCESS,
                 )
                 self._current_span = span
 
                 self._scope_tokens.append(("span", fs_context.set_local("span", span)))
                 self._scope_tokens.append(
-                    ("baggage", fs_context.set_local("baggage", Baggage.from_msg(msg)))
+                    ("baggage", fs_context.set_local("baggage", Baggage.from_msg(msg))),
                 )
 
                 new_context = trace.set_span_in_context(span, current_context)
@@ -264,7 +277,8 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         finally:
             duration = time.perf_counter() - start_time
             msg_count = trace_attributes.get(
-                SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT, 1
+                SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT,
+                1,
             )
             self._metrics.observe_consume(metrics_attributes, duration, msg_count)
 
@@ -272,7 +286,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 
     async def after_processed(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
@@ -284,17 +298,18 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 class TelemetryMiddleware:
     # NOTE: should it be class or function?
     __slots__ = (
-        "_tracer",
         "_meter",
         "_metrics",
         "_settings_provider_factory",
+        "_tracer",
     )
 
     def __init__(
         self,
         *,
         settings_provider_factory: Callable[
-            [Any], Optional[TelemetrySettingsProvider[Any]]
+            [Any],
+            Optional[TelemetrySettingsProvider[Any]],
         ],
         tracer_provider: Optional["TracerProvider"] = None,
         meter_provider: Optional["MeterProvider"] = None,
@@ -342,20 +357,20 @@ def _create_span_name(destination: str, action: str) -> str:
 
 def _is_batch_message(msg: "StreamMessage[Any]") -> bool:
     with_batch = baggage.get_baggage(
-        WITH_BATCH, _BAGGAGE_PROPAGATOR.extract(msg.headers)
+        WITH_BATCH,
+        _BAGGAGE_PROPAGATOR.extract(msg.headers),
     )
     return bool(msg.batch_headers or with_batch)
 
 
-def _get_msg_links(msg: "StreamMessage[Any]") -> List[Link]:
+def _get_msg_links(msg: "StreamMessage[Any]") -> list[Link]:
     if not msg.batch_headers:
         if (span := _get_span_from_headers(msg.headers)) is not None:
             return [Link(span.get_span_context())]
-        else:
-            return []
+        return []
 
     links = {}
-    counter: Dict[str, int] = defaultdict(lambda: 0)
+    counter: dict[str, int] = defaultdict(lambda: 0)
 
     for headers in msg.batch_headers:
         if (correlation_id := headers.get("correlation_id")) is None:

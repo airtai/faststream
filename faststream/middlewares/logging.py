@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, Any, Optional, Type
+from typing import TYPE_CHECKING, Any, Optional
 
 from faststream._internal.context.repository import context
 from faststream._internal.setup.logger import LoggerState
@@ -40,7 +40,7 @@ class LoggingMiddleware(BaseMiddleware):
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> bool:

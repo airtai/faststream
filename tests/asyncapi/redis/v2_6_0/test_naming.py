@@ -25,23 +25,25 @@ class TestNaming(NamingTestCase):
                             "bindingVersion": "custom",
                             "channel": "test",
                             "method": "subscribe",
-                        }
+                        },
                     },
                     "servers": ["development"],
                     "subscribe": {
-                        "message": {"$ref": "#/components/messages/test:Handle:Message"}
+                        "message": {
+                            "$ref": "#/components/messages/test:Handle:Message"
+                        },
                     },
-                }
+                },
             },
             "components": {
                 "messages": {
                     "test:Handle:Message": {
                         "correlationId": {
-                            "location": "$message.header#/correlation_id"
+                            "location": "$message.header#/correlation_id",
                         },
                         "payload": {"$ref": "#/components/schemas/EmptyPayload"},
                         "title": "test:Handle:Message",
-                    }
+                    },
                 },
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},
             },
@@ -52,7 +54,7 @@ class TestNaming(NamingTestCase):
                     "protocol": "redis",
                     "protocolVersion": "custom",
                     "url": "redis://localhost:6379",
-                }
+                },
             },
         }, schema
 

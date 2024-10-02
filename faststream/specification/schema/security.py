@@ -1,4 +1,4 @@
-from typing import Dict, Literal, Optional
+from typing import Literal, Optional
 
 from pydantic import AnyHttpUrl, BaseModel, Field
 
@@ -12,13 +12,13 @@ class OauthFlowObj(BaseModel):
         authorizationUrl : Optional[AnyHttpUrl] : The URL for authorization
         tokenUrl : Optional[AnyHttpUrl] : The URL for token
         refreshUrl : Optional[AnyHttpUrl] : The URL for refresh
-        scopes : Dict[str, str] : The scopes for the OAuth flow
+        scopes : dict[str, str] : The scopes for the OAuth flow
     """
 
     authorizationUrl: Optional[AnyHttpUrl] = None
     tokenUrl: Optional[AnyHttpUrl] = None
     refreshUrl: Optional[AnyHttpUrl] = None
-    scopes: Dict[str, str]
+    scopes: dict[str, str]
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

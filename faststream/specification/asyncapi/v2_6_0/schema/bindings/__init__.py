@@ -7,7 +7,7 @@ from .main import (
 
 __all__ = (
     "ChannelBinding",
-    "channel_binding_from_spec",
     "OperationBinding",
+    "channel_binding_from_spec",
     "operation_binding_from_spec",
 )

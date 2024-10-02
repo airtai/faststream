@@ -1,8 +1,10 @@
 import logging
 from abc import ABC, abstractmethod
-from collections import Counter
-from typing import TYPE_CHECKING, Any, Optional, Type, Union
-from typing import Counter as CounterType
+from collections import (
+    Counter,
+    Counter as CounterType,
+)
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from faststream.exceptions import (
     AckMessage,
@@ -36,17 +38,17 @@ class BaseWatcher(ABC):
     @abstractmethod
     def add(self, message_id: str) -> None:
         """Add a message."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def is_max(self, message_id: str) -> bool:
         """Check if the given message ID is the maximum attempt."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def remove(self, message_id: str) -> None:
         """Remove a message."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class EndlessWatcher(BaseWatcher):
@@ -54,7 +56,6 @@ class EndlessWatcher(BaseWatcher):
 
     def add(self, message_id: str) -> None:
         """Add a message to the list."""
-        pass
 
     def is_max(self, message_id: str) -> bool:
         """Check if the given message ID is the maximum attempt."""
@@ -62,7 +63,6 @@ class EndlessWatcher(BaseWatcher):
 
     def remove(self, message_id: str) -> None:
         """Remove a message."""
-        pass
 
 
 class OneTryWatcher(BaseWatcher):
@@ -70,7 +70,6 @@ class OneTryWatcher(BaseWatcher):
 
     def add(self, message_id: str) -> None:
         """Add a message."""
-        pass
 
     def is_max(self, message_id: str) -> bool:
         """Check if the given message ID is the maximum attempt."""
@@ -78,7 +77,6 @@ class OneTryWatcher(BaseWatcher):
 
     def remove(self, message_id: str) -> None:
         """Remove a message."""
-        pass
 
 
 class CounterWatcher(BaseWatcher):
@@ -104,11 +102,13 @@ class CounterWatcher(BaseWatcher):
         if self.logger is not None:
             if is_max:
                 self.logger.log(
-                    logging.ERROR, f"Already retried {self.max_tries} times. Skipped."
+                    logging.ERROR,
+                    f"Already retried {self.max_tries} times. Skipped.",
                 )
             else:
                 self.logger.log(
-                    logging.ERROR, "Error is occurred. Pushing back to queue."
+                    logging.ERROR,
+                    "Error is occurred. Pushing back to queue.",
                 )
         return is_max
 
@@ -138,7 +138,7 @@ class WatcherContext:
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]],
+        exc_type: Optional[type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional["TracebackType"],
     ) -> bool:

@@ -49,7 +49,7 @@ def build_url(
 
 def is_routing_exchange(exchange: Optional["RabbitExchange"]) -> bool:
     """Check if an exchange requires routing_key to deliver message."""
-    return not exchange or exchange.type in (
+    return not exchange or exchange.type in {
         ExchangeType.DIRECT.value,
         ExchangeType.TOPIC.value,
-    )
+    }

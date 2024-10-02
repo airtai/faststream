@@ -25,7 +25,7 @@ class RedisParamsStorage(DefaultLoggerStorage):
             (
                 self._max_channel_name,
                 len(params.get("channel", "")),
-            )
+            ),
         )
 
     def get_logger(self) -> Optional["LoggerProto"]:

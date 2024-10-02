@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from pydantic import BaseModel
 from typing_extensions import Self
@@ -6,8 +6,8 @@ from typing_extensions import Self
 from faststream._internal._compat import PYDANTIC_V2
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import ChannelBinding
-from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
+    Message,
     from_spec as message_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
@@ -34,8 +34,8 @@ class Channel(BaseModel):
 
     address: str
     description: Optional[str] = None
-    servers: Optional[List[Dict[str, str]]] = None
-    messages: Dict[str, Union[Message, Reference]]
+    servers: Optional[list[dict[str, str]]] = None
+    messages: dict[str, Union[Message, Reference]]
     bindings: Optional[ChannelBinding] = None
 
     # TODO:

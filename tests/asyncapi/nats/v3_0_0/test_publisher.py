@@ -16,5 +16,5 @@ class TestArguments(PublisherTestcase):
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
-            "nats": {"bindingVersion": "custom", "subject": "test"}
+            "nats": {"bindingVersion": "custom", "subject": "test"},
         }, schema["channels"][key]["bindings"]

@@ -32,30 +32,30 @@ class TestRouter(RouterTestcase):
                             "bindingVersion": "custom",
                             "channel": "test_test",
                             "method": "subscribe",
-                        }
+                        },
                     },
                     "servers": ["development"],
                     "subscribe": {
                         "message": {
-                            "$ref": "#/components/messages/test_test:Handle:Message"
-                        }
+                            "$ref": "#/components/messages/test_test:Handle:Message",
+                        },
                     },
-                }
+                },
             },
             "components": {
                 "messages": {
                     "test_test:Handle:Message": {
                         "correlationId": {
-                            "location": "$message.header#/correlation_id"
+                            "location": "$message.header#/correlation_id",
                         },
                         "payload": {
-                            "$ref": "#/components/schemas/Handle:Message:Payload"
+                            "$ref": "#/components/schemas/Handle:Message:Payload",
                         },
                         "title": "test_test:Handle:Message",
-                    }
+                    },
                 },
                 "schemas": {
-                    "Handle:Message:Payload": {"title": "Handle:Message:Payload"}
+                    "Handle:Message:Payload": {"title": "Handle:Message:Payload"},
                 },
             },
             "defaultContentType": "application/json",
@@ -65,7 +65,7 @@ class TestRouter(RouterTestcase):
                     "protocol": "redis",
                     "protocolVersion": "custom",
                     "url": "redis://localhost:6379",
-                }
+                },
             },
         }
 

@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from inspect import isclass
-from typing import TYPE_CHECKING, Any, Optional, Sequence, Type, overload
+from typing import TYPE_CHECKING, Any, Optional, overload
 
 from pydantic import BaseModel, create_model
 
@@ -50,7 +51,9 @@ def get_response_schema(
     """Get the response schema for a given call."""
     return get_model_schema(
         getattr(
-            call, "response_model", None
+            call,
+            "response_model",
+            None,
         ),  # NOTE: FastAPI Dependant object compatibility
         prefix=prefix,
     )
@@ -66,14 +69,14 @@ def get_model_schema(
 
 @overload
 def get_model_schema(
-    call: Type[BaseModel],
+    call: type[BaseModel],
     prefix: str = "",
     exclude: Sequence[str] = (),
 ) -> AnyDict: ...
 
 
 def get_model_schema(
-    call: Optional[Type[BaseModel]],
+    call: Optional[type[BaseModel]],
     prefix: str = "",
     exclude: Sequence[str] = (),
 ) -> Optional[AnyDict]:
@@ -118,8 +121,7 @@ def get_model_schema(
             if param_body.get("$ref"):
                 ref_obj: AnyDict = next(iter(defs.values()))
                 return ref_obj
-            else:
-                param_body[DEF_KEY] = defs
+            param_body[DEF_KEY] = defs
 
         original_title = param.title if PYDANTIC_V2 else param.field_info.title
 

@@ -1,5 +1,6 @@
+from typing import Annotated
+
 from aiokafka import AIOKafkaConsumer
-from typing_extensions import Annotated
 
 from faststream._internal.context import Context
 from faststream.annotations import ContextRepo, Logger
@@ -9,12 +10,12 @@ from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.params import NoCast
 
 __all__ = (
-    "Logger",
     "ContextRepo",
-    "NoCast",
-    "KafkaMessage",
     "KafkaBroker",
+    "KafkaMessage",
     "KafkaProducer",
+    "Logger",
+    "NoCast",
 )
 
 Consumer = Annotated[AIOKafkaConsumer, Context("handler_.consumer")]

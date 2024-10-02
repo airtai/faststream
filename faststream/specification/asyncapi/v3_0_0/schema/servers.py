@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from pydantic import BaseModel
 
@@ -7,7 +7,7 @@ from faststream._internal.basic_types import AnyDict
 from faststream.specification.asyncapi.v2_6_0.schema import ServerVariable, Tag
 from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
 
-SecurityRequirement = List[Dict[str, List[str]]]
+SecurityRequirement = list[dict[str, list[str]]]
 
 
 class Server(BaseModel):
@@ -37,9 +37,9 @@ class Server(BaseModel):
     protocol: str
     description: Optional[str] = None
     protocolVersion: Optional[str] = None
-    tags: Optional[List[Union[Tag, AnyDict]]] = None
+    tags: Optional[list[Union[Tag, AnyDict]]] = None
     security: Optional[SecurityRequirement] = None
-    variables: Optional[Dict[str, Union[ServerVariable, Reference]]] = None
+    variables: Optional[dict[str, Union[ServerVariable, Reference]]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

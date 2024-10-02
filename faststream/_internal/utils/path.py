@@ -1,5 +1,6 @@
 import re
-from typing import Callable, Optional, Pattern, Tuple
+from re import Pattern
+from typing import Callable, Optional
 
 from faststream.exceptions import SetupError
 
@@ -10,7 +11,7 @@ def compile_path(
     path: str,
     replace_symbol: str,
     patch_regex: Callable[[str], str] = lambda x: x,
-) -> Tuple[Optional[Pattern[str]], str]:
+) -> tuple[Optional[Pattern[str]], str]:
     path_regex = "^.*?"
     original_path = ""
 
@@ -36,7 +37,8 @@ def compile_path(
     if duplicated_params:
         names = ", ".join(sorted(duplicated_params))
         ending = "s" if len(duplicated_params) > 1 else ""
-        raise SetupError(f"Duplicated param name{ending} {names} at path {path}")
+        msg = f"Duplicated param name{ending} {names} at path {path}"
+        raise SetupError(msg)
 
     if idx == 0:
         regex = None

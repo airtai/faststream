@@ -1,7 +1,7 @@
 from copy import deepcopy
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Annotated, Optional
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
 from faststream._internal.proto import NameRequired
 from faststream._internal.utils.path import compile_path
@@ -21,17 +21,17 @@ class RabbitQueue(NameRequired):
     """
 
     __slots__ = (
-        "name",
+        "arguments",
+        "auto_delete",
+        "bind_arguments",
         "durable",
         "exclusive",
+        "name",
         "passive",
-        "auto_delete",
-        "arguments",
-        "timeout",
+        "path_regex",
         "robust",
         "routing_key",
-        "path_regex",
-        "bind_arguments",
+        "timeout",
     )
 
     def __hash__(self) -> int:
@@ -42,7 +42,7 @@ class RabbitQueue(NameRequired):
                 int(self.durable),
                 int(self.exclusive),
                 int(self.auto_delete),
-            )
+            ),
         )
 
     @property
@@ -64,7 +64,7 @@ class RabbitQueue(NameRequired):
             bool,
             Doc(
                 "The queue can be used only in the current connection "
-                "and will be deleted after connection closed."
+                "and will be deleted after connection closed.",
             ),
         ] = False,
         passive: Annotated[
@@ -79,7 +79,7 @@ class RabbitQueue(NameRequired):
             Optional["AnyDict"],
             Doc(
                 "Queue declarationg arguments. "
-                "You can find information about them in the official RabbitMQ documentation: https://www.rabbitmq.com/docs/queues#optional-arguments"
+                "You can find information about them in the official RabbitMQ documentation: https://www.rabbitmq.com/docs/queues#optional-arguments",
             ),
         ] = None,
         timeout: Annotated[
@@ -121,9 +121,9 @@ class RabbitQueue(NameRequired):
     def add_prefix(self, prefix: str) -> "RabbitQueue":
         new_q: RabbitQueue = deepcopy(self)
 
-        new_q.name = "".join((prefix, new_q.name))
+        new_q.name = f"{prefix}{new_q.name}"
 
         if new_q.routing_key:
-            new_q.routing_key = "".join((prefix, new_q.routing_key))
+            new_q.routing_key = f"{prefix}{new_q.routing_key}"
 
         return new_q

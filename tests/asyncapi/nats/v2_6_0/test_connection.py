@@ -28,7 +28,7 @@ def test_base():
                 "protocolVersion": "0.9.0",
                 "tags": [{"description": "experimental", "name": "some-tag"}],
                 "url": "nats:9092",
-            }
+            },
         },
     }, schema
 
@@ -63,7 +63,8 @@ def test_multi():
 def test_custom():
     schema = AsyncAPI(
         NatsBroker(
-            ["nats:9092", "nats:9093"], specification_url=["nats:9094", "nats:9095"]
+            ["nats:9092", "nats:9093"],
+            specification_url=["nats:9094", "nats:9095"],
         ),
         schema_version="2.6.0",
     ).to_jsonable()

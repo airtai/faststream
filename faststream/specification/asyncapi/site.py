@@ -1,6 +1,6 @@
 from functools import partial
 from http import server
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs, urlparse
 
 from faststream._internal._compat import json_dumps
@@ -126,7 +126,7 @@ class _Handler(server.BaseHTTPRequestHandler):
         self.schema = schema
         super().__init__(*args, **kwargs)
 
-    def get_query_params(self) -> Dict[str, bool]:
+    def get_query_params(self) -> dict[str, bool]:
         return {
             i: _str_to_bool(next(iter(j))) if j else False
             for i, j in parse_qs(urlparse(self.path).query).items()
@@ -158,4 +158,4 @@ class _Handler(server.BaseHTTPRequestHandler):
 
 
 def _str_to_bool(v: str) -> bool:
-    return v.lower() in ("1", "t", "true", "y", "yes")
+    return v.lower() in {"1", "t", "true", "y", "yes"}

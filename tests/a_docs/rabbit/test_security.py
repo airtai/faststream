@@ -26,7 +26,7 @@ async def test_base_security():
                 "protocolVersion": "0.9.1",
                 "security": [],
                 "url": "amqps://guest:guest@localhost:5672/",  # pragma: allowlist secret
-            }
+            },
         },
     }
 
@@ -59,7 +59,7 @@ async def test_plaintext_security():
                     "protocolVersion": "0.9.1",
                     "security": [{"user-password": []}],
                     "url": "amqps://admin:password@localhost:5672/",  # pragma: allowlist secret
-                }
+                },
             },
         }
     )

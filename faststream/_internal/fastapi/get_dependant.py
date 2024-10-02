@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 from fastapi.dependencies.utils import get_dependant, get_parameterless_sub_dependant
 
@@ -19,9 +20,7 @@ def get_fastapi_dependant(
         dependencies=dependencies,
     )
 
-    dependent = _patch_fastapi_dependent(dependent)
-
-    return dependent
+    return _patch_fastapi_dependent(dependent)
 
 
 def get_fastapi_native_dependant(
@@ -81,7 +80,7 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
                         "examples": info.examples,
                         "exclude": info.exclude,
                         "json_schema_extra": info.json_schema_extra,
-                    }
+                    },
                 )
 
                 f = next(
@@ -107,7 +106,7 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
                         "ge": info.field_info.ge,
                         "lt": info.field_info.lt,
                         "le": info.field_info.le,
-                    }
+                    },
                 )
                 f = Field(**field_data)  # type: ignore[pydantic-field]
 
@@ -117,7 +116,7 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
             )
 
     dependant.model = create_model(  # type: ignore[attr-defined]
-        getattr(dependant.call, "__name__", type(dependant.call).__name__)
+        getattr(dependant.call, "__name__", type(dependant.call).__name__),
     )
 
     dependant.custom_fields = {}  # type: ignore[attr-defined]

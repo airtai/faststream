@@ -1,11 +1,11 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel
 
 from faststream._internal._compat import PYDANTIC_V2
 from faststream.specification.schema.tag import Tag
 
-SecurityRequirement = List[Dict[str, List[str]]]
+SecurityRequirement = list[dict[str, list[str]]]
 
 
 class ServerVariable(BaseModel):
@@ -18,10 +18,10 @@ class ServerVariable(BaseModel):
         examples : list of example values for the server variable (optional)
     """
 
-    enum: Optional[List[str]] = None
+    enum: Optional[list[str]] = None
     default: Optional[str] = None
     description: Optional[str] = None
-    examples: Optional[List[str]] = None
+    examples: Optional[list[str]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}
@@ -52,9 +52,9 @@ class Server(BaseModel):
     protocol: str
     description: Optional[str] = None
     protocolVersion: Optional[str] = None
-    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
+    tags: Optional[list[Union[Tag, dict[str, Any]]]] = None
     security: Optional[SecurityRequirement] = None
-    variables: Optional[Dict[str, ServerVariable]] = None
+    variables: Optional[dict[str, ServerVariable]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

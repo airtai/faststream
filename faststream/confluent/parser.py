@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from faststream._internal.context.repository import context
 from faststream.confluent.message import FAKE_CONSUMER, KafkaMessage
@@ -42,11 +43,11 @@ class AsyncConfluentParser:
 
     @staticmethod
     async def parse_message_batch(
-        message: Tuple["Message", ...],
+        message: tuple["Message", ...],
     ) -> KafkaMessage:
         """Parses a batch of messages from a Kafka consumer."""
-        body: List[Any] = []
-        batch_headers: List[Dict[str, str]] = []
+        body: list[Any] = []
+        batch_headers: list[dict[str, str]] = []
 
         first = message[0]
         last = message[-1]
@@ -84,13 +85,13 @@ class AsyncConfluentParser:
     @classmethod
     async def decode_message_batch(
         cls,
-        msg: "StreamMessage[Tuple[Message, ...]]",
+        msg: "StreamMessage[tuple[Message, ...]]",
     ) -> "DecodedMessage":
         """Decode a batch of messages."""
         return [decode_message(await cls.parse_message(m)) for m in msg.raw_message]
 
 
 def _parse_msg_headers(
-    headers: Sequence[Tuple[str, Union[bytes, str]]],
-) -> Dict[str, str]:
+    headers: Sequence[tuple[str, Union[bytes, str]]],
+) -> dict[str, str]:
     return {i: j if isinstance(j, str) else j.decode() for i, j in headers}

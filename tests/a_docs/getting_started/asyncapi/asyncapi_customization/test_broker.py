@@ -12,5 +12,5 @@ def test_broker_customization():
             "protocol": "kafka",
             "description": "Kafka broker running locally",
             "protocolVersion": "auto",
-        }
+        },
     }

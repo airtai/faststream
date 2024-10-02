@@ -1,23 +1,20 @@
 import logging
+from collections.abc import Iterable
 from functools import partial
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Dict,
-    Iterable,
-    List,
     Literal,
     Optional,
-    Tuple,
-    Type,
     TypeVar,
     Union,
 )
 
 import anyio
 import confluent_kafka
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
@@ -63,12 +60,12 @@ class KafkaBroker(
     BrokerUsecase[
         Union[
             confluent_kafka.Message,
-            Tuple[confluent_kafka.Message, ...],
+            tuple[confluent_kafka.Message, ...],
         ],
         Callable[..., AsyncConfluentConsumer],
     ],
 ):
-    url: List[str]
+    url: list[str]
     _producer: Optional[AsyncConfluentFastProducer]
 
     def __init__(
@@ -83,7 +80,7 @@ class KafkaBroker(
             This does not have to be the full node list.
             It just needs to have at least one broker that will respond to a
             Metadata API Request. Default port is 9092.
-            """
+            """,
             ),
         ] = "localhost",
         *,
@@ -104,7 +101,7 @@ class KafkaBroker(
             which we force a refresh of metadata even if we haven't seen any
             partition leadership changes to proactively discover any new
             brokers or partitions.
-            """
+            """,
             ),
         ] = 5 * 60 * 1000,
         connections_max_idle_ms: Annotated[
@@ -114,7 +111,7 @@ class KafkaBroker(
              Close idle connections after the number
             of milliseconds specified by this config. Specifying `None` will
             disable idle checks.
-            """
+            """,
             ),
         ] = 9 * 60 * 1000,
         client_id: Annotated[
@@ -126,7 +123,7 @@ class KafkaBroker(
             server-side log entries that correspond to this client. Also
             submitted to :class:`~.consumer.group_coordinator.GroupCoordinator`
             for logging with respect to consumer group administration.
-            """
+            """,
             ),
         ] = SERVICE_NAME,
         allow_auto_create_topics: Annotated[
@@ -134,7 +131,7 @@ class KafkaBroker(
             Doc(
                 """
             Allow automatic topic creation on the broker when subscribing to or assigning non-existent topics.
-            """
+            """,
             ),
         ] = True,
         config: Annotated[
@@ -143,7 +140,7 @@ class KafkaBroker(
                 """
                 Extra configuration for the confluent-kafka-python
                 producer/consumer. See `confluent_kafka.Config <https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#kafka-client-configuration>`_.
-                """
+                """,
             ),
         ] = None,
         # publisher args
@@ -175,7 +172,7 @@ class KafkaBroker(
 
             If unset, defaults to ``acks=1``. If `enable_idempotence` is
             :data:`True` defaults to ``acks=all``.
-            """
+            """,
             ),
         ] = EMPTY,
         compression_type: Annotated[
@@ -186,14 +183,14 @@ class KafkaBroker(
             Compression is of full batches of data, so the efficacy of batching
             will also impact the compression ratio (more batching means better
             compression).
-            """
+            """,
             ),
         ] = None,
         partitioner: Annotated[
             Union[
                 str,
                 Callable[
-                    [bytes, List[Partition], List[Partition]],
+                    [bytes, list[Partition], list[Partition]],
                     Partition,
                 ],
             ],
@@ -207,7 +204,7 @@ class KafkaBroker(
             messages with the same key are assigned to the same partition.
             When a key is :data:`None`, the message is delivered to a random partition
             (filtered to partitions with available leaders only, if possible).
-            """
+            """,
             ),
         ] = "consistent_random",
         max_request_size: Annotated[
@@ -219,7 +216,7 @@ class KafkaBroker(
             has its own cap on record size which may be different from this.
             This setting will limit the number of record batches the producer
             will send in a single request to avoid sending huge requests.
-            """
+            """,
             ),
         ] = 1024 * 1024,
         linger_ms: Annotated[
@@ -234,7 +231,7 @@ class KafkaBroker(
             This setting accomplishes this by adding a small amount of
             artificial delay; that is, if first request is processed faster,
             than `linger_ms`, producer will wait ``linger_ms - process_time``.
-            """
+            """,
             ),
         ] = 0,
         enable_idempotence: Annotated[
@@ -247,7 +244,7 @@ class KafkaBroker(
             etc., may write duplicates of the retried message in the stream.
             Note that enabling idempotence acks to set to ``all``. If it is not
             explicitly set by the user it will be chosen.
-            """
+            """,
             ),
         ] = False,
         transactional_id: Optional[str] = None,
@@ -256,7 +253,7 @@ class KafkaBroker(
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ] = 15.0,
         decoder: Annotated[
@@ -275,7 +272,7 @@ class KafkaBroker(
             Iterable[
                 Union[
                     "BrokerMiddleware[Message]",
-                    "BrokerMiddleware[Tuple[Message, ...]]",
+                    "BrokerMiddleware[tuple[Message, ...]]",
                 ]
             ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
@@ -284,7 +281,7 @@ class KafkaBroker(
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
         specification_url: Annotated[
@@ -407,7 +404,7 @@ class KafkaBroker(
 
     async def close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
@@ -482,7 +479,7 @@ class KafkaBroker(
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         *,
         reply_to: str = "",
@@ -514,7 +511,7 @@ class KafkaBroker(
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         timeout: float = 0.5,
     ) -> Optional[Any]:
@@ -538,7 +535,7 @@ class KafkaBroker(
         topic: str,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
         no_confirm: bool = False,

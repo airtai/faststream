@@ -4,14 +4,14 @@ from .proto import SetupAble
 from .state import EmptyState, SetupState
 
 __all__ = (
-    # state
-    "SetupState",
     "EmptyState",
-    # proto
-    "SetupAble",
     # FastDepend
     "FastDependsData",
+    "LoggerParamsStorage",
     # logging
     "LoggerState",
-    "LoggerParamsStorage",
+    # proto
+    "SetupAble",
+    # state
+    "SetupState",
 )

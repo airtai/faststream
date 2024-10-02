@@ -13,7 +13,8 @@ def test_run_as_asgi(runner: CliRunner):
     app.run = AsyncMock()
 
     with patch(
-        "faststream._internal.cli.main.import_from_string", return_value=(None, app)
+        "faststream._internal.cli.main.import_from_string",
+        return_value=(None, app),
     ):
         result = runner.invoke(
             faststream_app,
@@ -27,7 +28,8 @@ def test_run_as_asgi(runner: CliRunner):
             ],
         )
         app.run.assert_awaited_once_with(
-            logging.INFO, {"host": "0.0.0.0", "port": "8000"}
+            logging.INFO,
+            {"host": "0.0.0.0", "port": "8000"},
         )
         assert result.exit_code == 0
 
@@ -38,7 +40,8 @@ def test_run_as_asgi_with_workers(runner: CliRunner, workers: int):
     app.run = AsyncMock()
 
     with patch(
-        "faststream._internal.cli.main.import_from_string", return_value=(None, app)
+        "faststream._internal.cli.main.import_from_string",
+        return_value=(None, app),
     ):
         result = runner.invoke(
             faststream_app,
@@ -56,7 +59,8 @@ def test_run_as_asgi_with_workers(runner: CliRunner, workers: int):
         extra = {"workers": workers} if workers > 1 else {}
 
         app.run.assert_awaited_once_with(
-            logging.INFO, {"host": "0.0.0.0", "port": "8000", **extra}
+            logging.INFO,
+            {"host": "0.0.0.0", "port": "8000", **extra},
         )
         assert result.exit_code == 0
 
@@ -85,6 +89,7 @@ def test_run_as_asgi_callable(runner: CliRunner):
         )
         app_factory.assert_called_once()
         app.run.assert_awaited_once_with(
-            logging.INFO, {"host": "0.0.0.0", "port": "8000"}
+            logging.INFO,
+            {"host": "0.0.0.0", "port": "8000"},
         )
         assert result.exit_code == 0

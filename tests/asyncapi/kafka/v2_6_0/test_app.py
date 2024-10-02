@@ -20,7 +20,7 @@ def test_base():
                 "protocol": "kafka",
                 "protocolVersion": "auto",
                 "url": "localhost",
-            }
+            },
         },
     }
 
@@ -49,7 +49,7 @@ def test_with_name():
                 "protocol": "kafka",
                 "protocolVersion": "auto",
                 "url": "localhost",
-            }
+            },
         },
     }
 
@@ -91,7 +91,7 @@ def test_full():
                 "protocol": "kafka",
                 "protocolVersion": "auto",
                 "url": "localhost",
-            }
+            },
         },
         "tags": [{"description": "experimental", "name": "some-tag"}],
     }
@@ -134,7 +134,7 @@ def test_full_dict():
                 "protocol": "kafka",
                 "protocolVersion": "auto",
                 "url": "localhost",
-            }
+            },
         },
         "tags": [{"description": "experimental", "name": "some-tag"}],
     }
@@ -182,9 +182,9 @@ def test_extra():
                 "protocol": "kafka",
                 "protocolVersion": "auto",
                 "url": "localhost",
-            }
+            },
         },
         "tags": [
-            {"description": "experimental", "name": "some-tag", "x-field": "extra"}
+            {"description": "experimental", "name": "some-tag", "x-field": "extra"},
         ],
     }

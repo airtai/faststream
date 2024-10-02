@@ -37,7 +37,7 @@ def test_base_security_schema():
                 "security": [],
                 "host": "localhost:6379",
                 "pathname": "/",
-            }
+            },
         },
     }
 
@@ -80,7 +80,7 @@ def test_plaintext_security_schema():
                 "security": [{"user-password": []}],
                 "host": "localhost:6379",
                 "pathname": "/",
-            }
+            },
         },
     }
 
@@ -120,6 +120,6 @@ def test_plaintext_security_schema_without_ssl():
                 "security": [{"user-password": []}],
                 "host": "localhost:6379",
                 "pathname": "/",
-            }
+            },
         },
     }

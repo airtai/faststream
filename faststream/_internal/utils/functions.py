@@ -1,12 +1,9 @@
-from contextlib import asynccontextmanager, contextmanager
+from collections.abc import AsyncIterator, Awaitable, Iterator
+from contextlib import AbstractContextManager, asynccontextmanager, contextmanager
 from functools import wraps
 from typing import (
     Any,
-    AsyncIterator,
-    Awaitable,
     Callable,
-    ContextManager,
-    Iterator,
     Optional,
     Union,
     overload,
@@ -20,10 +17,10 @@ from faststream._internal.basic_types import F_Return, F_Spec
 
 __all__ = (
     "call_or_await",
-    "to_async",
-    "timeout_scope",
-    "fake_context",
     "drop_response_type",
+    "fake_context",
+    "timeout_scope",
+    "to_async",
 )
 
 
@@ -58,8 +55,8 @@ def to_async(
 def timeout_scope(
     timeout: Optional[float] = 30,
     raise_timeout: bool = False,
-) -> ContextManager[anyio.CancelScope]:
-    scope: Callable[[Optional[float]], ContextManager[anyio.CancelScope]]
+) -> AbstractContextManager[anyio.CancelScope]:
+    scope: Callable[[Optional[float]], AbstractContextManager[anyio.CancelScope]]
     scope = anyio.fail_after if raise_timeout else anyio.move_on_after  # type: ignore[assignment]
 
     return scope(timeout)

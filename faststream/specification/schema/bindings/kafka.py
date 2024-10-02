@@ -4,7 +4,7 @@ References: https://github.com/asyncapi/bindings/tree/master/kafka
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 
 @dataclass
@@ -38,7 +38,7 @@ class OperationBinding:
         bindingVersion : version of the binding (default: "0.4.0")
     """
 
-    groupId: Optional[Dict[str, Any]] = None
-    clientId: Optional[Dict[str, Any]] = None
-    replyTo: Optional[Dict[str, Any]] = None
+    groupId: Optional[dict[str, Any]] = None
+    clientId: Optional[dict[str, Any]] = None
+    replyTo: Optional[dict[str, Any]] = None
     bindingVersion: str = "0.4.0"

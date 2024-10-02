@@ -1,5 +1,6 @@
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from typing_extensions import Self, override
 
@@ -32,7 +33,7 @@ class SubscriberProto(
     Endpoint,
     WrapperProto[MsgType],
 ):
-    calls: List["HandlerItem[MsgType]"]
+    calls: list["HandlerItem[MsgType]"]
     running: bool
 
     _broker_dependencies: Iterable["Depends"]
@@ -47,7 +48,7 @@ class SubscriberProto(
         self,
         msg: Optional["StreamMessage[MsgType]"],
         /,
-    ) -> Dict[str, str]: ...
+    ) -> dict[str, str]: ...
 
     @override
     @abstractmethod
@@ -91,7 +92,9 @@ class SubscriberProto(
 
     @abstractmethod
     async def get_one(
-        self, *, timeout: float = 5.0
+        self,
+        *,
+        timeout: float = 5.0,
     ) -> "Optional[StreamMessage[MsgType]]": ...
 
     @abstractmethod

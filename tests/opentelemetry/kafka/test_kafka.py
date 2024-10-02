@@ -74,7 +74,8 @@ class TestTelemetry(LocalTelemetryTestcase):
         trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(
-            meter_provider=meter_provider, tracer_provider=tracer_provider
+            meter_provider=meter_provider,
+            tracer_provider=tracer_provider,
         )
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_msg_count = 3
@@ -82,7 +83,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         expected_link_attrs = {"messaging.batch.message_count": 3}
         expected_baggage = {"with_batch": "True", "foo": "bar"}
         expected_baggage_batch = [
-            {"with_batch": "True", "foo": "bar"}
+            {"with_batch": "True", "foo": "bar"},
         ] * expected_msg_count
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)
@@ -104,7 +105,7 @@ class TestTelemetry(LocalTelemetryTestcase):
                         3,
                         topic=queue,
                         headers=Baggage({"foo": "bar"}).to_headers(),
-                    )
+                    ),
                 ),
                 asyncio.create_task(event.wait()),
             )
@@ -138,7 +139,8 @@ class TestTelemetry(LocalTelemetryTestcase):
         trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(
-            meter_provider=meter_provider, tracer_provider=tracer_provider
+            meter_provider=meter_provider,
+            tracer_provider=tracer_provider,
         )
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         msgs_queue = asyncio.Queue(maxsize=3)
@@ -159,7 +161,11 @@ class TestTelemetry(LocalTelemetryTestcase):
         async with self.patch_broker(broker) as br:
             await br.start()
             await br.publish_batch(
-                1, "hi", 3, topic=queue, headers=Baggage({"foo": "bar"}).to_headers()
+                1,
+                "hi",
+                3,
+                topic=queue,
+                headers=Baggage({"foo": "bar"}).to_headers(),
             )
             result, _ = await asyncio.wait(
                 (
@@ -202,7 +208,8 @@ class TestTelemetry(LocalTelemetryTestcase):
         trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(
-            meter_provider=meter_provider, tracer_provider=tracer_provider
+            meter_provider=meter_provider,
+            tracer_provider=tracer_provider,
         )
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_msg_count = 2
@@ -226,13 +233,17 @@ class TestTelemetry(LocalTelemetryTestcase):
             tasks = (
                 asyncio.create_task(
                     br.publish(
-                        "hi", topic=queue, headers=Baggage({"foo": "bar"}).to_headers()
-                    )
+                        "hi",
+                        topic=queue,
+                        headers=Baggage({"foo": "bar"}).to_headers(),
+                    ),
                 ),
                 asyncio.create_task(
                     br.publish(
-                        "buy", topic=queue, headers=Baggage({"bar": "baz"}).to_headers()
-                    )
+                        "buy",
+                        topic=queue,
+                        headers=Baggage({"bar": "baz"}).to_headers(),
+                    ),
                 ),
                 asyncio.create_task(event.wait()),
             )

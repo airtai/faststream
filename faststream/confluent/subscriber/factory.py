@@ -1,10 +1,8 @@
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
-    Iterable,
     Literal,
     Optional,
-    Sequence,
-    Tuple,
     Union,
     overload,
 )
@@ -39,7 +37,7 @@ def create_subscriber(
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
+    broker_middlewares: Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
     # Specification args
     title_: Optional[str],
     description_: Optional[str],
@@ -88,7 +86,7 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[ConfluentMsg, Tuple[ConfluentMsg, ...]]]"
+        "BrokerMiddleware[Union[ConfluentMsg, tuple[ConfluentMsg, ...]]]"
     ],
     # Specification args
     title_: Optional[str],
@@ -116,7 +114,7 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[ConfluentMsg, Tuple[ConfluentMsg, ...]]]"
+        "BrokerMiddleware[Union[ConfluentMsg, tuple[ConfluentMsg, ...]]]"
     ],
     # Specification args
     title_: Optional[str],
@@ -144,20 +142,19 @@ def create_subscriber(
             description_=description_,
             include_in_schema=include_in_schema,
         )
-    else:
-        return SpecificationDefaultSubscriber(
-            *topics,
-            partitions=partitions,
-            polling_interval=polling_interval,
-            group_id=group_id,
-            connection_data=connection_data,
-            is_manual=is_manual,
-            no_ack=no_ack,
-            no_reply=no_reply,
-            retry=retry,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
+    return SpecificationDefaultSubscriber(
+        *topics,
+        partitions=partitions,
+        polling_interval=polling_interval,
+        group_id=group_id,
+        connection_data=connection_data,
+        is_manual=is_manual,
+        no_ack=no_ack,
+        no_reply=no_reply,
+        retry=retry,
+        broker_dependencies=broker_dependencies,
+        broker_middlewares=broker_middlewares,
+        title_=title_,
+        description_=description_,
+        include_in_schema=include_in_schema,
+    )

@@ -242,7 +242,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
             {
                 "a": 1,
                 "b": 1,
-            }
+            },
         )
 
     @pytest.mark.asyncio
@@ -515,7 +515,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        br.publish("Hello!", queue, reply_to=queue + "reply")
+                        br.publish("Hello!", queue, reply_to=queue + "reply"),
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -559,7 +559,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        br.publish("Hello!", queue, reply_to=queue + "reply")
+                        br.publish("Hello!", queue, reply_to=queue + "reply"),
                     ),
                     asyncio.create_task(event.wait()),
                 ),

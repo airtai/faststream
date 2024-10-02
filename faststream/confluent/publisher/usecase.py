@@ -1,14 +1,11 @@
+from collections.abc import Awaitable, Iterable
 from functools import partial
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     Callable,
-    Dict,
-    Iterable,
     Optional,
-    Tuple,
     Union,
     cast,
 )
@@ -39,7 +36,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         *,
         topic: str,
         partition: Optional[int],
-        headers: Optional[Dict[str, str]],
+        headers: Optional[dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
@@ -68,7 +65,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         self._producer = None
 
     def add_prefix(self, prefix: str) -> None:
-        self.topic = "".join((prefix, self.topic))
+        self.topic = f"{prefix}{self.topic}"
 
     @override
     async def request(
@@ -79,7 +76,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         timeout: float = 0.5,
         # publisher specific
@@ -127,7 +124,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         key: Optional[bytes],
         topic: str,
         partition: Optional[int],
-        headers: Optional[Dict[str, str]],
+        headers: Optional[dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[Message]"],
@@ -164,7 +161,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         reply_to: str = "",
         no_confirm: bool = False,
@@ -207,7 +204,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         timeout: float = 0.5,
         # publisher specific
@@ -226,7 +223,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         )
 
 
-class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
+class BatchPublisher(LogicPublisher[tuple[Message, ...]]):
     @override
     async def publish(
         self,
@@ -235,7 +232,7 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
         topic: str = "",
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         reply_to: str = "",
         no_confirm: bool = False,

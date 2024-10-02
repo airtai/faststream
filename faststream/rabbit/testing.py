@@ -1,5 +1,6 @@
+from collections.abc import Generator, Mapping
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generator, Mapping, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 from unittest import mock
 from unittest.mock import AsyncMock
 
@@ -39,15 +40,19 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
 
     @contextmanager
     def _patch_broker(self, broker: RabbitBroker) -> Generator[None, None, None]:
-        with mock.patch.object(
-            broker,
-            "_channel",
-            new_callable=AsyncMock,
-        ), mock.patch.object(
-            broker,
-            "declarer",
-            new_callable=AsyncMock,
-        ), super()._patch_broker(broker):
+        with (
+            mock.patch.object(
+                broker,
+                "_channel",
+                new_callable=AsyncMock,
+            ),
+            mock.patch.object(
+                broker,
+                "declarer",
+                new_callable=AsyncMock,
+            ),
+            super()._patch_broker(broker),
+        ):
             yield
 
     @staticmethod
@@ -58,7 +63,7 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
     def create_publisher_fake_subscriber(
         broker: RabbitBroker,
         publisher: SpecificationPublisher,
-    ) -> Tuple["LogicSubscriber", bool]:
+    ) -> tuple["LogicSubscriber", bool]:
         sub: Optional[LogicSubscriber] = None
         for handler in broker._subscribers:
             if _is_handler_matches(
@@ -92,15 +97,12 @@ class PatchedMessage(IncomingMessage):
 
     async def ack(self, multiple: bool = False) -> None:
         """Asynchronously acknowledge a message."""
-        pass
 
     async def nack(self, multiple: bool = False, requeue: bool = True) -> None:
         """Nack the message."""
-        pass
 
     async def reject(self, requeue: bool = False) -> None:
         """Rejects a task."""
-        pass
 
 
 def build_message(
@@ -165,7 +167,7 @@ def build_message(
                     message_type=message_type,
                     user_id=msg.user_id,
                     app_id=msg.app_id,
-                )
+                ),
             ),
             body=msg.body,
             channel=AsyncMock(),
@@ -185,7 +187,8 @@ class FakeProducer(AioPikaFastProducer):
         default_parser = AioPikaParser()
         self._parser = resolve_custom_func(broker._parser, default_parser.parse_message)
         self._decoder = resolve_custom_func(
-            broker._decoder, default_parser.decode_message
+            broker._decoder,
+            default_parser.decode_message,
         )
 
     @override
@@ -236,11 +239,12 @@ class FakeProducer(AioPikaFastProducer):
 
         for handler in self.broker._subscribers:  # pragma: no branch
             if _is_handler_matches(
-                handler, incoming.routing_key, incoming.headers, exch
+                handler,
+                incoming.routing_key,
+                incoming.headers,
+                exch,
             ):
                 await self._execute_handler(incoming, handler)
-
-        return None
 
     @override
     async def request(  # type: ignore[override]
@@ -288,7 +292,10 @@ class FakeProducer(AioPikaFastProducer):
 
         for handler in self.broker._subscribers:  # pragma: no branch
             if _is_handler_matches(
-                handler, incoming.routing_key, incoming.headers, exch
+                handler,
+                incoming.routing_key,
+                incoming.headers,
+                exch,
             ):
                 with anyio.fail_after(timeout):
                     return await self._execute_handler(incoming, handler)
@@ -296,7 +303,9 @@ class FakeProducer(AioPikaFastProducer):
         raise SubscriberNotFound
 
     async def _execute_handler(
-        self, msg: PatchedMessage, handler: "LogicSubscriber"
+        self,
+        msg: PatchedMessage,
+        handler: "LogicSubscriber",
     ) -> "PatchedMessage":
         result = await handler.process_message(msg)
 
@@ -320,33 +329,32 @@ def _is_handler_matches(
     if handler.exchange is None or handler.exchange.type == ExchangeType.DIRECT:
         return handler.queue.name == routing_key
 
-    elif handler.exchange.type == ExchangeType.FANOUT:
+    if handler.exchange.type == ExchangeType.FANOUT:
         return True
 
-    elif handler.exchange.type == ExchangeType.TOPIC:
+    if handler.exchange.type == ExchangeType.TOPIC:
         return apply_pattern(handler.queue.routing, routing_key)
 
-    elif handler.exchange.type == ExchangeType.HEADERS:
+    if handler.exchange.type == ExchangeType.HEADERS:
         queue_headers = (handler.queue.bind_arguments or {}).copy()
 
         if not queue_headers:
             return True
 
-        else:
-            match_rule = queue_headers.pop("x-match", "all")
+        match_rule = queue_headers.pop("x-match", "all")
 
-            full_match = True
-            is_headers_empty = True
-            for k, v in queue_headers.items():
-                if headers.get(k) != v:
-                    full_match = False
-                else:
-                    is_headers_empty = False
+        full_match = True
+        is_headers_empty = True
+        for k, v in queue_headers.items():
+            if headers.get(k) != v:
+                full_match = False
+            else:
+                is_headers_empty = False
 
-            if is_headers_empty:
-                return False
+        if is_headers_empty:
+            return False
 
-            return full_match or (match_rule == "any")
+        return full_match or (match_rule == "any")
 
     raise AssertionError
 
@@ -361,7 +369,7 @@ def apply_pattern(pattern: str, current: str) -> bool:
         if (next_symb := next(current_queue, None)) is None:
             return False
 
-        elif pattern_symb == "#":
+        if pattern_symb == "#":
             next_pattern = next(pattern_queue, None)
 
             if next_pattern is None:
@@ -381,7 +389,7 @@ def apply_pattern(pattern: str, current: str) -> bool:
 
             pattern_symb = next(pattern_queue, None)
 
-        elif pattern_symb == "*" or pattern_symb == next_symb:
+        elif pattern_symb in {"*", next_symb}:
             pattern_symb = next(pattern_queue, None)
 
         else:

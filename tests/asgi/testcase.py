@@ -35,7 +35,7 @@ class AsgiTestcase:
         app = AsgiFastStream(
             asgi_routes=[
                 ("/health", make_ping_asgi(broker, timeout=5.0)),
-            ]
+            ],
         )
 
         with TestClient(app) as client:

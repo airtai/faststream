@@ -27,19 +27,19 @@ class NatsParamsStorage(DefaultLoggerStorage):
             (
                 self._max_subject_len,
                 len(params.get("subject", "")),
-            )
+            ),
         )
         self._max_queue_len = max(
             (
                 self._max_queue_len,
                 len(params.get("queue", "")),
-            )
+            ),
         )
         self._max_stream_len = max(
             (
                 self._max_stream_len,
                 len(params.get("stream", "")),
-            )
+            ),
         )
 
     def get_logger(self) -> Optional["LoggerProto"]:
@@ -55,18 +55,18 @@ class NatsParamsStorage(DefaultLoggerStorage):
             },
             message_id_ln=message_id_ln,
             fmt=self._log_fmt
-            or (
-                "%(asctime)s %(levelname)-8s - "
-                + (
+            or "".join((
+                "%(asctime)s %(levelname)-8s - ",
+                (
                     f"%(stream)-{self._max_stream_len}s | "
                     if self._max_stream_len
                     else ""
-                )
-                + (f"%(queue)-{self._max_queue_len}s | " if self._max_queue_len else "")
-                + f"%(subject)-{self._max_subject_len}s | "
-                + f"%(message_id)-{message_id_ln}s - "
-                "%(message)s"
-            ),
+                ),
+                (f"%(queue)-{self._max_queue_len}s | " if self._max_queue_len else ""),
+                f"%(subject)-{self._max_subject_len}s | ",
+                f"%(message_id)-{message_id_ln}s - ",
+                "%(message)s",
+            )),
         )
 
 

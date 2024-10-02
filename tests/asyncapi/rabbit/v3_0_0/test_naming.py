@@ -22,7 +22,7 @@ class TestNaming(NamingTestCase):
         assert list(schema["channels"].keys()) == ["test:exchange:Handle"]
 
         assert list(schema["components"]["messages"].keys()) == [
-            "test:exchange:Handle:SubscribeMessage"
+            "test:exchange:Handle:SubscribeMessage",
         ]
 
     def test_publisher_with_exchange(self):
@@ -39,7 +39,7 @@ class TestNaming(NamingTestCase):
         assert list(schema["channels"].keys()) == ["test:exchange:Publisher"]
 
         assert list(schema["components"]["messages"].keys()) == [
-            "test:exchange:Publisher:Message"
+            "test:exchange:Publisher:Message",
         ]
 
     def test_base(self):
@@ -63,7 +63,7 @@ class TestNaming(NamingTestCase):
                     "pathname": "/",
                     "protocol": "amqp",
                     "protocolVersion": "0.9.1",
-                }
+                },
             },
             "channels": {
                 "test:_:Handle": {
@@ -71,7 +71,7 @@ class TestNaming(NamingTestCase):
                     "servers": [
                         {
                             "$ref": "#/servers/development",
-                        }
+                        },
                     ],
                     "bindings": {
                         "amqp": {
@@ -85,14 +85,14 @@ class TestNaming(NamingTestCase):
                                 "vhost": "/",
                             },
                             "exchange": {"type": "default", "vhost": "/"},
-                        }
+                        },
                     },
                     "messages": {
                         "SubscribeMessage": {
-                            "$ref": "#/components/messages/test:_:Handle:SubscribeMessage"
-                        }
+                            "$ref": "#/components/messages/test:_:Handle:SubscribeMessage",
+                        },
                     },
-                }
+                },
             },
             "operations": {
                 "test:_:HandleSubscribe": {
@@ -121,10 +121,10 @@ class TestNaming(NamingTestCase):
                     "test:_:Handle:SubscribeMessage": {
                         "title": "test:_:Handle:SubscribeMessage",
                         "correlationId": {
-                            "location": "$message.header#/correlation_id"
+                            "location": "$message.header#/correlation_id",
                         },
                         "payload": {"$ref": "#/components/schemas/EmptyPayload"},
-                    }
+                    },
                 },
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},
             },

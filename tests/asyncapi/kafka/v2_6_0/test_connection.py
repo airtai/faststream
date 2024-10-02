@@ -28,7 +28,7 @@ def test_base():
                 "protocolVersion": "0.9.0",
                 "tags": [{"description": "experimental", "name": "some-tag"}],
                 "url": "kafka:9092",
-            }
+            },
         },
     }
 

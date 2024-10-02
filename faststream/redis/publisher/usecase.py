@@ -1,10 +1,11 @@
 from abc import abstractmethod
+from collections.abc import Awaitable, Iterable
 from copy import deepcopy
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
+from typing import TYPE_CHECKING, Annotated, Any, Callable, Optional
 
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.subscriber.utils import process_msg
@@ -56,7 +57,7 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
 
     @abstractmethod
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ChannelPublisher(LogicPublisher):
@@ -98,7 +99,7 @@ class ChannelPublisher(LogicPublisher):
 
     def add_prefix(self, prefix: str) -> None:
         channel = deepcopy(self.channel)
-        channel.name = "".join((prefix, channel.name))
+        channel.name = f"{prefix}{channel.name}"
         self.channel = channel
 
     @override
@@ -124,7 +125,7 @@ class ChannelPublisher(LogicPublisher):
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         # publisher specific
@@ -177,7 +178,7 @@ class ChannelPublisher(LogicPublisher):
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         headers: Annotated[
@@ -267,7 +268,7 @@ class ListPublisher(LogicPublisher):
 
     def add_prefix(self, prefix: str) -> None:
         list_sub = deepcopy(self.list)
-        list_sub.name = "".join((prefix, list_sub.name))
+        list_sub.name = f"{prefix}{list_sub.name}"
         self.list = list_sub
 
     @override
@@ -293,7 +294,7 @@ class ListPublisher(LogicPublisher):
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         # publisher specific
@@ -345,7 +346,7 @@ class ListPublisher(LogicPublisher):
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         headers: Annotated[
@@ -488,7 +489,7 @@ class StreamPublisher(LogicPublisher):
 
     def add_prefix(self, prefix: str) -> None:
         stream_sub = deepcopy(self.stream)
-        stream_sub.name = "".join((prefix, stream_sub.name))
+        stream_sub.name = f"{prefix}{stream_sub.name}"
         self.stream = stream_sub
 
     @override
@@ -514,7 +515,7 @@ class StreamPublisher(LogicPublisher):
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         *,
@@ -522,7 +523,7 @@ class StreamPublisher(LogicPublisher):
             Optional[int],
             Doc(
                 "Redis Stream maxlen publish option. "
-                "Remove eldest message if maxlen exceeded."
+                "Remove eldest message if maxlen exceeded.",
             ),
         ] = None,
         # publisher specific
@@ -576,14 +577,14 @@ class StreamPublisher(LogicPublisher):
             Optional[int],
             Doc(
                 "Redis Stream maxlen publish option. "
-                "Remove eldest message if maxlen exceeded."
+                "Remove eldest message if maxlen exceeded.",
             ),
         ] = None,
         correlation_id: Annotated[
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         headers: Annotated[

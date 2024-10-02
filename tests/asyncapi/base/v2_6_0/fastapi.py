@@ -62,7 +62,7 @@ class FastAPITestCase:
                             "description": "Test broker description",
                             "protocolVersion": "1.1.1",
                             "tags": [{"name": "test"}],
-                        }
+                        },
                     },
                     "channels": {},
                     "components": {"messages": {}, "schemas": {}},

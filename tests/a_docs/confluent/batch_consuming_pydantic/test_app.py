@@ -17,5 +17,5 @@ async def test_me():
             topic="test_batch",
         )
         handle_batch.mock.assert_called_with(
-            [dict(HelloWorld(msg="First Hello")), dict(HelloWorld(msg="Second Hello"))]
+            [dict(HelloWorld(msg="First Hello")), dict(HelloWorld(msg="Second Hello"))],
         )

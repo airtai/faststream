@@ -21,7 +21,7 @@ async def test_index_kafka_base():
         handle_msg.mock.assert_called_once_with({"user": "John", "user_id": 1})
 
         list(br._publishers)[0].mock.assert_called_once_with(  # noqa: RUF015
-            "User: 1 - John registered"
+            "User: 1 - John registered",
         )
 
 
@@ -37,7 +37,7 @@ async def test_index_confluent_base():
         handle_msg.mock.assert_called_once_with({"user": "John", "user_id": 1})
 
         list(br._publishers)[0].mock.assert_called_once_with(  # noqa: RUF015
-            "User: 1 - John registered"
+            "User: 1 - John registered",
         )
 
 
@@ -53,7 +53,7 @@ async def test_index_rabbit_base():
         handle_msg.mock.assert_called_once_with({"user": "John", "user_id": 1})
 
         list(br._publishers)[0].mock.assert_called_once_with(  # noqa: RUF015
-            "User: 1 - John registered"
+            "User: 1 - John registered",
         )
 
 
@@ -69,7 +69,7 @@ async def test_index_nats_base():
         handle_msg.mock.assert_called_once_with({"user": "John", "user_id": 1})
 
         list(br._publishers)[0].mock.assert_called_once_with(  # noqa: RUF015
-            "User: 1 - John registered"
+            "User: 1 - John registered",
         )
 
 
@@ -85,5 +85,5 @@ async def test_index_redis_base():
         handle_msg.mock.assert_called_once_with({"user": "John", "user_id": 1})
 
         list(br._publishers)[0].mock.assert_called_once_with(  # noqa: RUF015
-            "User: 1 - John registered"
+            "User: 1 - John registered",
         )

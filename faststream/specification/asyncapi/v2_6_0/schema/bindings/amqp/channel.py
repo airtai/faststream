@@ -102,7 +102,7 @@ class ChannelBinding(BaseModel):
                 "exchange": Exchange.from_spec(binding.exchange)
                 if binding.exchange is not None
                 else None,
-            }
+            },
         )
 
 

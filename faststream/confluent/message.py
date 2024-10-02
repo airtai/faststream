@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional, Protocol, Tuple, Union
+from typing import TYPE_CHECKING, Any, Optional, Protocol, Union
 
 from faststream.message import StreamMessage
 
@@ -41,9 +41,9 @@ class KafkaMessage(
     StreamMessage[
         Union[
             "Message",
-            Tuple["Message", ...],
+            tuple["Message", ...],
         ]
-    ]
+    ],
 ):
     """Represents a Kafka message in the FastStream framework.
 

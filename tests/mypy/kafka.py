@@ -16,7 +16,8 @@ async def async_decoder(msg: KafkaMessage) -> DecodedMessage:
 
 
 async def custom_decoder(
-    msg: KafkaMessage, original: Callable[[KafkaMessage], Awaitable[DecodedMessage]]
+    msg: KafkaMessage,
+    original: Callable[[KafkaMessage], Awaitable[DecodedMessage]],
 ) -> DecodedMessage:
     return await original(msg)
 
@@ -35,7 +36,8 @@ async def async_parser(msg: ConsumerRecord) -> KafkaMessage:
 
 
 async def custom_parser(
-    msg: ConsumerRecord, original: Callable[[ConsumerRecord], Awaitable[KafkaMessage]]
+    msg: ConsumerRecord,
+    original: Callable[[ConsumerRecord], Awaitable[KafkaMessage]],
 ) -> KafkaMessage:
     return await original(msg)
 
@@ -197,7 +199,7 @@ KafkaRouter(
             parser=custom_parser,
             decoder=custom_decoder,
         ),
-    )
+    ),
 )
 
 

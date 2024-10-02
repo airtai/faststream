@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Iterable, Optional, Union
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Optional, Union
 
 from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
 

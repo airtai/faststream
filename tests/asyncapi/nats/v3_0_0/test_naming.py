@@ -24,7 +24,7 @@ class TestNaming(NamingTestCase):
                     "pathname": "",
                     "protocol": "nats",
                     "protocolVersion": "custom",
-                }
+                },
             },
             "channels": {
                 "test:Handle": {
@@ -32,17 +32,17 @@ class TestNaming(NamingTestCase):
                     "servers": [
                         {
                             "$ref": "#/servers/development",
-                        }
+                        },
                     ],
                     "bindings": {
-                        "nats": {"subject": "test", "bindingVersion": "custom"}
+                        "nats": {"subject": "test", "bindingVersion": "custom"},
                     },
                     "messages": {
                         "SubscribeMessage": {
                             "$ref": "#/components/messages/test:Handle:SubscribeMessage",
                         },
                     },
-                }
+                },
             },
             "operations": {
                 "test:HandleSubscribe": {
@@ -53,19 +53,19 @@ class TestNaming(NamingTestCase):
                     "messages": [
                         {
                             "$ref": "#/channels/test:Handle/messages/SubscribeMessage",
-                        }
+                        },
                     ],
-                }
+                },
             },
             "components": {
                 "messages": {
                     "test:Handle:SubscribeMessage": {
                         "title": "test:Handle:SubscribeMessage",
                         "correlationId": {
-                            "location": "$message.header#/correlation_id"
+                            "location": "$message.header#/correlation_id",
                         },
                         "payload": {"$ref": "#/components/schemas/EmptyPayload"},
-                    }
+                    },
                 },
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},
             },

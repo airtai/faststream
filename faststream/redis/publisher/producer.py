@@ -80,9 +80,8 @@ class RedisFastProducer(ProducerProto):
                 maxlen=maxlen,
             )
         else:
-            raise AssertionError("unreachable")
-
-        return None
+            msg = "unreachable"
+            raise AssertionError(msg)
 
     @override
     async def request(  # type: ignore[override]
@@ -123,7 +122,8 @@ class RedisFastProducer(ProducerProto):
                 maxlen=maxlen,
             )
         else:
-            raise AssertionError("unreachable")
+            msg = "unreachable"
+            raise AssertionError(msg)
 
         with anyio.fail_after(timeout) as scope:
             # skip subscribe message

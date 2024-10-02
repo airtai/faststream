@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Dict, Optional, Protocol
+from typing import Any, Optional, Protocol
 
 from faststream.specification.schema.channel import Channel
 
@@ -19,7 +19,7 @@ class EndpointProto(Protocol):
     @abstractmethod
     def get_name(self) -> str:
         """Name property fallback."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def description(self) -> Optional[str]:
@@ -30,19 +30,18 @@ class EndpointProto(Protocol):
         """Description property fallback."""
         return None
 
-    def schema(self) -> Dict[str, Channel]:
+    def schema(self) -> dict[str, Channel]:
         """Returns the schema of the API operation as a dictionary of channel names and channel objects."""
         if self.include_in_schema:
             return self.get_schema()
-        else:
-            return {}
+        return {}
 
     @abstractmethod
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> dict[str, Channel]:
         """Generate AsyncAPI schema."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def get_payloads(self) -> Any:
         """Generate AsyncAPI payloads."""
-        raise NotImplementedError()
+        raise NotImplementedError

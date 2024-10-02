@@ -1,6 +1,6 @@
 import warnings
 from dataclasses import dataclass, field
-from typing import Optional, Protocol, Type
+from typing import Optional, Protocol
 
 from faststream._internal.basic_types import AnyDict, LoggerProto
 from faststream._internal.constants import EMPTY
@@ -9,10 +9,10 @@ from faststream.exceptions import IncorrectState
 from .proto import SetupAble
 
 __all__ = (
-    "make_logger_state",
-    "LoggerState",
-    "LoggerParamsStorage",
     "DefaultLoggerStorage",
+    "LoggerParamsStorage",
+    "LoggerState",
+    "make_logger_state",
 )
 
 
@@ -20,7 +20,7 @@ def make_logger_state(
     logger: Optional["LoggerProto"],
     log_level: int,
     log_fmt: Optional[str],
-    default_storag_cls: Type["DefaultLoggerStorage"],
+    default_storag_cls: type["DefaultLoggerStorage"],
 ) -> "LoggerState":
     if logger is not EMPTY and log_fmt:
         warnings.warn(
@@ -65,7 +65,8 @@ class _NotSetLoggerObject(_LoggerObject):
         extra: Optional["AnyDict"] = None,
         exc_info: Optional[Exception] = None,
     ) -> None:
-        raise IncorrectState("Logger object was not set up.")
+        msg = "Logger object was not set up."
+        raise IncorrectState(msg)
 
 
 class _EmptyLoggerObject(_LoggerObject):

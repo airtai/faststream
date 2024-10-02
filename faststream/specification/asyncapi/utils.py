@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
@@ -9,7 +9,7 @@ def to_camelcase(*names: str) -> str:
 
 
 def resolve_payloads(
-    payloads: List[Tuple["AnyDict", str]],
+    payloads: list[tuple["AnyDict", str]],
     extra: str = "",
     served_words: int = 1,
 ) -> "AnyDict":
@@ -25,13 +25,13 @@ def resolve_payloads(
             if len(words) > 1:  # not pydantic model case
                 body["title"] = title = ":".join(
                     filter(
-                        lambda x: bool(x),
+                        bool,
                         (
                             handler_name,
                             extra if extra not in words else "",
                             *words[served_words:],
                         ),
-                    )
+                    ),
                 )
 
             one_of_payloads[title] = body

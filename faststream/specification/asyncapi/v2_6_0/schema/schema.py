@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Optional, Union
+from typing import Literal, Optional, Union
 
 from faststream._internal.basic_types import AnyDict
 from faststream.specification.asyncapi.v2_6_0.schema.channels import Channel
@@ -30,8 +30,8 @@ class Schema(BaseSchema):
     asyncapi: Union[Literal["2.6.0"], str] = "2.6.0"
     id: Optional[str] = None
     defaultContentType: Optional[str] = None
-    servers: Optional[Dict[str, Server]] = None
-    channels: Dict[str, Channel]
+    servers: Optional[dict[str, Server]] = None
+    channels: dict[str, Channel]
     components: Optional[Components] = None
-    tags: Optional[List[Union[Tag, AnyDict]]] = None
+    tags: Optional[list[Union[Tag, AnyDict]]] = None
     externalDocs: Optional[Union[ExternalDocs, AnyDict]] = None

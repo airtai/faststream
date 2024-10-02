@@ -1,7 +1,5 @@
 from typing import (
     TYPE_CHECKING,
-    Dict,
-    Tuple,
 )
 
 from faststream._internal.types import MsgType
@@ -26,7 +24,7 @@ class SpecificationSubscriber(LogicSubscriber[MsgType]):
     def get_name(self) -> str:
         return f'{",".join(self.topics)}:{self.call_name}'
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> dict[str, Channel]:
         channels = {}
 
         payloads = self.get_payloads()
@@ -41,7 +39,7 @@ class SpecificationSubscriber(LogicSubscriber[MsgType]):
                         title=f"{handler_name}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
-                            location="$message.header#/correlation_id"
+                            location="$message.header#/correlation_id",
                         ),
                     ),
                 ),
@@ -62,6 +60,6 @@ class SpecificationDefaultSubscriber(
 
 class SpecificationBatchSubscriber(
     BatchSubscriber,
-    SpecificationSubscriber[Tuple["ConsumerRecord", ...]],
+    SpecificationSubscriber[tuple["ConsumerRecord", ...]],
 ):
     pass

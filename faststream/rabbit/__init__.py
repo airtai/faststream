@@ -11,16 +11,16 @@ from faststream.rabbit.schemas import (
 from faststream.rabbit.testing import TestRabbitBroker
 
 __all__ = (
-    "RabbitBroker",
-    "TestApp",
-    "TestRabbitBroker",
-    "RabbitRouter",
-    "RabbitRoute",
-    "RabbitPublisher",
-    "RabbitResponse",
     "ExchangeType",
+    "RabbitBroker",
     "RabbitExchange",
-    "RabbitQueue",
     # Annotations
     "RabbitMessage",
+    "RabbitPublisher",
+    "RabbitQueue",
+    "RabbitResponse",
+    "RabbitRoute",
+    "RabbitRouter",
+    "TestApp",
+    "TestRabbitBroker",
 )

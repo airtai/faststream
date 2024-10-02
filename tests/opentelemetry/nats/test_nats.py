@@ -42,7 +42,8 @@ class TestTelemetry(LocalTelemetryTestcase):
         trace_exporter: InMemorySpanExporter,
     ):
         mid = self.telemetry_middleware_class(
-            meter_provider=meter_provider, tracer_provider=tracer_provider
+            meter_provider=meter_provider,
+            tracer_provider=tracer_provider,
         )
         broker = self.get_broker(middlewares=(mid,))
         expected_msg_count = 1

@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -35,9 +35,9 @@ class Components(BaseModel):
 
     """
 
-    messages: Optional[Dict[str, Message]] = None
-    schemas: Optional[Dict[str, AnyDict]] = None
-    securitySchemes: Optional[Dict[str, AnyDict]] = None
+    messages: Optional[dict[str, Message]] = None
+    schemas: Optional[dict[str, AnyDict]] = None
+    securitySchemes: Optional[dict[str, AnyDict]] = None
     # parameters
     # correlationIds
     # operationTraits

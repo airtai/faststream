@@ -4,7 +4,7 @@ References: https://github.com/asyncapi/bindings/tree/master/nats
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 
 @dataclass
@@ -31,5 +31,5 @@ class OperationBinding:
         bindingVersion : version of the binding (default is "custom")
     """
 
-    replyTo: Optional[Dict[str, Any]] = None
+    replyTo: Optional[dict[str, Any]] = None
     bindingVersion: str = "custom"

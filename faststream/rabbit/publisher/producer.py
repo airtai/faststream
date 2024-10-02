@@ -1,7 +1,6 @@
 from typing import (
     TYPE_CHECKING,
     Optional,
-    Type,
     Union,
     cast,
 )
@@ -234,7 +233,7 @@ class _RPCCallback:
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:

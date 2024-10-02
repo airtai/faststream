@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from functools import partial
 from inspect import unwrap
 from itertools import chain
@@ -5,9 +6,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Generic,
-    Iterable,
     Optional,
     cast,
 )
@@ -36,13 +35,13 @@ class HandlerItem(SetupAble, Generic[MsgType]):
     """A class representing handler overloaded item."""
 
     __slots__ = (
-        "handler",
-        "filter",
         "dependant",
         "dependencies",
-        "item_parser",
+        "filter",
+        "handler",
         "item_decoder",
         "item_middlewares",
+        "item_parser",
     )
 
     dependant: Optional[Any]
@@ -111,8 +110,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
             return ""
 
         caller = unwrap(self.handler._original_call)
-        name = getattr(caller, "__name__", str(caller))
-        return name
+        return getattr(caller, "__name__", str(caller))
 
     @property
     def description(self) -> Optional[str]:
@@ -121,26 +119,27 @@ class HandlerItem(SetupAble, Generic[MsgType]):
             return None
 
         caller = unwrap(self.handler._original_call)
-        description = getattr(caller, "__doc__", None)
-        return description
+        return getattr(caller, "__doc__", None)
 
     async def is_suitable(
         self,
         msg: MsgType,
-        cache: Dict[Any, Any],
+        cache: dict[Any, Any],
     ) -> Optional["StreamMessage[MsgType]"]:
         """Check is message suite for current filter."""
         if not (parser := cast(Optional["AsyncCallable"], self.item_parser)) or not (
             decoder := cast(Optional["AsyncCallable"], self.item_decoder)
         ):
-            raise SetupError("You should setup `HandlerItem` at first.")
+            msg = "You should setup `HandlerItem` at first."
+            raise SetupError(msg)
 
         message = cache[parser] = cast(
-            "StreamMessage[MsgType]", cache.get(parser) or await parser(msg)
+            "StreamMessage[MsgType]",
+            cache.get(parser) or await parser(msg),
         )
 
         message._decoded_body = cache[decoder] = cache.get(decoder) or await decoder(
-            message
+            message,
         )
 
         if await self.filter(message):
@@ -169,7 +168,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
 
         except Exception as e:
             self.handler.trigger(error=e)
-            raise e
+            raise
 
         else:
             self.handler.trigger(result=result)

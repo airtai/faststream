@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Optional
 
 from typing_extensions import override
 
@@ -22,7 +23,7 @@ class SpecificationPublisher(LogicPublisher):
     def get_name(self) -> str:
         return f"{self.subject}:Publisher"
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
@@ -33,16 +34,16 @@ class SpecificationPublisher(LogicPublisher):
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads, "Publisher"),
                         correlationId=CorrelationId(
-                            location="$message.header#/correlation_id"
+                            location="$message.header#/correlation_id",
                         ),
                     ),
                 ),
                 bindings=ChannelBinding(
                     nats=nats.ChannelBinding(
                         subject=self.subject,
-                    )
+                    ),
                 ),
-            )
+            ),
         }
 
     @override
@@ -52,7 +53,7 @@ class SpecificationPublisher(LogicPublisher):
         *,
         subject: str,
         reply_to: str,
-        headers: Optional[Dict[str, str]],
+        headers: Optional[dict[str, str]],
         stream: Optional["JStream"],
         timeout: Optional[float],
         # Publisher args

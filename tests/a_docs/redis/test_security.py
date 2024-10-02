@@ -51,7 +51,7 @@ async def test_base_security():
                     "protocolVersion": "custom",
                     "security": [],
                     "url": "redis://localhost:6379",
-                }
+                },
             },
         }
 
@@ -85,6 +85,6 @@ async def test_plaintext_security():
                     "protocolVersion": "custom",
                     "security": [{"user-password": []}],
                     "url": "redis://localhost:6379",
-                }
+                },
             },
         }

@@ -1,17 +1,13 @@
 import warnings
 from abc import abstractmethod
+from collections.abc import AsyncGenerator, Generator
 from contextlib import asynccontextmanager, contextmanager
 from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncGenerator,
-    Generator,
     Generic,
-    List,
     Optional,
-    Tuple,
-    Type,
     TypeVar,
 )
 from unittest import mock
@@ -65,13 +61,13 @@ class TestBroker(Generic[Broker]):
                 connect_only = False
 
         self.connect_only = connect_only
-        self._fake_subscribers: List[SubscriberProto[Any]] = []
+        self._fake_subscribers: list[SubscriberProto[Any]] = []
 
     async def __aenter__(self) -> Broker:
         self._ctx = self._create_ctx()
         return await self._ctx.__aenter__()
 
-    async def __aexit__(self, *args: Any) -> None:
+    async def __aexit__(self, *args: object) -> None:
         await self._ctx.__aexit__(*args)
 
     @asynccontextmanager
@@ -93,29 +89,36 @@ class TestBroker(Generic[Broker]):
 
     @contextmanager
     def _patch_broker(self, broker: Broker) -> Generator[None, None, None]:
-        with mock.patch.object(
-            broker,
-            "start",
-            wraps=partial(self._fake_start, broker),
-        ), mock.patch.object(
-            broker,
-            "_connect",
-            wraps=partial(self._fake_connect, broker),
-        ), mock.patch.object(
-            broker,
-            "close",
-        ), mock.patch.object(
-            broker,
-            "_connection",
-            new=None,
-        ), mock.patch.object(
-            broker,
-            "_producer",
-            new=None,
-        ), mock.patch.object(
-            broker,
-            "ping",
-            return_value=True,
+        with (
+            mock.patch.object(
+                broker,
+                "start",
+                wraps=partial(self._fake_start, broker),
+            ),
+            mock.patch.object(
+                broker,
+                "_connect",
+                wraps=partial(self._fake_connect, broker),
+            ),
+            mock.patch.object(
+                broker,
+                "close",
+            ),
+            mock.patch.object(
+                broker,
+                "_connection",
+                new=None,
+            ),
+            mock.patch.object(
+                broker,
+                "_producer",
+                new=None,
+            ),
+            mock.patch.object(
+                broker,
+                "ping",
+                return_value=True,
+            ),
         ):
             broker._setup()
             yield
@@ -160,7 +163,7 @@ class TestBroker(Generic[Broker]):
     def _fake_close(
         self,
         broker: Broker,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
@@ -181,8 +184,9 @@ class TestBroker(Generic[Broker]):
     @staticmethod
     @abstractmethod
     def create_publisher_fake_subscriber(
-        broker: Broker, publisher: Any
-    ) -> Tuple["SubscriberProto[Any]", bool]:
+        broker: Broker,
+        publisher: Any,
+    ) -> tuple["SubscriberProto[Any]", bool]:
         raise NotImplementedError
 
     @staticmethod

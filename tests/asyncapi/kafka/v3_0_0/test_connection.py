@@ -30,7 +30,7 @@ def test_base():
                 "tags": [{"description": "experimental", "name": "some-tag"}],
                 "host": "kafka:9092",
                 "pathname": "",
-            }
+            },
         },
     }
 

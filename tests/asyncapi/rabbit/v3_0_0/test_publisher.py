@@ -28,19 +28,19 @@ class TestArguments(PublisherTestcase):
                             "vhost": "/vhost",
                         },
                         "is": "routingKey",
-                    }
+                    },
                 },
                 "servers": [
                     {
                         "$ref": "#/servers/development",
-                    }
+                    },
                 ],
                 "messages": {
                     "Message": {
                         "$ref": "#/components/messages/_:test-ex:Publisher:Message",
                     },
                 },
-            }
+            },
         }, schema["channels"]
 
         assert schema["operations"] == {
@@ -52,7 +52,7 @@ class TestArguments(PublisherTestcase):
                         "bindingVersion": "0.3.0",
                         "deliveryMode": 1,
                         "mandatory": True,
-                    }
+                    },
                 },
                 "channel": {
                     "$ref": "#/channels/_:test-ex:Publisher",
@@ -95,7 +95,7 @@ class TestArguments(PublisherTestcase):
                     "name": "test",
                     "vhost": "/",
                 },
-            }
+            },
         }
 
     def test_useless_queue_bindings(self):
@@ -123,19 +123,19 @@ class TestArguments(PublisherTestcase):
                             "vhost": "/",
                         },
                         "is": "routingKey",
-                    }
+                    },
                 },
                 "messages": {
                     "Message": {
-                        "$ref": "#/components/messages/_:test-ex:Publisher:Message"
-                    }
+                        "$ref": "#/components/messages/_:test-ex:Publisher:Message",
+                    },
                 },
                 "servers": [
                     {
                         "$ref": "#/servers/development",
-                    }
+                    },
                 ],
-            }
+            },
         }
 
         assert schema["operations"] == {
@@ -145,9 +145,9 @@ class TestArguments(PublisherTestcase):
                     "$ref": "#/channels/_:test-ex:Publisher",
                 },
                 "messages": [
-                    {"$ref": "#/channels/_:test-ex:Publisher/messages/Message"}
+                    {"$ref": "#/channels/_:test-ex:Publisher/messages/Message"},
                 ],
-            }
+            },
         }
 
     def test_reusable_exchange(self):
@@ -173,12 +173,12 @@ class TestArguments(PublisherTestcase):
                             "vhost": "/vhost",
                         },
                         "is": "routingKey",
-                    }
+                    },
                 },
                 "servers": [
                     {
                         "$ref": "#/servers/development",
-                    }
+                    },
                 ],
                 "messages": {
                     "Message": {
@@ -199,12 +199,12 @@ class TestArguments(PublisherTestcase):
                             "vhost": "/vhost",
                         },
                         "is": "routingKey",
-                    }
+                    },
                 },
                 "servers": [
                     {
                         "$ref": "#/servers/development",
-                    }
+                    },
                 ],
                 "messages": {
                     "Message": {
@@ -229,10 +229,10 @@ class TestArguments(PublisherTestcase):
                         ],
                         "deliveryMode": 1,
                         "mandatory": True,
-                    }
+                    },
                 },
                 "messages": [
-                    {"$ref": "#/channels/key1:test-ex:Publisher/messages/Message"}
+                    {"$ref": "#/channels/key1:test-ex:Publisher/messages/Message"},
                 ],
             },
             "key2:test-ex:Publisher": {
@@ -250,10 +250,10 @@ class TestArguments(PublisherTestcase):
                         "deliveryMode": 1,
                         "priority": 10,
                         "mandatory": True,
-                    }
+                    },
                 },
                 "messages": [
-                    {"$ref": "#/channels/key2:test-ex:Publisher/messages/Message"}
+                    {"$ref": "#/channels/key2:test-ex:Publisher/messages/Message"},
                 ],
             },
         }

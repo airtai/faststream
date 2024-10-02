@@ -3,8 +3,8 @@ from .schema import Contact, ExternalDocs, License, Tag
 
 __all__ = (
     "AsyncAPI",
-    "ExternalDocs",
     "Contact",
+    "ExternalDocs",
     "License",
     "Tag",
 )

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional
 
 from faststream.specification.schema.bindings import ChannelBinding
 from faststream.specification.schema.operation import Operation
@@ -18,7 +18,7 @@ class Channel:
     """
 
     description: Optional[str] = None
-    servers: Optional[List[str]] = None
+    servers: Optional[list[str]] = None
     bindings: Optional[ChannelBinding] = None
     subscribe: Optional[Operation] = None
     publish: Optional[Operation] = None

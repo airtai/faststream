@@ -35,7 +35,7 @@ class TestConsume(BrokerRealConsumeTestcase):
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        br.publish("hello", queue=queue, exchange=exchange)
+                        br.publish("hello", queue=queue, exchange=exchange),
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -74,7 +74,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             Message(b"hello"),
                             queue=queue,
                             exchange=exchange.name,
-                        )
+                        ),
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -100,12 +100,14 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                IncomingMessage, "ack", spy_decorator(IncomingMessage.ack)
+                IncomingMessage,
+                "ack",
+                spy_decorator(IncomingMessage.ack),
             ) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            br.publish("hello", queue=queue, exchange=exchange)
+                            br.publish("hello", queue=queue, exchange=exchange),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -133,12 +135,14 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                IncomingMessage, "ack", spy_decorator(IncomingMessage.ack)
+                IncomingMessage,
+                "ack",
+                spy_decorator(IncomingMessage.ack),
             ) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            br.publish("hello", queue=queue, exchange=exchange)
+                            br.publish("hello", queue=queue, exchange=exchange),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -167,12 +171,14 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                IncomingMessage, "ack", spy_decorator(IncomingMessage.ack)
+                IncomingMessage,
+                "ack",
+                spy_decorator(IncomingMessage.ack),
             ) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            br.publish("hello", queue=queue, exchange=exchange)
+                            br.publish("hello", queue=queue, exchange=exchange),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -194,18 +200,20 @@ class TestConsume(BrokerRealConsumeTestcase):
         async def handler(msg: RabbitMessage):
             await msg.nack()
             event.set()
-            raise ValueError()
+            raise ValueError
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
             with patch.object(
-                IncomingMessage, "nack", spy_decorator(IncomingMessage.nack)
+                IncomingMessage,
+                "nack",
+                spy_decorator(IncomingMessage.nack),
             ) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            br.publish("hello", queue=queue, exchange=exchange)
+                            br.publish("hello", queue=queue, exchange=exchange),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -234,12 +242,14 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                IncomingMessage, "nack", spy_decorator(IncomingMessage.nack)
+                IncomingMessage,
+                "nack",
+                spy_decorator(IncomingMessage.nack),
             ) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            br.publish("hello", queue=queue, exchange=exchange)
+                            br.publish("hello", queue=queue, exchange=exchange),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -261,18 +271,20 @@ class TestConsume(BrokerRealConsumeTestcase):
         async def handler(msg: RabbitMessage):
             await msg.reject()
             event.set()
-            raise ValueError()
+            raise ValueError
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
             with patch.object(
-                IncomingMessage, "reject", spy_decorator(IncomingMessage.reject)
+                IncomingMessage,
+                "reject",
+                spy_decorator(IncomingMessage.reject),
             ) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            br.publish("hello", queue=queue, exchange=exchange)
+                            br.publish("hello", queue=queue, exchange=exchange),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -301,12 +313,14 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                IncomingMessage, "reject", spy_decorator(IncomingMessage.reject)
+                IncomingMessage,
+                "reject",
+                spy_decorator(IncomingMessage.reject),
             ) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            br.publish("hello", queue=queue, exchange=exchange)
+                            br.publish("hello", queue=queue, exchange=exchange),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -333,13 +347,23 @@ class TestConsume(BrokerRealConsumeTestcase):
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
-            with patch.object(
-                IncomingMessage, "reject", spy_decorator(IncomingMessage.reject)
-            ) as m, patch.object(
-                IncomingMessage, "reject", spy_decorator(IncomingMessage.reject)
-            ) as m1, patch.object(
-                IncomingMessage, "reject", spy_decorator(IncomingMessage.reject)
-            ) as m2:
+            with (
+                patch.object(
+                    IncomingMessage,
+                    "reject",
+                    spy_decorator(IncomingMessage.reject),
+                ) as m,
+                patch.object(
+                    IncomingMessage,
+                    "reject",
+                    spy_decorator(IncomingMessage.reject),
+                ) as m1,
+                patch.object(
+                    IncomingMessage,
+                    "reject",
+                    spy_decorator(IncomingMessage.reject),
+                ) as m2,
+            ):
                 await asyncio.wait(
                     (
                         asyncio.create_task(br.publish("hello", queue)),
@@ -370,12 +394,14 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                IncomingMessage, "ack", spy_decorator(IncomingMessage.ack)
+                IncomingMessage,
+                "ack",
+                spy_decorator(IncomingMessage.ack),
             ) as m:
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            br.publish("hello", queue=queue, exchange=exchange)
+                            br.publish("hello", queue=queue, exchange=exchange),
                         ),
                         asyncio.create_task(event.wait()),
                     ),

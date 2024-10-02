@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional, Type
+from typing import TYPE_CHECKING, Any, Optional
 
 from typing_extensions import Self
 
@@ -17,11 +17,10 @@ class BaseMiddleware:
 
     async def on_receive(self) -> None:
         """Hook to call on message receive."""
-        pass
 
     async def after_processed(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
@@ -34,7 +33,7 @@ class BaseMiddleware:
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:

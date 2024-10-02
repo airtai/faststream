@@ -1,16 +1,12 @@
 import asyncio
 from abc import abstractmethod
+from collections.abc import Iterable, Sequence
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    Iterable,
-    List,
     Optional,
-    Sequence,
-    Tuple,
 )
 
 import anyio
@@ -187,7 +183,8 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
         raw_messages = await self.consumer.getmany(
-            timeout_ms=timeout * 1000, max_records=1
+            timeout_ms=timeout * 1000,
+            max_records=1,
         )
 
         if not raw_messages:
@@ -221,7 +218,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
 
     @abstractmethod
     async def get_msg(self) -> MsgType:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     async def _consume(self) -> None:
         assert self.consumer, "You should start subscriber at first."  # nosec B101
@@ -248,20 +245,19 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
                     await self.consume(msg)
 
     @property
-    def topic_names(self) -> List[str]:
+    def topic_names(self) -> list[str]:
         if self._pattern:
             return [self._pattern]
-        elif self.topics:
+        if self.topics:
             return list(self.topics)
-        else:
-            return [f"{p.topic}-{p.partition}" for p in self.partitions]
+        return [f"{p.topic}-{p.partition}" for p in self.partitions]
 
     @staticmethod
     def build_log_context(
         message: Optional["StreamMessage[Any]"],
         topic: str,
         group_id: Optional[str] = None,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return {
             "topic": topic,
             "group_id": group_id or "",
@@ -269,11 +265,11 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         }
 
     def add_prefix(self, prefix: str) -> None:
-        self.topics = tuple("".join((prefix, t)) for t in self.topics)
+        self.topics = tuple(f"{prefix}{t}" for t in self.topics)
 
         self.partitions = [
             TopicPartition(
-                topic="".join((prefix, p.topic)),
+                topic=f"{prefix}{p.topic}",
                 partition=p.partition,
             )
             for p in self.partitions
@@ -346,7 +342,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
     def get_log_context(
         self,
         message: Optional["StreamMessage[ConsumerRecord]"],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         if message is None:
             topic = ",".join(self.topic_names)
         else:
@@ -359,7 +355,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         )
 
 
-class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
+class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
     def __init__(
         self,
         *topics: str,
@@ -378,7 +374,7 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable[
-            "BrokerMiddleware[Sequence[Tuple[ConsumerRecord, ...]]]"
+            "BrokerMiddleware[Sequence[tuple[ConsumerRecord, ...]]]"
         ],
         # AsyncAPI args
         title_: Optional[str],
@@ -425,7 +421,7 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             include_in_schema=include_in_schema,
         )
 
-    async def get_msg(self) -> Tuple["ConsumerRecord", ...]:
+    async def get_msg(self) -> tuple["ConsumerRecord", ...]:
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
 
         messages = await self.consumer.getmany(
@@ -441,8 +437,8 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
 
     def get_log_context(
         self,
-        message: Optional["StreamMessage[Tuple[ConsumerRecord, ...]]"],
-    ) -> Dict[str, str]:
+        message: Optional["StreamMessage[tuple[ConsumerRecord, ...]]"],
+    ) -> dict[str, str]:
         if message is None:
             topic = ",".join(self.topic_names)
         else:

@@ -10,23 +10,23 @@ def test_basic_customization():
         "channels": {
             "input_data:OnInputData": {
                 "bindings": {
-                    "kafka": {"bindingVersion": "0.4.0", "topic": "input_data"}
+                    "kafka": {"bindingVersion": "0.4.0", "topic": "input_data"},
                 },
                 "servers": ["development"],
                 "subscribe": {
                     "message": {
-                        "$ref": "#/components/messages/input_data:OnInputData:Message"
-                    }
+                        "$ref": "#/components/messages/input_data:OnInputData:Message",
+                    },
                 },
             },
             "output_data:Publisher": {
                 "bindings": {
-                    "kafka": {"bindingVersion": "0.4.0", "topic": "output_data"}
+                    "kafka": {"bindingVersion": "0.4.0", "topic": "output_data"},
                 },
                 "publish": {
                     "message": {
-                        "$ref": "#/components/messages/output_data:Publisher:Message"
-                    }
+                        "$ref": "#/components/messages/output_data:Publisher:Message",
+                    },
                 },
                 "servers": ["development"],
             },
@@ -36,14 +36,14 @@ def test_basic_customization():
                 "input_data:OnInputData:Message": {
                     "correlationId": {"location": "$message.header#/correlation_id"},
                     "payload": {
-                        "$ref": "#/components/schemas/OnInputData:Message:Payload"
+                        "$ref": "#/components/schemas/OnInputData:Message:Payload",
                     },
                     "title": "input_data:OnInputData:Message",
                 },
                 "output_data:Publisher:Message": {
                     "correlationId": {"location": "$message.header#/correlation_id"},
                     "payload": {
-                        "$ref": "#/components/schemas/output_data:PublisherPayload"
+                        "$ref": "#/components/schemas/output_data:PublisherPayload",
                     },
                     "title": "output_data:Publisher:Message",
                 },
@@ -60,6 +60,6 @@ def test_basic_customization():
                 "protocol": "kafka",
                 "protocolVersion": "auto",
                 "url": "localhost:9092",
-            }
+            },
         },
     }

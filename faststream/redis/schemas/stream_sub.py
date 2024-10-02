@@ -9,15 +9,15 @@ class StreamSub(NameRequired):
     """A class to represent a Redis Stream subscriber."""
 
     __slots__ = (
-        "name",
-        "polling_interval",
-        "last_id",
-        "group",
-        "consumer",
-        "no_ack",
         "batch",
+        "consumer",
+        "group",
+        "last_id",
         "max_records",
         "maxlen",
+        "name",
+        "no_ack",
+        "polling_interval",
     )
 
     def __init__(
@@ -33,7 +33,8 @@ class StreamSub(NameRequired):
         max_records: Optional[int] = None,
     ) -> None:
         if (group and not consumer) or (not group and consumer):
-            raise SetupError("You should specify `group` and `consumer` both")
+            msg = "You should specify `group` and `consumer` both"
+            raise SetupError(msg)
 
         if group and consumer and no_ack:
             warnings.warn(

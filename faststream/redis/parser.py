@@ -1,12 +1,8 @@
+from collections.abc import Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
-    List,
-    Mapping,
     Optional,
-    Sequence,
-    Tuple,
-    Type,
     TypeVar,
     Union,
 )
@@ -102,29 +98,29 @@ class RawMessage:
             {
                 "data": msg.data,
                 "headers": msg.headers,
-            }
+            },
         )
 
     @staticmethod
-    def parse(data: bytes) -> Tuple[bytes, "AnyDict"]:
+    def parse(data: bytes) -> tuple[bytes, "AnyDict"]:
         headers: AnyDict
 
         try:
             # FastStream message format
             parsed_data = json_loads(data)
-            data = parsed_data["data"].encode()
+            final_data = parsed_data["data"].encode()
             headers = parsed_data["headers"]
 
         except Exception:
             # Raw Redis message format
-            data = data
+            final_data = data
             headers = {}
 
-        return data, headers
+        return final_data, headers
 
 
 class SimpleParser:
-    msg_class: Type["StreamMessage[Any]"]
+    msg_class: type["StreamMessage[Any]"]
 
     def __init__(
         self,
@@ -155,7 +151,7 @@ class SimpleParser:
     def _parse_data(
         self,
         message: Mapping[str, Any],
-    ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
+    ) -> tuple[bytes, "AnyDict", list["AnyDict"]]:
         return (*RawMessage.parse(message["data"]), [])
 
     def get_path(self, message: Mapping[str, Any]) -> "AnyDict":
@@ -166,8 +162,7 @@ class SimpleParser:
         ):
             return match.groupdict()
 
-        else:
-            return {}
+        return {}
 
     async def decode_message(
         self,
@@ -190,9 +185,9 @@ class RedisBatchListParser(SimpleParser):
     def _parse_data(
         self,
         message: Mapping[str, Any],
-    ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
-        body: List[Any] = []
-        batch_headers: List[AnyDict] = []
+    ) -> tuple[bytes, "AnyDict", list["AnyDict"]]:
+        body: list[Any] = []
+        batch_headers: list[AnyDict] = []
 
         for x in message["data"]:
             msg_data, msg_headers = _decode_batch_body_item(x)
@@ -216,8 +211,9 @@ class RedisStreamParser(SimpleParser):
 
     @classmethod
     def _parse_data(
-        cls, message: Mapping[str, Any]
-    ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
+        cls,
+        message: Mapping[str, Any],
+    ) -> tuple[bytes, "AnyDict", list["AnyDict"]]:
         data = message["data"]
         return (*RawMessage.parse(data.get(bDATA_KEY) or dump_json(data)), [])
 
@@ -228,9 +224,9 @@ class RedisBatchStreamParser(SimpleParser):
     def _parse_data(
         self,
         message: Mapping[str, Any],
-    ) -> Tuple[bytes, "AnyDict", List["AnyDict"]]:
-        body: List[Any] = []
-        batch_headers: List[AnyDict] = []
+    ) -> tuple[bytes, "AnyDict", list["AnyDict"]]:
+        body: list[Any] = []
+        batch_headers: list[AnyDict] = []
 
         for x in message["data"]:
             msg_data, msg_headers = _decode_batch_body_item(x.get(bDATA_KEY, x))
@@ -249,7 +245,7 @@ class RedisBatchStreamParser(SimpleParser):
         )
 
 
-def _decode_batch_body_item(msg_content: bytes) -> Tuple[Any, "AnyDict"]:
+def _decode_batch_body_item(msg_content: bytes) -> tuple[Any, "AnyDict"]:
     msg_body, headers = RawMessage.parse(msg_content)
     try:
         return json_loads(msg_body), headers

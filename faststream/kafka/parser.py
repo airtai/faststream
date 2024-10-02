@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from faststream._internal.context.repository import context
 from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
@@ -19,7 +19,7 @@ class AioKafkaParser:
 
     def __init__(
         self,
-        msg_class: Type[KafkaMessage],
+        msg_class: type[KafkaMessage],
         regex: Optional["Pattern[str]"],
     ) -> None:
         self.msg_class = msg_class
@@ -52,21 +52,20 @@ class AioKafkaParser:
         """Decodes a message."""
         return decode_message(msg)
 
-    def get_path(self, topic: str) -> Dict[str, str]:
+    def get_path(self, topic: str) -> dict[str, str]:
         if self.regex and (match := self.regex.match(topic)):
             return match.groupdict()
-        else:
-            return {}
+        return {}
 
 
 class AioKafkaBatchParser(AioKafkaParser):
     async def parse_message(
         self,
-        message: Tuple["ConsumerRecord", ...],
-    ) -> "StreamMessage[Tuple[ConsumerRecord, ...]]":
+        message: tuple["ConsumerRecord", ...],
+    ) -> "StreamMessage[tuple[ConsumerRecord, ...]]":
         """Parses a batch of messages from a Kafka consumer."""
-        body: List[Any] = []
-        batch_headers: List[Dict[str, str]] = []
+        body: list[Any] = []
+        batch_headers: list[dict[str, str]] = []
 
         first = message[0]
         last = message[-1]
@@ -94,7 +93,7 @@ class AioKafkaBatchParser(AioKafkaParser):
 
     async def decode_message(
         self,
-        msg: "StreamMessage[Tuple[ConsumerRecord, ...]]",
+        msg: "StreamMessage[tuple[ConsumerRecord, ...]]",
     ) -> "DecodedMessage":
         """Decode a batch of messages."""
         # super() should be here due python can't find it in comprehension

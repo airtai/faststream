@@ -42,7 +42,7 @@ class TestRouter(RouterTestcase):
                     "pathname": "/",
                     "protocol": "amqp",
                     "protocolVersion": "0.9.1",
-                }
+                },
             },
             "channels": {
                 "test_test:_:Handle": {
@@ -50,8 +50,8 @@ class TestRouter(RouterTestcase):
                     "servers": [{"$ref": "#/servers/development"}],
                     "messages": {
                         "SubscribeMessage": {
-                            "$ref": "#/components/messages/test_test:_:Handle:SubscribeMessage"
-                        }
+                            "$ref": "#/components/messages/test_test:_:Handle:SubscribeMessage",
+                        },
                     },
                     "bindings": {
                         "amqp": {
@@ -65,9 +65,9 @@ class TestRouter(RouterTestcase):
                                 "vhost": "/",
                             },
                             "exchange": {"type": "default", "vhost": "/"},
-                        }
+                        },
                     },
-                }
+                },
             },
             "operations": {
                 "test_test:_:HandleSubscribe": {
@@ -79,30 +79,30 @@ class TestRouter(RouterTestcase):
                             ],
                             "ack": True,
                             "bindingVersion": "0.3.0",
-                        }
+                        },
                     },
                     "messages": [
                         {
-                            "$ref": "#/channels/test_test:_:Handle/messages/SubscribeMessage"
-                        }
+                            "$ref": "#/channels/test_test:_:Handle/messages/SubscribeMessage",
+                        },
                     ],
                     "channel": {"$ref": "#/channels/test_test:_:Handle"},
-                }
+                },
             },
             "components": {
                 "messages": {
                     "test_test:_:Handle:SubscribeMessage": {
                         "title": "test_test:_:Handle:SubscribeMessage",
                         "correlationId": {
-                            "location": "$message.header#/correlation_id"
+                            "location": "$message.header#/correlation_id",
                         },
                         "payload": {
-                            "$ref": "#/components/schemas/Handle:Message:Payload"
+                            "$ref": "#/components/schemas/Handle:Message:Payload",
                         },
-                    }
+                    },
                 },
                 "schemas": {
-                    "Handle:Message:Payload": {"title": "Handle:Message:Payload"}
+                    "Handle:Message:Payload": {"title": "Handle:Message:Payload"},
                 },
             },
         }, schema

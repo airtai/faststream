@@ -37,5 +37,5 @@ def test_fastapi_security_schema():
         "url": "localhost:9092",
     }
     assert schema["components"]["securitySchemes"] == {
-        "user-password": {"type": "userPassword"}
+        "user-password": {"type": "userPassword"},
     }

@@ -8,8 +8,6 @@ from faststream._internal.basic_types import AnyDict
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.docs import (
     ExternalDocs,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.docs import (
     from_spec as docs_from_spec,
 )
 

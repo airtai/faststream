@@ -3,7 +3,7 @@
 References: https://github.com/asyncapi/bindings/tree/master/amqp
 """
 
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, PositiveInt
 from typing_extensions import Self
@@ -21,7 +21,7 @@ class OperationBinding(BaseModel):
         bindingVersion : string representing the binding version
     """
 
-    cc: Optional[List[str]] = None
+    cc: Optional[list[str]] = None
     ack: bool = True
     replyTo: Optional[str] = None
     deliveryMode: Optional[int] = None

@@ -1,5 +1,6 @@
+from collections.abc import Iterable
 from pprint import pformat
-from typing import Any, Iterable
+from typing import Any
 
 
 class FastStreamException(Exception):  # noqa: N818
@@ -46,7 +47,7 @@ class AckMessage(HandlerException):
         extra_options (Any): Additional parameters that will be passed to `message.ack(**extra_options)` method.
     """
 
-    def __init__(self, **extra_options: Any):
+    def __init__(self, **extra_options: Any) -> None:
         self.extra_options = extra_options
         super().__init__()
 
@@ -65,7 +66,7 @@ class NackMessage(HandlerException):
         extra_options (Any): Additional parameters that will be passed to `message.nack(**extra_options)` method.
     """
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: Any) -> None:
         self.extra_options = kwargs
         super().__init__()
 
@@ -84,7 +85,7 @@ class RejectMessage(HandlerException):
         extra_options (Any): Additional parameters that will be passed to `message.reject(**extra_options)` method.
     """
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: Any) -> None:
         self.extra_options = kwargs
         super().__init__()
 
@@ -138,13 +139,13 @@ class ContextError(FastStreamException, KeyError):
             (
                 f"\n    Key `{self.field}` not found in the context\n    ",
                 pformat(self.context),
-            )
+            ),
         )
 
 
 WRONG_PUBLISH_ARGS = SetupError(
     "You should use `reply_to` to send response to long-living queue "
-    "and `rpc` to get response in sync mode."
+    "and `rpc` to get response in sync mode.",
 )
 
 

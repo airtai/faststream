@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from nats.aio.subscription import (
     DEFAULT_SUB_PENDING_BYTES_LIMIT,
@@ -79,10 +80,12 @@ def create_subscriber(
     "SpecificationObjStoreWatchSubscriber",
 ]:
     if pull_sub is not None and stream is None:
-        raise SetupError("Pull subscriber can be used only with a stream")
+        msg = "Pull subscriber can be used only with a stream"
+        raise SetupError(msg)
 
     if not subject and not config:
-        raise SetupError("You must provide either `subject` or `config` option.")
+        msg = "You must provide either `subject` or `config` option."
+        raise SetupError(msg)
 
     config = config or ConsumerConfig(filter_subjects=[])
 
@@ -111,7 +114,7 @@ def create_subscriber(
                     "deliver_policy": deliver_policy,
                     "headers_only": headers_only,
                     "manual_ack": not ack_first,
-                }
+                },
             )
 
     else:
@@ -146,7 +149,7 @@ def create_subscriber(
             include_in_schema=include_in_schema,
         )
 
-    elif stream is None:
+    if stream is None:
         if max_workers > 1:
             return SpecificationConcurrentCoreSubscriber(
                 max_workers=max_workers,
@@ -167,11 +170,32 @@ def create_subscriber(
                 include_in_schema=include_in_schema,
             )
 
-        else:
-            return SpecificationCoreSubscriber(
+        return SpecificationCoreSubscriber(
+            subject=subject,
+            config=config,
+            queue=queue,
+            # basic args
+            extra_options=extra_options,
+            # Subscriber args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+            # Specification
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+    if max_workers > 1:
+        if pull_sub is not None:
+            return SpecificationConcurrentPullStreamSubscriber(
+                max_workers=max_workers,
+                pull_sub=pull_sub,
+                stream=stream,
                 subject=subject,
                 config=config,
-                queue=queue,
                 # basic args
                 extra_options=extra_options,
                 # Subscriber args
@@ -186,108 +210,81 @@ def create_subscriber(
                 include_in_schema=include_in_schema,
             )
 
-    else:
-        if max_workers > 1:
-            if pull_sub is not None:
-                return SpecificationConcurrentPullStreamSubscriber(
-                    max_workers=max_workers,
-                    pull_sub=pull_sub,
-                    stream=stream,
-                    subject=subject,
-                    config=config,
-                    # basic args
-                    extra_options=extra_options,
-                    # Subscriber args
-                    no_ack=no_ack,
-                    no_reply=no_reply,
-                    retry=retry,
-                    broker_dependencies=broker_dependencies,
-                    broker_middlewares=broker_middlewares,
-                    # Specification
-                    title_=title_,
-                    description_=description_,
-                    include_in_schema=include_in_schema,
-                )
+        return SpecificationConcurrentPushStreamSubscriber(
+            max_workers=max_workers,
+            stream=stream,
+            subject=subject,
+            config=config,
+            queue=queue,
+            # basic args
+            extra_options=extra_options,
+            # Subscriber args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+            # Specification
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
 
-            else:
-                return SpecificationConcurrentPushStreamSubscriber(
-                    max_workers=max_workers,
-                    stream=stream,
-                    subject=subject,
-                    config=config,
-                    queue=queue,
-                    # basic args
-                    extra_options=extra_options,
-                    # Subscriber args
-                    no_ack=no_ack,
-                    no_reply=no_reply,
-                    retry=retry,
-                    broker_dependencies=broker_dependencies,
-                    broker_middlewares=broker_middlewares,
-                    # Specification
-                    title_=title_,
-                    description_=description_,
-                    include_in_schema=include_in_schema,
-                )
+    if pull_sub is not None:
+        if pull_sub.batch:
+            return SpecificationBatchPullStreamSubscriber(
+                pull_sub=pull_sub,
+                stream=stream,
+                subject=subject,
+                config=config,
+                # basic args
+                extra_options=extra_options,
+                # Subscriber args
+                no_ack=no_ack,
+                no_reply=no_reply,
+                retry=retry,
+                broker_dependencies=broker_dependencies,
+                broker_middlewares=broker_middlewares,
+                # Specification
+                title_=title_,
+                description_=description_,
+                include_in_schema=include_in_schema,
+            )
 
-        else:
-            if pull_sub is not None:
-                if pull_sub.batch:
-                    return SpecificationBatchPullStreamSubscriber(
-                        pull_sub=pull_sub,
-                        stream=stream,
-                        subject=subject,
-                        config=config,
-                        # basic args
-                        extra_options=extra_options,
-                        # Subscriber args
-                        no_ack=no_ack,
-                        no_reply=no_reply,
-                        retry=retry,
-                        broker_dependencies=broker_dependencies,
-                        broker_middlewares=broker_middlewares,
-                        # Specification
-                        title_=title_,
-                        description_=description_,
-                        include_in_schema=include_in_schema,
-                    )
+        return SpecificationPullStreamSubscriber(
+            pull_sub=pull_sub,
+            stream=stream,
+            subject=subject,
+            config=config,
+            # basic args
+            extra_options=extra_options,
+            # Subscriber args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+            # Specification
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
 
-                else:
-                    return SpecificationPullStreamSubscriber(
-                        pull_sub=pull_sub,
-                        stream=stream,
-                        subject=subject,
-                        config=config,
-                        # basic args
-                        extra_options=extra_options,
-                        # Subscriber args
-                        no_ack=no_ack,
-                        no_reply=no_reply,
-                        retry=retry,
-                        broker_dependencies=broker_dependencies,
-                        broker_middlewares=broker_middlewares,
-                        # Specification
-                        title_=title_,
-                        description_=description_,
-                        include_in_schema=include_in_schema,
-                    )
-
-            else:
-                return SpecificationStreamSubscriber(
-                    stream=stream,
-                    subject=subject,
-                    queue=queue,
-                    config=config,
-                    # basic args
-                    extra_options=extra_options,
-                    # Subscriber args
-                    no_ack=no_ack,
-                    no_reply=no_reply,
-                    retry=retry,
-                    broker_dependencies=broker_dependencies,
-                    broker_middlewares=broker_middlewares,
-                    # Specification information
-                    title_=title_,
-                    description_=description_,
-                    include_in_schema=include_in_schema,
-                )
+    return SpecificationStreamSubscriber(
+        stream=stream,
+        subject=subject,
+        queue=queue,
+        config=config,
+        # basic args
+        extra_options=extra_options,
+        # Subscriber args
+        no_ack=no_ack,
+        no_reply=no_reply,
+        retry=retry,
+        broker_dependencies=broker_dependencies,
+        broker_middlewares=broker_middlewares,
+        # Specification information
+        title_=title_,
+        description_=description_,
+        include_in_schema=include_in_schema,
+    )

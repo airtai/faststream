@@ -1,6 +1,7 @@
+from collections.abc import Iterable
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from faststream._internal.publisher.proto import BasePublisherProto
 
@@ -53,7 +54,10 @@ class FakePublisher(BasePublisherProto):
         correlation_id: Optional[str] = None,
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Any:
-        raise NotImplementedError(
+        msg = (
             "`FakePublisher` can be used only to publish "
             "a response for `reply-to` or `RPC` messages."
+        )
+        raise NotImplementedError(
+            msg,
         )

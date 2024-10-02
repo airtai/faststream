@@ -3,7 +3,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
-    List,
     Optional,
     TypeVar,
     Union,
@@ -33,7 +32,7 @@ class StreamMessage(Generic[MsgType]):
         *,
         headers: Optional["AnyDict"] = None,
         reply_to: str = "",
-        batch_headers: Optional[List["AnyDict"]] = None,
+        batch_headers: Optional[list["AnyDict"]] = None,
         path: Optional["AnyDict"] = None,
         content_type: Optional[str] = None,
         correlation_id: Optional[str] = None,
@@ -70,7 +69,7 @@ class StreamMessage(Generic[MsgType]):
                     f"committed={self.committed}",
                     f"raw_message={self.raw_message}",
                 ),
-            )
+            ),
         )
 
         return f"{self.__class__.__name__}({inner})"

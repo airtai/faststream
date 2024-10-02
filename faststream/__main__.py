@@ -5,11 +5,14 @@ import warnings
 from faststream._internal._compat import HAS_TYPER
 
 if not HAS_TYPER:
-    raise ImportError(
+    msg = (
         "\n\nYou're trying to use the FastStream CLI, "
         "\nbut you haven't installed the required dependencies."
         "\nPlease install them using the following command: "
         '\npip install "faststream[cli]"'
+    )
+    raise ImportError(
+        msg,
     )
 
 from faststream._internal.cli.main import cli

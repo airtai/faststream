@@ -17,7 +17,7 @@ async def test_batch_publish_decorator():
 
         on_input_data_1.mock.assert_called_once_with(dict(Data(data=2.0)))
         decrease_and_increase.mock.assert_called_once_with(
-            [dict(Data(data=1.0)), dict(Data(data=4.0))]
+            [dict(Data(data=1.0)), dict(Data(data=4.0))],
         )
 
 
@@ -28,5 +28,5 @@ async def test_batch_publish_call():
 
         on_input_data_2.mock.assert_called_once_with(dict(Data(data=2.0)))
         decrease_and_increase.mock.assert_called_once_with(
-            [dict(Data(data=1.0)), dict(Data(data=4.0))]
+            [dict(Data(data=1.0)), dict(Data(data=4.0))],
         )

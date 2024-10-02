@@ -1,24 +1,20 @@
+from collections.abc import Awaitable, Mapping, Sequence
+from contextlib import AbstractAsyncContextManager
 from datetime import datetime
 from decimal import Decimal
 from typing import (
     Any,
-    AsyncContextManager,
-    Awaitable,
     Callable,
     ClassVar,
-    Dict,
-    List,
-    Mapping,
     Optional,
     Protocol,
-    Sequence,
     TypeVar,
     Union,
 )
 
 from typing_extensions import ParamSpec, TypeAlias
 
-AnyDict: TypeAlias = Dict[str, Any]
+AnyDict: TypeAlias = dict[str, Any]
 AnyHttpUrl: TypeAlias = str
 
 F_Return = TypeVar("F_Return")
@@ -36,7 +32,7 @@ Decorator: TypeAlias = Callable[[AnyCallable], AnyCallable]
 
 JsonArray: TypeAlias = Sequence["DecodedMessage"]
 
-JsonTable: TypeAlias = Dict[str, "DecodedMessage"]
+JsonTable: TypeAlias = dict[str, "DecodedMessage"]
 
 JsonDecodable: TypeAlias = Union[
     bool,
@@ -56,13 +52,13 @@ DecodedMessage: TypeAlias = Union[
 
 SendableArray: TypeAlias = Sequence["BaseSendableMessage"]
 
-SendableTable: TypeAlias = Dict[str, "BaseSendableMessage"]
+SendableTable: TypeAlias = dict[str, "BaseSendableMessage"]
 
 
 class StandardDataclass(Protocol):
     """Protocol to check type is dataclass."""
 
-    __dataclass_fields__: ClassVar[Dict[str, Any]]
+    __dataclass_fields__: ClassVar[dict[str, Any]]
 
 
 BaseSendableMessage: TypeAlias = Union[
@@ -89,12 +85,12 @@ except ImportError:
 SettingField: TypeAlias = Union[
     bool,
     str,
-    List[Union[bool, str]],
-    List[str],
-    List[bool],
+    list[Union[bool, str]],
+    list[str],
+    list[bool],
 ]
 
-Lifespan: TypeAlias = Callable[..., AsyncContextManager[None]]
+Lifespan: TypeAlias = Callable[..., AbstractAsyncContextManager[None]]
 
 
 class LoggerProto(Protocol):

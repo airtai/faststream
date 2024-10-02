@@ -20,7 +20,7 @@ class TestArguments(PublisherTestcase):
                 "bindingVersion": "custom",
                 "channel": "test",
                 "method": "publish",
-            }
+            },
         }
 
     def test_list_publisher(self):
@@ -33,7 +33,7 @@ class TestArguments(PublisherTestcase):
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
-            "redis": {"bindingVersion": "custom", "channel": "test", "method": "rpush"}
+            "redis": {"bindingVersion": "custom", "channel": "test", "method": "rpush"},
         }
 
     def test_stream_publisher(self):
@@ -46,5 +46,5 @@ class TestArguments(PublisherTestcase):
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
-            "redis": {"bindingVersion": "custom", "channel": "test", "method": "xadd"}
+            "redis": {"bindingVersion": "custom", "channel": "test", "method": "xadd"},
         }

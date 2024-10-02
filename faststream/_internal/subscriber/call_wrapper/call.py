@@ -1,15 +1,11 @@
 import asyncio
+from collections.abc import Awaitable, Iterable, Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     Callable,
     Generic,
-    Iterable,
-    List,
-    Mapping,
     Optional,
-    Sequence,
     Union,
 )
 from unittest.mock import MagicMock
@@ -43,15 +39,15 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
     _wrapped_call: Optional[Callable[..., Awaitable[Any]]]
     _original_call: Callable[P_HandlerParams, T_HandlerReturn]
-    _publishers: List["PublisherProto[MsgType]"]
+    _publishers: list["PublisherProto[MsgType]"]
 
     __slots__ = (
-        "mock",
-        "future",
-        "is_test",
-        "_wrapped_call",
         "_original_call",
         "_publishers",
+        "_wrapped_call",
+        "future",
+        "is_test",
+        "mock",
     )
 
     def __new__(
@@ -64,8 +60,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         """Create a new instance of the class."""
         if isinstance(call, cls):
             return call
-        else:
-            return super().__new__(cls)
+        return super().__new__(cls)
 
     def __init__(
         self,
@@ -128,7 +123,8 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
             return
 
         if self.future is None:
-            raise SetupError("You can use this method only with TestClient")
+            msg = "You can use this method only with TestClient"
+            raise SetupError(msg)
 
         if self.future.done():
             self.future = asyncio.Future()
@@ -195,11 +191,12 @@ def _wrap_decode_message(
         if params_ln > 1:
             if isinstance(msg, Mapping):
                 return await func(**msg)
-            elif isinstance(msg, Sequence):
+            if isinstance(msg, Sequence):
                 return await func(*msg)
         else:
             return await func(msg)
 
-        raise AssertionError("unreachable")
+        msg = "unreachable"
+        raise AssertionError(msg)
 
     return decode_wrapper

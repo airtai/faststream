@@ -16,10 +16,10 @@ from .license import License
 from .tag import Tag
 
 __all__ = (
+    "Contact",
     "ExternalDocs",
     "License",
     "Tag",
-    "Contact",
     # module aliases
     "bindings",
     "channel",

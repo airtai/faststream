@@ -1,21 +1,14 @@
 import json
 from abc import abstractmethod
+from collections.abc import AsyncIterator, Awaitable, Iterable, Mapping, Sequence
 from contextlib import asynccontextmanager
 from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncIterator,
-    Awaitable,
     Callable,
-    Dict,
     Generic,
-    Iterable,
-    List,
-    Mapping,
     Optional,
-    Sequence,
-    Type,
     Union,
     cast,
     overload,
@@ -69,7 +62,7 @@ if TYPE_CHECKING:
 class _BackgroundMiddleware(BaseMiddleware):
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
@@ -91,11 +84,11 @@ class StreamRouter(
 ):
     """A class to route streams."""
 
-    broker_class: Type["BrokerUsecase[MsgType, Any]"]
+    broker_class: type["BrokerUsecase[MsgType, Any]"]
     broker: "BrokerUsecase[MsgType, Any]"
     docs_router: Optional[APIRouter]
-    _after_startup_hooks: List[Callable[[Any], Awaitable[Optional[Mapping[str, Any]]]]]
-    _on_shutdown_hooks: List[Callable[[Any], Awaitable[None]]]
+    _after_startup_hooks: list[Callable[[Any], Awaitable[Optional[Mapping[str, Any]]]]]
+    _on_shutdown_hooks: list[Callable[[Any], Awaitable[None]]]
     schema: Optional["Specification"]
 
     title: str
@@ -109,16 +102,16 @@ class StreamRouter(
         *connection_args: Any,
         middlewares: Iterable["BrokerMiddleware[MsgType]"] = (),
         prefix: str = "",
-        tags: Optional[List[Union[str, Enum]]] = None,
+        tags: Optional[list[Union[str, Enum]]] = None,
         dependencies: Optional[Sequence["params.Depends"]] = None,
-        default_response_class: Type["Response"] = Default(JSONResponse),
-        responses: Optional[Dict[Union[int, str], "AnyDict"]] = None,
-        callbacks: Optional[List["routing.BaseRoute"]] = None,
-        routes: Optional[List["routing.BaseRoute"]] = None,
+        default_response_class: type["Response"] = Default(JSONResponse),
+        responses: Optional[dict[Union[int, str], "AnyDict"]] = None,
+        callbacks: Optional[list["routing.BaseRoute"]] = None,
+        routes: Optional[list["routing.BaseRoute"]] = None,
         redirect_slashes: bool = True,
         default: Optional["ASGIApp"] = None,
         dependency_overrides_provider: Optional[Any] = None,
-        route_class: Type["APIRoute"] = APIRoute,
+        route_class: type["APIRoute"] = APIRoute,
         on_startup: Optional[Sequence[Callable[[], Any]]] = None,
         on_shutdown: Optional[Sequence[Callable[[], Any]]] = None,
         deprecated: Optional[bool] = None,
@@ -126,7 +119,7 @@ class StreamRouter(
         setup_state: bool = True,
         lifespan: Optional["Lifespan[Any]"] = None,
         generate_unique_id_function: Callable[["APIRoute"], str] = Default(
-            generate_unique_id
+            generate_unique_id,
         ),
         # Specification information
         specification_tags: Optional[Iterable[Union["Tag", "TagDict"]]] = None,
@@ -205,8 +198,7 @@ class StreamRouter(
         """Dependency provider WeakRef resolver."""
         if self.dependency_overrides_provider is not None:
             return self.dependency_overrides_provider
-        else:
-            return next(iter(self.weak_dependencies_provider), None)
+        return next(iter(self.weak_dependencies_provider), None)
 
     def _add_api_mq_route(
         self,
@@ -284,14 +276,15 @@ class StreamRouter(
         return sub
 
     def _wrap_lifespan(
-        self, lifespan: Optional["Lifespan[Any]"] = None
+        self,
+        lifespan: Optional["Lifespan[Any]"] = None,
     ) -> "Lifespan[Any]":
         lifespan_context = lifespan if lifespan is not None else _DefaultLifespan(self)
 
         @asynccontextmanager
         async def start_broker_lifespan(
             app: "FastAPI",
-        ) -> AsyncIterator[Mapping[str, Any]]:
+        ) -> AsyncIterator[Optional[Mapping[str, Any]]]:
             """Starts the lifespan of a broker."""
             if not len(self.weak_dependencies_provider):
                 self.weak_dependencies_provider.add(app)
@@ -339,7 +332,7 @@ class StreamRouter(
                         yield context
                     else:
                         # NOTE: old asgi compatibility
-                        yield  # type: ignore
+                        yield None
 
                     for h in self._on_shutdown_hooks:
                         await h(app)
@@ -347,7 +340,7 @@ class StreamRouter(
                 finally:
                     await self.broker.close()
 
-        return start_broker_lifespan
+        return start_broker_lifespan  # type: ignore[return-value]
 
     @overload
     def after_startup(
@@ -420,7 +413,7 @@ class StreamRouter(
     @abstractmethod
     def publisher(self) -> "PublisherProto[MsgType]":
         """Create Publisher object."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _asyncapi_router(self, schema_url: Optional[str]) -> Optional[APIRouter]:
         """Creates an API router for serving AsyncAPI documentation."""
@@ -475,7 +468,7 @@ class StreamRouter(
                     schemas=schemas,
                     errors=errors,
                     expand_message_examples=expandMessageExamples,
-                )
+                ),
             )
 
         docs_router = APIRouter(
@@ -495,15 +488,15 @@ class StreamRouter(
         router: Union["StreamRouter[MsgType]", "BrokerRouter[MsgType]"],
         *,
         prefix: str = "",
-        tags: Optional[List[Union[str, Enum]]] = None,
+        tags: Optional[list[Union[str, Enum]]] = None,
         dependencies: Optional[Sequence["params.Depends"]] = None,
-        default_response_class: Type[Response] = Default(JSONResponse),
-        responses: Optional[Dict[Union[int, str], "AnyDict"]] = None,
-        callbacks: Optional[List["BaseRoute"]] = None,
+        default_response_class: type[Response] = Default(JSONResponse),
+        responses: Optional[dict[Union[int, str], "AnyDict"]] = None,
+        callbacks: Optional[list["BaseRoute"]] = None,
         deprecated: Optional[bool] = None,
         include_in_schema: bool = True,
         generate_unique_id_function: Callable[["APIRoute"], str] = Default(
-            generate_unique_id
+            generate_unique_id,
         ),
     ) -> None:
         """Includes a router in the API."""

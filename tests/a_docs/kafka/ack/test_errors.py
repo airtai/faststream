@@ -14,7 +14,9 @@ async def test_ack_exc():
     from docs.docs_src.kafka.ack.errors import app, broker, handle
 
     with patch.object(
-        AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+        AIOKafkaConsumer,
+        "commit",
+        spy_decorator(AIOKafkaConsumer.commit),
     ) as m:
         async with TestKafkaBroker(broker, with_real=True), TestApp(app):
             await handle.wait_call(10)

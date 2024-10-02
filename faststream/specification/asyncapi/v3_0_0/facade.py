@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from faststream.specification.base.specification import Specification
 
@@ -54,7 +55,7 @@ class AsyncAPI3(Specification):
         return self.schema.to_yaml()
 
     @property
-    def schema(self) -> Schema:
+    def schema(self) -> Schema:  # type: ignore[override]
         return get_app_schema(
             self.broker,
             title=self.title,

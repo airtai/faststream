@@ -16,7 +16,8 @@ async def async_decoder(msg: NatsMessage) -> DecodedMessage:
 
 
 async def custom_decoder(
-    msg: NatsMessage, original: Callable[[NatsMessage], Awaitable[DecodedMessage]]
+    msg: NatsMessage,
+    original: Callable[[NatsMessage], Awaitable[DecodedMessage]],
 ) -> DecodedMessage:
     return await original(msg)
 
@@ -35,7 +36,8 @@ async def async_parser(msg: Msg) -> NatsMessage:
 
 
 async def custom_parser(
-    msg: Msg, original: Callable[[Msg], Awaitable[NatsMessage]]
+    msg: Msg,
+    original: Callable[[Msg], Awaitable[NatsMessage]],
 ) -> NatsMessage:
     return await original(msg)
 
@@ -198,7 +200,7 @@ NatsRouter(
             parser=custom_parser,
             decoder=custom_decoder,
         ),
-    )
+    ),
 )
 
 

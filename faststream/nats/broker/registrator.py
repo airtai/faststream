@@ -1,7 +1,8 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union, cast
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 
 from nats.js import api
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream.nats.helpers import StreamBuilder
@@ -26,8 +27,8 @@ if TYPE_CHECKING:
 class NatsRegistrator(ABCBroker["Msg"]):
     """Includable to NatsBroker router."""
 
-    _subscribers: List["SpecificationSubscriber"]
-    _publishers: List["SpecificationPublisher"]
+    _subscribers: list["SpecificationSubscriber"]
+    _publishers: list["SpecificationPublisher"]
 
     def __init__(self, **kwargs: Any) -> None:
         self._stream_builder = StreamBuilder()
@@ -45,7 +46,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             str,
             Doc(
                 "Subscribers' NATS queue name. Subscribers with same queue name will be load balanced by the NATS "
-                "server."
+                "server.",
             ),
         ] = "",
         pending_msgs_limit: Annotated[
@@ -55,7 +56,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
                 "been answered. In case of NATS Core, if that limits exceeds, you will receive NATS 'Slow Consumer' "
                 "error. "
                 "That's literally means that your worker can't handle the whole load. In case of NATS JetStream, "
-                "you will no longer receive messages until some of delivered messages will be acked in any way."
+                "you will no longer receive messages until some of delivered messages will be acked in any way.",
             ),
         ] = None,
         pending_bytes_limit: Annotated[
@@ -65,7 +66,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
                 "been answered. In case of NATS Core, if that limit exceeds, you will receive NATS 'Slow Consumer' "
                 "error."
                 "That's literally means that your worker can't handle the whole load. In case of NATS JetStream, "
-                "you will no longer receive messages until some of delivered messages will be acked in any way."
+                "you will no longer receive messages until some of delivered messages will be acked in any way.",
             ),
         ] = None,
         # Core arguments
@@ -77,7 +78,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         durable: Annotated[
             Optional[str],
             Doc(
-                "Name of the durable consumer to which the the subscription should be bound."
+                "Name of the durable consumer to which the the subscription should be bound.",
             ),
         ] = None,
         config: Annotated[
@@ -103,7 +104,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         headers_only: Annotated[
             Optional[bool],
             Doc(
-                "Should be message delivered without payload, only headers and metadata."
+                "Should be message delivered without payload, only headers and metadata.",
             ),
         ] = None,
         # pull arguments
@@ -111,7 +112,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Union[bool, "PullSub"],
             Doc(
                 "NATS Pull consumer parameters container. "
-                "Should be used with `stream` only."
+                "Should be used with `stream` only.",
             ),
         ] = False,
         kv_watch: Annotated[
@@ -125,7 +126,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         inbox_prefix: Annotated[
             bytes,
             Doc(
-                "Prefix for generating unique inboxes, subjects with that prefix and NUID."
+                "Prefix for generating unique inboxes, subjects with that prefix and NUID.",
             ),
         ] = api.INBOX_PREFIX,
         # custom
@@ -169,7 +170,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         no_reply: Annotated[
             bool,
             Doc(
-                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not.",
             ),
         ] = False,
         # AsyncAPI information
@@ -181,7 +182,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Optional[str],
             Doc(
                 "AsyncAPI subscriber object description. "
-                "Uses decorated docstring as default."
+                "Uses decorated docstring as default.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -229,7 +230,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
                     title_=title,
                     description_=description,
                     include_in_schema=self._solve_include_in_schema(include_in_schema),
-                )
+                ),
             ),
         )
 
@@ -252,11 +253,11 @@ class NatsRegistrator(ABCBroker["Msg"]):
         ],
         *,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be set automatically by framework anyway. "
-                "Can be overridden by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified.",
             ),
         ] = None,
         reply_to: Annotated[
@@ -268,7 +269,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Union[str, "JStream", None],
             Doc(
                 "This option validates that the target `subject` is in presented stream. "
-                "Can be omitted without any effect."
+                "Can be omitted without any effect.",
             ),
         ] = None,
         timeout: Annotated[
@@ -293,7 +294,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Optional[Any],
             Doc(
                 "AsyncAPI publishing message type. "
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
+                "Should be any python-native object annotation or `pydantic.BaseModel`.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -329,7 +330,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
                     description_=description,
                     schema_=schema,
                     include_in_schema=self._solve_include_in_schema(include_in_schema),
-                )
+                ),
             ),
         )
 
@@ -356,7 +357,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             new_subjects = []
             for subj in stream.subjects:
                 if subj in sub_router_subjects:
-                    new_subjects.append("".join((self.prefix, subj)))
+                    new_subjects.append(f"{self.prefix}{subj}")
                 else:
                     new_subjects.append(subj)
             stream.subjects = new_subjects

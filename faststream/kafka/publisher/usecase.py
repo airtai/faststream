@@ -1,20 +1,18 @@
+from collections.abc import Awaitable, Iterable
 from functools import partial
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
-    Awaitable,
     Callable,
-    Dict,
-    Iterable,
     Optional,
-    Tuple,
     Union,
     cast,
 )
 
 from aiokafka import ConsumerRecord
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.subscriber.utils import process_msg
@@ -39,7 +37,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         *,
         topic: str,
         partition: Optional[int],
-        headers: Optional[Dict[str, str]],
+        headers: Optional[dict[str, str]],
         reply_to: str,
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
@@ -68,7 +66,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         self._producer = None
 
     def add_prefix(self, prefix: str) -> None:
-        self.topic = "".join((prefix, self.topic))
+        self.topic = f"{prefix}{self.topic}"
 
     @override
     async def request(
@@ -93,7 +91,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """
+            """,
             ),
         ] = None,
         partition: Annotated[
@@ -102,7 +100,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
                 """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """
+            """,
             ),
         ] = None,
         timestamp_ms: Annotated[
@@ -111,18 +109,18 @@ class LogicPublisher(PublisherUsecase[MsgType]):
                 """
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """
+            """,
             ),
         ] = None,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc("Message headers to store metainformation."),
         ] = None,
         correlation_id: Annotated[
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         timeout: Annotated[
@@ -180,7 +178,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         key: Optional[bytes],
         topic: str,
         partition: Optional[int],
-        headers: Optional[Dict[str, str]],
+        headers: Optional[dict[str, str]],
         reply_to: str,
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
@@ -231,7 +229,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """
+            """,
             ),
         ] = None,
         partition: Annotated[
@@ -240,7 +238,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
                 """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """
+            """,
             ),
         ] = None,
         timestamp_ms: Annotated[
@@ -249,18 +247,18 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
                 """
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """
+            """,
             ),
         ] = None,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc("Message headers to store metainformation."),
         ] = None,
         correlation_id: Annotated[
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         reply_to: Annotated[
@@ -332,7 +330,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """
+            """,
             ),
         ] = None,
         partition: Annotated[
@@ -341,7 +339,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
                 """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """
+            """,
             ),
         ] = None,
         timestamp_ms: Annotated[
@@ -350,18 +348,18 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
                 """
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """
+            """,
             ),
         ] = None,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc("Message headers to store metainformation."),
         ] = None,
         correlation_id: Annotated[
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         timeout: Annotated[
@@ -387,7 +385,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         )
 
 
-class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
+class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
     @override
     async def publish(
         self,
@@ -409,7 +407,7 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
                 """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """
+            """,
             ),
         ] = None,
         timestamp_ms: Annotated[
@@ -418,11 +416,11 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
                 """
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """
+            """,
             ),
         ] = None,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc("Messages headers to store metainformation."),
         ] = None,
         reply_to: Annotated[
@@ -433,7 +431,7 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         no_confirm: Annotated[

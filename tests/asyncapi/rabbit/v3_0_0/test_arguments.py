@@ -36,7 +36,7 @@ class TestArguments(ArgumentsTestcase):
                     "name": "test",
                     "vhost": "/",
                 },
-            }
+            },
         }
 
     def test_subscriber_fanout_bindings(self):
@@ -62,5 +62,5 @@ class TestArguments(ArgumentsTestcase):
                     "vhost": "/",
                 },
                 "is": "routingKey",
-            }
+            },
         }

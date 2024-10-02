@@ -1,16 +1,13 @@
 import logging
+from collections.abc import Iterable
 from functools import partial
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Dict,
-    Iterable,
-    List,
     Literal,
     Optional,
-    Tuple,
-    Type,
     TypeVar,
     Union,
 )
@@ -19,7 +16,7 @@ import aiokafka
 import anyio
 from aiokafka.partitioner import DefaultPartitioner
 from aiokafka.producer.producer import _missing
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
@@ -76,7 +73,7 @@ if TYPE_CHECKING:
             which we force a refresh of metadata even if we haven't seen any
             partition leadership changes to proactively discover any new
             brokers or partitions.
-            """
+            """,
             ),
         ]
         connections_max_idle_ms: Annotated[
@@ -86,7 +83,7 @@ if TYPE_CHECKING:
              Close idle connections after the number
             of milliseconds specified by this config. Specifying `None` will
             disable idle checks.
-            """
+            """,
             ),
         ]
         sasl_kerberos_service_name: str
@@ -105,7 +102,7 @@ if TYPE_CHECKING:
             server-side log entries that correspond to this client. Also
             submitted to :class:`~.consumer.group_coordinator.GroupCoordinator`
             for logging with respect to consumer group administration.
-            """
+            """,
             ),
         ]
         # publisher args
@@ -137,7 +134,7 @@ if TYPE_CHECKING:
 
             If unset, defaults to ``acks=1``. If `enable_idempotence` is
             :data:`True` defaults to ``acks=all``.
-            """
+            """,
             ),
         ]
         key_serializer: Annotated[
@@ -156,7 +153,7 @@ if TYPE_CHECKING:
             Compression is of full batches of data, so the efficacy of batching
             will also impact the compression ratio (more batching means better
             compression).
-            """
+            """,
             ),
         ]
         max_batch_size: Annotated[
@@ -165,12 +162,12 @@ if TYPE_CHECKING:
                 """
             Maximum size of buffered data per partition.
             After this amount `send` coroutine will block until batch is drained.
-            """
+            """,
             ),
         ]
         partitioner: Annotated[
             Callable[
-                [bytes, List[Partition], List[Partition]],
+                [bytes, list[Partition], list[Partition]],
                 Partition,
             ],
             Doc(
@@ -183,7 +180,7 @@ if TYPE_CHECKING:
             messages with the same key are assigned to the same partition.
             When a key is :data:`None`, the message is delivered to a random partition
             (filtered to partitions with available leaders only, if possible).
-            """
+            """,
             ),
         ]
         max_request_size: Annotated[
@@ -195,7 +192,7 @@ if TYPE_CHECKING:
             has its own cap on record size which may be different from this.
             This setting will limit the number of record batches the producer
             will send in a single request to avoid sending huge requests.
-            """
+            """,
             ),
         ]
         linger_ms: Annotated[
@@ -210,7 +207,7 @@ if TYPE_CHECKING:
             This setting accomplishes this by adding a small amount of
             artificial delay; that is, if first request is processed faster,
             than `linger_ms`, producer will wait ``linger_ms - process_time``.
-            """
+            """,
             ),
         ]
         enable_idempotence: Annotated[
@@ -223,7 +220,7 @@ if TYPE_CHECKING:
             etc., may write duplicates of the retried message in the stream.
             Note that enabling idempotence acks to set to ``all``. If it is not
             explicitly set by the user it will be chosen.
-            """
+            """,
             ),
         ]
         transactional_id: Optional[str]
@@ -233,11 +230,11 @@ if TYPE_CHECKING:
 class KafkaBroker(
     KafkaRegistrator,
     BrokerUsecase[
-        Union[aiokafka.ConsumerRecord, Tuple[aiokafka.ConsumerRecord, ...]],
+        Union[aiokafka.ConsumerRecord, tuple[aiokafka.ConsumerRecord, ...]],
         Callable[..., aiokafka.AIOKafkaConsumer],
     ],
 ):
-    url: List[str]
+    url: list[str]
     _producer: Optional["AioKafkaFastProducer"]
 
     def __init__(
@@ -252,7 +249,7 @@ class KafkaBroker(
             This does not have to be the full node list.
             It just needs to have at least one broker that will respond to a
             Metadata API Request. Default port is 9092.
-            """
+            """,
             ),
         ] = "localhost",
         *,
@@ -273,7 +270,7 @@ class KafkaBroker(
             which we force a refresh of metadata even if we haven't seen any
             partition leadership changes to proactively discover any new
             brokers or partitions.
-            """
+            """,
             ),
         ] = 5 * 60 * 1000,
         connections_max_idle_ms: Annotated[
@@ -283,7 +280,7 @@ class KafkaBroker(
              Close idle connections after the number
             of milliseconds specified by this config. Specifying `None` will
             disable idle checks.
-            """
+            """,
             ),
         ] = 9 * 60 * 1000,
         sasl_kerberos_service_name: str = "kafka",
@@ -302,7 +299,7 @@ class KafkaBroker(
             server-side log entries that correspond to this client. Also
             submitted to :class:`~.consumer.group_coordinator.GroupCoordinator`
             for logging with respect to consumer group administration.
-            """
+            """,
             ),
         ] = SERVICE_NAME,
         # publisher args
@@ -334,7 +331,7 @@ class KafkaBroker(
 
             If unset, defaults to ``acks=1``. If `enable_idempotence` is
             :data:`True` defaults to ``acks=all``.
-            """
+            """,
             ),
         ] = _missing,
         key_serializer: Annotated[
@@ -353,7 +350,7 @@ class KafkaBroker(
             Compression is of full batches of data, so the efficacy of batching
             will also impact the compression ratio (more batching means better
             compression).
-            """
+            """,
             ),
         ] = None,
         max_batch_size: Annotated[
@@ -362,12 +359,12 @@ class KafkaBroker(
                 """
             Maximum size of buffered data per partition.
             After this amount `send` coroutine will block until batch is drained.
-            """
+            """,
             ),
         ] = 16 * 1024,
         partitioner: Annotated[
             Callable[
-                [bytes, List[Partition], List[Partition]],
+                [bytes, list[Partition], list[Partition]],
                 Partition,
             ],
             Doc(
@@ -380,7 +377,7 @@ class KafkaBroker(
             messages with the same key are assigned to the same partition.
             When a key is :data:`None`, the message is delivered to a random partition
             (filtered to partitions with available leaders only, if possible).
-            """
+            """,
             ),
         ] = DefaultPartitioner(),
         max_request_size: Annotated[
@@ -392,7 +389,7 @@ class KafkaBroker(
             has its own cap on record size which may be different from this.
             This setting will limit the number of record batches the producer
             will send in a single request to avoid sending huge requests.
-            """
+            """,
             ),
         ] = 1024 * 1024,
         linger_ms: Annotated[
@@ -407,7 +404,7 @@ class KafkaBroker(
             This setting accomplishes this by adding a small amount of
             artificial delay; that is, if first request is processed faster,
             than `linger_ms`, producer will wait ``linger_ms - process_time``.
-            """
+            """,
             ),
         ] = 0,
         enable_idempotence: Annotated[
@@ -420,7 +417,7 @@ class KafkaBroker(
             etc., may write duplicates of the retried message in the stream.
             Note that enabling idempotence acks to set to ``all``. If it is not
             explicitly set by the user it will be chosen.
-            """
+            """,
             ),
         ] = False,
         transactional_id: Optional[str] = None,
@@ -429,7 +426,7 @@ class KafkaBroker(
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ] = 15.0,
         decoder: Annotated[
@@ -448,7 +445,7 @@ class KafkaBroker(
             Iterable[
                 Union[
                     "BrokerMiddleware[ConsumerRecord]",
-                    "BrokerMiddleware[Tuple[ConsumerRecord, ...]]",
+                    "BrokerMiddleware[tuple[ConsumerRecord, ...]]",
                 ]
             ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
@@ -457,7 +454,7 @@ class KafkaBroker(
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
         specification_url: Annotated[
@@ -587,7 +584,7 @@ class KafkaBroker(
 
     async def close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
@@ -687,7 +684,7 @@ class KafkaBroker(
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """
+            """,
             ),
         ] = None,
         partition: Annotated[
@@ -696,7 +693,7 @@ class KafkaBroker(
                 """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """
+            """,
             ),
         ] = None,
         timestamp_ms: Annotated[
@@ -705,18 +702,18 @@ class KafkaBroker(
                 """
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """
+            """,
             ),
         ] = None,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc("Message headers to store metainformation."),
         ] = None,
         correlation_id: Annotated[
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         reply_to: Annotated[
@@ -776,7 +773,7 @@ class KafkaBroker(
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """
+            """,
             ),
         ] = None,
         partition: Annotated[
@@ -785,7 +782,7 @@ class KafkaBroker(
                 """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """
+            """,
             ),
         ] = None,
         timestamp_ms: Annotated[
@@ -794,18 +791,18 @@ class KafkaBroker(
                 """
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """
+            """,
             ),
         ] = None,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc("Message headers to store metainformation."),
         ] = None,
         correlation_id: Annotated[
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         timeout: Annotated[
@@ -843,7 +840,7 @@ class KafkaBroker(
                 """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """
+            """,
             ),
         ] = None,
         timestamp_ms: Annotated[
@@ -852,11 +849,11 @@ class KafkaBroker(
                 """
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """
+            """,
             ),
         ] = None,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc("Messages headers to store metainformation."),
         ] = None,
         reply_to: Annotated[
@@ -867,7 +864,7 @@ class KafkaBroker(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         no_confirm: Annotated[

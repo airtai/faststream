@@ -19,7 +19,7 @@ async def test_sub_dep_kafka():
             {
                 "name": "John",
                 "user_id": 1,
-            }
+            },
         )
 
         with pytest.raises(AssertionError):

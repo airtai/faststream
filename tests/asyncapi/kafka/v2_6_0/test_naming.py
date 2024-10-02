@@ -23,26 +23,28 @@ class TestNaming(NamingTestCase):
                     "url": "localhost",
                     "protocol": "kafka",
                     "protocolVersion": "auto",
-                }
+                },
             },
             "channels": {
                 "test:Handle": {
                     "servers": ["development"],
                     "bindings": {"kafka": {"topic": "test", "bindingVersion": "0.4.0"}},
                     "subscribe": {
-                        "message": {"$ref": "#/components/messages/test:Handle:Message"}
+                        "message": {
+                            "$ref": "#/components/messages/test:Handle:Message"
+                        },
                     },
-                }
+                },
             },
             "components": {
                 "messages": {
                     "test:Handle:Message": {
                         "title": "test:Handle:Message",
                         "correlationId": {
-                            "location": "$message.header#/correlation_id"
+                            "location": "$message.header#/correlation_id",
                         },
                         "payload": {"$ref": "#/components/schemas/EmptyPayload"},
-                    }
+                    },
                 },
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},
             },

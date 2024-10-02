@@ -1,5 +1,5 @@
 from abc import abstractmethod, abstractproperty
-from typing import Optional, Type
+from typing import Optional
 
 from faststream.exceptions import IncorrectState
 
@@ -38,7 +38,7 @@ class BaseState(SetupAble):
             depends_params=depends_params or self._depends_params,
         )
 
-    def copy_to_state(self, state_cls: Type["SetupState"]) -> "SetupState":
+    def copy_to_state(self, state_cls: type["SetupState"]) -> "SetupState":
         return state_cls(
             depends_params=self._depends_params,
             logger_state=self._logger_params,

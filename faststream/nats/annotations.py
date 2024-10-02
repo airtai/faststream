@@ -1,25 +1,28 @@
+from typing import Annotated
+
 from nats.aio.client import Client as _NatsClient
 from nats.js.client import JetStreamContext as _JetStream
 from nats.js.object_store import ObjectStore as _ObjectStore
-from typing_extensions import Annotated
 
 from faststream._internal.context import Context
 from faststream.annotations import ContextRepo, Logger
 from faststream.nats.broker import NatsBroker as _Broker
 from faststream.nats.message import NatsMessage as _Message
-from faststream.nats.publisher.producer import NatsFastProducer as _CoreProducer
-from faststream.nats.publisher.producer import NatsJSFastProducer as _JsProducer
+from faststream.nats.publisher.producer import (
+    NatsFastProducer as _CoreProducer,
+    NatsJSFastProducer as _JsProducer,
+)
 from faststream.nats.subscriber.usecase import OBJECT_STORAGE_CONTEXT_KEY
 from faststream.params import NoCast
 
 __all__ = (
-    "Logger",
-    "ContextRepo",
-    "NoCast",
-    "NatsMessage",
-    "NatsBroker",
     "Client",
+    "ContextRepo",
     "JsClient",
+    "Logger",
+    "NatsBroker",
+    "NatsMessage",
+    "NoCast",
     "ObjectStorage",
 )
 

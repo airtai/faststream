@@ -1,5 +1,3 @@
-from typing import Dict
-
 from faststream.redis.schemas import ListSub, StreamSub
 from faststream.redis.schemas.proto import RedisAsyncAPIProtocol
 from faststream.redis.subscriber.usecase import (
@@ -20,7 +18,7 @@ from faststream.specification.schema.operation import Operation
 class SpecificationSubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
     """A class to represent a Redis handler."""
 
-    def get_schema(self) -> Dict[str, Channel]:
+    def get_schema(self) -> dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
@@ -31,14 +29,14 @@ class SpecificationSubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
-                            location="$message.header#/correlation_id"
+                            location="$message.header#/correlation_id",
                         ),
                     ),
                 ),
                 bindings=ChannelBinding(
                     redis=self.channel_binding,
                 ),
-            )
+            ),
         }
 
 

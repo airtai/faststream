@@ -16,5 +16,5 @@ class TestArguments(ArgumentsTestcase):
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
-            "kafka": {"bindingVersion": "0.4.0", "topic": "test"}
+            "kafka": {"bindingVersion": "0.4.0", "topic": "test"},
         }

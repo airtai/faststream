@@ -28,7 +28,7 @@ def test_base():
                 "protocolVersion": "0.9.0",
                 "tags": [{"description": "experimental", "name": "some-tag"}],
                 "url": "redis://localhost:6379",
-            }
+            },
         },
     }, schema
 
@@ -36,7 +36,8 @@ def test_base():
 def test_custom():
     schema = AsyncAPI(
         RedisBroker(
-            "redis://localhost:6379", specification_url="rediss://127.0.0.1:8000"
+            "redis://localhost:6379",
+            specification_url="rediss://127.0.0.1:8000",
         ),
         schema_version="2.6.0",
     ).to_jsonable()
@@ -52,6 +53,6 @@ def test_custom():
                 "protocol": "rediss",
                 "protocolVersion": "custom",
                 "url": "rediss://127.0.0.1:8000",
-            }
+            },
         },
     }

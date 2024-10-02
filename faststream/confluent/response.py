@@ -29,9 +29,8 @@ class KafkaResponse(Response):
 
     @override
     def as_publish_kwargs(self) -> "AnyDict":
-        publish_options = {
+        return {
             **super().as_publish_kwargs(),
             "timestamp_ms": self.timestamp_ms,
             "key": self.key,
         }
-        return publish_options

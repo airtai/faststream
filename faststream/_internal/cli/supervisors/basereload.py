@@ -1,7 +1,7 @@
 import os
 import threading
 from multiprocessing.context import SpawnProcess
-from typing import TYPE_CHECKING, Any, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Optional
 
 from faststream._internal.cli.supervisors.utils import get_subprocess, set_exit
 from faststream._internal.log import logger
@@ -15,7 +15,7 @@ class BaseReload:
 
     _process: SpawnProcess
     _target: "DecoratedCallable"
-    _args: Tuple[Any, ...]
+    _args: tuple[Any, ...]
 
     reload_delay: Optional[float]
     should_exit: threading.Event
@@ -25,7 +25,7 @@ class BaseReload:
     def __init__(
         self,
         target: "DecoratedCallable",
-        args: Tuple[Any, ...],
+        args: tuple[Any, ...],
         reload_delay: Optional[float] = 0.5,
     ) -> None:
         self._target = target
@@ -67,4 +67,5 @@ class BaseReload:
         return process
 
     def should_restart(self) -> bool:
-        raise NotImplementedError("Reload strategies should override should_restart()")
+        msg = "Reload strategies should override should_restart()"
+        raise NotImplementedError(msg)

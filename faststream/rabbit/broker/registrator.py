@@ -1,6 +1,7 @@
-from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Union, cast
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream.rabbit.publisher.publisher import SpecificationPublisher
@@ -29,8 +30,8 @@ if TYPE_CHECKING:
 class RabbitRegistrator(ABCBroker["IncomingMessage"]):
     """Includable to RabbitBroker router."""
 
-    _subscribers: List["SpecificationSubscriber"]
-    _publishers: List["SpecificationPublisher"]
+    _subscribers: list["SpecificationSubscriber"]
+    _publishers: list["SpecificationPublisher"]
 
     @override
     def subscriber(  # type: ignore[override]
@@ -39,7 +40,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Union[str, "RabbitQueue"],
             Doc(
                 "RabbitMQ queue to listen. "
-                "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default)."
+                "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default).",
             ),
         ],
         exchange: Annotated[
@@ -47,7 +48,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Doc(
                 "RabbitMQ exchange to bind queue to. "
                 "Uses default exchange if not presented. "
-                "**FastStream** declares exchange object automatically if it is not passive (by default)."
+                "**FastStream** declares exchange object automatically if it is not passive (by default).",
             ),
         ] = None,
         *,
@@ -83,7 +84,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         no_reply: Annotated[
             bool,
             Doc(
-                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not.",
             ),
         ] = False,
         # AsyncAPI information
@@ -95,7 +96,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Optional[str],
             Doc(
                 "AsyncAPI subscriber object description. "
-                "Uses decorated docstring as default."
+                "Uses decorated docstring as default.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -120,7 +121,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
                     title_=title,
                     description_=description,
                     include_in_schema=self._solve_include_in_schema(include_in_schema),
-                )
+                ),
             ),
         )
 
@@ -147,21 +148,21 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             str,
             Doc(
                 "Default message routing key to publish with. "
-                "Overrides `queue` option if presented."
+                "Overrides `queue` option if presented.",
             ),
         ] = "",
         mandatory: Annotated[
             bool,
             Doc(
                 "Client waits for confirmation that the message is placed to some queue. "
-                "RabbitMQ returns message to client if there is no suitable queue."
+                "RabbitMQ returns message to client if there is no suitable queue.",
             ),
         ] = True,
         immediate: Annotated[
             bool,
             Doc(
                 "Client expects that there is consumer ready to take the message to work. "
-                "RabbitMQ returns message to client if there is no suitable consumer."
+                "RabbitMQ returns message to client if there is no suitable consumer.",
             ),
         ] = False,
         timeout: Annotated[
@@ -175,7 +176,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         reply_to: Annotated[
             Optional[str],
             Doc(
-                "Reply message routing key to send with (always sending to default exchange)."
+                "Reply message routing key to send with (always sending to default exchange).",
             ),
         ] = None,
         priority: Annotated[
@@ -200,7 +201,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Optional[Any],
             Doc(
                 "AsyncAPI publishing message type. "
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
+                "Should be any python-native object annotation or `pydantic.BaseModel`.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -212,7 +213,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Optional["HeadersType"],
             Doc(
                 "Message headers to store metainformation. "
-                "Can be overridden by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified.",
             ),
         ] = None,
         content_type: Annotated[
@@ -220,7 +221,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Doc(
                 "Message **content-type** header. "
                 "Used by application, not core RabbitMQ. "
-                "Will be set automatically if not specified."
+                "Will be set automatically if not specified.",
             ),
         ] = None,
         content_encoding: Annotated[
@@ -262,7 +263,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             expiration=expiration,
         )
 
-        publisher = cast(
+        return cast(
             SpecificationPublisher,
             super().publisher(
                 SpecificationPublisher.create(
@@ -278,8 +279,6 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
                     description_=description,
                     schema_=schema,
                     include_in_schema=self._solve_include_in_schema(include_in_schema),
-                )
+                ),
             ),
         )
-
-        return publisher

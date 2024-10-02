@@ -33,7 +33,7 @@ class TestRouter(RouterTestcase):
                     "pathname": "",
                     "protocol": "nats",
                     "protocolVersion": "custom",
-                }
+                },
             },
             "channels": {
                 "test_test:Handle": {
@@ -41,39 +41,39 @@ class TestRouter(RouterTestcase):
                     "servers": [{"$ref": "#/servers/development"}],
                     "messages": {
                         "SubscribeMessage": {
-                            "$ref": "#/components/messages/test_test:Handle:SubscribeMessage"
-                        }
+                            "$ref": "#/components/messages/test_test:Handle:SubscribeMessage",
+                        },
                     },
                     "bindings": {
-                        "nats": {"subject": "test_test", "bindingVersion": "custom"}
+                        "nats": {"subject": "test_test", "bindingVersion": "custom"},
                     },
-                }
+                },
             },
             "operations": {
                 "test_test:HandleSubscribe": {
                     "action": "receive",
                     "messages": [
                         {
-                            "$ref": "#/channels/test_test:Handle/messages/SubscribeMessage"
-                        }
+                            "$ref": "#/channels/test_test:Handle/messages/SubscribeMessage",
+                        },
                     ],
                     "channel": {"$ref": "#/channels/test_test:Handle"},
-                }
+                },
             },
             "components": {
                 "messages": {
                     "test_test:Handle:SubscribeMessage": {
                         "title": "test_test:Handle:SubscribeMessage",
                         "correlationId": {
-                            "location": "$message.header#/correlation_id"
+                            "location": "$message.header#/correlation_id",
                         },
                         "payload": {
-                            "$ref": "#/components/schemas/Handle:Message:Payload"
+                            "$ref": "#/components/schemas/Handle:Message:Payload",
                         },
-                    }
+                    },
                 },
                 "schemas": {
-                    "Handle:Message:Payload": {"title": "Handle:Message:Payload"}
+                    "Handle:Message:Payload": {"title": "Handle:Message:Payload"},
                 },
             },
         }

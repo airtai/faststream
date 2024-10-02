@@ -356,7 +356,7 @@ class RouterTestcase(
             return "hi"
 
         args2, kwargs2 = self.get_subscriber_params(
-            "test1_" + "test2_" + queue + "resp"
+            "test1_" + "test2_" + queue + "resp",
         )
 
         @pub_broker.subscriber(*args2, **kwargs2)
@@ -390,7 +390,8 @@ class RouterTestcase(
         router2 = type(router)(dependencies=(Depends(lambda: 2),))
 
         args, kwargs = self.get_subscriber_params(
-            queue, dependencies=(Depends(lambda: 3),)
+            queue,
+            dependencies=(Depends(lambda: 3),),
         )
 
         @router2.subscriber(*args, **kwargs)

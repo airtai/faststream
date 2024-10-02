@@ -27,7 +27,7 @@ class TestArguments(PublisherTestcase):
                             "vhost": "/vhost",
                         },
                         "is": "routingKey",
-                    }
+                    },
                 },
                 "publish": {
                     "bindings": {
@@ -36,14 +36,14 @@ class TestArguments(PublisherTestcase):
                             "bindingVersion": "0.2.0",
                             "deliveryMode": 1,
                             "mandatory": True,
-                        }
+                        },
                     },
                     "message": {
-                        "$ref": "#/components/messages/_:test-ex:Publisher:Message"
+                        "$ref": "#/components/messages/_:test-ex:Publisher:Message",
                     },
                 },
                 "servers": ["development"],
-            }
+            },
         }, schema["channels"]
 
     def test_publisher_bindings(self):
@@ -76,7 +76,7 @@ class TestArguments(PublisherTestcase):
                     "name": "test",
                     "vhost": "/",
                 },
-            }
+            },
         }
 
     def test_useless_queue_bindings(self):
@@ -103,15 +103,15 @@ class TestArguments(PublisherTestcase):
                             "vhost": "/",
                         },
                         "is": "routingKey",
-                    }
+                    },
                 },
                 "publish": {
                     "message": {
-                        "$ref": "#/components/messages/_:test-ex:Publisher:Message"
-                    }
+                        "$ref": "#/components/messages/_:test-ex:Publisher:Message",
+                    },
                 },
                 "servers": ["development"],
-            }
+            },
         }
 
     def test_reusable_exchange(self):
@@ -136,7 +136,7 @@ class TestArguments(PublisherTestcase):
                             "vhost": "/vhost",
                         },
                         "is": "routingKey",
-                    }
+                    },
                 },
                 "publish": {
                     "bindings": {
@@ -146,10 +146,10 @@ class TestArguments(PublisherTestcase):
                             "cc": "key1",
                             "deliveryMode": 1,
                             "mandatory": True,
-                        }
+                        },
                     },
                     "message": {
-                        "$ref": "#/components/messages/key1:test-ex:Publisher:Message"
+                        "$ref": "#/components/messages/key1:test-ex:Publisher:Message",
                     },
                 },
                 "servers": ["development"],
@@ -166,7 +166,7 @@ class TestArguments(PublisherTestcase):
                             "vhost": "/vhost",
                         },
                         "is": "routingKey",
-                    }
+                    },
                 },
                 "publish": {
                     "bindings": {
@@ -177,10 +177,10 @@ class TestArguments(PublisherTestcase):
                             "deliveryMode": 1,
                             "priority": 10,
                             "mandatory": True,
-                        }
+                        },
                     },
                     "message": {
-                        "$ref": "#/components/messages/key2:test-ex:Publisher:Message"
+                        "$ref": "#/components/messages/key2:test-ex:Publisher:Message",
                     },
                 },
                 "servers": ["development"],

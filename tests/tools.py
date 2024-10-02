@@ -13,6 +13,7 @@ def spy_decorator(method):
         async def wrapper(*args, **kwargs):
             mock(*args, **kwargs)
             return await method(*args, **kwargs)
+
     else:
 
         @wraps(method)

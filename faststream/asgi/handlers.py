@@ -1,7 +1,7 @@
+from collections.abc import Sequence
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
-    Sequence,
 )
 
 from faststream.asgi.response import AsgiResponse
@@ -32,7 +32,6 @@ def get(func: "UserApp") -> "ASGIApp":
                 response = error_response
 
         await response(scope, receive, send)
-        return
 
     return asgi_wrapper
 

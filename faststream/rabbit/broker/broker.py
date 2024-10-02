@@ -1,11 +1,11 @@
 import logging
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Iterable,
     Optional,
-    Type,
     Union,
     cast,
 )
@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 import anyio
 from aio_pika import IncomingMessage, RobustConnection, connect_robust
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
@@ -106,7 +106,7 @@ class RabbitBroker(
         fail_fast: Annotated[
             bool,
             Doc(
-                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable."
+                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable.",
             ),
         ] = True,
         reconnect_interval: Annotated[
@@ -123,14 +123,14 @@ class RabbitBroker(
             Doc(
                 "if `True` the `publish` method will "
                 "return `bool` type after publish is complete."
-                "Otherwise it will returns `None`."
+                "Otherwise it will returns `None`.",
             ),
         ] = True,
         on_return_raises: Annotated[
             bool,
             Doc(
                 "raise an :class:`aio_pika.exceptions.DeliveryError`"
-                "when mandatory message will be returned"
+                "when mandatory message will be returned",
             ),
         ] = False,
         # broker args
@@ -138,7 +138,7 @@ class RabbitBroker(
             Optional[int],
             Doc(
                 "RabbitMQ channel `qos` option. "
-                "It limits max messages processing in the same time count."
+                "It limits max messages processing in the same time count.",
             ),
         ] = None,
         app_id: Annotated[
@@ -149,7 +149,7 @@ class RabbitBroker(
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ] = None,
         decoder: Annotated[
@@ -172,7 +172,7 @@ class RabbitBroker(
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
         specification_url: Annotated[
@@ -340,7 +340,7 @@ class RabbitBroker(
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
         timeout: Annotated[
@@ -350,7 +350,7 @@ class RabbitBroker(
         fail_fast: Annotated[
             bool,
             Doc(
-                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable."
+                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable.",
             ),
         ] = EMPTY,
         reconnect_interval: Annotated[
@@ -367,14 +367,14 @@ class RabbitBroker(
             Doc(
                 "if `True` the `publish` method will "
                 "return `bool` type after publish is complete."
-                "Otherwise it will returns `None`."
+                "Otherwise it will returns `None`.",
             ),
         ] = EMPTY,
         on_return_raises: Annotated[
             bool,
             Doc(
                 "raise an :class:`aio_pika.exceptions.DeliveryError`"
-                "when mandatory message will be returned"
+                "when mandatory message will be returned",
             ),
         ] = EMPTY,
     ) -> "RobustConnection":
@@ -405,7 +405,7 @@ class RabbitBroker(
         url = None if url is EMPTY else url
 
         if url or any(
-            (host, port, virtualhost, ssl_options, client_properties, security)
+            (host, port, virtualhost, ssl_options, client_properties, security),
         ):
             security_args = parse_security(security)
 
@@ -424,9 +424,7 @@ class RabbitBroker(
             if ssl_context := security_args.get("ssl_context"):
                 kwargs["ssl_context"] = ssl_context
 
-        connection = await super().connect(**kwargs)
-
-        return connection
+        return await super().connect(**kwargs)
 
     @override
     async def _connect(  # type: ignore[override]
@@ -479,7 +477,7 @@ class RabbitBroker(
 
     async def close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
@@ -534,21 +532,21 @@ class RabbitBroker(
             str,
             Doc(
                 "Message routing key to publish with. "
-                "Overrides `queue` option if presented."
+                "Overrides `queue` option if presented.",
             ),
         ] = "",
         mandatory: Annotated[
             bool,
             Doc(
                 "Client waits for confirmation that the message is placed to some queue. "
-                "RabbitMQ returns message to client if there is no suitable queue."
+                "RabbitMQ returns message to client if there is no suitable queue.",
             ),
         ] = True,
         immediate: Annotated[
             bool,
             Doc(
                 "Client expects that there is consumer ready to take the message to work. "
-                "RabbitMQ returns message to client if there is no suitable consumer."
+                "RabbitMQ returns message to client if there is no suitable consumer.",
             ),
         ] = False,
         timeout: Annotated[
@@ -562,7 +560,7 @@ class RabbitBroker(
         reply_to: Annotated[
             Optional[str],
             Doc(
-                "Reply message routing key to send with (always sending to default exchange)."
+                "Reply message routing key to send with (always sending to default exchange).",
             ),
         ] = None,
         # message args
@@ -570,7 +568,7 @@ class RabbitBroker(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         headers: Annotated[
@@ -582,7 +580,7 @@ class RabbitBroker(
             Doc(
                 "Message **content-type** header. "
                 "Used by application, not core RabbitMQ. "
-                "Will be set automatically if not specified."
+                "Will be set automatically if not specified.",
             ),
         ] = None,
         content_encoding: Annotated[
@@ -667,21 +665,21 @@ class RabbitBroker(
             str,
             Doc(
                 "Message routing key to publish with. "
-                "Overrides `queue` option if presented."
+                "Overrides `queue` option if presented.",
             ),
         ] = "",
         mandatory: Annotated[
             bool,
             Doc(
                 "Client waits for confirmation that the message is placed to some queue. "
-                "RabbitMQ returns message to client if there is no suitable queue."
+                "RabbitMQ returns message to client if there is no suitable queue.",
             ),
         ] = True,
         immediate: Annotated[
             bool,
             Doc(
                 "Client expects that there is consumer ready to take the message to work. "
-                "RabbitMQ returns message to client if there is no suitable consumer."
+                "RabbitMQ returns message to client if there is no suitable consumer.",
             ),
         ] = False,
         timeout: Annotated[
@@ -697,7 +695,7 @@ class RabbitBroker(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         headers: Annotated[
@@ -709,7 +707,7 @@ class RabbitBroker(
             Doc(
                 "Message **content-type** header. "
                 "Used by application, not core RabbitMQ. "
-                "Will be set automatically if not specified."
+                "Will be set automatically if not specified.",
             ),
         ] = None,
         content_encoding: Annotated[

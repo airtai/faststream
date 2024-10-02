@@ -30,7 +30,7 @@ def test_base():
                 "tags": [{"description": "experimental", "name": "some-tag"}],
                 "host": "nats:9092",
                 "pathname": "",
-            }
+            },
         },
     }, schema
 

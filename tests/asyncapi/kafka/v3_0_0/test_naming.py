@@ -24,7 +24,7 @@ class TestNaming(NamingTestCase):
                     "pathname": "",
                     "protocol": "kafka",
                     "protocolVersion": "auto",
-                }
+                },
             },
             "channels": {
                 "test:Handle": {
@@ -32,7 +32,7 @@ class TestNaming(NamingTestCase):
                     "servers": [
                         {
                             "$ref": "#/servers/development",
-                        }
+                        },
                     ],
                     "bindings": {"kafka": {"topic": "test", "bindingVersion": "0.4.0"}},
                     "messages": {
@@ -40,7 +40,7 @@ class TestNaming(NamingTestCase):
                             "$ref": "#/components/messages/test:Handle:SubscribeMessage",
                         },
                     },
-                }
+                },
             },
             "operations": {
                 "test:HandleSubscribe": {
@@ -51,19 +51,19 @@ class TestNaming(NamingTestCase):
                     "messages": [
                         {
                             "$ref": "#/channels/test:Handle/messages/SubscribeMessage",
-                        }
+                        },
                     ],
-                }
+                },
             },
             "components": {
                 "messages": {
                     "test:Handle:SubscribeMessage": {
                         "title": "test:Handle:SubscribeMessage",
                         "correlationId": {
-                            "location": "$message.header#/correlation_id"
+                            "location": "$message.header#/correlation_id",
                         },
                         "payload": {"$ref": "#/components/schemas/EmptyPayload"},
-                    }
+                    },
                 },
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},
             },

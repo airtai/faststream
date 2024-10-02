@@ -15,11 +15,14 @@ async def test_bind_to(queue: str):
     async with broker:
         meta_parent = RabbitExchange("meta", type=ExchangeType.FANOUT)
         parent_exch = RabbitExchange(
-            "main", type=ExchangeType.FANOUT, bind_to=meta_parent
+            "main",
+            type=ExchangeType.FANOUT,
+            bind_to=meta_parent,
         )
 
         @broker.subscriber(
-            queue, exchange=RabbitExchange("nested", bind_to=parent_exch)
+            queue,
+            exchange=RabbitExchange("nested", bind_to=parent_exch),
         )
         async def handler(m):
             consume.set()

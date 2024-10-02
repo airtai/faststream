@@ -1,14 +1,11 @@
 import re
-from datetime import datetime
+from collections.abc import Generator, Iterable
+from datetime import datetime, timezone
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    Generator,
-    Iterable,
     Optional,
-    Tuple,
 )
 from unittest.mock import AsyncMock, MagicMock
 
@@ -52,7 +49,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
         publisher: "SpecificationPublisher[Any]",
-    ) -> Tuple["LogicSubscriber[Any]", bool]:
+    ) -> tuple["LogicSubscriber[Any]", bool]:
         sub: Optional[LogicSubscriber[Any]] = None
         for handler in broker._subscribers:
             if _is_handler_matches(handler, publisher.topic, publisher.partition):
@@ -64,7 +61,8 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
 
             if publisher.partition:
                 tp = TopicPartition(
-                    topic=publisher.topic, partition=publisher.partition
+                    topic=publisher.topic,
+                    partition=publisher.partition,
                 )
                 sub = broker.subscriber(
                     partitions=[tp],
@@ -106,7 +104,7 @@ class FakeProducer(AioKafkaFastProducer):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         *,
         reply_to: str = "",
@@ -145,7 +143,7 @@ class FakeProducer(AioKafkaFastProducer):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         *,
         timeout: Optional[float] = 0.5,
@@ -182,7 +180,7 @@ class FakeProducer(AioKafkaFastProducer):
         topic: str,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
         no_confirm: bool = False,
@@ -213,8 +211,6 @@ class FakeProducer(AioKafkaFastProducer):
                 for m in messages:
                     await self._execute_handler(m, topic, handler)
 
-        return None
-
     async def _execute_handler(
         self,
         msg: Any,
@@ -237,7 +233,7 @@ def build_message(
     partition: Optional[int] = None,
     timestamp_ms: Optional[int] = None,
     key: Optional[bytes] = None,
-    headers: Optional[Dict[str, str]] = None,
+    headers: Optional[dict[str, str]] = None,
     correlation_id: Optional[str] = None,
     *,
     reply_to: str = "",
@@ -260,7 +256,7 @@ def build_message(
         value=msg,
         topic=topic,
         partition=partition or 0,
-        timestamp=timestamp_ms or int(datetime.now().timestamp()),
+        timestamp=timestamp_ms or int(datetime.now(timezone.utc).timestamp()),
         timestamp_type=0,
         key=k,
         serialized_key_size=len(k),
@@ -305,5 +301,5 @@ def _is_handler_matches(
             for p in handler.partitions
         )
         or topic in handler.topics
-        or (handler._pattern and re.match(handler._pattern, topic))
+        or (handler._pattern and re.match(handler._pattern, topic)),
     )

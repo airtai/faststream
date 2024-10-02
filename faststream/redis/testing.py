@@ -1,12 +1,10 @@
 import re
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
-    List,
     Optional,
     Protocol,
-    Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -52,7 +50,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     def create_publisher_fake_subscriber(
         broker: RedisBroker,
         publisher: "SpecificationPublisher",
-    ) -> Tuple["LogicSubscriber", bool]:
+    ) -> tuple["LogicSubscriber", bool]:
         sub: Optional[LogicSubscriber] = None
 
         named_property = publisher.subscriber_property(name_only=True)
@@ -86,7 +84,6 @@ class TestRedisBroker(TestBroker[RedisBroker]):
 
         async def get_msg(*args: Any, timeout: float, **kwargs: Any) -> None:
             await anyio.sleep(timeout)
-            return None
 
         pub_sub.get_message = get_msg
 
@@ -143,8 +140,6 @@ class FakeProducer(RedisFastProducer):
                     )
 
                     await self._execute_handler(msg, handler)
-
-        return None
 
     @override
     async def request(  # type: ignore[override]
@@ -210,10 +205,10 @@ class FakeProducer(RedisFastProducer):
 
                     await self._execute_handler(msg, handler)
 
-        return None
-
     async def _execute_handler(
-        self, msg: Any, handler: "LogicSubscriber"
+        self,
+        msg: Any,
+        handler: "LogicSubscriber",
     ) -> "PubSubMessage":
         result = await handler.process_message(msg)
 
@@ -236,13 +231,12 @@ def build_message(
     reply_to: str = "",
     headers: Optional["AnyDict"] = None,
 ) -> bytes:
-    data = RawMessage.encode(
+    return RawMessage.encode(
         message=message,
         reply_to=reply_to,
         headers=headers,
         correlation_id=correlation_id,
     )
-    return data
 
 
 class Visitor(Protocol):
@@ -278,7 +272,7 @@ class ChannelVisitor(Visitor):
                 re.match(
                     sub_channel.name.replace(".", "\\.").replace("*", ".*"),
                     channel or "",
-                )
+                ),
             )
         ) or channel == sub_channel.name:
             return channel
@@ -326,15 +320,14 @@ class ListVisitor(Visitor):
             return BatchListMessage(
                 type="blist",
                 channel=channel,
-                data=body if isinstance(body, List) else [body],
+                data=body if isinstance(body, list) else [body],
             )
 
-        else:
-            return DefaultListMessage(
-                type="list",
-                channel=channel,
-                data=body,
-            )
+        return DefaultListMessage(
+            type="list",
+            channel=channel,
+            data=body,
+        )
 
 
 class StreamVisitor(Visitor):
@@ -368,13 +361,12 @@ class StreamVisitor(Visitor):
                 message_ids=[],
             )
 
-        else:
-            return DefaultStreamMessage(
-                type="stream",
-                channel=channel,
-                data={bDATA_KEY: body},
-                message_ids=[],
-            )
+        return DefaultStreamMessage(
+            type="stream",
+            channel=channel,
+            data={bDATA_KEY: body},
+            message_ids=[],
+        )
 
 
 class _DestinationKwargs(TypedDict, total=False):

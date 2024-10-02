@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from pydantic import BaseModel
 from typing_extensions import Self
@@ -10,12 +10,12 @@ from faststream.specification.asyncapi.v2_6_0.schema.bindings import OperationBi
 from faststream.specification.asyncapi.v2_6_0.schema.bindings.main import (
     operation_binding_from_spec,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 from faststream.specification.asyncapi.v2_6_0.schema.message import (
+    Message,
     from_spec as message_from_spec,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
 from faststream.specification.asyncapi.v2_6_0.schema.tag import (
+    Tag,
     from_spec as tag_from_spec,
 )
 from faststream.specification.asyncapi.v2_6_0.schema.utils import (
@@ -45,12 +45,12 @@ class Operation(BaseModel):
 
     message: Union[Message, Reference]
 
-    security: Optional[Dict[str, List[str]]] = None
+    security: Optional[dict[str, list[str]]] = None
 
     # TODO
     # traits
 
-    tags: Optional[List[Union[Tag, AnyDict]]] = None
+    tags: Optional[list[Union[Tag, AnyDict]]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

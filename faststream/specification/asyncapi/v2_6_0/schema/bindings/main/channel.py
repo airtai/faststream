@@ -7,17 +7,11 @@ from faststream._internal._compat import PYDANTIC_V2
 from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     amqp as amqp_bindings,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     kafka as kafka_bindings,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     nats as nats_bindings,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
     redis as redis_bindings,
+    sqs as sqs_bindings,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import sqs as sqs_bindings
 
 
 class ChannelBinding(BaseModel):

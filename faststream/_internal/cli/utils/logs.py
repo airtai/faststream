@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 from enum import Enum
-from typing import TYPE_CHECKING, DefaultDict, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import LoggerProto
@@ -29,18 +29,16 @@ class LogLevels(str, Enum):
     notset = "notset"
 
 
-LOG_LEVELS: DefaultDict[str, int] = defaultdict(
+LOG_LEVELS: defaultdict[str, int] = defaultdict(
     lambda: logging.INFO,
-    **{
-        "critical": logging.CRITICAL,
-        "fatal": logging.FATAL,
-        "error": logging.ERROR,
-        "warning": logging.WARNING,
-        "warn": logging.WARN,
-        "info": logging.INFO,
-        "debug": logging.DEBUG,
-        "notset": logging.NOTSET,
-    },
+    critical=logging.CRITICAL,
+    fatal=logging.FATAL,
+    error=logging.ERROR,
+    warning=logging.WARNING,
+    warn=logging.WARNING,
+    info=logging.INFO,
+    debug=logging.DEBUG,
+    notset=logging.NOTSET,
 )
 
 
@@ -62,6 +60,7 @@ def get_log_level(level: Union[LogLevels, str, int]) -> int:
 
     if isinstance(level, str):  # pragma: no branch
         return LOG_LEVELS[level.lower()]
+    return None
 
 
 def set_log_level(level: int, app: "FastStream") -> None:

@@ -26,13 +26,13 @@ class KafkaParamsStorage(DefaultLoggerStorage):
             (
                 self._max_topic_len,
                 len(params.get("topic", "")),
-            )
+            ),
         )
         self._max_group_len = max(
             (
                 self._max_group_len,
                 len(params.get("group_id", "")),
-            )
+            ),
         )
 
     def get_logger(self) -> Optional["LoggerProto"]:
@@ -47,17 +47,17 @@ class KafkaParamsStorage(DefaultLoggerStorage):
             },
             message_id_ln=message_id_ln,
             fmt=self._log_fmt
-            or (
-                "%(asctime)s %(levelname)-8s - "
-                + f"%(topic)-{self._max_topic_len}s | "
-                + (
+            or "".join((
+                "%(asctime)s %(levelname)-8s - ",
+                f"%(topic)-{self._max_topic_len}s | ",
+                (
                     f"%(group_id)-{self._max_group_len}s | "
                     if self._max_group_len
                     else ""
-                )
-                + f"%(message_id)-{message_id_ln}s "
-                + "- %(message)s"
-            ),
+                ),
+                f"%(message_id)-{message_id_ln}s ",
+                "- %(message)s",
+            )),
         )
 
 

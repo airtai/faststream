@@ -1,7 +1,6 @@
 import importlib
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import Tuple
 
 import typer
 
@@ -15,8 +14,11 @@ def try_import_app(module: Path, app: str) -> object:
 
     except FileNotFoundError as e:
         typer.echo(e, err=True)
-        raise typer.BadParameter(
+        msg = (
             "Please, input module like [python_file:docs_object] or [module:attribute]"
+        )
+        raise typer.BadParameter(
+            msg,
         ) from e
 
     else:
@@ -38,7 +40,8 @@ def import_object(module: Path, app: str) -> object:
     loader = spec.loader
 
     if loader is None:  # pragma: no cover
-        raise SetupError(f"{spec} has no loader")
+        msg = f"{spec} has no loader"
+        raise SetupError(msg)
 
     loader.exec_module(mod)
 
@@ -50,34 +53,37 @@ def import_object(module: Path, app: str) -> object:
     return obj
 
 
-def get_obj_path(obj_path: str) -> Tuple[Path, str]:
+def get_obj_path(obj_path: str) -> tuple[Path, str]:
     """Get the application path."""
     if ":" not in obj_path:
-        raise SetupError(f"`{obj_path}` is not a path to object")
+        msg = f"`{obj_path}` is not a path to object"
+        raise SetupError(msg)
 
     module, app_name = obj_path.split(":", 2)
 
     mod_path = Path.cwd()
     for i in module.split("."):
-        mod_path = mod_path / i
+        mod_path /= i
 
     return mod_path, app_name
 
 
-def import_from_string(import_str: str) -> Tuple[Path, object]:
+def import_from_string(import_str: str) -> tuple[Path, object]:
     """Import FastStream application from module specified by a string."""
     if not isinstance(import_str, str):
-        raise typer.BadParameter("Given value is not of type string")
+        msg = "Given value is not of type string"
+        raise typer.BadParameter(msg)
 
     module_str, _, attrs_str = import_str.partition(":")
     if not module_str or not attrs_str:
+        msg = f'Import string "{import_str}" must be in format "<module>:<attribute>"'
         raise typer.BadParameter(
-            f'Import string "{import_str}" must be in format "<module>:<attribute>"'
+            msg,
         )
 
     try:
         module = importlib.import_module(  # nosemgrep: python.lang.security.audit.non-literal-import.non-literal-import
-            module_str
+            module_str,
         )
 
     except ModuleNotFoundError:
@@ -93,8 +99,9 @@ def import_from_string(import_str: str) -> Tuple[Path, object]:
 
         except AttributeError as e:
             typer.echo(e, err=True)
+            msg = f'Attribute "{attrs_str}" not found in module "{module_str}".'
             raise typer.BadParameter(
-                f'Attribute "{attrs_str}" not found in module "{module_str}".'
+                msg,
             ) from e
 
         if module.__file__:

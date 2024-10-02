@@ -16,7 +16,8 @@ async def async_decoder(msg: RabbitMessage) -> DecodedMessage:
 
 
 async def custom_decoder(
-    msg: RabbitMessage, original: Callable[[RabbitMessage], Awaitable[DecodedMessage]]
+    msg: RabbitMessage,
+    original: Callable[[RabbitMessage], Awaitable[DecodedMessage]],
 ) -> DecodedMessage:
     return await original(msg)
 
@@ -198,7 +199,7 @@ RabbitRouter(
             parser=custom_parser,
             decoder=custom_decoder,
         ),
-    )
+    ),
 )
 
 

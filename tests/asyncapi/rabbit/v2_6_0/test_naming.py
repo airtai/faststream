@@ -19,7 +19,7 @@ class TestNaming(NamingTestCase):
         assert list(schema["channels"].keys()) == ["test:exchange:Handle"]
 
         assert list(schema["components"]["messages"].keys()) == [
-            "test:exchange:Handle:Message"
+            "test:exchange:Handle:Message",
         ]
 
     def test_publisher_with_exchange(self):
@@ -33,7 +33,7 @@ class TestNaming(NamingTestCase):
         assert list(schema["channels"].keys()) == ["test:exchange:Publisher"]
 
         assert list(schema["components"]["messages"].keys()) == [
-            "test:exchange:Publisher:Message"
+            "test:exchange:Publisher:Message",
         ]
 
     def test_base(self):
@@ -55,7 +55,7 @@ class TestNaming(NamingTestCase):
                         "url": "amqp://guest:guest@localhost:5672/",  # pragma: allowlist secret
                         "protocol": "amqp",
                         "protocolVersion": "0.9.1",
-                    }
+                    },
                 },
                 "channels": {
                     "test:_:Handle": {
@@ -72,7 +72,7 @@ class TestNaming(NamingTestCase):
                                     "vhost": "/",
                                 },
                                 "exchange": {"type": "default", "vhost": "/"},
-                            }
+                            },
                         },
                         "subscribe": {
                             "bindings": {
@@ -80,26 +80,26 @@ class TestNaming(NamingTestCase):
                                     "cc": "test",
                                     "ack": True,
                                     "bindingVersion": "0.2.0",
-                                }
+                                },
                             },
                             "message": {
-                                "$ref": "#/components/messages/test:_:Handle:Message"
+                                "$ref": "#/components/messages/test:_:Handle:Message",
                             },
                         },
-                    }
+                    },
                 },
                 "components": {
                     "messages": {
                         "test:_:Handle:Message": {
                             "title": "test:_:Handle:Message",
                             "correlationId": {
-                                "location": "$message.header#/correlation_id"
+                                "location": "$message.header#/correlation_id",
                             },
                             "payload": {"$ref": "#/components/schemas/EmptyPayload"},
-                        }
+                        },
                     },
                     "schemas": {
-                        "EmptyPayload": {"title": "EmptyPayload", "type": "null"}
+                        "EmptyPayload": {"title": "EmptyPayload", "type": "null"},
                     },
                 },
             }

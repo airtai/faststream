@@ -1,11 +1,9 @@
 import logging
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Optional,
-    Sequence,
-    Tuple,
     TypeVar,
 )
 
@@ -64,7 +62,7 @@ class FastStream(Application):
     async def run(
         self,
         log_level: int = logging.INFO,
-        run_extra_options: Optional[Dict[str, "SettingField"]] = None,
+        run_extra_options: Optional[dict[str, "SettingField"]] = None,
     ) -> None:
         """Run FastStream Application."""
         assert self.broker, "You should setup a broker"  # nosec B101
@@ -88,7 +86,7 @@ class FastStream(Application):
 
     def as_asgi(
         self,
-        asgi_routes: Sequence[Tuple[str, "ASGIApp"]] = (),
+        asgi_routes: Sequence[tuple[str, "ASGIApp"]] = (),
         asyncapi_path: Optional[str] = None,
     ) -> AsgiFastStream:
         return AsgiFastStream.from_app(self, asgi_routes, asyncapi_path)

@@ -19,13 +19,13 @@ basic_schema = {
             "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "test_1"}},
             "servers": ["development"],
             "subscribe": {
-                "message": {"$ref": "#/components/messages/test_1:TestTopic:Message"}
+                "message": {"$ref": "#/components/messages/test_1:TestTopic:Message"},
             },
         },
         "test_2:Publisher": {
             "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "test_2"}},
             "publish": {
-                "message": {"$ref": "#/components/messages/test_2:Publisher:Message"}
+                "message": {"$ref": "#/components/messages/test_2:Publisher:Message"},
             },
             "servers": ["development"],
         },
@@ -40,7 +40,7 @@ basic_schema = {
             "test_2:Publisher:Message": {
                 "correlationId": {"location": "$message.header#/correlation_id"},
                 "payload": {
-                    "$ref": "#/components/schemas/test_2:Publisher:Message:Payload"
+                    "$ref": "#/components/schemas/test_2:Publisher:Message:Payload",
                 },
                 "title": "test_2:Publisher:Message",
             },
@@ -65,7 +65,7 @@ basic_schema = {
             "protocolVersion": "auto",
             "security": [],
             "url": "localhost:9092",
-        }
+        },
     },
 }
 
@@ -105,10 +105,10 @@ def test_plaintext_security_schema():
 
     plaintext_security_schema = deepcopy(basic_schema)
     plaintext_security_schema["servers"]["development"]["security"] = [
-        {"user-password": []}
+        {"user-password": []},
     ]
     plaintext_security_schema["components"]["securitySchemes"] = {
-        "user-password": {"type": "userPassword"}
+        "user-password": {"type": "userPassword"},
     }
 
     assert schema == plaintext_security_schema
@@ -134,7 +134,7 @@ def test_scram256_security_schema():
     sasl256_security_schema = deepcopy(basic_schema)
     sasl256_security_schema["servers"]["development"]["security"] = [{"scram256": []}]
     sasl256_security_schema["components"]["securitySchemes"] = {
-        "scram256": {"type": "scramSha256"}
+        "scram256": {"type": "scramSha256"},
     }
 
     assert schema == sasl256_security_schema
@@ -160,7 +160,7 @@ def test_scram512_security_schema():
     sasl512_security_schema = deepcopy(basic_schema)
     sasl512_security_schema["servers"]["development"]["security"] = [{"scram512": []}]
     sasl512_security_schema["components"]["securitySchemes"] = {
-        "scram512": {"type": "scramSha512"}
+        "scram512": {"type": "scramSha512"},
     }
 
     assert schema == sasl512_security_schema
@@ -183,10 +183,10 @@ def test_oauthbearer_security_schema():
 
     sasl_oauthbearer_security_schema = deepcopy(basic_schema)
     sasl_oauthbearer_security_schema["servers"]["development"]["security"] = [
-        {"oauthbearer": []}
+        {"oauthbearer": []},
     ]
     sasl_oauthbearer_security_schema["components"]["securitySchemes"] = {
-        "oauthbearer": {"type": "oauthBearer"}
+        "oauthbearer": {"type": "oauthBearer"},
     }
 
     assert schema == sasl_oauthbearer_security_schema
@@ -210,7 +210,7 @@ def test_gssapi_security_schema():
     gssapi_security_schema = deepcopy(basic_schema)
     gssapi_security_schema["servers"]["development"]["security"] = [{"gssapi": []}]
     gssapi_security_schema["components"]["securitySchemes"] = {
-        "gssapi": {"type": "gssapi"}
+        "gssapi": {"type": "gssapi"},
     }
 
     assert schema == gssapi_security_schema

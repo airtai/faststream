@@ -1,16 +1,13 @@
 import asyncio
 import inspect
-from contextlib import AsyncExitStack, suppress
+from collections.abc import Awaitable, Iterable
+from contextlib import AbstractAsyncContextManager, AsyncExitStack, suppress
 from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncContextManager,
-    Awaitable,
     Callable,
-    Iterable,
     Optional,
-    Type,
     Union,
     cast,
 )
@@ -80,7 +77,8 @@ async def process_msg(
         parsed_msg._decoded_body = await decoder(parsed_msg)
         return await return_msg(parsed_msg)
 
-    raise AssertionError("unreachable")
+    msg = "unreachable"
+    raise AssertionError(msg)
 
 
 async def default_filter(msg: "StreamMessage[Any]") -> bool:
@@ -93,18 +91,17 @@ def get_watcher_context(
     no_ack: bool,
     retry: Union[bool, int],
     **extra_options: Any,
-) -> Callable[..., AsyncContextManager[None]]:
+) -> Callable[..., "AbstractAsyncContextManager[None]"]:
     """Create Acknowledgement scope."""
     if no_ack:
         return fake_context
 
-    else:
-        return partial(
-            WatcherContext,
-            watcher=get_watcher(logger, retry),
-            logger=logger,
-            **extra_options,
-        )
+    return partial(
+        WatcherContext,
+        watcher=get_watcher(logger, retry),
+        logger=logger,
+        **extra_options,
+    )
 
 
 class MultiLock:
@@ -121,7 +118,7 @@ class MultiLock:
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
+        exc_type: Optional[type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional["TracebackType"],
     ) -> None:
@@ -171,6 +168,5 @@ def resolve_custom_func(
     if len(original_params) == 1:
         return to_async(cast(Union["SyncCallable", "AsyncCallable"], custom_func))
 
-    else:
-        name = tuple(original_params.items())[1][0]
-        return partial(to_async(custom_func), **{name: default_func})
+    name = tuple(original_params.items())[1][0]
+    return partial(to_async(custom_func), **{name: default_func})

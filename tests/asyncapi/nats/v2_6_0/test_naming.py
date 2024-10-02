@@ -23,28 +23,30 @@ class TestNaming(NamingTestCase):
                     "url": "nats://localhost:4222",
                     "protocol": "nats",
                     "protocolVersion": "custom",
-                }
+                },
             },
             "channels": {
                 "test:Handle": {
                     "servers": ["development"],
                     "bindings": {
-                        "nats": {"subject": "test", "bindingVersion": "custom"}
+                        "nats": {"subject": "test", "bindingVersion": "custom"},
                     },
                     "subscribe": {
-                        "message": {"$ref": "#/components/messages/test:Handle:Message"}
+                        "message": {
+                            "$ref": "#/components/messages/test:Handle:Message"
+                        },
                     },
-                }
+                },
             },
             "components": {
                 "messages": {
                     "test:Handle:Message": {
                         "title": "test:Handle:Message",
                         "correlationId": {
-                            "location": "$message.header#/correlation_id"
+                            "location": "$message.header#/correlation_id",
                         },
                         "payload": {"$ref": "#/components/schemas/EmptyPayload"},
-                    }
+                    },
                 },
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},
             },

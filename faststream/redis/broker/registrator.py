@@ -1,6 +1,7 @@
-from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Union, cast
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream.redis.message import UnifyRedisDict
@@ -25,8 +26,8 @@ if TYPE_CHECKING:
 class RedisRegistrator(ABCBroker[UnifyRedisDict]):
     """Includable to RedisBroker router."""
 
-    _subscribers: List["SubsciberType"]
-    _publishers: List["PublisherType"]
+    _subscribers: list["SubsciberType"]
+    _publishers: list["PublisherType"]
 
     @override
     def subscriber(  # type: ignore[override]
@@ -52,7 +53,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         parser: Annotated[
             Optional["CustomCallable"],
             Doc(
-                "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
+                "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one.",
             ),
         ] = None,
         decoder: Annotated[
@@ -74,7 +75,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         no_reply: Annotated[
             bool,
             Doc(
-                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not.",
             ),
         ] = False,
         # AsyncAPI information
@@ -86,7 +87,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             Optional[str],
             Doc(
                 "AsyncAPI subscriber object description. "
-                "Uses decorated docstring as default."
+                "Uses decorated docstring as default.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -111,7 +112,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
                     title_=title,
                     description_=description,
                     include_in_schema=self._solve_include_in_schema(include_in_schema),
-                )
+                ),
             ),
         )
 
@@ -142,7 +143,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             Optional["AnyDict"],
             Doc(
                 "Message headers to store metainformation. "
-                "Can be overridden by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified.",
             ),
         ] = None,
         reply_to: Annotated[
@@ -166,7 +167,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             Optional[Any],
             Doc(
                 "AsyncAPI publishing message type. "
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
+                "Should be any python-native object annotation or `pydantic.BaseModel`.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -198,6 +199,6 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
                     description_=description,
                     schema_=schema,
                     include_in_schema=self._solve_include_in_schema(include_in_schema),
-                )
+                ),
             ),
         )

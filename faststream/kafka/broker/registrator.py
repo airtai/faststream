@@ -1,14 +1,11 @@
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Dict,
-    Iterable,
-    List,
     Literal,
     Optional,
-    Sequence,
-    Tuple,
     Union,
     cast,
     overload,
@@ -16,7 +13,7 @@ from typing import (
 
 from aiokafka import ConsumerRecord
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream.kafka.publisher.publisher import SpecificationPublisher
@@ -48,16 +45,16 @@ class KafkaRegistrator(
     ABCBroker[
         Union[
             ConsumerRecord,
-            Tuple[ConsumerRecord, ...],
+            tuple[ConsumerRecord, ...],
         ]
-    ]
+    ],
 ):
     """Includable to KafkaBroker router."""
 
-    _subscribers: List[
+    _subscribers: list[
         Union["SpecificationBatchSubscriber", "SpecificationDefaultSubscriber"],
     ]
-    _publishers: List[
+    _publishers: list[
         Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"],
     ]
 
@@ -80,21 +77,21 @@ class KafkaRegistrator(
             partition assignment (if enabled), and to use for fetching and
             committing offsets. If `None`, auto-partition assignment (via
             group coordinator) and offset commits are disabled.
-            """
+            """,
             ),
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
             Doc(
                 "Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."
+                "key and returns a deserialized one.",
             ),
         ] = None,
         value_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
             Doc(
                 "Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."
+                "value and returns a deserialized value.",
             ),
         ] = None,
         fetch_max_bytes: Annotated[
@@ -109,7 +106,7 @@ class KafkaRegistrator(
             performs fetches to multiple brokers in parallel so memory
             usage will depend on the number of brokers containing
             partitions for the topic.
-            """
+            """,
             ),
         ] = 50 * 1024 * 1024,
         fetch_min_bytes: Annotated[
@@ -119,7 +116,7 @@ class KafkaRegistrator(
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """
+            """,
             ),
         ] = 1,
         fetch_max_wait_ms: Annotated[
@@ -130,7 +127,7 @@ class KafkaRegistrator(
             the server will block before answering the fetch request if
             there isn't sufficient data to immediately satisfy the
             requirement given by `fetch_min_bytes`.
-            """
+            """,
             ),
         ] = 500,
         max_partition_fetch_bytes: Annotated[
@@ -145,7 +142,7 @@ class KafkaRegistrator(
             send messages larger than the consumer can fetch. If that
             happens, the consumer can get stuck trying to fetch a large
             message on a certain partition.
-            """
+            """,
             ),
         ] = 1 * 1024 * 1024,
         auto_offset_reset: Annotated[
@@ -157,7 +154,7 @@ class KafkaRegistrator(
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """
+            """,
             ),
         ] = "latest",
         auto_commit: Annotated[
@@ -166,7 +163,7 @@ class KafkaRegistrator(
                 """
             If `True` the consumer's offset will be
             periodically committed in the background.
-            """
+            """,
             ),
         ] = True,
         auto_commit_interval_ms: Annotated[
@@ -174,7 +171,7 @@ class KafkaRegistrator(
             Doc(
                 """
             Milliseconds between automatic
-            offset commits, if `auto_commit` is `True`."""
+            offset commits, if `auto_commit` is `True`.""",
             ),
         ] = 5 * 1000,
         check_crcs: Annotated[
@@ -185,7 +182,7 @@ class KafkaRegistrator(
             consumed. This ensures no on-the-wire or on-disk corruption to
             the messages occurred. This check adds some overhead, so it may
             be disabled in cases seeking extreme performance.
-            """
+            """,
             ),
         ] = True,
         partition_assignment_strategy: Annotated[
@@ -201,7 +198,7 @@ class KafkaRegistrator(
             one. The coordinator will choose the old assignment strategy until
             all members have been updated. Then it will choose the new
             strategy.
-            """
+            """,
             ),
         ] = (RoundRobinPartitionAssignor,),
         max_poll_interval_ms: Annotated[
@@ -214,7 +211,7 @@ class KafkaRegistrator(
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """
+            """,
             ),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
@@ -228,7 +225,7 @@ class KafkaRegistrator(
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """
+            """,
             ),
         ] = None,
         session_timeout_ms: Annotated[
@@ -243,7 +240,7 @@ class KafkaRegistrator(
             group and trigger a rebalance. The allowed range is configured with
             the **broker** configuration properties
             `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
-            """
+            """,
             ),
         ] = 10 * 1000,
         heartbeat_interval_ms: Annotated[
@@ -259,7 +256,7 @@ class KafkaRegistrator(
             should be set no higher than 1/3 of that value. It can be
             adjusted even lower to control the expected time for normal
             rebalances.
-            """
+            """,
             ),
         ] = 3 * 1000,
         consumer_timeout_ms: Annotated[
@@ -269,7 +266,7 @@ class KafkaRegistrator(
             Maximum wait timeout for background fetching
             routine. Mostly defines how fast the system will see rebalance and
             request new data for new partitions.
-            """
+            """,
             ),
         ] = 200,
         max_poll_records: Annotated[
@@ -278,7 +275,7 @@ class KafkaRegistrator(
                 """
             The maximum number of records returned in a
             single call by batch consumer. Has no limit by default.
-            """
+            """,
             ),
         ] = None,
         exclude_internal_topics: Annotated[
@@ -289,7 +286,7 @@ class KafkaRegistrator(
             (such as offsets) should be exposed to the consumer. If set to True
             the only way to receive records from an internal topic is
             subscribing to it.
-            """
+            """,
             ),
         ] = True,
         isolation_level: Annotated[
@@ -319,7 +316,7 @@ class KafkaRegistrator(
             to the high watermark when there are in flight transactions.
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
-            """
+            """,
             ),
         ] = "read_uncommitted",
         batch_timeout_ms: Annotated[
@@ -330,7 +327,7 @@ class KafkaRegistrator(
             data is not available in the buffer. If 0, returns immediately
             with any records that are available currently in the buffer,
             else returns empty.
-            """
+            """,
             ),
         ] = 200,
         max_records: Annotated[
@@ -362,7 +359,7 @@ class KafkaRegistrator(
                to subscribe. It is guaranteed, however, that the partitions
                revoked/assigned
                through this interface are from topics subscribed in this call.
-            """
+            """,
             ),
         ] = None,
         pattern: Annotated[
@@ -370,7 +367,7 @@ class KafkaRegistrator(
             Doc(
                 """
             Pattern to match available topics. You must provide either topics or pattern, but not both.
-            """
+            """,
             ),
         ] = None,
         partitions: Annotated[
@@ -379,7 +376,7 @@ class KafkaRegistrator(
                 """
             An explicit partitions list to assign.
             You can't use 'topics' and 'partitions' in the same time.
-            """
+            """,
             ),
         ] = (),
         # broker args
@@ -410,7 +407,7 @@ class KafkaRegistrator(
         no_reply: Annotated[
             bool,
             Doc(
-                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not.",
             ),
         ] = False,
         # Specification args
@@ -422,7 +419,7 @@ class KafkaRegistrator(
             Optional[str],
             Doc(
                 "Specification subscriber object description. "
-                "Uses decorated docstring as default."
+                "Uses decorated docstring as default.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -450,21 +447,21 @@ class KafkaRegistrator(
             partition assignment (if enabled), and to use for fetching and
             committing offsets. If `None`, auto-partition assignment (via
             group coordinator) and offset commits are disabled.
-            """
+            """,
             ),
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
             Doc(
                 "Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."
+                "key and returns a deserialized one.",
             ),
         ] = None,
         value_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
             Doc(
                 "Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."
+                "value and returns a deserialized value.",
             ),
         ] = None,
         fetch_max_bytes: Annotated[
@@ -479,7 +476,7 @@ class KafkaRegistrator(
             performs fetches to multiple brokers in parallel so memory
             usage will depend on the number of brokers containing
             partitions for the topic.
-            """
+            """,
             ),
         ] = 50 * 1024 * 1024,
         fetch_min_bytes: Annotated[
@@ -489,7 +486,7 @@ class KafkaRegistrator(
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """
+            """,
             ),
         ] = 1,
         fetch_max_wait_ms: Annotated[
@@ -500,7 +497,7 @@ class KafkaRegistrator(
             the server will block before answering the fetch request if
             there isn't sufficient data to immediately satisfy the
             requirement given by `fetch_min_bytes`.
-            """
+            """,
             ),
         ] = 500,
         max_partition_fetch_bytes: Annotated[
@@ -515,7 +512,7 @@ class KafkaRegistrator(
             send messages larger than the consumer can fetch. If that
             happens, the consumer can get stuck trying to fetch a large
             message on a certain partition.
-            """
+            """,
             ),
         ] = 1 * 1024 * 1024,
         auto_offset_reset: Annotated[
@@ -527,7 +524,7 @@ class KafkaRegistrator(
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """
+            """,
             ),
         ] = "latest",
         auto_commit: Annotated[
@@ -536,7 +533,7 @@ class KafkaRegistrator(
                 """
             If `True` the consumer's offset will be
             periodically committed in the background.
-            """
+            """,
             ),
         ] = True,
         auto_commit_interval_ms: Annotated[
@@ -544,7 +541,7 @@ class KafkaRegistrator(
             Doc(
                 """
             Milliseconds between automatic
-            offset commits, if `auto_commit` is `True`."""
+            offset commits, if `auto_commit` is `True`.""",
             ),
         ] = 5 * 1000,
         check_crcs: Annotated[
@@ -555,7 +552,7 @@ class KafkaRegistrator(
             consumed. This ensures no on-the-wire or on-disk corruption to
             the messages occurred. This check adds some overhead, so it may
             be disabled in cases seeking extreme performance.
-            """
+            """,
             ),
         ] = True,
         partition_assignment_strategy: Annotated[
@@ -571,7 +568,7 @@ class KafkaRegistrator(
             one. The coordinator will choose the old assignment strategy until
             all members have been updated. Then it will choose the new
             strategy.
-            """
+            """,
             ),
         ] = (RoundRobinPartitionAssignor,),
         max_poll_interval_ms: Annotated[
@@ -584,7 +581,7 @@ class KafkaRegistrator(
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """
+            """,
             ),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
@@ -598,7 +595,7 @@ class KafkaRegistrator(
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """
+            """,
             ),
         ] = None,
         session_timeout_ms: Annotated[
@@ -613,7 +610,7 @@ class KafkaRegistrator(
             group and trigger a rebalance. The allowed range is configured with
             the **broker** configuration properties
             `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
-            """
+            """,
             ),
         ] = 10 * 1000,
         heartbeat_interval_ms: Annotated[
@@ -629,7 +626,7 @@ class KafkaRegistrator(
             should be set no higher than 1/3 of that value. It can be
             adjusted even lower to control the expected time for normal
             rebalances.
-            """
+            """,
             ),
         ] = 3 * 1000,
         consumer_timeout_ms: Annotated[
@@ -639,7 +636,7 @@ class KafkaRegistrator(
             Maximum wait timeout for background fetching
             routine. Mostly defines how fast the system will see rebalance and
             request new data for new partitions.
-            """
+            """,
             ),
         ] = 200,
         max_poll_records: Annotated[
@@ -648,7 +645,7 @@ class KafkaRegistrator(
                 """
             The maximum number of records returned in a
             single call by batch consumer. Has no limit by default.
-            """
+            """,
             ),
         ] = None,
         exclude_internal_topics: Annotated[
@@ -659,7 +656,7 @@ class KafkaRegistrator(
             (such as offsets) should be exposed to the consumer. If set to True
             the only way to receive records from an internal topic is
             subscribing to it.
-            """
+            """,
             ),
         ] = True,
         isolation_level: Annotated[
@@ -689,7 +686,7 @@ class KafkaRegistrator(
             to the high watermark when there are in flight transactions.
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
-            """
+            """,
             ),
         ] = "read_uncommitted",
         batch_timeout_ms: Annotated[
@@ -700,7 +697,7 @@ class KafkaRegistrator(
             data is not available in the buffer. If 0, returns immediately
             with any records that are available currently in the buffer,
             else returns empty.
-            """
+            """,
             ),
         ] = 200,
         max_records: Annotated[
@@ -732,7 +729,7 @@ class KafkaRegistrator(
                to subscribe. It is guaranteed, however, that the partitions
                revoked/assigned
                through this interface are from topics subscribed in this call.
-            """
+            """,
             ),
         ] = None,
         pattern: Annotated[
@@ -740,7 +737,7 @@ class KafkaRegistrator(
             Doc(
                 """
             Pattern to match available topics. You must provide either topics or pattern, but not both.
-            """
+            """,
             ),
         ] = None,
         partitions: Annotated[
@@ -749,7 +746,7 @@ class KafkaRegistrator(
                 """
             An explicit partitions list to assign.
             You can't use 'topics' and 'partitions' in the same time.
-            """
+            """,
             ),
         ] = (),
         # broker args
@@ -780,7 +777,7 @@ class KafkaRegistrator(
         no_reply: Annotated[
             bool,
             Doc(
-                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not.",
             ),
         ] = False,
         # Specification args
@@ -792,7 +789,7 @@ class KafkaRegistrator(
             Optional[str],
             Doc(
                 "Specification subscriber object description. "
-                "Uses decorated docstring as default."
+                "Uses decorated docstring as default.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -820,21 +817,21 @@ class KafkaRegistrator(
             partition assignment (if enabled), and to use for fetching and
             committing offsets. If `None`, auto-partition assignment (via
             group coordinator) and offset commits are disabled.
-            """
+            """,
             ),
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
             Doc(
                 "Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."
+                "key and returns a deserialized one.",
             ),
         ] = None,
         value_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
             Doc(
                 "Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."
+                "value and returns a deserialized value.",
             ),
         ] = None,
         fetch_max_bytes: Annotated[
@@ -849,7 +846,7 @@ class KafkaRegistrator(
             performs fetches to multiple brokers in parallel so memory
             usage will depend on the number of brokers containing
             partitions for the topic.
-            """
+            """,
             ),
         ] = 50 * 1024 * 1024,
         fetch_min_bytes: Annotated[
@@ -859,7 +856,7 @@ class KafkaRegistrator(
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """
+            """,
             ),
         ] = 1,
         fetch_max_wait_ms: Annotated[
@@ -870,7 +867,7 @@ class KafkaRegistrator(
             the server will block before answering the fetch request if
             there isn't sufficient data to immediately satisfy the
             requirement given by `fetch_min_bytes`.
-            """
+            """,
             ),
         ] = 500,
         max_partition_fetch_bytes: Annotated[
@@ -885,7 +882,7 @@ class KafkaRegistrator(
             send messages larger than the consumer can fetch. If that
             happens, the consumer can get stuck trying to fetch a large
             message on a certain partition.
-            """
+            """,
             ),
         ] = 1 * 1024 * 1024,
         auto_offset_reset: Annotated[
@@ -897,7 +894,7 @@ class KafkaRegistrator(
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """
+            """,
             ),
         ] = "latest",
         auto_commit: Annotated[
@@ -906,7 +903,7 @@ class KafkaRegistrator(
                 """
             If `True` the consumer's offset will be
             periodically committed in the background.
-            """
+            """,
             ),
         ] = True,
         auto_commit_interval_ms: Annotated[
@@ -914,7 +911,7 @@ class KafkaRegistrator(
             Doc(
                 """
             Milliseconds between automatic
-            offset commits, if `auto_commit` is `True`."""
+            offset commits, if `auto_commit` is `True`.""",
             ),
         ] = 5 * 1000,
         check_crcs: Annotated[
@@ -925,7 +922,7 @@ class KafkaRegistrator(
             consumed. This ensures no on-the-wire or on-disk corruption to
             the messages occurred. This check adds some overhead, so it may
             be disabled in cases seeking extreme performance.
-            """
+            """,
             ),
         ] = True,
         partition_assignment_strategy: Annotated[
@@ -941,7 +938,7 @@ class KafkaRegistrator(
             one. The coordinator will choose the old assignment strategy until
             all members have been updated. Then it will choose the new
             strategy.
-            """
+            """,
             ),
         ] = (RoundRobinPartitionAssignor,),
         max_poll_interval_ms: Annotated[
@@ -954,7 +951,7 @@ class KafkaRegistrator(
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """
+            """,
             ),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
@@ -968,7 +965,7 @@ class KafkaRegistrator(
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """
+            """,
             ),
         ] = None,
         session_timeout_ms: Annotated[
@@ -983,7 +980,7 @@ class KafkaRegistrator(
             group and trigger a rebalance. The allowed range is configured with
             the **broker** configuration properties
             `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
-            """
+            """,
             ),
         ] = 10 * 1000,
         heartbeat_interval_ms: Annotated[
@@ -999,7 +996,7 @@ class KafkaRegistrator(
             should be set no higher than 1/3 of that value. It can be
             adjusted even lower to control the expected time for normal
             rebalances.
-            """
+            """,
             ),
         ] = 3 * 1000,
         consumer_timeout_ms: Annotated[
@@ -1009,7 +1006,7 @@ class KafkaRegistrator(
             Maximum wait timeout for background fetching
             routine. Mostly defines how fast the system will see rebalance and
             request new data for new partitions.
-            """
+            """,
             ),
         ] = 200,
         max_poll_records: Annotated[
@@ -1018,7 +1015,7 @@ class KafkaRegistrator(
                 """
             The maximum number of records returned in a
             single call by batch consumer. Has no limit by default.
-            """
+            """,
             ),
         ] = None,
         exclude_internal_topics: Annotated[
@@ -1029,7 +1026,7 @@ class KafkaRegistrator(
             (such as offsets) should be exposed to the consumer. If set to True
             the only way to receive records from an internal topic is
             subscribing to it.
-            """
+            """,
             ),
         ] = True,
         isolation_level: Annotated[
@@ -1059,7 +1056,7 @@ class KafkaRegistrator(
             to the high watermark when there are in flight transactions.
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
-            """
+            """,
             ),
         ] = "read_uncommitted",
         batch_timeout_ms: Annotated[
@@ -1070,7 +1067,7 @@ class KafkaRegistrator(
             data is not available in the buffer. If 0, returns immediately
             with any records that are available currently in the buffer,
             else returns empty.
-            """
+            """,
             ),
         ] = 200,
         max_records: Annotated[
@@ -1102,7 +1099,7 @@ class KafkaRegistrator(
                to subscribe. It is guaranteed, however, that the partitions
                revoked/assigned
                through this interface are from topics subscribed in this call.
-            """
+            """,
             ),
         ] = None,
         pattern: Annotated[
@@ -1110,7 +1107,7 @@ class KafkaRegistrator(
             Doc(
                 """
             Pattern to match available topics. You must provide either topics or pattern, but not both.
-            """
+            """,
             ),
         ] = None,
         partitions: Annotated[
@@ -1119,7 +1116,7 @@ class KafkaRegistrator(
                 """
             An explicit partitions list to assign.
             You can't use 'topics' and 'partitions' in the same time.
-            """
+            """,
             ),
         ] = (),
         # broker args
@@ -1150,7 +1147,7 @@ class KafkaRegistrator(
         no_reply: Annotated[
             bool,
             Doc(
-                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not.",
             ),
         ] = False,
         # Specification args
@@ -1162,7 +1159,7 @@ class KafkaRegistrator(
             Optional[str],
             Doc(
                 "Specification subscriber object description. "
-                "Uses decorated docstring as default."
+                "Uses decorated docstring as default.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -1193,21 +1190,21 @@ class KafkaRegistrator(
             partition assignment (if enabled), and to use for fetching and
             committing offsets. If `None`, auto-partition assignment (via
             group coordinator) and offset commits are disabled.
-            """
+            """,
             ),
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
             Doc(
                 "Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."
+                "key and returns a deserialized one.",
             ),
         ] = None,
         value_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
             Doc(
                 "Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."
+                "value and returns a deserialized value.",
             ),
         ] = None,
         fetch_max_bytes: Annotated[
@@ -1222,7 +1219,7 @@ class KafkaRegistrator(
             performs fetches to multiple brokers in parallel so memory
             usage will depend on the number of brokers containing
             partitions for the topic.
-            """
+            """,
             ),
         ] = 50 * 1024 * 1024,
         fetch_min_bytes: Annotated[
@@ -1232,7 +1229,7 @@ class KafkaRegistrator(
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """
+            """,
             ),
         ] = 1,
         fetch_max_wait_ms: Annotated[
@@ -1243,7 +1240,7 @@ class KafkaRegistrator(
             the server will block before answering the fetch request if
             there isn't sufficient data to immediately satisfy the
             requirement given by `fetch_min_bytes`.
-            """
+            """,
             ),
         ] = 500,
         max_partition_fetch_bytes: Annotated[
@@ -1258,7 +1255,7 @@ class KafkaRegistrator(
             send messages larger than the consumer can fetch. If that
             happens, the consumer can get stuck trying to fetch a large
             message on a certain partition.
-            """
+            """,
             ),
         ] = 1 * 1024 * 1024,
         auto_offset_reset: Annotated[
@@ -1270,7 +1267,7 @@ class KafkaRegistrator(
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """
+            """,
             ),
         ] = "latest",
         auto_commit: Annotated[
@@ -1279,7 +1276,7 @@ class KafkaRegistrator(
                 """
             If `True` the consumer's offset will be
             periodically committed in the background.
-            """
+            """,
             ),
         ] = True,
         auto_commit_interval_ms: Annotated[
@@ -1287,7 +1284,7 @@ class KafkaRegistrator(
             Doc(
                 """
             Milliseconds between automatic
-            offset commits, if `auto_commit` is `True`."""
+            offset commits, if `auto_commit` is `True`.""",
             ),
         ] = 5 * 1000,
         check_crcs: Annotated[
@@ -1298,7 +1295,7 @@ class KafkaRegistrator(
             consumed. This ensures no on-the-wire or on-disk corruption to
             the messages occurred. This check adds some overhead, so it may
             be disabled in cases seeking extreme performance.
-            """
+            """,
             ),
         ] = True,
         partition_assignment_strategy: Annotated[
@@ -1314,7 +1311,7 @@ class KafkaRegistrator(
             one. The coordinator will choose the old assignment strategy until
             all members have been updated. Then it will choose the new
             strategy.
-            """
+            """,
             ),
         ] = (RoundRobinPartitionAssignor,),
         max_poll_interval_ms: Annotated[
@@ -1327,7 +1324,7 @@ class KafkaRegistrator(
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """
+            """,
             ),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
@@ -1341,7 +1338,7 @@ class KafkaRegistrator(
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """
+            """,
             ),
         ] = None,
         session_timeout_ms: Annotated[
@@ -1356,7 +1353,7 @@ class KafkaRegistrator(
             group and trigger a rebalance. The allowed range is configured with
             the **broker** configuration properties
             `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
-            """
+            """,
             ),
         ] = 10 * 1000,
         heartbeat_interval_ms: Annotated[
@@ -1372,7 +1369,7 @@ class KafkaRegistrator(
             should be set no higher than 1/3 of that value. It can be
             adjusted even lower to control the expected time for normal
             rebalances.
-            """
+            """,
             ),
         ] = 3 * 1000,
         consumer_timeout_ms: Annotated[
@@ -1382,7 +1379,7 @@ class KafkaRegistrator(
             Maximum wait timeout for background fetching
             routine. Mostly defines how fast the system will see rebalance and
             request new data for new partitions.
-            """
+            """,
             ),
         ] = 200,
         max_poll_records: Annotated[
@@ -1391,7 +1388,7 @@ class KafkaRegistrator(
                 """
             The maximum number of records returned in a
             single call by batch consumer. Has no limit by default.
-            """
+            """,
             ),
         ] = None,
         exclude_internal_topics: Annotated[
@@ -1402,7 +1399,7 @@ class KafkaRegistrator(
             (such as offsets) should be exposed to the consumer. If set to True
             the only way to receive records from an internal topic is
             subscribing to it.
-            """
+            """,
             ),
         ] = True,
         isolation_level: Annotated[
@@ -1432,7 +1429,7 @@ class KafkaRegistrator(
             to the high watermark when there are in flight transactions.
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
-            """
+            """,
             ),
         ] = "read_uncommitted",
         batch_timeout_ms: Annotated[
@@ -1443,7 +1440,7 @@ class KafkaRegistrator(
             data is not available in the buffer. If 0, returns immediately
             with any records that are available currently in the buffer,
             else returns empty.
-            """
+            """,
             ),
         ] = 200,
         max_records: Annotated[
@@ -1475,7 +1472,7 @@ class KafkaRegistrator(
                to subscribe. It is guaranteed, however, that the partitions
                revoked/assigned
                through this interface are from topics subscribed in this call.
-            """
+            """,
             ),
         ] = None,
         pattern: Annotated[
@@ -1483,7 +1480,7 @@ class KafkaRegistrator(
             Doc(
                 """
             Pattern to match available topics. You must provide either topics or pattern, but not both.
-            """
+            """,
             ),
         ] = None,
         partitions: Annotated[
@@ -1492,7 +1489,7 @@ class KafkaRegistrator(
                 """
             An explicit partitions list to assign.
             You can't use 'topics' and 'partitions' in the same time.
-            """
+            """,
             ),
         ] = (),
         # broker args
@@ -1523,7 +1520,7 @@ class KafkaRegistrator(
         no_reply: Annotated[
             bool,
             Doc(
-                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not.",
             ),
         ] = False,
         # Specification args
@@ -1535,7 +1532,7 @@ class KafkaRegistrator(
             Optional[str],
             Doc(
                 "Specification subscriber object description. "
-                "Uses decorated docstring as default."
+                "Uses decorated docstring as default.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -1588,7 +1585,7 @@ class KafkaRegistrator(
                 title_=title,
                 description_=description,
                 include_in_schema=self._solve_include_in_schema(include_in_schema),
-            )
+            ),
         )
 
         if batch:
@@ -1599,13 +1596,12 @@ class KafkaRegistrator(
                 middlewares_=middlewares,
             )
 
-        else:
-            return cast("SpecificationDefaultSubscriber", subscriber).add_call(
-                parser_=parser or self._parser,
-                decoder_=decoder or self._decoder,
-                dependencies_=dependencies,
-                middlewares_=middlewares,
-            )
+        return cast("SpecificationDefaultSubscriber", subscriber).add_call(
+            parser_=parser or self._parser,
+            decoder_=decoder or self._decoder,
+            dependencies_=dependencies,
+            middlewares_=middlewares,
+        )
 
     @overload  # type: ignore[override]
     def publisher(
@@ -1626,7 +1622,7 @@ class KafkaRegistrator(
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """
+            """,
             ),
         ] = None,
         partition: Annotated[
@@ -1635,15 +1631,15 @@ class KafkaRegistrator(
                 """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """
+            """,
             ),
         ] = None,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be set automatically by framework anyway. "
-                "Can be overridden by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified.",
             ),
         ] = None,
         reply_to: Annotated[
@@ -1672,7 +1668,7 @@ class KafkaRegistrator(
             Optional[Any],
             Doc(
                 "Specification publishing message type. "
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
+                "Should be any python-native object annotation or `pydantic.BaseModel`.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -1700,7 +1696,7 @@ class KafkaRegistrator(
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """
+            """,
             ),
         ] = None,
         partition: Annotated[
@@ -1709,15 +1705,15 @@ class KafkaRegistrator(
                 """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """
+            """,
             ),
         ] = None,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be set automatically by framework anyway. "
-                "Can be overridden by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified.",
             ),
         ] = None,
         reply_to: Annotated[
@@ -1746,7 +1742,7 @@ class KafkaRegistrator(
             Optional[Any],
             Doc(
                 "Specification publishing message type. "
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
+                "Should be any python-native object annotation or `pydantic.BaseModel`.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -1774,7 +1770,7 @@ class KafkaRegistrator(
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """
+            """,
             ),
         ] = None,
         partition: Annotated[
@@ -1783,15 +1779,15 @@ class KafkaRegistrator(
                 """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """
+            """,
             ),
         ] = None,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be set automatically by framework anyway. "
-                "Can be overridden by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified.",
             ),
         ] = None,
         reply_to: Annotated[
@@ -1820,7 +1816,7 @@ class KafkaRegistrator(
             Optional[Any],
             Doc(
                 "Specification publishing message type. "
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
+                "Should be any python-native object annotation or `pydantic.BaseModel`.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -1851,7 +1847,7 @@ class KafkaRegistrator(
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """
+            """,
             ),
         ] = None,
         partition: Annotated[
@@ -1860,15 +1856,15 @@ class KafkaRegistrator(
                 """
             Specify a partition. If not set, the partition will be
             selected using the configured `partitioner`.
-            """
+            """,
             ),
         ] = None,
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be set automatically by framework anyway. "
-                "Can be overridden by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified.",
             ),
         ] = None,
         reply_to: Annotated[
@@ -1897,7 +1893,7 @@ class KafkaRegistrator(
             Optional[Any],
             Doc(
                 "Specification publishing message type. "
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
+                "Should be any python-native object annotation or `pydantic.BaseModel`.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -1937,5 +1933,4 @@ class KafkaRegistrator(
 
         if batch:
             return cast("SpecificationBatchPublisher", super().publisher(publisher))
-        else:
-            return cast("SpecificationDefaultPublisher", super().publisher(publisher))
+        return cast("SpecificationDefaultPublisher", super().publisher(publisher))

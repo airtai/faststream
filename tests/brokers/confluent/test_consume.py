@@ -63,7 +63,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
                     msg.headers,
                     [msg.headers] == msg.batch_headers,
                     msg.headers.get("custom") == "1",
-                )
+                ),
             )
             mock(check)
             event.set()
@@ -92,7 +92,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
-            queue, group_id="test", auto_commit=False
+            queue,
+            group_id="test",
+            auto_commit=False,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -113,7 +115,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
                             br.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -133,7 +135,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
-            queue, group_id="test", auto_commit=False
+            queue,
+            group_id="test",
+            auto_commit=False,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -170,7 +174,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
-            queue, group_id="test", auto_commit=False
+            queue,
+            group_id="test",
+            auto_commit=False,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -207,7 +213,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
-            queue, group_id="test", auto_commit=False
+            queue,
+            group_id="test",
+            auto_commit=False,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -263,7 +271,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
                             br.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -283,7 +291,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
-            queue, auto_commit=False, group_id="test"
+            queue,
+            auto_commit=False,
+            group_id="test",
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -295,7 +305,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         event2 = asyncio.Event()
 
         args, kwargs = self.get_subscriber_params(
-            queue, auto_commit=True, group_id="test"
+            queue,
+            auto_commit=True,
+            group_id="test",
         )
 
         @broker2.subscriber(*args, **kwargs)

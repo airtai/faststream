@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Optional, Union
 from urllib.parse import urlparse
 
 from faststream._internal._compat import DEF_KEY
@@ -37,8 +38,6 @@ if TYPE_CHECKING:
     from faststream.specification.schema.license import License, LicenseDict
     from faststream.specification.schema.tag import (
         Tag as SpecsTag,
-    )
-    from faststream.specification.schema.tag import (
         TagDict as SpecsTagDict,
     )
 
@@ -64,8 +63,8 @@ def get_app_schema(
     channels = get_broker_channels(broker)
     operations = get_broker_operations(broker)
 
-    messages: Dict[str, Message] = {}
-    payloads: Dict[str, AnyDict] = {}
+    messages: dict[str, Message] = {}
+    payloads: dict[str, AnyDict] = {}
 
     for channel in channels.values():
         channel.servers = [
@@ -73,17 +72,21 @@ def get_app_schema(
         ]
 
     for channel_name, channel in channels.items():
-        msgs: Dict[str, Union[Message, Reference]] = {}
+        msgs: dict[str, Union[Message, Reference]] = {}
         for message_name, message in channel.messages.items():
             assert isinstance(message, Message)
 
             msgs[message_name] = _resolve_msg_payloads(
-                message_name, message, channel_name, payloads, messages
+                message_name,
+                message,
+                channel_name,
+                payloads,
+                messages,
             )
 
         channel.messages = msgs
 
-    schema = Schema(
+    return Schema(
         info=Info(
             title=title,
             version=app_version,
@@ -108,16 +111,15 @@ def get_app_schema(
             else broker.security.get_schema(),
         ),
     )
-    return schema
 
 
 def get_broker_server(
     broker: "BrokerUsecase[MsgType, ConnectionType]",
-) -> Dict[str, Server]:
+) -> dict[str, Server]:
     """Get the broker server for an application."""
     servers = {}
 
-    tags: Optional[List[Union[Tag, AnyDict]]] = None
+    tags: Optional[list[Union[Tag, AnyDict]]] = None
     if broker.tags:
         tags = [tag_from_spec(tag) for tag in broker.tags]
 
@@ -137,10 +139,9 @@ def get_broker_server(
     urls = broker.url if isinstance(broker.url, list) else [broker.url]
 
     for i, broker_url in enumerate(urls, 1):
-        if "://" not in broker_url:
-            broker_url = "//" + broker_url
+        server_url = broker_url if "://" in broker_url else f"//{broker_url}"
 
-        parsed_url = urlparse(broker_url)
+        parsed_url = urlparse(server_url)
         server_name = "development" if len(urls) == 1 else f"Server{i}"
         servers[server_name] = Server(
             host=parsed_url.netloc,
@@ -153,26 +154,30 @@ def get_broker_server(
 
 def get_broker_operations(
     broker: "BrokerUsecase[MsgType, ConnectionType]",
-) -> Dict[str, Operation]:
+) -> dict[str, Operation]:
     """Get the broker operations for an application."""
     operations = {}
 
     for h in broker._subscribers:
-        for channel_name, specs_channel in h.schema().items():
-            channel_name = clear_key(channel_name)
+        for channel, specs_channel in h.schema().items():
+            channel_name = clear_key(channel)
 
             if specs_channel.subscribe is not None:
                 operations[f"{channel_name}Subscribe"] = operation_from_spec(
-                    specs_channel.subscribe, Action.RECEIVE, channel_name
+                    specs_channel.subscribe,
+                    Action.RECEIVE,
+                    channel_name,
                 )
 
     for p in broker._publishers:
-        for channel_name, specs_channel in p.schema().items():
-            channel_name = clear_key(channel_name)
+        for channel, specs_channel in p.schema().items():
+            channel_name = clear_key(channel)
 
             if specs_channel.publish is not None:
                 operations[f"{channel_name}"] = operation_from_spec(
-                    specs_channel.publish, Action.SEND, channel_name
+                    specs_channel.publish,
+                    Action.SEND,
+                    channel_name,
                 )
 
     return operations
@@ -180,7 +185,7 @@ def get_broker_operations(
 
 def get_broker_channels(
     broker: "BrokerUsecase[MsgType, ConnectionType]",
-) -> Dict[str, Channel]:
+) -> dict[str, Channel]:
     """Get the broker channels for an application."""
     channels = {}
 
@@ -194,6 +199,7 @@ def get_broker_channels(
                 *left, right = message.title.split(":")
                 message.title = ":".join(left) + f":Subscribe{right}"
 
+                # TODO: why we are format just a key?
                 channels_schema_v3_0[clear_key(channel_name)] = channel_from_spec(
                     specs_channel,
                     message,
@@ -239,7 +245,7 @@ def _resolve_msg_payloads(
     one_of = m.payload.get("oneOf", None)
     if isinstance(one_of, dict):
         one_of_list = []
-        processed_payloads: Dict[str, AnyDict] = {}
+        processed_payloads: dict[str, AnyDict] = {}
         for name, payload in one_of.items():
             processed_payloads[clear_key(name)] = payload
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{name}"}))
@@ -249,17 +255,16 @@ def _resolve_msg_payloads(
         assert m.title
         messages[clear_key(m.title)] = m
         return Reference(
-            **{"$ref": f"#/components/messages/{channel_name}:{message_name}"}
+            **{"$ref": f"#/components/messages/{channel_name}:{message_name}"},
         )
 
-    else:
-        payloads.update(m.payload.pop(DEF_KEY, {}))
-        payload_name = m.payload.get("title", f"{channel_name}:{message_name}:Payload")
-        payload_name = clear_key(payload_name)
-        payloads[payload_name] = m.payload
-        m.payload = {"$ref": f"#/components/schemas/{payload_name}"}
-        assert m.title
-        messages[clear_key(m.title)] = m
-        return Reference(
-            **{"$ref": f"#/components/messages/{channel_name}:{message_name}"}
-        )
+    payloads.update(m.payload.pop(DEF_KEY, {}))
+    payload_name = m.payload.get("title", f"{channel_name}:{message_name}:Payload")
+    payload_name = clear_key(payload_name)
+    payloads[payload_name] = m.payload
+    m.payload = {"$ref": f"#/components/schemas/{payload_name}"}
+    assert m.title
+    messages[clear_key(m.title)] = m
+    return Reference(
+        **{"$ref": f"#/components/messages/{channel_name}:{message_name}"},
+    )

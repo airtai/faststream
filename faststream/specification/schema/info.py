@@ -1,6 +1,5 @@
 from typing import (
     Any,
-    Dict,
     Optional,
     Union,
 )
@@ -24,5 +23,5 @@ class Info(BaseModel):
     """
 
     termsOfService: Optional[AnyHttpUrl] = None
-    contact: Optional[Union[Contact, ContactDict, Dict[str, Any]]] = None
-    license: Optional[Union[License, LicenseDict, Dict[str, Any]]] = None
+    contact: Optional[Union[Contact, ContactDict, dict[str, Any]]] = None
+    license: Optional[Union[License, LicenseDict, dict[str, Any]]] = None

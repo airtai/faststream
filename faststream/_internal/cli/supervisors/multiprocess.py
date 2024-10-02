@@ -1,5 +1,5 @@
 import signal
-from typing import TYPE_CHECKING, Any, List, Tuple
+from typing import TYPE_CHECKING, Any
 
 from faststream._internal.cli.supervisors.basereload import BaseReload
 from faststream._internal.log import logger
@@ -16,14 +16,14 @@ class Multiprocess(BaseReload):
     def __init__(
         self,
         target: "DecoratedCallable",
-        args: Tuple[Any, ...],
+        args: tuple[Any, ...],
         workers: int,
         reload_delay: float = 0.5,
     ) -> None:
         super().__init__(target, args, reload_delay)
 
         self.workers = workers
-        self.processes: List[SpawnProcess] = []
+        self.processes: list[SpawnProcess] = []
 
     def startup(self) -> None:
         logger.info(f"Started parent process [{self.pid}]")

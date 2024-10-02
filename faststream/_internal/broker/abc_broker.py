@@ -1,10 +1,9 @@
 from abc import abstractmethod
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
-    Iterable,
-    List,
     Optional,
 )
 
@@ -18,8 +17,8 @@ if TYPE_CHECKING:
 
 
 class ABCBroker(Generic[MsgType]):
-    _subscribers: List["SubscriberProto[MsgType]"]
-    _publishers: List["PublisherProto[MsgType]"]
+    _subscribers: list["SubscriberProto[MsgType]"]
+    _publishers: list["PublisherProto[MsgType]"]
 
     def __init__(
         self,
@@ -84,7 +83,7 @@ class ABCBroker(Generic[MsgType]):
     ) -> None:
         """Includes a router in the current object."""
         for h in router._subscribers:
-            h.add_prefix("".join((self.prefix, prefix)))
+            h.add_prefix(f"{self.prefix}{prefix}")
 
             if include_in_schema is None:
                 h.include_in_schema = self._solve_include_in_schema(h.include_in_schema)
@@ -129,5 +128,4 @@ class ABCBroker(Generic[MsgType]):
     def _solve_include_in_schema(self, include_in_schema: bool) -> bool:
         if self.include_in_schema is None or self.include_in_schema:
             return include_in_schema
-        else:
-            return self.include_in_schema
+        return self.include_in_schema

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 from faststream.specification.schema.bindings import OperationBinding
 from faststream.specification.schema.message import Message
@@ -28,6 +28,6 @@ class Operation:
 
     bindings: Optional[OperationBinding] = None
 
-    security: Optional[Dict[str, List[str]]] = None
+    security: Optional[dict[str, list[str]]] = None
 
-    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = None
+    tags: Optional[list[Union[Tag, dict[str, Any]]]] = None

@@ -40,7 +40,7 @@ class TestRouter(RouterTestcase):
                         "url": "amqp://guest:guest@localhost:5672/",  # pragma: allowlist secret
                         "protocol": "amqp",
                         "protocolVersion": "0.9.1",
-                    }
+                    },
                 },
                 "channels": {
                     "test_test:_:Handle": {
@@ -57,7 +57,7 @@ class TestRouter(RouterTestcase):
                                     "vhost": "/",
                                 },
                                 "exchange": {"type": "default", "vhost": "/"},
-                            }
+                            },
                         },
                         "subscribe": {
                             "bindings": {
@@ -65,28 +65,28 @@ class TestRouter(RouterTestcase):
                                     "cc": "test_key",
                                     "ack": True,
                                     "bindingVersion": "0.2.0",
-                                }
+                                },
                             },
                             "message": {
-                                "$ref": "#/components/messages/test_test:_:Handle:Message"
+                                "$ref": "#/components/messages/test_test:_:Handle:Message",
                             },
                         },
-                    }
+                    },
                 },
                 "components": {
                     "messages": {
                         "test_test:_:Handle:Message": {
                             "title": "test_test:_:Handle:Message",
                             "correlationId": {
-                                "location": "$message.header#/correlation_id"
+                                "location": "$message.header#/correlation_id",
                             },
                             "payload": {
-                                "$ref": "#/components/schemas/Handle:Message:Payload"
+                                "$ref": "#/components/schemas/Handle:Message:Payload",
                             },
-                        }
+                        },
                     },
                     "schemas": {
-                        "Handle:Message:Payload": {"title": "Handle:Message:Payload"}
+                        "Handle:Message:Payload": {"title": "Handle:Message:Payload"},
                     },
                 },
             }

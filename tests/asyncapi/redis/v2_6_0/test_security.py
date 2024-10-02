@@ -32,7 +32,7 @@ def test_base_security_schema():
                 "protocolVersion": "custom",
                 "security": [],
                 "url": "rediss://localhost:6379/",
-            }
+            },
         },
     }
 
@@ -70,7 +70,7 @@ def test_plaintext_security_schema():
                 "protocolVersion": "custom",
                 "security": [{"user-password": []}],
                 "url": "redis://localhost:6379/",
-            }
+            },
         },
     }
 
@@ -105,6 +105,6 @@ def test_plaintext_security_schema_without_ssl():
                 "protocolVersion": "custom",
                 "security": [{"user-password": []}],
                 "url": "redis://localhost:6379/",
-            }
+            },
         },
     }

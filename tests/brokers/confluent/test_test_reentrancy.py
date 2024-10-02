@@ -15,14 +15,16 @@ to_output_data = broker.publisher(out_topic_name, partition=0)
 
 @to_output_data
 @broker.subscriber(
-    partitions=[TopicPartition(first_topic_name, 0)], auto_offset_reset="earliest"
+    partitions=[TopicPartition(first_topic_name, 0)],
+    auto_offset_reset="earliest",
 )
 async def on_input_data(msg: int):
     return msg + 1
 
 
 @broker.subscriber(
-    partitions=[TopicPartition(out_topic_name, 0)], auto_offset_reset="earliest"
+    partitions=[TopicPartition(out_topic_name, 0)],
+    auto_offset_reset="earliest",
 )
 async def on_output_data(msg: int):
     pass
@@ -72,7 +74,7 @@ async def _test_with_temp_subscriber():
     reason=(
         "Failed due `on_output_data` subscriber creates inside test and doesn't removed after "
         "https://github.com/airtai/faststream/issues/556"
-    )
+    ),
 )
 async def test_with_temp_subscriber():
     await _test_with_temp_subscriber()

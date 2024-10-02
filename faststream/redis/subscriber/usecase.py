@@ -1,24 +1,21 @@
 import asyncio
 import math
 from abc import abstractmethod
+from collections.abc import Awaitable, Iterable, Sequence
 from contextlib import suppress
 from copy import deepcopy
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     Callable,
-    Dict,
-    Iterable,
-    List,
     Optional,
-    Sequence,
-    Tuple,
 )
 
 import anyio
-from redis.asyncio.client import PubSub as RPubSub
-from redis.asyncio.client import Redis
+from redis.asyncio.client import (
+    PubSub as RPubSub,
+    Redis,
+)
 from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
@@ -160,7 +157,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
 
         if self.calls:
             self.task = asyncio.create_task(
-                self._consume(*args, start_signal=start_signal)
+                self._consume(*args, start_signal=start_signal),
             )
 
             with anyio.fail_after(3.0):
@@ -192,7 +189,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
 
     @abstractmethod
     async def _get_msgs(self, *args: Any) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     async def close(self) -> None:
         await super().close()
@@ -205,7 +202,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
     def build_log_context(
         message: Optional["BrokerStreamMessage[Any]"],
         channel: str = "",
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return {
             "channel": channel,
             "message_id": getattr(message, "message_id", ""),
@@ -252,7 +249,7 @@ class ChannelSubscriber(LogicSubscriber):
     def get_log_context(
         self,
         message: Optional["BrokerStreamMessage[Any]"],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return self.build_log_context(
             message=message,
             channel=self.channel.name,
@@ -331,7 +328,7 @@ class ChannelSubscriber(LogicSubscriber):
 
     def add_prefix(self, prefix: str) -> None:
         new_ch = deepcopy(self.channel)
-        new_ch.name = "".join((prefix, new_ch.name))
+        new_ch.name = f"{prefix}{new_ch.name}"
         self.channel = new_ch
 
 
@@ -373,7 +370,7 @@ class _ListHandlerMixin(LogicSubscriber):
     def get_log_context(
         self,
         message: Optional["BrokerStreamMessage[Any]"],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return self.build_log_context(
             message=message,
             channel=self.list_sub.name,
@@ -435,7 +432,7 @@ class _ListHandlerMixin(LogicSubscriber):
 
     def add_prefix(self, prefix: str) -> None:
         new_list = deepcopy(self.list_sub)
-        new_list.name = "".join((prefix, new_list.name))
+        new_list.name = f"{prefix}{new_list.name}"
         self.list_sub = new_list
 
 
@@ -579,7 +576,7 @@ class _StreamHandlerMixin(LogicSubscriber):
     def get_log_context(
         self,
         message: Optional["BrokerStreamMessage[Any]"],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return self.build_log_context(
             message=message,
             channel=self.stream_sub.name,
@@ -604,13 +601,13 @@ class _StreamHandlerMixin(LogicSubscriber):
         read: Callable[
             [str],
             Awaitable[
-                Tuple[
-                    Tuple[
+                tuple[
+                    tuple[
                         TopicName,
-                        Tuple[
-                            Tuple[
+                        tuple[
+                            tuple[
                                 Offset,
-                                Dict[bytes, bytes],
+                                dict[bytes, bytes],
                             ],
                             ...,
                         ],
@@ -630,18 +627,18 @@ class _StreamHandlerMixin(LogicSubscriber):
                 )
             except ResponseError as e:
                 if "already exists" not in str(e):
-                    raise e
+                    raise
 
             def read(
                 _: str,
             ) -> Awaitable[
-                Tuple[
-                    Tuple[
+                tuple[
+                    tuple[
                         TopicName,
-                        Tuple[
-                            Tuple[
+                        tuple[
+                            tuple[
                                 Offset,
-                                Dict[bytes, bytes],
+                                dict[bytes, bytes],
                             ],
                             ...,
                         ],
@@ -663,13 +660,13 @@ class _StreamHandlerMixin(LogicSubscriber):
             def read(
                 last_id: str,
             ) -> Awaitable[
-                Tuple[
-                    Tuple[
+                tuple[
+                    tuple[
                         TopicName,
-                        Tuple[
-                            Tuple[
+                        tuple[
+                            tuple[
                                 Offset,
-                                Dict[bytes, bytes],
+                                dict[bytes, bytes],
                             ],
                             ...,
                         ],
@@ -724,7 +721,7 @@ class _StreamHandlerMixin(LogicSubscriber):
 
     def add_prefix(self, prefix: str) -> None:
         new_stream = deepcopy(self.stream_sub)
-        new_stream.name = "".join((prefix, new_stream.name))
+        new_stream.name = f"{prefix}{new_stream.name}"
         self.stream_sub = new_stream
 
 
@@ -766,13 +763,13 @@ class StreamSubscriber(_StreamHandlerMixin):
         read: Callable[
             [str],
             Awaitable[
-                Tuple[
-                    Tuple[
+                tuple[
+                    tuple[
                         TopicName,
-                        Tuple[
-                            Tuple[
+                        tuple[
+                            tuple[
                                 Offset,
-                                Dict[bytes, bytes],
+                                dict[bytes, bytes],
                             ],
                             ...,
                         ],
@@ -835,7 +832,7 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
         read: Callable[
             [str],
             Awaitable[
-                Tuple[Tuple[bytes, Tuple[Tuple[bytes, Dict[bytes, bytes]], ...]], ...],
+                tuple[tuple[bytes, tuple[tuple[bytes, dict[bytes, bytes]], ...]], ...],
             ],
         ],
     ) -> None:
@@ -843,8 +840,8 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
             if msgs:
                 self.last_id = msgs[-1][0].decode()
 
-                data: List[Dict[bytes, bytes]] = []
-                ids: List[bytes] = []
+                data: list[dict[bytes, bytes]] = []
+                ids: list[bytes] = []
                 for message_id, i in msgs:
                     data.append(i)
                     ids.append(message_id)

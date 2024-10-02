@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from fastapi import __version__ as FASTAPI_VERSION  # noqa: N812
 from fastapi.dependencies.utils import solve_dependencies
@@ -19,17 +19,17 @@ FASTAPI_v102_3 = major > 0 or minor > 112 or (minor == 112 and patch > 2)
 FASTAPI_v102_4 = major > 0 or minor > 112 or (minor == 112 and patch > 3)
 
 __all__ = (
-    "create_response_field",
-    "solve_faststream_dependency",
-    "raise_fastapi_validation_error",
     "RequestValidationError",
+    "create_response_field",
+    "raise_fastapi_validation_error",
+    "solve_faststream_dependency",
 )
 
 
 @dataclass
 class SolvedDependency:
     values: AnyDict
-    errors: List[Any]
+    errors: list[Any]
     background_tasks: Optional[BackgroundTasks]
 
 
@@ -37,18 +37,18 @@ if FASTAPI_V2:
     from fastapi._compat import _normalize_errors
     from fastapi.exceptions import RequestValidationError
 
-    def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
+    def raise_fastapi_validation_error(errors: list[Any], body: AnyDict) -> Never:
         raise RequestValidationError(_normalize_errors(errors), body=body)
 
 else:
     from pydantic import (  # type: ignore[assignment]
         ValidationError as RequestValidationError,
+        create_model,
     )
-    from pydantic import create_model
 
     ROUTER_VALIDATION_ERROR_MODEL = create_model("StreamRoute")
 
-    def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
+    def raise_fastapi_validation_error(errors: list[Any], body: AnyDict) -> Never:
         raise RequestValidationError(errors, ROUTER_VALIDATION_ERROR_MODEL)  # type: ignore[misc]
 
 
@@ -74,7 +74,7 @@ if FASTAPI_v102_3:
             **kwargs,
         )
         values, errors, background = (
-            solved_result.values,
+            solved_result.values,  # noqa: PD011
             solved_result.errors,
             solved_result.background_tasks,
         )
@@ -87,7 +87,7 @@ if FASTAPI_v102_3:
 
 else:
     from fastapi.utils import (  # type: ignore[attr-defined,no-redef]
-        create_response_field as create_response_field,
+        create_response_field,
     )
 
     async def solve_faststream_dependency(

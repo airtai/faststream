@@ -21,7 +21,7 @@ def draw_startup_errors(startup_exc: StartupValidationError) -> None:
                     "`lifespan/on_startup` hook has a wrong type."
                 ),
                 param=TyperOption(param_decls=[f"--{field}"]),
-            )
+            ),
         )
 
     if startup_exc.missed_fields:
@@ -32,7 +32,7 @@ def draw_startup_errors(startup_exc: StartupValidationError) -> None:
                     "`lifespan/on_startup` hook, but does not set in CLI."
                 ),
                 param=TyperOption(
-                    param_decls=[f"--{x}" for x in startup_exc.missed_fields]
+                    param_decls=[f"--{x}" for x in startup_exc.missed_fields],
                 ),
-            )
+            ),
         )

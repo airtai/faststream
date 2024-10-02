@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import anyio
 import nats
@@ -48,7 +48,7 @@ class NatsFastProducer(ProducerProto):
         subject: str,
         *,
         correlation_id: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         **kwargs: Any,  # suprress stream option
     ) -> None:
@@ -67,8 +67,6 @@ class NatsFastProducer(ProducerProto):
             headers=headers_to_send,
         )
 
-        return None
-
     @override
     async def request(  # type: ignore[override]
         self,
@@ -76,7 +74,7 @@ class NatsFastProducer(ProducerProto):
         subject: str,
         *,
         correlation_id: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         timeout: float = 0.5,
     ) -> "Msg":
         payload, content_type = encode_message(message)
@@ -121,7 +119,7 @@ class NatsJSFastProducer(ProducerProto):
         subject: str,
         *,
         correlation_id: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
@@ -154,7 +152,7 @@ class NatsJSFastProducer(ProducerProto):
         subject: str,
         *,
         correlation_id: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         stream: Optional[str] = None,
         timeout: float = 0.5,
     ) -> "Msg":

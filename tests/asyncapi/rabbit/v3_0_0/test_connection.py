@@ -30,7 +30,7 @@ def test_base():
                 "tags": [{"description": "experimental", "name": "some-tag"}],
                 "host": "guest:guest@localhost:5673",  # pragma: allowlist secret
                 "pathname": "/",
-            }
+            },
         },
     }
 
@@ -73,19 +73,19 @@ def test_custom():
                             "name": "test",
                             "vhost": "/vh",
                         },
-                    }
+                    },
                 },
                 "servers": [
                     {
                         "$ref": "#/servers/development",
-                    }
+                    },
                 ],
                 "messages": {
                     "Message": {
                         "$ref": "#/components/messages/test:_:Publisher:Message",
                     },
                 },
-            }
+            },
         },
         "operations": {
             "test:_:Publisher": {
@@ -116,10 +116,10 @@ def test_custom():
                 "test:_:Publisher:Message": {
                     "correlationId": {"location": "$message.header#/correlation_id"},
                     "payload": {
-                        "$ref": "#/components/schemas/test:_:Publisher:Message:Payload"
+                        "$ref": "#/components/schemas/test:_:Publisher:Message:Payload",
                     },
                     "title": "test:_:Publisher:Message",
-                }
+                },
             },
             "schemas": {"test:_:Publisher:Message:Payload": {}},
         },
@@ -131,6 +131,6 @@ def test_custom():
                 "protocolVersion": "0.9.1",
                 "host": "guest:guest@127.0.0.1:5672",  # pragma: allowlist secret
                 "pathname": "/vh",  # pragma: allowlist secret
-            }
+            },
         },
     }

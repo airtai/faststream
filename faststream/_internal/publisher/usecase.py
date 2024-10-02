@@ -1,18 +1,17 @@
+from collections.abc import Iterable
 from inspect import unwrap
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Iterable,
-    List,
     Optional,
-    Tuple,
 )
 from unittest.mock import MagicMock
 
 from fast_depends._compat import create_model, get_config_base
 from fast_depends.core import CallModel, build_call_model
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
 from faststream._internal.publisher.proto import PublisherProto
 from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
@@ -39,7 +38,7 @@ class PublisherUsecase(
     """A base class for publishers in an asynchronous API."""
 
     mock: Optional[MagicMock]
-    calls: List[Callable[..., Any]]
+    calls: list[Callable[..., Any]]
 
     def __init__(
         self,
@@ -57,7 +56,7 @@ class PublisherUsecase(
             Optional[Any],
             Doc(
                 "AsyncAPI publishing message type"
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
+                "Should be any python-native object annotation or `pydantic.BaseModel`.",
             ),
         ],
         title_: Annotated[
@@ -133,8 +132,8 @@ class PublisherUsecase(
         self.calls.append(handler_call._original_call)
         return handler_call
 
-    def get_payloads(self) -> List[Tuple["AnyDict", str]]:
-        payloads: List[Tuple[AnyDict, str]] = []
+    def get_payloads(self) -> list[tuple["AnyDict", str]]:
+        payloads: list[tuple[AnyDict, str]] = []
 
         if self.schema_:
             params = {"response__": (self.schema_, ...)}

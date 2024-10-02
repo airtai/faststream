@@ -20,7 +20,7 @@ class TestArguments(ArgumentsTestcase):
                 "bindingVersion": "custom",
                 "channel": "test",
                 "method": "subscribe",
-            }
+            },
         }
 
     def test_channel_pattern_subscriber(self):
@@ -37,7 +37,7 @@ class TestArguments(ArgumentsTestcase):
                 "bindingVersion": "custom",
                 "channel": "test.*",
                 "method": "psubscribe",
-            }
+            },
         }
 
     def test_list_subscriber(self):
@@ -50,7 +50,7 @@ class TestArguments(ArgumentsTestcase):
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
-            "redis": {"bindingVersion": "custom", "channel": "test", "method": "lpop"}
+            "redis": {"bindingVersion": "custom", "channel": "test", "method": "lpop"},
         }
 
     def test_stream_subscriber(self):
@@ -63,7 +63,7 @@ class TestArguments(ArgumentsTestcase):
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
-            "redis": {"bindingVersion": "custom", "channel": "test", "method": "xread"}
+            "redis": {"bindingVersion": "custom", "channel": "test", "method": "xread"},
         }
 
     def test_stream_group_subscriber(self):
@@ -82,5 +82,5 @@ class TestArguments(ArgumentsTestcase):
                 "consumer_name": "consumer",
                 "group_name": "group",
                 "method": "xreadgroup",
-            }
+            },
         }

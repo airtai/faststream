@@ -438,9 +438,12 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         app = FastAPI()
         app.include_router(router)
 
-        async with self.patch_broker(router.broker), router.lifespan_context(
-            app
-        ) as context:
+        async with (
+            self.patch_broker(router.broker),
+            router.lifespan_context(
+                app,
+            ) as context,
+        ):
             assert context["lifespan"]
 
         mock.start.assert_called_once()
@@ -521,7 +524,6 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
 
         def dep1():
             mock.not_call()
-            pass
 
         app = FastAPI()
         app.dependency_overrides[dep1] = lambda: mock()

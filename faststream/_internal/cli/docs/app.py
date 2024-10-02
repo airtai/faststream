@@ -3,7 +3,7 @@ import sys
 import warnings
 from contextlib import suppress
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import TYPE_CHECKING, Optional
 
 import typer
 from pydantic import ValidationError
@@ -15,6 +15,9 @@ from faststream.specification.asyncapi.site import serve_app
 from faststream.specification.asyncapi.v2_6_0.schema import Schema as SchemaV2_6
 from faststream.specification.asyncapi.v3_0_0.schema import Schema as SchemaV3
 from faststream.specification.base.specification import Specification
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 asyncapi_app = typer.Typer(pretty_exceptions_short=True)
 
@@ -147,14 +150,14 @@ def gen(
 
         name = out or "asyncapi.yaml"
 
-        with Path(name).open("w") as f:
+        with Path(name).open("w", encoding="utf-8") as f:
             f.write(schema)
 
     else:
         schema = raw_schema.to_jsonable()
         name = out or "asyncapi.json"
 
-        with Path(name).open("w") as f:
+        with Path(name).open("w", encoding="utf-8") as f:
             json.dump(schema, f, indent=2)
 
     typer.echo(f"Your project AsyncAPI scheme was placed to `{name}`")
@@ -181,7 +184,7 @@ def _parse_and_serve(
         if schema_filepath.suffix == ".json":
             data = schema_filepath.read_bytes()
 
-        elif schema_filepath.suffix == ".yaml" or schema_filepath.suffix == ".yml":
+        elif schema_filepath.suffix in {".yaml", ".yml"}:
             try:
                 import yaml
             except ImportError as e:  # pragma: no cover
@@ -194,8 +197,9 @@ def _parse_and_serve(
             data = json_dumps(schema)
 
         else:
+            msg = f"Unknown extension given - {docs}; Please provide app in format [python_module:Specification] or [asyncapi.yaml/.json] - path to your application or documentation"
             raise ValueError(
-                f"Unknown extension given - {docs}; Please provide app in format [python_module:Specification] or [asyncapi.yaml/.json] - path to your application or documentation"
+                msg,
             )
 
         for schema in (SchemaV3, SchemaV2_6):

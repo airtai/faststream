@@ -1,9 +1,8 @@
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
-    Iterable,
     Literal,
     Optional,
-    Tuple,
     Union,
     overload,
 )
@@ -41,7 +40,7 @@ def create_subscriber(
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
+    broker_middlewares: Iterable["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
     # Specification args
     title_: Optional[str],
     description_: Optional[str],
@@ -94,7 +93,7 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
+        "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
     ],
     # Specification args
     title_: Optional[str],
@@ -124,7 +123,7 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
+        "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
     ],
     # Specification args
     title_: Optional[str],
@@ -135,18 +134,23 @@ def create_subscriber(
     "SpecificationBatchSubscriber",
 ]:
     if is_manual and not group_id:
-        raise SetupError("You must use `group_id` with manual commit mode.")
+        msg = "You must use `group_id` with manual commit mode."
+        raise SetupError(msg)
 
     if not topics and not partitions and not pattern:
+        msg = "You should provide either `topics` or `partitions` or `pattern`."
         raise SetupError(
-            "You should provide either `topics` or `partitions` or `pattern`."
+            msg,
         )
-    elif topics and partitions:
-        raise SetupError("You can't provide both `topics` and `partitions`.")
-    elif topics and pattern:
-        raise SetupError("You can't provide both `topics` and `pattern`.")
-    elif partitions and pattern:
-        raise SetupError("You can't provide both `partitions` and `pattern`.")
+    if topics and partitions:
+        msg = "You can't provide both `topics` and `partitions`."
+        raise SetupError(msg)
+    if topics and pattern:
+        msg = "You can't provide both `topics` and `pattern`."
+        raise SetupError(msg)
+    if partitions and pattern:
+        msg = "You can't provide both `partitions` and `pattern`."
+        raise SetupError(msg)
 
     if batch:
         return SpecificationBatchSubscriber(
@@ -169,21 +173,20 @@ def create_subscriber(
             include_in_schema=include_in_schema,
         )
 
-    else:
-        return SpecificationDefaultSubscriber(
-            *topics,
-            group_id=group_id,
-            listener=listener,
-            pattern=pattern,
-            connection_args=connection_args,
-            partitions=partitions,
-            is_manual=is_manual,
-            no_ack=no_ack,
-            no_reply=no_reply,
-            retry=retry,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
+    return SpecificationDefaultSubscriber(
+        *topics,
+        group_id=group_id,
+        listener=listener,
+        pattern=pattern,
+        connection_args=connection_args,
+        partitions=partitions,
+        is_manual=is_manual,
+        no_ack=no_ack,
+        no_reply=no_reply,
+        retry=retry,
+        broker_dependencies=broker_dependencies,
+        broker_middlewares=broker_middlewares,
+        title_=title_,
+        description_=description_,
+        include_in_schema=include_in_schema,
+    )

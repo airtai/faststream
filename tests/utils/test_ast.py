@@ -79,4 +79,4 @@ def test_not_broken():
 
         # test ast processes another context correctly
         with pytest.raises(ValueError):  # noqa: PT011
-            raise ValueError()
+            raise ValueError

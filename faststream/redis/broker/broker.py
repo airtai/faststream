@@ -1,13 +1,12 @@
 import logging
+from collections.abc import Iterable, Mapping
 from functools import partial
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Iterable,
-    Mapping,
     Optional,
-    Type,
     Union,
 )
 from urllib.parse import urlparse
@@ -23,7 +22,7 @@ from redis.asyncio.connection import (
     parse_url,
 )
 from redis.exceptions import ConnectionError
-from typing_extensions import Annotated, Doc, TypeAlias, override
+from typing_extensions import Doc, TypeAlias, override
 
 from faststream.__about__ import __version__
 from faststream._internal.broker.broker import BrokerUsecase
@@ -76,9 +75,9 @@ if TYPE_CHECKING:
         encoding: Optional[str]
         encoding_errors: Optional[str]
         decode_responses: Optional[bool]
-        parser_class: Optional[Type["BaseParser"]]
-        connection_class: Optional[Type["Connection"]]
-        encoder_class: Optional[Type["Encoder"]]
+        parser_class: Optional[type["BaseParser"]]
+        connection_class: Optional[type["Connection"]]
+        encoder_class: Optional[type["Encoder"]]
 
 
 Channel: TypeAlias = str
@@ -100,7 +99,7 @@ class RedisBroker(
         host: str = EMPTY,
         port: Union[str, int] = EMPTY,
         db: Union[str, int] = EMPTY,
-        connection_class: Type["Connection"] = EMPTY,
+        connection_class: type["Connection"] = EMPTY,
         client_name: Optional[str] = None,
         health_check_interval: float = 0,
         max_connections: Optional[int] = None,
@@ -114,13 +113,13 @@ class RedisBroker(
         encoding: str = "utf-8",
         encoding_errors: str = "strict",
         decode_responses: bool = False,
-        parser_class: Type["BaseParser"] = DefaultParser,
-        encoder_class: Type["Encoder"] = Encoder,
+        parser_class: type["BaseParser"] = DefaultParser,
+        encoder_class: type["Encoder"] = Encoder,
         # broker args
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ] = 15.0,
         decoder: Annotated[
@@ -143,7 +142,7 @@ class RedisBroker(
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
         specification_url: Annotated[
@@ -243,7 +242,9 @@ class RedisBroker(
             tags=tags,
             # logging
             logger_state=make_redis_logger_state(
-                logger=logger, log_level=log_level, log_fmt=log_fmt
+                logger=logger,
+                log_level=log_level,
+                log_fmt=log_fmt,
             ),
             # FastDepends args
             apply_types=apply_types,
@@ -277,7 +278,7 @@ class RedisBroker(
         host: str,
         port: Union[str, int],
         db: Union[str, int],
-        connection_class: Type["Connection"],
+        connection_class: type["Connection"],
         client_name: Optional[str],
         health_check_interval: float,
         max_connections: Optional[int],
@@ -291,8 +292,8 @@ class RedisBroker(
         encoding: str,
         encoding_errors: str,
         decode_responses: bool,
-        parser_class: Type["BaseParser"],
-        encoder_class: Type["Encoder"],
+        parser_class: type["BaseParser"],
+        encoder_class: type["Encoder"],
     ) -> "Redis[bytes]":
         url_options: AnyDict = {
             **dict(parse_url(url)),
@@ -339,7 +340,7 @@ class RedisBroker(
 
     async def close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
@@ -385,7 +386,7 @@ class RedisBroker(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         list: Annotated[
@@ -400,7 +401,7 @@ class RedisBroker(
             Optional[int],
             Doc(
                 "Redis Stream maxlen publish option. "
-                "Remove eldest message if maxlen exceeded."
+                "Remove eldest message if maxlen exceeded.",
             ),
         ] = None,
     ) -> None:
@@ -463,7 +464,7 @@ class RedisBroker(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
     ) -> None:

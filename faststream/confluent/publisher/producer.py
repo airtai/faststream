@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from typing_extensions import override
 
@@ -39,7 +39,7 @@ class AsyncConfluentFastProducer(ProducerProto):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: str = "",
         reply_to: str = "",
         no_confirm: bool = False,
@@ -78,7 +78,7 @@ class AsyncConfluentFastProducer(ProducerProto):
         topic: str,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: str = "",
         no_confirm: bool = False,
@@ -121,6 +121,7 @@ class AsyncConfluentFastProducer(ProducerProto):
 
     @override
     async def request(self, *args: Any, **kwargs: Any) -> Optional[Any]:
+        msg = "Kafka doesn't support `request` method without test client."
         raise OperationForbiddenError(
-            "Kafka doesn't support `request` method without test client."
+            msg,
         )
