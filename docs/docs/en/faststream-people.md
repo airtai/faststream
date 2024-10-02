@@ -16,65 +16,21 @@ The following are the top contributors to **FastStream**.
 These dedicated individuals not only focus on developing and enhancing the **FastStream** framework but also take care of other crucial aspects, such as documentation, workflows, and overall project management. Their continuous efforts help ensure that **FastStream** remains robust, well-maintained, and up-to-date for its users.
 
 <div class="user-list user-list-center">
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
+{% for user in people.people %}
+    {% if 'team' in user.include %}
+        <div class="user">
+            <a href="{{ user.github }}" target="_blank">
+                <div class="avatar-wrapper">
+                    <img src="{{ user.avatar }}"/>
+                </div>
+                <div class="title">
+                    {% if user.name %}{{user.name}}<br/>{% endif %}
+                    @{{user.username}}
+                </div>
+            </a>
         </div>
-        <div class="title">
-            Pastukhov&nbsp;Nikita<br/>
-            <a href="https://github.com/Lancetnik" target="_blank">@Lancetnik</a>
-        </div>
-    </div>
-
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/24715380?v=4"/>
-        </div>
-        <div class="title">
-            Davor&nbsp;Runje<br/>
-            <a href="https://github.com/davorrunje" target="_blank">@davorrunje</a>
-        </div>
-    </div>
-
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/7011056?v=4"/>
-        </div>
-        <div class="title">
-            Kumaran&nbsp;Rajendhiran<br/>
-            <a href="https://github.com/kumaranvpl" target="_blank">@kumaranvpl</a>
-        </div>
-    </div>
-
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/117077296?v=4"/>
-        </div>
-        <div class="title">
-            Tvrtko&nbsp;Sternak<br/>
-            <a href="https://github.com/sternakt" target="_blank">@sternakt</a>
-        </div>
-    </div>
-
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/8857109?v=4"/>
-        </div>
-        <div class="title">
-            Harish&nbsp;Mohan&nbsp;Raj<br/>
-            <a href="https://github.com/harishmohanraj" target="_blank">@harishmohanraj</a>
-        </div>
-    </div>
-
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/32619626?v=4"/>
-        </div>
-        <div class="title">
-            Robert&nbsp;Jambrecic<br/>
-            <a href="https://github.com/rjambrecic" target="_blank">@rjambrecic</a>
-        </div>
-    </div>
+    {% endif %}
+{% endfor %}
 </div>
 
 ## Experts by Section
@@ -84,103 +40,81 @@ These dedicated individuals not only focus on developing and enhancing the **Fas
 ### Kafka
 
 <div class="user-list user-list-center">
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/7011056?v=4"/>
+{% for user in people.people %}
+    {% if 'kafka' in user.include %}
+        <div class="user">
+            <a href="{{ user.github }}" target="_blank">
+                <div class="avatar-wrapper">
+                    <img src="{{ user.avatar }}"/>
+                </div>
+                <div class="title">
+                    {% if user.name %}{{user.name}}<br/>{% endif %}
+                    @{{user.username}}
+                </div>
+            </a>
         </div>
-        <div class="title">
-            Kumaran&nbsp;Rajendhiran<br/>
-            <a href="https://github.com/kumaranvpl" target="_blank">@kumaranvpl</a>
-        </div>
-    </div>
-
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/117077296?v=4"/>
-        </div>
-        <div class="title">
-            Tvrtko&nbsp;Sternak<br/>
-            <a href="https://github.com/sternakt" target="_blank">@sternakt</a>
-        </div>
-    </div>
-
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
-        </div>
-        <div class="title">
-            Pastukhov&nbsp;Nikita<br/>
-            <a href="https://github.com/Lancetnik" target="_blank">@Lancetnik</a>
-        </div>
-    </div>
-
-
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/93342746?v=4"/>
-        </div>
-        <div class="title"><a href="https://github.com/spataphore1337" target="_blank">@spataphore1337</a></div>
-    </div>
+    {% endif %}
+{% endfor %}
 </div>
 
 ### RabbitMQ
 
 <div class="user-list user-list-center">
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
+{% for user in people.people %}
+    {% if 'rabbitmq' in user.include %}
+        <div class="user">
+            <a href="{{ user.github }}" target="_blank">
+                <div class="avatar-wrapper">
+                    <img src="{{ user.avatar }}"/>
+                </div>
+                <div class="title">
+                    {% if user.name %}{{user.name}}<br/>{% endif %}
+                    @{{user.username}}
+                </div>
+            </a>
         </div>
-        <div class="title">
-            Pastukhov&nbsp;Nikita<br/>
-            <a href="https://github.com/Lancetnik" target="_blank">@Lancetnik</a>
-        </div>
-    </div>
+    {% endif %}
+{% endfor %}
 </div>
 
 ### NATS
 
 <div class="user-list user-list-center">
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
+{% for user in people.people %}
+    {% if 'nats' in user.include %}
+        <div class="user">
+            <a href="{{ user.github }}" target="_blank">
+                <div class="avatar-wrapper">
+                    <img src="{{ user.avatar }}"/>
+                </div>
+                <div class="title">
+                    {% if user.name %}{{user.name}}<br/>{% endif %}
+                    @{{user.username}}
+                </div>
+            </a>
         </div>
-        <div class="title">
-            Pastukhov&nbsp;Nikita<br/>
-            <a href="https://github.com/Lancetnik" target="_blank">@Lancetnik</a>
-        </div>
-    </div>
-
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/85823514?v=4"/>
-        </div>
-        <div class="title"><a href="https://github.com/sheldygg" target="_blank">@sheldygg</a></div>
-    </div>
+    {% endif %}
+{% endfor %}
 </div>
 
 ### Redis
 
-
 <div class="user-list user-list-center">
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/7011056?v=4"/>
+{% for user in people.people %}
+    {% if 'redis' in user.include %}
+        <div class="user">
+            <a href="{{ user.github }}" target="_blank">
+                <div class="avatar-wrapper">
+                    <img src="{{ user.avatar }}"/>
+                </div>
+                <div class="title">
+                    {% if user.name %}{{user.name}}<br/>{% endif %}
+                    @{{user.username}}
+                </div>
+            </a>
         </div>
-        <div class="title">
-            Kumaran&nbsp;Rajendhiran<br/>
-            <a href="https://github.com/kumaranvpl" target="_blank">@kumaranvpl</a>
-        </div>
-    </div>
-
-    <div class="user">
-        <div class="avatar-wrapper">
-            <img src="https://avatars.githubusercontent.com/u/44573917?v=4"/>
-        </div>
-        <div class="title">
-            Pastukhov&nbsp;Nikita<br/>
-            <a href="https://github.com/Lancetnik" target="_blank">@Lancetnik</a>
-        </div>
-    </div>
+    {% endif %}
+{% endfor %}
 </div>
 
 ## Become a Contributor

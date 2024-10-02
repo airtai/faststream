@@ -12,6 +12,15 @@ hide:
 ---
 
 # Release Notes
+
+## 0.5.25
+
+### What's Changed
+
+* fix: CLI hotfix by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1816](https://github.com/airtai/faststream/pull/1816){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.24...0.5.25](https://github.com/airtai/faststream/compare/0.5.24...0.5.25){.external-link target="_blank"}
+
 ## 0.5.24
 
 ### What's Changed

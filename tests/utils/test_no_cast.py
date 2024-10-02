@@ -1,5 +1,5 @@
 from faststream import apply_types
-from faststream.annotations import NoCast
+from faststream.params import NoCast
 
 
 def test_no_cast():

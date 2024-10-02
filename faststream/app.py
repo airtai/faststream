@@ -87,6 +87,5 @@ class FastStream(Application):
     def as_asgi(
         self,
         asgi_routes: Sequence[tuple[str, "ASGIApp"]] = (),
-        asyncapi_path: Optional[str] = None,
     ) -> AsgiFastStream:
-        return AsgiFastStream.from_app(self, asgi_routes, asyncapi_path)
+        return AsgiFastStream.from_app(self, asgi_routes)

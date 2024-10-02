@@ -106,12 +106,10 @@ class AsgiFastStream(Application):
         cls,
         app: Application,
         asgi_routes: Sequence[tuple[str, "ASGIApp"]],
-        asyncapi_path: Optional[str] = None,
     ) -> "AsgiFastStream":
         asgi_app = cls(
             app.broker,
             asgi_routes=asgi_routes,
-            asyncapi_path=asyncapi_path,
             logger=app.logger,
             lifespan=None,
         )

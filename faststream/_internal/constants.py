@@ -19,10 +19,7 @@ class EmptyPlaceholder:
         return False
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, EmptyPlaceholder):
-            return NotImplemented
-
-        return True
+        return isinstance(other, EmptyPlaceholder)
 
 
 EMPTY: Any = EmptyPlaceholder()

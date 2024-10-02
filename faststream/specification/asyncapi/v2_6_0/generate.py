@@ -249,7 +249,10 @@ def move_pydantic_refs(
             for i in range(len(data[k])):
                 data[k][i] = move_pydantic_refs(item[i], key)
 
-    if isinstance(discriminator := data.get("discriminator"), dict):
-        data["discriminator"] = discriminator["propertyName"]
+    if (
+        isinstance(desciminator := data.get("discriminator"), dict)
+        and "propertyName" in desciminator
+    ):
+        data["discriminator"] = desciminator["propertyName"]
 
     return data

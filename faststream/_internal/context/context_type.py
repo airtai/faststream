@@ -62,13 +62,13 @@ class Context(CustomField):
         """
         name = f"{self.prefix}{self.name or self.param_name}"
 
-        if (
+        if EMPTY != (  # noqa: SIM300
             v := resolve_context_by_name(
                 name=name,
                 default=self.default,
                 initial=self.initial,
             )
-        ) != EMPTY:
+        ):
             kwargs[self.param_name] = v
 
         else:

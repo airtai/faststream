@@ -125,3 +125,29 @@ class PublisherTestcase:
         schema = AsyncAPI(self.build_app(broker))
 
         assert schema.to_jsonable()["channels"] == {}, schema.to_jsonable()["channels"]
+
+    def test_pydantic_model_with_keyword_property_publisher(self):
+        class TestModel(pydantic.BaseModel):
+            discriminator: int = 0
+
+        broker = self.broker_class()
+
+        @broker.publisher("test")
+        async def handle(msg) -> TestModel: ...
+
+        schema = AsyncAPI(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        for key, v in payload.items():
+            assert v == {
+                "properties": {
+                    "discriminator": {
+                        "default": 0,
+                        "title": "Discriminator",
+                        "type": "integer",
+                    },
+                },
+                "title": key,
+                "type": "object",
+            }

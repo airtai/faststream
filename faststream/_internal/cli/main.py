@@ -108,10 +108,12 @@ def run(
 
     app, extra = parse_cli_args(app, *ctx.args)
     casted_log_level = get_log_level(log_level)
-    module_path, app_obj = import_from_string(app)
 
     if app_dir:  # pragma: no branch
         sys.path.insert(0, app_dir)
+
+    # Should be imported after sys.path changes
+    module_path, app_obj = import_from_string(app)
 
     args = (app, extra, is_factory, casted_log_level)
 

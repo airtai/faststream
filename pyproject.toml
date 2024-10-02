@@ -83,7 +83,7 @@ cli = [
 optionals = ["faststream[rabbit,kafka,confluent,nats,redis,otel,cli]"]
 
 devdocs = [
-    "mkdocs-material==9.5.36",
+    "mkdocs-material==9.5.39",
     "mkdocs-static-i18n==1.2.3",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.26.1",
@@ -114,9 +114,9 @@ types = [
 
 lint = [
     "faststream[types]",
-    "ruff==0.6.7",
-    "bandit==1.7.9",
-    "semgrep==1.89.0",
+    "ruff==0.6.8",
+    "bandit==1.7.10",
+    "semgrep==1.90.0",
     "codespell==2.3.0",
 ]
 

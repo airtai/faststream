@@ -4,7 +4,8 @@ import pytest
 from starlette.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 
-from faststream.asgi import AsgiFastStream, AsgiResponse, get, make_ping_asgi
+from faststream.specification import AsyncAPI
+from faststream.asgi import AsgiFastStream, AsgiResponse, get, make_ping_asgi, make_asyncapi_asgi
 
 
 class AsgiTestcase:
@@ -60,7 +61,9 @@ class AsgiTestcase:
     async def test_asyncapi_asgi(self):
         broker = self.get_broker()
 
-        app = AsgiFastStream(broker, asyncapi_path="/docs")
+        app = AsgiFastStream(broker, asgi_routes=[
+            ("/docs", make_asyncapi_asgi(AsyncAPI(broker)))
+        ])
 
         async with self.get_test_broker(broker):
             with TestClient(app) as client:

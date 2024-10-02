@@ -16,7 +16,7 @@ def resolve_context_by_name(
         value = context.resolve(name)
 
     except (KeyError, AttributeError):
-        if default != EMPTY:
+        if EMPTY != default:  # noqa: SIM300
             value = default
 
         elif initial is not None:

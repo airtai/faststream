@@ -184,7 +184,7 @@ You can Learn more about **CLI** features [here](./getting-started/cli/index.md)
 
 The availability of such documentation significantly simplifies the integration of services: you can immediately see what channels and message formats the application works with. And most importantly, it won't cost anything - **FastStream** has already created the docs for you!
 
-![HTML-page](../assets/img/AsyncAPI-basic-html-short.png){ loading=lazy }
+![HTML-page](../assets/img/AsyncAPI-basic-html-short.png){ .on-glb loading=lazy }
 
 ---
 
