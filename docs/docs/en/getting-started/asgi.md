@@ -10,7 +10,7 @@ search:
 
 # ASGI Support
 
-Often you need to not just run your application to consume messages, but make it an actual part of your services ecosystem with *Prometheus metrics*, K8S *liveness* and *readiness probes*, *traces* and other observability features.
+Often, you need not only to run your application to consume messages but also to make it a part of your service ecosystem with *Prometheus metrics*, K8S *liveness* and *readiness probes*, *traces*, and other observability features.
 
 Unfortunately, such functionalilty can't be implemented by broker features alone, and you have to provide several **HTTP** endpoints in your app.
 
@@ -36,7 +36,7 @@ This simple example allows you to run the app using regular **ASGI** servers:
 uvicorn main:app
 ```
 
-It does nothing but launching the app itself as an **ASGI lifespan**.
+It does nothing but launch the app itself as an **ASGI lifespan**.
 
 ### ASGI Routes
 
@@ -114,9 +114,9 @@ app = AsgiFastStream(
 
 Now, your **AsyncAPI HTML** representation can be found by the `/docs` url.
 
-### FastStream object reusage
+### FastStream Object Reuse
 
-You may also use regular `FastStream` application object for similar result
+You may also use regular `FastStream` application object for similar result.
 
 ```python linenums="1" hl_lines="2 10"
 from faststream import FastStream
@@ -138,7 +138,7 @@ app = FastStream(broker).as_asgi(
 ```
 
 !!! tip
-    For app which use ASGI you may use cli command like for default FastStream app
+    For apps that use ASGI, you may use the CLI command just like for the default FastStream app
 
     ```shell
     faststream run main:app --host 0.0.0.0 --port 8000 --workers 4
