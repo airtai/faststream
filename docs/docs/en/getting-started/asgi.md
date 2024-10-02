@@ -83,14 +83,6 @@ app = AsgiFastStream(
 )
 ```
 
-Or you can write the **ASGI** endpoint yourself:
-
-```python
-@get
-async def liveness_ping(scope):
-    return AsgiResponse(b"", status_code=200)
-```
-
 !!! tip
     You do not need to setup all routes using the `asgi_routes=[]` parameter.<br/>
     You can use the `#!python app.mount("/healh", asgi_endpoint)` method also.
