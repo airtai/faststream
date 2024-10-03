@@ -26,8 +26,8 @@ broker = NatsBroker()
 app = FastStream(broker)
 
 @broker.subscriber("create_sell", kv_watch=KvWatch("order_service"))
-async def watch_kv_order_service(new_value: str):
-    app.context.set_global("create_sell", bool(int(new_value)))
+async def watch_kv_order_service(new_value: bool):
+    app.context.set_global("create_sell", new_value)
 ```
 
 ## Checking the parameter in the subscriber
@@ -62,8 +62,8 @@ async def handle_filled_buy(message: NatsMessage, create_sell: bool = Context("c
     
     
     @broker.subscriber("create_sell", kv_watch=KvWatch("order_service"))
-    async def watch_kv_order_service(new_value: str):
-        app.context.set_global("create_sell", bool(int(new_value)))
+    async def watch_kv_order_service(new_value: bool):
+        app.context.set_global("create_sell", new_value)
     
     
     @broker.subscriber("order_service.order.filled.buy")
