@@ -436,16 +436,16 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         channel: Annotated[
             Union[str, PubSub, None],
             Doc("Redis PubSub object name to send message."),
-        ] = None,
+        ] = EMPTY,
         *,
         list: Annotated[
             Union[str, ListSub, None],
             Doc("Redis List object name to send message."),
-        ] = None,
+        ] = EMPTY,
         stream: Annotated[
             Union[str, StreamSub, None],
             Doc("Redis Stream object name to send message."),
-        ] = None,
+        ] = EMPTY,
         # broker arguments
         dependencies: Annotated[
             Iterable["params.Depends"],

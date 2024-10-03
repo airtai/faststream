@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 from typing_extensions import TypeAlias, override
 
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
 from faststream.redis.publisher.usecase import (
     ChannelPublisher,
@@ -73,8 +74,7 @@ class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
         include_in_schema: bool,
     ) -> PublisherType:
         validate_options(channel=channel, list=list, stream=stream)
-
-        if (channel := PubSub.validate(channel))._value is not None:
+        if channel is not EMPTY and (channel := PubSub.validate(channel)) is not None:
             return AsyncAPIChannelPublisher(
                 channel=channel,
                 # basic args
@@ -88,8 +88,7 @@ class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
                 schema_=schema_,
                 include_in_schema=include_in_schema,
             )
-
-        elif (stream := StreamSub.validate(stream))._value is not None:
+        elif stream is not EMPTY and (stream := StreamSub.validate(stream)) is not None:
             return AsyncAPIStreamPublisher(
                 stream=stream,
                 # basic args
@@ -103,8 +102,7 @@ class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
                 schema_=schema_,
                 include_in_schema=include_in_schema,
             )
-
-        elif (list := ListSub.validate(list))._value is not None:
+        elif list is not EMPTY and (list := ListSub.validate(list)) is not None:
             if list.batch:
                 return AsyncAPIListBatchPublisher(
                     list=list,

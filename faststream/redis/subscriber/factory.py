@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Iterable, Optional, Union
 
 from typing_extensions import TypeAlias
 
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
@@ -45,8 +46,7 @@ def create_subscriber(
     include_in_schema: bool = True,
 ) -> SubsciberType:
     validate_options(channel=channel, list=list, stream=stream)
-
-    if (channel_sub := PubSub.validate(channel))._value  is not None:
+    if channel is not EMPTY and (channel_sub := PubSub.validate(channel)) is not None:
         return AsyncAPIChannelSubscriber(
             channel=channel_sub,
             # basic args
@@ -60,8 +60,7 @@ def create_subscriber(
             description_=description_,
             include_in_schema=include_in_schema,
         )
-
-    elif (stream_sub := StreamSub.validate(stream))._value is not None:
+    elif stream is not EMPTY and (stream_sub := StreamSub.validate(stream)):
         if stream_sub.batch:
             return AsyncAPIStreamBatchSubscriber(
                 stream=stream_sub,
@@ -90,8 +89,7 @@ def create_subscriber(
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
-
-    elif (list_sub := ListSub.validate(list))._value is not None:
+    elif list is not EMPTY and (list_sub := ListSub.validate(list)) is not None:
         if list_sub.batch:
             return AsyncAPIListBatchSubscriber(
                 list=list_sub,

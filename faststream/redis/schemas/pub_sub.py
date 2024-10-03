@@ -20,8 +20,6 @@ class PubSub(NameProxy):
         pattern: bool = False,
         polling_interval: float = 1.0,
     ) -> None:
-        if channel is None:
-            channel = ""
         reg, path = compile_path(
             channel,
             replace_symbol="*",

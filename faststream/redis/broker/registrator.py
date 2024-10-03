@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Union, cast
 from typing_extensions import Annotated, Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
+from faststream._internal.constants import EMPTY
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.publisher import SpecificationPublisher
 from faststream.redis.subscriber.factory import SubsciberType, create_subscriber
@@ -34,16 +35,16 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         channel: Annotated[
             Union["PubSub", str, None],
             Doc("Redis PubSub object name to send message."),
-        ] = None,
+        ] = EMPTY,
         *,
         list: Annotated[
             Union["ListSub", str, None],
             Doc("Redis List object name to send message."),
-        ] = None,
+        ] = EMPTY,
         stream: Annotated[
             Union["StreamSub", str, None],
             Doc("Redis Stream object name to send message."),
-        ] = None,
+        ] = EMPTY,
         # broker arguments
         dependencies: Annotated[
             Iterable["Depends"],
@@ -128,16 +129,16 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         channel: Annotated[
             Union["PubSub", str, None],
             Doc("Redis PubSub object name to send message."),
-        ] = None,
+        ] = EMPTY,
         *,
         list: Annotated[
             Union["ListSub", str, None],
             Doc("Redis List object name to send message."),
-        ] = None,
+        ] = EMPTY,
         stream: Annotated[
             Union["StreamSub", str, None],
             Doc("Redis Stream object name to send message."),
-        ] = None,
+        ] = EMPTY,
         headers: Annotated[
             Optional["AnyDict"],
             Doc(
