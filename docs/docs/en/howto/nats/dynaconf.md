@@ -10,13 +10,13 @@ search:
 
 # Dynamic Config with Nats
 
-As **NATS** have key-value storage, you can use it as a configuration storage. Here is an example of how you can use it with **FastStream**.
+As **NATS** has key-value storage, you can use it as a configuration storage solution. Here is an example of how to use it with **FastStream**.
 
 ## Subscribing to Key-Value Changes
 
-For subscribing to key-value changes, you can use the `KvWatch` class, to subject we must pass key is key in storage.
+To subscribe to key-value changes, you can use the `KvWatch` class. The key to watch must be passed as a parameter to the class, which corresponds to a key in the storage.
 
-When we receive a message, we can update the global context with the new value.
+When a message is received, the global context can be updated with the new value.
 
 ```python linenums="1" hl_lines="7-9"
 from faststream import FastStream
@@ -30,9 +30,9 @@ async def watch_kv_order_service(new_value: bool):
     app.context.set_global("create_sell", new_value)
 ```
 
-## Checking the parameter in the subscriber
+## Checking the Parameter in the Subscriber
 
-Then you can use `faststream.Context` to get parameter from global context.
+You can use `faststream.Context` to retrieve the parameter from the global context.
 
 ```python linenums="1" hl_lines="10"
 from faststream import FastStream, Context
@@ -51,7 +51,7 @@ async def handle_filled_buy(
 ```
 
 !!! note
-    KeyValue watcher will receive latest value on startup
+    The KeyValue watcher will receive the latest value on startup.
 
 ??? example "Full Example"
     ```python linenums="1"
