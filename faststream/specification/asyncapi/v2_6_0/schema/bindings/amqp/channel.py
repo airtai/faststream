@@ -101,7 +101,7 @@ class ChannelBinding(BaseModel):
                 if binding.queue is not None
                    and binding.queue.name
                    and binding.exchange
-                   and binding.exchange.type in ("default", "direct", "topic")
+                   and binding.exchange.type in {"default", "direct", "topic"}
                 else None,
 
                 "exchange": Exchange.from_spec(binding.exchange)
