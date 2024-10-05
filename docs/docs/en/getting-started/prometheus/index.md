@@ -10,10 +10,10 @@ search:
 
 # Prometheus
 
-**Prometheus** is an open-source monitoring and alerting toolkit originally built at SoundCloud. 
-With a focus on reliability, robustness, and easy scalability, Prometheus allows users to collect metrics, 
-scrape data from various sources, store them efficiently, and query them in real-time. Its flexible data model, 
-powerful query language, and seamless integration with Grafana make it a popular choice for monitoring the health 
+**Prometheus** is an open-source monitoring and alerting toolkit originally built at SoundCloud.
+With a focus on reliability, robustness, and easy scalability, Prometheus allows users to collect metrics,
+scrape data from various sources, store them efficiently, and query them in real-time. Its flexible data model,
+powerful query language, and seamless integration with Grafana make it a popular choice for monitoring the health
 and performance of systems and applications.
 
 ### FastStream Metrics
@@ -31,12 +31,12 @@ To add a metrics to your broker, you need to:
 {!> includes/getting_started/prometheus/1.md !}
 
 ### Exposing the `/metrics` endpoint
-The way Prometheus works requires the service to expose an HTTP endpoint for analysis. 
+The way Prometheus works requires the service to expose an HTTP endpoint for analysis.
 By convention, this is a GET endpoint, and its path is usually `/metrics`.
 
 FastStream's built-in **ASGI** support allows you to expose endpoints in your application.
 
-A convenient way to serve this endpoint is to use `make_asgi_app` from `prometheus_client`, 
+A convenient way to serve this endpoint is to use `make_asgi_app` from `prometheus_client`,
 passing in the registry that was passed to `PrometheusMiddleware`.
 
 {!> includes/getting_started/prometheus/2.md !}
