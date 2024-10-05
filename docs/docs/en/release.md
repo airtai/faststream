@@ -12,6 +12,40 @@ hide:
 ---
 
 # Release Notes
+## 0.5.25
+
+### What's Changed
+
+* fix: CLI hotfix by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1816](https://github.com/airtai/faststream/pull/1816){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.24...0.5.25](https://github.com/airtai/faststream/compare/0.5.24...0.5.25){.external-link target="_blank"}
+
+## 0.5.24
+
+### What's Changed
+
+* Replace while-sleep with Event by [@Olegt0rr](https://github.com/Olegt0rr){.external-link target="_blank"} in [#1683](https://github.com/airtai/faststream/pull/1683){.external-link target="_blank"}
+* feat: add explicit CLI import error by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1785](https://github.com/airtai/faststream/pull/1785){.external-link target="_blank"}
+* fix (#1780): replace / in generated json refs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1786](https://github.com/airtai/faststream/pull/1786){.external-link target="_blank"}
+* Fix: this commit resolve #1765 by [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} in [#1789](https://github.com/airtai/faststream/pull/1789){.external-link target="_blank"}
+* fix (#1792): make RMQ publisher.publish reply_to optional by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1795](https://github.com/airtai/faststream/pull/1795){.external-link target="_blank"}
+* fix (#1793): FastStream Response support in FastAPI integration by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1796](https://github.com/airtai/faststream/pull/1796){.external-link target="_blank"}
+* Update exception.md by [@pepellsd](https://github.com/pepellsd){.external-link target="_blank"} in [#1803](https://github.com/airtai/faststream/pull/1803){.external-link target="_blank"}
+* Fixes the CI bug that allows PRs with failed tests to be merged. by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1807](https://github.com/airtai/faststream/pull/1807){.external-link target="_blank"}
+* feat: add CLI support for AsgiFastStream by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1782](https://github.com/airtai/faststream/pull/1782){.external-link target="_blank"}
+* docs: add contributors page by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1808](https://github.com/airtai/faststream/pull/1808){.external-link target="_blank"}
+* fix: correct dependency injection of custom context fields implementing partial __eq__/__ne__ by [@antoinehumbert](https://github.com/antoinehumbert){.external-link target="_blank"} in [#1809](https://github.com/airtai/faststream/pull/1809){.external-link target="_blank"}
+* do not assume discriminator is not a property by @lecko-cngroup in [#1811](https://github.com/airtai/faststream/pull/1811){.external-link target="_blank"}
+
+### New Contributors
+
+* [@Olegt0rr](https://github.com/Olegt0rr){.external-link target="_blank"} made their first contribution in [#1683](https://github.com/airtai/faststream/pull/1683){.external-link target="_blank"}
+* [@pepellsd](https://github.com/pepellsd){.external-link target="_blank"} made their first contribution in [#1803](https://github.com/airtai/faststream/pull/1803){.external-link target="_blank"}
+* [@antoinehumbert](https://github.com/antoinehumbert){.external-link target="_blank"} made their first contribution in [#1809](https://github.com/airtai/faststream/pull/1809){.external-link target="_blank"}
+* @lecko-cngroup made their first contribution in [#1811](https://github.com/airtai/faststream/pull/1811){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.23...0.5.24](https://github.com/airtai/faststream/compare/0.5.23...0.5.24){.external-link target="_blank"}
+
 ## 0.5.23
 
 ### What's Changed
