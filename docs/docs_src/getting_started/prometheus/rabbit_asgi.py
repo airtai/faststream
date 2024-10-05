@@ -1,7 +1,7 @@
-from faststream import FastStream
+from faststream.asgi import AsgiFastStream
 from faststream.rabbit import RabbitBroker
 from faststream.rabbit.prometheus import RabbitPrometheusMiddleware
-from prometheus_client import CollectorRegistry
+from prometheus_client import CollectorRegistry, make_asgi_app
 
 registry = CollectorRegistry()
 
@@ -10,4 +10,9 @@ broker = RabbitBroker(
         RabbitPrometheusMiddleware(registry=registry),
     )
 )
-app = FastStream(broker)
+app = AsgiFastStream(
+    broker,
+    asgi_routes=[
+        ("/metrics", make_asgi_app(registry)),
+    ]
+)

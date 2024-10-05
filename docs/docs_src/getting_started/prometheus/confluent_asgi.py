@@ -1,7 +1,7 @@
-from faststream import FastStream
+from faststream.asgi import AsgiFastStream
 from faststream.confluent import KafkaBroker
 from faststream.confluent.prometheus import KafkaPrometheusMiddleware
-from prometheus_client import CollectorRegistry
+from prometheus_client import CollectorRegistry, make_asgi_app
 
 registry = CollectorRegistry()
 
@@ -10,4 +10,9 @@ broker = KafkaBroker(
         KafkaPrometheusMiddleware(registry=registry),
     )
 )
-app = FastStream(broker)
+app = AsgiFastStream(
+    broker,
+    asgi_routes=[
+        ("/metrics", make_asgi_app(registry)),
+    ]
+)
