@@ -114,10 +114,7 @@ class _EmptyPlaceholder:
         return "EMPTY"
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, _EmptyPlaceholder):
-            return NotImplemented
-
-        return True
+        return isinstance(other, _EmptyPlaceholder)
 
 
 EMPTY: Any = _EmptyPlaceholder()

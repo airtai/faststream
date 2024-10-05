@@ -1,4 +1,4 @@
-"""CLI entry point to FastStream library."""
+"""CLI entry point to FastStream framework."""
 
 import warnings
 

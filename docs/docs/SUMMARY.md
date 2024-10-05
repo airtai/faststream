@@ -96,6 +96,8 @@ search:
     - [Publishing](nats/publishing/index.md)
     - [RPC](nats/rpc.md)
     - [Message Information](nats/message.md)
+    - [How-To](howto/nats/index.md)
+        - [DynaConf](howto/nats/dynaconf.md)
 - [Redis](redis/index.md)
     - [Pub/Sub](redis/pubsub/index.md)
         - [Subscription](redis/pubsub/subscription.md)
@@ -1126,6 +1128,7 @@ search:
                     - [NUID](api/faststream/utils/nuid/NUID.md)
                 - path
                     - [compile_path](api/faststream/utils/path/compile_path.md)
+- [FastStream People](faststream-people.md)
 - Contributing
     - [Development](getting-started/contributing/CONTRIBUTING.md)
     - [Documentation](getting-started/contributing/docs.md)

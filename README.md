@@ -10,7 +10,7 @@
   </a>
 
   <a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/airtai/faststream" target="_blank">
-      <img src="https://coverage-badge.samuelcolvin.workers.dev/airtai/faststream.svg" alt="Coverage">
+      <img src="https://coverage-badge.samuelcolvin.workers.dev/airtai/faststream.svg" alt="Coverage"/>
   </a>
 
   <a href="https://www.pepy.tech/projects/faststream" target="_blank">
@@ -18,33 +18,37 @@
   </a>
 
   <a href="https://pypi.org/project/faststream" target="_blank">
-    <img src="https://img.shields.io/pypi/v/faststream?label=PyPI" alt="Package version">
+    <img src="https://img.shields.io/pypi/v/faststream?label=PyPI" alt="Package version"/>
   </a>
 
   <a href="https://pypi.org/project/faststream" target="_blank">
-    <img src="https://img.shields.io/pypi/pyversions/faststream.svg" alt="Supported Python versions">
+    <img src="https://img.shields.io/pypi/pyversions/faststream.svg" alt="Supported Python versions"/>
   </a>
 
   <br/>
 
   <a href="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yaml" target="_blank">
-    <img src="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yaml/badge.svg" alt="CodeQL">
+    <img src="https://github.com/airtai/faststream/actions/workflows/pr_codeql.yaml/badge.svg" alt="CodeQL"/>
   </a>
 
   <a href="https://github.com/airtai/faststream/actions/workflows/pr_dependency-review.yaml" target="_blank">
-    <img src="https://github.com/airtai/faststream/actions/workflows/pr_dependency-review.yaml/badge.svg" alt="Dependency Review">
+    <img src="https://github.com/airtai/faststream/actions/workflows/pr_dependency-review.yaml/badge.svg" alt="Dependency Review"/>
   </a>
 
   <a href="https://github.com/airtai/faststream/blob/main/LICENSE" target="_blank">
-    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="License">
+    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="License"/>
   </a>
 
   <a href="https://github.com/airtai/faststream/blob/main/CODE_OF_CONDUCT.md" target="_blank">
-    <img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Code of Conduct">
+    <img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Code of Conduct"/>
   </a>
 
   <a href="https://discord.gg/qFm6aSqq59" target="_blank">
-      <img alt="Discord" src="https://img.shields.io/discord/1085457301214855171?logo=discord">
+      <img alt="Discord" src="https://img.shields.io/discord/1085457301214855171?logo=discord&label=EN"/>
+  </a>
+
+  <a href="https://t.me/python_faststream" target="_blank">
+    <img alt="Telegram" src="https://img.shields.io/badge/-telegram-black?color=blue&logo=telegram&label=RU"/>
   </a>
 </p>
 
@@ -338,7 +342,9 @@ Please show your support and stay in touch by:
 
 - giving our [GitHub repository](https://github.com/airtai/faststream/) a star, and
 
-- joining our [Discord server](https://discord.gg/qFm6aSqq59)
+- joining our [EN Discord server](https://discord.gg/qFm6aSqq59)
+
+- joining our [RU Telegram group](https://t.me/python_faststream)
 
 Your support helps us to stay in touch with you and encourages us to
 continue developing and improving the framework. Thank you for your

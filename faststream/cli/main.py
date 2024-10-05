@@ -11,6 +11,7 @@ from typer.core import TyperOption
 
 from faststream import FastStream
 from faststream.__about__ import __version__
+from faststream._internal.application import Application
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
@@ -113,6 +114,9 @@ def run(
     if app_dir:  # pragma: no branch
         sys.path.insert(0, app_dir)
 
+    # Should be imported after sys.path changes
+    module_path, app_obj = import_from_string(app)
+
     args = (app, extra, is_factory, casted_log_level)
 
     if reload and workers > 1:
@@ -126,8 +130,6 @@ def run(
             _run(*args)
 
         else:
-            module_path, _ = import_from_string(app)
-
             if app_dir != ".":
                 reload_dirs = [str(module_path), app_dir]
             else:
@@ -142,11 +144,15 @@ def run(
     elif workers > 1:
         from faststream.cli.supervisors.multiprocess import Multiprocess
 
-        Multiprocess(
-            target=_run,
-            args=(*args, logging.DEBUG),
-            workers=workers,
-        ).run()
+        if isinstance(app_obj, FastStream):
+            Multiprocess(
+                target=_run,
+                args=(*args, logging.DEBUG),
+                workers=workers,
+            ).run()
+        else:
+            args[1]["workers"] = workers
+            _run(*args)
 
     else:
         _run(*args)
@@ -165,9 +171,9 @@ def _run(
     if is_factory and callable(app_obj):
         app_obj = app_obj()
 
-    if not isinstance(app_obj, FastStream):
+    if not isinstance(app_obj, Application):
         raise typer.BadParameter(
-            f'Imported object "{app_obj}" must be "FastStream" type.',
+            f'Imported object "{app_obj}" must be "Application" type.',
         )
 
     if log_level > 0:

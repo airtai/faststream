@@ -72,9 +72,12 @@ plugins:
   - search:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   # - meta                         # (insiders) use .meta.yml files
-  - glightbox                    # image zoom
+  - glightbox:                   # image zoom
+      manual: true
   - macros:                      # Jinja templates
       include_dir: includes
+      include_yaml:
+        - people: ../docs/data/people.yml
   - mkdocstrings:                # Generate References
       default_handler: python
       handlers:
