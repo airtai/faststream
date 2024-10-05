@@ -31,7 +31,7 @@ class TestNaming(NamingTestCase):
                     "bindings": {
                         "nats": {"subject": "test", "bindingVersion": "custom"},
                     },
-                    "subscribe": {
+                    "publish": {
                         "message": {
                             "$ref": "#/components/messages/test:Handle:Message"
                         },

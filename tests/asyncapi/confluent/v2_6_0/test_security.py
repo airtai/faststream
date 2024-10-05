@@ -18,13 +18,13 @@ basic_schema = {
         "test_1:TestTopic": {
             "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "test_1"}},
             "servers": ["development"],
-            "subscribe": {
+            "publish": {
                 "message": {"$ref": "#/components/messages/test_1:TestTopic:Message"},
             },
         },
         "test_2:Publisher": {
             "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "test_2"}},
-            "publish": {
+            "subscribe": {
                 "message": {"$ref": "#/components/messages/test_2:Publisher:Message"},
             },
             "servers": ["development"],

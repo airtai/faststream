@@ -74,7 +74,7 @@ class TestNaming(NamingTestCase):
                                 "exchange": {"type": "default", "vhost": "/"},
                             },
                         },
-                        "subscribe": {
+                        "publish": {
                             "bindings": {
                                 "amqp": {
                                     "cc": "test",
