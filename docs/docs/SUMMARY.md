@@ -181,6 +181,10 @@ search:
                 - [Baggage](public_api/faststream/opentelemetry/Baggage.md)
                 - [TelemetryMiddleware](public_api/faststream/opentelemetry/TelemetryMiddleware.md)
                 - [TelemetrySettingsProvider](public_api/faststream/opentelemetry/TelemetrySettingsProvider.md)
+            - prometheus
+                - [BasePrometheusMiddleware](public_api/faststream/prometheus/BasePrometheusMiddleware.md)
+                - [MetricsSettingsProvider](public_api/faststream/prometheus/MetricsSettingsProvider.md)
+                - [ConsumeAttrs](public_api/faststream/prometheus/ConsumeAttrs.md)
             - rabbit
                 - [ExchangeType](public_api/faststream/rabbit/ExchangeType.md)
                 - [RabbitBroker](public_api/faststream/rabbit/RabbitBroker.md)
