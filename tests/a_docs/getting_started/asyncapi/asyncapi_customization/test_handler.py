@@ -11,7 +11,7 @@ def test_handler_customization():
             "description": "Consumer function\n\n    Args:\n        msg: input msg\n    ",
             "servers": ["development"],
             "bindings": {"kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}},
-            "subscribe": {
+            "publish": {
                 "message": {"$ref": "#/components/messages/input_data:Consume:Message"},
             },
         },
@@ -19,7 +19,7 @@ def test_handler_customization():
             "description": "My publisher description",
             "servers": ["development"],
             "bindings": {"kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}},
-            "publish": {
+            "subscribe": {
                 "message": {
                     "$ref": "#/components/messages/output_data:Produce:Message"
                 },

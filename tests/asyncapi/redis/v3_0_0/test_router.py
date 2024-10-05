@@ -1,7 +1,7 @@
 from faststream.redis import RedisBroker, RedisPublisher, RedisRoute, RedisRouter
 from faststream.specification.asyncapi import AsyncAPI
-from tests.asyncapi.base.v2_6_0.arguments import ArgumentsTestcase
-from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
+from tests.asyncapi.base.v3_0_0.arguments import ArgumentsTestcase
+from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 from tests.asyncapi.base.v3_0_0.router import RouterTestcase
 
 
@@ -87,7 +87,7 @@ class TestRouter(RouterTestcase):
 
 
 class TestRouterArguments(ArgumentsTestcase):
-    broker_class = RedisRouter
+    broker_factory = RedisRouter
 
     def build_app(self, router):
         broker = RedisBroker()
@@ -96,7 +96,7 @@ class TestRouterArguments(ArgumentsTestcase):
 
 
 class TestRouterPublisher(PublisherTestcase):
-    broker_class = RedisRouter
+    broker_factory = RedisRouter
 
     def build_app(self, router):
         broker = RedisBroker()

@@ -1,7 +1,7 @@
 from faststream.nats import NatsBroker, NatsPublisher, NatsRoute, NatsRouter
 from faststream.specification.asyncapi import AsyncAPI
-from tests.asyncapi.base.v2_6_0.arguments import ArgumentsTestcase
-from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
+from tests.asyncapi.base.v3_0_0.arguments import ArgumentsTestcase
+from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 from tests.asyncapi.base.v3_0_0.router import RouterTestcase
 
 
@@ -80,7 +80,7 @@ class TestRouter(RouterTestcase):
 
 
 class TestRouterArguments(ArgumentsTestcase):
-    broker_class = NatsRouter
+    broker_factory = NatsRouter
 
     def build_app(self, router):
         broker = NatsBroker()
@@ -89,7 +89,7 @@ class TestRouterArguments(ArgumentsTestcase):
 
 
 class TestRouterPublisher(PublisherTestcase):
-    broker_class = NatsRouter
+    broker_factory = NatsRouter
 
     def build_app(self, router):
         broker = NatsBroker()

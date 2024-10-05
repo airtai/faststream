@@ -13,7 +13,7 @@ def test_basic_customization():
                     "kafka": {"bindingVersion": "0.4.0", "topic": "input_data"},
                 },
                 "servers": ["development"],
-                "subscribe": {
+                "publish": {
                     "message": {
                         "$ref": "#/components/messages/input_data:OnInputData:Message",
                     },
@@ -23,7 +23,7 @@ def test_basic_customization():
                 "bindings": {
                     "kafka": {"bindingVersion": "0.4.0", "topic": "output_data"},
                 },
-                "publish": {
+                "subscribe": {
                     "message": {
                         "$ref": "#/components/messages/output_data:Publisher:Message",
                     },
