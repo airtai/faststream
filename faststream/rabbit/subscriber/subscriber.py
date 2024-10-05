@@ -41,16 +41,13 @@ class SpecificationSubscriber(LogicSubscriber):
                 ),
                 bindings=ChannelBinding(
                     amqp=amqp.ChannelBinding(
-                        **{
-                            "is_": "queue",  # type: ignore
-                            "queue": amqp.Queue(
+                        is_="queue", queue=amqp.Queue(
                                 name=self.queue.name,
                                 durable=self.queue.durable,
                                 exclusive=self.queue.exclusive,
                                 autoDelete=self.queue.auto_delete,
                                 vhost=self.virtual_host,
-                            ),
-                            "exchange": (
+                            ), exchange=(
                                 amqp.Exchange(type="default", vhost=self.virtual_host)
                                 if not self.exchange.name
                                 else amqp.Exchange(
@@ -60,8 +57,7 @@ class SpecificationSubscriber(LogicSubscriber):
                                     autoDelete=self.exchange.auto_delete,
                                     vhost=self.virtual_host,
                                 )
-                            ),
-                        }
+                            )
                     )
                 ),
             ),
