@@ -11,7 +11,7 @@ from faststream.prometheus.consts import (
 from faststream.prometheus.provider import MetricsSettingsProvider
 from faststream.prometheus.types import ProcessingStatus, PublishingStatus
 
-if TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
 
     from faststream.broker.message import StreamMessage
