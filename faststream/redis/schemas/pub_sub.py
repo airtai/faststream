@@ -8,7 +8,8 @@ class PubSub(NameProxy):
     """A class to represent a Redis PubSub channel."""
 
     __slots__ = (
-        "channel",
+        "_prefix",
+        "_value",
         "polling_interval",
         "pattern",
         "path_regex",

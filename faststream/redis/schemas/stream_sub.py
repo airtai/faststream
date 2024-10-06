@@ -9,7 +9,8 @@ class StreamSub(NameProxy):
     """A class to represent a Redis Stream subscriber."""
 
     __slots__ = (
-        "stream",
+        "_prefix",
+        "_value",
         "polling_interval",
         "last_id",
         "group",

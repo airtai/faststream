@@ -8,7 +8,8 @@ class ListSub(NameProxy):
     """A class to represent a Redis List subscriber."""
 
     __slots__ = (
-        "list_name",
+        "_prefix",
+        "_value",
         "batch",
         "max_records",
         "polling_interval",
