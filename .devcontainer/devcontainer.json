@@ -21,7 +21,7 @@
         "ghcr.io/devcontainers/features/git:1": {},
         "ghcr.io/devcontainers/features/git-lfs:1": {},
         "ghcr.io/devcontainers/features/python:1": {
-            "version": "3.10" // for pre-commit
+            "version": "3.12" // python 3.12 is installed here
         }
     },
     "updateContentCommand": "bash .devcontainer/setup.sh",

@@ -2,7 +2,9 @@ version: '3'
 
 services:
   python-3.12-faststream:  # nosemgrep
-    image: mcr.microsoft.com/devcontainers/python:3.12
+    # Installing python 3.10 here which is needed for pre-commit
+    # Actual python 3.12 is installed in devcontainer.json
+    image: mcr.microsoft.com/devcontainers/python:3.10
     container_name: python-3.12-faststream
     volumes:
       - ../:/workspaces/faststream:cached
@@ -14,6 +16,7 @@ services:
     extra_hosts:
       - "localhost:host-gateway"
 
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
   rabbitmq-faststream:
     image: rabbitmq:alpine
     container_name: faststream-${USER}-rabbitmq-py312
