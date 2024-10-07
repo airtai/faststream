@@ -1,19 +1,39 @@
 version: '3'
 
 services:
-  python-3.12-faststream-studio:  # nosemgrep
+  python-3.12-faststream:  # nosemgrep
     image: mcr.microsoft.com/devcontainers/python:3.12
-    container_name: python-3.12-faststream-studio
+    container_name: python-3.12-faststream
     volumes:
       - ../:/workspaces/faststream:cached
     command: sleep infinity
-    network_mode: "host"
+    env_file:
+      - ./devcontainer.env
+    networks:
+      - faststream-network
+    extra_hosts:
+      - "localhost:host-gateway"
 
-  kafka-faststream:  # nosemgrep
-    image: bitnami/kafka:3.5.0
-    container_name: kafka-faststream
+  rabbitmq-faststream:
+    image: rabbitmq:alpine
+    container_name: faststream-${USER}-rabbitmq-py312
+    env_file:
+      - ./devcontainer.env
     ports:
-      - 9092:9092
+      - "5672:5672"
+    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - faststream-network
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+  kafka-faststream:
+    image: bitnami/kafka:3.5.0
+    container_name: faststream-${USER}-kafka-py312
+    env_file:
+      - ./devcontainer.env
+    ports:
+      - "9092:9092"
     environment:
       KAFKA_ENABLE_KRAFT: "true"
       KAFKA_CFG_NODE_ID: "1"
@@ -23,11 +43,42 @@ services:
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
       KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://127.0.0.1:9092"
       KAFKA_BROKER_ID: "1"
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka-faststream:9093"
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
       ALLOW_PLAINTEXT_LISTENER: "true"
+    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - faststream-network
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+  nats-faststream:
+    image: nats
+    container_name: faststream-${USER}-nats-py312
+    command: -js
+    env_file:
+      - ./devcontainer.env
+    ports:
+      - 4222:4222
+      - 8222:8222  # management
+    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - faststream-network
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+  redis-faststream:
+    image: redis:alpine
+    container_name: faststream-${USER}-redis-py312
+    env_file:
+      - ./devcontainer.env
+    ports:
+      - 6379:6379
+    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
+    security_opt:
+      - no-new-privileges:true
     networks:
       - faststream-network
 
 networks:
   faststream-network:
-    name: "${USER}-faststream-network"
+    name: "faststream-${USER}-network"
