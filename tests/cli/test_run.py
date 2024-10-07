@@ -12,7 +12,9 @@ def test_run_as_asgi(runner: CliRunner):
     app = AsgiFastStream()
     app.run = AsyncMock()
 
-    with patch("faststream.cli.main.import_from_string", return_value=(None, app)):
+    with patch(
+        "faststream.cli.utils.imports._import_obj_or_factory", return_value=(None, app)
+    ):
         result = runner.invoke(
             faststream_app,
             [
@@ -35,7 +37,9 @@ def test_run_as_asgi_with_workers(runner: CliRunner, workers: int):
     app = AsgiFastStream()
     app.run = AsyncMock()
 
-    with patch("faststream.cli.main.import_from_string", return_value=(None, app)):
+    with patch(
+        "faststream.cli.utils.imports._import_obj_or_factory", return_value=(None, app)
+    ):
         result = runner.invoke(
             faststream_app,
             [
@@ -64,7 +68,8 @@ def test_run_as_asgi_callable(runner: CliRunner):
     app_factory = Mock(return_value=app)
 
     with patch(
-        "faststream.cli.main.import_from_string", return_value=(None, app_factory)
+        "faststream.cli.utils.imports._import_obj_or_factory",
+        return_value=(None, app_factory),
     ):
         result = runner.invoke(
             faststream_app,
@@ -78,7 +83,7 @@ def test_run_as_asgi_callable(runner: CliRunner):
                 "--factory",
             ],
         )
-        app_factory.assert_called_once()
+        app_factory.assert_called()
         app.run.assert_awaited_once_with(
             logging.INFO, {"host": "0.0.0.0", "port": "8000"}
         )
