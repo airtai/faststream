@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from abc import ABC, abstractmethod
 from typing import (
@@ -13,6 +12,7 @@ from typing import (
     Union,
 )
 
+import anyio
 from typing_extensions import ParamSpec
 
 from faststream.asyncapi.proto import AsyncAPIApplication
@@ -71,7 +71,7 @@ class Application(ABC, AsyncAPIApplication):
     ) -> None:
         context.set_global("app", self)
 
-        self._should_exit = asyncio.Event()  # TODO: move it to anyio
+        self._should_exit = anyio.Event()
         self.broker = broker
         self.logger = logger
         self.context = context
