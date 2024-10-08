@@ -26,6 +26,7 @@ from faststream.confluent.client import (
     AsyncConfluentConsumer,
     AsyncConfluentProducer,
 )
+from faststream.confluent.config import ConfluentFastConfig
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
@@ -394,7 +395,7 @@ class KafkaBroker(
         )
         self.client_id = client_id
         self._producer = None
-        self.config = config
+        self.config = ConfluentFastConfig(config)
 
     async def _close(
         self,
@@ -481,6 +482,7 @@ class KafkaBroker(
         correlation_id: Optional[str] = None,
         *,
         reply_to: str = "",
+        no_confirm: bool = False,
         # extra options to be compatible with test client
         **kwargs: Any,
     ) -> Optional[Any]:
@@ -496,6 +498,7 @@ class KafkaBroker(
             headers=headers,
             correlation_id=correlation_id,
             reply_to=reply_to,
+            no_confirm=no_confirm,
             **kwargs,
         )
 
@@ -534,6 +537,7 @@ class KafkaBroker(
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
+        no_confirm: bool = False,
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -551,6 +555,7 @@ class KafkaBroker(
             headers=headers,
             reply_to=reply_to,
             correlation_id=correlation_id,
+            no_confirm=no_confirm,
         )
 
     @override

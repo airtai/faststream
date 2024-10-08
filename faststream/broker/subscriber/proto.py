@@ -87,6 +87,11 @@ class SubscriberProto(
     async def process_message(self, msg: MsgType) -> "Response": ...
 
     @abstractmethod
+    async def get_one(
+        self, *, timeout: float = 5.0
+    ) -> "Optional[StreamMessage[MsgType]]": ...
+
+    @abstractmethod
     def add_call(
         self,
         *,

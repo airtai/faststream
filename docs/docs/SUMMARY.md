@@ -41,7 +41,7 @@ search:
         - [HTTP Async Frameworks](getting-started/integrations/frameworks/index.md)
         - [FastAPI Plugin](getting-started/integrations/fastapi/index.md)
         - [Django](getting-started/integrations/django/index.md)
-    - [CLI commands](getting-started/cli/index.md)
+    - [CLI](getting-started/cli/index.md)
     - [ASGI](getting-started/asgi.md)
     - [OpenTelemetry](getting-started/opentelemetry/index.md)
     - [Logging](getting-started/logging.md)
@@ -95,6 +95,8 @@ search:
     - [Publishing](nats/publishing/index.md)
     - [RPC](nats/rpc.md)
     - [Message Information](nats/message.md)
+    - [How-To](howto/nats/index.md)
+        - [DynaConf](howto/nats/dynaconf.md)
 - [Redis](redis/index.md)
     - [Pub/Sub](redis/pubsub/index.md)
         - [Subscription](redis/pubsub/subscription.md)
@@ -177,6 +179,7 @@ search:
                 - [TestApp](public_api/faststream/nats/TestApp.md)
                 - [TestNatsBroker](public_api/faststream/nats/TestNatsBroker.md)
             - opentelemetry
+                - [Baggage](public_api/faststream/opentelemetry/Baggage.md)
                 - [TelemetryMiddleware](public_api/faststream/opentelemetry/TelemetryMiddleware.md)
                 - [TelemetrySettingsProvider](public_api/faststream/opentelemetry/TelemetrySettingsProvider.md)
             - rabbit
@@ -370,6 +373,7 @@ search:
                     - router
                         - [StreamRouter](api/faststream/broker/fastapi/router/StreamRouter.md)
                 - message
+                    - [AckStatus](api/faststream/broker/message/AckStatus.md)
                     - [StreamMessage](api/faststream/broker/message/StreamMessage.md)
                     - [decode_message](api/faststream/broker/message/decode_message.md)
                     - [encode_message](api/faststream/broker/message/encode_message.md)
@@ -419,6 +423,7 @@ search:
                     - [MultiLock](api/faststream/broker/utils/MultiLock.md)
                     - [default_filter](api/faststream/broker/utils/default_filter.md)
                     - [get_watcher_context](api/faststream/broker/utils/get_watcher_context.md)
+                    - [process_msg](api/faststream/broker/utils/process_msg.md)
                     - [resolve_custom_func](api/faststream/broker/utils/resolve_custom_func.md)
                 - wrapper
                     - call
@@ -491,6 +496,7 @@ search:
                     - [CompressionCodec](api/faststream/confluent/config/CompressionCodec.md)
                     - [CompressionType](api/faststream/confluent/config/CompressionType.md)
                     - [ConfluentConfig](api/faststream/confluent/config/ConfluentConfig.md)
+                    - [ConfluentFastConfig](api/faststream/confluent/config/ConfluentFastConfig.md)
                     - [Debug](api/faststream/confluent/config/Debug.md)
                     - [GroupProtocol](api/faststream/confluent/config/GroupProtocol.md)
                     - [IsolationLevel](api/faststream/confluent/config/IsolationLevel.md)
@@ -792,8 +798,11 @@ search:
                     - [TestNatsBroker](api/faststream/nats/testing/TestNatsBroker.md)
                     - [build_message](api/faststream/nats/testing/build_message.md)
             - opentelemetry
+                - [Baggage](api/faststream/opentelemetry/Baggage.md)
                 - [TelemetryMiddleware](api/faststream/opentelemetry/TelemetryMiddleware.md)
                 - [TelemetrySettingsProvider](api/faststream/opentelemetry/TelemetrySettingsProvider.md)
+                - baggage
+                    - [Baggage](api/faststream/opentelemetry/baggage/Baggage.md)
                 - consts
                     - [MessageAction](api/faststream/opentelemetry/consts/MessageAction.md)
                 - middleware
@@ -1063,6 +1072,7 @@ search:
                     - [NUID](api/faststream/utils/nuid/NUID.md)
                 - path
                     - [compile_path](api/faststream/utils/path/compile_path.md)
+- [FastStream People](faststream-people.md)
 - Contributing
     - [Development](getting-started/contributing/CONTRIBUTING.md)
     - [Documentation](getting-started/contributing/docs.md)

@@ -41,7 +41,7 @@ search:
         - [HTTP Async Frameworks](getting-started/integrations/frameworks/index.md)
         - [FastAPI Plugin](getting-started/integrations/fastapi/index.md)
         - [Django](getting-started/integrations/django/index.md)
-    - [CLI commands](getting-started/cli/index.md)
+    - [CLI](getting-started/cli/index.md)
     - [ASGI](getting-started/asgi.md)
     - [OpenTelemetry](getting-started/opentelemetry/index.md)
     - [Logging](getting-started/logging.md)
@@ -95,6 +95,8 @@ search:
     - [Publishing](nats/publishing/index.md)
     - [RPC](nats/rpc.md)
     - [Message Information](nats/message.md)
+    - [How-To](howto/nats/index.md)
+        - [DynaConf](howto/nats/dynaconf.md)
 - [Redis](redis/index.md)
     - [Pub/Sub](redis/pubsub/index.md)
         - [Subscription](redis/pubsub/subscription.md)
@@ -117,6 +119,7 @@ search:
 {public_api}
     - All API
 {api}
+- [FastStream People](faststream-people.md)
 - Contributing
     - [Development](getting-started/contributing/CONTRIBUTING.md)
     - [Documentation](getting-started/contributing/docs.md)

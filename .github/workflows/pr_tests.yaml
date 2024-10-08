@@ -81,41 +81,10 @@ jobs:
         env:
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
-      - run: ls coverage
       - name: Store coverage files
         uses: actions/upload-artifact@v4
         with:
           name: .coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
-          path: coverage
-          if-no-files-found: error
-          include-hidden-files: true
-
-  test-orjson:
-    if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          python -m pip install uv
-          uv pip install --system .[optionals,testing] orjson
-      - run: mkdir coverage
-      - name: Test
-        run: >
-          bash scripts/test.sh
-          -m "(slow and (${{env.ALL_PYTEST_MARKERS}})) or (${{env.ALL_PYTEST_MARKERS}})"
-        env:
-          COVERAGE_FILE: coverage/.coverage.orjson
-          CONTEXT: orjson
-      - name: Store coverage files
-        uses: actions/upload-artifact@v4
-        with:
-          name: .coverage.orjson
           path: coverage
           if-no-files-found: error
           include-hidden-files: true
@@ -171,7 +140,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python -m pip install uv
-          uv pip install --system .[kafka,test-core]
+          uv pip install --system .[kafka,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -240,7 +209,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python -m pip install uv
-          uv pip install --system .[confluent,test-core]
+          uv pip install --system .[confluent,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -309,7 +278,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python -m pip install uv
-          uv pip install --system .[rabbit,test-core]
+          uv pip install --system .[rabbit,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -367,7 +336,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python -m pip install uv
-          uv pip install --system .[nats,test-core]
+          uv pip install --system .[nats,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -425,7 +394,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python -m pip install uv
-          uv pip install --system .[redis,test-core]
+          uv pip install --system .[redis,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -512,14 +481,19 @@ jobs:
 
   # https://github.com/marketplace/actions/alls-green#why
   check: # This job does nothing and is only used for the branch protection
-    if: github.event.pull_request.draft == false
+    # from: https://github.com/re-actors/alls-green
+    # Important: For this to work properly, it is a must to have the job always
+    # run, otherwise GitHub will make it skipped when any of the dependencies
+    # fail. In some contexts, skipped is interpreted as success which may lead
+    # to undesired, unobvious and even dangerous (as in security breach
+    # "dangerous") side-effects.
+    if: always()
 
     needs:
       - pre-commit-check
       - coverage-combine
       - test-macos-latest
       - test-windows-latest
-      - test-orjson
 
     runs-on: ubuntu-latest
 

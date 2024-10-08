@@ -18,7 +18,7 @@ from faststream.utils.functions import timeout_scope
 if TYPE_CHECKING:
     from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
     from faststream.nats.subscriber.usecase import LogicSubscriber
-    from faststream.types import AnyDict, SendableMessage
+    from faststream.types import SendableMessage
 
 __all__ = ("TestNatsBroker",)
 
@@ -30,8 +30,8 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     def create_publisher_fake_subscriber(
         broker: NatsBroker,
         publisher: "AsyncAPIPublisher",
-    ) -> Tuple["LogicSubscriber[Any]", bool]:
-        sub: Optional[LogicSubscriber[Any]] = None
+    ) -> Tuple["LogicSubscriber[Any, Any]", bool]:
+        sub: Optional[LogicSubscriber[Any, Any]] = None
         publisher_stream = publisher.stream.name if publisher.stream else None
         for handler in broker._subscribers.values():
             if _is_handler_suitable(handler, publisher.subject, publisher_stream):
@@ -144,7 +144,10 @@ class FakeProducer(NatsFastProducer):
         raise SubscriberNotFound
 
     async def _execute_handler(
-        self, msg: Any, subject: str, handler: "LogicSubscriber[Any]"
+        self,
+        msg: Any,
+        subject: str,
+        handler: "LogicSubscriber[Any, Any]",
     ) -> "PatchedMessage":
         result = await handler.process_message(msg)
 
@@ -157,7 +160,7 @@ class FakeProducer(NatsFastProducer):
 
 
 def _is_handler_suitable(
-    handler: "LogicSubscriber[Any]",
+    handler: "LogicSubscriber[Any, Any]",
     subject: str,
     stream: Optional[str] = None,
 ) -> bool:
@@ -184,7 +187,7 @@ def build_message(
     *,
     reply_to: str = "",
     correlation_id: Optional[str] = None,
-    headers: Optional["AnyDict"] = None,
+    headers: Optional[Dict[str, str]] = None,
 ) -> "PatchedMessage":
     msg, content_type = encode_message(message)
     return PatchedMessage(

@@ -67,7 +67,23 @@ def get_app_path(app: str) -> Tuple[Path, str]:
     return mod_path, app_name
 
 
-def import_from_string(import_str: str) -> Tuple[Path, "FastStream"]:
+def import_from_string(
+    import_str: str,
+    *,
+    is_factory: bool = False,
+) -> Tuple[Path, "FastStream"]:
+    module_path, instance = _import_obj_or_factory(import_str)
+
+    if is_factory:
+        if callable(instance):
+            instance = instance()
+        else:
+            raise typer.BadParameter(f'"{instance}" is not a factory')
+
+    return module_path, instance
+
+
+def _import_obj_or_factory(import_str: str) -> Tuple[Path, "FastStream"]:
     """Import FastStream application from module specified by a string."""
     if not isinstance(import_str, str):
         raise typer.BadParameter("Given value is not of type string")

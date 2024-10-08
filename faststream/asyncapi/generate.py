@@ -155,14 +155,18 @@ def _resolve_msg_payloads(
     one_of = m.payload.get("oneOf")
     if isinstance(one_of, dict):
         for p_title, p in one_of.items():
+            p_title = p_title.replace("/", ".")
             payloads.update(p.pop(DEF_KEY, {}))
             if p_title not in payloads:
                 payloads[p_title] = p
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
 
     elif one_of is not None:
+        # Descriminator case
         for p in one_of:
-            p_title = next(iter(p.values())).split("/")[-1]
+            p_value = next(iter(p.values()))
+            p_title = p_value.split("/")[-1]
+            p_title = p_title.replace("/", ".")
             if p_title not in payloads:
                 payloads[p_title] = p
             one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
@@ -170,6 +174,7 @@ def _resolve_msg_payloads(
     if not one_of_list:
         payloads.update(m.payload.pop(DEF_KEY, {}))
         p_title = m.payload.get("title", f"{channel_name}Payload")
+        p_title = p_title.replace("/", ".")
         if p_title not in payloads:
             payloads[p_title] = m.payload
         m.payload = {"$ref": f"#/components/schemas/{p_title}"}
@@ -178,6 +183,7 @@ def _resolve_msg_payloads(
         m.payload["oneOf"] = one_of_list
 
     assert m.title  # nosec B101
+    m.title = m.title.replace("/", ".")
     messages[m.title] = m
     return Reference(**{"$ref": f"#/components/messages/{m.title}"})
 
@@ -206,7 +212,10 @@ def _move_pydantic_refs(
             for i in range(len(data[k])):
                 data[k][i] = _move_pydantic_refs(item[i], key)
 
-    if isinstance(desciminator := data.get("discriminator"), dict):
+    if (
+        isinstance(desciminator := data.get("discriminator"), dict)
+        and "propertyName" in desciminator
+    ):
         data["discriminator"] = desciminator["propertyName"]
 
     return data

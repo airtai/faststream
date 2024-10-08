@@ -12,6 +12,96 @@ hide:
 ---
 
 # Release Notes
+## 0.5.25
+
+### What's Changed
+
+* fix: CLI hotfix by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1816](https://github.com/airtai/faststream/pull/1816){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.24...0.5.25](https://github.com/airtai/faststream/compare/0.5.24...0.5.25){.external-link target="_blank"}
+
+## 0.5.24
+
+### What's Changed
+
+* Replace while-sleep with Event by [@Olegt0rr](https://github.com/Olegt0rr){.external-link target="_blank"} in [#1683](https://github.com/airtai/faststream/pull/1683){.external-link target="_blank"}
+* feat: add explicit CLI import error by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1785](https://github.com/airtai/faststream/pull/1785){.external-link target="_blank"}
+* fix (#1780): replace / in generated json refs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1786](https://github.com/airtai/faststream/pull/1786){.external-link target="_blank"}
+* Fix: this commit resolve #1765 by [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} in [#1789](https://github.com/airtai/faststream/pull/1789){.external-link target="_blank"}
+* fix (#1792): make RMQ publisher.publish reply_to optional by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1795](https://github.com/airtai/faststream/pull/1795){.external-link target="_blank"}
+* fix (#1793): FastStream Response support in FastAPI integration by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1796](https://github.com/airtai/faststream/pull/1796){.external-link target="_blank"}
+* Update exception.md by [@pepellsd](https://github.com/pepellsd){.external-link target="_blank"} in [#1803](https://github.com/airtai/faststream/pull/1803){.external-link target="_blank"}
+* Fixes the CI bug that allows PRs with failed tests to be merged. by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1807](https://github.com/airtai/faststream/pull/1807){.external-link target="_blank"}
+* feat: add CLI support for AsgiFastStream by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1782](https://github.com/airtai/faststream/pull/1782){.external-link target="_blank"}
+* docs: add contributors page by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1808](https://github.com/airtai/faststream/pull/1808){.external-link target="_blank"}
+* fix: correct dependency injection of custom context fields implementing partial __eq__/__ne__ by [@antoinehumbert](https://github.com/antoinehumbert){.external-link target="_blank"} in [#1809](https://github.com/airtai/faststream/pull/1809){.external-link target="_blank"}
+* do not assume discriminator is not a property by @lecko-cngroup in [#1811](https://github.com/airtai/faststream/pull/1811){.external-link target="_blank"}
+
+### New Contributors
+
+* [@Olegt0rr](https://github.com/Olegt0rr){.external-link target="_blank"} made their first contribution in [#1683](https://github.com/airtai/faststream/pull/1683){.external-link target="_blank"}
+* [@pepellsd](https://github.com/pepellsd){.external-link target="_blank"} made their first contribution in [#1803](https://github.com/airtai/faststream/pull/1803){.external-link target="_blank"}
+* [@antoinehumbert](https://github.com/antoinehumbert){.external-link target="_blank"} made their first contribution in [#1809](https://github.com/airtai/faststream/pull/1809){.external-link target="_blank"}
+* @lecko-cngroup made their first contribution in [#1811](https://github.com/airtai/faststream/pull/1811){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.23...0.5.24](https://github.com/airtai/faststream/compare/0.5.23...0.5.24){.external-link target="_blank"}
+
+## 0.5.23
+
+### What's Changed
+
+We made last release just a few days ago, but there are some big changes here already!
+
+1. First of all - you can't use `faststream run ...` command without `pip install faststream[cli]` distribution anymore. It was made to minify default (and production) distribution by removing **typer** (**rich** and **click**) dependencies. **CLI** is a development-time feature, so if you don't need - just don't install! Special thanks to @RubenRibGarcia for this change
+
+2. The next big change - **Kafka** publish confirmations by default! Previous **FastStream** version was working in *publish & forgot* style, but the new one blocks your `broker.publish(...)` call until **Kafka** confirmation frame received. To fallback to previous logic just use a new flag `broker.publish(..., no_confirm=True)`
+
+3. Also, we made one more step forward to our **1.0.0** features plan! @KrySeyt implements `get_one` feature. Now you can use any broker subscriber to get messages in imperative style:
+
+```python
+subscriber = broker.subscriber("in")
+...
+msg = await subscriber.get_one(timeout=5.0)
+```
+
+4. And the last one: @draincoder continues to develop OTEL support! Now he provides us with an ability to use **OTEL spans** and **baggage** in a comfortable **FastStream**-style. Just take a look at the [new documentation section](https://faststream.airt.ai/latest/getting-started/opentelemetry/#baggage)
+
+Big thanks to all new and old contributors who makes such a great release!
+
+* feat: AsgiFastStream hooks init options by @Lancetnik in https://github.com/airtai/faststream/pull/1768
+* fix (#1748): add Kafka publish no_confirm option by @Lancetnik in https://github.com/airtai/faststream/pull/1749
+* Fix GeneralExceptionHandler typehint by @sheldygg in https://github.com/airtai/faststream/pull/1773
+* Add `broker.subscriber().get_one()` by @KrySeyt in https://github.com/airtai/faststream/pull/1726
+* Add OTel baggage support by @draincoder in https://github.com/airtai/faststream/pull/1692
+* build(#1430): separate cli faststream to its own distribution by @RubenRibGarcia in https://github.com/airtai/faststream/pull/1769
+
+### New Contributors
+* @RubenRibGarcia made their first contribution in https://github.com/airtai/faststream/pull/1769
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.22...0.5.23
+
+## 0.5.22
+
+### What's Changed
+
+* fix: FastAPI 0.112.4+ compatibility by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1766](https://github.com/airtai/faststream/pull/1766){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.21...0.5.22](https://github.com/airtai/faststream/compare/0.5.21...0.5.22){.external-link target="_blank"}
+
+## 0.5.21
+
+### What's Changed
+
+* feat (#1168): allow include regular router to FastAPI integration by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1747](https://github.com/airtai/faststream/pull/1747){.external-link target="_blank"}
+* In case if core-subscriber receive a JetStream message. by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [#1751](https://github.com/airtai/faststream/pull/1751){.external-link target="_blank"}
+* feat: explicit final message commit status by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1754](https://github.com/airtai/faststream/pull/1754){.external-link target="_blank"}
+* Fix/context get local default by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1752](https://github.com/airtai/faststream/pull/1752){.external-link target="_blank"}
+* fix (#1759): correct ConfluentConfig with enums by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1762](https://github.com/airtai/faststream/pull/1762){.external-link target="_blank"}
+* Adds SASLOAuthBearer flow to AIO Kafka's Faststream Security Parsing by [@sifex](https://github.com/sifex){.external-link target="_blank"} in [#1761](https://github.com/airtai/faststream/pull/1761){.external-link target="_blank"}
+* fix: FastAPI 0.112.3 compatibility by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1763](https://github.com/airtai/faststream/pull/1763){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.20...0.5.21](https://github.com/airtai/faststream/compare/0.5.20...0.5.21){.external-link target="_blank"}
+
 ## 0.5.20
 
 ### What's Changed

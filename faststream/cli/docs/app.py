@@ -56,7 +56,7 @@ def serve(
         if app_dir:  # pragma: no branch
             sys.path.insert(0, app_dir)
 
-        module, _ = import_from_string(app)
+        module, _ = import_from_string(app, is_factory=is_factory)
 
         module_parent = module.parent
         extra_extensions: Sequence[str] = ()
@@ -121,9 +121,8 @@ def gen(
     if app_dir:  # pragma: no branch
         sys.path.insert(0, app_dir)
 
-    _, app_obj = import_from_string(app)
-    if callable(app_obj) and is_factory:
-        app_obj = app_obj()
+    _, app_obj = import_from_string(app, is_factory=is_factory)
+
     raw_schema = get_app_schema(app_obj)
 
     if yaml:
@@ -155,9 +154,8 @@ def _parse_and_serve(
     is_factory: bool = False,
 ) -> None:
     if ":" in app:
-        _, app_obj = import_from_string(app)
-        if callable(app_obj) and is_factory:
-            app_obj = app_obj()
+        _, app_obj = import_from_string(app, is_factory=is_factory)
+
         raw_schema = get_app_schema(app_obj)
 
     else:
