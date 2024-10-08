@@ -139,6 +139,7 @@ def run(
                 target=_run,
                 args=args,
                 reload_dirs=reload_dirs,
+                extra_extensions=watch_extensions,
             ).run()
 
     elif workers > 1:
