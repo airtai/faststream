@@ -60,7 +60,8 @@ class ABCBroker(Generic[MsgType]):
         self,
         subscriber: "SubscriberProto[MsgType]",
     ) -> "SubscriberProto[MsgType]":
-        subscriber.add_prefix(self.prefix)
+        if self.prefix:
+            subscriber.add_prefix(self.prefix)
         self._subscribers.append(subscriber)
         return subscriber
 
@@ -69,7 +70,8 @@ class ABCBroker(Generic[MsgType]):
         self,
         publisher: "PublisherProto[MsgType]",
     ) -> "PublisherProto[MsgType]":
-        publisher.add_prefix(self.prefix)
+        if self.prefix:
+            publisher.add_prefix(self.prefix)
         self._publishers.append(publisher)
         return publisher
 

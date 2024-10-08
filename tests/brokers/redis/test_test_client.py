@@ -231,3 +231,29 @@ class TestTestclient(BrokerTestclientTestcase):
         self, queue: str
     ):
         await super().test_broker_with_real_patches_publishers_and_subscribers(queue)
+
+    @pytest.mark.redis
+    async def test_lazy_name_initialization(self, queue: str, event):
+        list_sub = ListSub()
+        consume_broker = self.get_broker()
+        publisher = consume_broker.publisher(list=list_sub)
+
+        @publisher
+        @consume_broker.subscriber(list=list_sub)
+        async def m(msg):
+            event.set()
+
+        list_sub.name = queue
+
+        async with self.patch_broker(consume_broker, with_real=True) as br:
+            await br.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish("hello", list=queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+            m.mock.assert_called_once_with("hello")
+            publisher.mock.assert_called_once()
+        assert event.is_set()

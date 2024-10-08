@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import (
     Any,
     Optional,
@@ -7,7 +7,6 @@ from typing import (
     TypeVar,
     Union,
     overload,
-    runtime_checkable,
 )
 
 from .setup import SetupAble
@@ -65,12 +64,12 @@ class NameRequired:
         return value
 
 
-@runtime_checkable
-class NamedEntity(Protocol):
+class NamedEntity(ABC):
     def __init__(self, name: Optional[str]) -> None:
         raise NotImplementedError
 
     @property
+    @abstractmethod
     def name(self) -> str:
         raise NotImplementedError
 
