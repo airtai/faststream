@@ -9,4 +9,4 @@ from .operation import Operation
 class SubscriberSpec:
     description: str
     operation: Operation
-    bindings: Optional[ChannelBinding] = None
+    bindings: Optional[ChannelBinding]

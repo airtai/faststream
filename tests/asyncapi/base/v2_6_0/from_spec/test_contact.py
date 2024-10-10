@@ -31,12 +31,10 @@ from faststream.specification.asyncapi.v2_6_0.schema import Contact as AsyncAPIC
             {
                 "name": "test",
                 "url": "http://contact.com",
-                "email": "support@gmail.com",
             },
             AsyncAPIContact(
                 name="test",
                 url="http://contact.com",
-                email="support@gmail.com",
             ),
             id="Contact dict",
         ),

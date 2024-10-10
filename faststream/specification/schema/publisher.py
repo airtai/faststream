@@ -9,4 +9,4 @@ from .operation import Operation
 class PublisherSpec:
     description: str
     operation: Operation
-    bindings: Optional[ChannelBinding] = None
+    bindings: Optional[ChannelBinding]

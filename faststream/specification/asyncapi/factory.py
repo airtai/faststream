@@ -19,6 +19,26 @@ if TYPE_CHECKING:
 
 
 class AsyncAPI(Specification):
+    # Empty init for correct typehints
+    def __init__(
+        self,
+        broker: "BrokerUsecase[Any, Any]",
+        /,
+        title: str = "FastStream",
+        app_version: str = "0.1.0",
+        schema_version: Union[Literal["3.0.0", "2.6.0"], str] = "3.0.0",
+        description: str = "",
+        terms_of_service: Optional["AnyHttpUrl"] = None,
+        license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
+        contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
+        tags: Iterable[Union["Tag", "TagDict", "AnyDict"]] = (),
+        external_docs: Optional[
+            Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
+        ] = None,
+        identifier: Optional[str] = None,
+    ) -> Specification:
+        pass
+
     def __new__(  # type: ignore[misc]
         cls,
         broker: "BrokerUsecase[Any, Any]",

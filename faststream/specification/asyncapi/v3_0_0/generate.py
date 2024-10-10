@@ -15,7 +15,6 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     license_from_spec,
     tag_from_spec,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 from faststream.specification.asyncapi.v3_0_0.schema import (
     ApplicationInfo,
     ApplicationSchema,
@@ -26,6 +25,7 @@ from faststream.specification.asyncapi.v3_0_0.schema import (
     channel_from_spec,
     operation_from_spec,
 )
+from faststream.specification.asyncapi.v3_0_0.schema.message import Message
 from faststream.specification.asyncapi.v3_0_0.schema.operations import (
     Action,
 )
