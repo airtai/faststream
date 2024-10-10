@@ -39,7 +39,7 @@ ignore = [
     "SLOT",
     "ARG",
     "EXE",
-    
+
     "ASYNC109",
     "ANN401",
     "COM812",
@@ -57,7 +57,7 @@ ignore = [
 
     "E501",     # line too long, handled by formatter later
     "C901",     # too complex
-    
+
     # preview
     "CPY",
     "PLC0415",
