@@ -15,6 +15,6 @@ def settings():
     return Settings()
 
 
-@pytest.fixture
+@pytest.fixture()
 def router():
     return KafkaRouter()

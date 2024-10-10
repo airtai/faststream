@@ -17,13 +17,13 @@ class TestRouter(RouterTestcase):
     route_class = RabbitRoute
     publisher_class = RabbitPublisher
 
-    def test_prefix(self):
+    def test_prefix(self) -> None:
         broker = self.broker_class()
 
         router = self.router_class(prefix="test_")
 
         @router.subscriber(RabbitQueue("test", routing_key="key"))
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         broker.include_router(router)
 

@@ -17,7 +17,7 @@ from faststream.rabbit import (
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestRouter(RouterTestcase):
     broker_class = RabbitRouter
     route_class = RabbitRoute
@@ -32,7 +32,7 @@ class TestRouter(RouterTestcase):
         event,
         mock,
         router,
-    ):
+    ) -> None:
         @router.subscriber(
             RabbitQueue(
                 queue,
@@ -46,7 +46,7 @@ class TestRouter(RouterTestcase):
         async def h(
             name: str = Path(),
             id: int = Path("id"),
-        ):
+        ) -> None:
             event.set()
             mock(name=name, id=id)
 
@@ -70,11 +70,11 @@ class TestRouter(RouterTestcase):
         event,
         mock,
         router,
-    ):
+    ) -> None:
         async def h(
             name: str = Path(),
             id: int = Path("id"),
-        ):
+        ) -> None:
             event.set()
             mock(name=name, id=id)
 
@@ -113,7 +113,7 @@ class TestRouter(RouterTestcase):
         router: RabbitRouter,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         router.prefix = "test/"
@@ -121,7 +121,7 @@ class TestRouter(RouterTestcase):
         r_queue = RabbitQueue(queue)
 
         @router.subscriber(r_queue)
-        def subscriber(m):
+        def subscriber(m) -> None:
             event.set()
 
         broker.include_router(router)
@@ -146,7 +146,7 @@ class TestRouter(RouterTestcase):
         router: RabbitRouter,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         router.prefix = "test/"
@@ -155,7 +155,7 @@ class TestRouter(RouterTestcase):
         exchange = RabbitExchange(f"{queue}exch")
 
         @router.subscriber(r_queue, exchange=exchange)
-        def subscriber(m):
+        def subscriber(m) -> None:
             event.set()
 
         broker.include_router(router)
@@ -180,8 +180,8 @@ class TestRouter(RouterTestcase):
         event: asyncio.Event,
         router: RabbitRouter,
         queue: str,
-    ):
-        def response(m):
+    ) -> None:
+        def response(m) -> None:
             event.set()
 
         r_queue = RabbitQueue(queue)

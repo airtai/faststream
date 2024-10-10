@@ -9,7 +9,7 @@ from faststream.redis.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class TestTestclient(BrokerTestclientTestcase):
     test_class = TestRedisBroker
 
@@ -19,16 +19,16 @@ class TestTestclient(BrokerTestclientTestcase):
     def patch_broker(self, broker: RedisBroker, **kwargs: Any) -> TestRedisBroker:
         return TestRedisBroker(broker, **kwargs)
 
-    @pytest.mark.redis
+    @pytest.mark.redis()
     async def test_with_real_testclient(
         self,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(queue)
-        def subscriber(m):
+        def subscriber(m) -> None:
             event.set()
 
         async with self.patch_broker(broker, with_real=True) as br:
@@ -42,7 +42,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert event.is_set()
 
-    async def test_respect_middleware(self, queue):
+    async def test_respect_middleware(self, queue) -> None:
         routes = []
 
         class Middleware(BaseMiddleware):
@@ -53,10 +53,10 @@ class TestTestclient(BrokerTestclientTestcase):
         broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
-        async def h1(m): ...
+        async def h1(m) -> None: ...
 
         @broker.subscriber(queue + "1")
-        async def h2(m): ...
+        async def h2(m) -> None: ...
 
         async with self.patch_broker(broker) as br:
             await br.publish("", queue)
@@ -64,8 +64,8 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.redis
-    async def test_real_respect_middleware(self, queue):
+    @pytest.mark.redis()
+    async def test_real_respect_middleware(self, queue) -> None:
         routes = []
 
         class Middleware(BaseMiddleware):
@@ -76,10 +76,10 @@ class TestTestclient(BrokerTestclientTestcase):
         broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
-        async def h1(m): ...
+        async def h1(m) -> None: ...
 
         @broker.subscriber(queue + "1")
-        async def h2(m): ...
+        async def h2(m) -> None: ...
 
         async with self.patch_broker(broker, with_real=True) as br:
             await br.publish("", queue)
@@ -89,7 +89,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    async def test_pub_sub_pattern(self):
+    async def test_pub_sub_pattern(self) -> None:
         broker = self.get_broker()
 
         @broker.subscriber("test.{name}")
@@ -103,7 +103,7 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_list(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(list=queue)
@@ -117,11 +117,11 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_batch_pub_by_default_pub(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(list=ListSub(queue, batch=True))
-        async def m(msg):
+        async def m(msg) -> None:
             pass
 
         async with self.patch_broker(broker) as br:
@@ -131,11 +131,11 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_batch_pub_by_pub_batch(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(list=ListSub(queue, batch=True))
-        async def m(msg):
+        async def m(msg) -> None:
             pass
 
         async with self.patch_broker(broker) as br:
@@ -145,7 +145,7 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_batch_publisher_mock(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         batch_list = ListSub(queue + "1", batch=True)
@@ -164,7 +164,7 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_stream(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(stream=queue)
@@ -178,11 +178,11 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_stream_batch_pub_by_default_pub(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(stream=StreamSub(queue, batch=True))
-        async def m(msg):
+        async def m(msg) -> None:
             pass
 
         async with self.patch_broker(broker) as br:
@@ -192,7 +192,7 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_stream_publisher(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         batch_stream = StreamSub(queue + "1")
@@ -211,24 +211,24 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_publish_to_none(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         async with self.patch_broker(broker) as br:
             with pytest.raises(ValueError):  # noqa: PT011
                 await br.publish("hello")
 
-    @pytest.mark.redis
-    async def test_broker_gets_patched_attrs_within_cm(self):
+    @pytest.mark.redis()
+    async def test_broker_gets_patched_attrs_within_cm(self) -> None:
         await super().test_broker_gets_patched_attrs_within_cm(FakeProducer)
 
-    @pytest.mark.redis
-    async def test_broker_with_real_doesnt_get_patched(self):
+    @pytest.mark.redis()
+    async def test_broker_with_real_doesnt_get_patched(self) -> None:
         await super().test_broker_with_real_doesnt_get_patched()
 
-    @pytest.mark.redis
+    @pytest.mark.redis()
     async def test_broker_with_real_patches_publishers_and_subscribers(
         self,
         queue: str,
-    ):
+    ) -> None:
         await super().test_broker_with_real_patches_publishers_and_subscribers(queue)

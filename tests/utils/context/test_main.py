@@ -5,7 +5,7 @@ from faststream import Context, ContextRepo
 from faststream._internal.utils import apply_types
 
 
-def test_context_getattr(context: ContextRepo):
+def test_context_getattr(context: ContextRepo) -> None:
     a = 1000
     context.set_global("key", a)
 
@@ -13,8 +13,8 @@ def test_context_getattr(context: ContextRepo):
     assert context.key2 is None
 
 
-@pytest.mark.asyncio
-async def test_context_apply(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_context_apply(context: ContextRepo) -> None:
     a = 1000
     context.set_global("key", a)
 
@@ -25,20 +25,20 @@ async def test_context_apply(context: ContextRepo):
     assert await use()
 
 
-@pytest.mark.asyncio
-async def test_context_ignore(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_context_ignore(context: ContextRepo) -> None:
     a = 3
     context.set_global("key", a)
 
     @apply_types
-    async def use():
+    async def use() -> None:
         return None
 
     assert await use() is None
 
 
-@pytest.mark.asyncio
-async def test_context_apply_multi(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_context_apply_multi(context: ContextRepo) -> None:
     a = 1001
     context.set_global("key_a", a)
 
@@ -64,8 +64,8 @@ async def test_context_apply_multi(context: ContextRepo):
     assert await use3()
 
 
-@pytest.mark.asyncio
-async def test_context_overrides(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_context_overrides(context: ContextRepo) -> None:
     a = 1001
     context.set_global("test", a)
 
@@ -79,8 +79,8 @@ async def test_context_overrides(context: ContextRepo):
     assert await use()
 
 
-@pytest.mark.asyncio
-async def test_context_nested_apply(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_context_nested_apply(context: ContextRepo) -> None:
     a = 1000
     context.set_global("key", a)
 
@@ -95,21 +95,21 @@ async def test_context_nested_apply(context: ContextRepo):
     assert await use()
 
 
-@pytest.mark.asyncio
-async def test_reset_global(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_reset_global(context: ContextRepo) -> None:
     a = 1000
     context.set_global("key", a)
     context.reset_global("key")
 
     @apply_types
-    async def use(key=Context()): ...
+    async def use(key=Context()) -> None: ...
 
     with pytest.raises(ValidationError):
         await use()
 
 
-@pytest.mark.asyncio
-async def test_clear_context(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_clear_context(context: ContextRepo) -> None:
     a = 1000
     context.set_global("key", a)
     context.clear()
@@ -121,9 +121,9 @@ async def test_clear_context(context: ContextRepo):
     assert await use()
 
 
-def test_scope(context: ContextRepo):
+def test_scope(context: ContextRepo) -> None:
     @apply_types
-    def use(key=Context(), key2=Context()):
+    def use(key=Context(), key2=Context()) -> None:
         assert key == 1
         assert key2 == 1
 
@@ -134,7 +134,7 @@ def test_scope(context: ContextRepo):
     assert context.get("key2") is None
 
 
-def test_default(context: ContextRepo):
+def test_default(context: ContextRepo) -> None:
     @apply_types
     def use(
         key=Context(),
@@ -142,7 +142,7 @@ def test_default(context: ContextRepo):
         key3=Context(default=1),
         key4=Context("key.key4", default=1),
         key5=Context("key5.key6"),
-    ):
+    ) -> None:
         assert key == 0
         assert key2 is True
         assert key3 == 1
@@ -160,7 +160,7 @@ def test_default(context: ContextRepo):
         use()
 
 
-def test_local_default(context: ContextRepo):
+def test_local_default(context: ContextRepo) -> None:
     key = "some-key"
 
     tag = context.set_local(key, "useless")
@@ -169,7 +169,7 @@ def test_local_default(context: ContextRepo):
     assert context.get_local(key, 1) == 1
 
 
-def test_initial():
+def test_initial() -> None:
     @apply_types
     def use(
         a,
@@ -182,10 +182,12 @@ def test_initial():
     assert use(2) == [1, 2]
 
 
-@pytest.mark.asyncio
-async def test_context_with_custom_object_implementing_comparison(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_context_with_custom_object_implementing_comparison(
+    context: ContextRepo,
+) -> None:
     class User:
-        def __init__(self, user_id: int):
+        def __init__(self, user_id: int) -> None:
             self.user_id = user_id
 
         def __eq__(self, other):
@@ -211,7 +213,8 @@ async def test_context_with_custom_object_implementing_comparison(context: Conte
             and key3 == User(user_id=4)
         )
 
-    with context.scope("user1", User(user_id=1)), context.scope(
-        "user3", User(user_id=4)
+    with (
+        context.scope("user1", User(user_id=1)),
+        context.scope("user3", User(user_id=4)),
     ):
         assert await use()

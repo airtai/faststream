@@ -3,7 +3,7 @@ from docs.docs_src.getting_started.asyncapi.asyncapi_customization.payload_info 
 )
 
 
-def test_payload_customization():
+def test_payload_customization() -> None:
     schema = docs_obj.to_jsonable()
 
     assert schema["components"]["schemas"] == {

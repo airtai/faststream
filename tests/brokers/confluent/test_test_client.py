@@ -15,7 +15,7 @@ from tests.tools import spy_decorator
 from .basic import ConfluentTestcaseConfig
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
         return KafkaBroker(apply_types=apply_types, **kwargs)
@@ -26,7 +26,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     async def test_message_nack_seek(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
 
         @broker.subscriber(
@@ -35,7 +35,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
             auto_commit=False,
             auto_offset_reset="earliest",
         )
-        async def m(msg: KafkaMessage):
+        async def m(msg: KafkaMessage) -> None:
             await msg.nack()
 
         async with self.patch_broker(broker) as br:
@@ -48,18 +48,18 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
                 m.mock.assert_called_once_with("hello")
                 mocked.mock.assert_called_once()
 
-    @pytest.mark.confluent
+    @pytest.mark.confluent()
     async def test_with_real_testclient(
         self,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        def subscriber(m):
+        def subscriber(m) -> None:
             event.set()
 
         async with self.patch_broker(broker, with_real=True) as br:
@@ -76,11 +76,11 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     async def test_batch_pub_by_default_pub(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(queue, batch=True)
-        async def m(msg):
+        async def m(msg) -> None:
             pass
 
         async with self.patch_broker(broker) as br:
@@ -90,11 +90,11 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     async def test_batch_pub_by_pub_batch(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(queue, batch=True)
-        async def m(msg):
+        async def m(msg) -> None:
             pass
 
         async with self.patch_broker(broker) as br:
@@ -104,7 +104,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     async def test_batch_publisher_mock(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         publisher = broker.publisher(queue + "1", batch=True)
@@ -119,7 +119,7 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
             m.mock.assert_called_once_with("hello")
             publisher.mock.assert_called_once_with([1, 2, 3])
 
-    async def test_respect_middleware(self, queue):
+    async def test_respect_middleware(self, queue) -> None:
         routes = []
 
         class Middleware(BaseMiddleware):
@@ -130,10 +130,10 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
         broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
-        async def h1(msg): ...
+        async def h1(msg) -> None: ...
 
         @broker.subscriber(queue + "1")
-        async def h2(msg): ...
+        async def h2(msg) -> None: ...
 
         async with self.patch_broker(broker) as br:
             await br.publish("", queue)
@@ -141,8 +141,8 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.confluent
-    async def test_real_respect_middleware(self, queue):
+    @pytest.mark.confluent()
+    async def test_real_respect_middleware(self, queue) -> None:
         routes = []
 
         class Middleware(BaseMiddleware):
@@ -155,12 +155,12 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def h1(msg): ...
+        async def h1(msg) -> None: ...
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
         @broker.subscriber(*args2, **kwargs2)
-        async def h2(msg): ...
+        async def h2(msg) -> None: ...
 
         async with self.patch_broker(broker, with_real=True) as br:
             await br.publish("", queue)
@@ -173,14 +173,14 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     async def test_multiple_subscribers_different_groups(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(queue, group_id="group1")
-        async def subscriber1(msg): ...
+        async def subscriber1(msg) -> None: ...
 
         @broker.subscriber(queue, group_id="group2")
-        async def subscriber2(msg): ...
+        async def subscriber2(msg) -> None: ...
 
         async with self.patch_broker(broker) as br:
             await br.start()
@@ -192,14 +192,14 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     async def test_multiple_subscribers_same_group(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(queue, group_id="group1")
-        async def subscriber1(msg): ...
+        async def subscriber1(msg) -> None: ...
 
         @broker.subscriber(queue, group_id="group1")
-        async def subscriber2(msg): ...
+        async def subscriber2(msg) -> None: ...
 
         async with self.patch_broker(broker) as br:
             await br.start()
@@ -211,14 +211,14 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     async def test_multiple_batch_subscriber_with_different_group(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(queue, batch=True, group_id="group1")
-        async def subscriber1(msg): ...
+        async def subscriber1(msg) -> None: ...
 
         @broker.subscriber(queue, batch=True, group_id="group2")
-        async def subscriber2(msg): ...
+        async def subscriber2(msg) -> None: ...
 
         async with self.patch_broker(broker) as br:
             await br.start()
@@ -230,14 +230,14 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
     async def test_multiple_batch_subscriber_with_same_group(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(queue, batch=True, group_id="group1")
-        async def subscriber1(msg): ...
+        async def subscriber1(msg) -> None: ...
 
         @broker.subscriber(queue, batch=True, group_id="group1")
-        async def subscriber2(msg): ...
+        async def subscriber2(msg) -> None: ...
 
         async with self.patch_broker(broker) as br:
             await br.start()
@@ -246,17 +246,17 @@ class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
             assert subscriber1.mock.call_count == 1
             assert subscriber2.mock.call_count == 0
 
-    @pytest.mark.confluent
-    async def test_broker_gets_patched_attrs_within_cm(self):
+    @pytest.mark.confluent()
+    async def test_broker_gets_patched_attrs_within_cm(self) -> None:
         await super().test_broker_gets_patched_attrs_within_cm(FakeProducer)
 
-    @pytest.mark.confluent
-    async def test_broker_with_real_doesnt_get_patched(self):
+    @pytest.mark.confluent()
+    async def test_broker_with_real_doesnt_get_patched(self) -> None:
         await super().test_broker_with_real_doesnt_get_patched()
 
-    @pytest.mark.confluent
+    @pytest.mark.confluent()
     async def test_broker_with_real_patches_publishers_and_subscribers(
         self,
         queue: str,
-    ):
+    ) -> None:
         await super().test_broker_with_real_patches_publishers_and_subscribers(queue)

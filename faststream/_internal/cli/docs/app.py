@@ -62,7 +62,7 @@ def serve(
         if app_dir:  # pragma: no branch
             sys.path.insert(0, app_dir)
 
-        module, _ = import_from_string(docs)
+        module, _ = import_from_string(docs, is_factory=is_factory)
 
         module_parent = module.parent
         extra_extensions: Sequence[str] = ()
@@ -132,10 +132,7 @@ def gen(
     if app_dir:  # pragma: no branch
         sys.path.insert(0, app_dir)
 
-    _, asyncapi_obj = import_from_string(asyncapi)
-
-    if callable(asyncapi_obj) and is_factory:
-        asyncapi_obj = asyncapi_obj()
+    _, asyncapi_obj = import_from_string(asyncapi, is_factory=is_factory)
 
     assert isinstance(asyncapi_obj, Specification)
 
@@ -170,9 +167,7 @@ def _parse_and_serve(
     is_factory: bool = False,
 ) -> None:
     if ":" in docs:
-        _, docs_obj = import_from_string(docs)
-        if callable(docs_obj) and is_factory:
-            docs_obj = docs_obj()
+        _, docs_obj = import_from_string(docs, is_factory=is_factory)
 
         assert isinstance(docs_obj, Specification)
 

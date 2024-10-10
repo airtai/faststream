@@ -60,6 +60,7 @@ def get_log_level(level: Union[LogLevels, str, int]) -> int:
 
     if isinstance(level, str):  # pragma: no branch
         return LOG_LEVELS[level.lower()]
+
     return None
 
 

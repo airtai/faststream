@@ -3,7 +3,7 @@ from faststream.specification.asyncapi import AsyncAPI
 from faststream.specification.schema.tag import Tag
 
 
-def test_base():
+def test_base() -> None:
     schema = AsyncAPI(
         NatsBroker(
             "nats:9092",
@@ -33,7 +33,7 @@ def test_base():
     }, schema
 
 
-def test_multi():
+def test_multi() -> None:
     schema = AsyncAPI(
         NatsBroker(["nats:9092", "nats:9093"]),
         schema_version="2.6.0",
@@ -60,7 +60,7 @@ def test_multi():
     }
 
 
-def test_custom():
+def test_custom() -> None:
     schema = AsyncAPI(
         NatsBroker(
             ["nats:9092", "nats:9093"],

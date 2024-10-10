@@ -1,4 +1,3 @@
-import asyncio
 from unittest.mock import Mock
 
 import pytest
@@ -8,20 +7,19 @@ from faststream._internal.cli.main import cli
 from faststream.app import FastStream
 
 
-@pytest.fixture
-def confluent_basic_project():
+@pytest.fixture()
+def confluent_basic_project() -> str:
     return "docs.docs_src.confluent.basic.basic:app"
 
 
-@pytest.mark.confluent
+@pytest.mark.confluent()
 def test_run_cmd(
     runner: CliRunner,
     mock: Mock,
-    event: asyncio.Event,
     monkeypatch: pytest.MonkeyPatch,
     confluent_basic_project,
-):
-    async def patched_run(self: FastStream, *args, **kwargs):
+) -> None:
+    async def patched_run(self: FastStream, *args, **kwargs) -> None:
         await self.start()
         await self.stop()
         mock()

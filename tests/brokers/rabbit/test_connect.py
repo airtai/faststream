@@ -1,5 +1,3 @@
-from typing import Type
-
 import pytest
 
 from faststream.rabbit import RabbitBroker
@@ -7,15 +5,15 @@ from faststream.security import SASLPlaintext
 from tests.brokers.base.connection import BrokerConnectionTestcase
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestConnection(BrokerConnectionTestcase):
-    broker: Type[RabbitBroker] = RabbitBroker
+    broker: type[RabbitBroker] = RabbitBroker
 
     def get_broker_args(self, settings):
         return {"url": settings.url}
 
-    @pytest.mark.asyncio
-    async def test_init_connect_by_raw_data(self, settings):
+    @pytest.mark.asyncio()
+    async def test_init_connect_by_raw_data(self, settings) -> None:
         broker = self.broker(
             host=settings.host,
             port=settings.port,
@@ -27,8 +25,8 @@ class TestConnection(BrokerConnectionTestcase):
         assert await broker.connect()
         await broker.close()
 
-    @pytest.mark.asyncio
-    async def test_connection_by_params(self, settings):
+    @pytest.mark.asyncio()
+    async def test_connection_by_params(self, settings) -> None:
         broker = self.broker()
         assert await broker.connect(
             host=settings.host,
@@ -40,8 +38,8 @@ class TestConnection(BrokerConnectionTestcase):
         )
         await broker.close()
 
-    @pytest.mark.asyncio
-    async def test_connect_merge_kwargs_with_priority(self, settings):
+    @pytest.mark.asyncio()
+    async def test_connect_merge_kwargs_with_priority(self, settings) -> None:
         broker = self.broker(host="fake-host", port=5677)  # kwargs will be ignored
         assert await broker.connect(
             host=settings.host,
@@ -53,8 +51,8 @@ class TestConnection(BrokerConnectionTestcase):
         )
         await broker.close()
 
-    @pytest.mark.asyncio
-    async def test_connect_merge_args_and_kwargs_native(self, settings):
+    @pytest.mark.asyncio()
+    async def test_connect_merge_args_and_kwargs_native(self, settings) -> None:
         broker = self.broker("fake-url")  # will be ignored
         assert await broker.connect(url=settings.url)
         await broker.close()

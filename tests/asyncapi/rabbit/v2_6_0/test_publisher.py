@@ -6,11 +6,11 @@ from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
 class TestArguments(PublisherTestcase):
     broker_class = RabbitBroker
 
-    def test_just_exchange(self):
+    def test_just_exchange(self) -> None:
         broker = self.broker_class("amqp://guest:guest@localhost:5672/vhost")
 
         @broker.publisher(exchange="test-ex")
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -46,14 +46,14 @@ class TestArguments(PublisherTestcase):
             },
         }, schema["channels"]
 
-    def test_publisher_bindings(self):
+    def test_publisher_bindings(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher(
             RabbitQueue("test", auto_delete=True),
             RabbitExchange("test-ex", type=ExchangeType.TOPIC),
         )
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
@@ -79,14 +79,14 @@ class TestArguments(PublisherTestcase):
             },
         }
 
-    def test_useless_queue_bindings(self):
+    def test_useless_queue_bindings(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher(
             RabbitQueue("test", auto_delete=True),
             RabbitExchange("test-ex", type=ExchangeType.FANOUT),
         )
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -114,12 +114,12 @@ class TestArguments(PublisherTestcase):
             },
         }
 
-    def test_reusable_exchange(self):
+    def test_reusable_exchange(self) -> None:
         broker = self.broker_class("amqp://guest:guest@localhost:5672/vhost")
 
         @broker.publisher(exchange="test-ex", routing_key="key1")
         @broker.publisher(exchange="test-ex", routing_key="key2", priority=10)
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 

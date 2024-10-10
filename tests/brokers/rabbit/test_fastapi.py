@@ -9,18 +9,18 @@ from faststream.rabbit.testing import TestRabbitBroker
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestRouter(FastAPITestcase):
     router_class = StreamRouter
     broker_router_class = RabbitRouter
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_path(
         self,
         queue: str,
         event: asyncio.Event,
         mock: MagicMock,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber(
@@ -33,7 +33,7 @@ class TestRouter(FastAPITestcase):
                 type=ExchangeType.TOPIC,
             ),
         )
-        def subscriber(msg: str, name: str):
+        def subscriber(msg: str, name: str) -> None:
             mock(msg=msg, name=name)
             event.set()
 
@@ -53,7 +53,7 @@ class TestRouter(FastAPITestcase):
         mock.assert_called_once_with(msg="hello", name="john")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class TestRouterLocal(FastAPILocalTestcase):
     router_class = StreamRouter
     broker_router_class = RabbitRouter
@@ -61,7 +61,7 @@ class TestRouterLocal(FastAPILocalTestcase):
     def patch_broker(self, broker, **kwargs):
         return TestRabbitBroker(broker, **kwargs)
 
-    async def test_path(self):
+    async def test_path(self) -> None:
         router = self.router_class()
 
         @router.subscriber(

@@ -1,4 +1,4 @@
-from typing import Any, Type
+from typing import Any
 
 from dirty_equals import Contains, IsStr
 from pydantic import create_model
@@ -8,15 +8,15 @@ from faststream.specification.asyncapi import AsyncAPI
 
 
 class BaseNaming:
-    broker_class: Type[BrokerUsecase[Any, Any]]
+    broker_class: type[BrokerUsecase[Any, Any]]
 
 
 class SubscriberNaming(BaseNaming):
-    def test_subscriber_naming(self):
+    def test_subscriber_naming(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle_user_created(msg: str): ...
+        async def handle_user_created(msg: str) -> None: ...
 
         schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
@@ -32,11 +32,11 @@ class SubscriberNaming(BaseNaming):
             "HandleUserCreated:Message:Payload",
         ]
 
-    def test_pydantic_subscriber_naming(self):
+    def test_pydantic_subscriber_naming(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle_user_created(msg: create_model("SimpleModel")): ...
+        async def handle_user_created(msg: create_model("SimpleModel")) -> None: ...
 
         schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
@@ -50,12 +50,12 @@ class SubscriberNaming(BaseNaming):
 
         assert list(schema["components"]["schemas"].keys()) == ["SimpleModel"]
 
-    def test_multi_subscribers_naming(self):
+    def test_multi_subscribers_naming(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
         @broker.subscriber("test2")
-        async def handle_user_created(msg: str): ...
+        async def handle_user_created(msg: str) -> None: ...
 
         schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
@@ -73,11 +73,11 @@ class SubscriberNaming(BaseNaming):
             "HandleUserCreated:Message:Payload",
         ]
 
-    def test_subscriber_naming_manual(self):
+    def test_subscriber_naming_manual(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test", title="custom")
-        async def handle_user_created(msg: str): ...
+        async def handle_user_created(msg: str) -> None: ...
 
         schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
@@ -91,7 +91,7 @@ class SubscriberNaming(BaseNaming):
             "custom:Message:Payload",
         ]
 
-    def test_subscriber_naming_default(self):
+    def test_subscriber_naming_default(self) -> None:
         broker = self.broker_class()
 
         broker.subscriber("test")
@@ -110,7 +110,7 @@ class SubscriberNaming(BaseNaming):
             assert key == "Subscriber:Message:Payload"
             assert v == {"title": key}
 
-    def test_subscriber_naming_default_with_title(self):
+    def test_subscriber_naming_default_with_title(self) -> None:
         broker = self.broker_class()
 
         broker.subscriber("test", title="custom")
@@ -131,11 +131,11 @@ class SubscriberNaming(BaseNaming):
             "title": "custom:Message:Payload",
         }
 
-    def test_multi_subscribers_naming_default(self):
+    def test_multi_subscribers_naming_default(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle_user_created(msg: str): ...
+        async def handle_user_created(msg: str) -> None: ...
 
         broker.subscriber("test2")
         broker.subscriber("test3")
@@ -165,16 +165,16 @@ class SubscriberNaming(BaseNaming):
 
 
 class FilterNaming(BaseNaming):
-    def test_subscriber_filter_base(self):
+    def test_subscriber_filter_base(self) -> None:
         broker = self.broker_class()
 
         sub = broker.subscriber("test")
 
         @sub
-        async def handle_user_created(msg: str): ...
+        async def handle_user_created(msg: str) -> None: ...
 
         @sub
-        async def handle_user_id(msg: int): ...
+        async def handle_user_id(msg: int) -> None: ...
 
         schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
@@ -191,16 +191,16 @@ class FilterNaming(BaseNaming):
             "HandleUserId:Message:Payload",
         ]
 
-    def test_subscriber_filter_pydantic(self):
+    def test_subscriber_filter_pydantic(self) -> None:
         broker = self.broker_class()
 
         sub = broker.subscriber("test")
 
         @sub
-        async def handle_user_created(msg: create_model("SimpleModel")): ...
+        async def handle_user_created(msg: create_model("SimpleModel")) -> None: ...
 
         @sub
-        async def handle_user_id(msg: int): ...
+        async def handle_user_id(msg: int) -> None: ...
 
         schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
@@ -217,16 +217,16 @@ class FilterNaming(BaseNaming):
             "HandleUserId:Message:Payload",
         ]
 
-    def test_subscriber_filter_with_title(self):
+    def test_subscriber_filter_with_title(self) -> None:
         broker = self.broker_class()
 
         sub = broker.subscriber("test", title="custom")
 
         @sub
-        async def handle_user_created(msg: str): ...
+        async def handle_user_created(msg: str) -> None: ...
 
         @sub
-        async def handle_user_id(msg: int): ...
+        async def handle_user_id(msg: int) -> None: ...
 
         schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
@@ -243,7 +243,7 @@ class FilterNaming(BaseNaming):
 
 
 class PublisherNaming(BaseNaming):
-    def test_publisher_naming_base(self):
+    def test_publisher_naming_base(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test")
@@ -261,7 +261,7 @@ class PublisherNaming(BaseNaming):
             IsStr(regex=r"test[\w:]*:Publisher:Message:Payload"),
         ]
 
-    def test_publisher_naming_pydantic(self):
+    def test_publisher_naming_pydantic(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test")
@@ -279,7 +279,7 @@ class PublisherNaming(BaseNaming):
             "SimpleModel",
         ], list(schema["components"]["schemas"].keys())
 
-    def test_publisher_manual_naming(self):
+    def test_publisher_manual_naming(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test", title="custom")
@@ -295,11 +295,11 @@ class PublisherNaming(BaseNaming):
             "custom:Message:Payload",
         ]
 
-    def test_publisher_with_schema_naming(self):
+    def test_publisher_with_schema_naming(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test", schema=str)
-        async def handle_user_created(): ...
+        async def handle_user_created() -> None: ...
 
         schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
@@ -313,11 +313,11 @@ class PublisherNaming(BaseNaming):
             IsStr(regex=r"test[\w:]*:Publisher:Message:Payload"),
         ]
 
-    def test_publisher_manual_naming_with_schema(self):
+    def test_publisher_manual_naming_with_schema(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test", title="custom", schema=str)
-        async def handle_user_created(): ...
+        async def handle_user_created() -> None: ...
 
         schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 
@@ -329,7 +329,7 @@ class PublisherNaming(BaseNaming):
             "custom:Message:Payload",
         ]
 
-    def test_multi_publishers_naming(self):
+    def test_multi_publishers_naming(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test")
@@ -356,7 +356,7 @@ class PublisherNaming(BaseNaming):
             IsStr(regex=r"test[\w:]*:Publisher:Message:Payload"),
         ), payloads
 
-    def test_multi_publisher_usages(self):
+    def test_multi_publisher_usages(self) -> None:
         broker = self.broker_class()
 
         pub = broker.publisher("test")
@@ -382,7 +382,7 @@ class PublisherNaming(BaseNaming):
             "Handle:Publisher:Message:Payload",
         ], list(schema["components"]["schemas"].keys())
 
-    def test_multi_publisher_usages_with_custom(self):
+    def test_multi_publisher_usages_with_custom(self) -> None:
         broker = self.broker_class()
 
         pub = broker.publisher("test", title="custom")

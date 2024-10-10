@@ -3,8 +3,8 @@ import pytest
 from faststream.kafka import TestKafkaBroker
 
 
-@pytest.mark.asyncio
-async def test_basic():
+@pytest.mark.asyncio()
+async def test_basic() -> None:
     from docs.docs_src.kafka.basic.basic import broker, on_input_data
 
     publisher = list(broker._publishers)[0]  # noqa: RUF015

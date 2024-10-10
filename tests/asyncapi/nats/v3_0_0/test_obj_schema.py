@@ -2,11 +2,11 @@ from faststream.nats import NatsBroker
 from faststream.specification.asyncapi import AsyncAPI
 
 
-def test_obj_schema():
+def test_obj_schema() -> None:
     broker = NatsBroker()
 
     @broker.subscriber("test", obj_watch=True)
-    async def handle(): ...
+    async def handle() -> None: ...
 
     schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 

@@ -6,9 +6,9 @@ from faststream.rabbit import RabbitBroker
 from faststream.rabbit.annotations import RabbitMessage
 
 
-@pytest.mark.asyncio
-@pytest.mark.rabbit
-async def test_broker_depends(queue: str):
+@pytest.mark.asyncio()
+@pytest.mark.rabbit()
+async def test_broker_depends(queue: str) -> None:
     full_broker = RabbitBroker(apply_types=True)
 
     def sync_depends(message: RabbitMessage):
@@ -24,7 +24,7 @@ async def test_broker_depends(queue: str):
         message: RabbitMessage,
         k1=Depends(sync_depends),
         k2=Depends(async_depends),
-    ):
+    ) -> None:
         nonlocal check_message
         check_message = (
             isinstance(message.raw_message, aio_pika.IncomingMessage)
@@ -38,24 +38,24 @@ async def test_broker_depends(queue: str):
     assert check_message is True
 
 
-@pytest.mark.asyncio
-@pytest.mark.rabbit
+@pytest.mark.asyncio()
+@pytest.mark.rabbit()
 async def test_different_consumers_has_different_messages(
     context,
-):
+) -> None:
     full_broker = RabbitBroker(apply_types=True)
 
     message1 = None
 
     @full_broker.subscriber("test_different_consume_1")
-    async def consumer1(message: RabbitMessage):
+    async def consumer1(message: RabbitMessage) -> None:
         nonlocal message1
         message1 = message
 
     message2 = None
 
     @full_broker.subscriber("test_different_consume_2")
-    async def consumer2(message: RabbitMessage):
+    async def consumer2(message: RabbitMessage) -> None:
         nonlocal message2
         message2 = message
 

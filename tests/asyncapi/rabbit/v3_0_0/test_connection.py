@@ -3,7 +3,7 @@ from faststream.specification.asyncapi import AsyncAPI
 from faststream.specification.schema.tag import Tag
 
 
-def test_base():
+def test_base() -> None:
     schema = AsyncAPI(
         RabbitBroker(
             "amqps://localhost",
@@ -35,7 +35,7 @@ def test_base():
     }
 
 
-def test_kwargs():
+def test_kwargs() -> None:
     broker = RabbitBroker(
         "amqp://guest:guest@localhost:5672/?heartbeat=300",  # pragma: allowlist secret
         host="127.0.0.1",
@@ -47,7 +47,7 @@ def test_kwargs():
     )
 
 
-def test_custom():
+def test_custom() -> None:
     broker = RabbitBroker(
         "amqps://localhost",
         specification_url="amqp://guest:guest@127.0.0.1:5672/vh",  # pragma: allowlist secret

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple
+from typing import Any
 
 from faststream.confluent import TopicPartition
 from tests.brokers.base.basic import BaseTestcaseConfig as _Base
@@ -11,9 +11,9 @@ class ConfluentTestcaseConfig(_Base):
         self,
         *topics: Any,
         **kwargs: Any,
-    ) -> Tuple[
-        Tuple[Any, ...],
-        Dict[str, Any],
+    ) -> tuple[
+        tuple[Any, ...],
+        dict[str, Any],
     ]:
         if len(topics) == 1:
             partitions = [TopicPartition(topics[0], partition=0, offset=0)]

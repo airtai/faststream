@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import pytest
 
 from faststream._internal.cli.utils.parser import parse_cli_args
@@ -27,18 +25,22 @@ ARG7 = ("--k7", "1", "2", "--k7", "3")
 
 @pytest.mark.parametrize(
     "args",
-    (  # noqa: PT007
-        (APPLICATION, *ARG1, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7),
-        (*ARG1, APPLICATION, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7),
-        (*ARG1, *ARG2, APPLICATION, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7),
-        (*ARG1, *ARG2, *ARG3, APPLICATION, *ARG4, *ARG5, *ARG6, *ARG7),
-        (*ARG1, *ARG2, *ARG3, *ARG4, APPLICATION, *ARG5, *ARG6, *ARG7),
-        (*ARG1, *ARG2, *ARG3, *ARG4, *ARG5, APPLICATION, *ARG6, *ARG7),
-        (*ARG1, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, APPLICATION, *ARG7),
-        (*ARG1, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7, APPLICATION),
+    (
+        pytest.param(
+            (APPLICATION, *ARG1, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7),
+            id="app first",
+        ),
+        pytest.param(
+            (*ARG1, *ARG2, *ARG3, APPLICATION, *ARG4, *ARG5, *ARG6, *ARG7),
+            id="app middle",
+        ),
+        pytest.param(
+            (*ARG1, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7, APPLICATION),
+            id="app last",
+        ),
     ),
 )
-def test_custom_argument_parsing(args: Tuple[str]):
+def test_custom_argument_parsing(args: tuple[str]) -> None:
     app_name, extra = parse_cli_args(*args)
     assert app_name == APPLICATION
     assert extra == {

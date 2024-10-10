@@ -3,7 +3,7 @@ from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_handle
 )
 
 
-def test_handler_customization():
+def test_handler_customization() -> None:
     schema = docs_obj.to_jsonable()
 
     assert schema["channels"] == {

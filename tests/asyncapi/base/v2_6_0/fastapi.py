@@ -1,4 +1,4 @@
-from typing import Any, Callable, Type
+from typing import Any, Callable
 
 import pytest
 from dirty_equals import IsStr
@@ -12,12 +12,12 @@ from faststream.specification.asyncapi import AsyncAPI
 
 
 class FastAPITestCase:
-    router_class: Type[StreamRouter[MsgType]]
+    router_class: type[StreamRouter[MsgType]]
     broker_wrapper: Callable[[BrokerUsecase[MsgType, Any]], BrokerUsecase[MsgType, Any]]
 
-    @pytest.mark.skip
-    @pytest.mark.asyncio
-    async def test_fastapi_full_information(self):
+    @pytest.mark.skip()
+    @pytest.mark.asyncio()
+    async def test_fastapi_full_information(self) -> None:
         router = self.router_class(
             protocol="custom",
             protocol_version="1.1.1",
@@ -68,13 +68,13 @@ class FastAPITestCase:
                     "components": {"messages": {}, "schemas": {}},
                 }
 
-    @pytest.mark.skip
-    @pytest.mark.asyncio
-    async def test_fastapi_asyncapi_routes(self):
+    @pytest.mark.skip()
+    @pytest.mark.asyncio()
+    async def test_fastapi_asyncapi_routes(self) -> None:
         router = self.router_class(schema_url="/asyncapi_schema")
 
         @router.subscriber("test")
-        async def handler(): ...
+        async def handler() -> None: ...
 
         app = FastAPI()
         app.include_router(router)
@@ -92,8 +92,8 @@ class FastAPITestCase:
                 response_html = client.get("/asyncapi_schema")
                 assert response_html.status_code == 200
 
-    @pytest.mark.asyncio
-    async def test_fastapi_asyncapi_not_fount(self):
+    @pytest.mark.asyncio()
+    async def test_fastapi_asyncapi_not_fount(self) -> None:
         router = self.router_class(include_in_schema=False)
 
         app = FastAPI()
@@ -110,8 +110,8 @@ class FastAPITestCase:
                 response_html = client.get("/asyncapi")
                 assert response_html.status_code == 404
 
-    @pytest.mark.asyncio
-    async def test_fastapi_asyncapi_not_fount_by_url(self):
+    @pytest.mark.asyncio()
+    async def test_fastapi_asyncapi_not_fount_by_url(self) -> None:
         router = self.router_class(schema_url=None)
 
         app = FastAPI()

@@ -6,11 +6,11 @@ from tests.asyncapi.base.v2_6_0.naming import NamingTestCase
 class TestNaming(NamingTestCase):
     broker_class = KafkaBroker
 
-    def test_base(self):
+    def test_base(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(): ...
+        async def handle() -> None: ...
 
         schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 

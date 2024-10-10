@@ -9,9 +9,9 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_default_arguments_kafka():
+async def test_default_arguments_kafka() -> None:
     from docs.docs_src.getting_started.context.kafka.default_arguments import (
         broker,
         handle,
@@ -24,9 +24,9 @@ async def test_default_arguments_kafka():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_confluent
-async def test_default_arguments_confluent():
+async def test_default_arguments_confluent() -> None:
     from docs.docs_src.getting_started.context.confluent.default_arguments import (
         broker,
         handle,
@@ -39,9 +39,9 @@ async def test_default_arguments_confluent():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiopika
-async def test_default_arguments_rabbit():
+async def test_default_arguments_rabbit() -> None:
     from docs.docs_src.getting_started.context.rabbit.default_arguments import (
         broker,
         handle,
@@ -54,9 +54,9 @@ async def test_default_arguments_rabbit():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_nats
-async def test_default_arguments_nats():
+async def test_default_arguments_nats() -> None:
     from docs.docs_src.getting_started.context.nats.default_arguments import (
         broker,
         handle,
@@ -69,9 +69,9 @@ async def test_default_arguments_nats():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_redis
-async def test_default_arguments_redis():
+async def test_default_arguments_redis() -> None:
     from docs.docs_src.getting_started.context.redis.default_arguments import (
         broker,
         handle,

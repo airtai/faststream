@@ -11,13 +11,13 @@ class TestRouter(RouterTestcase):
     route_class = KafkaRoute
     publisher_class = KafkaPublisher
 
-    def test_prefix(self):
+    def test_prefix(self) -> None:
         broker = self.broker_class()
 
         router = self.router_class(prefix="test_")
 
         @router.subscriber("test")
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         broker.include_router(router)
 

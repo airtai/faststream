@@ -107,8 +107,12 @@ ignore = [
     "PLW3201",
 ]
 
-"tests/**" = [
-    "ALL",      # FIXME
+"tests/**/*.py" = [
+    "ANN",  # FIXME
+    "S",
+    "PLR0904",
+    "PLR0914",
+    "PLC1901",
 ]
 
 "docs/*.py" = [
@@ -146,3 +150,10 @@ extend-immutable-calls = [
     "fastapi.datastructures.Default",
     "kafka.partitioner.default.DefaultPartitioner",
 ]
+
+[lint.flake8-pytest-style]
+fixture-parentheses = true
+mark-parentheses = true
+parametrize-names-type = "tuple"
+parametrize-values-type = "tuple"
+parametrize-values-row-type = "tuple"

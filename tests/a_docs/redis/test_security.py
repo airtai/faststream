@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-from typing import Tuple
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -9,7 +8,7 @@ from faststream.specification.asyncapi import AsyncAPI
 
 
 @contextmanager
-def patch_asyncio_open_connection() -> Tuple[MagicMock, MagicMock]:
+def patch_asyncio_open_connection() -> tuple[MagicMock, MagicMock]:
     try:
         reader = MagicMock()
         reader.readline = AsyncMock(return_value=b":1\r\n")
@@ -27,9 +26,9 @@ def patch_asyncio_open_connection() -> Tuple[MagicMock, MagicMock]:
         pass
 
 
-@pytest.mark.asyncio
-@pytest.mark.redis
-async def test_base_security():
+@pytest.mark.asyncio()
+@pytest.mark.redis()
+async def test_base_security() -> None:
     with patch_asyncio_open_connection() as connection:
         from docs.docs_src.redis.security.basic import broker
 
@@ -56,9 +55,9 @@ async def test_base_security():
         }
 
 
-@pytest.mark.asyncio
-@pytest.mark.redis
-async def test_plaintext_security():
+@pytest.mark.asyncio()
+@pytest.mark.redis()
+async def test_plaintext_security() -> None:
     with patch_asyncio_open_connection() as connection:
         from docs.docs_src.redis.security.plaintext import broker
 

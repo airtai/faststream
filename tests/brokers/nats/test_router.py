@@ -15,7 +15,7 @@ from faststream.nats import (
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestRouter(RouterTestcase):
     broker_class = NatsRouter
     route_class = NatsRoute
@@ -29,14 +29,14 @@ class TestRouter(RouterTestcase):
         event,
         mock,
         router: NatsRouter,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         @router.subscriber("in.{name}.{id}")
         async def h(
             name: str = Path(),
             id: int = Path("id"),
-        ):
+        ) -> None:
             event.set()
             mock(name=name, id=id)
 
@@ -54,13 +54,13 @@ class TestRouter(RouterTestcase):
         event,
         mock,
         router: NatsRouter,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         router.prefix = "root."
 
         @router.subscriber("{name}.nested")
-        async def h(name: str = Path()):
+        async def h(name: str = Path()) -> None:
             event.set()
             mock(name=name)
 
@@ -78,7 +78,7 @@ class TestRouter(RouterTestcase):
         event,
         mock,
         router: NatsRouter,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         router.prefix = "test."
@@ -87,7 +87,7 @@ class TestRouter(RouterTestcase):
         async def h(
             name: str = Path(),
             id: int = Path("id"),
-        ):
+        ) -> None:
             event.set()
             mock(name=name, id=id)
 
@@ -105,13 +105,13 @@ class TestRouter(RouterTestcase):
         event,
         mock,
         router: NatsRouter,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         async def h(
             name: str = Path(),
             id: int = Path("id"),
-        ):
+        ) -> None:
             event.set()
             mock(name=name, id=id)
 
@@ -131,10 +131,10 @@ class TestRouter(RouterTestcase):
         event,
         router: NatsRouter,
         queue: str,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
-        def response(m):
+        def response(m) -> None:
             event.set()
 
         r = type(router)(
@@ -170,17 +170,17 @@ class TestRouterLocal(RouterLocalTestcase):
     async def test_include_stream(
         self,
         router: NatsRouter,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         @router.subscriber("test", stream="stream")
-        async def handler(): ...
+        async def handler() -> None: ...
 
         pub_broker.include_router(router)
 
         assert next(iter(pub_broker._stream_builder.objects.keys())) == "stream"
 
-    async def test_include_stream_with_subjects(self):
+    async def test_include_stream_with_subjects(self) -> None:
         stream = JStream("test-stream")
 
         sub_router = NatsRouter(prefix="client.")

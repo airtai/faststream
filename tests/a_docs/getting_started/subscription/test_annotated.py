@@ -1,6 +1,11 @@
+from typing import Any, TypeAlias
+
 import pytest
 from pydantic import ValidationError
 
+from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.subscriber.usecase import SubscriberUsecase
+from faststream._internal.testing.broker import TestBroker
 from tests.marks import (
     python39,
     require_aiokafka,
@@ -10,11 +15,17 @@ from tests.marks import (
     require_redis,
 )
 
+Setup: TypeAlias = tuple[
+    BrokerUsecase[Any, Any],
+    SubscriberUsecase[Any],
+    type[TestBroker],
+]
 
-@pytest.mark.asyncio
+
+@pytest.mark.asyncio()
 @python39
 class BaseCase:
-    async def test_handle(self, setup):
+    async def test_handle(self, setup: Setup) -> None:
         broker, handle, test_class = setup
 
         async with test_class(broker) as br:
@@ -23,7 +34,7 @@ class BaseCase:
 
         assert handle.mock is None
 
-    async def test_validation_error(self, setup):
+    async def test_validation_error(self, setup: Setup) -> None:
         broker, handle, test_class = setup
 
         async with test_class(broker) as br:
@@ -36,7 +47,7 @@ class BaseCase:
 @require_aiokafka
 class TestKafka(BaseCase):
     @pytest.fixture(scope="class")
-    def setup(self):
+    def setup(self) -> Setup:
         from docs.docs_src.getting_started.subscription.kafka.pydantic_annotated_fields import (
             broker,
             handle,
@@ -49,7 +60,7 @@ class TestKafka(BaseCase):
 @require_confluent
 class TestConfluent(BaseCase):
     @pytest.fixture(scope="class")
-    def setup(self):
+    def setup(self) -> Setup:
         from docs.docs_src.getting_started.subscription.confluent.pydantic_annotated_fields import (
             broker,
             handle,
@@ -62,7 +73,7 @@ class TestConfluent(BaseCase):
 @require_aiopika
 class TestRabbit(BaseCase):
     @pytest.fixture(scope="class")
-    def setup(self):
+    def setup(self) -> Setup:
         from docs.docs_src.getting_started.subscription.rabbit.pydantic_annotated_fields import (
             broker,
             handle,
@@ -75,7 +86,7 @@ class TestRabbit(BaseCase):
 @require_nats
 class TestNats(BaseCase):
     @pytest.fixture(scope="class")
-    def setup(self):
+    def setup(self) -> Setup:
         from docs.docs_src.getting_started.subscription.nats.pydantic_annotated_fields import (
             broker,
             handle,
@@ -88,7 +99,7 @@ class TestNats(BaseCase):
 @require_redis
 class TestRedis(BaseCase):
     @pytest.fixture(scope="class")
-    def setup(self):
+    def setup(self) -> Setup:
         from docs.docs_src.getting_started.subscription.redis.pydantic_annotated_fields import (
             broker,
             handle,

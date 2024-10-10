@@ -1,5 +1,3 @@
-from typing import Type
-
 import pydantic
 
 from faststream._internal.broker.broker import BrokerUsecase
@@ -7,28 +5,28 @@ from faststream.specification.asyncapi import AsyncAPI
 
 
 class PublisherTestcase:
-    broker_class: Type[BrokerUsecase]
+    broker_class: type[BrokerUsecase]
 
     def build_app(self, broker):
         """Patch it to test FastAPI scheme generation too."""
         return broker
 
-    def test_publisher_with_description(self):
+    def test_publisher_with_description(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test", description="test description")
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
         assert schema["channels"][key]["description"] == "test description"
 
-    def test_basic_publisher(self):
+    def test_basic_publisher(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test")
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -40,11 +38,11 @@ class PublisherTestcase:
         for v in payload.values():
             assert v == {}
 
-    def test_none_publisher(self):
+    def test_none_publisher(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test")
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -52,7 +50,7 @@ class PublisherTestcase:
         for v in payload.values():
             assert v == {}
 
-    def test_typed_publisher(self):
+    def test_typed_publisher(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test")
@@ -64,7 +62,7 @@ class PublisherTestcase:
         for v in payload.values():
             assert v["type"] == "integer"
 
-    def test_pydantic_model_publisher(self):
+    def test_pydantic_model_publisher(self) -> None:
         class User(pydantic.BaseModel):
             name: str = ""
             id: int
@@ -89,7 +87,7 @@ class PublisherTestcase:
                 "type": "object",
             }
 
-    def test_delayed(self):
+    def test_delayed(self) -> None:
         broker = self.broker_class()
 
         pub = broker.publisher("test")
@@ -103,7 +101,7 @@ class PublisherTestcase:
         for v in payload.values():
             assert v["type"] == "integer"
 
-    def test_with_schema(self):
+    def test_with_schema(self) -> None:
         broker = self.broker_class()
 
         broker.publisher("test", title="Custom", schema=int)
@@ -114,19 +112,19 @@ class PublisherTestcase:
         for v in payload.values():
             assert v["type"] == "integer"
 
-    def test_not_include(self):
+    def test_not_include(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test", include_in_schema=False)
         @broker.subscriber("in-test", include_in_schema=False)
-        async def handler(msg: str):
+        async def handler(msg: str) -> None:
             pass
 
         schema = AsyncAPI(self.build_app(broker))
 
         assert schema.to_jsonable()["channels"] == {}, schema.to_jsonable()["channels"]
 
-    def test_pydantic_model_with_keyword_property_publisher(self):
+    def test_pydantic_model_with_keyword_property_publisher(self) -> None:
         class TestModel(pydantic.BaseModel):
             discriminator: int = 0
 

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any
+from typing import Any, NoReturn
 from unittest.mock import patch
 
 import pytest
@@ -12,22 +12,22 @@ from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestConsume(BrokerRealConsumeTestcase):
     def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
         return RabbitBroker(apply_types=apply_types, **kwargs)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_from_exchange(
         self,
         queue: str,
         exchange: RabbitExchange,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        def h(m):
+        def h(m) -> None:
             event.set()
 
         async with self.patch_broker(consume_broker) as br:
@@ -44,13 +44,13 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_with_get_old(
         self,
         queue: str,
         exchange: RabbitExchange,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
@@ -58,7 +58,7 @@ class TestConsume(BrokerRealConsumeTestcase):
             exchange=RabbitExchange(name=exchange.name, passive=True),
             retry=True,
         )
-        def h(m):
+        def h(m) -> None:
             event.set()
 
         async with self.patch_broker(consume_broker) as br:
@@ -83,17 +83,17 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_ack(
         self,
         queue: str,
         exchange: RabbitExchange,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage):
+        async def handler(msg: RabbitMessage) -> None:
             event.set()
 
         async with self.patch_broker(consume_broker) as br:
@@ -117,17 +117,17 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_manual_ack(
         self,
         queue: str,
         exchange: RabbitExchange,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage):
+        async def handler(msg: RabbitMessage) -> None:
             await msg.ack()
             event.set()
 
@@ -151,19 +151,19 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_exception_ack(
         self,
         queue: str,
         exchange: RabbitExchange,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage):
+        async def handler(msg: RabbitMessage) -> None:
             try:
-                raise AckMessage()
+                raise AckMessage
             finally:
                 event.set()
 
@@ -187,17 +187,17 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_manual_nack(
         self,
         queue: str,
         exchange: RabbitExchange,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage):
+        async def handler(msg: RabbitMessage) -> NoReturn:
             await msg.nack()
             event.set()
             raise ValueError
@@ -222,19 +222,19 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_exception_nack(
         self,
         queue: str,
         exchange: RabbitExchange,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage):
+        async def handler(msg: RabbitMessage) -> None:
             try:
-                raise NackMessage()
+                raise NackMessage
             finally:
                 event.set()
 
@@ -258,17 +258,17 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_manual_reject(
         self,
         queue: str,
         exchange: RabbitExchange,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage):
+        async def handler(msg: RabbitMessage) -> NoReturn:
             await msg.reject()
             event.set()
             raise ValueError
@@ -293,19 +293,19 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_exception_reject(
         self,
         queue: str,
         exchange: RabbitExchange,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage):
+        async def handler(msg: RabbitMessage) -> None:
             try:
-                raise RejectMessage()
+                raise RejectMessage
             finally:
                 event.set()
 
@@ -329,18 +329,18 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_skip_message(
         self,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue)
-        async def handler(msg: RabbitMessage):
+        async def handler(msg: RabbitMessage) -> None:
             try:
-                raise SkipMessage()
+                raise SkipMessage
             finally:
                 event.set()
 
@@ -377,17 +377,17 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_no_ack(
         self,
         queue: str,
         exchange: RabbitExchange,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, exchange=exchange, retry=1, no_ack=True)
-        async def handler(msg: RabbitMessage):
+        async def handler(msg: RabbitMessage) -> None:
             event.set()
 
         async with self.patch_broker(consume_broker) as br:

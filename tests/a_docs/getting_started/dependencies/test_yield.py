@@ -4,9 +4,9 @@ from faststream import TestApp
 from tests.marks import require_aiokafka
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_yield_kafka():
+async def test_yield_kafka() -> None:
     from docs.docs_src.getting_started.dependencies.yield_kafka import (
         app,
         broker,

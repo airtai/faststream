@@ -89,7 +89,7 @@ basic_schema = {
 }
 
 
-def test_base_security_schema():
+def test_base_security_schema() -> None:
     ssl_context = ssl.create_default_context()
     security = BaseSecurity(ssl_context=ssl_context)
 
@@ -105,7 +105,7 @@ def test_base_security_schema():
     assert schema == basic_schema
 
 
-def test_plaintext_security_schema():
+def test_plaintext_security_schema() -> None:
     ssl_context = ssl.create_default_context()
     security = SASLPlaintext(
         ssl_context=ssl_context,
@@ -133,7 +133,7 @@ def test_plaintext_security_schema():
     assert schema == plaintext_security_schema
 
 
-def test_scram256_security_schema():
+def test_scram256_security_schema() -> None:
     ssl_context = ssl.create_default_context()
     security = SASLScram256(
         ssl_context=ssl_context,
@@ -159,7 +159,7 @@ def test_scram256_security_schema():
     assert schema == sasl256_security_schema
 
 
-def test_scram512_security_schema():
+def test_scram512_security_schema() -> None:
     ssl_context = ssl.create_default_context()
     security = SASLScram512(
         ssl_context=ssl_context,
@@ -185,7 +185,7 @@ def test_scram512_security_schema():
     assert schema == sasl512_security_schema
 
 
-def test_oauthbearer_security_schema():
+def test_oauthbearer_security_schema() -> None:
     ssl_context = ssl.create_default_context()
     security = SASLOAuthBearer(
         ssl_context=ssl_context,
@@ -211,7 +211,7 @@ def test_oauthbearer_security_schema():
     assert schema == sasl_oauthbearer_security_schema
 
 
-def test_gssapi_security_schema():
+def test_gssapi_security_schema() -> None:
     ssl_context = ssl.create_default_context()
     security = SASLGSSAPI(ssl_context=ssl_context)
 

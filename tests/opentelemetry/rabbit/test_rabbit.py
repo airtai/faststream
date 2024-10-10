@@ -15,12 +15,12 @@ from tests.brokers.rabbit.test_publish import TestPublish
 from tests.opentelemetry.basic import LocalTelemetryTestcase
 
 
-@pytest.fixture
+@pytest.fixture()
 def exchange(queue):
     return RabbitExchange(name=queue)
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "rabbitmq"
     include_messages_counters = False
@@ -45,12 +45,12 @@ class TestTelemetry(LocalTelemetryTestcase):
         assert attrs[SpanAttr.MESSAGING_MESSAGE_CONVERSATION_ID] == IsUUID
         assert attrs[SpanAttr.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY] == queue
         assert span.name == f"{self.destination_name(queue)} {action}"
-        assert span.kind in (SpanKind.CONSUMER, SpanKind.PRODUCER)
+        assert span.kind in {SpanKind.CONSUMER, SpanKind.PRODUCER}
 
-        if span.kind == SpanKind.PRODUCER and action in (Action.CREATE, Action.PUBLISH):
+        if span.kind == SpanKind.PRODUCER and action in {Action.CREATE, Action.PUBLISH}:
             assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == ""
 
-        if span.kind == SpanKind.CONSUMER and action in (Action.CREATE, Action.PROCESS):
+        if span.kind == SpanKind.CONSUMER and action in {Action.CREATE, Action.PROCESS}:
             assert attrs[MESSAGING_DESTINATION_PUBLISH_NAME] == ""
             assert attrs["messaging.rabbitmq.message.delivery_tag"] == IsInt
             assert attrs[SpanAttr.MESSAGING_MESSAGE_ID] == IsUUID
@@ -66,7 +66,7 @@ class TestTelemetry(LocalTelemetryTestcase):
             assert span.parent.span_id == parent_span_id
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestPublishWithTelemetry(TestPublish):
     def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
         return RabbitBroker(
@@ -76,7 +76,7 @@ class TestPublishWithTelemetry(TestPublish):
         )
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestConsumeWithTelemetry(TestConsume):
     def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
         return RabbitBroker(

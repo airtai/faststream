@@ -1,13 +1,12 @@
 import ssl
 from contextlib import contextmanager
-from typing import Tuple
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 
 @contextmanager
-def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
+def patch_aio_consumer_and_producer() -> tuple[MagicMock, MagicMock]:
     try:
         producer = MagicMock(return_value=AsyncMock())
 
@@ -17,9 +16,9 @@ def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
         pass
 
 
-@pytest.mark.asyncio
-@pytest.mark.kafka
-async def test_base_security():
+@pytest.mark.asyncio()
+@pytest.mark.kafka()
+async def test_base_security() -> None:
     from docs.docs_src.kafka.security.basic import broker as basic_broker
 
     with patch_aio_consumer_and_producer() as producer:
@@ -34,9 +33,9 @@ async def test_base_security():
             assert type(producer_call_kwargs["ssl_context"]) is ssl.SSLContext
 
 
-@pytest.mark.asyncio
-@pytest.mark.kafka
-async def test_scram256():
+@pytest.mark.asyncio()
+@pytest.mark.kafka()
+async def test_scram256() -> None:
     from docs.docs_src.kafka.security.sasl_scram256 import (
         broker as scram256_broker,
     )
@@ -56,9 +55,9 @@ async def test_scram256():
             assert type(producer_call_kwargs["ssl_context"]) is ssl.SSLContext
 
 
-@pytest.mark.asyncio
-@pytest.mark.kafka
-async def test_scram512():
+@pytest.mark.asyncio()
+@pytest.mark.kafka()
+async def test_scram512() -> None:
     from docs.docs_src.kafka.security.sasl_scram512 import (
         broker as scram512_broker,
     )
@@ -78,9 +77,9 @@ async def test_scram512():
             assert type(producer_call_kwargs["ssl_context"]) is ssl.SSLContext
 
 
-@pytest.mark.asyncio
-@pytest.mark.kafka
-async def test_plaintext():
+@pytest.mark.asyncio()
+@pytest.mark.kafka()
+async def test_plaintext() -> None:
     from docs.docs_src.kafka.security.plaintext import (
         broker as plaintext_broker,
     )
@@ -100,9 +99,9 @@ async def test_plaintext():
             assert type(producer_call_kwargs["ssl_context"]) is ssl.SSLContext
 
 
-@pytest.mark.kafka
-@pytest.mark.asyncio
-async def test_gssapi():
+@pytest.mark.kafka()
+@pytest.mark.asyncio()
+async def test_gssapi() -> None:
     from docs.docs_src.kafka.security.sasl_gssapi import (
         broker as gssapi_broker,
     )

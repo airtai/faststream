@@ -3,7 +3,7 @@ from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_info i
 )
 
 
-def test_info_customization():
+def test_info_customization() -> None:
     schema = docs_obj.to_jsonable()
 
     assert schema["info"] == {

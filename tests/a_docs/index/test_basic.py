@@ -9,9 +9,9 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_index_kafka_base():
+async def test_index_kafka_base() -> None:
     from docs.docs_src.index.kafka.basic import broker, handle_msg
     from faststream.kafka import TestKafkaBroker
 
@@ -25,9 +25,9 @@ async def test_index_kafka_base():
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_confluent
-async def test_index_confluent_base():
+async def test_index_confluent_base() -> None:
     from docs.docs_src.index.confluent.basic import broker, handle_msg
     from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
@@ -41,9 +41,9 @@ async def test_index_confluent_base():
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiopika
-async def test_index_rabbit_base():
+async def test_index_rabbit_base() -> None:
     from docs.docs_src.index.rabbit.basic import broker, handle_msg
     from faststream.rabbit import TestRabbitBroker
 
@@ -57,9 +57,9 @@ async def test_index_rabbit_base():
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_nats
-async def test_index_nats_base():
+async def test_index_nats_base() -> None:
     from docs.docs_src.index.nats.basic import broker, handle_msg
     from faststream.nats import TestNatsBroker
 
@@ -73,9 +73,9 @@ async def test_index_nats_base():
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_redis
-async def test_index_redis_base():
+async def test_index_redis_base() -> None:
     from docs.docs_src.index.redis.basic import broker, handle_msg
     from faststream.redis import TestRedisBroker
 

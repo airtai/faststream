@@ -2,7 +2,7 @@ from docs.docs_src.getting_started.asyncapi.asyncapi_customization.basic import 
 from faststream.specification.asyncapi import AsyncAPI
 
 
-def test_basic_customization():
+def test_basic_customization() -> None:
     schema = AsyncAPI(app.broker, schema_version="2.6.0").to_jsonable()
 
     assert schema == {

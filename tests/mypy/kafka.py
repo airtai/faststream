@@ -1,4 +1,5 @@
-from typing import Awaitable, Callable
+from collections.abc import Awaitable
+from typing import Callable
 
 from aiokafka import ConsumerRecord
 
@@ -28,11 +29,11 @@ KafkaBroker(decoder=custom_decoder)
 
 
 def sync_parser(msg: ConsumerRecord) -> KafkaMessage:
-    return ""  # type: ignore
+    return ""  # type: ignore[return-value]
 
 
 async def async_parser(msg: ConsumerRecord) -> KafkaMessage:
-    return ""  # type: ignore
+    return ""  # type: ignore[return-value]
 
 
 async def custom_parser(

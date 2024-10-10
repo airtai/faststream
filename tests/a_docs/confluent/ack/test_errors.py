@@ -7,10 +7,10 @@ from faststream.confluent.client import AsyncConfluentConsumer
 from tests.tools import spy_decorator
 
 
-@pytest.mark.asyncio
-@pytest.mark.confluent
-@pytest.mark.slow
-async def test_ack_exc():
+@pytest.mark.asyncio()
+@pytest.mark.confluent()
+@pytest.mark.slow()
+async def test_ack_exc() -> None:
     from docs.docs_src.confluent.ack.errors import app, broker, handle
 
     with patch.object(

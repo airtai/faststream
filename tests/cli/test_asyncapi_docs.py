@@ -22,10 +22,12 @@ SERVE_CMD = asyncapi_serve_cmd.split(" ")[1:-1]
 
 
 @require_aiokafka
-def test_gen_asyncapi_json_for_kafka_app(runner: CliRunner, kafka_basic_project: Path):
+def test_gen_asyncapi_json_for_kafka_app(
+    runner: CliRunner, kafka_ascynapi_project: str
+) -> None:
     r = runner.invoke(
         cli,
-        [*GEN_JSON_CMD, "--out", "schema.json", str(kafka_basic_project)],
+        [*GEN_JSON_CMD, "--out", "schema.json", kafka_ascynapi_project],
     )
     assert r.exit_code == 0
 
@@ -40,8 +42,10 @@ def test_gen_asyncapi_json_for_kafka_app(runner: CliRunner, kafka_basic_project:
 
 
 @require_aiokafka
-def test_gen_asyncapi_yaml_for_kafka_app(runner: CliRunner, kafka_basic_project: Path):
-    r = runner.invoke(cli, GEN_YAML_CMD + [str(kafka_basic_project)])  # noqa: RUF005
+def test_gen_asyncapi_yaml_for_kafka_app(
+    runner: CliRunner, kafka_ascynapi_project: str
+) -> None:
+    r = runner.invoke(cli, GEN_YAML_CMD + [kafka_ascynapi_project])  # noqa: RUF005
     assert r.exit_code == 0
 
     schema_path = Path.cwd() / "asyncapi.yaml"
@@ -54,7 +58,7 @@ def test_gen_asyncapi_yaml_for_kafka_app(runner: CliRunner, kafka_basic_project:
     schema_path.unlink()
 
 
-def test_gen_wrong_path(runner: CliRunner):
+def test_gen_wrong_path(runner: CliRunner) -> None:
     r = runner.invoke(cli, GEN_JSON_CMD + ["basic:app1"])  # noqa: RUF005
     assert r.exit_code == 2
     assert "No such file or directory" in r.stdout
@@ -63,13 +67,13 @@ def test_gen_wrong_path(runner: CliRunner):
 @require_aiokafka
 def test_serve_asyncapi_docs(
     runner: CliRunner,
-    kafka_basic_project: Path,
-    monkeypatch,
+    kafka_ascynapi_project: str,
+    monkeypatch: pytest.MonkeyPatch,
     mock: Mock,
-):
+) -> None:
     with monkeypatch.context() as m:
         m.setattr(HTTPServer, "serve_forever", mock)
-        r = runner.invoke(cli, SERVE_CMD + [str(kafka_basic_project)])  # noqa: RUF005
+        r = runner.invoke(cli, SERVE_CMD + [kafka_ascynapi_project])  # noqa: RUF005
 
     assert r.exit_code == 0
     mock.assert_called_once()
@@ -79,11 +83,11 @@ def test_serve_asyncapi_docs(
 @pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_serve_asyncapi_json_schema(
     runner: CliRunner,
-    kafka_basic_project: Path,
-    monkeypatch,
+    kafka_ascynapi_project: str,
+    monkeypatch: pytest.MonkeyPatch,
     mock: Mock,
-):
-    r = runner.invoke(cli, GEN_JSON_CMD + [str(kafka_basic_project)])  # noqa: RUF005
+) -> None:
+    r = runner.invoke(cli, GEN_JSON_CMD + [kafka_ascynapi_project])  # noqa: RUF005
     schema_path = Path.cwd() / "asyncapi.json"
 
     with monkeypatch.context() as m:
@@ -100,11 +104,11 @@ def test_serve_asyncapi_json_schema(
 @pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_serve_asyncapi_yaml_schema(
     runner: CliRunner,
-    kafka_basic_project: Path,
-    monkeypatch,
+    kafka_ascynapi_project: str,
+    monkeypatch: pytest.MonkeyPatch,
     mock: Mock,
-):
-    r = runner.invoke(cli, GEN_YAML_CMD + [str(kafka_basic_project)])  # noqa: RUF005
+) -> None:
+    r = runner.invoke(cli, GEN_YAML_CMD + [kafka_ascynapi_project])  # noqa: RUF005
     schema_path = Path.cwd() / "asyncapi.yaml"
 
     with monkeypatch.context() as m:

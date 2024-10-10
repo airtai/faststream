@@ -8,11 +8,11 @@ from tests.asyncapi.base.v2_6_0.naming import NamingTestCase
 class TestNaming(NamingTestCase):
     broker_class = RedisBroker
 
-    def test_base(self):
+    def test_base(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(): ...
+        async def handle() -> None: ...
 
         schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
@@ -60,34 +60,34 @@ class TestNaming(NamingTestCase):
 
     @pytest.mark.parametrize(
         "args",
-        (  # noqa: PT007
+        (
             pytest.param({"channel": "test"}, id="channel"),
             pytest.param({"list": "test"}, id="list"),
             pytest.param({"stream": "test"}, id="stream"),
         ),
     )
-    def test_subscribers_variations(self, args):
+    def test_subscribers_variations(self, args) -> None:
         broker = self.broker_class()
 
         @broker.subscriber(**args)
-        async def handle(): ...
+        async def handle() -> None: ...
 
         schema = AsyncAPI(broker)
         assert list(schema.to_jsonable()["channels"].keys()) == ["test:Handle"]
 
     @pytest.mark.parametrize(
         "args",
-        (  # noqa: PT007
+        (
             pytest.param({"channel": "test"}, id="channel"),
             pytest.param({"list": "test"}, id="list"),
             pytest.param({"stream": "test"}, id="stream"),
         ),
     )
-    def test_publisher_variations(self, args):
+    def test_publisher_variations(self, args) -> None:
         broker = self.broker_class()
 
         @broker.publisher(**args)
-        async def handle(): ...
+        async def handle() -> None: ...
 
         schema = AsyncAPI(broker)
         assert list(schema.to_jsonable()["channels"].keys()) == ["test:Publisher"]

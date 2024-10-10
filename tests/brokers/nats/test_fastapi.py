@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, List
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -9,7 +9,7 @@ from faststream.nats.fastapi import NatsRouter as StreamRouter
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestRouter(FastAPITestcase):
     router_class = StreamRouter
     broker_router_class = NatsRouter
@@ -19,11 +19,11 @@ class TestRouter(FastAPITestcase):
         queue: str,
         event: asyncio.Event,
         mock: MagicMock,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber(queue + ".{name}")
-        def subscriber(msg: str, name: str):
+        def subscriber(msg: str, name: str) -> None:
             mock(msg=msg, name=name)
             event.set()
 
@@ -48,7 +48,7 @@ class TestRouter(FastAPITestcase):
         stream: JStream,
         event: asyncio.Event,
         mock: MagicMock,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber(
@@ -56,7 +56,7 @@ class TestRouter(FastAPITestcase):
             stream=stream,
             pull_sub=PullSub(1, batch=True),
         )
-        def subscriber(m: List[str]):
+        def subscriber(m: list[str]) -> None:
             mock(m)
             event.set()
 
@@ -87,7 +87,7 @@ class TestRouterLocal(FastAPILocalTestcase):
         stream: JStream,
         event: asyncio.Event,
         mock: MagicMock,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber(
@@ -95,7 +95,7 @@ class TestRouterLocal(FastAPILocalTestcase):
             stream=stream,
             pull_sub=PullSub(1, batch=True),
         )
-        def subscriber(m: List[str]):
+        def subscriber(m: list[str]) -> None:
             mock(m)
             event.set()
 
@@ -111,7 +111,7 @@ class TestRouterLocal(FastAPILocalTestcase):
         assert event.is_set()
         mock.assert_called_once_with(["hello"])
 
-    async def test_path(self, queue: str):
+    async def test_path(self, queue: str) -> None:
         router = self.router_class()
 
         @router.subscriber(queue + ".{name}")

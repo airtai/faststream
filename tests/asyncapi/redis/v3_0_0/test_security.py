@@ -8,7 +8,7 @@ from faststream.security import (
 from faststream.specification.asyncapi import AsyncAPI
 
 
-def test_base_security_schema():
+def test_base_security_schema() -> None:
     ssl_context = ssl.create_default_context()
     security = BaseSecurity(ssl_context=ssl_context)
 
@@ -42,7 +42,7 @@ def test_base_security_schema():
     }
 
 
-def test_plaintext_security_schema():
+def test_plaintext_security_schema() -> None:
     ssl_context = ssl.create_default_context()
 
     security = SASLPlaintext(
@@ -85,7 +85,7 @@ def test_plaintext_security_schema():
     }
 
 
-def test_plaintext_security_schema_without_ssl():
+def test_plaintext_security_schema_without_ssl() -> None:
     security = SASLPlaintext(
         username="admin",
         password="password",  # pragma: allowlist secret

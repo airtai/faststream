@@ -1,5 +1,6 @@
 import asyncio
 from abc import abstractmethod
+from typing import NoReturn
 from unittest.mock import Mock
 
 import anyio
@@ -14,12 +15,12 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
     def get_fake_producer_class(self) -> type:
         raise NotImplementedError
 
-    @pytest.mark.asyncio
-    async def test_correct_clean_fake_subscribers(self):
+    @pytest.mark.asyncio()
+    async def test_correct_clean_fake_subscribers(self) -> None:
         broker = self.get_broker()
 
         @broker.subscriber("test")
-        async def handler1(msg): ...
+        async def handler1(msg) -> None: ...
 
         broker.publisher("test2")
         broker.publisher("test")
@@ -32,14 +33,14 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
 
         assert len(broker._subscribers) == 1
 
-    @pytest.mark.asyncio
-    async def test_subscriber_mock(self, queue: str):
+    @pytest.mark.asyncio()
+    async def test_subscriber_mock(self, queue: str) -> None:
         test_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @test_broker.subscriber(*args, **kwargs)
-        async def m(msg):
+        async def m(msg) -> None:
             pass
 
         async with self.patch_broker(test_broker) as br:
@@ -47,8 +48,8 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
             await br.publish("hello", queue)
             m.mock.assert_called_once_with("hello")
 
-    @pytest.mark.asyncio
-    async def test_publisher_mock(self, queue: str):
+    @pytest.mark.asyncio()
+    async def test_publisher_mock(self, queue: str) -> None:
         test_broker = self.get_broker()
 
         publisher = test_broker.publisher(queue + "resp")
@@ -57,7 +58,7 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
 
         @publisher
         @test_broker.subscriber(*args, **kwargs)
-        async def m(msg):
+        async def m(msg) -> str:
             return "response"
 
         async with self.patch_broker(test_broker) as br:
@@ -65,8 +66,8 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
             await br.publish("hello", queue)
             publisher.mock.assert_called_with("response")
 
-    @pytest.mark.asyncio
-    async def test_publisher_with_subscriber__mock(self, queue: str):
+    @pytest.mark.asyncio()
+    async def test_publisher_with_subscriber__mock(self, queue: str) -> None:
         test_broker = self.get_broker()
 
         publisher = test_broker.publisher(queue + "resp")
@@ -75,13 +76,13 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
 
         @publisher
         @test_broker.subscriber(*args, **kwargs)
-        async def m(msg):
+        async def m(msg) -> str:
             return "response"
 
         args2, kwargs2 = self.get_subscriber_params(queue + "resp")
 
         @test_broker.subscriber(*args2, **kwargs2)
-        async def handler_response(msg): ...
+        async def handler_response(msg) -> None: ...
 
         async with self.patch_broker(test_broker) as br:
             await br.start()
@@ -92,8 +93,8 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
             publisher.mock.assert_called_with("response")
             handler_response.mock.assert_called_once_with("response")
 
-    @pytest.mark.asyncio
-    async def test_manual_publisher_mock(self, queue: str):
+    @pytest.mark.asyncio()
+    async def test_manual_publisher_mock(self, queue: str) -> None:
         test_broker = self.get_broker()
 
         publisher = test_broker.publisher(queue + "resp")
@@ -101,7 +102,7 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         args, kwargs = self.get_subscriber_params(queue)
 
         @test_broker.subscriber(*args, **kwargs)
-        async def m(msg):
+        async def m(msg) -> None:
             await publisher.publish("response")
 
         async with self.patch_broker(test_broker) as br:
@@ -109,14 +110,14 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
             await br.publish("hello", queue)
             publisher.mock.assert_called_with("response")
 
-    @pytest.mark.asyncio
-    async def test_exception_raises(self, queue: str):
+    @pytest.mark.asyncio()
+    async def test_exception_raises(self, queue: str) -> None:
         test_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @test_broker.subscriber(*args, **kwargs)
-        async def m(msg):  # pragma: no cover
+        async def m(msg) -> NoReturn:  # pragma: no cover
             raise ValueError
 
         async with self.patch_broker(test_broker) as br:
@@ -125,7 +126,7 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
             with pytest.raises(ValueError):  # noqa: PT011
                 await br.publish("hello", queue)
 
-    async def test_broker_gets_patched_attrs_within_cm(self, fake_producer_cls):
+    async def test_broker_gets_patched_attrs_within_cm(self, fake_producer_cls) -> None:
         test_broker = self.get_broker()
         await test_broker.start()
 
@@ -141,7 +142,7 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         assert br._connection is not None
         assert not isinstance(br._producer, fake_producer_cls)
 
-    async def test_broker_with_real_doesnt_get_patched(self):
+    async def test_broker_with_real_doesnt_get_patched(self) -> None:
         test_broker = self.get_broker()
         await test_broker.start()
 
@@ -155,7 +156,7 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
     async def test_broker_with_real_patches_publishers_and_subscribers(
         self,
         queue: str,
-    ):
+    ) -> None:
         test_broker = self.get_broker()
 
         publisher = test_broker.publisher(f"{queue}1")
@@ -163,7 +164,7 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         args, kwargs = self.get_subscriber_params(queue)
 
         @test_broker.subscriber(*args, **kwargs)
-        async def m(msg):
+        async def m(msg) -> None:
             await publisher.publish(f"response: {msg}")
 
         await test_broker.start()

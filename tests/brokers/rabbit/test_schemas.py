@@ -1,7 +1,7 @@
 from faststream.rabbit import RabbitQueue
 
 
-def test_same_queue():
+def test_same_queue() -> None:
     assert (
         len(
             {
@@ -13,7 +13,7 @@ def test_same_queue():
     )
 
 
-def test_different_queue_routing_key():
+def test_different_queue_routing_key() -> None:
     assert (
         len(
             {

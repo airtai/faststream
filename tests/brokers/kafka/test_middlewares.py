@@ -9,13 +9,13 @@ from tests.brokers.base.middlewares import (
 )
 
 
-@pytest.mark.kafka
+@pytest.mark.kafka()
 class TestMiddlewares(MiddlewareTestcase):
     def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
         return KafkaBroker(apply_types=apply_types, **kwargs)
 
 
-@pytest.mark.kafka
+@pytest.mark.kafka()
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
     def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
         return KafkaBroker(apply_types=apply_types, **kwargs)

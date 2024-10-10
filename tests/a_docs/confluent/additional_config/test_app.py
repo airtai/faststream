@@ -8,8 +8,8 @@ from docs.docs_src.confluent.additional_config.app import (
 from faststream.confluent import TestKafkaBroker
 
 
-@pytest.mark.asyncio
-async def test_base_app():
+@pytest.mark.asyncio()
+async def test_base_app() -> None:
     async with TestKafkaBroker(broker):
         await broker.publish(HelloWorld(msg="First Hello"), "hello_world")
         on_hello_world.mock.assert_called_with(dict(HelloWorld(msg="First Hello")))

@@ -1,4 +1,5 @@
-import asyncio
+import traceback
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -8,15 +9,14 @@ from faststream._internal.cli.main import cli
 from faststream.app import FastStream
 
 
-@pytest.mark.kafka
+@pytest.mark.kafka()
 def test_run_cmd(
     runner: CliRunner,
     mock: Mock,
-    event: asyncio.Event,
     monkeypatch: pytest.MonkeyPatch,
-    kafka_basic_project,
-):
-    async def patched_run(self: FastStream, *args, **kwargs):
+    kafka_basic_project: str,
+) -> None:
+    async def patched_run(self: FastStream, *args: Any, **kwargs: Any) -> None:
         await self.start()
         await self.stop()
         mock()
@@ -31,5 +31,5 @@ def test_run_cmd(
             ],
         )
 
-    assert r.exit_code == 0
+    assert r.exit_code == 0, (r.output, traceback.format_exception(r.exception))
     mock.assert_called_once()

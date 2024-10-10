@@ -10,9 +10,9 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_custom_global_context_kafka():
+async def test_custom_global_context_kafka() -> None:
     from docs.docs_src.getting_started.context.kafka.custom_global_context import (
         app,
         broker,
@@ -26,9 +26,9 @@ async def test_custom_global_context_kafka():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_confluent
-async def test_custom_global_context_confluent():
+async def test_custom_global_context_confluent() -> None:
     from docs.docs_src.getting_started.context.confluent.custom_global_context import (
         app,
         broker,
@@ -42,9 +42,9 @@ async def test_custom_global_context_confluent():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiopika
-async def test_custom_global_context_rabbit():
+async def test_custom_global_context_rabbit() -> None:
     from docs.docs_src.getting_started.context.rabbit.custom_global_context import (
         app,
         broker,
@@ -58,9 +58,9 @@ async def test_custom_global_context_rabbit():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_nats
-async def test_custom_global_context_nats():
+async def test_custom_global_context_nats() -> None:
     from docs.docs_src.getting_started.context.nats.custom_global_context import (
         app,
         broker,
@@ -74,9 +74,9 @@ async def test_custom_global_context_nats():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_redis
-async def test_custom_global_context_redis():
+async def test_custom_global_context_redis() -> None:
     from docs.docs_src.getting_started.context.redis.custom_global_context import (
         app,
         broker,

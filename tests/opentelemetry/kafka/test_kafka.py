@@ -21,7 +21,7 @@ from tests.brokers.kafka.test_publish import TestPublish
 from tests.opentelemetry.basic import LocalTelemetryTestcase
 
 
-@pytest.mark.kafka
+@pytest.mark.kafka()
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "kafka"
     include_messages_counters = True
@@ -42,12 +42,12 @@ class TestTelemetry(LocalTelemetryTestcase):
         assert attrs[SpanAttr.MESSAGING_SYSTEM] == self.messaging_system
         assert attrs[SpanAttr.MESSAGING_MESSAGE_CONVERSATION_ID] == IsUUID
         assert span.name == f"{self.destination_name(queue)} {action}"
-        assert span.kind in (SpanKind.CONSUMER, SpanKind.PRODUCER)
+        assert span.kind in {SpanKind.CONSUMER, SpanKind.PRODUCER}
 
-        if span.kind == SpanKind.PRODUCER and action in (Action.CREATE, Action.PUBLISH):
+        if span.kind == SpanKind.PRODUCER and action in {Action.CREATE, Action.PUBLISH}:
             assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == queue
 
-        if span.kind == SpanKind.CONSUMER and action in (Action.CREATE, Action.PROCESS):
+        if span.kind == SpanKind.CONSUMER and action in {Action.CREATE, Action.PROCESS}:
             assert attrs[MESSAGING_DESTINATION_PUBLISH_NAME] == queue
             assert attrs[SpanAttr.MESSAGING_MESSAGE_ID] == IsStr(regex=r"0-.+")
             assert attrs[SpanAttr.MESSAGING_KAFKA_DESTINATION_PARTITION] == 0
@@ -72,7 +72,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         metric_reader: InMemoryMetricReader,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider,
             tracer_provider=tracer_provider,
@@ -89,7 +89,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         args, kwargs = self.get_subscriber_params(queue, batch=True)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m, baggage: CurrentBaggage):
+        async def handler(m, baggage: CurrentBaggage) -> None:
             assert baggage.get_all() == expected_baggage
             assert baggage.get_all_batch() == expected_baggage_batch
             mock(m)
@@ -137,7 +137,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         metric_reader: InMemoryMetricReader,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider,
             tracer_provider=tracer_provider,
@@ -153,7 +153,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(msg, baggage: CurrentBaggage):
+        async def handler(msg, baggage: CurrentBaggage) -> None:
             assert baggage.get_all() == expected_baggage
             assert baggage.get_all_batch() == []
             await msgs_queue.put(msg)
@@ -206,7 +206,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         metric_reader: InMemoryMetricReader,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider,
             tracer_provider=tracer_provider,
@@ -221,7 +221,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         args, kwargs = self.get_subscriber_params(queue, batch=True)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m, baggage: CurrentBaggage):
+        async def handler(m, baggage: CurrentBaggage) -> None:
             assert baggage.get_all() == expected_baggage
             assert len(baggage.get_all_batch()) == expected_msg_count
             m.sort()
@@ -265,7 +265,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         mock.assert_called_once_with(["buy", "hi"])
 
 
-@pytest.mark.kafka
+@pytest.mark.kafka()
 class TestPublishWithTelemetry(TestPublish):
     def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
         return KafkaBroker(
@@ -275,7 +275,7 @@ class TestPublishWithTelemetry(TestPublish):
         )
 
 
-@pytest.mark.kafka
+@pytest.mark.kafka()
 class TestConsumeWithTelemetry(TestConsume):
     def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
         return KafkaBroker(

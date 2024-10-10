@@ -3,7 +3,7 @@ from faststream.specification.asyncapi import AsyncAPI
 from faststream.specification.schema.tag import Tag
 
 
-def test_base():
+def test_base() -> None:
     schema = AsyncAPI(
         RedisBroker(
             "redis://localhost:6379",
@@ -33,7 +33,7 @@ def test_base():
     }, schema
 
 
-def test_custom():
+def test_custom() -> None:
     schema = AsyncAPI(
         RedisBroker(
             "redis://localhost:6379",

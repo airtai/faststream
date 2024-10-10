@@ -3,8 +3,8 @@ import pytest
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
-async def test_publisher():
+@pytest.mark.asyncio()
+async def test_publisher() -> None:
     from docs.docs_src.redis.pub_sub.publisher_decorator import (
         broker,
         on_input_data,

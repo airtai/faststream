@@ -1,14 +1,13 @@
-from typing import Any
+from typing import Annotated, Any
 
 import pytest
-from typing_extensions import Annotated
 
 from faststream import Context, ContextRepo
 from faststream._internal.utils import apply_types
 
 
-@pytest.mark.asyncio
-async def test_base_context_alias(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_base_context_alias(context: ContextRepo) -> None:
     key = 1000
     context.set_global("key", key)
 
@@ -19,8 +18,8 @@ async def test_base_context_alias(context: ContextRepo):
     assert await func()
 
 
-@pytest.mark.asyncio
-async def test_context_cast(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_context_cast(context: ContextRepo) -> None:
     key = 1000
     context.set_global("key", key)
 
@@ -31,8 +30,8 @@ async def test_context_cast(context: ContextRepo):
     assert await func()
 
 
-@pytest.mark.asyncio
-async def test_nested_context_alias(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_nested_context_alias(context: ContextRepo) -> None:
     model = SomeModel(field=SomeModel(field=1000))
     context.set_global("model", model)
 
@@ -55,8 +54,8 @@ async def test_nested_context_alias(context: ContextRepo):
     assert await func(model=model)
 
 
-@pytest.mark.asyncio
-async def test_annotated_alias(context: ContextRepo):
+@pytest.mark.asyncio()
+async def test_annotated_alias(context: ContextRepo) -> None:
     model = SomeModel(field=SomeModel(field=1000))
     context.set_global("model", model)
 
@@ -71,5 +70,5 @@ class SomeModel:
     field: Any = ""
     another_field: Any = None
 
-    def __init__(self, field):
+    def __init__(self, field) -> None:
         self.field = field

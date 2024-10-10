@@ -4,9 +4,9 @@ from aiormq.exceptions import AMQPConnectionError
 from faststream.specification.asyncapi import AsyncAPI
 
 
-@pytest.mark.asyncio
-@pytest.mark.rabbit
-async def test_base_security():
+@pytest.mark.asyncio()
+@pytest.mark.rabbit()
+async def test_base_security() -> None:
     from docs.docs_src.rabbit.security.basic import broker
 
     with pytest.raises(AMQPConnectionError):
@@ -31,9 +31,9 @@ async def test_base_security():
     }
 
 
-@pytest.mark.asyncio
-@pytest.mark.rabbit
-async def test_plaintext_security():
+@pytest.mark.asyncio()
+@pytest.mark.rabbit()
+async def test_plaintext_security() -> None:
     from docs.docs_src.rabbit.security.plaintext import broker
 
     with pytest.raises(AMQPConnectionError):

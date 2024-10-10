@@ -23,7 +23,7 @@ class TestRouterPublisher(PublisherTestcase):
         return router
 
 
-def test_fastapi_security_schema():
+def test_fastapi_security_schema() -> None:
     security = SASLPlaintext(username="user", password="pass", use_ssl=False)
 
     router = RabbitRouter(security=security)

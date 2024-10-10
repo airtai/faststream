@@ -1,18 +1,16 @@
-from typing import Type
-
 from faststream.rabbit import RabbitBroker
 from faststream.specification.asyncapi import AsyncAPI
 from tests.asyncapi.base.v2_6_0.naming import NamingTestCase
 
 
 class TestNaming(NamingTestCase):
-    broker_class: Type[RabbitBroker] = RabbitBroker
+    broker_class: type[RabbitBroker] = RabbitBroker
 
-    def test_subscriber_with_exchange(self):
+    def test_subscriber_with_exchange(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test", "exchange")
-        async def handle(): ...
+        async def handle() -> None: ...
 
         schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
@@ -22,11 +20,11 @@ class TestNaming(NamingTestCase):
             "test:exchange:Handle:Message",
         ]
 
-    def test_publisher_with_exchange(self):
+    def test_publisher_with_exchange(self) -> None:
         broker = self.broker_class()
 
         @broker.publisher("test", "exchange")
-        async def handle(): ...
+        async def handle() -> None: ...
 
         schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 
@@ -36,11 +34,11 @@ class TestNaming(NamingTestCase):
             "test:exchange:Publisher:Message",
         ]
 
-    def test_base(self):
+    def test_base(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(): ...
+        async def handle() -> None: ...
 
         schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
 

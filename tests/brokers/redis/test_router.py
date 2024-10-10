@@ -14,7 +14,7 @@ from faststream.redis import (
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
-@pytest.mark.redis
+@pytest.mark.redis()
 class TestRouter(RouterTestcase):
     broker_class = RedisRouter
     route_class = RedisRoute
@@ -40,14 +40,14 @@ class TestRouterLocal(RouterLocalTestcase):
         event,
         mock,
         router,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         @router.subscriber("in.{name}.{id}")
         async def h(
             name: str = Path(),
             id: int = Path("id"),
-        ):
+        ) -> None:
             event.set()
             mock(name=name, id=id)
 
@@ -66,7 +66,7 @@ class TestRouterLocal(RouterLocalTestcase):
         event,
         mock,
         router,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         router.prefix = "test."
@@ -75,7 +75,7 @@ class TestRouterLocal(RouterLocalTestcase):
         async def h(
             name: str = Path(),
             id: int = Path("id"),
-        ):
+        ) -> None:
             event.set()
             mock(name=name, id=id)
 
@@ -94,13 +94,13 @@ class TestRouterLocal(RouterLocalTestcase):
         event,
         mock,
         router,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         async def h(
             name: str = Path(),
             id: int = Path("id"),
-        ):
+        ) -> None:
             event.set()
             mock(name=name, id=id)
 
@@ -120,10 +120,10 @@ class TestRouterLocal(RouterLocalTestcase):
         self,
         event: asyncio.Event,
         queue: str,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
-        def response(m):
+        def response(m) -> None:
             event.set()
 
         r = RedisRouter(prefix="test_", handlers=(RedisRoute(response, channel=queue),))
@@ -147,10 +147,10 @@ class TestRouterLocal(RouterLocalTestcase):
         self,
         event: asyncio.Event,
         queue: str,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
-        def response(m):
+        def response(m) -> None:
             event.set()
 
         r = RedisRouter(prefix="test_", handlers=(RedisRoute(response, list=queue),))
@@ -174,10 +174,10 @@ class TestRouterLocal(RouterLocalTestcase):
         self,
         event: asyncio.Event,
         queue: str,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
-        def response(m):
+        def response(m) -> None:
             event.set()
 
         r = RedisRouter(prefix="test_", handlers=(RedisRoute(response, stream=queue),))

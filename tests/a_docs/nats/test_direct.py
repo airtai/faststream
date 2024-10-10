@@ -3,8 +3,8 @@ import pytest
 from faststream.nats import TestApp, TestNatsBroker
 
 
-@pytest.mark.asyncio
-async def test_direct():
+@pytest.mark.asyncio()
+async def test_direct() -> None:
     from docs.docs_src.nats.direct import (
         app,
         base_handler1,

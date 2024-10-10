@@ -6,11 +6,11 @@ from tests.asyncapi.base.v3_0_0.naming import NamingTestCase
 class TestNaming(NamingTestCase):
     broker_class = NatsBroker
 
-    def test_base(self):
+    def test_base(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(): ...
+        async def handle() -> None: ...
 
         schema = AsyncAPI(broker, schema_version="3.0.0").to_jsonable()
 

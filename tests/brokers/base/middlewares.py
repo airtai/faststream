@@ -1,4 +1,5 @@
 import asyncio
+from typing import NoReturn
 from unittest.mock import Mock, call
 
 import pytest
@@ -11,14 +12,14 @@ from faststream.middlewares import BaseMiddleware, ExceptionMiddleware
 from .basic import BaseTestcaseConfig
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class LocalMiddlewareTestcase(BaseTestcaseConfig):
     async def test_subscriber_middleware(
         self,
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         async def mid(call_next, msg):
             mock.start(await msg.decode())
             result = await call_next(msg)
@@ -31,7 +32,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue, middlewares=(mid,))
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m) -> str:
             mock.inner(m)
             return "end"
 
@@ -56,7 +57,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         async def mid(call_next, msg, **kwargs):
             mock.enter()
             result = await call_next(msg, **kwargs)
@@ -72,7 +73,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1", middlewares=(mid,))
         @broker.publisher(queue + "2", middlewares=(mid,))
-        async def handler(m):
+        async def handler(m) -> str:
             mock.inner(m)
             return "end"
 
@@ -95,7 +96,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         self,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         event1 = asyncio.Event()
         event2 = asyncio.Event()
 
@@ -115,7 +116,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @broker.subscriber(*args2, **kwargs2)
-        async def handler(m):
+        async def handler(m) -> str:
             if event1.is_set():
                 event2.set()
             else:
@@ -145,7 +146,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         self,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         event1 = asyncio.Event()
         event2 = asyncio.Event()
 
@@ -164,13 +165,13 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         sub = broker.subscriber(*args, **kwargs)
 
         @sub(filter=lambda m: m.content_type == "application/json")
-        async def handler(m):
+        async def handler(m) -> str:
             event2.set()
             mock()
             return ""
 
         @sub(middlewares=(mid,))
-        async def handler2(m):
+        async def handler2(m) -> str:
             event1.set()
             mock()
             return ""
@@ -193,13 +194,13 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         mock.end.assert_called_once()
         assert mock.call_count == 2
 
-    async def test_error_traceback(self, queue: str, mock: Mock, event):
+    async def test_error_traceback(self, queue: str, mock: Mock, event) -> None:
         async def mid(call_next, msg):
             try:
                 result = await call_next(msg)
             except Exception as e:
                 mock(isinstance(e, ValueError))
-                raise e
+                raise
             else:
                 return result
 
@@ -208,7 +209,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue, middlewares=(mid,))
 
         @broker.subscriber(*args, **kwargs)
-        async def handler2(m):
+        async def handler2(m) -> NoReturn:
             event.set()
             raise ValueError
 
@@ -227,14 +228,14 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         mock.assert_called_once_with(True)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class MiddlewareTestcase(LocalMiddlewareTestcase):
     async def test_global_middleware(
         self,
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         class mid(BaseMiddleware):  # noqa: N801
             async def on_receive(self):
                 mock.start(self.msg)
@@ -251,7 +252,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m) -> str:
             event.set()
             return ""
 
@@ -274,7 +275,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         class mid(BaseMiddleware):  # noqa: N801
             async def on_receive(self):
                 mock.start(self.msg)
@@ -290,7 +291,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m) -> str:
             event.set()
             return ""
 
@@ -303,7 +304,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
         @broker.subscriber(*args2, **kwargs2)
-        async def handler2(m):
+        async def handler2(m) -> str:
             event2.set()
             return ""
 
@@ -328,7 +329,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         queue: str,
         mock: Mock,
         event: asyncio.Event,
-    ):
+    ) -> None:
         class Mid(BaseMiddleware):
             async def on_publish(self, msg: str, *args, **kwargs) -> str:
                 return msg * 2
@@ -344,7 +345,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         args2, kwargs2 = self.get_subscriber_params(queue + "r")
 
         @broker.subscriber(*args2, **kwargs2)
-        async def handler_resp(m):
+        async def handler_resp(m) -> None:
             mock(m)
             event.set()
 
@@ -367,7 +368,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         class Mid(BaseMiddleware):
             async def on_publish(self, msg: str, *args, **kwargs) -> str:
                 data = msg * 2
@@ -375,7 +376,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                 mock.enter(data)
                 return data
 
-            async def after_publish(self, *args, **kwargs):
+            async def after_publish(self, *args, **kwargs) -> None:
                 mock.end()
                 if mock.end.call_count > 2:
                     event.set()
@@ -408,18 +409,18 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         assert mock.end.call_count == 3
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
     async def test_exception_middleware_default_msg(
         self,
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ValueError, publish=True)
-        async def value_error_handler(exc):
+        async def value_error_handler(exc) -> str:
             return "value"
 
         broker = self.get_broker(apply_types=True, middlewares=(mid,))
@@ -428,13 +429,13 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1")
-        async def subscriber1(m):
+        async def subscriber1(m) -> NoReturn:
             raise ValueError
 
         args, kwargs = self.get_subscriber_params(queue + "1")
 
         @broker.subscriber(*args, **kwargs)
-        async def subscriber2(msg=Context("message")):
+        async def subscriber2(msg=Context("message")) -> None:
             mock(await msg.decode())
             event.set()
 
@@ -457,26 +458,26 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ValueError, publish=True)
-        async def value_error_handler(exc):
+        async def value_error_handler(exc) -> NoReturn:
             event.set()
-            raise SkipMessage()
+            raise SkipMessage
 
         broker = self.get_broker(middlewares=(mid,))
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1")
-        async def subscriber1(m):
+        async def subscriber1(m) -> NoReturn:
             raise ValueError
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
         @broker.subscriber(*args2, **kwargs2)
-        async def subscriber2(msg=Context("message")):
+        async def subscriber2(msg=Context("message")) -> None:
             mock(await msg.decode())
 
         async with self.patch_broker(broker) as br:
@@ -497,18 +498,18 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         mid = ExceptionMiddleware()
 
         @mid.add_handler(Exception)
-        async def value_error_handler(exc):
+        async def value_error_handler(exc) -> None:
             mock()
 
         broker = self.get_broker(middlewares=(mid,))
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def subscriber(m):
+        async def subscriber(m) -> NoReturn:
             event.set()
             raise SkipMessage
 
@@ -531,11 +532,11 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ValueError, publish=True)
-        async def value_error_handler(exc):
+        async def value_error_handler(exc) -> NoReturn:
             event.set()
             raise exc
 
@@ -544,13 +545,13 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1")
-        async def subscriber1(m):
+        async def subscriber1(m) -> NoReturn:
             raise ValueError
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
         @broker.subscriber(*args2, **kwargs2)
-        async def subscriber2(msg=Context("message")):
+        async def subscriber2(msg=Context("message")) -> None:
             mock(await msg.decode())
 
         async with self.patch_broker(broker) as br:
@@ -571,15 +572,15 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ZeroDivisionError, publish=True)
-        async def zero_error_handler(exc):
+        async def zero_error_handler(exc) -> str:
             return "zero"
 
         @mid.add_handler(ValueError, publish=True)
-        async def value_error_handler(exc):
+        async def value_error_handler(exc) -> str:
             return "value"
 
         broker = self.get_broker(apply_types=True, middlewares=(mid,))
@@ -589,20 +590,20 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @publisher
-        async def subscriber1(m):
+        async def subscriber1(m) -> NoReturn:
             raise ZeroDivisionError
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
         @broker.subscriber(*args2, **kwargs2)
         @publisher
-        async def subscriber2(m):
+        async def subscriber2(m) -> NoReturn:
             raise ValueError
 
         args3, kwargs3 = self.get_subscriber_params(queue + "2")
 
         @broker.subscriber(*args3, **kwargs3)
-        async def subscriber3(msg=Context("message")):
+        async def subscriber3(msg=Context("message")) -> None:
             mock(await msg.decode())
             if mock.call_count > 1:
                 event.set()
@@ -622,22 +623,22 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         assert mock.call_count == 2
         mock.assert_has_calls([call("zero"), call("value")], any_order=True)
 
-    async def test_exception_middleware_init_handler_same(self):
+    async def test_exception_middleware_init_handler_same(self) -> None:
         mid1 = ExceptionMiddleware()
 
         @mid1.add_handler(ValueError)
-        async def value_error_handler(exc):
+        async def value_error_handler(exc) -> str:
             return "value"
 
         mid2 = ExceptionMiddleware(handlers={ValueError: value_error_handler})
 
         assert [x[0] for x in mid1._handlers] == [x[0] for x in mid2._handlers]
 
-    async def test_exception_middleware_init_publish_handler_same(self):
+    async def test_exception_middleware_init_publish_handler_same(self) -> None:
         mid1 = ExceptionMiddleware()
 
         @mid1.add_handler(ValueError, publish=True)
-        async def value_error_handler(exc):
+        async def value_error_handler(exc) -> str:
             return "value"
 
         mid2 = ExceptionMiddleware(publish_handlers={ValueError: value_error_handler})
@@ -651,7 +652,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         async def decoder(
             msg,
             original_decoder,
@@ -661,7 +662,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ValueError)
-        async def value_error_handler(exc):
+        async def value_error_handler(exc) -> None:
             event.set()
 
         broker = self.get_broker(middlewares=(mid,), decoder=decoder)
@@ -669,7 +670,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def subscriber1(m):
+        async def subscriber1(m) -> NoReturn:
             raise ZeroDivisionError
 
         async with self.patch_broker(broker) as br:

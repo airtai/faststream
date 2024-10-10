@@ -8,20 +8,20 @@ from faststream.nats import NatsBroker, NatsResponse
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestPublish(BrokerPublishTestcase):
     """Test publish method of NATS broker."""
 
     def get_broker(self, apply_types: bool = False, **kwargs) -> NatsBroker:
         return NatsBroker(apply_types=apply_types, **kwargs)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_response(
         self,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue)
@@ -30,7 +30,7 @@ class TestPublish(BrokerPublishTestcase):
             return NatsResponse(1, correlation_id="1")
 
         @pub_broker.subscriber(queue + "1")
-        async def handle_next(msg=Context("message")):
+        async def handle_next(msg=Context("message")) -> None:
             mock(
                 body=msg.body,
                 correlation_id=msg.correlation_id,
@@ -54,12 +54,12 @@ class TestPublish(BrokerPublishTestcase):
             correlation_id="1",
         )
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_response_for_rpc(
         self,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue)

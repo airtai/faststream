@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Type, Union
+from typing import Annotated, Any, Optional, Union
 
 import pydantic
 from dirty_equals import IsDict, IsPartialDict, IsStr
 from fast_depends import Depends
 from fastapi import Depends as APIDepends
-from typing_extensions import Annotated, Literal
+from typing_extensions import Literal
 
 from faststream import Context
 from faststream._internal._compat import PYDANTIC_V2
@@ -16,18 +16,18 @@ from tests.marks import pydantic_v2
 
 
 class FastAPICompatible:
-    broker_class: Type[BrokerUsecase]
+    broker_class: type[BrokerUsecase]
     dependency_builder = staticmethod(APIDepends)
 
-    def build_app(self, broker):
+    def build_app(self, broker: BrokerUsecase[Any, Any]) -> BrokerUsecase[Any, Any]:
         """Patch it to test FastAPI scheme generation too."""
         return broker
 
-    def test_custom_naming(self):
+    def test_custom_naming(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test", title="custom_name", description="test description")
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
@@ -35,11 +35,11 @@ class FastAPICompatible:
         assert key == "custom_name"
         assert schema["channels"][key]["description"] == "test description"
 
-    def test_slash_in_title(self):
+    def test_slash_in_title(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test", title="/")
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -54,11 +54,11 @@ class FastAPICompatible:
             == "/:Message:Payload"
         )
 
-    def test_docstring_description(self):
+    def test_docstring_description(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test", title="custom_name")
-        async def handle(msg):
+        async def handle(msg) -> None:
             """Test description."""
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
@@ -69,11 +69,11 @@ class FastAPICompatible:
             "channels"
         ][key]["description"]
 
-    def test_empty(self):
+    def test_empty(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(): ...
+        async def handle() -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -86,11 +86,11 @@ class FastAPICompatible:
                 "type": "null",
             }
 
-    def test_no_type(self):
+    def test_no_type(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg): ...
+        async def handle(msg) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -100,11 +100,11 @@ class FastAPICompatible:
             assert key == "Handle:Message:Payload"
             assert v == {"title": key}
 
-    def test_simple_type(self):
+    def test_simple_type(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg: int): ...
+        async def handle(msg: int) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -115,11 +115,11 @@ class FastAPICompatible:
             assert key == "Handle:Message:Payload"
             assert v == {"title": key, "type": "integer"}
 
-    def test_simple_optional_type(self):
+    def test_simple_optional_type(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg: Optional[int]): ...
+        async def handle(msg: Optional[int]) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -139,11 +139,11 @@ class FastAPICompatible:
                 },
             ), v
 
-    def test_simple_type_with_default(self):
+    def test_simple_type_with_default(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg: int = 1): ...
+        async def handle(msg: int = 1) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -157,11 +157,11 @@ class FastAPICompatible:
                 "type": "integer",
             }
 
-    def test_multi_args_no_type(self):
+    def test_multi_args_no_type(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg, another): ...
+        async def handle(msg, another) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -179,11 +179,11 @@ class FastAPICompatible:
                 "type": "object",
             }
 
-    def test_multi_args_with_type(self):
+    def test_multi_args_with_type(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg: str, another: int): ...
+        async def handle(msg: str, another: int) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -201,11 +201,11 @@ class FastAPICompatible:
                 "type": "object",
             }
 
-    def test_multi_args_with_default(self):
+    def test_multi_args_with_default(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg: str, another: Optional[int] = None): ...
+        async def handle(msg: str, another: Optional[int] = None) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -236,7 +236,7 @@ class FastAPICompatible:
                 "type": "object",
             }
 
-    def test_dataclass(self):
+    def test_dataclass(self) -> None:
         @dataclass
         class User:
             id: int
@@ -245,7 +245,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: User): ...
+        async def handle(user: User) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -263,7 +263,7 @@ class FastAPICompatible:
                 "type": "object",
             }
 
-    def test_pydantic_model(self):
+    def test_pydantic_model(self) -> None:
         class User(pydantic.BaseModel):
             name: str = ""
             id: int
@@ -271,7 +271,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: User): ...
+        async def handle(user: User) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -289,7 +289,7 @@ class FastAPICompatible:
                 "type": "object",
             }
 
-    def test_pydantic_model_with_enum(self):
+    def test_pydantic_model_with_enum(self) -> None:
         class Status(str, Enum):
             registered = "registered"
             banned = "banned"
@@ -302,7 +302,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: User): ...
+        async def handle(user: User) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -328,7 +328,7 @@ class FastAPICompatible:
             },
         }, payload
 
-    def test_pydantic_model_mixed_regular(self):
+    def test_pydantic_model_mixed_regular(self) -> None:
         class Email(pydantic.BaseModel):
             addr: str
 
@@ -340,7 +340,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: User, description: str = ""): ...
+        async def handle(user: User, description: str = "") -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -378,7 +378,7 @@ class FastAPICompatible:
             },
         }
 
-    def test_pydantic_model_with_example(self):
+    def test_pydantic_model_with_example(self) -> None:
         class User(pydantic.BaseModel):
             name: str = ""
             id: int
@@ -396,7 +396,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: User): ...
+        async def handle(user: User) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -415,14 +415,14 @@ class FastAPICompatible:
                 "type": "object",
             }
 
-    def test_pydantic_model_with_keyword_property(self):
+    def test_pydantic_model_with_keyword_property(self) -> None:
         class TestModel(pydantic.BaseModel):
             discriminator: int = 0
 
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(model: TestModel): ...
+        async def handle(model: TestModel) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker)).to_jsonable()
 
@@ -442,20 +442,20 @@ class FastAPICompatible:
                 "type": "object",
             }
 
-    def test_ignores_depends(self):
+    def test_ignores_depends(self) -> None:
         broker = self.broker_class()
 
-        def dep(name: str = ""):
+        def dep(name: str = "") -> str:
             return name
 
-        def dep2(name2: str):
+        def dep2(name2: str) -> str:
             return name2
 
         dependencies = (self.dependency_builder(dep2),)
         message = self.dependency_builder(dep)
 
         @broker.subscriber("test", dependencies=dependencies)
-        async def handle(id: int, message=message): ...
+        async def handle(id: int, message=message) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -475,7 +475,7 @@ class FastAPICompatible:
             }, v
 
     @pydantic_v2
-    def test_descriminator(self):
+    def test_descriminator(self) -> None:
         class Sub2(pydantic.BaseModel):
             type: Literal["sub2"]
 
@@ -490,7 +490,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: descriminator): ...
+        async def handle(user: descriminator) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -532,7 +532,7 @@ class FastAPICompatible:
         }, schema["components"]
 
     @pydantic_v2
-    def test_nested_descriminator(self):
+    def test_nested_descriminator(self) -> None:
         class Sub2(pydantic.BaseModel):
             type: Literal["sub2"]
 
@@ -545,7 +545,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: Model): ...
+        async def handle(user: Model) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -594,7 +594,7 @@ class FastAPICompatible:
             },
         }, schema["components"]
 
-    def test_with_filter(self):
+    def test_with_filter(self) -> None:
         class User(pydantic.BaseModel):
             name: str = ""
             id: int
@@ -606,10 +606,10 @@ class FastAPICompatible:
         @sub(
             filter=lambda m: m.content_type == "application/json",
         )
-        async def handle(id: int): ...
+        async def handle(id: int) -> None: ...
 
         @sub
-        async def handle_default(msg): ...
+        async def handle_default(msg) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -631,7 +631,7 @@ class FastAPICompatible:
 class ArgumentsTestcase(FastAPICompatible):
     dependency_builder = staticmethod(Depends)
 
-    def test_pydantic_field(self):
+    def test_pydantic_field(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("msg")
@@ -642,7 +642,7 @@ class ArgumentsTestcase(FastAPICompatible):
                 title="Perfect",
                 examples=[1],
             ),
-        ): ...
+        ) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
@@ -660,11 +660,13 @@ class ArgumentsTestcase(FastAPICompatible):
                 "type": "integer",
             }
 
-    def test_ignores_custom_field(self):
+    def test_ignores_custom_field(self) -> None:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(id: int, user: Optional[str] = None, message=Context()): ...
+        async def handle(
+            id: int, user: Optional[str] = None, message=Context()
+        ) -> None: ...
 
         schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 

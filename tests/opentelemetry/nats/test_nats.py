@@ -16,12 +16,12 @@ from tests.brokers.nats.test_publish import TestPublish
 from tests.opentelemetry.basic import LocalTelemetryTestcase
 
 
-@pytest.fixture
+@pytest.fixture()
 def stream(queue):
     return JStream(queue)
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestTelemetry(LocalTelemetryTestcase):
     messaging_system = "nats"
     include_messages_counters = True
@@ -40,7 +40,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         metric_reader: InMemoryMetricReader,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider,
             tracer_provider=tracer_provider,
@@ -57,7 +57,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         )
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m) -> None:
             mock(m)
             event.set()
 
@@ -90,7 +90,7 @@ class TestTelemetry(LocalTelemetryTestcase):
         mock.assert_called_once_with(["hi"])
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestPublishWithTelemetry(TestPublish):
     def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
         return NatsBroker(
@@ -100,7 +100,7 @@ class TestPublishWithTelemetry(TestPublish):
         )
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestConsumeWithTelemetry(TestConsume):
     def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
         return NatsBroker(

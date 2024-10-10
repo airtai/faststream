@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import asdict, dataclass
-from datetime import datetime
-from typing import Any, Dict, List, Tuple
+from datetime import datetime, timezone
+from typing import Any
 from unittest.mock import Mock
 
 import anyio
@@ -23,14 +23,14 @@ class SimpleDataclass:
     r: str
 
 
-now = datetime.now()
+now = datetime.now(timezone.utc)
 
 
 class BrokerPublishTestcase(BaseTestcaseConfig):
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     @pytest.mark.parametrize(
         ("message", "message_type", "expected_message"),
-        (  # noqa: PT007
+        (
             pytest.param(
                 "hello",
                 str,
@@ -69,13 +69,13 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
             ),
             pytest.param(
                 {"m": 1},
-                Dict[str, int],
+                dict[str, int],
                 {"m": 1},
                 id="dict->dict",
             ),
             pytest.param(
                 [1, 2, 3],
-                List[int],
+                list[int],
                 [1, 2, 3],
                 id="list->list",
             ),
@@ -143,13 +143,13 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         expected_message,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @pub_broker.subscriber(*args, **kwargs)
-        async def handler(m: message_type):
+        async def handler(m: message_type) -> None:
             event.set()
             mock(m)
 
@@ -167,13 +167,13 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_with(expected_message)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_response(
         self,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -186,7 +186,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
         @pub_broker.subscriber(*args2, **kwargs2)
-        async def m_next(msg=Context("message")):
+        async def m_next(msg=Context("message")) -> None:
             event.set()
             mock(
                 body=msg.body,
@@ -211,19 +211,19 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
             headers="1",
         )
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_unwrap_dict(
         self,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @pub_broker.subscriber(*args, **kwargs)
-        async def m(a: int, b: int):
+        async def m(a: int, b: int) -> None:
             event.set()
             mock({"a": a, "b": b})
 
@@ -245,19 +245,19 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
             },
         )
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_unwrap_list(
         self,
         mock: Mock,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @pub_broker.subscriber(*args, **kwargs)
-        async def m(a: int, b: int, *args: Tuple[int, ...]):
+        async def m(a: int, b: int, *args: tuple[int, ...]) -> None:
             event.set()
             mock({"a": a, "b": b, "args": args})
 
@@ -274,26 +274,26 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_with({"a": 1, "b": 1, "args": (2, 3)})
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_base_publisher(
         self,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @pub_broker.subscriber(*args, **kwargs)
         @pub_broker.publisher(queue + "resp")
-        async def m():
+        async def m() -> str:
             return ""
 
         args2, kwargs2 = self.get_subscriber_params(queue + "resp")
 
         @pub_broker.subscriber(*args2, **kwargs2)
-        async def resp(msg):
+        async def resp(msg) -> None:
             event.set()
             mock(msg)
 
@@ -310,13 +310,13 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_once_with("")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_publisher_object(
         self,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         publisher = pub_broker.publisher(queue + "resp")
@@ -325,13 +325,13 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
 
         @publisher
         @pub_broker.subscriber(*args, **kwargs)
-        async def m():
+        async def m() -> str:
             return ""
 
         args, kwargs = self.get_subscriber_params(queue + "resp")
 
         @pub_broker.subscriber(*args, **kwargs)
-        async def resp(msg):
+        async def resp(msg) -> None:
             event.set()
             mock(msg)
 
@@ -348,13 +348,13 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_once_with("")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_publish_manual(
         self,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         publisher = pub_broker.publisher(queue + "resp")
@@ -362,13 +362,13 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue)
 
         @pub_broker.subscriber(*args, **kwargs)
-        async def m():
+        async def m() -> None:
             await publisher.publish("")
 
         args2, kwargs2 = self.get_subscriber_params(queue + "resp")
 
         @pub_broker.subscriber(*args2, **kwargs2)
-        async def resp(msg):
+        async def resp(msg) -> None:
             event.set()
             mock(msg)
 
@@ -385,12 +385,12 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_once_with("")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_multiple_publishers(
         self,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         event = anyio.Event()
@@ -401,20 +401,20 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         @pub_broker.publisher(queue + "resp2")
         @pub_broker.subscriber(*args, **kwargs)
         @pub_broker.publisher(queue + "resp")
-        async def m():
+        async def m() -> str:
             return ""
 
         args2, kwargs2 = self.get_subscriber_params(queue + "resp")
 
         @pub_broker.subscriber(*args2, **kwargs2)
-        async def resp(msg):
+        async def resp(msg) -> None:
             event.set()
             mock.resp1(msg)
 
         args3, kwargs3 = self.get_subscriber_params(queue + "resp2")
 
         @pub_broker.subscriber(*args3, **kwargs3)
-        async def resp2(msg):
+        async def resp2(msg) -> None:
             event2.set()
             mock.resp2(msg)
 
@@ -434,12 +434,12 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         mock.resp1.assert_called_once_with("")
         mock.resp2.assert_called_once_with("")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_reusable_publishers(
         self,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         consume = anyio.Event()
@@ -451,20 +451,20 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
 
         @pub
         @pub_broker.subscriber(*args, **kwargs)
-        async def m():
+        async def m() -> str:
             return ""
 
         args2, kwargs2 = self.get_subscriber_params(queue + "2")
 
         @pub
         @pub_broker.subscriber(*args2, **kwargs2)
-        async def m2():
+        async def m2() -> str:
             return ""
 
         args3, kwargs3 = self.get_subscriber_params(queue + "resp")
 
         @pub_broker.subscriber(*args3, **kwargs3)
-        async def resp():
+        async def resp() -> None:
             if not consume.is_set():
                 consume.set()
             else:
@@ -487,19 +487,19 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert consume.is_set()
         assert mock.call_count == 2
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_reply_to(
         self,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue + "reply")
 
         @pub_broker.subscriber(*args, **kwargs)
-        async def reply_handler(m):
+        async def reply_handler(m) -> None:
             event.set()
             mock(m)
 
@@ -525,13 +525,13 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_with("Hello!")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_no_reply(
         self,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         class Mid(BaseMiddleware):
             async def after_processed(self, *args: Any, **kwargs: Any):
                 event.set()
@@ -544,7 +544,7 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue + "reply")
 
         @pub_broker.subscriber(*args, **kwargs)
-        async def reply_handler(m):
+        async def reply_handler(m) -> None:
             mock(m)
 
         args2, kwargs2 = self.get_subscriber_params(queue, no_reply=True)
@@ -569,19 +569,19 @@ class BrokerPublishTestcase(BaseTestcaseConfig):
         assert event.is_set()
         assert not mock.called
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_publisher_after_start(
         self,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @pub_broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m) -> None:
             event.set()
             mock(m)
 

@@ -8,8 +8,8 @@ from docs.docs_src.kafka.batch_consuming_pydantic.app import (
 from faststream.kafka import TestKafkaBroker
 
 
-@pytest.mark.asyncio
-async def test_me():
+@pytest.mark.asyncio()
+async def test_me() -> None:
     async with TestKafkaBroker(broker):
         await broker.publish_batch(
             HelloWorld(msg="First Hello"),

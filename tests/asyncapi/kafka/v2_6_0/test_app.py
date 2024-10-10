@@ -6,7 +6,7 @@ from faststream.specification.schema.license import License
 from faststream.specification.schema.tag import Tag
 
 
-def test_base():
+def test_base() -> None:
     schema = AsyncAPI(KafkaBroker(), schema_version="2.6.0").to_jsonable()
 
     assert schema == {
@@ -25,7 +25,7 @@ def test_base():
     }
 
 
-def test_with_name():
+def test_with_name() -> None:
     schema = AsyncAPI(
         KafkaBroker(),
         title="My App",
@@ -54,7 +54,7 @@ def test_with_name():
     }
 
 
-def test_full():
+def test_full() -> None:
     schema = AsyncAPI(
         KafkaBroker(),
         title="My App",
@@ -97,7 +97,7 @@ def test_full():
     }
 
 
-def test_full_dict():
+def test_full_dict() -> None:
     schema = AsyncAPI(
         KafkaBroker(),
         title="My App",
@@ -140,7 +140,7 @@ def test_full_dict():
     }
 
 
-def test_extra():
+def test_extra() -> None:
     schema = AsyncAPI(
         KafkaBroker(),
         title="My App",

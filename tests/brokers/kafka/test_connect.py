@@ -4,7 +4,7 @@ from faststream.kafka import KafkaBroker
 from tests.brokers.base.connection import BrokerConnectionTestcase
 
 
-@pytest.mark.kafka
+@pytest.mark.kafka()
 class TestConnection(BrokerConnectionTestcase):
     broker = KafkaBroker
 

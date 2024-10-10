@@ -9,8 +9,8 @@ from docs.docs_src.kafka.publish_with_partition_key.app import (
 from faststream.kafka import TestKafkaBroker
 
 
-@pytest.mark.asyncio
-async def test_app():
+@pytest.mark.asyncio()
+async def test_app() -> None:
     async with TestKafkaBroker(broker):
         await broker.publish(Data(data=0.2), "input_data", key=b"my_key")
 
@@ -19,8 +19,8 @@ async def test_app():
 
 
 @pytest.mark.skip("we are not checking the key")
-@pytest.mark.asyncio
-async def test_keys():
+@pytest.mark.asyncio()
+async def test_keys() -> None:
     async with TestKafkaBroker(broker):
         # we should be able to publish a message with the key
         await broker.publish(Data(data=0.2), "input_data", key=b"my_key")

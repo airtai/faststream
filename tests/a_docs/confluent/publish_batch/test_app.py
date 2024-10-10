@@ -10,8 +10,8 @@ from docs.docs_src.confluent.publish_batch.app import (
 from faststream.confluent import TestKafkaBroker
 
 
-@pytest.mark.asyncio
-async def test_batch_publish_decorator():
+@pytest.mark.asyncio()
+async def test_batch_publish_decorator() -> None:
     async with TestKafkaBroker(broker):
         await broker.publish(Data(data=2.0), "input_data_1")
 
@@ -21,8 +21,8 @@ async def test_batch_publish_decorator():
         )
 
 
-@pytest.mark.asyncio
-async def test_batch_publish_call():
+@pytest.mark.asyncio()
+async def test_batch_publish_call() -> None:
     async with TestKafkaBroker(broker):
         await broker.publish(Data(data=2.0), "input_data_2")
 

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, List, Optional, Tuple, cast
+from typing import Any, Optional, cast
 from unittest.mock import Mock
 
 import pytest
@@ -20,12 +20,14 @@ from faststream.opentelemetry.consts import (
     ERROR_TYPE,
     MESSAGING_DESTINATION_PUBLISH_NAME,
 )
-from faststream.opentelemetry.middleware import MessageAction as Action
-from faststream.opentelemetry.middleware import TelemetryMiddleware
+from faststream.opentelemetry.middleware import (
+    MessageAction as Action,
+    TelemetryMiddleware,
+)
 from tests.brokers.base.basic import BaseTestcaseConfig
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class LocalTelemetryTestcase(BaseTestcaseConfig):
     messaging_system: str
     include_messages_counters: bool
@@ -50,14 +52,14 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         return queue
 
     @staticmethod
-    def get_spans(exporter: InMemorySpanExporter) -> List[Span]:
-        spans = cast(Tuple[Span, ...], exporter.get_finished_spans())
+    def get_spans(exporter: InMemorySpanExporter) -> list[Span]:
+        spans = cast(tuple[Span, ...], exporter.get_finished_spans())
         return sorted(spans, key=lambda s: s.start_time)
 
     @staticmethod
     def get_metrics(
         reader: InMemoryMetricReader,
-    ) -> List[Metric]:
+    ) -> list[Metric]:
         """Get sorted metrics.
 
         Return order:
@@ -69,24 +71,23 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         metrics = reader.get_metrics_data()
         metrics = metrics.resource_metrics[0].scope_metrics[0].metrics
         metrics = sorted(metrics, key=lambda m: m.name)
-        return cast(List[Metric], metrics)
+        return cast(list[Metric], metrics)
 
-    @pytest.fixture
+    @pytest.fixture()
     def tracer_provider(self) -> TracerProvider:
-        tracer_provider = TracerProvider(resource=self.resource)
-        return tracer_provider
+        return TracerProvider(resource=self.resource)
 
-    @pytest.fixture
+    @pytest.fixture()
     def trace_exporter(self, tracer_provider: TracerProvider) -> InMemorySpanExporter:
         exporter = InMemorySpanExporter()
         tracer_provider.add_span_processor(SimpleSpanProcessor(exporter))
         return exporter
 
-    @pytest.fixture
+    @pytest.fixture()
     def metric_reader(self) -> InMemoryMetricReader:
         return InMemoryMetricReader()
 
-    @pytest.fixture
+    @pytest.fixture()
     def meter_provider(self, metric_reader: InMemoryMetricReader) -> MeterProvider:
         return MeterProvider(metric_readers=(metric_reader,), resource=self.resource)
 
@@ -106,14 +107,14 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
             SpanAttr.MESSAGING_MESSAGE_CONVERSATION_ID
         ]
         assert span.name == f"{self.destination_name(queue)} {action}", span.name
-        assert span.kind in (SpanKind.CONSUMER, SpanKind.PRODUCER), span.kind
+        assert span.kind in {SpanKind.CONSUMER, SpanKind.PRODUCER}, span.kind
 
-        if span.kind == SpanKind.PRODUCER and action in (Action.CREATE, Action.PUBLISH):
+        if span.kind == SpanKind.PRODUCER and action in {Action.CREATE, Action.PUBLISH}:
             assert attrs[SpanAttr.MESSAGING_DESTINATION_NAME] == queue, attrs[
                 SpanAttr.MESSAGING_DESTINATION_NAME
             ]
 
-        if span.kind == SpanKind.CONSUMER and action in (Action.CREATE, Action.PROCESS):
+        if span.kind == SpanKind.CONSUMER and action in {Action.CREATE, Action.PROCESS}:
             assert attrs[MESSAGING_DESTINATION_PUBLISH_NAME] == queue, attrs[
                 MESSAGING_DESTINATION_PUBLISH_NAME
             ]
@@ -139,7 +140,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     def assert_metrics(
         self,
-        metrics: List[Metric],
+        metrics: list[Metric],
         count: int = 1,
         error_type: Optional[str] = None,
     ) -> None:
@@ -170,14 +171,14 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,))
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m) -> None:
             mock(m)
             event.set()
 
@@ -209,7 +210,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,))
 
@@ -226,7 +227,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         args2, kwargs2 = self.get_subscriber_params(second_queue)
 
         @broker.subscriber(*args2, **kwargs2)
-        async def handler2(m):
+        async def handler2(m) -> None:
             mock(m)
             event.set()
 
@@ -269,14 +270,14 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,))
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m) -> None:
             mock(m)
             event.set()
 
@@ -308,14 +309,14 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         mock: Mock,
         meter_provider: MeterProvider,
         metric_reader: InMemoryMetricReader,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class(meter_provider=meter_provider)
         broker = self.get_broker(middlewares=(mid,))
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m) -> None:
             mock(m)
             event.set()
 
@@ -344,7 +345,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         mock: Mock,
         meter_provider: MeterProvider,
         metric_reader: InMemoryMetricReader,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class(meter_provider=meter_provider)
         broker = self.get_broker(middlewares=(mid,))
         expected_value_type = "ValueError"
@@ -352,7 +353,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
+        async def handler(m) -> None:
             try:
                 raise ValueError
             finally:
@@ -384,14 +385,14 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m, span: CurrentSpan):
+        async def handler(m, span: CurrentSpan) -> None:
             assert span is get_current_span()
             mock(m)
             event.set()
@@ -415,7 +416,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class()
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_baggage = {"foo": "bar"}
@@ -423,7 +424,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler1(m, baggage: CurrentBaggage):
+        async def handler1(m, baggage: CurrentBaggage) -> None:
             assert baggage.get("foo") == "bar"
             assert baggage.get_all() == expected_baggage
             assert baggage.get_all_batch() == []
@@ -456,7 +457,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class()
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
 
@@ -475,7 +476,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         args2, kwargs2 = self.get_subscriber_params(second_queue)
 
         @broker.subscriber(*args2, **kwargs2)
-        async def handler2(m, baggage: CurrentBaggage):
+        async def handler2(m, baggage: CurrentBaggage) -> None:
             assert baggage.get_all() == {}
             mock(m)
             event.set()
@@ -505,7 +506,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         mid = self.telemetry_middleware_class()
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_baggage = {"baz": "bar", "bar": "baz"}
@@ -526,7 +527,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         args2, kwargs2 = self.get_subscriber_params(second_queue)
 
         @broker.subscriber(*args2, **kwargs2)
-        async def handler2(m, baggage: CurrentBaggage):
+        async def handler2(m, baggage: CurrentBaggage) -> None:
             assert baggage.get_all() == expected_baggage
             mock(m)
             event.set()

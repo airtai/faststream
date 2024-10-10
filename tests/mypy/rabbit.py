@@ -1,4 +1,5 @@
-from typing import Awaitable, Callable
+from collections.abc import Awaitable
+from typing import Callable
 
 from aio_pika import IncomingMessage
 
@@ -28,11 +29,11 @@ RabbitBroker(decoder=custom_decoder)
 
 
 def sync_parser(msg: IncomingMessage) -> RabbitMessage:
-    return ""  # type: ignore
+    return ""  # type: ignore[return-value]
 
 
 async def async_parser(msg: IncomingMessage) -> RabbitMessage:
-    return ""  # type: ignore
+    return ""  # type: ignore[return-value]
 
 
 async def custom_parser(

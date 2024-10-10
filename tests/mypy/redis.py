@@ -1,10 +1,13 @@
-from typing import Awaitable, Callable
+from collections.abc import Awaitable
+from typing import Callable
 
 from faststream._internal.basic_types import DecodedMessage
-from faststream.redis import RedisBroker as Broker
-from faststream.redis import RedisMessage as Message
-from faststream.redis import RedisRoute as Route
-from faststream.redis import RedisRouter as StreamRouter
+from faststream.redis import (
+    RedisBroker as Broker,
+    RedisMessage as Message,
+    RedisRoute as Route,
+    RedisRouter as StreamRouter,
+)
 from faststream.redis.fastapi import RedisRouter as FastAPIRouter
 from faststream.redis.message import RedisMessage as Msg
 
@@ -30,11 +33,11 @@ Broker(decoder=custom_decoder)
 
 
 def sync_parser(msg: Msg) -> Message:
-    return ""  # type: ignore
+    return ""  # type: ignore[return-value]
 
 
 async def async_parser(msg: Msg) -> Message:
-    return ""  # type: ignore
+    return ""  # type: ignore[return-value]
 
 
 async def custom_parser(

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Dict, Tuple
+from typing import Any
 
 from faststream._internal.broker.broker import BrokerUsecase
 
@@ -26,8 +26,8 @@ class BaseTestcaseConfig:
         self,
         *args: Any,
         **kwargs: Any,
-    ) -> Tuple[
-        Tuple[Any, ...],
-        Dict[str, Any],
+    ) -> tuple[
+        tuple[Any, ...],
+        dict[str, Any],
     ]:
         return args, kwargs

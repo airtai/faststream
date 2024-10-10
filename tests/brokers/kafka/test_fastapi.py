@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, List
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -9,7 +9,7 @@ from faststream.kafka.fastapi import KafkaRouter as StreamRouter
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
-@pytest.mark.kafka
+@pytest.mark.kafka()
 class TestKafkaRouter(FastAPITestcase):
     router_class = StreamRouter
     broker_router_class = KafkaRouter
@@ -19,11 +19,11 @@ class TestKafkaRouter(FastAPITestcase):
         mock: Mock,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber(queue, batch=True)
-        async def hello(msg: List[str]):
+        async def hello(msg: list[str]):
             event.set()
             return mock(msg)
 
@@ -53,11 +53,11 @@ class TestRouterLocal(FastAPILocalTestcase):
         mock: Mock,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber(queue, batch=True)
-        async def hello(msg: List[str]):
+        async def hello(msg: list[str]):
             event.set()
             return mock(msg)
 

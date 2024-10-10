@@ -14,7 +14,7 @@ from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 from .basic import ConfluentTestcaseConfig
 
 
-@pytest.mark.confluent
+@pytest.mark.confluent()
 class TestRouter(ConfluentTestcaseConfig, RouterTestcase):
     broker_class = KafkaRouter
     route_class = KafkaRoute

@@ -9,9 +9,9 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_base_kafka():
+async def test_base_kafka() -> None:
     from docs.docs_src.getting_started.context.kafka.base import base_handler, broker
     from faststream.kafka import TestKafkaBroker
 
@@ -21,9 +21,9 @@ async def test_base_kafka():
         base_handler.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_confluent
-async def test_base_confluent():
+async def test_base_confluent() -> None:
     from docs.docs_src.getting_started.context.confluent.base import (
         base_handler,
         broker,
@@ -36,9 +36,9 @@ async def test_base_confluent():
         base_handler.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiopika
-async def test_base_rabbit():
+async def test_base_rabbit() -> None:
     from docs.docs_src.getting_started.context.rabbit.base import base_handler, broker
     from faststream.rabbit import TestRabbitBroker
 
@@ -48,9 +48,9 @@ async def test_base_rabbit():
         base_handler.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_nats
-async def test_base_nats():
+async def test_base_nats() -> None:
     from docs.docs_src.getting_started.context.nats.base import base_handler, broker
     from faststream.nats import TestNatsBroker
 
@@ -60,9 +60,9 @@ async def test_base_nats():
         base_handler.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_redis
-async def test_base_redis():
+async def test_base_redis() -> None:
     from docs.docs_src.getting_started.context.redis.base import base_handler, broker
     from faststream.redis import TestRedisBroker
 

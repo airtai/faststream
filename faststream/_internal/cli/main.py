@@ -62,16 +62,21 @@ def run(
     ),
     workers: int = typer.Option(
         1,
+        "-w",
+        "--workers",
         show_default=False,
         help="Run [workers] applications with process spawning.",
     ),
     log_level: LogLevels = typer.Option(
         LogLevels.notset,
+        "-l",
+        "--log-level",
         case_sensitive=False,
         help="Set selected level for FastStream and brokers logger objects.",
     ),
     reload: bool = typer.Option(
         False,
+        "-r",
         "--reload",
         is_flag=True,
         help="Restart app at directory files changes.",
@@ -94,6 +99,7 @@ def run(
     ),
     is_factory: bool = typer.Option(
         False,
+        "-f",
         "--factory",
         is_flag=True,
         help="Treat APP as an application factory.",
@@ -113,7 +119,7 @@ def run(
         sys.path.insert(0, app_dir)
 
     # Should be imported after sys.path changes
-    module_path, app_obj = import_from_string(app)
+    module_path, app_obj = import_from_string(app, is_factory=is_factory)
 
     args = (app, extra, is_factory, casted_log_level)
 
@@ -129,15 +135,17 @@ def run(
             _run(*args)
 
         else:
+            reload_dirs = []
+            if module_path:
+                reload_dirs.append(str(module_path))
             if app_dir != ".":
-                reload_dirs = [str(module_path), app_dir]
-            else:
-                reload_dirs = [str(module_path)]
+                reload_dirs.append(app_dir)
 
             WatchReloader(
                 target=_run,
                 args=args,
                 reload_dirs=reload_dirs,
+                extra_extensions=watch_extensions,
             ).run()
 
     elif workers > 1:
@@ -166,9 +174,7 @@ def _run(
     app_level: int = logging.INFO,
 ) -> None:
     """Runs the specified application."""
-    _, app_obj = import_from_string(app)
-    if is_factory and callable(app_obj):
-        app_obj = app_obj()
+    _, app_obj = import_from_string(app, is_factory=is_factory)
 
     if not isinstance(app_obj, Application):
         msg = f'Imported object "{app_obj}" must be "Application" type.'
@@ -237,10 +243,7 @@ def publish(
         extra["timeout"] = float(extra["timeout"])
 
     try:
-        _, app_obj = import_from_string(app)
-
-        if callable(app_obj) and is_factory:
-            app_obj = app_obj()
+        _, app_obj = import_from_string(app, is_factory=is_factory)
 
         assert isinstance(app_obj, FastStream), app_obj
 

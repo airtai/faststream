@@ -1,5 +1,4 @@
 import asyncio
-from typing import Type
 from unittest.mock import Mock
 
 import pytest
@@ -14,26 +13,26 @@ from tests.brokers.base.middlewares import LocalMiddlewareTestcase
 from tests.brokers.base.parser import LocalCustomParserTestcase
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class RouterTestcase(
     LocalMiddlewareTestcase,
     LocalCustomParserTestcase,
 ):
-    route_class: Type[SubscriberRoute]
-    publisher_class: Type[ArgsContainer]
+    route_class: type[SubscriberRoute]
+    publisher_class: type[ArgsContainer]
 
     async def test_empty_prefix(
         self,
         router: BrokerRouter,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @router.subscriber(*args, **kwargs)
-        def subscriber(m):
+        def subscriber(m) -> None:
             event.set()
 
         pub_broker.include_router(router)
@@ -55,7 +54,7 @@ class RouterTestcase(
         router: BrokerRouter,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         router.prefix = "test_"
@@ -63,7 +62,7 @@ class RouterTestcase(
         args, kwargs = self.get_subscriber_params(queue)
 
         @router.subscriber(*args, **kwargs)
-        def subscriber(m):
+        def subscriber(m) -> None:
             event.set()
 
         pub_broker.include_router(router)
@@ -85,13 +84,13 @@ class RouterTestcase(
         router: BrokerRouter,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @router.subscriber(*args, **kwargs)
-        def subscriber(m):
+        def subscriber(m) -> None:
             event.set()
 
         pub_broker.include_router(router, prefix="test_")
@@ -113,20 +112,20 @@ class RouterTestcase(
         router: BrokerRouter,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @router.subscriber(*args, **kwargs)
         @router.publisher(queue + "resp")
-        def subscriber(m):
+        def subscriber(m) -> str:
             return "hi"
 
         args2, kwargs2 = self.get_subscriber_params(queue + "resp")
 
         @router.subscriber(*args2, **kwargs2)
-        def response(m):
+        def response(m) -> None:
             event.set()
 
         pub_broker.include_router(router)
@@ -148,7 +147,7 @@ class RouterTestcase(
         router: BrokerRouter,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         router.prefix = "test_"
@@ -157,13 +156,13 @@ class RouterTestcase(
 
         @router.subscriber(*args, **kwargs)
         @router.publisher(queue + "resp")
-        def subscriber(m):
+        def subscriber(m) -> str:
             return "hi"
 
         args2, kwargs2 = self.get_subscriber_params(queue + "resp")
 
         @router.subscriber(*args2, **kwargs2)
-        def response(m):
+        def response(m) -> None:
             event.set()
 
         pub_broker.include_router(router)
@@ -185,7 +184,7 @@ class RouterTestcase(
         router: BrokerRouter,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         router.prefix = "test_"
@@ -195,13 +194,13 @@ class RouterTestcase(
         args, kwargs = self.get_subscriber_params(queue)
 
         @router.subscriber(*args, **kwargs)
-        async def subscriber(m):
+        async def subscriber(m) -> None:
             await p.publish("resp")
 
         args2, kwargs2 = self.get_subscriber_params(queue + "resp")
 
         @router.subscriber(*args2, **kwargs2)
-        def response(m):
+        def response(m) -> None:
             event.set()
 
         pub_broker.include_router(router)
@@ -223,10 +222,10 @@ class RouterTestcase(
         event: asyncio.Event,
         router: BrokerRouter,
         queue: str,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
-        def response(m):
+        def response(m) -> None:
             event.set()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -256,7 +255,7 @@ class RouterTestcase(
         router: BrokerRouter,
         queue: str,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         def response(m):
@@ -281,7 +280,7 @@ class RouterTestcase(
         args, kwargs = self.get_subscriber_params(f"test_{queue}1")
 
         @pub_broker.subscriber(*args, **kwargs)
-        async def handler(msg):
+        async def handler(msg) -> None:
             mock(msg)
             event.set()
 
@@ -306,7 +305,7 @@ class RouterTestcase(
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         core_router = type(router)(prefix="test1_")
@@ -315,7 +314,7 @@ class RouterTestcase(
         args, kwargs = self.get_subscriber_params(queue)
 
         @router.subscriber(*args, **kwargs)
-        def subscriber(m):
+        def subscriber(m) -> str:
             event.set()
             mock(m)
             return "hi"
@@ -342,7 +341,7 @@ class RouterTestcase(
         router: BrokerRouter,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         core_router = type(router)(prefix="test1_")
@@ -352,7 +351,7 @@ class RouterTestcase(
 
         @router.subscriber(*args, **kwargs)
         @router.publisher(queue + "resp")
-        def subscriber(m):
+        def subscriber(m) -> str:
             return "hi"
 
         args2, kwargs2 = self.get_subscriber_params(
@@ -360,7 +359,7 @@ class RouterTestcase(
         )
 
         @pub_broker.subscriber(*args2, **kwargs2)
-        def response(m):
+        def response(m) -> None:
             event.set()
 
         core_router.include_routers(router)
@@ -383,7 +382,7 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         router = type(router)(dependencies=(Depends(lambda: 1),))
@@ -395,7 +394,7 @@ class RouterTestcase(
         )
 
         @router2.subscriber(*args, **kwargs)
-        def subscriber(): ...
+        def subscriber() -> None: ...
 
         router.include_router(router2)
         pub_broker.include_routers(router)
@@ -407,7 +406,7 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         router2 = type(router)()
@@ -418,7 +417,7 @@ class RouterTestcase(
         )
 
         @router2.subscriber(*args, **kwargs)
-        def subscriber(): ...
+        def subscriber() -> None: ...
 
         router.include_router(router2, dependencies=(Depends(lambda: 2),))
         pub_broker.include_router(router, dependencies=(Depends(lambda: 1),))
@@ -431,7 +430,7 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         router = type(router)(middlewares=(BaseMiddleware,))
@@ -441,7 +440,7 @@ class RouterTestcase(
 
         @router2.subscriber(*args, **kwargs)
         @router2.publisher(queue, middlewares=(3,))
-        def subscriber(): ...
+        def subscriber() -> None: ...
 
         router.include_router(router2)
         pub_broker.include_routers(router)
@@ -456,7 +455,7 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         router2 = type(router)()
@@ -465,7 +464,7 @@ class RouterTestcase(
 
         @router2.subscriber(*args, **kwargs)
         @router2.publisher(queue, middlewares=(3,))
-        def subscriber(): ...
+        def subscriber() -> None: ...
 
         router.include_router(router2, middlewares=(BaseMiddleware,))
         pub_broker.include_router(router, middlewares=(BaseMiddleware,))
@@ -483,7 +482,7 @@ class RouterTestcase(
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         async def parser(msg, original):
@@ -502,7 +501,7 @@ class RouterTestcase(
         args, kwargs = self.get_subscriber_params(queue)
 
         @router.subscriber(*args, **kwargs)
-        def subscriber(s):
+        def subscriber(s) -> None:
             event.set()
 
         pub_broker.include_router(router)
@@ -527,7 +526,7 @@ class RouterTestcase(
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         async def global_parser(msg, original):  # pragma: no cover
@@ -554,7 +553,7 @@ class RouterTestcase(
         args, kwargs = self.get_subscriber_params(queue, parser=parser, decoder=decoder)
 
         @router.subscriber(*args, **kwargs)
-        def subscriber(s):
+        def subscriber(s) -> None:
             event.set()
 
         pub_broker.include_router(router)
@@ -575,14 +574,14 @@ class RouterTestcase(
             mock.decoder.assert_called_once()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class RouterLocalTestcase(RouterTestcase):
     async def test_publisher_mock(
         self,
         router: BrokerRouter,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         pub = router.publisher(queue + "resp")
@@ -591,7 +590,7 @@ class RouterLocalTestcase(RouterTestcase):
 
         @router.subscriber(*args, **kwargs)
         @pub
-        def subscriber(m):
+        def subscriber(m) -> str:
             event.set()
             return "hi"
 
@@ -615,13 +614,13 @@ class RouterLocalTestcase(RouterTestcase):
         router: BrokerRouter,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @router.subscriber(*args, **kwargs)
-        def subscriber(m):
+        def subscriber(m) -> str:
             event.set()
             return "hi"
 
@@ -644,7 +643,7 @@ class RouterLocalTestcase(RouterTestcase):
         self,
         router: BrokerRouter,
         queue: str,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         publisher = router.publisher(queue + "resp")
@@ -652,7 +651,7 @@ class RouterLocalTestcase(RouterTestcase):
         args, kwargs = self.get_subscriber_params(queue)
 
         @pub_broker.subscriber(*args, **kwargs)
-        async def m(m):
+        async def m(m) -> None:
             await publisher.publish("response")
 
         pub_broker.include_router(router)

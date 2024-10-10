@@ -14,11 +14,11 @@ class Mid(BaseMiddleware):
         self.msg["data"] = json.dumps(data)
 
     async def consume_scope(self, call_next, msg):
-        msg._decoded_body = msg._decoded_body * 2
+        msg._decoded_body *= 2
         return await call_next(msg)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class RedisRequestsTestcase(RequestsTestcase):
     def get_middleware(self, **kwargs):
         return Mid
@@ -30,7 +30,7 @@ class RedisRequestsTestcase(RequestsTestcase):
         return RedisRouter(**kwargs)
 
 
-@pytest.mark.redis
+@pytest.mark.redis()
 class TestRealRequests(RedisRequestsTestcase):
     pass
 
