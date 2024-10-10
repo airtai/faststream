@@ -1,26 +1,24 @@
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
-    Iterable,
     Literal,
     Optional,
-    Sequence,
-    Tuple,
     Union,
     overload,
 )
 
-from faststream.confluent.subscriber.asyncapi import (
-    AsyncAPIBatchSubscriber,
-    AsyncAPIDefaultSubscriber,
+from faststream.confluent.subscriber.subscriber import (
+    SpecificationBatchSubscriber,
+    SpecificationDefaultSubscriber,
 )
 
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import BrokerMiddleware
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import BrokerMiddleware
     from faststream.confluent.schemas import TopicPartition
-    from faststream.types import AnyDict
 
 
 @overload
@@ -39,12 +37,12 @@ def create_subscriber(
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
-    # AsyncAPI args
+    broker_middlewares: Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "AsyncAPIBatchSubscriber": ...
+) -> "SpecificationBatchSubscriber": ...
 
 
 @overload
@@ -64,11 +62,11 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "AsyncAPIDefaultSubscriber": ...
+) -> "SpecificationDefaultSubscriber": ...
 
 
 @overload
@@ -88,15 +86,15 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[ConfluentMsg, Tuple[ConfluentMsg, ...]]]"
+        "BrokerMiddleware[Union[ConfluentMsg, tuple[ConfluentMsg, ...]]]"
     ],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
 ) -> Union[
-    "AsyncAPIDefaultSubscriber",
-    "AsyncAPIBatchSubscriber",
+    "SpecificationDefaultSubscriber",
+    "SpecificationBatchSubscriber",
 ]: ...
 
 
@@ -116,18 +114,18 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[ConfluentMsg, Tuple[ConfluentMsg, ...]]]"
+        "BrokerMiddleware[Union[ConfluentMsg, tuple[ConfluentMsg, ...]]]"
     ],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
 ) -> Union[
-    "AsyncAPIDefaultSubscriber",
-    "AsyncAPIBatchSubscriber",
+    "SpecificationDefaultSubscriber",
+    "SpecificationBatchSubscriber",
 ]:
     if batch:
-        return AsyncAPIBatchSubscriber(
+        return SpecificationBatchSubscriber(
             *topics,
             partitions=partitions,
             polling_interval=polling_interval,
@@ -144,20 +142,19 @@ def create_subscriber(
             description_=description_,
             include_in_schema=include_in_schema,
         )
-    else:
-        return AsyncAPIDefaultSubscriber(
-            *topics,
-            partitions=partitions,
-            polling_interval=polling_interval,
-            group_id=group_id,
-            connection_data=connection_data,
-            is_manual=is_manual,
-            no_ack=no_ack,
-            no_reply=no_reply,
-            retry=retry,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
+    return SpecificationDefaultSubscriber(
+        *topics,
+        partitions=partitions,
+        polling_interval=polling_interval,
+        group_id=group_id,
+        connection_data=connection_data,
+        is_manual=is_manual,
+        no_ack=no_ack,
+        no_reply=no_reply,
+        retry=retry,
+        broker_dependencies=broker_dependencies,
+        broker_middlewares=broker_middlewares,
+        title_=title_,
+        description_=description_,
+        include_in_schema=include_in_schema,
+    )

@@ -1,12 +1,10 @@
 import re
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
-    List,
     Optional,
     Protocol,
-    Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -15,9 +13,10 @@ from unittest.mock import AsyncMock, MagicMock
 import anyio
 from typing_extensions import TypedDict, override
 
-from faststream.broker.message import gen_cor_id
-from faststream.broker.utils import resolve_custom_func
-from faststream.exceptions import WRONG_PUBLISH_ARGS, SetupError, SubscriberNotFound
+from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream._internal.testing.broker import TestBroker
+from faststream.exceptions import SetupError, SubscriberNotFound
+from faststream.message import gen_cor_id
 from faststream.redis.broker.broker import RedisBroker
 from faststream.redis.message import (
     BatchListMessage,
@@ -36,12 +35,10 @@ from faststream.redis.subscriber.usecase import (
     _ListHandlerMixin,
     _StreamHandlerMixin,
 )
-from faststream.testing.broker import TestBroker
-from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
-    from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
-    from faststream.types import AnyDict, SendableMessage
+    from faststream._internal.basic_types import AnyDict, SendableMessage
+    from faststream.redis.publisher.publisher import SpecificationPublisher
 
 __all__ = ("TestRedisBroker",)
 
@@ -52,14 +49,14 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: RedisBroker,
-        publisher: "AsyncAPIPublisher",
-    ) -> Tuple["LogicSubscriber", bool]:
+        publisher: "SpecificationPublisher",
+    ) -> tuple["LogicSubscriber", bool]:
         sub: Optional[LogicSubscriber] = None
 
         named_property = publisher.subscriber_property(name_only=True)
         visitors = (ChannelVisitor(), ListVisitor(), StreamVisitor())
 
-        for handler in broker._subscribers.values():  # pragma: no branch
+        for handler in broker._subscribers:  # pragma: no branch
             for visitor in visitors:
                 if visitor.visit(**named_property, sub=handler):
                     sub = handler
@@ -87,7 +84,6 @@ class TestRedisBroker(TestBroker[RedisBroker]):
 
         async def get_msg(*args: Any, timeout: float, **kwargs: Any) -> None:
             await anyio.sleep(timeout)
-            return None
 
         pub_sub.get_message = get_msg
 
@@ -121,13 +117,7 @@ class FakeProducer(RedisFastProducer):
         headers: Optional["AnyDict"] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
-    ) -> Optional[Any]:
-        if rpc and reply_to:
-            raise WRONG_PUBLISH_ARGS
-
+    ) -> None:
         correlation_id = correlation_id or gen_cor_id()
 
         body = build_message(
@@ -140,7 +130,7 @@ class FakeProducer(RedisFastProducer):
         destination = _make_destionation_kwargs(channel, list, stream)
         visitors = (ChannelVisitor(), ListVisitor(), StreamVisitor())
 
-        for handler in self.broker._subscribers.values():  # pragma: no branch
+        for handler in self.broker._subscribers:  # pragma: no branch
             for visitor in visitors:
                 if visited_ch := visitor.visit(**destination, sub=handler):
                     msg = visitor.get_message(
@@ -149,12 +139,7 @@ class FakeProducer(RedisFastProducer):
                         handler,  # type: ignore[arg-type]
                     )
 
-                    with timeout_scope(rpc_timeout, raise_timeout):
-                        response_msg = await self._execute_handler(msg, handler)
-                        if rpc:
-                            return await self._decoder(await self._parser(response_msg))
-
-        return None
+                    await self._execute_handler(msg, handler)
 
     @override
     async def request(  # type: ignore[override]
@@ -180,7 +165,7 @@ class FakeProducer(RedisFastProducer):
         destination = _make_destionation_kwargs(channel, list, stream)
         visitors = (ChannelVisitor(), ListVisitor(), StreamVisitor())
 
-        for handler in self.broker._subscribers.values():  # pragma: no branch
+        for handler in self.broker._subscribers:  # pragma: no branch
             for visitor in visitors:
                 if visited_ch := visitor.visit(**destination, sub=handler):
                     msg = visitor.get_message(
@@ -211,7 +196,7 @@ class FakeProducer(RedisFastProducer):
         ]
 
         visitor = ListVisitor()
-        for handler in self.broker._subscribers.values():  # pragma: no branch
+        for handler in self.broker._subscribers:  # pragma: no branch
             if visitor.visit(list=list, sub=handler):
                 casted_handler = cast(_ListHandlerMixin, handler)
 
@@ -220,10 +205,10 @@ class FakeProducer(RedisFastProducer):
 
                     await self._execute_handler(msg, handler)
 
-        return None
-
     async def _execute_handler(
-        self, msg: Any, handler: "LogicSubscriber"
+        self,
+        msg: Any,
+        handler: "LogicSubscriber",
     ) -> "PubSubMessage":
         result = await handler.process_message(msg)
 
@@ -246,13 +231,12 @@ def build_message(
     reply_to: str = "",
     headers: Optional["AnyDict"] = None,
 ) -> bytes:
-    data = RawMessage.encode(
+    return RawMessage.encode(
         message=message,
         reply_to=reply_to,
         headers=headers,
         correlation_id=correlation_id,
     )
-    return data
 
 
 class Visitor(Protocol):
@@ -288,7 +272,7 @@ class ChannelVisitor(Visitor):
                 re.match(
                     sub_channel.name.replace(".", "\\.").replace("*", ".*"),
                     channel or "",
-                )
+                ),
             )
         ) or channel == sub_channel.name:
             return channel
@@ -336,15 +320,14 @@ class ListVisitor(Visitor):
             return BatchListMessage(
                 type="blist",
                 channel=channel,
-                data=body if isinstance(body, List) else [body],
+                data=body if isinstance(body, list) else [body],
             )
 
-        else:
-            return DefaultListMessage(
-                type="list",
-                channel=channel,
-                data=body,
-            )
+        return DefaultListMessage(
+            type="list",
+            channel=channel,
+            data=body,
+        )
 
 
 class StreamVisitor(Visitor):
@@ -378,13 +361,12 @@ class StreamVisitor(Visitor):
                 message_ids=[],
             )
 
-        else:
-            return DefaultStreamMessage(
-                type="stream",
-                channel=channel,
-                data={bDATA_KEY: body},
-                message_ids=[],
-            )
+        return DefaultStreamMessage(
+            type="stream",
+            channel=channel,
+            data={bDATA_KEY: body},
+            message_ids=[],
+        )
 
 
 class _DestinationKwargs(TypedDict, total=False):

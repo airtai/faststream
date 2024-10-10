@@ -12,6 +12,7 @@ hide:
 ---
 
 # Release Notes
+
 ## 0.5.25
 
 ### What's Changed

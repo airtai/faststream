@@ -7,9 +7,9 @@ from faststream.rabbit import TestApp, TestRabbitBroker
 from tests.tools import spy_decorator
 
 
-@pytest.mark.asyncio
-@pytest.mark.rabbit
-async def test_ack_exc():
+@pytest.mark.asyncio()
+@pytest.mark.rabbit()
+async def test_ack_exc() -> None:
     from docs.docs_src.rabbit.ack.errors import app, broker, handle
 
     with patch.object(IncomingMessage, "ack", spy_decorator(IncomingMessage.ack)) as m:

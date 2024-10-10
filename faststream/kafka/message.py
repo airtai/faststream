@@ -1,8 +1,8 @@
-from typing import TYPE_CHECKING, Any, Protocol, Tuple, Union
+from typing import TYPE_CHECKING, Any, Protocol, Union
 
 from aiokafka import TopicPartition as AIOKafkaTopicPartition
 
-from faststream.broker.message import StreamMessage
+from faststream.message import StreamMessage
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord
@@ -42,9 +42,9 @@ class KafkaMessage(
     StreamMessage[
         Union[
             "ConsumerRecord",
-            Tuple["ConsumerRecord", ...],
+            tuple["ConsumerRecord", ...],
         ]
-    ]
+    ],
 ):
     """Represents a Kafka message in the FastStream framework.
 

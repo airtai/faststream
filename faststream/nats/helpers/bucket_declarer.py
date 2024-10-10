@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 from nats.js.api import KeyValueConfig
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class KVBucketDeclarer:
-    buckets: Dict[str, "KeyValue"]
+    buckets: dict[str, "KeyValue"]
 
     def __init__(self, connection: "JetStreamContext") -> None:
         self._connection = connection
@@ -47,7 +47,7 @@ class KVBucketDeclarer:
                         placement=placement,
                         republish=republish,
                         direct=direct,
-                    )
+                    ),
                 )
             else:
                 key_value = await self._connection.key_value(bucket)

@@ -3,23 +3,22 @@ from typing import TYPE_CHECKING, Any, Optional
 import anyio
 from typing_extensions import override
 
-from faststream.broker.publisher.proto import ProducerProto
-from faststream.broker.utils import resolve_custom_func
-from faststream.exceptions import WRONG_PUBLISH_ARGS, SetupError
+from faststream._internal.publisher.proto import ProducerProto
+from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream._internal.utils.nuid import NUID
+from faststream.exceptions import SetupError
 from faststream.redis.message import DATA_KEY
 from faststream.redis.parser import RawMessage, RedisPubSubParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
-from faststream.utils.functions import timeout_scope
-from faststream.utils.nuid import NUID
 
 if TYPE_CHECKING:
-    from redis.asyncio.client import PubSub, Redis
+    from redis.asyncio.client import Redis
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, SendableMessage
+    from faststream._internal.types import (
         AsyncCallable,
         CustomCallable,
     )
-    from faststream.types import AnyDict, SendableMessage
 
 
 class RedisFastProducer(ProducerProto):
@@ -59,22 +58,9 @@ class RedisFastProducer(ProducerProto):
         maxlen: Optional[int] = None,
         headers: Optional["AnyDict"] = None,
         reply_to: str = "",
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
-    ) -> Optional[Any]:
+    ) -> None:
         if not any((channel, list, stream)):
             raise SetupError(INCORRECT_SETUP_MSG)
-
-        psub: Optional[PubSub] = None
-        if rpc:
-            if reply_to:
-                raise WRONG_PUBLISH_ARGS
-            nuid = NUID()
-            rpc_nuid = str(nuid.next(), "utf-8")
-            reply_to = rpc_nuid
-            psub = self._connection.pubsub()
-            await psub.subscribe(reply_to)
 
         msg = RawMessage.encode(
             message=message,
@@ -94,36 +80,8 @@ class RedisFastProducer(ProducerProto):
                 maxlen=maxlen,
             )
         else:
-            raise AssertionError("unreachable")
-
-        if psub is None:
-            return None
-
-        else:
-            m = None
-            with timeout_scope(rpc_timeout, raise_timeout):
-                # skip subscribe message
-                await psub.get_message(
-                    ignore_subscribe_messages=True,
-                    timeout=rpc_timeout or 0.0,
-                )
-
-                # get real response
-                m = await psub.get_message(
-                    ignore_subscribe_messages=True,
-                    timeout=rpc_timeout or 0.0,
-                )
-
-            await psub.unsubscribe()
-            await psub.aclose()  # type: ignore[attr-defined]
-
-            if m is None:
-                if raise_timeout:
-                    raise TimeoutError()
-                else:
-                    return None
-            else:
-                return await self._decoder(await self._parser(m))
+            msg = "unreachable"
+            raise AssertionError(msg)
 
     @override
     async def request(  # type: ignore[override]
@@ -164,7 +122,8 @@ class RedisFastProducer(ProducerProto):
                 maxlen=maxlen,
             )
         else:
-            raise AssertionError("unreachable")
+            msg = "unreachable"
+            raise AssertionError(msg)
 
         with anyio.fail_after(timeout) as scope:
             # skip subscribe message

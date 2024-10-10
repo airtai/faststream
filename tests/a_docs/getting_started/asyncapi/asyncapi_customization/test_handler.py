@@ -1,11 +1,10 @@
 from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_handler import (
-    app,
+    docs_obj,
 )
-from faststream.asyncapi.generate import get_app_schema
 
 
-def test_handler_customization():
-    schema = get_app_schema(app).to_jsonable()
+def test_handler_customization() -> None:
+    schema = docs_obj.to_jsonable()
 
     assert schema["channels"] == {
         "input_data:Consume": {
@@ -13,7 +12,7 @@ def test_handler_customization():
             "servers": ["development"],
             "bindings": {"kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}},
             "subscribe": {
-                "message": {"$ref": "#/components/messages/input_data:Consume:Message"}
+                "message": {"$ref": "#/components/messages/input_data:Consume:Message"},
             },
         },
         "output_data:Produce": {
@@ -21,7 +20,9 @@ def test_handler_customization():
             "servers": ["development"],
             "bindings": {"kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}},
             "publish": {
-                "message": {"$ref": "#/components/messages/output_data:Produce:Message"}
+                "message": {
+                    "$ref": "#/components/messages/output_data:Produce:Message"
+                },
             },
         },
     }

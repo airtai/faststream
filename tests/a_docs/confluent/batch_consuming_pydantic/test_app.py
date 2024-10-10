@@ -8,8 +8,8 @@ from docs.docs_src.confluent.batch_consuming_pydantic.app import (
 from faststream.confluent import TestKafkaBroker
 
 
-@pytest.mark.asyncio
-async def test_me():
+@pytest.mark.asyncio()
+async def test_me() -> None:
     async with TestKafkaBroker(broker):
         await broker.publish_batch(
             HelloWorld(msg="First Hello"),
@@ -17,5 +17,5 @@ async def test_me():
             topic="test_batch",
         )
         handle_batch.mock.assert_called_with(
-            [dict(HelloWorld(msg="First Hello")), dict(HelloWorld(msg="Second Hello"))]
+            [dict(HelloWorld(msg="First Hello")), dict(HelloWorld(msg="Second Hello"))],
         )

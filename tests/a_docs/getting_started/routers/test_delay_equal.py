@@ -10,9 +10,9 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_delay_router_kafka():
+async def test_delay_router_kafka() -> None:
     from docs.docs_src.getting_started.routers.kafka.delay_equal import (
         app,
         broker,
@@ -22,20 +22,20 @@ async def test_delay_router_kafka():
     )
     from faststream.kafka import TestKafkaBroker
 
-    assert broker._subscribers.keys() == control_broker._subscribers.keys()
-    assert broker._publishers.keys() == control_broker._publishers.keys()
+    assert len(broker._subscribers) == len(control_broker._subscribers)
+    assert len(broker._publishers) == len(control_broker._publishers)
 
     async with TestKafkaBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[
-            0
-        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        next(iter(br._subscribers)).calls[0].handler.mock.assert_called_once_with(
+            {"name": "John", "user_id": 1},
+        )
 
-        next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
+        next(iter(br._publishers)).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_confluent
-async def test_delay_router_confluent():
+async def test_delay_router_confluent() -> None:
     from docs.docs_src.getting_started.routers.confluent.delay_equal import (
         app,
         broker,
@@ -45,20 +45,20 @@ async def test_delay_router_confluent():
     )
     from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 
-    assert broker._subscribers.keys() == control_broker._subscribers.keys()
-    assert broker._publishers.keys() == control_broker._publishers.keys()
+    assert len(broker._subscribers) == len(control_broker._subscribers)
+    assert len(broker._publishers) == len(control_broker._publishers)
 
     async with TestConfluentKafkaBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[
-            0
-        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        next(iter(br._subscribers)).calls[0].handler.mock.assert_called_once_with(
+            {"name": "John", "user_id": 1},
+        )
 
-        next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
+        next(iter(br._publishers)).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiopika
-async def test_delay_router_rabbit():
+async def test_delay_router_rabbit() -> None:
     from docs.docs_src.getting_started.routers.rabbit.delay_equal import (
         app,
         broker,
@@ -68,20 +68,20 @@ async def test_delay_router_rabbit():
     )
     from faststream.rabbit import TestRabbitBroker
 
-    assert broker._subscribers.keys() == control_broker._subscribers.keys()
-    assert broker._publishers.keys() == control_broker._publishers.keys()
+    assert len(broker._subscribers) == len(control_broker._subscribers)
+    assert len(broker._publishers) == len(control_broker._publishers)
 
     async with TestRabbitBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[
-            0
-        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        next(iter(br._subscribers)).calls[0].handler.mock.assert_called_once_with(
+            {"name": "John", "user_id": 1},
+        )
 
-        next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
+        next(iter(br._publishers)).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_nats
-async def test_delay_router_nats():
+async def test_delay_router_nats() -> None:
     from docs.docs_src.getting_started.routers.nats.delay_equal import (
         app,
         broker,
@@ -91,20 +91,20 @@ async def test_delay_router_nats():
     )
     from faststream.nats import TestNatsBroker
 
-    assert broker._subscribers.keys() == control_broker._subscribers.keys()
-    assert broker._publishers.keys() == control_broker._publishers.keys()
+    assert len(broker._subscribers) == len(control_broker._subscribers)
+    assert len(broker._publishers) == len(control_broker._publishers)
 
     async with TestNatsBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[
-            0
-        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        next(iter(br._subscribers)).calls[0].handler.mock.assert_called_once_with(
+            {"name": "John", "user_id": 1},
+        )
 
-        next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
+        next(iter(br._publishers)).mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_redis
-async def test_delay_router_redis():
+async def test_delay_router_redis() -> None:
     from docs.docs_src.getting_started.routers.redis.delay_equal import (
         app,
         broker,
@@ -114,12 +114,12 @@ async def test_delay_router_redis():
     )
     from faststream.redis import TestRedisBroker
 
-    assert broker._subscribers.keys() == control_broker._subscribers.keys()
-    assert broker._publishers.keys() == control_broker._publishers.keys()
+    assert len(broker._subscribers) == len(control_broker._subscribers)
+    assert len(broker._publishers) == len(control_broker._publishers)
 
     async with TestRedisBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[
-            0
-        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        next(iter(br._subscribers)).calls[0].handler.mock.assert_called_once_with(
+            {"name": "John", "user_id": 1},
+        )
 
-        next(iter(br._publishers.values())).mock.assert_called_once_with("Hi!")
+        next(iter(br._publishers)).mock.assert_called_once_with("Hi!")

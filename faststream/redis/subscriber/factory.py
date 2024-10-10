@@ -1,11 +1,12 @@
-from typing import TYPE_CHECKING, Iterable, Optional, Union
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Optional, Union
 
 from typing_extensions import TypeAlias
 
 from faststream.exceptions import SetupError
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
-from faststream.redis.subscriber.asyncapi import (
+from faststream.redis.subscriber.subscriber import (
     AsyncAPIChannelSubscriber,
     AsyncAPIListBatchSubscriber,
     AsyncAPIListSubscriber,
@@ -16,7 +17,7 @@ from faststream.redis.subscriber.asyncapi import (
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import BrokerMiddleware
+    from faststream._internal.types import BrokerMiddleware
     from faststream.redis.message import UnifyRedisDict
 
 SubsciberType: TypeAlias = Union[
@@ -61,7 +62,7 @@ def create_subscriber(
             include_in_schema=include_in_schema,
         )
 
-    elif (stream_sub := StreamSub.validate(stream)) is not None:
+    if (stream_sub := StreamSub.validate(stream)) is not None:
         if stream_sub.batch:
             return AsyncAPIStreamBatchSubscriber(
                 stream=stream_sub,
@@ -76,22 +77,21 @@ def create_subscriber(
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
-        else:
-            return AsyncAPIStreamSubscriber(
-                stream=stream_sub,
-                # basic args
-                no_ack=no_ack,
-                no_reply=no_reply,
-                retry=retry,
-                broker_dependencies=broker_dependencies,
-                broker_middlewares=broker_middlewares,
-                # AsyncAPI args
-                title_=title_,
-                description_=description_,
-                include_in_schema=include_in_schema,
-            )
+        return AsyncAPIStreamSubscriber(
+            stream=stream_sub,
+            # basic args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+            # AsyncAPI args
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
 
-    elif (list_sub := ListSub.validate(list)) is not None:
+    if (list_sub := ListSub.validate(list)) is not None:
         if list_sub.batch:
             return AsyncAPIListBatchSubscriber(
                 list=list_sub,
@@ -106,20 +106,18 @@ def create_subscriber(
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
-        else:
-            return AsyncAPIListSubscriber(
-                list=list_sub,
-                # basic args
-                no_ack=no_ack,
-                no_reply=no_reply,
-                retry=retry,
-                broker_dependencies=broker_dependencies,
-                broker_middlewares=broker_middlewares,
-                # AsyncAPI args
-                title_=title_,
-                description_=description_,
-                include_in_schema=include_in_schema,
-            )
+        return AsyncAPIListSubscriber(
+            list=list_sub,
+            # basic args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+            # AsyncAPI args
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
 
-    else:
-        raise SetupError(INCORRECT_SETUP_MSG)
+    raise SetupError(INCORRECT_SETUP_MSG)
