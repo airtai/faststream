@@ -6,8 +6,8 @@ from faststream.rabbit import (
     RabbitRouter,
 )
 from faststream.specification.asyncapi import AsyncAPI
-from tests.asyncapi.base.v2_6_0.arguments import ArgumentsTestcase
-from tests.asyncapi.base.v2_6_0.publisher import PublisherTestcase
+from tests.asyncapi.base.v3_0_0.arguments import ArgumentsTestcase
+from tests.asyncapi.base.v3_0_0.publisher import PublisherTestcase
 from tests.asyncapi.base.v3_0_0.router import RouterTestcase
 
 
@@ -55,7 +55,7 @@ class TestRouter(RouterTestcase):
                     },
                     "bindings": {
                         "amqp": {
-                            "is": "routingKey",
+                            "is": "queue",
                             "bindingVersion": "0.3.0",
                             "queue": {
                                 "name": "test_test",
@@ -64,8 +64,7 @@ class TestRouter(RouterTestcase):
                                 "autoDelete": False,
                                 "vhost": "/",
                             },
-                            "exchange": {"type": "default", "vhost": "/"},
-                        },
+                        }
                     },
                 },
             },
@@ -109,7 +108,7 @@ class TestRouter(RouterTestcase):
 
 
 class TestRouterArguments(ArgumentsTestcase):
-    broker_class = RabbitRouter
+    broker_factory = RabbitRouter
 
     def build_app(self, router):
         broker = RabbitBroker()
@@ -118,7 +117,7 @@ class TestRouterArguments(ArgumentsTestcase):
 
 
 class TestRouterPublisher(PublisherTestcase):
-    broker_class = RabbitRouter
+    broker_factory = RabbitRouter
 
     def build_app(self, router):
         broker = RabbitBroker()

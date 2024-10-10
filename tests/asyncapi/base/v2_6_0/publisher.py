@@ -32,7 +32,7 @@ class PublisherTestcase:
 
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
         assert schema["channels"][key].get("description") is None
-        assert schema["channels"][key].get("publish") is not None
+        assert schema["channels"][key].get("subscribe") is not None
 
         payload = schema["components"]["schemas"]
         for v in payload.values():

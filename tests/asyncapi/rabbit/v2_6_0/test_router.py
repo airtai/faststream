@@ -59,7 +59,7 @@ class TestRouter(RouterTestcase):
                                 "exchange": {"type": "default", "vhost": "/"},
                             },
                         },
-                        "subscribe": {
+                        "publish": {
                             "bindings": {
                                 "amqp": {
                                     "cc": "test_key",

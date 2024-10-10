@@ -816,21 +816,14 @@ search:
                 - [SASLScram256](api/faststream/security/SASLScram256.md)
                 - [SASLScram512](api/faststream/security/SASLScram512.md)
             - specification
+                - [AsyncAPI](api/faststream/specification/AsyncAPI.md)
+                - [Contact](api/faststream/specification/Contact.md)
+                - [ExternalDocs](api/faststream/specification/ExternalDocs.md)
+                - [License](api/faststream/specification/License.md)
+                - [Tag](api/faststream/specification/Tag.md)
                 - asyncapi
                     - [AsyncAPI](api/faststream/specification/asyncapi/AsyncAPI.md)
-                    - [AsyncAPIProto](api/faststream/specification/asyncapi/AsyncAPIProto.md)
                     - [get_asyncapi_html](api/faststream/specification/asyncapi/get_asyncapi_html.md)
-                    - base
-                        - [AsyncAPIProto](api/faststream/specification/asyncapi/base/AsyncAPIProto.md)
-                        - asyncapi
-                            - [AsyncAPIProto](api/faststream/specification/asyncapi/base/asyncapi/AsyncAPIProto.md)
-                        - schema
-                            - [BaseInfo](api/faststream/specification/asyncapi/base/schema/BaseInfo.md)
-                            - [BaseSchema](api/faststream/specification/asyncapi/base/schema/BaseSchema.md)
-                            - info
-                                - [BaseInfo](api/faststream/specification/asyncapi/base/schema/info/BaseInfo.md)
-                            - schema
-                                - [BaseSchema](api/faststream/specification/asyncapi/base/schema/schema/BaseSchema.md)
                     - factory
                         - [AsyncAPI](api/faststream/specification/asyncapi/factory/AsyncAPI.md)
                     - message
@@ -1041,10 +1034,20 @@ search:
                                 - [Schema](api/faststream/specification/asyncapi/v3_0_0/schema/schema/Schema.md)
                             - servers
                                 - [Server](api/faststream/specification/asyncapi/v3_0_0/schema/servers/Server.md)
-                - proto
-                    - [SpecApplication](api/faststream/specification/proto/SpecApplication.md)
-                    - [SpecificationProto](api/faststream/specification/proto/SpecificationProto.md)
+                - base
+                    - info
+                        - [BaseInfo](api/faststream/specification/base/info/BaseInfo.md)
+                    - proto
+                        - [EndpointProto](api/faststream/specification/base/proto/EndpointProto.md)
+                    - schema
+                        - [BaseSchema](api/faststream/specification/base/schema/BaseSchema.md)
+                    - specification
+                        - [Specification](api/faststream/specification/base/specification/Specification.md)
                 - schema
+                    - [Contact](api/faststream/specification/schema/Contact.md)
+                    - [ExternalDocs](api/faststream/specification/schema/ExternalDocs.md)
+                    - [License](api/faststream/specification/schema/License.md)
+                    - [Tag](api/faststream/specification/schema/Tag.md)
                     - bindings
                         - [ChannelBinding](api/faststream/specification/schema/bindings/ChannelBinding.md)
                         - [OperationBinding](api/faststream/specification/schema/bindings/OperationBinding.md)
@@ -1088,8 +1091,6 @@ search:
                         - [Message](api/faststream/specification/schema/message/Message.md)
                     - operation
                         - [Operation](api/faststream/specification/schema/operation/Operation.md)
-                    - schema
-                        - [BaseSchema](api/faststream/specification/schema/schema/BaseSchema.md)
                     - security
                         - [OauthFlowObj](api/faststream/specification/schema/security/OauthFlowObj.md)
                         - [OauthFlows](api/faststream/specification/schema/security/OauthFlows.md)

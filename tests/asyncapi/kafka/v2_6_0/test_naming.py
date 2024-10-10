@@ -29,7 +29,7 @@ class TestNaming(NamingTestCase):
                 "test:Handle": {
                     "servers": ["development"],
                     "bindings": {"kafka": {"topic": "test", "bindingVersion": "0.4.0"}},
-                    "subscribe": {
+                    "publish": {
                         "message": {
                             "$ref": "#/components/messages/test:Handle:Message"
                         },

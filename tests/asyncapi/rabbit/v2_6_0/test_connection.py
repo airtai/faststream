@@ -74,7 +74,7 @@ def test_custom() -> None:
                             },
                         },
                     },
-                    "publish": {
+                    "subscribe": {
                         "bindings": {
                             "amqp": {
                                 "ack": True,
