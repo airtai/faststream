@@ -1,12 +1,12 @@
-from faststream.specification import schema as spec
 from faststream.specification.asyncapi.v2_6_0.schema.bindings.amqp import ChannelBinding
 from faststream.specification.asyncapi.v2_6_0.schema.bindings.amqp.channel import (
     Exchange,
     Queue,
 )
+from faststream.specification.schema.bindings import amqp
 
 
-def from_spec(binding: spec.bindings.amqp.ChannelBinding) -> ChannelBinding:
+def from_spec(binding: amqp.ChannelBinding) -> ChannelBinding:
     return ChannelBinding(
         **{
             "is": binding.is_,

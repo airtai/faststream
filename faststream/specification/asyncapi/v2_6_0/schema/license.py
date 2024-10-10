@@ -1,17 +1,15 @@
-from typing import (
-    Optional,
-    Union,
-    overload,
-)
+from typing import Optional, Union, overload
 
 from pydantic import AnyHttpUrl, BaseModel
 from typing_extensions import Self
 
-from faststream._internal._compat import (
-    PYDANTIC_V2,
-)
+from faststream._internal._compat import PYDANTIC_V2
 from faststream._internal.basic_types import AnyDict
-from faststream.specification import schema as spec
+from faststream._internal.utils.data import filter_by_dict
+from faststream.specification.schema.extra import (
+    License as SpecLicense,
+    LicenseDict,
+)
 
 
 class License(BaseModel):
@@ -23,10 +21,10 @@ class License(BaseModel):
 
     Config:
         extra : allow additional attributes in the model (PYDANTIC_V2)
-
     """
 
     name: str
+    # Use default values to be able build from dict
     url: Optional[AnyHttpUrl] = None
 
     if PYDANTIC_V2:
@@ -37,30 +35,38 @@ class License(BaseModel):
         class Config:
             extra = "allow"
 
+    @overload
     @classmethod
-    def from_spec(cls, license: spec.license.License) -> Self:
-        return cls(
-            name=license.name,
-            url=license.url,
-        )
+    def from_spec(cls, license: None) -> None: ...
 
+    @overload
+    @classmethod
+    def from_spec(cls, license: SpecLicense) -> Self: ...
 
-@overload
-def from_spec(license: spec.license.License) -> License: ...
+    @overload
+    @classmethod
+    def from_spec(cls, license: LicenseDict) -> Self: ...
 
+    @overload
+    @classmethod
+    def from_spec(cls, license: AnyDict) -> AnyDict: ...
 
-@overload
-def from_spec(license: spec.license.LicenseDict) -> AnyDict: ...
+    @classmethod
+    def from_spec(
+        cls, license: Union[SpecLicense, LicenseDict, AnyDict, None]
+    ) -> Union[Self, AnyDict, None]:
+        if license is None:
+            return None
 
+        if isinstance(license, SpecLicense):
+            return cls(
+                name=license.name,
+                url=license.url,
+            )
 
-@overload
-def from_spec(license: AnyDict) -> AnyDict: ...
+        license_data, custom_data = filter_by_dict(LicenseDict, license)
 
+        if custom_data:
+            return license
 
-def from_spec(
-    license: Union[spec.license.License, spec.license.LicenseDict, AnyDict],
-) -> Union[License, AnyDict]:
-    if isinstance(license, spec.license.License):
-        return License.from_spec(license)
-
-    return dict(license)
+        return cls(**license_data)

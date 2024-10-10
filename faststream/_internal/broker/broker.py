@@ -35,6 +35,7 @@ from faststream._internal.types import (
 from faststream._internal.utils.functions import to_async
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.middlewares.logging import CriticalLogMiddleware
+from faststream.specification.proto import ServerSpecification
 
 from .abc_broker import ABCBroker
 
@@ -49,12 +50,13 @@ if TYPE_CHECKING:
         PublisherProto,
     )
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 
 class BrokerUsecase(
     ABCBroker[MsgType],
     SetupAble,
+    ServerSpecification,
     Generic[MsgType, ConnectionType],
 ):
     """A class representing a broker async use case."""
@@ -122,7 +124,7 @@ class BrokerUsecase(
             Doc("AsyncAPI server description."),
         ],
         tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("AsyncAPI server tags."),
         ],
         specification_url: Annotated[

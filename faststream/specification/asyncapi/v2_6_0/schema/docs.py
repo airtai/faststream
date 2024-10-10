@@ -5,7 +5,11 @@ from typing_extensions import Self
 
 from faststream._internal._compat import PYDANTIC_V2
 from faststream._internal.basic_types import AnyDict
-from faststream.specification import schema as spec
+from faststream._internal.utils.data import filter_by_dict
+from faststream.specification.schema.extra import (
+    ExternalDocs as SpecDocs,
+    ExternalDocsDict,
+)
 
 
 class ExternalDocs(BaseModel):
@@ -14,10 +18,10 @@ class ExternalDocs(BaseModel):
     Attributes:
         url : URL of the external documentation
         description : optional description of the external documentation
-
     """
 
     url: AnyHttpUrl
+    # Use default values to be able build from dict
     description: Optional[str] = None
 
     if PYDANTIC_V2:
@@ -28,27 +32,35 @@ class ExternalDocs(BaseModel):
         class Config:
             extra = "allow"
 
+    @overload
     @classmethod
-    def from_spec(cls, docs: spec.docs.ExternalDocs) -> Self:
-        return cls(url=docs.url, description=docs.description)
+    def from_spec(cls, docs: None) -> None: ...
 
+    @overload
+    @classmethod
+    def from_spec(cls, docs: SpecDocs) -> Self: ...
 
-@overload
-def from_spec(docs: spec.docs.ExternalDocs) -> ExternalDocs: ...
+    @overload
+    @classmethod
+    def from_spec(cls, docs: ExternalDocsDict) -> Self: ...
 
+    @overload
+    @classmethod
+    def from_spec(cls, docs: AnyDict) -> AnyDict: ...
 
-@overload
-def from_spec(docs: spec.docs.ExternalDocsDict) -> AnyDict: ...
+    @classmethod
+    def from_spec(
+        cls, docs: Union[SpecDocs, ExternalDocsDict, AnyDict, None]
+    ) -> Union[Self, AnyDict, None]:
+        if docs is None:
+            return None
 
+        if isinstance(docs, SpecDocs):
+            return cls(url=docs.url, description=docs.description)
 
-@overload
-def from_spec(docs: AnyDict) -> AnyDict: ...
+        docs_data, custom_data = filter_by_dict(ExternalDocsDict, docs)
 
+        if custom_data:
+            return docs
 
-def from_spec(
-    docs: Union[spec.docs.ExternalDocs, spec.docs.ExternalDocsDict, AnyDict],
-) -> Union[ExternalDocs, AnyDict]:
-    if isinstance(docs, spec.docs.ExternalDocs):
-        return ExternalDocs.from_spec(docs)
-
-    return dict(docs)
+        return cls(**docs_data)

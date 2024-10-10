@@ -6,7 +6,8 @@ from typing_extensions import override
 
 from faststream._internal.proto import Endpoint
 from faststream._internal.types import MsgType
-from faststream.specification.base.proto import EndpointProto
+from faststream.specification.proto.endpoint import EndpointSpecification
+from faststream.specification.schema.publisher import PublisherSpec
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
@@ -73,7 +74,7 @@ class BasePublisherProto(Protocol):
 
 
 class PublisherProto(
-    EndpointProto,
+    EndpointSpecification[PublisherSpec],
     Endpoint,
     BasePublisherProto,
     Generic[MsgType],

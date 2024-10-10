@@ -17,11 +17,11 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
 )
 from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 from faststream.specification.asyncapi.v3_0_0.schema import (
+    ApplicationInfo,
+    ApplicationSchema,
     Channel,
     Components,
-    Info,
     Operation,
-    Schema,
     Server,
     channel_from_spec,
     operation_from_spec,
@@ -55,7 +55,7 @@ def get_app_schema(
     identifier: Optional[str],
     tags: Optional[Sequence[Union["SpecsTag", "SpecsTagDict", "AnyDict"]]],
     external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]],
-) -> Schema:
+) -> ApplicationSchema:
     """Get the application schema."""
     broker._setup()
 
@@ -86,15 +86,15 @@ def get_app_schema(
 
         channel.messages = msgs
 
-    return Schema(
-        info=Info(
+    return ApplicationSchema(
+        info=ApplicationInfo(
             title=title,
             version=app_version,
             description=description,
             termsOfService=terms_of_service,
             contact=contact_from_spec(contact) if contact else None,
             license=license_from_spec(license) if license else None,
-            tags=[tag_from_spec(tag) for tag in tags] if tags else None,
+            tags=[tag_from_spec(tag) for tag in tags] or None,
             externalDocs=docs_from_spec(external_docs) if external_docs else None,
         ),
         asyncapi=schema_version,

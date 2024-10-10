@@ -3,12 +3,12 @@
 References: https://github.com/asyncapi/bindings/tree/master/amqp
 """
 
-from typing import Optional
+from typing import Optional, overload
 
 from pydantic import BaseModel, PositiveInt
 from typing_extensions import Self
 
-from faststream.specification import schema as spec
+from faststream.specification.schema.bindings import amqp
 
 
 class OperationBinding(BaseModel):
@@ -29,17 +29,46 @@ class OperationBinding(BaseModel):
     priority: Optional[PositiveInt] = None
     bindingVersion: str = "0.2.0"
 
+    @overload
     @classmethod
-    def from_spec(cls, binding: spec.bindings.amqp.OperationBinding) -> Self:
+    def from_sub(cls, binding: None) -> None: ...
+
+    @overload
+    @classmethod
+    def from_sub(cls, binding: amqp.OperationBinding) -> Self: ...
+
+    @classmethod
+    def from_sub(cls, binding: Optional[amqp.OperationBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
+
         return cls(
             cc=binding.cc,
             ack=binding.ack,
-            replyTo=binding.replyTo,
-            deliveryMode=binding.deliveryMode,
+            replyTo=binding.reply_to,
+            deliveryMode=binding.delivery_mode,
             mandatory=binding.mandatory,
             priority=binding.priority,
         )
 
+    @overload
+    @classmethod
+    def from_pub(cls, binding: None) -> None: ...
 
-def from_spec(binding: spec.bindings.amqp.OperationBinding) -> OperationBinding:
-    return OperationBinding.from_spec(binding)
+    @overload
+    @classmethod
+    def from_pub(cls, binding: amqp.OperationBinding) -> Self: ...
+
+    @classmethod
+    def from_pub(cls, binding: Optional[amqp.OperationBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
+
+        return cls(
+            cc=binding.cc,
+            ack=binding.ack,
+            replyTo=binding.reply_to,
+            deliveryMode=binding.delivery_mode,
+            mandatory=binding.mandatory,
+            priority=binding.priority,
+        )

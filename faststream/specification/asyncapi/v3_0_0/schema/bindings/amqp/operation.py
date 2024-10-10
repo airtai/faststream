@@ -8,7 +8,7 @@ from typing import Optional
 from pydantic import BaseModel, PositiveInt
 from typing_extensions import Self
 
-from faststream.specification import schema as spec
+from faststream.specification.schema.bindings import amqp
 
 
 class OperationBinding(BaseModel):
@@ -30,7 +30,7 @@ class OperationBinding(BaseModel):
     bindingVersion: str = "0.3.0"
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.amqp.OperationBinding) -> Self:
+    def from_spec(cls, binding: amqp.OperationBinding) -> Self:
         return cls(
             cc=[binding.cc] if binding.cc is not None else None,
             ack=binding.ack,
@@ -41,5 +41,5 @@ class OperationBinding(BaseModel):
         )
 
 
-def from_spec(binding: spec.bindings.amqp.OperationBinding) -> OperationBinding:
+def from_spec(binding: amqp.OperationBinding) -> OperationBinding:
     return OperationBinding.from_spec(binding)

@@ -27,7 +27,7 @@ class Operation(BaseModel):
     """A class to represent an operation.
 
     Attributes:
-        operationId : ID of the operation
+        operation_id : ID of the operation
         summary : summary of the operation
         description : description of the operation
         bindings : bindings of the operation

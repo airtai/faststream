@@ -1,18 +1,21 @@
-from collections.abc import Sequence
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 from faststream.specification.base.specification import Specification
 
-from .v2_6_0.facade import AsyncAPI2
-from .v3_0_0.facade import AsyncAPI3
-
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, AnyHttpUrl
     from faststream._internal.broker.broker import BrokerUsecase
-    from faststream.specification.schema.contact import Contact, ContactDict
-    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-    from faststream.specification.schema.license import License, LicenseDict
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema import (
+        Contact,
+        ContactDict,
+        ExternalDocs,
+        ExternalDocsDict,
+        License,
+        LicenseDict,
+        Tag,
+        TagDict,
+    )
 
 
 class AsyncAPI(Specification):
@@ -27,13 +30,15 @@ class AsyncAPI(Specification):
         terms_of_service: Optional["AnyHttpUrl"] = None,
         license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
         contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
-        tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]] = None,
+        tags: Iterable[Union["Tag", "TagDict", "AnyDict"]] = (),
         external_docs: Optional[
             Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,
         identifier: Optional[str] = None,
     ) -> Specification:
         if schema_version.startswith("3.0."):
+            from .v3_0_0.facade import AsyncAPI3
+
             return AsyncAPI3(
                 broker,
                 title=title,
@@ -48,6 +53,8 @@ class AsyncAPI(Specification):
                 external_docs=external_docs,
             )
         if schema_version.startswith("2.6."):
+            from .v2_6_0.facade import AsyncAPI2
+
             return AsyncAPI2(
                 broker,
                 title=title,

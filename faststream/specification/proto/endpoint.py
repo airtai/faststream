@@ -1,10 +1,10 @@
 from abc import abstractmethod
-from typing import Any, Optional, Protocol
+from typing import Any, Optional, Protocol, TypeVar
 
-from faststream.specification.schema.channel import Channel
+T = TypeVar("T")
 
 
-class EndpointProto(Protocol):
+class EndpointSpecification(Protocol[T]):
     """A class representing an asynchronous API operation."""
 
     title_: Optional[str]
@@ -14,30 +14,30 @@ class EndpointProto(Protocol):
     @property
     def name(self) -> str:
         """Returns the name of the API operation."""
-        return self.title_ or self.get_name()
+        return self.title_ or self.get_default_name()
 
     @abstractmethod
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         """Name property fallback."""
         raise NotImplementedError
 
     @property
     def description(self) -> Optional[str]:
         """Returns the description of the API operation."""
-        return self.description_ or self.get_description()
+        return self.description_ or self.get_default_description()
 
-    def get_description(self) -> Optional[str]:
+    def get_default_description(self) -> Optional[str]:
         """Description property fallback."""
         return None
 
-    def schema(self) -> dict[str, Channel]:
+    def schema(self) -> dict[str, T]:
         """Returns the schema of the API operation as a dictionary of channel names and channel objects."""
         if self.include_in_schema:
             return self.get_schema()
         return {}
 
     @abstractmethod
-    def get_schema(self) -> dict[str, Channel]:
+    def get_schema(self) -> dict[str, T]:
         """Generate AsyncAPI schema."""
         raise NotImplementedError
 

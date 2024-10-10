@@ -257,9 +257,9 @@ class NatsRouter(StreamRouter["Msg"]):
             Doc("AsyncAPI server description."),
         ] = None,
         specification_tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("AsyncAPI server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],

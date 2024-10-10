@@ -17,14 +17,14 @@ from faststream.nats.subscriber.usecase import (
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import ChannelBinding, nats
 from faststream.specification.schema.channel import Channel
-from faststream.specification.schema.message import CorrelationId, Message
+from faststream.specification.schema.message import Message
 from faststream.specification.schema.operation import Operation
 
 
 class SpecificationSubscriber(LogicSubscriber[Any, Any]):
     """A class to represent a NATS handler."""
 
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.subject}:{self.call_name}"
 
     def get_schema(self) -> dict[str, Channel]:
@@ -37,10 +37,8 @@ class SpecificationSubscriber(LogicSubscriber[Any, Any]):
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),
-                        correlationId=CorrelationId(
-                            location="$message.header#/correlation_id",
-                        ),
                     ),
+                    bindings=None,
                 ),
                 bindings=ChannelBinding(
                     nats=nats.ChannelBinding(
@@ -108,7 +106,7 @@ class SpecificationKeyValueWatchSubscriber(
     """KeyValueWatch consumer with Specification methods."""
 
     @override
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return ""
 
     @override
@@ -123,7 +121,7 @@ class SpecificationObjStoreWatchSubscriber(
     """ObjStoreWatch consumer with Specification methods."""
 
     @override
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return ""
 
     @override

@@ -20,7 +20,7 @@ from faststream.kafka.publisher.usecase import (
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import ChannelBinding, kafka
 from faststream.specification.schema.channel import Channel
-from faststream.specification.schema.message import CorrelationId, Message
+from faststream.specification.schema.message import Message
 from faststream.specification.schema.operation import Operation
 
 if TYPE_CHECKING:
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 class SpecificationPublisher(LogicPublisher[MsgType]):
     """A class representing a publisher."""
 
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.topic}:Publisher"
 
     def get_schema(self) -> dict[str, Channel]:
@@ -45,10 +45,8 @@ class SpecificationPublisher(LogicPublisher[MsgType]):
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads, "Publisher"),
-                        correlationId=CorrelationId(
-                            location="$message.header#/correlation_id",
-                        ),
                     ),
+                    bindings=None,
                 ),
                 bindings=ChannelBinding(kafka=kafka.ChannelBinding(topic=self.topic)),
             ),

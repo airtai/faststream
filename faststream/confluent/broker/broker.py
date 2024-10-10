@@ -50,7 +50,7 @@ if TYPE_CHECKING:
     )
     from faststream.confluent.config import ConfluentConfig
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 Partition = TypeVar("Partition")
 
@@ -301,9 +301,9 @@ class KafkaBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("AsyncAPI server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],
@@ -451,9 +451,10 @@ class KafkaBroker(
             decoder=self._decoder,
         )
 
+        connection_kwargs, _ = filter_by_dict(ConsumerConnectionParams, kwargs)
         return partial(
             AsyncConfluentConsumer,
-            **filter_by_dict(ConsumerConnectionParams, kwargs),
+            **connection_kwargs,
             logger=self._state.logger_state,
             config=self.config,
         )

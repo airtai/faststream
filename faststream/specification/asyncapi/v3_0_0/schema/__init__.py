@@ -3,20 +3,20 @@ from .channels import (
     from_spec as channel_from_spec,
 )
 from .components import Components
-from .info import Info
+from .info import ApplicationInfo
 from .operations import (
     Operation,
     from_spec as operation_from_spec,
 )
-from .schema import Schema
+from .schema import ApplicationSchema
 from .servers import Server
 
 __all__ = (
+    "ApplicationInfo",
+    "ApplicationSchema",
     "Channel",
     "Components",
-    "Info",
     "Operation",
-    "Schema",
     "Server",
     "channel_from_spec",
     "operation_from_spec",

@@ -5,13 +5,13 @@ from typing_extensions import Self
 
 from faststream._internal._compat import PYDANTIC_V2
 from faststream.specification import schema as spec
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import (
+from faststream.specification.asyncapi.v2_6_0.core.bindings import (
     kafka as kafka_bindings,
     nats as nats_bindings,
     redis as redis_bindings,
     sqs as sqs_bindings,
 )
-from faststream.specification.asyncapi.v3_0_0.schema.bindings import (
+from faststream.specification.asyncapi.v3_0_0.core.bindings import (
     amqp as amqp_bindings,
 )
 

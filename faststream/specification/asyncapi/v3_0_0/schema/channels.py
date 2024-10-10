@@ -29,7 +29,6 @@ class Channel(BaseModel):
     Configurations:
         model_config : configuration for the model (only applicable for Pydantic version 2)
         Config : configuration for the class (only applicable for Pydantic version 1)
-
     """
 
     address: str

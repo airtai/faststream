@@ -428,7 +428,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
 
         return to_camelcase(self.calls[0].call_name)
 
-    def get_description(self) -> Optional[str]:
+    def get_default_description(self) -> Optional[str]:
         """Returns the description of the handler."""
         if not self.calls:  # pragma: no cover
             return None

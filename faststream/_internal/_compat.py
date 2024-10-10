@@ -113,7 +113,7 @@ if PYDANTIC_V2:
     def dump_json(data: Any) -> bytes:
         return json_dumps(model_to_jsonable(data))
 
-    def get_model_fields(model: type[BaseModel]) -> dict[str, Any]:
+    def get_model_fields(model: type[BaseModel]) -> AnyDict:
         return model.model_fields
 
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
@@ -143,7 +143,7 @@ else:
     def dump_json(data: Any) -> bytes:
         return json_dumps(data, default=pydantic_encoder)
 
-    def get_model_fields(model: type[BaseModel]) -> dict[str, Any]:
+    def get_model_fields(model: type[BaseModel]) -> AnyDict:
         return model.__fields__  # type: ignore[return-value]
 
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:

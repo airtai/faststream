@@ -4,11 +4,11 @@ from pydantic import BaseModel
 
 from faststream._internal._compat import model_to_json, model_to_jsonable
 
-from .info import BaseInfo
+from .info import BaseApplicationInfo
 
 
-class BaseSchema(BaseModel):
-    """A class to represent a Pydantic-serializable schema.
+class BaseApplicationSchema(BaseModel):
+    """A class to represent a Pydantic-serializable application schema.
 
     Attributes:
         info : information about the schema
@@ -19,7 +19,7 @@ class BaseSchema(BaseModel):
         to_yaml() -> str: Convert the schema to a YAML string.
     """
 
-    info: BaseInfo
+    info: BaseApplicationInfo
 
     def to_jsonable(self) -> Any:
         """Convert the schema to a JSON-serializable object."""

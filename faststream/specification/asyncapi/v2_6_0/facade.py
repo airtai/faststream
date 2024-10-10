@@ -1,10 +1,10 @@
-from collections.abc import Sequence
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from faststream.specification.base.specification import Specification
 
 from .generate import get_app_schema
-from .schema import Schema
+from .schema import ApplicationSchema
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, AnyHttpUrl
@@ -28,7 +28,7 @@ class AsyncAPI2(Specification):
         contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
         license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
         identifier: Optional[str] = None,
-        tags: Optional[Sequence[Union["Tag", "TagDict", "AnyDict"]]] = None,
+        tags: Iterable[Union["Tag", "TagDict", "AnyDict"]] = (),
         external_docs: Optional[
             Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,
@@ -55,7 +55,7 @@ class AsyncAPI2(Specification):
         return self.schema.to_yaml()
 
     @property
-    def schema(self) -> Schema:  # type: ignore[override]
+    def schema(self) -> ApplicationSchema:  # type: ignore[override]
         return get_app_schema(
             self.broker,
             title=self.title,
