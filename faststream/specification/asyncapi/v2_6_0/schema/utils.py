@@ -6,7 +6,6 @@ class Reference(BaseModel):
 
     Attributes:
         ref : the reference string
-
     """
 
     ref: str = Field(..., alias="$ref")

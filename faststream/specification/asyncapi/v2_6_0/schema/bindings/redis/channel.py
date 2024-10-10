@@ -8,7 +8,7 @@ from typing import Optional
 from pydantic import BaseModel
 from typing_extensions import Self
 
-from faststream.specification import schema as spec
+from faststream.specification.schema.bindings import redis
 
 
 class ChannelBinding(BaseModel):
@@ -27,7 +27,7 @@ class ChannelBinding(BaseModel):
     bindingVersion: str = "custom"
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.redis.ChannelBinding) -> Self:
+    def from_spec(cls, binding: redis.ChannelBinding) -> Self:
         return cls(
             channel=binding.channel,
             method=binding.method,
@@ -37,5 +37,5 @@ class ChannelBinding(BaseModel):
         )
 
 
-def from_spec(binding: spec.bindings.redis.ChannelBinding) -> ChannelBinding:
+def from_spec(binding: redis.ChannelBinding) -> ChannelBinding:
     return ChannelBinding.from_spec(binding)

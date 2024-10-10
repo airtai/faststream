@@ -32,6 +32,7 @@ class SpecificationSubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
                             location="$message.header#/correlation_id",
                         ),
                     ),
+                    bindings=None,
                 ),
                 bindings=ChannelBinding(
                     redis=self.channel_binding,
@@ -41,7 +42,7 @@ class SpecificationSubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
 
 
 class AsyncAPIChannelSubscriber(ChannelSubscriber, SpecificationSubscriber):
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.channel.name}:{self.call_name}"
 
     @property
@@ -55,7 +56,7 @@ class AsyncAPIChannelSubscriber(ChannelSubscriber, SpecificationSubscriber):
 class _StreamSubscriberMixin(SpecificationSubscriber):
     stream_sub: StreamSub
 
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.stream_sub.name}:{self.call_name}"
 
     @property
@@ -79,7 +80,7 @@ class AsyncAPIStreamBatchSubscriber(BatchStreamSubscriber, _StreamSubscriberMixi
 class _ListSubscriberMixin(SpecificationSubscriber):
     list_sub: ListSub
 
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.list_sub.name}:{self.call_name}"
 
     @property

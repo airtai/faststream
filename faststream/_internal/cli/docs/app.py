@@ -12,8 +12,12 @@ from faststream._internal._compat import json_dumps, model_parse
 from faststream._internal.cli.utils.imports import import_from_string
 from faststream.exceptions import INSTALL_WATCHFILES, INSTALL_YAML, SCHEMA_NOT_SUPPORTED
 from faststream.specification.asyncapi.site import serve_app
-from faststream.specification.asyncapi.v2_6_0.schema import Schema as SchemaV2_6
-from faststream.specification.asyncapi.v3_0_0.schema import Schema as SchemaV3
+from faststream.specification.asyncapi.v2_6_0.schema import (
+    ApplicationSchema as SchemaV2_6,
+)
+from faststream.specification.asyncapi.v3_0_0.schema import (
+    ApplicationSchema as SchemaV3,
+)
 from faststream.specification.base.specification import Specification
 
 if TYPE_CHECKING:

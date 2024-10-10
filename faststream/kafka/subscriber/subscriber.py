@@ -11,7 +11,7 @@ from faststream.kafka.subscriber.usecase import (
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import ChannelBinding, kafka
 from faststream.specification.schema.channel import Channel
-from faststream.specification.schema.message import CorrelationId, Message
+from faststream.specification.schema.message import Message
 from faststream.specification.schema.operation import Operation
 
 if TYPE_CHECKING:
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class SpecificationSubscriber(LogicSubscriber[MsgType]):
     """A class to handle logic and async API operations."""
 
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f'{",".join(self.topics)}:{self.call_name}'
 
     def get_schema(self) -> dict[str, Channel]:
@@ -38,10 +38,8 @@ class SpecificationSubscriber(LogicSubscriber[MsgType]):
                     message=Message(
                         title=f"{handler_name}:Message",
                         payload=resolve_payloads(payloads),
-                        correlationId=CorrelationId(
-                            location="$message.header#/correlation_id",
-                        ),
                     ),
+                    bindings=None,
                 ),
                 bindings=ChannelBinding(
                     kafka=kafka.ChannelBinding(topic=t),

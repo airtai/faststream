@@ -295,9 +295,9 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
             Doc("Specification server description."),
         ] = None,
         specification_tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("Specification server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],

@@ -2,7 +2,7 @@ from typing import Any, Callable
 
 import pytest
 from dirty_equals import IsStr
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
 from faststream._internal.broker.broker import BrokerUsecase
@@ -14,6 +14,8 @@ from faststream.specification.asyncapi import AsyncAPI
 class FastAPITestCase:
     router_class: type[StreamRouter[MsgType]]
     broker_wrapper: Callable[[BrokerUsecase[MsgType, Any]], BrokerUsecase[MsgType, Any]]
+
+    dependency_builder = staticmethod(Depends)
 
     @pytest.mark.skip()
     @pytest.mark.asyncio()

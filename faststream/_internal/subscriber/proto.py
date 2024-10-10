@@ -7,7 +7,8 @@ from typing_extensions import Self, override
 from faststream._internal.proto import Endpoint
 from faststream._internal.subscriber.call_wrapper.proto import WrapperProto
 from faststream._internal.types import MsgType
-from faststream.specification.base.proto import EndpointProto
+from faststream.specification.proto.endpoint import EndpointSpecification
+from faststream.specification.schema.subscriber import SubscriberSpec
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
 
 
 class SubscriberProto(
-    EndpointProto,
+    EndpointSpecification[SubscriberSpec],
     Endpoint,
     WrapperProto[MsgType],
 ):

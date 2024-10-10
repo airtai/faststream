@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Union
 
 from faststream.exceptions import SetupError
-from faststream.specification.base.proto import EndpointProto
+from faststream.specification.proto.endpoint import EndpointProto
 
 if TYPE_CHECKING:
     from faststream.redis.schemas import ListSub, PubSub, StreamSub

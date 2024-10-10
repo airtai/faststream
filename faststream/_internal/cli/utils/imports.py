@@ -8,7 +8,9 @@ from faststream.exceptions import SetupError
 
 
 def import_from_string(
-    import_str: str, *, is_factory: bool = False
+    import_str: str,
+    *,
+    is_factory: bool = False,
 ) -> tuple[Path, object]:
     module_path, instance = _import_object_or_factory(import_str)
 

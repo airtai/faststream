@@ -8,7 +8,7 @@ from typing import Optional
 from pydantic import BaseModel, PositiveInt
 from typing_extensions import Self
 
-from faststream.specification import schema as spec
+from faststream.specification.schema.bindings import kafka
 
 
 class ChannelBinding(BaseModel):
@@ -30,7 +30,7 @@ class ChannelBinding(BaseModel):
     # topicConfiguration
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.kafka.ChannelBinding) -> Self:
+    def from_spec(cls, binding: kafka.ChannelBinding) -> Self:
         return cls(
             topic=binding.topic,
             partitions=binding.partitions,
@@ -39,5 +39,5 @@ class ChannelBinding(BaseModel):
         )
 
 
-def from_spec(binding: spec.bindings.kafka.ChannelBinding) -> ChannelBinding:
+def from_spec(binding: kafka.ChannelBinding) -> ChannelBinding:
     return ChannelBinding.from_spec(binding)
