@@ -56,26 +56,27 @@ passing in the registry that was passed to `PrometheusMiddleware`.
 {% set published_messages_exceptions_total_description = 'The metric increases if any exception occurred while sending a message.<br/><br/>You can draw conclusions about how many and what exceptions occurred while sending messages.' %}
 
 
-| Metric                                           | Type          | Description                                                    | Labels                                    |
-|--------------------------------------------------|---------------|----------------------------------------------------------------|-------------------------------------------|
-| **received_messages_total**                      | **Counter**   | {{ received_messages_total_description }}                      | `broker`, `handler`                       |
-| **received_messages_size_bytes**                 | **Histogram** | {{ received_messages_size_bytes_description }}                 | `broker`, `handler`                       |
-| **received_messages_in_process**                 | **Gauge**     | {{ received_messages_in_process_description }}                 | `broker`, `handler`                       |
-| **received_processed_messages_total**            | **Counter**   | {{ received_processed_messages_total_description }}            | `broker`, `handler`, `status`             |
-| **received_processed_messages_duration_seconds** | **Histogram** | {{ received_processed_messages_duration_seconds_description }} | `broker`, `handler`                       |
-| **received_processed_messages_exceptions_total** | **Counter**   | {{ received_processed_messages_exceptions_total_description }} | `broker`, `handler`, `exception_type`     |
-| **published_messages_total**                     | **Counter**   | {{ published_messages_total_description }}                     | `broker`, `destination`, `status`         |
-| **published_messages_duration_seconds_time**     | **Histogram** | {{ published_messages_duration_seconds_description }}          | `broker`, `destination`                   |
-| **published_messages_exceptions_total**          | **Counter**   | {{ published_messages_exceptions_total_description }}          | `broker`, `destination`, `exception_type` |
+| Metric                                           | Type          | Description                                                    | Labels                                                |
+|--------------------------------------------------|---------------|----------------------------------------------------------------|-------------------------------------------------------|
+| **received_messages_total**                      | **Counter**   | {{ received_messages_total_description }}                      | `app_name`, `broker`, `handler`                       |
+| **received_messages_size_bytes**                 | **Histogram** | {{ received_messages_size_bytes_description }}                 | `app_name`, `broker`, `handler`                       |
+| **received_messages_in_process**                 | **Gauge**     | {{ received_messages_in_process_description }}                 | `app_name`, `broker`, `handler`                       |
+| **received_processed_messages_total**            | **Counter**   | {{ received_processed_messages_total_description }}            | `app_name`, `broker`, `handler`, `status`             |
+| **received_processed_messages_duration_seconds** | **Histogram** | {{ received_processed_messages_duration_seconds_description }} | `app_name`, `broker`, `handler`                       |
+| **received_processed_messages_exceptions_total** | **Counter**   | {{ received_processed_messages_exceptions_total_description }} | `app_name`, `broker`, `handler`, `exception_type`     |
+| **published_messages_total**                     | **Counter**   | {{ published_messages_total_description }}                     | `app_name`, `broker`, `destination`, `status`         |
+| **published_messages_duration_seconds_time**     | **Histogram** | {{ published_messages_duration_seconds_description }}          | `app_name`, `broker`, `destination`                   |
+| **published_messages_exceptions_total**          | **Counter**   | {{ published_messages_exceptions_total_description }}          | `app_name`, `broker`, `destination`, `exception_type` |
 
 ### Labels
 
-| Label                             | Description                            | Values                                            |
-|-----------------------------------|----------------------------------------|---------------------------------------------------|
-| broker                            | Broker name                            | `kafka`, `rabbit`, `nats`, `redis`                |
-| handler                           | Where the message came from            |                                                   |
-| status (while receiving)          | Message processing status              | `acked`, `nacked`, `rejected`, `skipped`, `error` |
-| exception_type (while receiving)  | Exception type when processing message |                                                   |
-| status (while publishing)         | Message publishing status              | `success`, `error`                                |
-| destination                       | Where the message is sent              |                                                   |
-| exception_type (while publishing) | Exception type when publishing message |                                                   |
+| Label                             | Description                                                     | Values                                            |
+|-----------------------------------|-----------------------------------------------------------------|---------------------------------------------------|
+| app_name                          | The name of the application, which the user can specify himself | `faststream` by default                           |
+| broker                            | Broker name                                                     | `kafka`, `rabbit`, `nats`, `redis`                |
+| handler                           | Where the message came from                                     |                                                   |
+| status (while receiving)          | Message processing status                                       | `acked`, `nacked`, `rejected`, `skipped`, `error` |
+| exception_type (while receiving)  | Exception type when processing message                          |                                                   |
+| status (while publishing)         | Message publishing status                                       | `success`, `error`                                |
+| destination                       | Where the message is sent                                       |                                                   |
+| exception_type (while publishing) | Exception type when publishing message                          |                                                   |
