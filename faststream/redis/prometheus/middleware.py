@@ -12,8 +12,14 @@ class RedisPrometheusMiddleware(BasePrometheusMiddleware):
         self,
         *,
         registry: "CollectorRegistry",
-    ):
+        app_name: str = "faststream",
+        metrics_prefix: str = "faststream",
+        received_messages_size_buckets: list[int] | None = None,
+    ) -> None:
         super().__init__(
             settings_provider_factory=settings_provider_factory,
             registry=registry,
+            app_name=app_name,
+            metrics_prefix=metrics_prefix,
+            received_messages_size_buckets=received_messages_size_buckets,
         )

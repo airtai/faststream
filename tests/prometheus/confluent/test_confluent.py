@@ -24,8 +24,8 @@ class TestPrometheus(ConfluentTestcaseConfig, LocalPrometheusTestcase):
         queue: str,
     ):
         middleware = self.middleware_class(registry=CollectorRegistry())
-        metrics_mock = Mock()
-        middleware._metrics = metrics_mock
+        metrics_manager_mock = Mock()
+        middleware._metrics_manager = metrics_manager_mock
 
         broker = self.broker_class(middlewares=(middleware,))
 
@@ -53,9 +53,9 @@ class TestPrometheus(ConfluentTestcaseConfig, LocalPrometheusTestcase):
 
         assert event.is_set()
         self.assert_consume_metrics(
-            metrics=metrics_mock, message=message, exception_class=None
+            metrics_manager=metrics_manager_mock, message=message, exception_class=None
         )
-        self.assert_publish_metrics(metrics=metrics_mock)
+        self.assert_publish_metrics(metrics_manager=metrics_manager_mock)
 
 
 @pytest.mark.confluent
