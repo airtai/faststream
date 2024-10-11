@@ -842,6 +842,10 @@ search:
                 - [BasePrometheusMiddleware](api/faststream/prometheus/BasePrometheusMiddleware.md)
                 - [ConsumeAttrs](api/faststream/prometheus/ConsumeAttrs.md)
                 - [MetricsSettingsProvider](api/faststream/prometheus/MetricsSettingsProvider.md)
+                - container
+                    - [MetricsContainer](api/faststream/prometheus/container/MetricsContainer.md)
+                - manager
+                    - [MetricsManager](api/faststream/prometheus/manager/MetricsManager.md)
                 - middleware
                     - [BasePrometheusMiddleware](api/faststream/prometheus/middleware/BasePrometheusMiddleware.md)
                     - [PrometheusMiddleware](api/faststream/prometheus/middleware/PrometheusMiddleware.md)
