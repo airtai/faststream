@@ -36,7 +36,7 @@ class RabbitMetricsSettingsProvider(MetricsSettingsProvider["IncomingMessage"]):
         self,
         kwargs: "AnyDict",
     ) -> str:
-        exchange: Union[None, str, RabbitExchange] = kwargs["exchange"]
+        exchange: Union[None, str, RabbitExchange] = kwargs.get("exchange")
         exchange_prefix = getattr(exchange, "name", exchange or "default")
 
         routing_key: str = kwargs["routing_key"]
