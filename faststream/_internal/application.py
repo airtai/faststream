@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from abc import ABC, abstractmethod
 from typing import (
@@ -13,6 +12,7 @@ from typing import (
     Union,
 )
 
+import anyio
 from typing_extensions import ParamSpec
 
 from faststream.asyncapi.proto import AsyncAPIApplication
@@ -163,7 +163,7 @@ class Application(ABC, AsyncAPIApplication):
     async def _main_loop(self, sleep_time: float) -> None:
         """Run loop till exit signal."""
         while not self._should_exit:  # noqa: ASYNC110 (requested by creator)
-            await asyncio.sleep(sleep_time)
+            await anyio.sleep(sleep_time)
 
     async def start(
         self,
