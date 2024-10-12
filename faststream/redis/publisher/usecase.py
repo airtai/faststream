@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from copy import deepcopy
 from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
@@ -97,8 +96,7 @@ class ChannelPublisher(LogicPublisher):
         }
 
     def add_prefix(self, prefix: str) -> None:
-        channel = deepcopy(self.channel)
-        channel.name = "".join((prefix, channel.name))
+        channel = self.channel.add_prefix(prefix=prefix)
         self.channel = channel
 
     @override
@@ -266,8 +264,7 @@ class ListPublisher(LogicPublisher):
         }
 
     def add_prefix(self, prefix: str) -> None:
-        list_sub = deepcopy(self.list)
-        list_sub.name = "".join((prefix, list_sub.name))
+        list_sub = self.list.add_prefix(prefix=prefix)
         self.list = list_sub
 
     @override
@@ -487,8 +484,7 @@ class StreamPublisher(LogicPublisher):
         }
 
     def add_prefix(self, prefix: str) -> None:
-        stream_sub = deepcopy(self.stream)
-        stream_sub.name = "".join((prefix, stream_sub.name))
+        stream_sub = self.stream.add_prefix(prefix=prefix)
         self.stream = stream_sub
 
     @override

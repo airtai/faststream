@@ -257,3 +257,10 @@ class TestTestclient(BrokerTestclientTestcase):
             m.mock.assert_called_once_with("hello")
             publisher.mock.assert_called_once()
         assert event.is_set()
+
+    @pytest.mark.redis
+    async def test_lazy_add_prefix(self, queue: str):
+        list_sub = ListSub()
+        list_sub.name = queue
+        new_list_sub = list_sub.add_prefix(prefix="t")
+        assert list_sub is not new_list_sub

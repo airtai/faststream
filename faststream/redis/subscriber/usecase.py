@@ -330,8 +330,7 @@ class ChannelSubscriber(LogicSubscriber):
             await self.consume(msg)  # type: ignore[arg-type]
 
     def add_prefix(self, prefix: str) -> None:
-        new_ch = deepcopy(self.channel)
-        new_ch.name = "".join((prefix, new_ch.name))
+        new_ch = self.channel.add_prefix(prefix=prefix)
         self.channel = new_ch
 
 
@@ -434,8 +433,7 @@ class _ListHandlerMixin(LogicSubscriber):
         return msg
 
     def add_prefix(self, prefix: str) -> None:
-        new_list = deepcopy(self.list_sub)
-        new_list.name = "".join((prefix, new_list.name))
+        new_list = self.list_sub.add_prefix(prefix=prefix)
         self.list_sub = new_list
 
 
@@ -723,8 +721,7 @@ class _StreamHandlerMixin(LogicSubscriber):
         return msg
 
     def add_prefix(self, prefix: str) -> None:
-        new_stream = deepcopy(self.stream_sub)
-        new_stream.name = "".join((prefix, new_stream.name))
+        new_stream = self.stream_sub.add_prefix(prefix=prefix)
         self.stream_sub = new_stream
 
 
