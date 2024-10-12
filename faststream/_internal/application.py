@@ -162,7 +162,7 @@ class Application(ABC, AsyncAPIApplication):
 
     async def _main_loop(self, sleep_time: float) -> None:
         """Run loop till exit signal."""
-        while not self._should_exit:
+        while not self._should_exit:  # noqa: ASYNC110 (requested by creator)
             await asyncio.sleep(sleep_time)
 
     async def start(
