@@ -38,7 +38,7 @@ class MetricsContainer:
         registry: "CollectorRegistry",
         *,
         metrics_prefix: str = "faststream",
-        received_messages_size_buckets: Optional[List[int]] = None,
+        received_messages_size_buckets: Optional[List[float]] = None,
     ):
         self._registry = registry
         self._metrics_prefix = metrics_prefix

@@ -177,7 +177,7 @@ class BasePrometheusMiddleware:
         registry: "CollectorRegistry",
         app_name: str = "faststream",
         metrics_prefix: str = "faststream",
-        received_messages_size_buckets: Optional[List[int]] = None,
+        received_messages_size_buckets: Optional[List[float]] = None,
     ):
         self._settings_provider_factory = settings_provider_factory
         self._metrics_container = MetricsContainer(

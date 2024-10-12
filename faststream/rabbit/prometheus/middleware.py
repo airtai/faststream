@@ -14,7 +14,7 @@ class RabbitPrometheusMiddleware(BasePrometheusMiddleware):
         registry: "CollectorRegistry",
         app_name: str = "faststream",
         metrics_prefix: str = "faststream",
-        received_messages_size_buckets: Optional[List[int]] = None,
+        received_messages_size_buckets: Optional[List[float]] = None,
     ) -> None:
         super().__init__(
             settings_provider_factory=lambda _: RabbitMetricsSettingsProvider(),
