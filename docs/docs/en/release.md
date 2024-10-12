@@ -12,6 +12,28 @@ hide:
 ---
 
 # Release Notes
+## 0.5.26
+
+### What's Changed
+
+This it the official **Python 3.13** support! Now, **FastStream** works (and tested) at **Python 3.8 - 3.13** versions!
+
+Warning: **Python3.8** is EOF since **3.13** release and we plan to drop it support in **FastStream 6.0.0** version.
+
+Also, current release has little bugfixes related to **CLI** and **AsyncAPI** schema.
+
+* fix: asgi docs by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1828](https://github.com/airtai/faststream/pull/1828){.external-link target="_blank"}
+* docs: add link to RU TG community by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1831](https://github.com/airtai/faststream/pull/1831){.external-link target="_blank"}
+* docs: add dynaconf NATS HowTo example by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [#1832](https://github.com/airtai/faststream/pull/1832){.external-link target="_blank"}
+* Fix AsyncAPI 2.6.0 operation label by [@KrySeyt](https://github.com/KrySeyt){.external-link target="_blank"} in [#1835](https://github.com/airtai/faststream/pull/1835){.external-link target="_blank"}
+* fix: correct CLI factory behavior by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1838](https://github.com/airtai/faststream/pull/1838){.external-link target="_blank"}
+* Autocommit precommit changes by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1840](https://github.com/airtai/faststream/pull/1840){.external-link target="_blank"}
+* Add devcontainers supporting all the brokers by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1839](https://github.com/airtai/faststream/pull/1839){.external-link target="_blank"}
+* Replace async Event with bool by [@Olegt0rr](https://github.com/Olegt0rr){.external-link target="_blank"} in [#1846](https://github.com/airtai/faststream/pull/1846){.external-link target="_blank"}
+* Add support for Python 3.13 by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1845](https://github.com/airtai/faststream/pull/1845){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.25...0.5.26](https://github.com/airtai/faststream/compare/0.5.25...0.5.26){.external-link target="_blank"}
+
 ## 0.5.25
 
 ### What's Changed
