@@ -88,7 +88,7 @@ class MetricsContainer:
         )
         self.published_messages_duration_seconds = Histogram(
             name=f"{metrics_prefix}_published_messages_duration_seconds",
-            documentation="Histogram of published messages  duration in seconds by broker and destination",
+            documentation="Histogram of published messages duration in seconds by broker and destination",
             labelnames=["app_name", "broker", "destination"],
             registry=registry,
         )
