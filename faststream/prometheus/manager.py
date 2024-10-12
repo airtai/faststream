@@ -102,7 +102,7 @@ class MetricsManager:
             app_name=self._app_name,
             broker=broker,
             destination=destination,
-            status=status,
+            status=status.value,
         ).inc(amount)
 
     def observe_published_message_duration(
