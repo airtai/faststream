@@ -18,7 +18,7 @@ hide:
 
 This it the official **Python 3.13** support! Now, **FastStream** works (and tested) at **Python 3.8 - 3.13** versions!
 
-Warning: **Python3.8** is EOF since **3.13** release and we plan to drop it support in **FastStream 6.0.0** version.
+Warning: **Python3.8** is EOF since **3.13** release and we plan to drop it support in **FastStream 0.6.0** version.
 
 Also, current release has little bugfixes related to **CLI** and **AsyncAPI** schema.
 
