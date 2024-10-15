@@ -34,6 +34,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -66,7 +67,10 @@ rabbit = ["aio-pika>=9,<10"]
 
 kafka = ["aiokafka>=0.9,<0.12"]
 
-confluent = ["confluent-kafka>=2,<3"]
+confluent = [
+    "confluent-kafka>=2,<3; python_version < '3.13'",
+    "confluent-kafka>=2.6,<3; python_version >= '3.13'",
+]
 
 nats = ["nats-py>=2.7.0,<=3.0.0"]
 
