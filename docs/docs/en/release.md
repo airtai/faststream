@@ -12,6 +12,17 @@ hide:
 ---
 
 # Release Notes
+## 0.5.27
+
+### What's Changed
+
+* fix: anyio major version parser by [@dotX12](https://github.com/dotX12){.external-link target="_blank"} in [#1850](https://github.com/airtai/faststream/pull/1850){.external-link target="_blank"}
+
+### New Contributors
+* [@dotX12](https://github.com/dotX12){.external-link target="_blank"} made their first contribution in [#1850](https://github.com/airtai/faststream/pull/1850){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.26...0.5.27](https://github.com/airtai/faststream/compare/0.5.26...0.5.27){.external-link target="_blank"}
+
 ## 0.5.26
 
 ### What's Changed
