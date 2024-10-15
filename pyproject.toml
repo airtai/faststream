@@ -125,7 +125,8 @@ lint = [
 ]
 
 test-core = [
-    "coverage[toml]==7.6.3",
+    "coverage[toml]==7.6.2; python_version == '3.8'",
+    "coverage[toml]==7.6.3; python_version >= '3.9'",
     "pytest==8.3.3",
     "pytest-asyncio==0.24.0",
     "dirty-equals==0.8.0",

@@ -60,7 +60,7 @@ def timeout_scope(
     raise_timeout: bool = False,
 ) -> ContextManager[anyio.CancelScope]:
     scope: Callable[[Optional[float]], ContextManager[anyio.CancelScope]]
-    scope = anyio.fail_after if raise_timeout else anyio.move_on_after  # type: ignore[assignment]
+    scope = anyio.fail_after if raise_timeout else anyio.move_on_after
 
     return scope(timeout)
 
