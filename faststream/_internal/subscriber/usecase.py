@@ -101,7 +101,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         retry: Union[bool, int],
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        default_parser: "AsyncCallable",
+        default_parser: Optional["AsyncCallable"] = None,
         default_decoder: "AsyncCallable",
         # AsyncAPI information
         title_: Optional[str],
@@ -154,12 +154,13 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         broker_decoder: Optional["CustomCallable"],
         # dependant args
         state: "SetupState",
+        default_parser: "AsyncCallable",
     ) -> None:
         self.lock = MultiLock()
-
         self._producer = producer
         self.graceful_timeout = graceful_timeout
         self.extra_context = extra_context
+        self._parser = default_parser
 
         self.watcher = get_watcher_context(logger, self._no_ack, self._retry)
 

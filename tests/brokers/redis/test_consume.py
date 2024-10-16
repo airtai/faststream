@@ -318,7 +318,6 @@ class TestConsumeList:
     ):
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(list=queue)
-
         async with self.patch_broker(broker) as br:
             await br.start()
 

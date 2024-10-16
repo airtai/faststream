@@ -2,7 +2,6 @@ import asyncio
 import math
 from abc import abstractmethod
 from contextlib import suppress
-from copy import deepcopy
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -71,7 +70,6 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
     def __init__(
         self,
         *,
-        default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
         no_ack: bool,
@@ -85,7 +83,6 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         include_in_schema: bool,
     ) -> None:
         super().__init__(
-            default_parser=default_parser,
             default_decoder=default_decoder,
             # Propagated options
             no_ack=no_ack,
@@ -112,6 +109,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         producer: Optional["ProducerProto"],
         graceful_timeout: Optional[float],
         extra_context: "AnyDict",
+        default_parser: "AsyncCallable",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
@@ -119,7 +117,6 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         state: "SetupState",
     ) -> None:
         self._client = connection
-
         super()._setup(
             logger=logger,
             producer=producer,
@@ -128,6 +125,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
             state=state,
+            default_parser=default_parser,
         )
 
     def _make_response_publisher(
@@ -232,7 +230,7 @@ class ChannelSubscriber(LogicSubscriber):
     ) -> None:
         parser = RedisPubSubParser(pattern=channel.path_regex)
         super().__init__(
-            default_parser=parser.parse_message,
+            # тут ранее создавался default_parser
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
@@ -256,6 +254,34 @@ class ChannelSubscriber(LogicSubscriber):
         return self.build_log_context(
             message=message,
             channel=self.channel.name,
+        )
+
+    def _setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        state: "SetupState",
+    ):
+        parser = RedisPubSubParser(pattern=self.channel.path_regex)
+        super()._setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            default_parser=parser.parse_message,
+            state=state,
         )
 
     @override
@@ -339,7 +365,6 @@ class _ListHandlerMixin(LogicSubscriber):
         self,
         *,
         list: ListSub,
-        default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
         no_ack: bool,
@@ -353,7 +378,6 @@ class _ListHandlerMixin(LogicSubscriber):
         include_in_schema: bool,
     ) -> None:
         super().__init__(
-            default_parser=default_parser,
             default_decoder=default_decoder,
             # Propagated options
             no_ack=no_ack,
@@ -368,6 +392,34 @@ class _ListHandlerMixin(LogicSubscriber):
         )
 
         self.list_sub = list
+
+    def _setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        state: "SetupState",
+        default_parser: "AsyncCallable",
+    ):
+        super()._setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            default_parser=default_parser,
+            state=state,
+        )
 
     def get_log_context(
         self,
@@ -456,7 +508,6 @@ class ListSubscriber(_ListHandlerMixin):
         parser = RedisListParser()
         super().__init__(
             list=list,
-            default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
@@ -468,6 +519,34 @@ class ListSubscriber(_ListHandlerMixin):
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
+        )
+
+    def _setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        state: "SetupState",
+    ):
+        parser = RedisListParser()
+        super()._setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            default_parser=parser.parse_message,
+            state=state,
         )
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
@@ -505,7 +584,6 @@ class BatchListSubscriber(_ListHandlerMixin):
         parser = RedisBatchListParser()
         super().__init__(
             list=list,
-            default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
@@ -517,6 +595,34 @@ class BatchListSubscriber(_ListHandlerMixin):
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
+        )
+
+    def _setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        state: "SetupState",
+    ):
+        parser = RedisBatchListParser()
+        super()._setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            default_parser=parser.parse_message,
+            state=state,
         )
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
@@ -543,7 +649,6 @@ class _StreamHandlerMixin(LogicSubscriber):
         self,
         *,
         stream: StreamSub,
-        default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
         no_ack: bool,
@@ -557,7 +662,6 @@ class _StreamHandlerMixin(LogicSubscriber):
         include_in_schema: bool,
     ) -> None:
         super().__init__(
-            default_parser=default_parser,
             default_decoder=default_decoder,
             # Propagated options
             no_ack=no_ack,
@@ -581,6 +685,34 @@ class _StreamHandlerMixin(LogicSubscriber):
         return self.build_log_context(
             message=message,
             channel=self.stream_sub.name,
+        )
+
+    def _setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        state: "SetupState",
+        default_parser: "AsyncCallable",
+    ):
+        super()._setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            default_parser=default_parser,
+            state=state,
         )
 
     @override
@@ -744,7 +876,6 @@ class StreamSubscriber(_StreamHandlerMixin):
         parser = RedisStreamParser()
         super().__init__(
             stream=stream,
-            default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
@@ -756,6 +887,34 @@ class StreamSubscriber(_StreamHandlerMixin):
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
+        )
+
+    def _setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        state: "SetupState",
+    ):
+        parser = RedisStreamParser()
+        super()._setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            default_parser=parser.parse_message,
+            state=state,
         )
 
     async def _get_msgs(
@@ -813,7 +972,6 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
         parser = RedisBatchStreamParser()
         super().__init__(
             stream=stream,
-            default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
@@ -825,6 +983,34 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
+        )
+
+    def _setup(
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
+        # dependant args
+        state: "SetupState",
+    ):
+        parser = RedisBatchStreamParser()
+        super()._setup(
+            connection=connection,
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            default_parser=parser.parse_message,
+            state=state,
         )
 
     async def _get_msgs(
