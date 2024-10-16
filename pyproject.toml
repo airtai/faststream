@@ -83,8 +83,10 @@ cli = [
     "watchfiles>=0.15.0,<0.25.0"
 ]
 
+prometheus = ["prometheus-client>=0.20.0,<0.30.0"]
+
 # dev dependencies
-optionals = ["faststream[rabbit,kafka,confluent,nats,redis,otel,cli]"]
+optionals = ["faststream[rabbit,kafka,confluent,nats,redis,otel,cli,prometheus]"]
 
 devdocs = [
     "mkdocs-material==9.5.40",
