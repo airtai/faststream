@@ -49,6 +49,7 @@ class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
                             location="$message.header#/correlation_id",
                         ),
                     ),
+                    bindings=None,
                 ),
                 bindings=ChannelBinding(
                     redis=self.channel_binding,
@@ -138,7 +139,7 @@ class SpecificationPublisher(LogicPublisher, RedisAsyncAPIProtocol):
 
 
 class AsyncAPIChannelPublisher(ChannelPublisher, SpecificationPublisher):
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.channel.name}:Publisher"
 
     @property
@@ -152,7 +153,7 @@ class AsyncAPIChannelPublisher(ChannelPublisher, SpecificationPublisher):
 class _ListPublisherMixin(SpecificationPublisher):
     list: "ListSub"
 
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.list.name}:Publisher"
 
     @property
@@ -172,7 +173,7 @@ class AsyncAPIListBatchPublisher(ListBatchPublisher, _ListPublisherMixin):
 
 
 class AsyncAPIStreamPublisher(StreamPublisher, SpecificationPublisher):
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.stream.name}:Publisher"
 
     @property

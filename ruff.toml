@@ -98,6 +98,12 @@ ignore = [
     "N815",     # Variable `*` in class scope should not be mixedCase
 ]
 
+# FIXME
+# "faststream/specification/asyncapi/**/*.py" = [
+#     "ERA001",
+#     "N815",     # Variable `*` in class scope should not be mixedCase
+# ]
+
 "**/fastapi/**/*.py" = [
     "N803",     # Argument name `expandMessageExamples` should be lowercase
 ]

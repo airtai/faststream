@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from typing_extensions import Self
 
 from faststream._internal.basic_types import AnyDict
-from faststream.specification import schema as spec
+from faststream.specification.schema.bindings import kafka
 
 
 class OperationBinding(BaseModel):
@@ -28,7 +28,7 @@ class OperationBinding(BaseModel):
     bindingVersion: str = "0.4.0"
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.kafka.OperationBinding) -> Self:
+    def from_spec(cls, binding: kafka.OperationBinding) -> Self:
         return cls(
             groupId=binding.groupId,
             clientId=binding.clientId,
@@ -37,5 +37,5 @@ class OperationBinding(BaseModel):
         )
 
 
-def from_spec(binding: spec.bindings.kafka.OperationBinding) -> OperationBinding:
+def from_spec(binding: kafka.OperationBinding) -> OperationBinding:
     return OperationBinding.from_spec(binding)

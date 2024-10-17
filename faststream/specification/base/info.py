@@ -3,18 +3,18 @@ from pydantic import BaseModel
 from faststream._internal._compat import PYDANTIC_V2
 
 
-class BaseInfo(BaseModel):
+class BaseApplicationInfo(BaseModel):
     """A class to represent basic application information.
 
     Attributes:
         title : application title
-        version : application version (default: "1.0.0")
-        description : application description (default: "")
+        version : application version
+        description : application description
     """
 
     title: str
-    version: str = "1.0.0"
-    description: str = ""
+    version: str
+    description: str
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

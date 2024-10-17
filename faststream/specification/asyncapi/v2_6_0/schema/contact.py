@@ -1,15 +1,15 @@
-from typing import (
-    Optional,
-    Union,
-    overload,
-)
+from typing import Optional, Union, overload
 
 from pydantic import AnyHttpUrl, BaseModel
 from typing_extensions import Self
 
 from faststream._internal._compat import PYDANTIC_V2, EmailStr
 from faststream._internal.basic_types import AnyDict
-from faststream.specification import schema as spec
+from faststream._internal.utils.data import filter_by_dict
+from faststream.specification.schema.extra import (
+    Contact as SpecContact,
+    ContactDict,
+)
 
 
 class Contact(BaseModel):
@@ -19,10 +19,10 @@ class Contact(BaseModel):
         name : name of the contact (str)
         url : URL of the contact (Optional[AnyHttpUrl])
         email : email of the contact (Optional[EmailStr])
-
     """
 
     name: str
+    # Use default values to be able build from dict
     url: Optional[AnyHttpUrl] = None
     email: Optional[EmailStr] = None
 
@@ -34,31 +34,39 @@ class Contact(BaseModel):
         class Config:
             extra = "allow"
 
+    @overload
     @classmethod
-    def from_spec(cls, contact: spec.contact.Contact) -> Self:
-        return cls(
-            name=contact.name,
-            url=contact.url,
-            email=contact.email,
-        )
+    def from_spec(cls, contact: None) -> None: ...
 
+    @overload
+    @classmethod
+    def from_spec(cls, contact: SpecContact) -> Self: ...
 
-@overload
-def from_spec(contact: spec.contact.Contact) -> Contact: ...
+    @overload
+    @classmethod
+    def from_spec(cls, contact: ContactDict) -> Self: ...
 
+    @overload
+    @classmethod
+    def from_spec(cls, contact: AnyDict) -> AnyDict: ...
 
-@overload
-def from_spec(contact: spec.contact.ContactDict) -> AnyDict: ...
+    @classmethod
+    def from_spec(
+        cls, contact: Union[SpecContact, ContactDict, AnyDict, None]
+    ) -> Union[Self, AnyDict, None]:
+        if contact is None:
+            return None
 
+        if isinstance(contact, SpecContact):
+            return cls(
+                name=contact.name,
+                url=contact.url,
+                email=contact.email,
+            )
 
-@overload
-def from_spec(contact: AnyDict) -> AnyDict: ...
+        contact_data, custom_data = filter_by_dict(ContactDict, contact)
 
+        if custom_data:
+            return contact
 
-def from_spec(
-    contact: Union[spec.contact.Contact, spec.contact.ContactDict, AnyDict],
-) -> Union[Contact, AnyDict]:
-    if isinstance(contact, spec.contact.Contact):
-        return Contact.from_spec(contact)
-
-    return dict(contact)
+        return cls(**contact_data)

@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from typing_extensions import Self
 
 from faststream._internal.basic_types import AnyDict
-from faststream.specification import schema as spec
+from faststream.specification.schema.bindings import nats
 
 
 class OperationBinding(BaseModel):
@@ -24,12 +24,12 @@ class OperationBinding(BaseModel):
     bindingVersion: str = "custom"
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.nats.OperationBinding) -> Self:
+    def from_spec(cls, binding: nats.OperationBinding) -> Self:
         return cls(
             replyTo=binding.replyTo,
             bindingVersion=binding.bindingVersion,
         )
 
 
-def from_spec(binding: spec.bindings.nats.OperationBinding) -> OperationBinding:
+def from_spec(binding: nats.OperationBinding) -> OperationBinding:
     return OperationBinding.from_spec(binding)

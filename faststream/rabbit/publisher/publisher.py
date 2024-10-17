@@ -6,14 +6,12 @@ from typing_extensions import override
 from faststream.rabbit.publisher.usecase import LogicPublisher, PublishKwargs
 from faststream.rabbit.utils import is_routing_exchange
 from faststream.specification.asyncapi.utils import resolve_payloads
+from faststream.specification.schema import Message, Operation, PublisherSpec
 from faststream.specification.schema.bindings import (
     ChannelBinding,
     OperationBinding,
     amqp,
 )
-from faststream.specification.schema.channel import Channel
-from faststream.specification.schema.message import CorrelationId, Message
-from faststream.specification.schema.operation import Operation
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage
@@ -38,7 +36,7 @@ class SpecificationPublisher(LogicPublisher):
     ```
     """
 
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         routing = (
             self.routing_key
             or (self.queue.routing if is_routing_exchange(self.exchange) else None)
@@ -47,24 +45,24 @@ class SpecificationPublisher(LogicPublisher):
 
         return f"{routing}:{getattr(self.exchange, 'name', None) or '_'}:Publisher"
 
-    def get_schema(self) -> dict[str, Channel]:
+    def get_schema(self) -> dict[str, PublisherSpec]:
         payloads = self.get_payloads()
 
         return {
-            self.name: Channel(
+            self.name: PublisherSpec(
                 description=self.description,
-                publish=Operation(
+                operation=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
                             cc=self.routing or None,
-                            deliveryMode=2 if self.message_kwargs.get("persist") else 1,
+                            delivery_mode=2
+                            if self.message_kwargs.get("persist")
+                            else 1,
                             mandatory=self.message_kwargs.get("mandatory"),  # type: ignore[arg-type]
-                            replyTo=self.message_kwargs.get("reply_to"),  # type: ignore[arg-type]
+                            reply_to=self.message_kwargs.get("reply_to"),  # type: ignore[arg-type]
                             priority=self.message_kwargs.get("priority"),  # type: ignore[arg-type]
                         ),
-                    )
-                    if is_routing_exchange(self.exchange)
-                    else None,
+                    ),
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(
@@ -72,34 +70,13 @@ class SpecificationPublisher(LogicPublisher):
                             "Publisher",
                             served_words=2 if self.title_ is None else 1,
                         ),
-                        correlationId=CorrelationId(
-                            location="$message.header#/correlation_id",
-                        ),
                     ),
                 ),
                 bindings=ChannelBinding(
                     amqp=amqp.ChannelBinding(
-                        is_="routingKey",
-                        queue=amqp.Queue(
-                            name=self.queue.name,
-                            durable=self.queue.durable,
-                            exclusive=self.queue.exclusive,
-                            autoDelete=self.queue.auto_delete,
-                            vhost=self.virtual_host,
-                        )
-                        if is_routing_exchange(self.exchange) and self.queue.name
-                        else None,
-                        exchange=(
-                            amqp.Exchange(type="default", vhost=self.virtual_host)
-                            if not self.exchange.name
-                            else amqp.Exchange(
-                                type=self.exchange.type.value,
-                                name=self.exchange.name,
-                                durable=self.exchange.durable,
-                                autoDelete=self.exchange.auto_delete,
-                                vhost=self.virtual_host,
-                            )
-                        ),
+                        virtual_host=self.virtual_host,
+                        queue=amqp.Queue.from_queue(self.queue),
+                        exchange=amqp.Exchange.from_exchange(self.exchange),
                     ),
                 ),
             ),
