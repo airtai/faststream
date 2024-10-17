@@ -1,14 +1,11 @@
 import logging
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Dict,
-    Iterable,
-    List,
     Optional,
-    Sequence,
-    Type,
     Union,
     cast,
 )
@@ -18,19 +15,18 @@ from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
 from starlette.responses import JSONResponse
 from starlette.routing import BaseRoute
-from typing_extensions import Annotated, Doc, deprecated, override
+from typing_extensions import Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.utils import default_filter
+from faststream._internal.constants import EMPTY
+from faststream._internal.fastapi.router import StreamRouter
 from faststream.rabbit.broker.broker import RabbitBroker as RB
-from faststream.rabbit.publisher.asyncapi import AsyncAPIPublisher
+from faststream.rabbit.publisher.publisher import SpecificationPublisher
 from faststream.rabbit.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
-from faststream.types import EMPTY
+from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -44,18 +40,16 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp, Lifespan
     from yarl import URL
 
-    from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
-    from faststream.rabbit.schemas.reply import ReplyConfig
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, LoggerProto
+    from faststream.specification.schema.tag import Tag, TagDict
 
 
 class RabbitRouter(StreamRouter["IncomingMessage"]):
@@ -99,7 +93,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         fail_fast: Annotated[
             bool,
             Doc(
-                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable."
+                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable.",
             ),
         ] = True,
         reconnect_interval: Annotated[
@@ -116,14 +110,14 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Doc(
                 "if `True` the `publish` method will "
                 "return `bool` type after publish is complete."
-                "Otherwise it will returns `None`."
+                "Otherwise it will returns `None`.",
             ),
         ] = True,
         on_return_raises: Annotated[
             bool,
             Doc(
                 "raise an :class:`aio_pika.exceptions.DeliveryError`"
-                "when mandatory message will be returned"
+                "when mandatory message will be returned",
             ),
         ] = False,
         # broker args
@@ -131,7 +125,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional[int],
             Doc(
                 "RabbitMQ channel `qos` option. "
-                "It limits max messages processing in the same time count."
+                "It limits max messages processing in the same time count.",
             ),
         ] = None,
         app_id: Annotated[
@@ -142,7 +136,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ] = 15.0,
         decoder: Annotated[
@@ -161,10 +155,10 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Optional[str],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -180,8 +174,8 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional[str],
             Doc("AsyncAPI server description."),
         ] = None,
-        asyncapi_tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+        specification_tags: Annotated[
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args
@@ -202,13 +196,13 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             bool,
             Doc(
                 "Whether to add broker to app scope in lifespan. "
-                "You should disable this option at old ASGI servers."
+                "You should disable this option at old ASGI servers.",
             ),
         ] = True,
         schema_url: Annotated[
             Optional[str],
             Doc(
-                "AsyncAPI schema url. You should set this option to `None` to disable AsyncAPI routes at all."
+                "AsyncAPI schema url. You should set this option to `None` to disable AsyncAPI routes at all.",
             ),
         ] = "/asyncapi",
         # FastAPI args
@@ -217,7 +211,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Doc("An optional path prefix for the router."),
         ] = "",
         tags: Annotated[
-            Optional[List[Union[str, "Enum"]]],
+            Optional[list[Union[str, "Enum"]]],
             Doc(
                 """
                 A list of tags to be applied to all the *path operations* in this
@@ -227,7 +221,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for Path Operation Configuration](https://fastapi.tiangolo.com/tutorial/path-operation-configuration/).
-                """
+                """,
             ),
         ] = None,
         dependencies: Annotated[
@@ -239,22 +233,22 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for Bigger Applications - Multiple Files](https://fastapi.tiangolo.com/tutorial/bigger-applications/#include-an-apirouter-with-a-custom-prefix-tags-responses-and-dependencies).
-                """
+                """,
             ),
         ] = None,
         default_response_class: Annotated[
-            Type["Response"],
+            type["Response"],
             Doc(
                 """
                 The default response class to be used.
 
                 Read more in the
                 [FastAPI docs for Custom Response - HTML, Stream, File, others](https://fastapi.tiangolo.com/advanced/custom-response/#default-response-class).
-                """
+                """,
             ),
         ] = Default(JSONResponse),
         responses: Annotated[
-            Optional[Dict[Union[int, str], "AnyDict"]],
+            Optional[dict[Union[int, str], "AnyDict"]],
             Doc(
                 """
                 Additional responses to be shown in OpenAPI.
@@ -266,11 +260,11 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 And in the
                 [FastAPI docs for Bigger Applications](https://fastapi.tiangolo.com/tutorial/bigger-applications/#include-an-apirouter-with-a-custom-prefix-tags-responses-and-dependencies).
-                """
+                """,
             ),
         ] = None,
         callbacks: Annotated[
-            Optional[List[BaseRoute]],
+            Optional[list[BaseRoute]],
             Doc(
                 """
                 OpenAPI callbacks that should apply to all *path operations* in this
@@ -280,11 +274,11 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for OpenAPI Callbacks](https://fastapi.tiangolo.com/advanced/openapi-callbacks/).
-                """
+                """,
             ),
         ] = None,
         routes: Annotated[
-            Optional[List[BaseRoute]],
+            Optional[list[BaseRoute]],
             Doc(
                 """
                 **Note**: you probably shouldn't use this parameter, it is inherited
@@ -293,7 +287,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 ---
 
                 A list of routes to serve incoming HTTP and WebSocket requests.
-                """
+                """,
             ),
             deprecated(
                 """
@@ -302,7 +296,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 In FastAPI, you normally would use the *path operation methods*,
                 like `router.get()`, `router.post()`, etc.
-                """
+                """,
             ),
         ] = None,
         redirect_slashes: Annotated[
@@ -311,7 +305,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 """
                 Whether to detect and redirect slashes in URLs when the client doesn't
                 use the same format.
-                """
+                """,
             ),
         ] = True,
         default: Annotated[
@@ -320,7 +314,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 """
                 Default function handler for this router. Used to handle
                 404 Not Found errors.
-                """
+                """,
             ),
         ] = None,
         dependency_overrides_provider: Annotated[
@@ -331,18 +325,18 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 You shouldn't need to use it. It normally points to the `FastAPI` app
                 object.
-                """
+                """,
             ),
         ] = None,
         route_class: Annotated[
-            Type["APIRoute"],
+            type["APIRoute"],
             Doc(
                 """
                 Custom route (*path operation*) class to be used by this router.
 
                 Read more about it in the
                 [FastAPI docs for Custom Request and APIRoute class](https://fastapi.tiangolo.com/how-to/custom-request-and-route/#custom-apiroute-class-in-a-router).
-                """
+                """,
             ),
         ] = APIRoute,
         on_startup: Annotated[
@@ -354,7 +348,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 You should instead use the `lifespan` handlers.
 
                 Read more in the [FastAPI docs for `lifespan`](https://fastapi.tiangolo.com/advanced/events/).
-                """
+                """,
             ),
         ] = None,
         on_shutdown: Annotated[
@@ -367,7 +361,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more in the
                 [FastAPI docs for `lifespan`](https://fastapi.tiangolo.com/advanced/events/).
-                """
+                """,
             ),
         ] = None,
         lifespan: Annotated[
@@ -379,7 +373,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more in the
                 [FastAPI docs for `lifespan`](https://fastapi.tiangolo.com/advanced/events/).
-                """
+                """,
             ),
         ] = None,
         deprecated: Annotated[
@@ -392,7 +386,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for Path Operation Configuration](https://fastapi.tiangolo.com/tutorial/path-operation-configuration/).
-                """
+                """,
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -406,7 +400,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for Query Parameters and String Validations](https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#exclude-from-openapi).
-                """
+                """,
             ),
         ] = True,
         generate_unique_id_function: Annotated[
@@ -421,7 +415,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs about how to Generate Clients](https://fastapi.tiangolo.com/advanced/generate-clients/#custom-generate-unique-id-function).
-                """
+                """,
             ),
         ] = Default(generate_unique_id),
     ) -> None:
@@ -445,14 +439,14 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             on_return_raises=on_return_raises,
             middlewares=middlewares,
             security=security,
-            asyncapi_url=asyncapi_url,
+            specification_url=specification_url,
             protocol=protocol,
             protocol_version=protocol_version,
             description=description,
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
-            asyncapi_tags=asyncapi_tags,
+            specification_tags=specification_tags,
             schema_url=schema_url,
             setup_state=setup_state,
             # FastAPI kwargs
@@ -482,7 +476,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Union[str, RabbitQueue],
             Doc(
                 "RabbitMQ queue to listen. "
-                "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default)."
+                "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default).",
             ),
         ],
         exchange: Annotated[
@@ -490,22 +484,13 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Doc(
                 "RabbitMQ exchange to bind queue to. "
                 "Uses default exchange if not presented. "
-                "**FastStream** declares exchange object automatically if it is not passive (by default)."
+                "**FastStream** declares exchange object automatically if it is not passive (by default).",
             ),
         ] = None,
         *,
         consume_args: Annotated[
             Optional["AnyDict"],
             Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
-        ] = None,
-        reply_config: Annotated[
-            Optional["ReplyConfig"],
-            Doc("Extra options to use at replies publishing."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.16**. "
-                "Please, use `RabbitResponse` object as a handler return instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
         ] = None,
         # broker arguments
         dependencies: Annotated[
@@ -515,7 +500,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         parser: Annotated[
             Optional["CustomCallable"],
             Doc(
-                "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
+                "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one.",
             ),
         ] = None,
         decoder: Annotated[
@@ -526,17 +511,6 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Iterable["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[RabbitMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             Union[bool, int],
             Doc("Whether to `nack` message at processing exception."),
@@ -548,7 +522,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         no_reply: Annotated[
             bool,
             Doc(
-                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not.",
             ),
         ] = False,
         # AsyncAPI information
@@ -560,7 +534,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional[str],
             Doc(
                 "AsyncAPI subscriber object description. "
-                "Uses decorated docstring as default."
+                "Uses decorated docstring as default.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -599,7 +573,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model](https://fastapi.tiangolo.com/tutorial/response-model/).
-                """
+                """,
             ),
         ] = Default(None),
         response_model_include: Annotated[
@@ -611,7 +585,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
-                """
+                """,
             ),
         ] = None,
         response_model_exclude: Annotated[
@@ -623,7 +597,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
-                """
+                """,
             ),
         ] = None,
         response_model_by_alias: Annotated[
@@ -635,7 +609,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
-                """
+                """,
             ),
         ] = True,
         response_model_exclude_unset: Annotated[
@@ -653,7 +627,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).
-                """
+                """,
             ),
         ] = False,
         response_model_exclude_defaults: Annotated[
@@ -670,7 +644,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).
-                """
+                """,
             ),
         ] = False,
         response_model_exclude_none: Annotated[
@@ -687,22 +661,20 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_exclude_none).
-                """
+                """,
             ),
         ] = False,
-    ) -> AsyncAPISubscriber:
+    ) -> SpecificationSubscriber:
         return cast(
-            AsyncAPISubscriber,
+            SpecificationSubscriber,
             super().subscriber(
                 queue=queue,
                 exchange=exchange,
                 consume_args=consume_args,
-                reply_config=reply_config,
                 dependencies=dependencies,
                 parser=parser,
                 decoder=decoder,
                 middlewares=middlewares,
-                filter=filter,
                 retry=retry,
                 no_ack=no_ack,
                 no_reply=no_reply,
@@ -736,21 +708,21 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             str,
             Doc(
                 "Default message routing key to publish with. "
-                "Overrides `queue` option if presented."
+                "Overrides `queue` option if presented.",
             ),
         ] = "",
         mandatory: Annotated[
             bool,
             Doc(
                 "Client waits for confirmation that the message is placed to some queue. "
-                "RabbitMQ returns message to client if there is no suitable queue."
+                "RabbitMQ returns message to client if there is no suitable queue.",
             ),
         ] = True,
         immediate: Annotated[
             bool,
             Doc(
                 "Client expects that there is consumer ready to take the message to work. "
-                "RabbitMQ returns message to client if there is no suitable consumer."
+                "RabbitMQ returns message to client if there is no suitable consumer.",
             ),
         ] = False,
         timeout: Annotated[
@@ -764,7 +736,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         reply_to: Annotated[
             Optional[str],
             Doc(
-                "Reply message routing key to send with (always sending to default exchange)."
+                "Reply message routing key to send with (always sending to default exchange).",
             ),
         ] = None,
         priority: Annotated[
@@ -789,7 +761,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional[Any],
             Doc(
                 "AsyncAPI publishing message type. "
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
+                "Should be any python-native object annotation or `pydantic.BaseModel`.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -801,7 +773,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional["HeadersType"],
             Doc(
                 "Message headers to store metainformation. "
-                "Can be overridden by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified.",
             ),
         ] = None,
         content_type: Annotated[
@@ -809,7 +781,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Doc(
                 "Message **content-type** header. "
                 "Used by application, not core RabbitMQ. "
-                "Will be set automatically if not specified."
+                "Will be set automatically if not specified.",
             ),
         ] = None,
         content_encoding: Annotated[
@@ -828,7 +800,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional[str],
             Doc("Publisher connection User ID, validated if set."),
         ] = None,
-    ) -> AsyncAPIPublisher:
+    ) -> SpecificationPublisher:
         return self.broker.publisher(
             queue=queue,
             exchange=exchange,

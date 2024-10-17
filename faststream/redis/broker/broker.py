@@ -1,13 +1,12 @@
 import logging
+from collections.abc import Iterable, Mapping
 from functools import partial
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Iterable,
-    Mapping,
     Optional,
-    Type,
     Union,
 )
 from urllib.parse import urlparse
@@ -23,16 +22,19 @@ from redis.asyncio.connection import (
     parse_url,
 )
 from redis.exceptions import ConnectionError
-from typing_extensions import Annotated, Doc, TypeAlias, deprecated, override
+from typing_extensions import Doc, TypeAlias, override
 
 from faststream.__about__ import __version__
-from faststream.broker.message import gen_cor_id
+from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.redis.broker.logging import RedisLoggingBroker
-from faststream.redis.broker.registrator import RedisRegistrator
+from faststream.message import gen_cor_id
+from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
-from faststream.types import EMPTY
+
+from .logging import make_redis_logger_state
+from .registrator import RedisRegistrator
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -41,21 +43,20 @@ if TYPE_CHECKING:
     from redis.asyncio.connection import BaseParser
     from typing_extensions import TypedDict, Unpack
 
-    from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import (
+        AnyDict,
+        AsyncFunc,
+        Decorator,
+        LoggerProto,
+        SendableMessage,
+    )
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
     )
     from faststream.redis.message import BaseMessage, RedisMessage
     from faststream.security import BaseSecurity
-    from faststream.types import (
-        AnyDict,
-        AsyncFunc,
-        DecodedMessage,
-        Decorator,
-        LoggerProto,
-        SendableMessage,
-    )
+    from faststream.specification.schema.tag import Tag, TagDict
 
     class RedisInitKwargs(TypedDict, total=False):
         host: Optional[str]
@@ -74,9 +75,9 @@ if TYPE_CHECKING:
         encoding: Optional[str]
         encoding_errors: Optional[str]
         decode_responses: Optional[bool]
-        parser_class: Optional[Type["BaseParser"]]
-        connection_class: Optional[Type["Connection"]]
-        encoder_class: Optional[Type["Encoder"]]
+        parser_class: Optional[type["BaseParser"]]
+        connection_class: Optional[type["Connection"]]
+        encoder_class: Optional[type["Encoder"]]
 
 
 Channel: TypeAlias = str
@@ -84,7 +85,7 @@ Channel: TypeAlias = str
 
 class RedisBroker(
     RedisRegistrator,
-    RedisLoggingBroker,
+    BrokerUsecase[UnifyRedisDict, "Redis[bytes]"],
 ):
     """Redis broker."""
 
@@ -98,7 +99,7 @@ class RedisBroker(
         host: str = EMPTY,
         port: Union[str, int] = EMPTY,
         db: Union[str, int] = EMPTY,
-        connection_class: Type["Connection"] = EMPTY,
+        connection_class: type["Connection"] = EMPTY,
         client_name: Optional[str] = None,
         health_check_interval: float = 0,
         max_connections: Optional[int] = None,
@@ -112,13 +113,13 @@ class RedisBroker(
         encoding: str = "utf-8",
         encoding_errors: str = "strict",
         decode_responses: bool = False,
-        parser_class: Type["BaseParser"] = DefaultParser,
-        encoder_class: Type["Encoder"] = Encoder,
+        parser_class: type["BaseParser"] = DefaultParser,
+        encoder_class: type["Encoder"] = Encoder,
         # broker args
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ] = 15.0,
         decoder: Annotated[
@@ -141,10 +142,10 @@ class RedisBroker(
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Optional[str],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -161,7 +162,7 @@ class RedisBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args
@@ -197,11 +198,11 @@ class RedisBroker(
     ) -> None:
         self._producer = None
 
-        if asyncapi_url is None:
-            asyncapi_url = url
+        if specification_url is None:
+            specification_url = url
 
         if protocol is None:
-            url_kwargs = urlparse(asyncapi_url)
+            url_kwargs = urlparse(specification_url)
             protocol = url_kwargs.scheme
 
         super().__init__(
@@ -234,15 +235,17 @@ class RedisBroker(
             middlewares=middlewares,
             # AsyncAPI
             description=description,
-            asyncapi_url=asyncapi_url,
+            specification_url=specification_url,
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
             # logging
-            logger=logger,
-            log_level=log_level,
-            log_fmt=log_fmt,
+            logger_state=make_redis_logger_state(
+                logger=logger,
+                log_level=log_level,
+                log_fmt=log_fmt,
+            ),
             # FastDepends args
             apply_types=apply_types,
             validate=validate,
@@ -275,7 +278,7 @@ class RedisBroker(
         host: str,
         port: Union[str, int],
         db: Union[str, int],
-        connection_class: Type["Connection"],
+        connection_class: type["Connection"],
         client_name: Optional[str],
         health_check_interval: float,
         max_connections: Optional[int],
@@ -289,8 +292,8 @@ class RedisBroker(
         encoding: str,
         encoding_errors: str,
         decode_responses: bool,
-        parser_class: Type["BaseParser"],
-        encoder_class: Type["Encoder"],
+        parser_class: type["BaseParser"],
+        encoder_class: type["Encoder"],
     ) -> "Redis[bytes]":
         url_options: AnyDict = {
             **dict(parse_url(url)),
@@ -335,26 +338,22 @@ class RedisBroker(
         )
         return client
 
-    async def _close(
+    async def close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
+        await super().close(exc_type, exc_val, exc_tb)
+
         if self._connection is not None:
             await self._connection.aclose()  # type: ignore[attr-defined]
-
-        await super()._close(exc_type, exc_val, exc_tb)
+            self._connection = None
 
     async def start(self) -> None:
+        await self.connect()
+        self._setup()
         await super().start()
-
-        for handler in self._subscribers.values():
-            self._log(
-                f"`{handler.call_name}` waiting for messages",
-                extra=handler.get_log_context(None),
-            )
-            await handler.start()
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
@@ -387,7 +386,7 @@ class RedisBroker(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         list: Annotated[
@@ -402,40 +401,10 @@ class RedisBroker(
             Optional[int],
             Doc(
                 "Redis Stream maxlen publish option. "
-                "Remove eldest message if maxlen exceeded."
+                "Remove eldest message if maxlen exceeded.",
             ),
         ] = None,
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-    ) -> Optional["DecodedMessage"]:
+    ) -> None:
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
@@ -443,7 +412,7 @@ class RedisBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        return await super().publish(
+        await super().publish(
             message,
             producer=self._producer,
             correlation_id=correlation_id or gen_cor_id(),
@@ -453,9 +422,6 @@ class RedisBroker(
             maxlen=maxlen,
             reply_to=reply_to,
             headers=headers,
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
         )
 
     @override
@@ -498,7 +464,7 @@ class RedisBroker(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
     ) -> None:

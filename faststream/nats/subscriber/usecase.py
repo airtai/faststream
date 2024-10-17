@@ -1,18 +1,14 @@
 import asyncio
 from abc import abstractmethod
+from collections.abc import Awaitable, Coroutine, Iterable, Sequence
 from contextlib import suppress
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
-    Awaitable,
     Callable,
-    Coroutine,
-    Dict,
     Generic,
-    Iterable,
-    List,
     Optional,
-    Sequence,
     TypeVar,
     Union,
     cast,
@@ -22,12 +18,13 @@ import anyio
 from fast_depends.dependencies import Depends
 from nats.errors import ConnectionClosedError, TimeoutError
 from nats.js.api import ConsumerConfig, ObjectInfo
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Doc, override
 
-from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.types import MsgType
-from faststream.broker.utils import process_msg
+from faststream._internal.context.repository import context
+from faststream._internal.publisher.fake import FakePublisher
+from faststream._internal.subscriber.usecase import SubscriberUsecase
+from faststream._internal.subscriber.utils import process_msg
+from faststream._internal.types import MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.parser import (
     BatchParser,
@@ -41,7 +38,6 @@ from faststream.nats.subscriber.subscription import (
     UnsubscribeAdapter,
     Unsubscriptable,
 )
-from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
     from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
@@ -52,23 +48,28 @@ if TYPE_CHECKING:
     from nats.js.kv import KeyValue
     from nats.js.object_store import ObjectStore
 
-    from faststream.broker.message import StreamMessage
-    from faststream.broker.publisher.proto import ProducerProto
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import (
+        AnyDict,
+        LoggerProto,
+        SendableMessage,
+    )
+    from faststream._internal.publisher.proto import ProducerProto
+    from faststream._internal.setup import SetupState
+    from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
         CustomCallable,
     )
+    from faststream.message import StreamMessage
     from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
     from faststream.nats.message import NatsKvMessage, NatsMessage, NatsObjMessage
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
-    from faststream.types import AnyDict, Decorator, LoggerProto, SendableMessage
 
 
 ConnectionType = TypeVar("ConnectionType")
 
 
-class LogicSubscriber(Generic[ConnectionType, MsgType], SubscriberUsecase[MsgType]):
+class LogicSubscriber(SubscriberUsecase[MsgType], Generic[ConnectionType, MsgType]):
     """A class to represent a NATS handler."""
 
     subscription: Optional[Unsubscriptable]
@@ -121,7 +122,7 @@ class LogicSubscriber(Generic[ConnectionType, MsgType], SubscriberUsecase[MsgTyp
         self.producer = None
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         connection: ConnectionType,
@@ -134,24 +135,18 @@ class LogicSubscriber(Generic[ConnectionType, MsgType], SubscriberUsecase[MsgTyp
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
-        _call_decorators: Iterable["Decorator"],
+        state: "SetupState",
     ) -> None:
         self._connection = connection
 
-        super().setup(
+        super()._setup(
             logger=logger,
             producer=producer,
             graceful_timeout=graceful_timeout,
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
-            apply_types=apply_types,
-            is_validate=is_validate,
-            _get_dependant=_get_dependant,
-            _call_decorators=_call_decorators,
+            state=state,
         )
 
     @property
@@ -188,7 +183,7 @@ class LogicSubscriber(Generic[ConnectionType, MsgType], SubscriberUsecase[MsgTyp
         connection: ConnectionType,
     ) -> None:
         """Create NATS subscription object to consume messages."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @staticmethod
     def build_log_context(
@@ -209,7 +204,7 @@ class LogicSubscriber(Generic[ConnectionType, MsgType], SubscriberUsecase[MsgTyp
             str,
             Doc("Stream object we are listening"),
         ] = "",
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Static method to build log context out of `self.consume` scope."""
         return {
             "subject": subject,
@@ -221,32 +216,15 @@ class LogicSubscriber(Generic[ConnectionType, MsgType], SubscriberUsecase[MsgTyp
     def add_prefix(self, prefix: str) -> None:
         """Include Subscriber in router."""
         if self.subject:
-            self.subject = "".join((prefix, self.subject))
+            self.subject = f"{prefix}{self.subject}"
         else:
             self.config.filter_subjects = [
-                "".join((prefix, subject))
-                for subject in (self.config.filter_subjects or ())
+                f"{prefix}{subject}" for subject in (self.config.filter_subjects or ())
             ]
 
     @property
     def _resolved_subject_string(self) -> str:
         return self.subject or ", ".join(self.config.filter_subjects or ())
-
-    def __hash__(self) -> int:
-        return self.get_routing_hash(self._resolved_subject_string)
-
-    @staticmethod
-    def get_routing_hash(
-        subject: Annotated[
-            str,
-            Doc("NATS subject to consume messages"),
-        ],
-    ) -> int:
-        """Get handler hash by outer data.
-
-        Using to find handler in `broker.handlers` dictionary.
-        """
-        return hash(subject)
 
 
 class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
@@ -312,7 +290,7 @@ class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
             Optional["StreamMessage[MsgType]"],
             Doc("Message which we are building context for"),
         ],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Log context factory using in `self.consume` scope."""
         return self.build_log_context(
             message=message,
@@ -322,7 +300,7 @@ class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
 
 class _TasksMixin(LogicSubscriber[Any, Any]):
     def __init__(self, **kwargs: Any) -> None:
-        self.tasks: List[asyncio.Task[Any]] = []
+        self.tasks: list[asyncio.Task[Any]] = []
 
         super().__init__(**kwargs)
 
@@ -353,7 +331,7 @@ class _ConcurrentMixin(_TasksMixin):
         self.max_workers = max_workers
 
         self.send_stream, self.receive_stream = anyio.create_memory_object_stream(
-            max_buffer_size=max_workers
+            max_buffer_size=max_workers,
         )
         self.limiter = anyio.Semaphore(max_workers)
 
@@ -489,7 +467,7 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
             Optional["StreamMessage[Msg]"],
             Doc("Message which we are building context for"),
         ],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Log context factory using in `self.consume` scope."""
         return self.build_log_context(
             message=message,
@@ -614,7 +592,7 @@ class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
             Optional["StreamMessage[Msg]"],
             Doc("Message which we are building context for"),
         ],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Log context factory using in `self.consume` scope."""
         return self.build_log_context(
             message=message,
@@ -911,7 +889,7 @@ class ConcurrentPullStreamSubscriber(
 
 class BatchPullStreamSubscriber(
     _TasksMixin,
-    _DefaultSubscriber["JetStreamContext", List["Msg"]],
+    _DefaultSubscriber["JetStreamContext", list["Msg"]],
 ):
     """Batch-message consumer class."""
 
@@ -932,7 +910,7 @@ class BatchPullStreamSubscriber(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[List[Msg]]"],
+        broker_middlewares: Iterable["BrokerMiddleware[list[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -1094,7 +1072,7 @@ class KeyValueWatchSubscriber(
                     include_history=self.kv_watch.include_history,
                     ignore_deletes=self.kv_watch.ignore_deletes,
                     meta_only=self.kv_watch.meta_only,
-                )
+                ),
             )
         else:
             fetch_sub = self._fetch_sub
@@ -1136,7 +1114,7 @@ class KeyValueWatchSubscriber(
                 include_history=self.kv_watch.include_history,
                 ignore_deletes=self.kv_watch.ignore_deletes,
                 meta_only=self.kv_watch.meta_only,
-            )
+            ),
         )
 
         self.add_task(self._consume_watch())
@@ -1166,16 +1144,13 @@ class KeyValueWatchSubscriber(
         """Create FakePublisher object to use it as one of `publishers` in `self.consume` scope."""
         return ()
 
-    def __hash__(self) -> int:
-        return hash(self.kv_watch) + hash(self.subject)
-
     def get_log_context(
         self,
         message: Annotated[
             Optional["StreamMessage[KeyValue.Entry]"],
             Doc("Message which we are building context for"),
         ],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Log context factory using in `self.consume` scope."""
         return self.build_log_context(
             message=message,
@@ -1201,7 +1176,7 @@ class ObjStoreWatchSubscriber(
         config: "ConsumerConfig",
         obj_watch: "ObjWatch",
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[List[Msg]]"],
+        broker_middlewares: Iterable["BrokerMiddleware[list[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -1322,16 +1297,13 @@ class ObjStoreWatchSubscriber(
         """Create FakePublisher object to use it as one of `publishers` in `self.consume` scope."""
         return ()
 
-    def __hash__(self) -> int:
-        return hash(self.subject)
-
     def get_log_context(
         self,
         message: Annotated[
             Optional["StreamMessage[ObjectInfo]"],
             Doc("Message which we are building context for"),
         ],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Log context factory using in `self.consume` scope."""
         return self.build_log_context(
             message=message,

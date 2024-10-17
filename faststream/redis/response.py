@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING, Optional
 
 from typing_extensions import override
 
-from faststream.broker.response import Response
+from faststream.response import Response
 
 if TYPE_CHECKING:
-    from faststream.types import AnyDict, SendableMessage
+    from faststream._internal.basic_types import AnyDict, SendableMessage
 
 
 class RedisResponse(Response):
@@ -26,8 +26,7 @@ class RedisResponse(Response):
 
     @override
     def as_publish_kwargs(self) -> "AnyDict":
-        publish_options = {
+        return {
             **super().as_publish_kwargs(),
             "maxlen": self.maxlen,
         }
-        return publish_options

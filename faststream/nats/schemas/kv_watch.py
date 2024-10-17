@@ -1,6 +1,6 @@
 from typing import Optional
 
-from faststream.broker.schemas import NameRequired
+from faststream._internal.proto import NameRequired
 
 
 class KvWatch(NameRequired):
@@ -19,13 +19,13 @@ class KvWatch(NameRequired):
 
     __slots__ = (
         "bucket",
-        "headers_only",
-        "include_history",
-        "ignore_deletes",
-        "meta_only",
-        "inactive_threshold",
-        "timeout",
         "declare",
+        "headers_only",
+        "ignore_deletes",
+        "inactive_threshold",
+        "include_history",
+        "meta_only",
+        "timeout",
     )
 
     def __init__(
@@ -50,6 +50,3 @@ class KvWatch(NameRequired):
         self.timeout = timeout
 
         self.declare = declare
-
-    def __hash__(self) -> int:
-        return hash(self.name)

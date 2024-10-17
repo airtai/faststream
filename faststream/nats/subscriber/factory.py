@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from nats.aio.subscription import (
     DEFAULT_SUB_PENDING_BYTES_LIMIT,
@@ -11,25 +12,25 @@ from nats.js.client import (
 )
 
 from faststream.exceptions import SetupError
-from faststream.nats.subscriber.asyncapi import (
-    AsyncAPIBatchPullStreamSubscriber,
-    AsyncAPIConcurrentCoreSubscriber,
-    AsyncAPIConcurrentPullStreamSubscriber,
-    AsyncAPIConcurrentPushStreamSubscriber,
-    AsyncAPICoreSubscriber,
-    AsyncAPIKeyValueWatchSubscriber,
-    AsyncAPIObjStoreWatchSubscriber,
-    AsyncAPIPullStreamSubscriber,
-    AsyncAPIStreamSubscriber,
+from faststream.nats.subscriber.subscriber import (
+    SpecificationBatchPullStreamSubscriber,
+    SpecificationConcurrentCoreSubscriber,
+    SpecificationConcurrentPullStreamSubscriber,
+    SpecificationConcurrentPushStreamSubscriber,
+    SpecificationCoreSubscriber,
+    SpecificationKeyValueWatchSubscriber,
+    SpecificationObjStoreWatchSubscriber,
+    SpecificationPullStreamSubscriber,
+    SpecificationStreamSubscriber,
 )
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
     from nats.js import api
 
-    from faststream.broker.types import BrokerMiddleware
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import BrokerMiddleware
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
-    from faststream.types import AnyDict
 
 
 def create_subscriber(
@@ -63,26 +64,28 @@ def create_subscriber(
     retry: Union[bool, int],
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[Any]"],
-    # AsyncAPI information
+    # Specification information
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
 ) -> Union[
-    "AsyncAPICoreSubscriber",
-    "AsyncAPIConcurrentCoreSubscriber",
-    "AsyncAPIStreamSubscriber",
-    "AsyncAPIConcurrentPushStreamSubscriber",
-    "AsyncAPIPullStreamSubscriber",
-    "AsyncAPIConcurrentPullStreamSubscriber",
-    "AsyncAPIBatchPullStreamSubscriber",
-    "AsyncAPIKeyValueWatchSubscriber",
-    "AsyncAPIObjStoreWatchSubscriber",
+    "SpecificationCoreSubscriber",
+    "SpecificationConcurrentCoreSubscriber",
+    "SpecificationStreamSubscriber",
+    "SpecificationConcurrentPushStreamSubscriber",
+    "SpecificationPullStreamSubscriber",
+    "SpecificationConcurrentPullStreamSubscriber",
+    "SpecificationBatchPullStreamSubscriber",
+    "SpecificationKeyValueWatchSubscriber",
+    "SpecificationObjStoreWatchSubscriber",
 ]:
     if pull_sub is not None and stream is None:
-        raise SetupError("Pull subscriber can be used only with a stream")
+        msg = "Pull subscriber can be used only with a stream"
+        raise SetupError(msg)
 
     if not subject and not config:
-        raise SetupError("You must provide either `subject` or `config` option.")
+        msg = "You must provide either `subject` or `config` option."
+        raise SetupError(msg)
 
     config = config or ConsumerConfig(filter_subjects=[])
 
@@ -111,7 +114,7 @@ def create_subscriber(
                     "deliver_policy": deliver_policy,
                     "headers_only": headers_only,
                     "manual_ack": not ack_first,
-                }
+                },
             )
 
     else:
@@ -123,7 +126,7 @@ def create_subscriber(
         }
 
     if obj_watch is not None:
-        return AsyncAPIObjStoreWatchSubscriber(
+        return SpecificationObjStoreWatchSubscriber(
             subject=subject,
             config=config,
             obj_watch=obj_watch,
@@ -135,7 +138,7 @@ def create_subscriber(
         )
 
     if kv_watch is not None:
-        return AsyncAPIKeyValueWatchSubscriber(
+        return SpecificationKeyValueWatchSubscriber(
             subject=subject,
             config=config,
             kv_watch=kv_watch,
@@ -146,9 +149,9 @@ def create_subscriber(
             include_in_schema=include_in_schema,
         )
 
-    elif stream is None:
+    if stream is None:
         if max_workers > 1:
-            return AsyncAPIConcurrentCoreSubscriber(
+            return SpecificationConcurrentCoreSubscriber(
                 max_workers=max_workers,
                 subject=subject,
                 config=config,
@@ -161,17 +164,38 @@ def create_subscriber(
                 retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
-                # AsyncAPI information
+                # Specification
                 title_=title_,
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
 
-        else:
-            return AsyncAPICoreSubscriber(
+        return SpecificationCoreSubscriber(
+            subject=subject,
+            config=config,
+            queue=queue,
+            # basic args
+            extra_options=extra_options,
+            # Subscriber args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+            # Specification
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+    if max_workers > 1:
+        if pull_sub is not None:
+            return SpecificationConcurrentPullStreamSubscriber(
+                max_workers=max_workers,
+                pull_sub=pull_sub,
+                stream=stream,
                 subject=subject,
                 config=config,
-                queue=queue,
                 # basic args
                 extra_options=extra_options,
                 # Subscriber args
@@ -180,114 +204,87 @@ def create_subscriber(
                 retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
-                # AsyncAPI information
+                # Specification
                 title_=title_,
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
 
-    else:
-        if max_workers > 1:
-            if pull_sub is not None:
-                return AsyncAPIConcurrentPullStreamSubscriber(
-                    max_workers=max_workers,
-                    pull_sub=pull_sub,
-                    stream=stream,
-                    subject=subject,
-                    config=config,
-                    # basic args
-                    extra_options=extra_options,
-                    # Subscriber args
-                    no_ack=no_ack,
-                    no_reply=no_reply,
-                    retry=retry,
-                    broker_dependencies=broker_dependencies,
-                    broker_middlewares=broker_middlewares,
-                    # AsyncAPI information
-                    title_=title_,
-                    description_=description_,
-                    include_in_schema=include_in_schema,
-                )
+        return SpecificationConcurrentPushStreamSubscriber(
+            max_workers=max_workers,
+            stream=stream,
+            subject=subject,
+            config=config,
+            queue=queue,
+            # basic args
+            extra_options=extra_options,
+            # Subscriber args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+            # Specification
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
 
-            else:
-                return AsyncAPIConcurrentPushStreamSubscriber(
-                    max_workers=max_workers,
-                    stream=stream,
-                    subject=subject,
-                    config=config,
-                    queue=queue,
-                    # basic args
-                    extra_options=extra_options,
-                    # Subscriber args
-                    no_ack=no_ack,
-                    no_reply=no_reply,
-                    retry=retry,
-                    broker_dependencies=broker_dependencies,
-                    broker_middlewares=broker_middlewares,
-                    # AsyncAPI information
-                    title_=title_,
-                    description_=description_,
-                    include_in_schema=include_in_schema,
-                )
+    if pull_sub is not None:
+        if pull_sub.batch:
+            return SpecificationBatchPullStreamSubscriber(
+                pull_sub=pull_sub,
+                stream=stream,
+                subject=subject,
+                config=config,
+                # basic args
+                extra_options=extra_options,
+                # Subscriber args
+                no_ack=no_ack,
+                no_reply=no_reply,
+                retry=retry,
+                broker_dependencies=broker_dependencies,
+                broker_middlewares=broker_middlewares,
+                # Specification
+                title_=title_,
+                description_=description_,
+                include_in_schema=include_in_schema,
+            )
 
-        else:
-            if pull_sub is not None:
-                if pull_sub.batch:
-                    return AsyncAPIBatchPullStreamSubscriber(
-                        pull_sub=pull_sub,
-                        stream=stream,
-                        subject=subject,
-                        config=config,
-                        # basic args
-                        extra_options=extra_options,
-                        # Subscriber args
-                        no_ack=no_ack,
-                        no_reply=no_reply,
-                        retry=retry,
-                        broker_dependencies=broker_dependencies,
-                        broker_middlewares=broker_middlewares,
-                        # AsyncAPI information
-                        title_=title_,
-                        description_=description_,
-                        include_in_schema=include_in_schema,
-                    )
+        return SpecificationPullStreamSubscriber(
+            pull_sub=pull_sub,
+            stream=stream,
+            subject=subject,
+            config=config,
+            # basic args
+            extra_options=extra_options,
+            # Subscriber args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+            # Specification
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
 
-                else:
-                    return AsyncAPIPullStreamSubscriber(
-                        pull_sub=pull_sub,
-                        stream=stream,
-                        subject=subject,
-                        config=config,
-                        # basic args
-                        extra_options=extra_options,
-                        # Subscriber args
-                        no_ack=no_ack,
-                        no_reply=no_reply,
-                        retry=retry,
-                        broker_dependencies=broker_dependencies,
-                        broker_middlewares=broker_middlewares,
-                        # AsyncAPI information
-                        title_=title_,
-                        description_=description_,
-                        include_in_schema=include_in_schema,
-                    )
-
-            else:
-                return AsyncAPIStreamSubscriber(
-                    stream=stream,
-                    subject=subject,
-                    queue=queue,
-                    config=config,
-                    # basic args
-                    extra_options=extra_options,
-                    # Subscriber args
-                    no_ack=no_ack,
-                    no_reply=no_reply,
-                    retry=retry,
-                    broker_dependencies=broker_dependencies,
-                    broker_middlewares=broker_middlewares,
-                    # AsyncAPI information
-                    title_=title_,
-                    description_=description_,
-                    include_in_schema=include_in_schema,
-                )
+    return SpecificationStreamSubscriber(
+        stream=stream,
+        subject=subject,
+        queue=queue,
+        config=config,
+        # basic args
+        extra_options=extra_options,
+        # Subscriber args
+        no_ack=no_ack,
+        no_reply=no_reply,
+        retry=retry,
+        broker_dependencies=broker_dependencies,
+        broker_middlewares=broker_middlewares,
+        # Specification information
+        title_=title_,
+        description_=description_,
+        include_in_schema=include_in_schema,
+    )

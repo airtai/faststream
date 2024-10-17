@@ -1,16 +1,16 @@
 from functools import cached_property
 from typing import Optional
 
-from faststream.broker.schemas import NameRequired
+from faststream._internal.proto import NameRequired
 
 
 class ListSub(NameRequired):
     """A class to represent a Redis List subscriber."""
 
     __slots__ = (
-        "name",
         "batch",
         "max_records",
+        "name",
         "polling_interval",
     )
 
@@ -30,6 +30,3 @@ class ListSub(NameRequired):
     @cached_property
     def records(self) -> Optional[int]:
         return self.max_records if self.batch else None
-
-    def __hash__(self) -> int:
-        return hash(f"list:{self.name}")

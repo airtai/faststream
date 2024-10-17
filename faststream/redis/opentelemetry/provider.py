@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Sized, cast
+from collections.abc import Sized
+from typing import TYPE_CHECKING, cast
 
 from opentelemetry.semconv.trace import SpanAttributes
 
@@ -6,8 +7,8 @@ from faststream.opentelemetry import TelemetrySettingsProvider
 from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 
 if TYPE_CHECKING:
-    from faststream.broker.message import StreamMessage
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
+    from faststream.message import StreamMessage
 
 
 class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
@@ -30,7 +31,7 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
 
         if cast(str, msg.raw_message.get("type", "")).startswith("b"):
             attrs[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = len(
-                cast(Sized, msg._decoded_body)
+                cast(Sized, msg._decoded_body),
             )
 
         return attrs

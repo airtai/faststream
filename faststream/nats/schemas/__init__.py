@@ -5,7 +5,7 @@ from faststream.nats.schemas.pull_sub import PullSub
 
 __all__ = (
     "JStream",
-    "PullSub",
     "KvWatch",
     "ObjWatch",
+    "PullSub",
 )

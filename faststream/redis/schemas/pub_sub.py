@@ -1,5 +1,5 @@
-from faststream.broker.schemas import NameRequired
-from faststream.utils.path import compile_path
+from faststream._internal.proto import NameRequired
+from faststream._internal.utils.path import compile_path
 
 
 class PubSub(NameRequired):
@@ -7,9 +7,9 @@ class PubSub(NameRequired):
 
     __slots__ = (
         "name",
-        "polling_interval",
-        "pattern",
         "path_regex",
+        "pattern",
+        "polling_interval",
     )
 
     def __init__(
@@ -32,6 +32,3 @@ class PubSub(NameRequired):
         self.path_regex = reg
         self.pattern = channel if pattern else None
         self.polling_interval = polling_interval
-
-    def __hash__(self) -> int:
-        return hash(f"pubsub:{self.name}")

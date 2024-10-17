@@ -1,9 +1,10 @@
 import asyncio
+from typing import Any, NoReturn
 
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.exceptions import SetupError
+from faststream.exceptions import SubscriberNotFound
 from faststream.rabbit import (
     ExchangeType,
     RabbitBroker,
@@ -16,44 +17,29 @@ from faststream.rabbit.testing import FakeProducer, apply_pattern
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class TestTestclient(BrokerTestclientTestcase):
     test_class = TestRabbitBroker
 
-    def get_broker(self, apply_types: bool = False) -> RabbitBroker:
-        return RabbitBroker(apply_types=apply_types)
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
+        return RabbitBroker(apply_types=apply_types, **kwargs)
 
-    def patch_broker(self, broker: RabbitBroker) -> RabbitBroker:
-        return TestRabbitBroker(broker)
+    def patch_broker(self, broker: RabbitBroker, **kwargs: Any) -> RabbitBroker:
+        return TestRabbitBroker(broker, **kwargs)
 
-    def get_fake_producer_class(self) -> type:
-        return FakeProducer
-
-    async def test_rpc_conflicts_reply(self, queue):
-        broker = self.get_broker()
-
-        async with TestRabbitBroker(broker) as br:
-            with pytest.raises(SetupError):
-                await br.publish(
-                    "",
-                    queue,
-                    rpc=True,
-                    reply_to="response",
-                )
-
-    @pytest.mark.rabbit
+    @pytest.mark.rabbit()
     async def test_with_real_testclient(
         self,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(queue)
-        def subscriber(m):
+        def subscriber(m) -> None:
             event.set()
 
-        async with TestRabbitBroker(broker, with_real=True) as br:
+        async with self.patch_broker(broker, with_real=True) as br:
             await asyncio.wait(
                 (
                     asyncio.create_task(br.publish("hello", queue)),
@@ -64,14 +50,15 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert event.is_set()
 
-    async def test_respect_routing_key(self):
+    async def test_respect_routing_key(self) -> None:
         broker = self.get_broker()
 
         publisher = broker.publisher(
-            exchange=RabbitExchange("test", type=ExchangeType.TOPIC), routing_key="up"
+            exchange=RabbitExchange("test", type=ExchangeType.TOPIC),
+            routing_key="up",
         )
 
-        async with TestRabbitBroker(broker):
+        async with self.patch_broker(broker):
             await publisher.publish("Hi!")
 
             publisher.mock.assert_called_once_with("Hi!")
@@ -79,44 +66,50 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_direct(
         self,
         queue: str,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         @broker.subscriber(queue)
-        async def handler(m):
+        async def handler(m) -> int:
             return 1
 
         @broker.subscriber(queue + "1", exchange="test")
-        async def handler2(m):
+        async def handler2(m) -> int:
             return 2
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.start()
-            assert await br.publish("", queue, rpc=True) == 1
-            assert await br.publish("", queue + "1", exchange="test", rpc=True) == 2
-            assert None is await br.publish("", exchange="test2", rpc=True)
+
+            assert await (await br.request("", queue)).decode() == 1
+            assert (
+                await (await br.request("", queue + "1", exchange="test")).decode() == 2
+            )
+
+            with pytest.raises(SubscriberNotFound):
+                await br.request("", exchange="test2")
 
     async def test_fanout(
         self,
         queue: str,
         mock,
-    ):
+    ) -> None:
         broker = self.get_broker()
 
         exch = RabbitExchange("test", type=ExchangeType.FANOUT)
 
         @broker.subscriber(queue, exchange=exch)
-        async def handler(m):
+        async def handler(m) -> None:
             mock()
 
-        async with TestRabbitBroker(broker) as br:
-            await br.publish("", exchange=exch, rpc=True)
+        async with self.patch_broker(broker) as br:
+            await br.request("", exchange=exch)
 
-            assert None is await br.publish("", exchange="test2", rpc=True)
+            with pytest.raises(SubscriberNotFound):
+                await br.request("", exchange="test2")
 
             assert mock.call_count == 1
 
-    async def test_any_topic_routing(self):
+    async def test_any_topic_routing(self) -> None:
         broker = self.get_broker()
 
         exch = RabbitExchange("test", type=ExchangeType.TOPIC)
@@ -125,13 +118,13 @@ class TestTestclient(BrokerTestclientTestcase):
             RabbitQueue("test", routing_key="test.*.subj.*"),
             exchange=exch,
         )
-        def subscriber(msg): ...
+        def subscriber(msg) -> None: ...
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", "test.a.subj.b", exchange=exch)
             subscriber.mock.assert_called_once_with("hello")
 
-    async def test_ending_topic_routing(self):
+    async def test_ending_topic_routing(self) -> None:
         broker = self.get_broker()
 
         exch = RabbitExchange("test", type=ExchangeType.TOPIC)
@@ -140,13 +133,13 @@ class TestTestclient(BrokerTestclientTestcase):
             RabbitQueue("test", routing_key="test.#"),
             exchange=exch,
         )
-        def subscriber(msg): ...
+        def subscriber(msg) -> None: ...
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", "test.a.subj.b", exchange=exch)
             subscriber.mock.assert_called_once_with("hello")
 
-    async def test_mixed_topic_routing(self):
+    async def test_mixed_topic_routing(self) -> None:
         broker = self.get_broker()
 
         exch = RabbitExchange("test", type=ExchangeType.TOPIC)
@@ -155,13 +148,13 @@ class TestTestclient(BrokerTestclientTestcase):
             RabbitQueue("test", routing_key="*.*.subj.#"),
             exchange=exch,
         )
-        def subscriber(msg): ...
+        def subscriber(msg) -> None: ...
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("hello", "test.a.subj.b.c", exchange=exch)
             subscriber.mock.assert_called_once_with("hello")
 
-    async def test_header(self):
+    async def test_header(self) -> None:
         broker = self.get_broker()
 
         q1 = RabbitQueue(
@@ -179,30 +172,35 @@ class TestTestclient(BrokerTestclientTestcase):
         exch = RabbitExchange("exchange", type=ExchangeType.HEADERS)
 
         @broker.subscriber(q2, exch)
-        async def handler2(msg):
+        async def handler2(msg) -> int:
             return 2
 
         @broker.subscriber(q1, exch)
-        async def handler(msg):
+        async def handler(msg) -> int:
             return 1
 
         @broker.subscriber(q3, exch)
-        async def handler3(msg):
+        async def handler3(msg) -> int:
             return 3
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             assert (
-                await br.publish(exchange=exch, rpc=True, headers={"key": 2, "key2": 2})
+                await (
+                    await br.request(exchange=exch, headers={"key": 2, "key2": 2})
+                ).decode()
                 == 2
             )
-            assert await br.publish(exchange=exch, rpc=True, headers={"key": 2}) == 1
-            assert await br.publish(exchange=exch, rpc=True, headers={}) == 3
+            assert (
+                await (await br.request(exchange=exch, headers={"key": 2})).decode()
+                == 1
+            )
+            assert await (await br.request(exchange=exch, headers={})).decode() == 3
 
     async def test_consume_manual_ack(
         self,
         queue: str,
         exchange: RabbitExchange,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
 
         consume = asyncio.Event()
@@ -210,33 +208,33 @@ class TestTestclient(BrokerTestclientTestcase):
         consume3 = asyncio.Event()
 
         @broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage):
+        async def handler(msg: RabbitMessage) -> None:
             await msg.raw_message.ack()
             consume.set()
 
         @broker.subscriber(queue=queue + "1", exchange=exchange, retry=1)
-        async def handler2(msg: RabbitMessage):
+        async def handler2(msg: RabbitMessage) -> NoReturn:
             await msg.raw_message.nack()
             consume2.set()
-            raise ValueError()
+            raise ValueError
 
         @broker.subscriber(queue=queue + "2", exchange=exchange, retry=1)
-        async def handler3(msg: RabbitMessage):
+        async def handler3(msg: RabbitMessage) -> NoReturn:
             await msg.raw_message.reject()
             consume3.set()
-            raise ValueError()
+            raise ValueError
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await asyncio.wait(
                 (
                     asyncio.create_task(
-                        br.publish("hello", queue=queue, exchange=exchange)
+                        br.publish("hello", queue=queue, exchange=exchange),
                     ),
                     asyncio.create_task(
-                        br.publish("hello", queue=queue + "1", exchange=exchange)
+                        br.publish("hello", queue=queue + "1", exchange=exchange),
                     ),
                     asyncio.create_task(
-                        br.publish("hello", queue=queue + "2", exchange=exchange)
+                        br.publish("hello", queue=queue + "2", exchange=exchange),
                     ),
                     asyncio.create_task(consume.wait()),
                     asyncio.create_task(consume2.wait()),
@@ -249,7 +247,7 @@ class TestTestclient(BrokerTestclientTestcase):
         assert consume2.is_set()
         assert consume3.is_set()
 
-    async def test_respect_middleware(self, queue):
+    async def test_respect_middleware(self, queue) -> None:
         routes = []
 
         class Middleware(BaseMiddleware):
@@ -257,22 +255,22 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RabbitBroker(middlewares=(Middleware,))
+        broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
-        async def h1(msg): ...
+        async def h1(msg) -> None: ...
 
         @broker.subscriber(queue + "1")
-        async def h2(msg): ...
+        async def h2(msg) -> None: ...
 
-        async with TestRabbitBroker(broker) as br:
+        async with self.patch_broker(broker) as br:
             await br.publish("", queue)
             await br.publish("", queue + "1")
 
         assert len(routes) == 2
 
-    @pytest.mark.rabbit
-    async def test_real_respect_middleware(self, queue):
+    @pytest.mark.rabbit()
+    async def test_real_respect_middleware(self, queue) -> None:
         routes = []
 
         class Middleware(BaseMiddleware):
@@ -280,15 +278,15 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RabbitBroker(middlewares=(Middleware,))
+        broker = self.get_broker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
-        async def h1(msg): ...
+        async def h1(msg) -> None: ...
 
         @broker.subscriber(queue + "1")
-        async def h2(msg): ...
+        async def h2(msg) -> None: ...
 
-        async with TestRabbitBroker(broker, with_real=True) as br:
+        async with self.patch_broker(broker, with_real=True) as br:
             await br.publish("", queue)
             await br.publish("", queue + "1")
             await h1.wait_call(3)
@@ -296,24 +294,25 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.rabbit
-    async def test_broker_gets_patched_attrs_within_cm(self):
-        await super().test_broker_gets_patched_attrs_within_cm()
+    @pytest.mark.rabbit()
+    async def test_broker_gets_patched_attrs_within_cm(self) -> None:
+        await super().test_broker_gets_patched_attrs_within_cm(FakeProducer)
 
-    @pytest.mark.rabbit
-    async def test_broker_with_real_doesnt_get_patched(self):
+    @pytest.mark.rabbit()
+    async def test_broker_with_real_doesnt_get_patched(self) -> None:
         await super().test_broker_with_real_doesnt_get_patched()
 
-    @pytest.mark.rabbit
+    @pytest.mark.rabbit()
     async def test_broker_with_real_patches_publishers_and_subscribers(
-        self, queue: str
-    ):
+        self,
+        queue: str,
+    ) -> None:
         await super().test_broker_with_real_patches_publishers_and_subscribers(queue)
 
 
 @pytest.mark.parametrize(
     ("pattern", "current", "result"),
-    [
+    (
         pytest.param("#", "1.2.3", True, id="#"),
         pytest.param("*", "1", True, id="*"),
         pytest.param("*", "1.2", False, id="* - broken"),
@@ -324,14 +323,17 @@ class TestTestclient(BrokerTestclientTestcase):
         pytest.param("#.test.*.*", "1.2.test.1.2", True, id="#.test.*."),
         pytest.param("#.test.*.*.*", "1.2.test.1.2", False, id="#.test.*.*.* - broken"),
         pytest.param(
-            "#.test.*.test.#", "1.2.test.1.test.1.2", True, id="#.test.*.test.#"
+            "#.test.*.test.#",
+            "1.2.test.1.test.1.2",
+            True,
+            id="#.test.*.test.#",
         ),
         pytest.param("#.*.test", "1.2.2.test", True, id="#.*.test"),
         pytest.param("#.2.*.test", "1.2.2.test", True, id="#.2.*.test"),
         pytest.param("#.*.*.test", "1.2.2.test", True, id="#.*.*.test"),
         pytest.param("*.*.*.test", "1.2.test", False, id="*.*.*.test - broken"),
         pytest.param("#.*.*.test", "1.2.test", False, id="#.*.*.test - broken"),
-    ],
+    ),
 )
-def test(pattern: str, current: str, result: bool):
+def test(pattern: str, current: str, result: bool) -> None:
     assert apply_pattern(pattern, current) == result

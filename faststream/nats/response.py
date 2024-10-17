@@ -1,11 +1,11 @@
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 from typing_extensions import override
 
-from faststream.broker.response import Response
+from faststream.response import Response
 
 if TYPE_CHECKING:
-    from faststream.types import AnyDict, SendableMessage
+    from faststream._internal.basic_types import AnyDict, SendableMessage
 
 
 class NatsResponse(Response):
@@ -13,7 +13,7 @@ class NatsResponse(Response):
         self,
         body: "SendableMessage",
         *,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
     ) -> None:
@@ -26,8 +26,7 @@ class NatsResponse(Response):
 
     @override
     def as_publish_kwargs(self) -> "AnyDict":
-        publish_options = {
+        return {
             **super().as_publish_kwargs(),
             "stream": self.stream,
         }
-        return publish_options

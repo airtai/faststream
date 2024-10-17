@@ -1,18 +1,19 @@
-from typing_extensions import Annotated
+from typing import Annotated
 
-from faststream.annotations import ContextRepo, Logger, NoCast
+from faststream._internal.context import Context
+from faststream.annotations import ContextRepo, Logger
 from faststream.confluent.broker import KafkaBroker as KB
 from faststream.confluent.message import KafkaMessage as KM
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
-from faststream.utils.context import Context
+from faststream.params import NoCast
 
 __all__ = (
-    "Logger",
     "ContextRepo",
-    "NoCast",
-    "KafkaMessage",
     "KafkaBroker",
+    "KafkaMessage",
     "KafkaProducer",
+    "Logger",
+    "NoCast",
 )
 
 KafkaMessage = Annotated[KM, Context("message")]

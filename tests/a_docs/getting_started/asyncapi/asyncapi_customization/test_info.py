@@ -1,11 +1,10 @@
 from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_info import (
-    app,
+    docs_obj,
 )
-from faststream.asyncapi.generate import get_app_schema
 
 
-def test_info_customization():
-    schema = get_app_schema(app).to_jsonable()
+def test_info_customization() -> None:
+    schema = docs_obj.to_jsonable()
 
     assert schema["info"] == {
         "title": "My App",
