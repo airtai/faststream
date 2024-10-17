@@ -12,7 +12,10 @@ if TYPE_CHECKING:
     from fastapi.dependencies.models import Dependant
     from fastapi.requests import Request
 
-major, minor, patch, *_ = map(int, FASTAPI_VERSION.split("."))
+major, minor, patch, *_ = FASTAPI_VERSION.split(".")
+major = int(major)
+minor = int(minor)
+patch = int(patch)
 FASTAPI_V2 = major > 0 or minor > 100
 FASTAPI_V106 = major > 0 or minor >= 106
 FASTAPI_v102_3 = major > 0 or minor > 112 or (minor == 112 and patch > 2)

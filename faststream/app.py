@@ -57,12 +57,13 @@ class FastStream(Application):
             on_shutdown=on_shutdown,
             after_shutdown=after_shutdown,
         )
-        self._should_exit = anyio.Event()
+        self._should_exit = False
 
     async def run(
         self,
         log_level: int = logging.INFO,
         run_extra_options: Optional[dict[str, "SettingField"]] = None,
+        sleep_time: float = 0.1,
     ) -> None:
         """Run FastStream Application."""
         assert self.broker, "You should setup a broker"  # nosec B101
@@ -73,7 +74,10 @@ class FastStream(Application):
             try:
                 async with anyio.create_task_group() as tg:
                     tg.start_soon(self._startup, log_level, run_extra_options)
-                    await self._should_exit.wait()
+
+                    while not self._should_exit:  # noqa: ASYNC110 (requested by creator)
+                        await anyio.sleep(sleep_time)
+
                     await self._shutdown(log_level)
                     tg.cancel_scope.cancel()
             except ExceptionGroup as e:
@@ -82,7 +86,7 @@ class FastStream(Application):
 
     def exit(self) -> None:
         """Stop application manually."""
-        self._should_exit.set()
+        self._should_exit = True
 
     def as_asgi(
         self,

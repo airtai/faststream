@@ -176,7 +176,7 @@ else:
         return {}
 
 
-anyio_major, *_ = map(int, get_version("anyio").split("."))
+anyio_major = int(get_version("anyio").split(".")[0])
 ANYIO_V3 = anyio_major == 3
 
 
