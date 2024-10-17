@@ -101,7 +101,6 @@ class Application(StartAbleApplication):
 
         context.set_global("app", self)
 
-        self.broker = broker
         self.logger = logger
         self.context = context
 
