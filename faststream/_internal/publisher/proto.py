@@ -26,10 +26,7 @@ class ProducerProto(Protocol):
     _decoder: "AsyncCallable"
 
     @abstractmethod
-    async def publish(
-        self,
-        message: "PublishCommand"
-    ) -> Optional[Any]:
+    async def publish(self, message: "PublishCommand") -> Optional[Any]:
         """Publishes a message asynchronously."""
         ...
 

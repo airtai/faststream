@@ -100,12 +100,12 @@ class LogicPublisher(PublisherUsecase[Msg]):
         return await self.__publish(
             NatsPublishCommand(
                 message,
-                subject=subject,
-                headers=headers,
-                reply_to=reply_to,
-                correlation_id=correlation_id,
-                stream=stream,
-                timeout=timeout,
+                subject=subject or self.subject,
+                headers=headers or self.headers,
+                reply_to=reply_to or self.reply_to,
+                correlation_id=correlation_id or gen_cor_id(),
+                stream=stream or getattr(self.stream, "name", None),
+                timeout=timeout or self.timeout,
                 _publish_type=PublishType.Publish,
             ),
             _extra_middlewares=(),
@@ -139,18 +139,18 @@ class LogicPublisher(PublisherUsecase[Msg]):
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        call: Callable[..., Awaitable[Any]] = self._producer.publish
+        pub: Callable[..., Awaitable[Any]] = self._producer.publish
 
-        for m in chain(
+        for pub_m in chain(
             (
                 _extra_middlewares
                 or (m(None).publish_scope for m in self._broker_middlewares)
             ),
             self._middlewares,
         ):
-            call = partial(m, cmd)
+            pub = partial(pub_m, pub)
 
-        await call(cmd)
+        await pub(cmd)
 
     @override
     async def request(
@@ -194,6 +194,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             headers=headers or self.headers,
             timeout=timeout or self.timeout,
             correlation_id=correlation_id or gen_cor_id(),
+            stream=getattr(self.stream, "name", None),
             _publish_type=PublishType.Request,
         )
 

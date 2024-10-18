@@ -69,7 +69,7 @@ class NatsPublishCommand(PublishCommand):
         if js and self.reply_to:
             headers["reply_to"] = self.reply_to
 
-        return headers | self.headers
+        return headers | (self.headers or {})
 
     @classmethod
     def from_cmd(
