@@ -44,39 +44,39 @@ class NatsFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "NatsPublishCommand",
+        cmd: "NatsPublishCommand",
     ) -> None:
-        payload, content_type = encode_message(message.body)
+        payload, content_type = encode_message(cmd.body)
 
         headers_to_send = {
             "content-type": content_type or "",
-            **message.headers_to_publish(),
+            **cmd.headers_to_publish(),
         }
 
         await self._connection.publish(
-            subject=message.destination,
+            subject=cmd.destination,
             payload=payload,
-            reply=message.reply_to,
+            reply=cmd.reply_to,
             headers=headers_to_send,
         )
 
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "NatsPublishCommand",
+        cmd: "NatsPublishCommand",
     ) -> "Msg":
-        payload, content_type = encode_message(message.body)
+        payload, content_type = encode_message(cmd.body)
 
         headers_to_send = {
             "content-type": content_type or "",
-            **message.headers_to_publish(),
+            **cmd.headers_to_publish(),
         }
 
         return await self._connection.request(
-            subject=message.destination,
+            subject=cmd.destination,
             payload=payload,
             headers=headers_to_send,
-            timeout=message.timeout,
+            timeout=cmd.timeout,
         )
 
 
@@ -102,21 +102,21 @@ class NatsJSFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "NatsPublishCommand",
+        cmd: "NatsPublishCommand",
     ) -> Optional[Any]:
-        payload, content_type = encode_message(message.body)
+        payload, content_type = encode_message(cmd.body)
 
         headers_to_send = {
             "content-type": content_type or "",
-            **message.headers_to_publish(js=True),
+            **cmd.headers_to_publish(js=True),
         }
 
         await self._connection.publish(
-            subject=message.destination,
+            subject=cmd.destination,
             payload=payload,
             headers=headers_to_send,
-            stream=message.stream,
-            timeout=message.timeout,
+            stream=cmd.stream,
+            timeout=cmd.timeout,
         )
 
         return None
@@ -124,9 +124,9 @@ class NatsJSFastProducer(ProducerProto):
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "NatsPublishCommand",
+        cmd: "NatsPublishCommand",
     ) -> "Msg":
-        payload, content_type = encode_message(message.body)
+        payload, content_type = encode_message(cmd.body)
 
         reply_to = self._connection._nc.new_inbox()
         future: asyncio.Future[Msg] = asyncio.Future()
@@ -136,16 +136,16 @@ class NatsJSFastProducer(ProducerProto):
         headers_to_send = {
             "content-type": content_type or "",
             "reply_to": reply_to,
-            **message.headers_to_publish(js=False),
+            **cmd.headers_to_publish(js=False),
         }
 
-        with anyio.fail_after(message.timeout):
+        with anyio.fail_after(cmd.timeout):
             await self._connection.publish(
-                subject=message.destination,
+                subject=cmd.destination,
                 payload=payload,
                 headers=headers_to_send,
-                stream=message.stream,
-                timeout=message.timeout,
+                stream=cmd.stream,
+                timeout=cmd.timeout,
             )
 
             msg = await future
