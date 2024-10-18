@@ -95,7 +95,13 @@ class TestCaseMetrics:
 
         assert metric_values == [expected]
 
-    @pytest.mark.parametrize("is_default_buckets", [True, False])
+    @pytest.mark.parametrize(
+        "is_default_buckets",
+        [
+            pytest.param(True, id="with_default_buckets"),
+            pytest.param(True, id="with_custom_buckets"),
+        ],
+    )
     def test_observe_received_messages_size(
         self,
         app_name: str,
@@ -251,7 +257,16 @@ class TestCaseMetrics:
 
         assert metric_values == [expected]
 
-    @pytest.mark.parametrize("status", ProcessingStatus)
+    @pytest.mark.parametrize(
+        "status",
+        [
+            pytest.param(ProcessingStatus.acked, id="acked_status"),
+            pytest.param(ProcessingStatus.nacked, id="nacked_status"),
+            pytest.param(ProcessingStatus.rejected, id="rejected_status"),
+            pytest.param(ProcessingStatus.skipped, id="skipped_status"),
+            pytest.param(ProcessingStatus.error, id="error_status"),
+        ],
+    )
     def test_add_received_processed_message(
         self,
         app_name: str,
@@ -439,7 +454,13 @@ class TestCaseMetrics:
 
         assert metric_values == [expected]
 
-    @pytest.mark.parametrize("status", PublishingStatus)
+    @pytest.mark.parametrize(
+        "status",
+        [
+            pytest.param(PublishingStatus.success, id="success_status"),
+            pytest.param(PublishingStatus.error, id="error_status"),
+        ],
+    )
     def test_add_published_message(
         self,
         app_name: str,
