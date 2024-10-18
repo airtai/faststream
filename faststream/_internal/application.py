@@ -23,7 +23,6 @@ from faststream.utils.functions import drop_response_type, fake_context, to_asyn
 P_HookParams = ParamSpec("P_HookParams")
 T_HookReturn = TypeVar("T_HookReturn")
 
-
 if TYPE_CHECKING:
     from faststream.asyncapi.schema import (
         Contact,
@@ -71,7 +70,7 @@ class Application(ABC, AsyncAPIApplication):
     ) -> None:
         context.set_global("app", self)
 
-        self._should_exit = anyio.Event()
+        self._should_exit = False
         self.broker = broker
         self.logger = logger
         self.context = context
@@ -159,7 +158,12 @@ class Application(ABC, AsyncAPIApplication):
 
     def exit(self) -> None:
         """Stop application manually."""
-        self._should_exit.set()
+        self._should_exit = True
+
+    async def _main_loop(self, sleep_time: float) -> None:
+        """Run loop till exit signal."""
+        while not self._should_exit:  # noqa: ASYNC110 (requested by creator)
+            await anyio.sleep(sleep_time)
 
     async def start(
         self,
