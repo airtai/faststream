@@ -1,7 +1,7 @@
 import pytest
 from prometheus_client import CollectorRegistry
 
-from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitMessage
+from faststream.rabbit import RabbitBroker, RabbitExchange
 from faststream.rabbit.prometheus.middleware import RabbitPrometheusMiddleware
 from tests.brokers.rabbit.test_consume import TestConsume
 from tests.brokers.rabbit.test_publish import TestPublish
@@ -15,9 +15,11 @@ def exchange(queue):
 
 @pytest.mark.rabbit
 class TestPrometheus(LocalPrometheusTestcase):
-    broker_class = RabbitBroker
-    middleware_class = RabbitPrometheusMiddleware
-    message_class = RabbitMessage
+    def get_broker(self, **kwargs):
+        return RabbitBroker(**kwargs)
+
+    def get_middleware(self, **kwargs):
+        return RabbitPrometheusMiddleware(**kwargs)
 
 
 @pytest.mark.rabbit

@@ -4,7 +4,8 @@ from unittest.mock import Mock
 import pytest
 from prometheus_client import CollectorRegistry
 
-from faststream.redis import ListSub, RedisBroker, RedisMessage
+from faststream import Context
+from faststream.redis import ListSub, RedisBroker
 from faststream.redis.prometheus.middleware import RedisPrometheusMiddleware
 from tests.brokers.redis.test_consume import TestConsume
 from tests.brokers.redis.test_publish import TestPublish
@@ -13,28 +14,29 @@ from tests.prometheus.basic import LocalPrometheusTestcase
 
 @pytest.mark.redis
 class TestPrometheus(LocalPrometheusTestcase):
-    broker_class = RedisBroker
-    middleware_class = RedisPrometheusMiddleware
-    message_class = RedisMessage
+    def get_broker(self, **kwargs):
+        return RedisBroker(**kwargs)
+
+    def get_middleware(self, **kwargs):
+        return RedisPrometheusMiddleware(**kwargs)
 
     async def test_metrics_batch(
         self,
         event: asyncio.Event,
         queue: str,
     ):
-        middleware = self.middleware_class(registry=CollectorRegistry())
+        middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
 
-        broker = self.broker_class(middlewares=(middleware,))
+        broker = self.get_broker(middlewares=(middleware,))
 
         args, kwargs = self.get_subscriber_params(list=ListSub(queue, batch=True))
 
-        message_class = self.message_class
         message = None
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m: message_class):
+        async def handler(m=Context("message")):
             event.set()
 
             nonlocal message

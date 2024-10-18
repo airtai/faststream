@@ -4,7 +4,8 @@ from unittest.mock import Mock
 import pytest
 from prometheus_client import CollectorRegistry
 
-from faststream.confluent import KafkaBroker, KafkaMessage
+from faststream import Context
+from faststream.confluent import KafkaBroker
 from faststream.confluent.prometheus.middleware import KafkaPrometheusMiddleware
 from tests.brokers.confluent.basic import ConfluentTestcaseConfig
 from tests.brokers.confluent.test_consume import TestConsume
@@ -14,28 +15,28 @@ from tests.prometheus.basic import LocalPrometheusTestcase
 
 @pytest.mark.confluent
 class TestPrometheus(ConfluentTestcaseConfig, LocalPrometheusTestcase):
-    broker_class = KafkaBroker
-    middleware_class = KafkaPrometheusMiddleware
-    message_class = KafkaMessage
+    def get_broker(self, **kwargs):
+        return KafkaBroker(**kwargs)
+
+    def get_middleware(self, **kwargs):
+        return KafkaPrometheusMiddleware(**kwargs)
 
     async def test_metrics_batch(
         self,
         event: asyncio.Event,
         queue: str,
     ):
-        middleware = self.middleware_class(registry=CollectorRegistry())
+        middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
 
-        broker = self.broker_class(middlewares=(middleware,))
+        broker = self.get_broker(middlewares=(middleware,))
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)
-
-        message_class = self.message_class
         message = None
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m: message_class):
+        async def handler(m=Context("message")):
             event.set()
 
             nonlocal message

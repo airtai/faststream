@@ -5,13 +5,12 @@ from unittest.mock import ANY, Mock, call
 import pytest
 from prometheus_client import CollectorRegistry
 
-from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.message import AckStatus, StreamMessage
+from faststream import Context
+from faststream.broker.message import AckStatus
 from faststream.exceptions import RejectMessage
 from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
-    BasePrometheusMiddleware,
 )
 from faststream.prometheus.types import ProcessingStatus
 from tests.brokers.base.basic import BaseTestcaseConfig
@@ -19,9 +18,11 @@ from tests.brokers.base.basic import BaseTestcaseConfig
 
 @pytest.mark.asyncio
 class LocalPrometheusTestcase(BaseTestcaseConfig):
-    broker_class: Type[BrokerUsecase]
-    middleware_class: Type[BasePrometheusMiddleware]
-    message_class: Type[StreamMessage[Any]]
+    def get_broker(self, **kwargs):
+        raise NotImplementedError
+
+    def get_middleware(self, **kwargs):
+        raise NotImplementedError
 
     @staticmethod
     def consume_destination_name(queue: str) -> str:
@@ -29,7 +30,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
 
     @property
     def settings_provider_factory(self):
-        return self.middleware_class(
+        return self.get_middleware(
             registry=CollectorRegistry()
         )._settings_provider_factory
 
@@ -51,19 +52,18 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         status: AckStatus,
         exception_class: Optional[Type[Exception]],
     ):
-        middleware = self.middleware_class(registry=CollectorRegistry())
+        middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
 
-        broker = self.broker_class(middlewares=(middleware,))
+        broker = self.get_broker(middlewares=(middleware,))
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        message_class = self.message_class
         message = None
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m: message_class):
+        async def handler(m=Context("message")):
             event.set()
 
             nonlocal message

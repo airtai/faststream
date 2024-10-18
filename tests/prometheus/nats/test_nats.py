@@ -4,7 +4,8 @@ from unittest.mock import Mock
 import pytest
 from prometheus_client import CollectorRegistry
 
-from faststream.nats import JStream, NatsBroker, NatsMessage, PullSub
+from faststream import Context
+from faststream.nats import JStream, NatsBroker, PullSub
 from faststream.nats.prometheus.middleware import NatsPrometheusMiddleware
 from tests.brokers.nats.test_consume import TestConsume
 from tests.brokers.nats.test_publish import TestPublish
@@ -18,9 +19,11 @@ def stream(queue):
 
 @pytest.mark.nats
 class TestPrometheus(LocalPrometheusTestcase):
-    broker_class = NatsBroker
-    middleware_class = NatsPrometheusMiddleware
-    message_class = NatsMessage
+    def get_broker(self, **kwargs):
+        return NatsBroker(**kwargs)
+
+    def get_middleware(self, **kwargs):
+        return NatsPrometheusMiddleware(**kwargs)
 
     async def test_metrics_batch(
         self,
@@ -28,22 +31,21 @@ class TestPrometheus(LocalPrometheusTestcase):
         queue: str,
         stream: JStream,
     ):
-        middleware = self.middleware_class(registry=CollectorRegistry())
+        middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
 
-        broker = self.broker_class(middlewares=(middleware,))
+        broker = self.get_broker(middlewares=(middleware,))
 
         args, kwargs = self.get_subscriber_params(
             queue,
             stream=stream,
             pull_sub=PullSub(1, batch=True, timeout=self.timeout),
         )
-        message_class = self.message_class
         message = None
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m: message_class):
+        async def handler(m=Context("message")):
             event.set()
 
             nonlocal message
