@@ -33,6 +33,7 @@ class Response:
             body=self.body,
             headers=self.headers,
             correlation_id=self.correlation_id,
+            _is_rpc_response=True,
         )
 
 
@@ -45,6 +46,7 @@ class PublishCommand(Response):
         destination: str = "",
         correlation_id: Optional[str] = None,
         headers: Optional[dict[str, str]] = None,
+        _is_rpc_response: bool = False,
     ) -> None:
         super().__init__(
             body,
@@ -54,3 +56,5 @@ class PublishCommand(Response):
 
         self.destination = destination
         self.reply_to = reply_to
+
+        self.rpc_response = _is_rpc_response

@@ -31,6 +31,7 @@ class NatsResponse(Response):
             headers=self.headers,
             correlation_id=self.correlation_id,
             stream=self.stream,
+            _is_rpc_response=True,
         )
 
 
@@ -44,6 +45,7 @@ class NatsPublishCommand(PublishCommand):
         reply_to: str = "",
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
+        _is_rpc_response: bool = False,
     ) -> None:
         super().__init__(
             body=message,
@@ -51,6 +53,7 @@ class NatsPublishCommand(PublishCommand):
             correlation_id=correlation_id,
             headers=headers,
             reply_to=reply_to,
+            _is_rpc_response=_is_rpc_response,
         )
 
         self.stream = stream
