@@ -59,17 +59,19 @@ class TestPrometheus(LocalPrometheusTestcase):
 
 @pytest.mark.redis
 class TestPublishWithPrometheus(TestPublish):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs):
         return RedisBroker(
             middlewares=(RedisPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
+            **kwargs,
         )
 
 
 @pytest.mark.redis
 class TestConsumeWithPrometheus(TestConsume):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs):
         return RedisBroker(
             middlewares=(RedisPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
+            **kwargs,
         )

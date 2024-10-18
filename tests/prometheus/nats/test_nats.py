@@ -68,17 +68,19 @@ class TestPrometheus(LocalPrometheusTestcase):
 
 @pytest.mark.nats
 class TestPublishWithPrometheus(TestPublish):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs):
         return NatsBroker(
             middlewares=(NatsPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
+            **kwargs,
         )
 
 
 @pytest.mark.nats
 class TestConsumeWithPrometheus(TestConsume):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs):
         return NatsBroker(
             middlewares=(NatsPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
+            **kwargs,
         )

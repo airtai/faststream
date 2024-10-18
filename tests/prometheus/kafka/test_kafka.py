@@ -60,17 +60,23 @@ class TestPrometheus(LocalPrometheusTestcase):
 
 @pytest.mark.kafka
 class TestPublishWithPrometheus(TestPublish):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(
+        self,
+        apply_types: bool = False,
+        **kwargs,
+    ):
         return KafkaBroker(
             middlewares=(KafkaPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
+            **kwargs,
         )
 
 
 @pytest.mark.kafka
 class TestConsumeWithPrometheus(TestConsume):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs):
         return KafkaBroker(
             middlewares=(KafkaPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
+            **kwargs,
         )

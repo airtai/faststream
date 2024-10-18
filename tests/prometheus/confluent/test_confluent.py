@@ -61,17 +61,19 @@ class TestPrometheus(ConfluentTestcaseConfig, LocalPrometheusTestcase):
 
 @pytest.mark.confluent
 class TestPublishWithPrometheus(TestPublish):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs):
         return KafkaBroker(
             middlewares=(KafkaPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
+            **kwargs,
         )
 
 
 @pytest.mark.confluent
 class TestConsumeWithPrometheus(TestConsume):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs):
         return KafkaBroker(
             middlewares=(KafkaPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
+            **kwargs,
         )
