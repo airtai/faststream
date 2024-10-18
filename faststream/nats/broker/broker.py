@@ -782,26 +782,20 @@ class NatsBroker(
             Doc("Timeout to send message to NATS."),
         ] = 0.5,
     ) -> "NatsMessage":
-        publish_kwargs = {
-            "subject": subject,
-            "headers": headers,
-            "timeout": timeout,
-        }
+        cmd = NatsPublishCommand(
+            message=message,
+            correlation_id=correlation_id or gen_cor_id(),
+            subject=subject,
+            headers=headers,
+            timeout=timeout,
+            stream=stream,
+            _publish_type=PublishType.Request,
+        )
 
         producer: Optional[ProducerProto]
-        if stream is None:
-            producer = self._producer
+        producer = self._producer if stream is None else self._js_producer
 
-        else:
-            producer = self._js_producer
-            publish_kwargs.update({"stream": stream})
-
-        msg: NatsMessage = await super().request(
-            message,
-            producer=producer,
-            correlation_id=correlation_id or gen_cor_id(),
-            **publish_kwargs,
-        )
+        msg: NatsMessage = await super().request(cmd, producer=producer)
         return msg
 
     @override

@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from nats.aio.msg import Msg
     from nats.js import JetStreamContext
 
-    from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import (
         AsyncCallable,
         CustomCallable,
@@ -64,26 +63,20 @@ class NatsFastProducer(ProducerProto):
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        subject: str,
-        *,
-        correlation_id: str,
-        headers: Optional[dict[str, str]] = None,
-        timeout: float = 0.5,
+        message: "NatsPublishCommand",
     ) -> "Msg":
-        payload, content_type = encode_message(message)
+        payload, content_type = encode_message(message.body)
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id,
-            **(headers or {}),
+            **message.headers_to_publish(),
         }
 
         return await self._connection.request(
-            subject=subject,
+            subject=message.destination,
             payload=payload,
             headers=headers_to_send,
-            timeout=timeout,
+            timeout=message.timeout,
         )
 
 
@@ -109,7 +102,7 @@ class NatsJSFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: NatsPublishCommand,
+        message: "NatsPublishCommand",
     ) -> Optional[Any]:
         payload, content_type = encode_message(message.body)
 
@@ -131,13 +124,7 @@ class NatsJSFastProducer(ProducerProto):
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        subject: str,
-        *,
-        correlation_id: str,
-        headers: Optional[dict[str, str]] = None,
-        stream: Optional[str] = None,
-        timeout: float = 0.5,
+        message: "NatsPublishCommand",
     ) -> "Msg":
         payload, content_type = encode_message(message)
 
@@ -148,18 +135,17 @@ class NatsJSFastProducer(ProducerProto):
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id,
             "reply_to": reply_to,
-            **(headers or {}),
+            **message.headers_to_publish(js=False),
         }
 
-        with anyio.fail_after(timeout):
+        with anyio.fail_after(message.timeout):
             await self._connection.publish(
-                subject=subject,
+                subject=message.destination,
                 payload=payload,
                 headers=headers_to_send,
-                stream=stream,
-                timeout=timeout,
+                stream=message.stream,
+                timeout=message.timeout,
             )
 
             msg = await future

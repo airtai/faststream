@@ -21,7 +21,7 @@ from faststream.nats.response import NatsPublishCommand
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, SendableMessage
+    from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
@@ -185,36 +185,27 @@ class LogicPublisher(PublisherUsecase[Msg]):
             float,
             Doc("Timeout to send message to NATS."),
         ] = 0.5,
-        # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
     ) -> "NatsMessage":
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        kwargs: AnyDict = {
-            "subject": subject or self.subject,
-            "headers": headers or self.headers,
-            "timeout": timeout or self.timeout,
-            "correlation_id": correlation_id or gen_cor_id(),
-        }
+        cmd = NatsPublishCommand(
+            message=message,
+            subject=subject or self.subject,
+            headers=headers or self.headers,
+            timeout=timeout or self.timeout,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Request,
+        )
 
         request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
+            (m(None).publish_scope for m in self._broker_middlewares),
             self._middlewares,
         ):
             request = partial(pub_m, request)
 
-        published_msg = await request(
-            message,
-            **kwargs,
-        )
+        published_msg = await request(cmd)
 
         msg: NatsMessage = await process_msg(
             msg=published_msg,

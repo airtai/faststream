@@ -6,6 +6,7 @@ from typing_extensions import override
 
 from faststream._internal.proto import Endpoint
 from faststream._internal.types import MsgType
+from faststream.response.response import PublishCommand
 from faststream.specification.base.proto import EndpointProto
 
 if TYPE_CHECKING:
@@ -27,10 +28,7 @@ class ProducerProto(Protocol):
     @abstractmethod
     async def publish(
         self,
-        message: "SendableMessage",
-        /,
-        *,
-        correlation_id: Optional[str] = None,
+        message: "PublishCommand"
     ) -> Optional[Any]:
         """Publishes a message asynchronously."""
         ...
@@ -38,10 +36,7 @@ class ProducerProto(Protocol):
     @abstractmethod
     async def request(
         self,
-        message: "SendableMessage",
-        /,
-        *,
-        correlation_id: Optional[str] = None,
+        message: "PublishCommand",
     ) -> Any:
         """Publishes a message synchronously."""
         ...
@@ -82,7 +77,6 @@ class BasePublisherProto(Protocol):
         /,
         *,
         correlation_id: Optional[str] = None,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
         """Publishes a message synchronously."""
         ...
