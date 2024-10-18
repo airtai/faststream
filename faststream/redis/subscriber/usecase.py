@@ -230,7 +230,6 @@ class ChannelSubscriber(LogicSubscriber):
     ) -> None:
         parser = RedisPubSubParser(pattern=channel.path_regex)
         super().__init__(
-            # тут ранее создавался default_parser
             default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
@@ -292,7 +291,8 @@ class ChannelSubscriber(LogicSubscriber):
         assert self._client, "You should setup subscriber at first."  # nosec B101
 
         self.subscription = psub = self._client.pubsub()
-
+        
+        # тут self.channel_channel может быть None, хотя в init - всё ок, передается в виде test.* например
         if self.channel.pattern:
             await psub.psubscribe(self.channel.name)
         else:

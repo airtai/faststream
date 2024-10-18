@@ -73,12 +73,13 @@ class TestConsume(BrokerRealConsumeTestcase):
         mock: MagicMock,
     ):
         consume_broker = self.get_broker()
+        channel = PubSub("test.*")
 
-        @consume_broker.subscriber(PubSub("test.*", pattern=True))
+        @consume_broker.subscriber(channel=channel)
         async def handler(msg):
             mock(msg)
             event.set()
-
+        channel.pattern = True
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
