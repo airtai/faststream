@@ -128,11 +128,28 @@ class ChannelPublisher(LogicPublisher):
                 "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
+        **kwargs: Any,  # option to suppress maxlen
+    ) -> None:
+        return await self._publish(
+            message,
+            channel=channel,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
+            _extra_middlewares=(),
+            **kwargs,
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: "SendableMessage" = None,
+        channel: Optional[str] = None,
+        reply_to: str = "",
+        headers: Optional["AnyDict"] = None,
+        correlation_id: Optional[str] = None,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,  # option to suppress maxlen
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
@@ -298,10 +315,28 @@ class ListPublisher(LogicPublisher):
             ),
         ] = None,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
+        **kwargs: Any,  # option to suppress maxlen
+    ) -> None:
+        return await self._publish(
+            message,
+            list=list,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
+            _extra_middlewares=(),
+            **kwargs,
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: "SendableMessage" = None,
+        list: Optional[str] = None,
+        reply_to: str = "",
+        headers: Optional["AnyDict"] = None,
+        correlation_id: Optional[str] = None,
+        # publisher specific
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,  # option to suppress maxlen
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
@@ -420,10 +455,27 @@ class ListBatchPublisher(ListPublisher):
             Doc("Message headers to store metainformation."),
         ] = None,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
+        **kwargs: Any,  # option to suppress maxlen
+    ) -> None:
+        return await self._publish(
+            message,
+            list=list,
+            correlation_id=correlation_id,
+            headers=headers,
+            _extra_middlewares=(),
+            **kwargs,
+        )
+
+    @override
+    async def _publish(  # type: ignore[override]
+        self,
+        message: "SendableMessage" = (),
+        list: Optional[str] = None,
+        *,
+        correlation_id: Optional[str] = None,
+        headers: Optional["AnyDict"] = None,
+        # publisher specific
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,  # option to suppress maxlen
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
@@ -526,11 +578,29 @@ class StreamPublisher(LogicPublisher):
                 "Remove eldest message if maxlen exceeded.",
             ),
         ] = None,
+    ) -> None:
+        return await self._publish(
+            message,
+            stream=stream,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
+            maxlen=maxlen,
+            _extra_middlewares=(),
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: "SendableMessage" = None,
+        stream: Optional[str] = None,
+        reply_to: str = "",
+        headers: Optional["AnyDict"] = None,
+        correlation_id: Optional[str] = None,
+        *,
+        maxlen: Optional[int] = None,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 

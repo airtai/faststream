@@ -376,7 +376,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
                         self.__get_response_publisher(message),
                         h.handler._publishers,
                     ):
-                        await p.publish(
+                        await p._publish(
                             result_msg.body,
                             **result_msg.as_publish_kwargs(),
                             # publisher middlewares

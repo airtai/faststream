@@ -54,9 +54,26 @@ class BasePublisherProto(Protocol):
         /,
         *,
         correlation_id: Optional[str] = None,
+    ) -> Optional[Any]:
+        """Public method to publish a message.
+
+        Should be called by user only `broker.publisher(...).publish(...)`.
+        """
+        ...
+
+    @abstractmethod
+    async def _publish(
+        self,
+        message: "SendableMessage",
+        /,
+        *,
+        correlation_id: Optional[str] = None,
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
-        """Publishes a message asynchronously."""
+        """Private method to publish a message.
+
+        Should be called inside `publish` method or as a step of `consume` scope.
+        """
         ...
 
     @abstractmethod

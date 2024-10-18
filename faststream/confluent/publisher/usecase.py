@@ -165,6 +165,33 @@ class DefaultPublisher(LogicPublisher[Message]):
         correlation_id: Optional[str] = None,
         reply_to: str = "",
         no_confirm: bool = False,
+    ) -> None:
+        return await self._publish(
+            message,
+            topic=topic,
+            key=key,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            correlation_id=correlation_id,
+            reply_to=reply_to,
+            no_confirm=no_confirm,
+            _extra_middlewares=(),
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: "SendableMessage",
+        topic: str = "",
+        *,
+        key: Optional[bytes] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        reply_to: str = "",
+        no_confirm: bool = False,
         # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
@@ -226,6 +253,32 @@ class DefaultPublisher(LogicPublisher[Message]):
 class BatchPublisher(LogicPublisher[tuple[Message, ...]]):
     @override
     async def publish(
+        self,
+        message: Union["SendableMessage", Iterable["SendableMessage"]],
+        *extra_messages: "SendableMessage",
+        topic: str = "",
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        reply_to: str = "",
+        no_confirm: bool = False,
+    ) -> None:
+        return await self._publish(
+            message,
+            *extra_messages,
+            topic=topic,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            correlation_id=correlation_id,
+            reply_to=reply_to,
+            no_confirm=no_confirm,
+            _extra_middlewares=(),
+        )
+
+    @override
+    async def _publish(
         self,
         message: Union["SendableMessage", Iterable["SendableMessage"]],
         *extra_messages: "SendableMessage",

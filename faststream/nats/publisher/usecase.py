@@ -76,8 +76,6 @@ class LogicPublisher(PublisherUsecase[Msg]):
         correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
-        # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
         """Publish message directly.
 
@@ -95,9 +93,32 @@ class LogicPublisher(PublisherUsecase[Msg]):
             stream (str, optional): This option validates that the target subject is in presented stream (default is `None`).
                 Can be omitted without any effect.
             timeout (float, optional): Timeout to send message to NATS in seconds (default is `None`).
-
-            _extra_middlewares (:obj:`Iterable` of :obj:`PublisherMiddleware`): Extra middlewares to wrap publishing process (default is `()`).
         """
+        return await self._publish(
+            message,
+            subject=subject,
+            headers=headers,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+            stream=stream,
+            timeout=timeout,
+            _extra_middlewares=(),
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: "SendableMessage",
+        subject: str = "",
+        *,
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        stream: Optional[str] = None,
+        timeout: Optional[float] = None,
+        # publisher specific
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         kwargs: AnyDict = {

@@ -3,10 +3,11 @@ from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Optional
 
+from faststream._internal.basic_types import SendableMessage
 from faststream._internal.publisher.proto import BasePublisherProto
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
+    from faststream._internal.basic_types import AnyDict, AsyncFunc
     from faststream._internal.types import PublisherMiddleware
 
 
@@ -26,6 +27,16 @@ class FakePublisher(BasePublisherProto):
         self.middlewares = middlewares
 
     async def publish(
+        self,
+        message: SendableMessage,
+        /,
+        *,
+        correlation_id: Optional[str] = None,
+    ) -> Optional[Any]:
+        msg = "You can't use `FakePublisher` directly."
+        raise NotImplementedError(msg)
+
+    async def _publish(
         self,
         message: "SendableMessage",
         *,

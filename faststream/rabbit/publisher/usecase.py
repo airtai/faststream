@@ -211,10 +211,34 @@ class LogicPublisher(
             Doc("Message publish timestamp. Generated automatically if not presented."),
         ] = None,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
+        **publish_kwargs: "Unpack[PublishKwargs]",
+    ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
+        return await self._publish(
+            message,
+            queue=queue,
+            exchange=exchange,
+            routing_key=routing_key,
+            correlation_id=correlation_id,
+            message_id=message_id,
+            timestamp=timestamp,
+            _extra_middlewares=(),
+            **publish_kwargs,
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: "AioPikaSendableMessage",
+        queue: Union["RabbitQueue", str, None] = None,
+        exchange: Union["RabbitExchange", str, None] = None,
+        *,
+        routing_key: str = "",
+        # message args
+        correlation_id: Optional[str] = None,
+        message_id: Optional[str] = None,
+        timestamp: Optional["DateType"] = None,
+        # publisher specific
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **publish_kwargs: "Unpack[PublishKwargs]",
     ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
