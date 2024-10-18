@@ -38,6 +38,7 @@ from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProdu
 from faststream.nats.response import NatsPublishCommand
 from faststream.nats.security import parse_security
 from faststream.nats.subscriber.specified import SpecificationSubscriber
+from faststream.response.publish_type import PublishType
 
 from .logging import make_nats_logger_state
 from .registrator import NatsRegistrator
@@ -733,6 +734,7 @@ class NatsBroker(
             reply_to=reply_to,
             stream=stream,
             timeout=timeout,
+            _publish_type=PublishType.Publish,
         )
 
         producer: Optional[ProducerProto]

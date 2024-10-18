@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Optional, Union
 
 from typing_extensions import override
 
+from faststream.response.publish_type import PublishType
 from faststream.response.response import PublishCommand, Response
 
 if TYPE_CHECKING:
@@ -31,7 +32,7 @@ class NatsResponse(Response):
             headers=self.headers,
             correlation_id=self.correlation_id,
             stream=self.stream,
-            _is_rpc_response=True,
+            _publish_type=PublishType.Reply,
         )
 
 
@@ -39,13 +40,13 @@ class NatsPublishCommand(PublishCommand):
     def __init__(
         self,
         message: "SendableMessage",
+        _publish_type: PublishType,
         subject: str = "",
         correlation_id: Optional[str] = None,
         headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
-        _is_rpc_response: bool = False,
     ) -> None:
         super().__init__(
             body=message,
@@ -53,7 +54,7 @@ class NatsPublishCommand(PublishCommand):
             correlation_id=correlation_id,
             headers=headers,
             reply_to=reply_to,
-            _is_rpc_response=_is_rpc_response,
+            _publish_type=_publish_type,
         )
 
         self.stream = stream
@@ -75,6 +76,7 @@ def ensure_nats_publish_cmd(
     cmd: Union[PublishCommand, NatsPublishCommand],
 ) -> NatsPublishCommand:
     if isinstance(cmd, NatsPublishCommand):
+        # NOTE: Should return a copy probably.
         return cmd
 
     return NatsPublishCommand(
@@ -83,4 +85,5 @@ def ensure_nats_publish_cmd(
         correlation_id=cmd.correlation_id,
         headers=cmd.headers,
         reply_to=cmd.reply_to,
+        _publish_type=cmd.publish_type,
     )

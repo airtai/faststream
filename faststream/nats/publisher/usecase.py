@@ -18,6 +18,7 @@ from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.nats.response import NatsPublishCommand, ensure_nats_publish_cmd
+from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, SendableMessage
@@ -105,6 +106,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
                 correlation_id=correlation_id,
                 stream=stream,
                 timeout=timeout,
+                _publish_type=PublishType.Publish,
             ),
             _extra_middlewares=(),
         )

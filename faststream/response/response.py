@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Any, Optional
 
+from .publish_type import PublishType
+
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
 
@@ -33,7 +35,7 @@ class Response:
             body=self.body,
             headers=self.headers,
             correlation_id=self.correlation_id,
-            _is_rpc_response=True,
+            _publish_type=PublishType.Reply,
         )
 
 
@@ -42,11 +44,11 @@ class PublishCommand(Response):
         self,
         body: Any,
         *,
+        _publish_type: PublishType,
         reply_to: str = "",
         destination: str = "",
         correlation_id: Optional[str] = None,
         headers: Optional[dict[str, str]] = None,
-        _is_rpc_response: bool = False,
     ) -> None:
         super().__init__(
             body,
@@ -57,4 +59,4 @@ class PublishCommand(Response):
         self.destination = destination
         self.reply_to = reply_to
 
-        self.rpc_response = _is_rpc_response
+        self.publish_type = _publish_type
