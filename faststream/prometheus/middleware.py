@@ -10,6 +10,7 @@ from faststream.prometheus.container import MetricsContainer
 from faststream.prometheus.manager import MetricsManager
 from faststream.prometheus.provider import MetricsSettingsProvider
 from faststream.prometheus.types import ProcessingStatus, PublishingStatus
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
@@ -176,9 +177,12 @@ class BasePrometheusMiddleware:
         ],
         registry: "CollectorRegistry",
         app_name: str = "faststream",
-        metrics_prefix: str = "faststream",
+        metrics_prefix: str = EMPTY,
         received_messages_size_buckets: Optional[List[float]] = None,
     ):
+        if metrics_prefix is EMPTY:
+            metrics_prefix = app_name
+
         self._settings_provider_factory = settings_provider_factory
         self._metrics_container = MetricsContainer(
             registry,
