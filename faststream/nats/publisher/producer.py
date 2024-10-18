@@ -9,6 +9,7 @@ from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream.message import encode_message
 from faststream.nats.parser import NatsParser
+from faststream.nats.response import NatsPublishCommand
 
 if TYPE_CHECKING:
     from nats.aio.client import Client
@@ -44,26 +45,19 @@ class NatsFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        subject: str,
-        *,
-        correlation_id: str,
-        headers: Optional[dict[str, str]] = None,
-        reply_to: str = "",
-        **kwargs: Any,  # suprress stream option
+        message: NatsPublishCommand,
     ) -> None:
-        payload, content_type = encode_message(message)
+        payload, content_type = encode_message(message.body)
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id,
-            **(headers or {}),
+            **message.headers_to_publish(),
         }
 
         await self._connection.publish(
-            subject=subject,
+            subject=message.destination,
             payload=payload,
-            reply=reply_to,
+            reply=message.reply_to,
             headers=headers_to_send,
         )
 
@@ -115,32 +109,21 @@ class NatsJSFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        subject: str,
-        *,
-        correlation_id: str,
-        headers: Optional[dict[str, str]] = None,
-        reply_to: str = "",
-        stream: Optional[str] = None,
-        timeout: Optional[float] = None,
+        message: NatsPublishCommand,
     ) -> Optional[Any]:
-        payload, content_type = encode_message(message)
+        payload, content_type = encode_message(message.body)
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id,
-            **(headers or {}),
+            **message.headers_to_publish(js=True),
         }
 
-        if reply_to:
-            headers_to_send.update({"reply_to": reply_to})
-
         await self._connection.publish(
-            subject=subject,
+            subject=message.destination,
             payload=payload,
             headers=headers_to_send,
-            stream=stream,
-            timeout=timeout,
+            stream=message.stream,
+            timeout=message.timeout,
         )
 
         return None

@@ -17,6 +17,7 @@ from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
+from faststream.nats.response import NatsPublishCommand, ensure_nats_publish_cmd
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, SendableMessage
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
     from faststream.nats.schemas import JStream
+    from faststream.response.response import PublishCommand
 
 
 class LogicPublisher(PublisherUsecase[Msg]):
@@ -94,42 +96,46 @@ class LogicPublisher(PublisherUsecase[Msg]):
                 Can be omitted without any effect.
             timeout (float, optional): Timeout to send message to NATS in seconds (default is `None`).
         """
-        return await self._publish(
-            message,
-            subject=subject,
-            headers=headers,
-            reply_to=reply_to,
-            correlation_id=correlation_id,
-            stream=stream,
-            timeout=timeout,
+        return await self.__publish(
+            NatsPublishCommand(
+                message,
+                subject=subject,
+                headers=headers,
+                reply_to=reply_to,
+                correlation_id=correlation_id,
+                stream=stream,
+                timeout=timeout,
+            ),
             _extra_middlewares=(),
         )
 
     @override
     async def _publish(
         self,
-        message: "SendableMessage",
-        subject: str = "",
+        cmd: Union["PublishCommand", "NatsPublishCommand"],
         *,
-        headers: Optional[dict[str, str]] = None,
-        reply_to: str = "",
-        correlation_id: Optional[str] = None,
-        stream: Optional[str] = None,
-        timeout: Optional[float] = None,
         # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
+        """This method should be called in subscriber flow only."""
+        cmd = ensure_nats_publish_cmd(cmd)
+        cmd.headers = cmd.headers or self.headers
+        cmd.destination = self.subject
+        cmd.reply_to = self.reply_to
+
+        if self.stream:
+            cmd.stream = self.stream.name
+            cmd.timeout = self.timeout
+
+        return await self.__publish(cmd, _extra_middlewares=_extra_middlewares)
+
+    async def __publish(
+        self,
+        cmd: "NatsPublishCommand",
+        *,
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        kwargs: AnyDict = {
-            "subject": subject or self.subject,
-            "headers": headers or self.headers,
-            "reply_to": reply_to or self.reply_to,
-            "correlation_id": correlation_id or gen_cor_id(),
-        }
-
-        if stream := stream or getattr(self.stream, "name", None):
-            kwargs.update({"stream": stream, "timeout": timeout or self.timeout})
 
         call: Callable[..., Awaitable[Any]] = self._producer.publish
 
@@ -140,9 +146,9 @@ class LogicPublisher(PublisherUsecase[Msg]):
             ),
             self._middlewares,
         ):
-            call = partial(m, call)
+            call = partial(m, cmd)
 
-        await call(message, **kwargs)
+        await call(cmd)
 
     @override
     async def request(

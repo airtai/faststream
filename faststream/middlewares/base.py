@@ -92,17 +92,11 @@ class BaseMiddleware:
         self,
         call_next: "AsyncFunc",
         msg: Any,
-        *args: Any,
-        **kwargs: Any,
     ) -> Any:
         """Publish a message and return an async iterator."""
         err: Optional[Exception] = None
         try:
-            result = await call_next(
-                await self.on_publish(msg, *args, **kwargs),
-                *args,
-                **kwargs,
-            )
+            result = await call_next(await self.on_publish(msg))
 
         except Exception as e:
             err = e

@@ -35,6 +35,7 @@ from faststream._internal.constants import EMPTY
 from faststream.message import gen_cor_id
 from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.response import NatsPublishCommand
 from faststream.nats.security import parse_security
 from faststream.nats.subscriber.specified import SpecificationSubscriber
 
@@ -724,30 +725,20 @@ class NatsBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        publish_kwargs: AnyDict = {
-            "subject": subject,
-            "headers": headers,
-            "reply_to": reply_to,
-        }
+        cmd = NatsPublishCommand(
+            message=message,
+            correlation_id=correlation_id or gen_cor_id(),
+            subject=subject,
+            headers=headers,
+            reply_to=reply_to,
+            stream=stream,
+            timeout=timeout,
+        )
 
         producer: Optional[ProducerProto]
-        if stream is None:
-            producer = self._producer
-        else:
-            producer = self._js_producer
-            publish_kwargs.update(
-                {
-                    "stream": stream,
-                    "timeout": timeout,
-                },
-            )
+        producer = self._producer if stream is None else self._js_producer
 
-        await super().publish(
-            message,
-            producer=producer,
-            correlation_id=correlation_id or gen_cor_id(),
-            **publish_kwargs,
-        )
+        await super().publish(cmd, producer=producer)
 
     @override
     async def request(  # type: ignore[override]
