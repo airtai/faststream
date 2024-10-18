@@ -1,22 +1,18 @@
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
-    Dict,
-    Iterable,
     Optional,
-    Sequence,
     Union,
 )
 
 import anyio
 from typing_extensions import override
 
-from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.utils import process_msg
+from faststream._internal.publisher.fake import FakePublisher
+from faststream._internal.subscriber.usecase import SubscriberUsecase
+from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
-from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import BaseRMQInformation
 
@@ -24,17 +20,17 @@ if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage
-    from faststream.broker.types import BrokerMiddleware, CustomCallable
+    from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.setup import SetupState
+    from faststream._internal.types import BrokerMiddleware, CustomCallable
+    from faststream.message import StreamMessage
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas import (
         RabbitExchange,
         RabbitQueue,
-        ReplyConfig,
     )
-    from faststream.types import AnyDict, Decorator, LoggerProto
 
 
 class LogicSubscriber(
@@ -56,7 +52,6 @@ class LogicSubscriber(
         queue: "RabbitQueue",
         exchange: "RabbitExchange",
         consume_args: Optional["AnyDict"],
-        reply_config: Optional["ReplyConfig"],
         # Subscriber args
         no_ack: bool,
         no_reply: bool,
@@ -86,7 +81,6 @@ class LogicSubscriber(
         )
 
         self.consume_args = consume_args or {}
-        self.reply_config = reply_config.to_dict() if reply_config else {}
 
         self._consumer_tag = None
         self._queue_obj = None
@@ -100,7 +94,7 @@ class LogicSubscriber(
         self.declarer = None
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         app_id: Optional[str],
@@ -115,33 +109,28 @@ class LogicSubscriber(
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
-        _call_decorators: Iterable["Decorator"],
+        state: "SetupState",
     ) -> None:
         self.app_id = app_id
         self.virtual_host = virtual_host
         self.declarer = declarer
 
-        super().setup(
+        super()._setup(
             logger=logger,
             producer=producer,
             graceful_timeout=graceful_timeout,
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
-            apply_types=apply_types,
-            is_validate=is_validate,
-            _get_dependant=_get_dependant,
-            _call_decorators=_call_decorators,
+            state=state,
         )
 
     @override
     async def start(self) -> None:
         """Starts the consumer for the RabbitMQ queue."""
         if self.declarer is None:
-            raise SetupError("You should setup subscriber at first.")
+            msg = "You should setup subscriber at first."
+            raise SetupError(msg)
 
         self._queue_obj = queue = await self.declarer.declare_queue(self.queue)
 
@@ -224,30 +213,18 @@ class LogicSubscriber(
             FakePublisher(
                 self._producer.publish,
                 publish_kwargs={
-                    **self.reply_config,
                     "routing_key": message.reply_to,
                     "app_id": self.app_id,
                 },
             ),
         )
 
-    def __hash__(self) -> int:
-        return self.get_routing_hash(self.queue, self.exchange)
-
-    @staticmethod
-    def get_routing_hash(
-        queue: "RabbitQueue",
-        exchange: Optional["RabbitExchange"] = None,
-    ) -> int:
-        """Calculate the routing hash for a RabbitMQ queue and exchange."""
-        return hash(queue) + hash(exchange or "")
-
     @staticmethod
     def build_log_context(
         message: Optional["StreamMessage[Any]"],
         queue: "RabbitQueue",
         exchange: Optional["RabbitExchange"] = None,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return {
             "queue": queue.name,
             "exchange": getattr(exchange, "name", ""),
@@ -257,7 +234,7 @@ class LogicSubscriber(
     def get_log_context(
         self,
         message: Optional["StreamMessage[Any]"],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return self.build_log_context(
             message=message,
             queue=self.queue,

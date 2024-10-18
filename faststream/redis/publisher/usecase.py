@@ -1,24 +1,24 @@
 from abc import abstractmethod
-from contextlib import AsyncExitStack
+from collections.abc import Awaitable, Iterable
 from copy import deepcopy
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
+from typing import TYPE_CHECKING, Annotated, Any, Callable, Optional
 
-from typing_extensions import Annotated, Doc, deprecated, override
+from typing_extensions import Doc, override
 
-from faststream.broker.message import gen_cor_id
-from faststream.broker.publisher.usecase import PublisherUsecase
+from faststream._internal.publisher.usecase import PublisherUsecase
+from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
-    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.basic_types import AnyDict, SendableMessage
+    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.redis.message import RedisMessage
     from faststream.redis.publisher.producer import RedisFastProducer
-    from faststream.types import AnyDict, AsyncFunc, SendableMessage
 
 
 class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
@@ -57,7 +57,7 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
 
     @abstractmethod
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ChannelPublisher(LogicPublisher):
@@ -89,9 +89,6 @@ class ChannelPublisher(LogicPublisher):
 
         self.channel = channel
 
-    def __hash__(self) -> int:
-        return hash(f"publisher:pubsub:{self.channel.name}")
-
     @override
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":
         return {
@@ -102,7 +99,7 @@ class ChannelPublisher(LogicPublisher):
 
     def add_prefix(self, prefix: str) -> None:
         channel = deepcopy(self.channel)
-        channel.name = "".join((prefix, channel.name))
+        channel.name = f"{prefix}{channel.name}"
         self.channel = channel
 
     @override
@@ -128,48 +125,33 @@ class ChannelPublisher(LogicPublisher):
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
-        *,
-        # rpc args
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
         **kwargs: Any,  # option to suppress maxlen
-    ) -> Optional[Any]:
+    ) -> None:
+        return await self._publish(
+            message,
+            channel=channel,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
+            _extra_middlewares=(),
+            **kwargs,
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: "SendableMessage" = None,
+        channel: Optional[str] = None,
+        reply_to: str = "",
+        headers: Optional["AnyDict"] = None,
+        correlation_id: Optional[str] = None,
+        # publisher specific
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        **kwargs: Any,  # option to suppress maxlen
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         channel_sub = PubSub.validate(channel or self.channel)
@@ -177,7 +159,7 @@ class ChannelPublisher(LogicPublisher):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
@@ -188,17 +170,13 @@ class ChannelPublisher(LogicPublisher):
         ):
             call = partial(m, call)
 
-        return await call(
+        await call(
             message,
             channel=channel_sub.name,
             # basic args
             reply_to=reply_to,
             headers=headers,
             correlation_id=correlation_id,
-            # RPC args
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
         )
 
     @override
@@ -217,7 +195,7 @@ class ChannelPublisher(LogicPublisher):
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         headers: Annotated[
@@ -243,7 +221,7 @@ class ChannelPublisher(LogicPublisher):
             "correlation_id": correlation_id or gen_cor_id(),
             "timeout": timeout,
         }
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -259,18 +237,13 @@ class ChannelPublisher(LogicPublisher):
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: RedisMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
 
 class ListPublisher(LogicPublisher):
@@ -302,9 +275,6 @@ class ListPublisher(LogicPublisher):
 
         self.list = list
 
-    def __hash__(self) -> int:
-        return hash(f"publisher:list:{self.list.name}")
-
     @override
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":
         return {
@@ -315,7 +285,7 @@ class ListPublisher(LogicPublisher):
 
     def add_prefix(self, prefix: str) -> None:
         list_sub = deepcopy(self.list)
-        list_sub.name = "".join((prefix, list_sub.name))
+        list_sub.name = f"{prefix}{list_sub.name}"
         self.list = list_sub
 
     @override
@@ -341,55 +311,41 @@ class ListPublisher(LogicPublisher):
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
-        *,
-        # rpc args
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
         **kwargs: Any,  # option to suppress maxlen
-    ) -> Any:
+    ) -> None:
+        return await self._publish(
+            message,
+            list=list,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
+            _extra_middlewares=(),
+            **kwargs,
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: "SendableMessage" = None,
+        list: Optional[str] = None,
+        reply_to: str = "",
+        headers: Optional["AnyDict"] = None,
+        correlation_id: Optional[str] = None,
+        # publisher specific
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        **kwargs: Any,  # option to suppress maxlen
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         list_sub = ListSub.validate(list or self.list)
         reply_to = reply_to or self.reply_to
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
@@ -400,17 +356,13 @@ class ListPublisher(LogicPublisher):
         ):
             call = partial(m, call)
 
-        return await call(
+        await call(
             message,
             list=list_sub.name,
             # basic args
             reply_to=reply_to,
             headers=headers or self.headers,
             correlation_id=correlation_id,
-            # RPC args
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
         )
 
     @override
@@ -429,7 +381,7 @@ class ListPublisher(LogicPublisher):
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         headers: Annotated[
@@ -456,7 +408,7 @@ class ListPublisher(LogicPublisher):
             "timeout": timeout,
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -472,18 +424,13 @@ class ListPublisher(LogicPublisher):
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: RedisMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
 
 class ListBatchPublisher(ListPublisher):
@@ -508,10 +455,27 @@ class ListBatchPublisher(ListPublisher):
             Doc("Message headers to store metainformation."),
         ] = None,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
+        **kwargs: Any,  # option to suppress maxlen
+    ) -> None:
+        return await self._publish(
+            message,
+            list=list,
+            correlation_id=correlation_id,
+            headers=headers,
+            _extra_middlewares=(),
+            **kwargs,
+        )
+
+    @override
+    async def _publish(  # type: ignore[override]
+        self,
+        message: "SendableMessage" = (),
+        list: Optional[str] = None,
+        *,
+        correlation_id: Optional[str] = None,
+        headers: Optional["AnyDict"] = None,
+        # publisher specific
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,  # option to suppress maxlen
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
@@ -519,7 +483,7 @@ class ListBatchPublisher(ListPublisher):
         list_sub = ListSub.validate(list or self.list)
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish_batch
+        call: Callable[..., Awaitable[None]] = self._producer.publish_batch
 
         for m in chain(
             (
@@ -567,9 +531,6 @@ class StreamPublisher(LogicPublisher):
 
         self.stream = stream
 
-    def __hash__(self) -> int:
-        return hash(f"publisher:stream:{self.stream.name}")
-
     @override
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":
         return {
@@ -580,7 +541,7 @@ class StreamPublisher(LogicPublisher):
 
     def add_prefix(self, prefix: str) -> None:
         stream_sub = deepcopy(self.stream)
-        stream_sub.name = "".join((prefix, stream_sub.name))
+        stream_sub.name = f"{prefix}{stream_sub.name}"
         self.stream = stream_sub
 
     @override
@@ -606,7 +567,7 @@ class StreamPublisher(LogicPublisher):
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         *,
@@ -614,46 +575,33 @@ class StreamPublisher(LogicPublisher):
             Optional[int],
             Doc(
                 "Redis Stream maxlen publish option. "
-                "Remove eldest message if maxlen exceeded."
+                "Remove eldest message if maxlen exceeded.",
             ),
         ] = None,
-        # rpc args
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
+    ) -> None:
+        return await self._publish(
+            message,
+            stream=stream,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
+            maxlen=maxlen,
+            _extra_middlewares=(),
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: "SendableMessage" = None,
+        stream: Optional[str] = None,
+        reply_to: str = "",
+        headers: Optional["AnyDict"] = None,
+        correlation_id: Optional[str] = None,
+        *,
+        maxlen: Optional[int] = None,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
-    ) -> Optional[Any]:
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         stream_sub = StreamSub.validate(stream or self.stream)
@@ -662,7 +610,7 @@ class StreamPublisher(LogicPublisher):
         headers = headers or self.headers
         correlation_id = correlation_id or gen_cor_id()
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
@@ -673,7 +621,7 @@ class StreamPublisher(LogicPublisher):
         ):
             call = partial(m, call)
 
-        return await call(
+        await call(
             message,
             stream=stream_sub.name,
             maxlen=maxlen,
@@ -681,10 +629,6 @@ class StreamPublisher(LogicPublisher):
             reply_to=reply_to,
             headers=headers,
             correlation_id=correlation_id,
-            # RPC args
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
         )
 
     @override
@@ -703,14 +647,14 @@ class StreamPublisher(LogicPublisher):
             Optional[int],
             Doc(
                 "Redis Stream maxlen publish option. "
-                "Remove eldest message if maxlen exceeded."
+                "Remove eldest message if maxlen exceeded.",
             ),
         ] = None,
         correlation_id: Annotated[
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         headers: Annotated[
@@ -737,7 +681,7 @@ class StreamPublisher(LogicPublisher):
             "timeout": timeout,
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -753,15 +697,10 @@ class StreamPublisher(LogicPublisher):
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: RedisMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg

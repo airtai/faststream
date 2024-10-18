@@ -1,15 +1,16 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Optional, Union
 
-from faststream.broker.message import decode_message, gen_cor_id
+from faststream._internal.context.repository import context
 from faststream.confluent.message import FAKE_CONSUMER, KafkaMessage
-from faststream.utils.context.repository import context
+from faststream.message import decode_message
 
 if TYPE_CHECKING:
     from confluent_kafka import Message
 
-    from faststream.broker.message import StreamMessage
+    from faststream._internal.basic_types import DecodedMessage
     from faststream.confluent.subscriber.usecase import LogicSubscriber
-    from faststream.types import DecodedMessage
+    from faststream.message import StreamMessage
 
 
 class AsyncConfluentParser:
@@ -34,7 +35,7 @@ class AsyncConfluentParser:
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
             message_id=f"{offset}-{timestamp}",
-            correlation_id=headers.get("correlation_id", gen_cor_id()),
+            correlation_id=headers.get("correlation_id"),
             raw_message=message,
             consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
             is_manual=getattr(handler, "is_manual", True),
@@ -42,11 +43,11 @@ class AsyncConfluentParser:
 
     @staticmethod
     async def parse_message_batch(
-        message: Tuple["Message", ...],
+        message: tuple["Message", ...],
     ) -> KafkaMessage:
         """Parses a batch of messages from a Kafka consumer."""
-        body: List[Any] = []
-        batch_headers: List[Dict[str, str]] = []
+        body: list[Any] = []
+        batch_headers: list[dict[str, str]] = []
 
         first = message[0]
         last = message[-1]
@@ -68,7 +69,7 @@ class AsyncConfluentParser:
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
             message_id=f"{first.offset()}-{last.offset()}-{first_timestamp}",
-            correlation_id=headers.get("correlation_id", gen_cor_id()),
+            correlation_id=headers.get("correlation_id"),
             raw_message=message,
             consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
             is_manual=getattr(handler, "is_manual", True),
@@ -84,13 +85,13 @@ class AsyncConfluentParser:
     @classmethod
     async def decode_message_batch(
         cls,
-        msg: "StreamMessage[Tuple[Message, ...]]",
+        msg: "StreamMessage[tuple[Message, ...]]",
     ) -> "DecodedMessage":
         """Decode a batch of messages."""
         return [decode_message(await cls.parse_message(m)) for m in msg.raw_message]
 
 
 def _parse_msg_headers(
-    headers: Sequence[Tuple[str, Union[bytes, str]]],
-) -> Dict[str, str]:
+    headers: Sequence[tuple[str, Union[bytes, str]]],
+) -> dict[str, str]:
     return {i: j if isinstance(j, str) else j.decode() for i, j in headers}

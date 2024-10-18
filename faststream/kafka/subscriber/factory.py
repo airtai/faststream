@@ -1,17 +1,16 @@
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
-    Iterable,
     Literal,
     Optional,
-    Tuple,
     Union,
     overload,
 )
 
 from faststream.exceptions import SetupError
-from faststream.kafka.subscriber.asyncapi import (
-    AsyncAPIBatchSubscriber,
-    AsyncAPIDefaultSubscriber,
+from faststream.kafka.subscriber.specified import (
+    SpecificationBatchSubscriber,
+    SpecificationDefaultSubscriber,
 )
 
 if TYPE_CHECKING:
@@ -19,8 +18,8 @@ if TYPE_CHECKING:
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import BrokerMiddleware
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import BrokerMiddleware
 
 
 @overload
@@ -41,12 +40,12 @@ def create_subscriber(
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
-    # AsyncAPI args
+    broker_middlewares: Iterable["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "AsyncAPIBatchSubscriber": ...
+) -> "SpecificationBatchSubscriber": ...
 
 
 @overload
@@ -68,11 +67,11 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "AsyncAPIDefaultSubscriber": ...
+) -> "SpecificationDefaultSubscriber": ...
 
 
 @overload
@@ -94,15 +93,15 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
+        "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
     ],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
 ) -> Union[
-    "AsyncAPIDefaultSubscriber",
-    "AsyncAPIBatchSubscriber",
+    "SpecificationDefaultSubscriber",
+    "SpecificationBatchSubscriber",
 ]: ...
 
 
@@ -124,32 +123,37 @@ def create_subscriber(
     retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
+        "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
     ],
-    # AsyncAPI args
+    # Specification args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
 ) -> Union[
-    "AsyncAPIDefaultSubscriber",
-    "AsyncAPIBatchSubscriber",
+    "SpecificationDefaultSubscriber",
+    "SpecificationBatchSubscriber",
 ]:
     if is_manual and not group_id:
-        raise SetupError("You must use `group_id` with manual commit mode.")
+        msg = "You must use `group_id` with manual commit mode."
+        raise SetupError(msg)
 
     if not topics and not partitions and not pattern:
+        msg = "You should provide either `topics` or `partitions` or `pattern`."
         raise SetupError(
-            "You should provide either `topics` or `partitions` or `pattern`."
+            msg,
         )
-    elif topics and partitions:
-        raise SetupError("You can't provide both `topics` and `partitions`.")
-    elif topics and pattern:
-        raise SetupError("You can't provide both `topics` and `pattern`.")
-    elif partitions and pattern:
-        raise SetupError("You can't provide both `partitions` and `pattern`.")
+    if topics and partitions:
+        msg = "You can't provide both `topics` and `partitions`."
+        raise SetupError(msg)
+    if topics and pattern:
+        msg = "You can't provide both `topics` and `pattern`."
+        raise SetupError(msg)
+    if partitions and pattern:
+        msg = "You can't provide both `partitions` and `pattern`."
+        raise SetupError(msg)
 
     if batch:
-        return AsyncAPIBatchSubscriber(
+        return SpecificationBatchSubscriber(
             *topics,
             batch_timeout_ms=batch_timeout_ms,
             max_records=max_records,
@@ -169,21 +173,20 @@ def create_subscriber(
             include_in_schema=include_in_schema,
         )
 
-    else:
-        return AsyncAPIDefaultSubscriber(
-            *topics,
-            group_id=group_id,
-            listener=listener,
-            pattern=pattern,
-            connection_args=connection_args,
-            partitions=partitions,
-            is_manual=is_manual,
-            no_ack=no_ack,
-            no_reply=no_reply,
-            retry=retry,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
+    return SpecificationDefaultSubscriber(
+        *topics,
+        group_id=group_id,
+        listener=listener,
+        pattern=pattern,
+        connection_args=connection_args,
+        partitions=partitions,
+        is_manual=is_manual,
+        no_ack=no_ack,
+        no_reply=no_reply,
+        retry=retry,
+        broker_dependencies=broker_dependencies,
+        broker_middlewares=broker_middlewares,
+        title_=title_,
+        description_=description_,
+        include_in_schema=include_in_schema,
+    )

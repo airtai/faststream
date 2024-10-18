@@ -13,11 +13,11 @@ class ObjWatch:
     """
 
     __slots__ = (
+        "declare",
         "ignore_deletes",
         "include_history",
         "meta_only",
         "timeout",
-        "declare",
     )
 
     def __init__(
@@ -56,7 +56,6 @@ class ObjWatch:
     def validate(cls, value: Union[bool, "ObjWatch"]) -> Optional["ObjWatch"]:
         if value is True:
             return ObjWatch()
-        elif value is False:
+        if value is False:
             return None
-        else:
-            return value
+        return value

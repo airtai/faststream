@@ -1,36 +1,35 @@
-from contextlib import AsyncExitStack
+from collections.abc import Awaitable, Iterable
 from copy import deepcopy
 from functools import partial
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
-    Awaitable,
     Callable,
-    Iterable,
     Optional,
     Union,
 )
 
 from aio_pika import IncomingMessage
-from typing_extensions import Annotated, Doc, TypedDict, Unpack, deprecated, override
+from typing_extensions import Doc, TypedDict, Unpack, override
 
-from faststream.broker.message import gen_cor_id
-from faststream.broker.publisher.usecase import PublisherUsecase
+from faststream._internal.publisher.usecase import PublisherUsecase
+from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.message import gen_cor_id
 from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
-from faststream.rabbit.subscriber.usecase import LogicSubscriber
-from faststream.utils.functions import return_input
 
 if TYPE_CHECKING:
+    import aiormq
     from aio_pika.abc import DateType, HeadersType, TimeoutType
 
-    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas.exchange import RabbitExchange
     from faststream.rabbit.types import AioPikaSendableMessage
-    from faststream.types import AnyDict, AsyncFunc
 
 
 # should be public to use in imports
@@ -41,21 +40,21 @@ class RequestPublishKwargs(TypedDict, total=False):
         Optional["HeadersType"],
         Doc(
             "Message headers to store metainformation. "
-            "Can be overridden by `publish.headers` if specified."
+            "Can be overridden by `publish.headers` if specified.",
         ),
     ]
     mandatory: Annotated[
         Optional[bool],
         Doc(
             "Client waits for confirmation that the message is placed to some queue. "
-            "RabbitMQ returns message to client if there is no suitable queue."
+            "RabbitMQ returns message to client if there is no suitable queue.",
         ),
     ]
     immediate: Annotated[
         Optional[bool],
         Doc(
             "Client expects that there is consumer ready to take the message to work. "
-            "RabbitMQ returns message to client if there is no suitable consumer."
+            "RabbitMQ returns message to client if there is no suitable consumer.",
         ),
     ]
     timeout: Annotated[
@@ -80,7 +79,7 @@ class RequestPublishKwargs(TypedDict, total=False):
         Doc(
             "Message **content-type** header. "
             "Used by application, not core RabbitMQ. "
-            "Will be set automatically if not specified."
+            "Will be set automatically if not specified.",
         ),
     ]
     user_id: Annotated[
@@ -103,7 +102,7 @@ class PublishKwargs(RequestPublishKwargs, total=False):
     reply_to: Annotated[
         Optional[str],
         Doc(
-            "Reply message routing key to send with (always sending to default exchange)."
+            "Reply message routing key to send with (always sending to default exchange).",
         ),
     ]
 
@@ -159,7 +158,7 @@ class LogicPublisher(
         self.virtual_host = ""
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         producer: Optional["AioPikaFastProducer"],
@@ -168,17 +167,12 @@ class LogicPublisher(
     ) -> None:
         self.app_id = app_id
         self.virtual_host = virtual_host
-        super().setup(producer=producer)
+        super()._setup(producer=producer)
 
     @property
     def routing(self) -> str:
         """Return real routing_key of Publisher."""
         return self.routing_key or self.queue.routing
-
-    def __hash__(self) -> int:
-        return LogicSubscriber.get_routing_hash(self.queue, self.exchange) + hash(
-            self.routing_key
-        )
 
     @override
     async def publish(
@@ -197,7 +191,7 @@ class LogicPublisher(
             str,
             Doc(
                 "Message routing key to publish with. "
-                "Overrides `queue` option if presented."
+                "Overrides `queue` option if presented.",
             ),
         ] = "",
         # message args
@@ -205,7 +199,7 @@ class LogicPublisher(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         message_id: Annotated[
@@ -216,44 +210,37 @@ class LogicPublisher(
             Optional["DateType"],
             Doc("Message publish timestamp. Generated automatically if not presented."),
         ] = None,
-        # rpc args
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
         **publish_kwargs: "Unpack[PublishKwargs]",
-    ) -> Optional[Any]:
+    ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
+        return await self._publish(
+            message,
+            queue=queue,
+            exchange=exchange,
+            routing_key=routing_key,
+            correlation_id=correlation_id,
+            message_id=message_id,
+            timestamp=timestamp,
+            _extra_middlewares=(),
+            **publish_kwargs,
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: "AioPikaSendableMessage",
+        queue: Union["RabbitQueue", str, None] = None,
+        exchange: Union["RabbitExchange", str, None] = None,
+        *,
+        routing_key: str = "",
+        # message args
+        correlation_id: Optional[str] = None,
+        message_id: Optional[str] = None,
+        timestamp: Optional["DateType"] = None,
+        # publisher specific
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        **publish_kwargs: "Unpack[PublishKwargs]",
+    ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         kwargs: AnyDict = {
@@ -266,15 +253,15 @@ class LogicPublisher(
             "message_id": message_id,
             "timestamp": timestamp,
             # specific args
-            "rpc": rpc,
-            "rpc_timeout": rpc_timeout,
-            "raise_timeout": raise_timeout,
             "reply_to": self.reply_to,
             **self.message_kwargs,
             **publish_kwargs,
         }
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[
+            ...,
+            Awaitable[Optional[aiormq.abc.ConfirmationFrameType]],
+        ] = self._producer.publish
 
         for m in chain(
             (
@@ -304,7 +291,7 @@ class LogicPublisher(
             str,
             Doc(
                 "Message routing key to publish with. "
-                "Overrides `queue` option if presented."
+                "Overrides `queue` option if presented.",
             ),
         ] = "",
         # message args
@@ -312,7 +299,7 @@ class LogicPublisher(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         message_id: Annotated[
@@ -346,7 +333,7 @@ class LogicPublisher(
             **publish_kwargs,
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -362,20 +349,13 @@ class LogicPublisher(
             **kwargs,
         )
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[RabbitMessage], Awaitable[RabbitMessage]] = (
-                return_input
-            )
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: RabbitMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
     def add_prefix(self, prefix: str) -> None:
         """Include Publisher in router."""

@@ -1,41 +1,40 @@
 import asyncio
+from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
 
 from faststream import Context
-from faststream.rabbit import RabbitBroker, RabbitResponse, ReplyConfig
+from faststream.rabbit import RabbitBroker, RabbitResponse
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestPublish(BrokerPublishTestcase):
-    def get_broker(self, apply_types: bool = False) -> RabbitBroker:
-        return RabbitBroker(apply_types=apply_types)
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
+        return RabbitBroker(apply_types=apply_types, **kwargs)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_reply_config(
         self,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker()
 
         reply_queue = queue + "reply"
 
         @pub_broker.subscriber(reply_queue)
-        async def reply_handler(m):
+        async def reply_handler(m) -> None:
             event.set()
             mock(m)
 
-        with pytest.warns(DeprecationWarning):
-
-            @pub_broker.subscriber(queue, reply_config=ReplyConfig(persist=True))
-            async def handler(m):
-                return m
+        @pub_broker.subscriber(queue)
+        async def handler(m):
+            return RabbitResponse(m, persist=True)
 
         async with self.patch_broker(pub_broker) as br:
             with patch.object(
@@ -48,7 +47,7 @@ class TestPublish(BrokerPublishTestcase):
                 await asyncio.wait(
                     (
                         asyncio.create_task(
-                            br.publish("Hello!", queue, reply_to=reply_queue)
+                            br.publish("Hello!", queue, reply_to=reply_queue),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -61,13 +60,13 @@ class TestPublish(BrokerPublishTestcase):
         assert event.is_set()
         mock.assert_called_with("Hello!")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_response(
         self,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue)
@@ -79,7 +78,7 @@ class TestPublish(BrokerPublishTestcase):
             )
 
         @pub_broker.subscriber(queue + "1")
-        async def handle_next(msg=Context("message")):
+        async def handle_next(msg=Context("message")) -> None:
             mock(body=msg.body)
             event.set()
 
@@ -105,12 +104,12 @@ class TestPublish(BrokerPublishTestcase):
 
         mock.assert_called_once_with(body=b"1")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_response_for_rpc(
         self,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue)
@@ -121,8 +120,8 @@ class TestPublish(BrokerPublishTestcase):
             await br.start()
 
             response = await asyncio.wait_for(
-                br.publish("", queue, rpc=True),
+                br.request("", queue),
                 timeout=3,
             )
 
-            assert response == "Hi!", response
+            assert await response.decode() == "Hi!", response

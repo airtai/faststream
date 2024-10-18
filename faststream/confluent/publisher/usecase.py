@@ -1,15 +1,11 @@
-from contextlib import AsyncExitStack
+from collections.abc import Awaitable, Iterable
 from functools import partial
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     Callable,
-    Dict,
-    Iterable,
     Optional,
-    Tuple,
     Union,
     cast,
 )
@@ -17,17 +13,17 @@ from typing import (
 from confluent_kafka import Message
 from typing_extensions import override
 
-from faststream.broker.message import gen_cor_id
-from faststream.broker.publisher.usecase import PublisherUsecase
-from faststream.broker.types import MsgType
+from faststream._internal.publisher.usecase import PublisherUsecase
+from faststream._internal.subscriber.utils import process_msg
+from faststream._internal.types import MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.utils.functions import return_input
+from faststream.message import gen_cor_id
 
 if TYPE_CHECKING:
-    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
+    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.confluent.message import KafkaMessage
     from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
-    from faststream.types import AnyDict, AsyncFunc, SendableMessage
 
 
 class LogicPublisher(PublisherUsecase[MsgType]):
@@ -40,7 +36,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         *,
         topic: str,
         partition: Optional[int],
-        headers: Optional[Dict[str, str]],
+        headers: Optional[dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
@@ -68,11 +64,8 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
         self._producer = None
 
-    def __hash__(self) -> int:
-        return hash(self.topic)
-
     def add_prefix(self, prefix: str) -> None:
-        self.topic = "".join((prefix, self.topic))
+        self.topic = f"{prefix}{self.topic}"
 
     @override
     async def request(
@@ -83,7 +76,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         timeout: float = 0.5,
         # publisher specific
@@ -102,7 +95,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
             "correlation_id": correlation_id or gen_cor_id(),
         }
 
-        request: AsyncFunc = self._producer.request
+        request: Callable[..., Awaitable[Any]] = self._producer.request
 
         for pub_m in chain(
             (
@@ -115,18 +108,13 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
         published_msg = await request(message, **kwargs)
 
-        async with AsyncExitStack() as stack:
-            return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = return_input
-            for m in self._broker_middlewares:
-                mid = m(published_msg)
-                await stack.enter_async_context(mid)
-                return_msg = partial(mid.consume_scope, return_msg)
-
-            parsed_msg = await self._producer._parser(published_msg)
-            parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
-            return await return_msg(parsed_msg)
-
-        raise AssertionError("unreachable")
+        msg: KafkaMessage = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+        )
+        return msg
 
 
 class DefaultPublisher(LogicPublisher[Message]):
@@ -136,7 +124,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         key: Optional[bytes],
         topic: str,
         partition: Optional[int],
-        headers: Optional[Dict[str, str]],
+        headers: Optional[dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[Message]"],
@@ -173,13 +161,40 @@ class DefaultPublisher(LogicPublisher[Message]):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        reply_to: str = "",
+        no_confirm: bool = False,
+    ) -> None:
+        return await self._publish(
+            message,
+            topic=topic,
+            key=key,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            correlation_id=correlation_id,
+            reply_to=reply_to,
+            no_confirm=no_confirm,
+            _extra_middlewares=(),
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: "SendableMessage",
+        topic: str = "",
+        *,
+        key: Optional[bytes] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         reply_to: str = "",
         no_confirm: bool = False,
         # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-    ) -> Optional[Any]:
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         kwargs: AnyDict = {
@@ -194,7 +209,7 @@ class DefaultPublisher(LogicPublisher[Message]):
             "correlation_id": correlation_id or gen_cor_id(),
         }
 
-        call: AsyncFunc = self._producer.publish
+        call: Callable[..., Awaitable[None]] = self._producer.publish
 
         for m in chain(
             (
@@ -216,7 +231,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         timeout: float = 0.5,
         # publisher specific
@@ -235,7 +250,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         )
 
 
-class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
+class BatchPublisher(LogicPublisher[tuple[Message, ...]]):
     @override
     async def publish(
         self,
@@ -244,7 +259,33 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
         topic: str = "",
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        reply_to: str = "",
+        no_confirm: bool = False,
+    ) -> None:
+        return await self._publish(
+            message,
+            *extra_messages,
+            topic=topic,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            correlation_id=correlation_id,
+            reply_to=reply_to,
+            no_confirm=no_confirm,
+            _extra_middlewares=(),
+        )
+
+    @override
+    async def _publish(
+        self,
+        message: Union["SendableMessage", Iterable["SendableMessage"]],
+        *extra_messages: "SendableMessage",
+        topic: str = "",
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         reply_to: str = "",
         no_confirm: bool = False,

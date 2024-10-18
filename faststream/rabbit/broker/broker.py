@@ -1,25 +1,25 @@
 import logging
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Iterable,
     Optional,
-    Type,
     Union,
     cast,
 )
 from urllib.parse import urlparse
 
 import anyio
-from aio_pika import connect_robust
-from typing_extensions import Annotated, Doc, deprecated, override
+from aio_pika import IncomingMessage, RobustConnection, connect_robust
+from typing_extensions import Doc, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.message import gen_cor_id
+from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.rabbit.broker.logging import RabbitLoggingBroker
-from faststream.rabbit.broker.registrator import RabbitRegistrator
+from faststream.message import gen_cor_id
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from faststream.rabbit.schemas import (
@@ -28,18 +28,18 @@ from faststream.rabbit.schemas import (
     RabbitQueue,
 )
 from faststream.rabbit.security import parse_security
-from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.rabbit.utils import build_url
-from faststream.types import EMPTY
+
+from .logging import make_rabbit_logger_state
+from .registrator import RabbitRegistrator
 
 if TYPE_CHECKING:
     from ssl import SSLContext
     from types import TracebackType
 
+    import aiormq
     from aio_pika import (
-        IncomingMessage,
         RobustChannel,
-        RobustConnection,
         RobustExchange,
         RobustQueue,
     )
@@ -48,20 +48,20 @@ if TYPE_CHECKING:
     from pamqp.common import FieldTable
     from yarl import URL
 
-    from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
     )
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, Decorator, LoggerProto
+    from faststream.specification.schema.tag import Tag, TagDict
 
 
 class RabbitBroker(
     RabbitRegistrator,
-    RabbitLoggingBroker,
+    BrokerUsecase[IncomingMessage, RobustConnection],
 ):
     """A class to represent a RabbitMQ broker."""
 
@@ -106,7 +106,7 @@ class RabbitBroker(
         fail_fast: Annotated[
             bool,
             Doc(
-                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable."
+                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable.",
             ),
         ] = True,
         reconnect_interval: Annotated[
@@ -123,14 +123,14 @@ class RabbitBroker(
             Doc(
                 "if `True` the `publish` method will "
                 "return `bool` type after publish is complete."
-                "Otherwise it will returns `None`."
+                "Otherwise it will returns `None`.",
             ),
         ] = True,
         on_return_raises: Annotated[
             bool,
             Doc(
                 "raise an :class:`aio_pika.exceptions.DeliveryError`"
-                "when mandatory message will be returned"
+                "when mandatory message will be returned",
             ),
         ] = False,
         # broker args
@@ -138,7 +138,7 @@ class RabbitBroker(
             Optional[int],
             Doc(
                 "RabbitMQ channel `qos` option. "
-                "It limits max messages processing in the same time count."
+                "It limits max messages processing in the same time count.",
             ),
         ] = None,
         app_id: Annotated[
@@ -149,7 +149,7 @@ class RabbitBroker(
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ] = None,
         decoder: Annotated[
@@ -172,10 +172,10 @@ class RabbitBroker(
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Optional[str],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -192,7 +192,7 @@ class RabbitBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args
@@ -240,14 +240,14 @@ class RabbitBroker(
             ssl=security_args.get("ssl"),
         )
 
-        if asyncapi_url is None:
-            asyncapi_url = str(amqp_url)
+        if specification_url is None:
+            specification_url = str(amqp_url)
 
         # respect ascynapi_url argument scheme
-        builded_asyncapi_url = urlparse(asyncapi_url)
-        self.virtual_host = builded_asyncapi_url.path
+        builded_specification_url = urlparse(specification_url)
+        self.virtual_host = builded_specification_url.path
         if protocol is None:
-            protocol = builded_asyncapi_url.scheme
+            protocol = builded_specification_url.scheme
 
         super().__init__(
             url=str(amqp_url),
@@ -267,15 +267,17 @@ class RabbitBroker(
             middlewares=middlewares,
             # AsyncAPI args
             description=description,
-            asyncapi_url=asyncapi_url,
-            protocol=protocol or builded_asyncapi_url.scheme,
+            specification_url=specification_url,
+            protocol=protocol or builded_specification_url.scheme,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
             # Logging args
-            logger=logger,
-            log_level=log_level,
-            log_fmt=log_fmt,
+            logger_state=make_rabbit_logger_state(
+                logger=logger,
+                log_level=log_level,
+                log_fmt=log_fmt,
+            ),
             # FastDepends args
             apply_types=apply_types,
             validate=validate,
@@ -338,7 +340,7 @@ class RabbitBroker(
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
         timeout: Annotated[
@@ -348,7 +350,7 @@ class RabbitBroker(
         fail_fast: Annotated[
             bool,
             Doc(
-                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable."
+                "Broker startup raises `AMQPConnectionError` if RabbitMQ is unreachable.",
             ),
         ] = EMPTY,
         reconnect_interval: Annotated[
@@ -365,14 +367,14 @@ class RabbitBroker(
             Doc(
                 "if `True` the `publish` method will "
                 "return `bool` type after publish is complete."
-                "Otherwise it will returns `None`."
+                "Otherwise it will returns `None`.",
             ),
         ] = EMPTY,
         on_return_raises: Annotated[
             bool,
             Doc(
                 "raise an :class:`aio_pika.exceptions.DeliveryError`"
-                "when mandatory message will be returned"
+                "when mandatory message will be returned",
             ),
         ] = EMPTY,
     ) -> "RobustConnection":
@@ -403,7 +405,7 @@ class RabbitBroker(
         url = None if url is EMPTY else url
 
         if url or any(
-            (host, port, virtualhost, ssl_options, client_properties, security)
+            (host, port, virtualhost, ssl_options, client_properties, security),
         ):
             security_args = parse_security(security)
 
@@ -422,9 +424,7 @@ class RabbitBroker(
             if ssl_context := security_args.get("ssl_context"):
                 kwargs["ssl_context"] = ssl_context
 
-        connection = await super().connect(**kwargs)
-
-        return connection
+        return await super().connect(**kwargs)
 
     @override
     async def _connect(  # type: ignore[override]
@@ -452,7 +452,6 @@ class RabbitBroker(
         )
 
         if self._channel is None:  # pragma: no branch
-            max_consumers = self._max_consumers
             channel = self._channel = cast(
                 "RobustChannel",
                 await connection.channel(
@@ -471,53 +470,47 @@ class RabbitBroker(
                 parser=self._parser,
             )
 
-            if max_consumers:
-                c = AsyncAPISubscriber.build_log_context(
-                    None,
-                    RabbitQueue(""),
-                    RabbitExchange(""),
-                )
-                self._log(f"Set max consumers to {max_consumers}", extra=c)
-                await channel.set_qos(prefetch_count=int(max_consumers))
+            if self._max_consumers:
+                await channel.set_qos(prefetch_count=int(self._max_consumers))
 
         return connection
 
-    async def _close(
+    async def close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
+        await super().close(exc_type, exc_val, exc_tb)
+
         if self._channel is not None:
             if not self._channel.is_closed:
                 await self._channel.close()
 
             self._channel = None
 
+        if self._connection is not None:
+            await self._connection.close()
+            self._connection = None
+
         self.declarer = None
         self._producer = None
 
-        if self._connection is not None:
-            await self._connection.close()
-
-        await super()._close(exc_type, exc_val, exc_tb)
-
     async def start(self) -> None:
         """Connect broker to RabbitMQ and startup all subscribers."""
-        await super().start()
+        await self.connect()
+        self._setup()
+
+        if self._max_consumers:
+            self._state.logger_state.log(f"Set max consumers to {self._max_consumers}")
 
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
 
-        for publisher in self._publishers.values():
+        for publisher in self._publishers:
             if publisher.exchange is not None:
                 await self.declare_exchange(publisher.exchange)
 
-        for subscriber in self._subscribers.values():
-            self._log(
-                f"`{subscriber.call_name}` waiting for messages",
-                extra=subscriber.get_log_context(None),
-            )
-            await subscriber.start()
+        await super().start()
 
     @override
     async def publish(  # type: ignore[override]
@@ -539,21 +532,21 @@ class RabbitBroker(
             str,
             Doc(
                 "Message routing key to publish with. "
-                "Overrides `queue` option if presented."
+                "Overrides `queue` option if presented.",
             ),
         ] = "",
         mandatory: Annotated[
             bool,
             Doc(
                 "Client waits for confirmation that the message is placed to some queue. "
-                "RabbitMQ returns message to client if there is no suitable queue."
+                "RabbitMQ returns message to client if there is no suitable queue.",
             ),
         ] = True,
         immediate: Annotated[
             bool,
             Doc(
                 "Client expects that there is consumer ready to take the message to work. "
-                "RabbitMQ returns message to client if there is no suitable consumer."
+                "RabbitMQ returns message to client if there is no suitable consumer.",
             ),
         ] = False,
         timeout: Annotated[
@@ -567,45 +560,15 @@ class RabbitBroker(
         reply_to: Annotated[
             Optional[str],
             Doc(
-                "Reply message routing key to send with (always sending to default exchange)."
+                "Reply message routing key to send with (always sending to default exchange).",
             ),
         ] = None,
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
         # message args
         correlation_id: Annotated[
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         headers: Annotated[
@@ -617,7 +580,7 @@ class RabbitBroker(
             Doc(
                 "Message **content-type** header. "
                 "Used by application, not core RabbitMQ. "
-                "Will be set automatically if not specified."
+                "Will be set automatically if not specified.",
             ),
         ] = None,
         content_encoding: Annotated[
@@ -648,7 +611,7 @@ class RabbitBroker(
             Optional[int],
             Doc("The message priority (0 by default)."),
         ] = None,
-    ) -> Optional[Any]:
+    ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
@@ -680,9 +643,6 @@ class RabbitBroker(
             user_id=user_id,
             timeout=timeout,
             priority=priority,
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
         )
 
     @override
@@ -705,21 +665,21 @@ class RabbitBroker(
             str,
             Doc(
                 "Message routing key to publish with. "
-                "Overrides `queue` option if presented."
+                "Overrides `queue` option if presented.",
             ),
         ] = "",
         mandatory: Annotated[
             bool,
             Doc(
                 "Client waits for confirmation that the message is placed to some queue. "
-                "RabbitMQ returns message to client if there is no suitable queue."
+                "RabbitMQ returns message to client if there is no suitable queue.",
             ),
         ] = True,
         immediate: Annotated[
             bool,
             Doc(
                 "Client expects that there is consumer ready to take the message to work. "
-                "RabbitMQ returns message to client if there is no suitable consumer."
+                "RabbitMQ returns message to client if there is no suitable consumer.",
             ),
         ] = False,
         timeout: Annotated[
@@ -735,7 +695,7 @@ class RabbitBroker(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         headers: Annotated[
@@ -747,7 +707,7 @@ class RabbitBroker(
             Doc(
                 "Message **content-type** header. "
                 "Used by application, not core RabbitMQ. "
-                "Will be set automatically if not specified."
+                "Will be set automatically if not specified.",
             ),
         ] = None,
         content_encoding: Annotated[

@@ -1,14 +1,12 @@
 import logging
 import warnings
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Dict,
-    Iterable,
-    List,
     Optional,
-    Type,
     Union,
 )
 
@@ -24,20 +22,24 @@ from nats.aio.client import (
     DEFAULT_PENDING_SIZE,
     DEFAULT_PING_INTERVAL,
     DEFAULT_RECONNECT_TIME_WAIT,
+    Client,
 )
+from nats.aio.msg import Msg
 from nats.errors import Error
 from nats.js.errors import BadRequestError
-from typing_extensions import Annotated, Doc, deprecated, override
+from typing_extensions import Doc, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.message import gen_cor_id
-from faststream.nats.broker.logging import NatsLoggingBroker
-from faststream.nats.broker.registrator import NatsRegistrator
+from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.constants import EMPTY
+from faststream.message import gen_cor_id
 from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.security import parse_security
-from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
-from faststream.types import EMPTY
+from faststream.nats.subscriber.specified import SpecificationSubscriber
+
+from .logging import make_nats_logger_state
+from .registrator import NatsRegistrator
 
 if TYPE_CHECKING:
     import ssl
@@ -46,35 +48,32 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
     from nats.aio.client import (
         Callback,
-        Client,
         Credentials,
         ErrorCallback,
         JWTCallback,
         SignatureCallback,
     )
-    from nats.aio.msg import Msg
     from nats.js.api import Placement, RePublish, StorageType
     from nats.js.client import JetStreamContext
     from nats.js.kv import KeyValue
     from nats.js.object_store import ObjectStore
     from typing_extensions import TypedDict, Unpack
 
-    from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.publisher.proto import ProducerProto
-    from faststream.broker.types import (
-        BrokerMiddleware,
-        CustomCallable,
-    )
-    from faststream.nats.message import NatsMessage
-    from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
-    from faststream.security import BaseSecurity
-    from faststream.types import (
+    from faststream._internal.basic_types import (
         AnyDict,
-        DecodedMessage,
         Decorator,
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.publisher.proto import ProducerProto
+    from faststream._internal.types import (
+        BrokerMiddleware,
+        CustomCallable,
+    )
+    from faststream.nats.message import NatsMessage
+    from faststream.nats.publisher.specified import SpecificationPublisher
+    from faststream.security import BaseSecurity
+    from faststream.specification.schema.tag import Tag, TagDict
 
     class NatsInitKwargs(TypedDict, total=False):
         """NatsBroker.connect() method type hints."""
@@ -96,7 +95,8 @@ if TYPE_CHECKING:
             Doc("Callback to report when a new server joins the cluster."),
         ]
         reconnected_cb: Annotated[
-            Optional["Callback"], Doc("Callback to report success reconnection.")
+            Optional["Callback"],
+            Doc("Callback to report success reconnection."),
         ]
         name: Annotated[
             Optional[str],
@@ -106,7 +106,7 @@ if TYPE_CHECKING:
             bool,
             Doc(
                 "Turn on NATS server pedantic mode that performs extra checks on the protocol. "
-                "https://docs.nats.io/using-nats/developer/connecting/misc#turn-on-pedantic-mode"
+                "https://docs.nats.io/using-nats/developer/connecting/misc#turn-on-pedantic-mode",
             ),
         ]
         verbose: Annotated[
@@ -140,11 +140,12 @@ if TYPE_CHECKING:
         dont_randomize: Annotated[
             bool,
             Doc(
-                "Boolean indicating should client randomly shuffle servers list for reconnection randomness."
+                "Boolean indicating should client randomly shuffle servers list for reconnection randomness.",
             ),
         ]
         flusher_queue_size: Annotated[
-            int, Doc("Max count of commands awaiting to be flushed to the socket")
+            int,
+            Doc("Max count of commands awaiting to be flushed to the socket"),
         ]
         no_echo: Annotated[
             bool,
@@ -179,14 +180,14 @@ if TYPE_CHECKING:
             Doc(
                 "A callback used to sign a nonce from the server while "
                 "authenticating with nkeys. The user should sign the nonce and "
-                "return the base64 encoded signature."
+                "return the base64 encoded signature.",
             ),
         ]
         user_jwt_cb: Annotated[
             Optional["JWTCallback"],
             Doc(
                 "A callback used to fetch and return the account "
-                "signed JWT for this user."
+                "signed JWT for this user.",
             ),
         ]
         user_credentials: Annotated[
@@ -200,7 +201,7 @@ if TYPE_CHECKING:
         inbox_prefix: Annotated[
             Union[str, bytes],
             Doc(
-                "Prefix for generating unique inboxes, subjects with that prefix and NUID.ß"
+                "Prefix for generating unique inboxes, subjects with that prefix and NUID.ß",
             ),
         ]
         pending_size: Annotated[
@@ -215,11 +216,11 @@ if TYPE_CHECKING:
 
 class NatsBroker(
     NatsRegistrator,
-    NatsLoggingBroker,
+    BrokerUsecase[Msg, Client],
 ):
     """A class to represent a NATS broker."""
 
-    url: List[str]
+    url: list[str]
     stream: Optional["JetStreamContext"]
 
     _producer: Optional["NatsFastProducer"]
@@ -251,7 +252,8 @@ class NatsBroker(
             Doc("Callback to report when a new server joins the cluster."),
         ] = None,
         reconnected_cb: Annotated[
-            Optional["Callback"], Doc("Callback to report success reconnection.")
+            Optional["Callback"],
+            Doc("Callback to report success reconnection."),
         ] = None,
         name: Annotated[
             Optional[str],
@@ -261,7 +263,7 @@ class NatsBroker(
             bool,
             Doc(
                 "Turn on NATS server pedantic mode that performs extra checks on the protocol. "
-                "https://docs.nats.io/using-nats/developer/connecting/misc#turn-on-pedantic-mode"
+                "https://docs.nats.io/using-nats/developer/connecting/misc#turn-on-pedantic-mode",
             ),
         ] = False,
         verbose: Annotated[
@@ -295,11 +297,12 @@ class NatsBroker(
         dont_randomize: Annotated[
             bool,
             Doc(
-                "Boolean indicating should client randomly shuffle servers list for reconnection randomness."
+                "Boolean indicating should client randomly shuffle servers list for reconnection randomness.",
             ),
         ] = False,
         flusher_queue_size: Annotated[
-            int, Doc("Max count of commands awaiting to be flushed to the socket")
+            int,
+            Doc("Max count of commands awaiting to be flushed to the socket"),
         ] = DEFAULT_MAX_FLUSHER_QUEUE_SIZE,
         no_echo: Annotated[
             bool,
@@ -334,14 +337,14 @@ class NatsBroker(
             Doc(
                 "A callback used to sign a nonce from the server while "
                 "authenticating with nkeys. The user should sign the nonce and "
-                "return the base64 encoded signature."
+                "return the base64 encoded signature.",
             ),
         ] = None,
         user_jwt_cb: Annotated[
             Optional["JWTCallback"],
             Doc(
                 "A callback used to fetch and return the account "
-                "signed JWT for this user."
+                "signed JWT for this user.",
             ),
         ] = None,
         user_credentials: Annotated[
@@ -355,7 +358,7 @@ class NatsBroker(
         inbox_prefix: Annotated[
             Union[str, bytes],
             Doc(
-                "Prefix for generating unique inboxes, subjects with that prefix and NUID.ß"
+                "Prefix for generating unique inboxes, subjects with that prefix and NUID.ß",
             ),
         ] = DEFAULT_INBOX_PREFIX,
         pending_size: Annotated[
@@ -370,7 +373,7 @@ class NatsBroker(
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ] = None,
         decoder: Annotated[
@@ -393,10 +396,10 @@ class NatsBroker(
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Union[str, Iterable[str], None],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -413,7 +416,7 @@ class NatsBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args
@@ -477,13 +480,13 @@ class NatsBroker(
 
         servers = [servers] if isinstance(servers, str) else list(servers)
 
-        if asyncapi_url is not None:
-            if isinstance(asyncapi_url, str):
-                asyncapi_url = [asyncapi_url]
+        if specification_url is not None:
+            if isinstance(specification_url, str):
+                specification_url = [specification_url]
             else:
-                asyncapi_url = list(asyncapi_url)
+                specification_url = list(specification_url)
         else:
-            asyncapi_url = servers
+            specification_url = servers
 
         super().__init__(
             # NATS options
@@ -527,15 +530,17 @@ class NatsBroker(
             middlewares=middlewares,
             # AsyncAPI
             description=description,
-            asyncapi_url=asyncapi_url,
+            specification_url=specification_url,
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
             # logging
-            logger=logger,
-            log_level=log_level,
-            log_fmt=log_fmt,
+            logger_state=make_nats_logger_state(
+                logger=logger,
+                log_level=log_level,
+                log_fmt=log_fmt,
+            ),
             # FastDepends args
             apply_types=apply_types,
             validate=validate,
@@ -598,29 +603,29 @@ class NatsBroker(
 
         return connection
 
-    async def _close(
+    async def close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
-        self._producer = None
-        self._js_producer = None
-        self.stream = None
+        await super().close(exc_type, exc_val, exc_tb)
 
         if self._connection is not None:
             await self._connection.drain()
+            self._connection = None
 
-        await super()._close(exc_type, exc_val, exc_tb)
+        self.stream = None
+        self._producer = None
+        self._js_producer = None
         self.__is_connected = False
 
     async def start(self) -> None:
         """Connect broker to NATS cluster and startup all subscribers."""
-        await super().start()
+        await self.connect()
+        self._setup()
 
-        assert self._connection  # nosec B101
         assert self.stream, "Broker should be started already"  # nosec B101
-        assert self._producer, "Broker should be started already"  # nosec B101
 
         for stream in filter(
             lambda x: x.declare,
@@ -633,7 +638,7 @@ class NatsBroker(
                 )
 
             except BadRequestError as e:  # noqa: PERF203
-                log_context = AsyncAPISubscriber.build_log_context(
+                log_context = SpecificationSubscriber.build_log_context(
                     message=None,
                     subject="",
                     queue="",
@@ -646,28 +651,27 @@ class NatsBroker(
                 ):
                     old_config = (await self.stream.stream_info(stream.name)).config
 
-                    self._log(str(e), logging.WARNING, log_context)
+                    self._state.logger_state.log(str(e), logging.WARNING, log_context)
                     await self.stream.update_stream(
                         config=stream.config,
                         subjects=tuple(
-                            set(old_config.subjects or ()).union(stream.subjects)
+                            set(old_config.subjects or ()).union(stream.subjects),
                         ),
                     )
 
                 else:  # pragma: no cover
-                    self._log(str(e), logging.ERROR, log_context, exc_info=e)
+                    self._state.logger_state.log(
+                        str(e),
+                        logging.ERROR,
+                        log_context,
+                        exc_info=e,
+                    )
 
             finally:
                 # prevent from double declaration
                 stream.declare = False
 
-        # TODO: filter by already running handlers after TestClient refactor
-        for handler in self._subscribers.values():
-            self._log(
-                f"`{handler.call_name}` waiting for messages",
-                extra=handler.get_log_context(None),
-            )
-            await handler.start()
+        await super().start()
 
     @override
     async def publish(  # type: ignore[override]
@@ -676,7 +680,7 @@ class NatsBroker(
             "SendableMessage",
             Doc(
                 "Message body to send. "
-                "Can be any encodable object (native python types or `pydantic.BaseModel`)."
+                "Can be any encodable object (native python types or `pydantic.BaseModel`).",
             ),
         ],
         subject: Annotated[
@@ -684,10 +688,10 @@ class NatsBroker(
             Doc("NATS subject to send message."),
         ],
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be set automatically by framework anyway."
+                "**content-type** and **correlation_id** will be set automatically by framework anyway.",
             ),
         ] = None,
         reply_to: Annotated[
@@ -698,52 +702,21 @@ class NatsBroker(
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         stream: Annotated[
             Optional[str],
             Doc(
                 "This option validates that the target subject is in presented stream. "
-                "Can be omitted without any effect."
+                "Can be omitted without any effect.",
             ),
         ] = None,
         timeout: Annotated[
             Optional[float],
             Doc("Timeout to send message to NATS."),
         ] = None,
-        *,
-        rpc: Annotated[
-            bool,
-            Doc("Whether to wait for reply in blocking mode."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-        rpc_timeout: Annotated[
-            Optional[float],
-            Doc("RPC reply waiting time."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "Please, use `request` method with `timeout` instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = 30.0,
-        raise_timeout: Annotated[
-            bool,
-            Doc(
-                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
-                "RPC request returns `None` at timeout by default."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.17**. "
-                "`request` always raises TimeoutError instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = False,
-    ) -> Optional["DecodedMessage"]:
+    ) -> None:
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
@@ -751,13 +724,10 @@ class NatsBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        publish_kwargs = {
+        publish_kwargs: AnyDict = {
             "subject": subject,
             "headers": headers,
             "reply_to": reply_to,
-            "rpc": rpc,
-            "rpc_timeout": rpc_timeout,
-            "raise_timeout": raise_timeout,
         }
 
         producer: Optional[ProducerProto]
@@ -769,10 +739,10 @@ class NatsBroker(
                 {
                     "stream": stream,
                     "timeout": timeout,
-                }
+                },
             )
 
-        return await super().publish(
+        await super().publish(
             message,
             producer=producer,
             correlation_id=correlation_id or gen_cor_id(),
@@ -786,7 +756,7 @@ class NatsBroker(
             "SendableMessage",
             Doc(
                 "Message body to send. "
-                "Can be any encodable object (native python types or `pydantic.BaseModel`)."
+                "Can be any encodable object (native python types or `pydantic.BaseModel`).",
             ),
         ],
         subject: Annotated[
@@ -794,24 +764,24 @@ class NatsBroker(
             Doc("NATS subject to send message."),
         ],
         headers: Annotated[
-            Optional[Dict[str, str]],
+            Optional[dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be set automatically by framework anyway."
+                "**content-type** and **correlation_id** will be set automatically by framework anyway.",
             ),
         ] = None,
         correlation_id: Annotated[
             Optional[str],
             Doc(
                 "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
+                "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
         stream: Annotated[
             Optional[str],
             Doc(
                 "This option validates that the target subject is in presented stream. "
-                "Can be omitted without any effect."
+                "Can be omitted without any effect.",
             ),
         ] = None,
         timeout: Annotated[
@@ -844,7 +814,7 @@ class NatsBroker(
     @override
     def setup_subscriber(  # type: ignore[override]
         self,
-        subscriber: "AsyncAPISubscriber",
+        subscriber: "SpecificationSubscriber",
     ) -> None:
         connection: Union[
             Client,
@@ -874,7 +844,7 @@ class NatsBroker(
     @override
     def setup_publisher(  # type: ignore[override]
         self,
-        publisher: "AsyncAPIPublisher",
+        publisher: "SpecificationPublisher",
     ) -> None:
         producer: Optional[ProducerProto] = None
 
@@ -951,15 +921,18 @@ class NatsBroker(
         self,
         error_cb: Optional["ErrorCallback"] = None,
     ) -> "ErrorCallback":
-        c = AsyncAPISubscriber.build_log_context(None, "")
+        c = SpecificationSubscriber.build_log_context(None, "")
 
         async def wrapper(err: Exception) -> None:
             if error_cb is not None:
                 await error_cb(err)
 
             if isinstance(err, Error) and self.__is_connected:
-                self._log(
-                    f"Connection broken with {err!r}", logging.WARNING, c, exc_info=err
+                self._state.logger_state.log(
+                    f"Connection broken with {err!r}",
+                    logging.WARNING,
+                    c,
+                    exc_info=err,
                 )
                 self.__is_connected = False
 
@@ -969,14 +942,14 @@ class NatsBroker(
         self,
         cb: Optional["Callback"] = None,
     ) -> "Callback":
-        c = AsyncAPISubscriber.build_log_context(None, "")
+        c = SpecificationSubscriber.build_log_context(None, "")
 
         async def wrapper() -> None:
             if cb is not None:
                 await cb()
 
             if not self.__is_connected:
-                self._log("Connection established", logging.INFO, c)
+                self._state.logger_state.log("Connection established", logging.INFO, c)
                 self.__is_connected = True
 
         return wrapper

@@ -1,27 +1,25 @@
 import asyncio
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import anyio
 import nats
 from typing_extensions import override
 
-from faststream.broker.message import encode_message
-from faststream.broker.publisher.proto import ProducerProto
-from faststream.broker.utils import resolve_custom_func
-from faststream.exceptions import WRONG_PUBLISH_ARGS
+from faststream._internal.publisher.proto import ProducerProto
+from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream.message import encode_message
 from faststream.nats.parser import NatsParser
-from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
     from nats.aio.client import Client
     from nats.aio.msg import Msg
     from nats.js import JetStreamContext
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.types import (
         AsyncCallable,
         CustomCallable,
     )
-    from faststream.types import SendableMessage
 
 
 class NatsFastProducer(ProducerProto):
@@ -50,13 +48,10 @@ class NatsFastProducer(ProducerProto):
         subject: str,
         *,
         correlation_id: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
         **kwargs: Any,  # suprress stream option
-    ) -> Optional[Any]:
+    ) -> None:
         payload, content_type = encode_message(message)
 
         headers_to_send = {
@@ -65,40 +60,12 @@ class NatsFastProducer(ProducerProto):
             **(headers or {}),
         }
 
-        client = self._connection
-
-        if rpc:
-            if reply_to:
-                raise WRONG_PUBLISH_ARGS
-
-            reply_to = client.new_inbox()
-
-            future: asyncio.Future[Msg] = asyncio.Future()
-            sub = await client.subscribe(reply_to, future=future, max_msgs=1)
-            await sub.unsubscribe(limit=1)
-
-        await client.publish(
+        await self._connection.publish(
             subject=subject,
             payload=payload,
             reply=reply_to,
             headers=headers_to_send,
         )
-
-        if rpc:
-            msg: Any = None
-            with timeout_scope(rpc_timeout, raise_timeout):
-                msg = await future
-
-            if msg:  # pragma: no branch
-                if msg.headers:  # pragma: no cover # noqa: SIM102
-                    if (
-                        msg.headers.get(nats.js.api.Header.STATUS)
-                        == nats.aio.client.NO_RESPONDERS_STATUS
-                    ):
-                        raise nats.errors.NoRespondersError
-                return await self._decoder(await self._parser(msg))
-
-        return None
 
     @override
     async def request(  # type: ignore[override]
@@ -107,7 +74,7 @@ class NatsFastProducer(ProducerProto):
         subject: str,
         *,
         correlation_id: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         timeout: float = 0.5,
     ) -> "Msg":
         payload, content_type = encode_message(message)
@@ -152,13 +119,10 @@ class NatsJSFastProducer(ProducerProto):
         subject: str,
         *,
         correlation_id: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
     ) -> Optional[Any]:
         payload, content_type = encode_message(message)
 
@@ -167,16 +131,6 @@ class NatsJSFastProducer(ProducerProto):
             "correlation_id": correlation_id,
             **(headers or {}),
         }
-
-        if rpc:
-            if reply_to:
-                raise WRONG_PUBLISH_ARGS
-            reply_to = self._connection._nc.new_inbox()
-            future: asyncio.Future[Msg] = asyncio.Future()
-            sub = await self._connection._nc.subscribe(
-                reply_to, future=future, max_msgs=1
-            )
-            await sub.unsubscribe(limit=1)
 
         if reply_to:
             headers_to_send.update({"reply_to": reply_to})
@@ -189,20 +143,6 @@ class NatsJSFastProducer(ProducerProto):
             timeout=timeout,
         )
 
-        if rpc:
-            msg: Any = None
-            with timeout_scope(rpc_timeout, raise_timeout):
-                msg = await future
-
-            if msg:  # pragma: no branch
-                if msg.headers:  # pragma: no cover # noqa: SIM102
-                    if (
-                        msg.headers.get(nats.js.api.Header.STATUS)
-                        == nats.aio.client.NO_RESPONDERS_STATUS
-                    ):
-                        raise nats.errors.NoRespondersError
-                return await self._decoder(await self._parser(msg))
-
         return None
 
     @override
@@ -212,7 +152,7 @@ class NatsJSFastProducer(ProducerProto):
         subject: str,
         *,
         correlation_id: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         stream: Optional[str] = None,
         timeout: float = 0.5,
     ) -> "Msg":
