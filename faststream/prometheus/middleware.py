@@ -1,5 +1,5 @@
 import time
-from typing import TYPE_CHECKING, Any, Callable, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional, Sequence
 
 from faststream import BaseMiddleware
 from faststream.prometheus.consts import (
@@ -178,7 +178,7 @@ class BasePrometheusMiddleware:
         registry: "CollectorRegistry",
         app_name: str = "faststream",
         metrics_prefix: str = EMPTY,
-        received_messages_size_buckets: Optional[List[float]] = None,
+        received_messages_size_buckets: Optional[Sequence[float]] = None,
     ):
         if metrics_prefix is EMPTY:
             metrics_prefix = app_name

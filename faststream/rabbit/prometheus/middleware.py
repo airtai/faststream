@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional, Sequence
 
 from faststream.prometheus.middleware import BasePrometheusMiddleware
 from faststream.rabbit.prometheus.provider import RabbitMetricsSettingsProvider
@@ -14,7 +14,7 @@ class RabbitPrometheusMiddleware(BasePrometheusMiddleware):
         registry: "CollectorRegistry",
         app_name: str = "faststream",
         metrics_prefix: str = "faststream",
-        received_messages_size_buckets: Optional[List[float]] = None,
+        received_messages_size_buckets: Optional[Sequence[float]] = None,
     ) -> None:
         super().__init__(
             settings_provider_factory=lambda _: RabbitMetricsSettingsProvider(),

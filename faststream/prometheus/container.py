@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional, Sequence
 
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram
 
@@ -38,7 +38,7 @@ class MetricsContainer:
         registry: "CollectorRegistry",
         *,
         metrics_prefix: str = "faststream",
-        received_messages_size_buckets: Optional[List[float]] = None,
+        received_messages_size_buckets: Optional[Sequence[float]] = None,
     ):
         self._registry = registry
         self._metrics_prefix = metrics_prefix
