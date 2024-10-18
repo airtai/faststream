@@ -22,7 +22,7 @@ from faststream.nats.schemas.js_stream import is_subject_match_wildcard
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
-    from faststream.nats.publisher.publisher import SpecificationPublisher
+    from faststream.nats.publisher.specified import SpecificationPublisher
     from faststream.nats.subscriber.usecase import LogicSubscriber
 
 __all__ = ("TestNatsBroker",)

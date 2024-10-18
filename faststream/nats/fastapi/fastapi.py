@@ -33,8 +33,7 @@ from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
 from faststream._internal.fastapi.router import StreamRouter
 from faststream.nats.broker import NatsBroker
-from faststream.nats.publisher.publisher import SpecificationPublisher
-from faststream.nats.subscriber.subscriber import SpecificationSubscriber
+from faststream.nats.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
     import ssl
@@ -61,6 +60,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.nats.message import NatsMessage
+    from faststream.nats.publisher.specified import SpecificationPublisher
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
@@ -945,7 +945,7 @@ class NatsRouter(StreamRouter["Msg"]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> SpecificationPublisher:
+    ) -> "SpecificationPublisher":
         return self.broker.publisher(
             subject,
             headers=headers,

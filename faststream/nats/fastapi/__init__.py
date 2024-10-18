@@ -5,9 +5,10 @@ from nats.js.client import JetStreamContext
 
 from faststream._internal.fastapi.context import Context, ContextRepo, Logger
 from faststream.nats.broker import NatsBroker as NB
-from faststream.nats.fastapi.fastapi import NatsRouter
 from faststream.nats.message import NatsMessage as NM
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
+
+from .fastapi import NatsRouter
 
 NatsMessage = Annotated[NM, Context("message")]
 NatsBroker = Annotated[NB, Context("broker")]

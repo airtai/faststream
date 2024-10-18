@@ -21,12 +21,11 @@ from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
 from faststream._internal.fastapi.router import StreamRouter
 from faststream.rabbit.broker.broker import RabbitBroker as RB
-from faststream.rabbit.publisher.publisher import SpecificationPublisher
 from faststream.rabbit.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
+from faststream.rabbit.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -48,6 +47,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
+    from faststream.rabbit.publisher.specified import SpecificationPublisher
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
 
@@ -800,7 +800,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional[str],
             Doc("Publisher connection User ID, validated if set."),
         ] = None,
-    ) -> SpecificationPublisher:
+    ) -> "SpecificationPublisher":
         return self.broker.publisher(
             queue=queue,
             exchange=exchange,

@@ -32,9 +32,7 @@ if TYPE_CHECKING:
     )
 
 
-class PublisherUsecase(
-    PublisherProto[MsgType],
-):
+class PublisherUsecase(PublisherProto[MsgType]):
     """A base class for publishers in an asynchronous API."""
 
     mock: Optional[MagicMock]

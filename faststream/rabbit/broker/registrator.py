@@ -4,14 +4,15 @@ from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
-from faststream.rabbit.publisher.publisher import SpecificationPublisher
+from faststream.rabbit.publisher.factory import create_publisher
+from faststream.rabbit.publisher.specified import SpecificationPublisher
 from faststream.rabbit.publisher.usecase import PublishKwargs
 from faststream.rabbit.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
 from faststream.rabbit.subscriber.factory import create_subscriber
-from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
+from faststream.rabbit.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage  # noqa: F401
@@ -240,7 +241,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Optional[str],
             Doc("Publisher connection User ID, validated if set."),
         ] = None,
-    ) -> SpecificationPublisher:
+    ) -> "SpecificationPublisher":
         """Creates long-living and AsyncAPI-documented publisher object.
 
         You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
@@ -266,7 +267,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         return cast(
             SpecificationPublisher,
             super().publisher(
-                SpecificationPublisher.create(
+                create_publisher(
                     routing_key=routing_key,
                     queue=RabbitQueue.validate(queue),
                     exchange=RabbitExchange.validate(exchange),

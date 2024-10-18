@@ -12,7 +12,7 @@ from nats.js.client import (
 )
 
 from faststream.exceptions import SetupError
-from faststream.nats.subscriber.subscriber import (
+from faststream.nats.subscriber.specified import (
     SpecificationBatchPullStreamSubscriber,
     SpecificationConcurrentCoreSubscriber,
     SpecificationConcurrentPullStreamSubscriber,

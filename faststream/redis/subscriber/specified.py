@@ -1,5 +1,5 @@
 from faststream.redis.schemas import ListSub, StreamSub
-from faststream.redis.schemas.proto import RedisAsyncAPIProtocol
+from faststream.redis.schemas.proto import RedisSpecificationProtocol
 from faststream.redis.subscriber.usecase import (
     BatchListSubscriber,
     BatchStreamSubscriber,
@@ -15,7 +15,7 @@ from faststream.specification.schema.message import CorrelationId, Message
 from faststream.specification.schema.operation import Operation
 
 
-class SpecificationSubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
+class SpecificationSubscriber(LogicSubscriber, RedisSpecificationProtocol):
     """A class to represent a Redis handler."""
 
     def get_schema(self) -> dict[str, Channel]:

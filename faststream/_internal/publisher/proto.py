@@ -87,12 +87,6 @@ class PublisherProto(
     @abstractmethod
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None: ...
 
-    @staticmethod
-    @abstractmethod
-    def create() -> "PublisherProto[MsgType]":
-        """Abstract factory to create a real Publisher."""
-        ...
-
     @override
     @abstractmethod
     def _setup(  # type: ignore[override]

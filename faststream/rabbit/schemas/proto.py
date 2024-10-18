@@ -5,7 +5,7 @@ from faststream.rabbit.schemas.queue import RabbitQueue
 
 
 class BaseRMQInformation(Protocol):
-    """Base class to store AsyncAPI RMQ bindings."""
+    """Base class to store Specification RMQ bindings."""
 
     virtual_host: str
     queue: RabbitQueue

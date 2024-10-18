@@ -8,7 +8,7 @@ from typing import (
 )
 
 from faststream.exceptions import SetupError
-from faststream.kafka.subscriber.subscriber import (
+from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationDefaultSubscriber,
 )

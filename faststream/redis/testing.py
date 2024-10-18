@@ -38,7 +38,7 @@ from faststream.redis.subscriber.usecase import (
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, SendableMessage
-    from faststream.redis.publisher.publisher import SpecificationPublisher
+    from faststream.redis.publisher.specified import SpecificationPublisher
 
 __all__ = ("TestRedisBroker",)
 

@@ -6,10 +6,11 @@ from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream.nats.helpers import StreamBuilder
-from faststream.nats.publisher.publisher import SpecificationPublisher
+from faststream.nats.publisher.factory import create_publisher
+from faststream.nats.publisher.specified import SpecificationPublisher
 from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
 from faststream.nats.subscriber.factory import create_subscriber
-from faststream.nats.subscriber.subscriber import SpecificationSubscriber
+from faststream.nats.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -314,7 +315,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         publisher = cast(
             SpecificationPublisher,
             super().publisher(
-                publisher=SpecificationPublisher.create(
+                publisher=create_publisher(
                     subject=subject,
                     headers=headers,
                     # Core

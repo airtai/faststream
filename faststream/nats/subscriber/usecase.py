@@ -34,7 +34,7 @@ from faststream.nats.parser import (
     ObjParser,
 )
 from faststream.nats.schemas.js_stream import compile_nats_wildcard
-from faststream.nats.subscriber.subscription import (
+from faststream.nats.subscriber.adapters import (
     UnsubscribeAdapter,
     Unsubscriptable,
 )

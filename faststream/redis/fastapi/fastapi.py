@@ -27,9 +27,8 @@ from faststream._internal.constants import EMPTY
 from faststream._internal.fastapi.router import StreamRouter
 from faststream.redis.broker.broker import RedisBroker as RB
 from faststream.redis.message import UnifyRedisDict
-from faststream.redis.publisher.publisher import SpecificationPublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.redis.subscriber.subscriber import SpecificationSubscriber
+from faststream.redis.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -48,6 +47,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.redis.message import UnifyRedisMessage
+    from faststream.redis.publisher.specified import SpecificationPublisher
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
 
@@ -692,7 +692,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> SpecificationPublisher:
+    ) -> "SpecificationPublisher":
         return self.broker.publisher(
             channel,
             list=list,

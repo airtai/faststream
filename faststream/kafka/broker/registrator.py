@@ -16,7 +16,7 @@ from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssigno
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
-from faststream.kafka.publisher.publisher import SpecificationPublisher
+from faststream.kafka.publisher.factory import create_publisher
 from faststream.kafka.subscriber.factory import create_subscriber
 
 if TYPE_CHECKING:
@@ -31,11 +31,11 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.kafka.message import KafkaMessage
-    from faststream.kafka.publisher.publisher import (
+    from faststream.kafka.publisher.specified import (
         SpecificationBatchPublisher,
         SpecificationDefaultPublisher,
     )
-    from faststream.kafka.subscriber.subscriber import (
+    from faststream.kafka.subscriber.specified import (
         SpecificationBatchSubscriber,
         SpecificationDefaultSubscriber,
     )
@@ -1911,7 +1911,7 @@ class KafkaRegistrator(
 
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
-        publisher = SpecificationPublisher.create(
+        publisher = create_publisher(
             # batch flag
             batch=batch,
             # default args

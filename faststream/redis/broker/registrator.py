@@ -5,9 +5,10 @@ from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream.redis.message import UnifyRedisDict
-from faststream.redis.publisher.publisher import SpecificationPublisher
+from faststream.redis.publisher.factory import create_publisher
+from faststream.redis.publisher.specified import SpecificationPublisher
 from faststream.redis.subscriber.factory import SubsciberType, create_subscriber
-from faststream.redis.subscriber.subscriber import SpecificationSubscriber
+from faststream.redis.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.redis.message import UnifyRedisMessage
-    from faststream.redis.publisher.publisher import PublisherType
+    from faststream.redis.publisher.specified import PublisherType
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 
@@ -174,7 +175,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> SpecificationPublisher:
+    ) -> "SpecificationPublisher":
         """Creates long-living and AsyncAPI-documented publisher object.
 
         You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
@@ -185,7 +186,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         return cast(
             SpecificationPublisher,
             super().publisher(
-                SpecificationPublisher.create(
+                create_publisher(
                     channel=channel,
                     list=list,
                     stream=stream,

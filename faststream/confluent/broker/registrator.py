@@ -13,7 +13,7 @@ from typing import (
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
-from faststream.confluent.publisher.publisher import SpecificationPublisher
+from faststream.confluent.publisher.factory import create_publisher
 from faststream.confluent.subscriber.factory import create_subscriber
 from faststream.exceptions import SetupError
 
@@ -27,12 +27,12 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.confluent.message import KafkaMessage
-    from faststream.confluent.publisher.publisher import (
+    from faststream.confluent.publisher.specified import (
         SpecificationBatchPublisher,
         SpecificationDefaultPublisher,
     )
     from faststream.confluent.schemas import TopicPartition
-    from faststream.confluent.subscriber.subscriber import (
+    from faststream.confluent.subscriber.specified import (
         SpecificationBatchSubscriber,
         SpecificationDefaultSubscriber,
     )
@@ -1508,7 +1508,7 @@ class KafkaRegistrator(
 
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
-        publisher = SpecificationPublisher.create(
+        publisher = create_publisher(
             # batch flag
             batch=batch,
             # default args
@@ -1530,4 +1530,5 @@ class KafkaRegistrator(
 
         if batch:
             return cast("SpecificationBatchPublisher", super().publisher(publisher))
+
         return cast("SpecificationDefaultPublisher", super().publisher(publisher))

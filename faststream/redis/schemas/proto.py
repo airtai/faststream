@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from faststream.specification.schema.bindings import redis
 
 
-class RedisAsyncAPIProtocol(EndpointProto):
+class RedisSpecificationProtocol(EndpointProto):
     @property
     @abstractmethod
     def channel_binding(self) -> "redis.ChannelBinding": ...

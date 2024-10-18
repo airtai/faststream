@@ -1,9 +1,3 @@
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Optional
-
-from typing_extensions import override
-
-from faststream.rabbit.publisher.usecase import LogicPublisher, PublishKwargs
 from faststream.rabbit.utils import is_routing_exchange
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema.bindings import (
@@ -15,11 +9,7 @@ from faststream.specification.schema.channel import Channel
 from faststream.specification.schema.message import CorrelationId, Message
 from faststream.specification.schema.operation import Operation
 
-if TYPE_CHECKING:
-    from aio_pika import IncomingMessage
-
-    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
-    from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
+from .usecase import LogicPublisher
 
 
 class SpecificationPublisher(LogicPublisher):
@@ -104,36 +94,3 @@ class SpecificationPublisher(LogicPublisher):
                 ),
             ),
         }
-
-    @override
-    @classmethod
-    def create(  # type: ignore[override]
-        cls,
-        *,
-        routing_key: str,
-        queue: "RabbitQueue",
-        exchange: "RabbitExchange",
-        message_kwargs: "PublishKwargs",
-        # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
-        middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
-    ) -> "SpecificationPublisher":
-        return cls(
-            routing_key=routing_key,
-            queue=queue,
-            exchange=exchange,
-            message_kwargs=message_kwargs,
-            # Publisher args
-            broker_middlewares=broker_middlewares,
-            middlewares=middlewares,
-            # AsyncAPI args
-            schema_=schema_,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )

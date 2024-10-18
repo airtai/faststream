@@ -48,11 +48,11 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.kafka.message import KafkaMessage
-    from faststream.kafka.publisher.publisher import (
+    from faststream.kafka.publisher.specified import (
         SpecificationBatchPublisher,
         SpecificationDefaultPublisher,
     )
-    from faststream.kafka.subscriber.subscriber import (
+    from faststream.kafka.subscriber.specified import (
         SpecificationBatchSubscriber,
         SpecificationDefaultSubscriber,
     )

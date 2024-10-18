@@ -21,13 +21,13 @@ from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
-from faststream.kafka.publisher.publisher import SpecificationBatchPublisher
-from faststream.kafka.subscriber.subscriber import SpecificationBatchSubscriber
+from faststream.kafka.publisher.specified import SpecificationBatchPublisher
+from faststream.kafka.subscriber.usecase import BatchSubscriber
 from faststream.message import encode_message, gen_cor_id
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
-    from faststream.kafka.publisher.publisher import SpecificationPublisher
+    from faststream.kafka.publisher.specified import SpecificationPublisher
     from faststream.kafka.subscriber.usecase import LogicSubscriber
 
 __all__ = ("TestKafkaBroker",)
@@ -128,9 +128,7 @@ class FakeProducer(AioKafkaFastProducer):
             partition,
         ):
             msg_to_send = (
-                [incoming]
-                if isinstance(handler, SpecificationBatchSubscriber)
-                else incoming
+                [incoming] if isinstance(handler, BatchSubscriber) else incoming
             )
 
             await self._execute_handler(msg_to_send, topic, handler)
@@ -164,9 +162,7 @@ class FakeProducer(AioKafkaFastProducer):
             partition,
         ):
             msg_to_send = (
-                [incoming]
-                if isinstance(handler, SpecificationBatchSubscriber)
-                else incoming
+                [incoming] if isinstance(handler, BatchSubscriber) else incoming
             )
 
             with anyio.fail_after(timeout):
@@ -204,7 +200,7 @@ class FakeProducer(AioKafkaFastProducer):
                 for message in msgs
             )
 
-            if isinstance(handler, SpecificationBatchSubscriber):
+            if isinstance(handler, BatchSubscriber):
                 await self._execute_handler(list(messages), topic, handler)
 
             else:

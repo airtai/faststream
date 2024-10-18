@@ -36,7 +36,7 @@ from faststream.message import gen_cor_id
 from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.security import parse_security
-from faststream.nats.subscriber.subscriber import SpecificationSubscriber
+from faststream.nats.subscriber.specified import SpecificationSubscriber
 
 from .logging import make_nats_logger_state
 from .registrator import NatsRegistrator
@@ -71,7 +71,7 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.nats.message import NatsMessage
-    from faststream.nats.publisher.publisher import SpecificationPublisher
+    from faststream.nats.publisher.specified import SpecificationPublisher
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
 

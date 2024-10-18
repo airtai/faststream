@@ -18,7 +18,6 @@ from faststream.message import gen_cor_id
 from faststream.rabbit.broker.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
-from faststream.rabbit.publisher.publisher import SpecificationPublisher
 from faststream.rabbit.schemas import (
     ExchangeType,
     RabbitExchange,
@@ -28,6 +27,7 @@ from faststream.rabbit.schemas import (
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
 
+    from faststream.rabbit.publisher.specified import SpecificationPublisher
     from faststream.rabbit.subscriber.usecase import LogicSubscriber
     from faststream.rabbit.types import AioPikaSendableMessage
 
@@ -39,7 +39,7 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
     """A class to test RabbitMQ brokers."""
 
     @contextmanager
-    def _patch_broker(self, broker: RabbitBroker) -> Generator[None, None, None]:
+    def _patch_broker(self, broker: "RabbitBroker") -> Generator[None, None, None]:
         with (
             mock.patch.object(
                 broker,
@@ -56,13 +56,13 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
             yield
 
     @staticmethod
-    async def _fake_connect(broker: RabbitBroker, *args: Any, **kwargs: Any) -> None:
+    async def _fake_connect(broker: "RabbitBroker", *args: Any, **kwargs: Any) -> None:
         broker._producer = FakeProducer(broker)
 
     @staticmethod
     def create_publisher_fake_subscriber(
-        broker: RabbitBroker,
-        publisher: SpecificationPublisher,
+        broker: "RabbitBroker",
+        publisher: "SpecificationPublisher",
     ) -> tuple["LogicSubscriber", bool]:
         sub: Optional[LogicSubscriber] = None
         for handler in broker._subscribers:

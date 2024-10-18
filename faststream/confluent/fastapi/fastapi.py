@@ -42,12 +42,12 @@ if TYPE_CHECKING:
     )
     from faststream.confluent.config import ConfluentConfig
     from faststream.confluent.message import KafkaMessage
-    from faststream.confluent.publisher.publisher import (
+    from faststream.confluent.publisher.specified import (
         SpecificationBatchPublisher,
         SpecificationDefaultPublisher,
     )
     from faststream.confluent.schemas import TopicPartition
-    from faststream.confluent.subscriber.subscriber import (
+    from faststream.confluent.subscriber.specified import (
         SpecificationBatchSubscriber,
         SpecificationDefaultSubscriber,
     )

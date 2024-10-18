@@ -7,7 +7,7 @@ from typing import (
     overload,
 )
 
-from faststream.confluent.subscriber.subscriber import (
+from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationDefaultSubscriber,
 )
