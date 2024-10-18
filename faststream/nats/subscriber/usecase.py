@@ -1,6 +1,6 @@
 import asyncio
 from abc import abstractmethod
-from collections.abc import Awaitable, Coroutine, Iterable, Sequence
+from collections.abc import Awaitable, Coroutine, Iterable
 from contextlib import suppress
 from typing import (
     TYPE_CHECKING,
@@ -21,7 +21,6 @@ from nats.js.api import ConsumerConfig, ObjectInfo
 from typing_extensions import Doc, override
 
 from faststream._internal.context.repository import context
-from faststream._internal.publisher.fake import FakePublisher
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
@@ -33,6 +32,7 @@ from faststream.nats.parser import (
     NatsParser,
     ObjParser,
 )
+from faststream.nats.publisher.fake import NatsFakePublisher
 from faststream.nats.schemas.js_stream import compile_nats_wildcard
 from faststream.nats.subscriber.adapters import (
     UnsubscribeAdapter,
@@ -53,7 +53,7 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
-    from faststream._internal.publisher.proto import ProducerProto
+    from faststream._internal.publisher.proto import BasePublisherProto, ProducerProto
     from faststream._internal.setup import SetupState
     from faststream._internal.types import (
         AsyncCallable,
@@ -270,17 +270,15 @@ class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
     def _make_response_publisher(
         self,
         message: "StreamMessage[Any]",
-    ) -> Sequence[FakePublisher]:
-        """Create FakePublisher object to use it as one of `publishers` in `self.consume` scope."""
+    ) -> Iterable["BasePublisherProto"]:
+        """Create Publisher objects to use it as one of `publishers` in `self.consume` scope."""
         if self._producer is None:
             return ()
 
         return (
-            FakePublisher(
-                self._producer.publish,
-                publish_kwargs={
-                    "subject": message.reply_to,
-                },
+            NatsFakePublisher(
+                producer=self._producer,
+                subject=message.reply_to,
             ),
         )
 
@@ -1140,8 +1138,8 @@ class KeyValueWatchSubscriber(
             "StreamMessage[KeyValue.Entry]",
             Doc("Message requiring reply"),
         ],
-    ) -> Sequence[FakePublisher]:
-        """Create FakePublisher object to use it as one of `publishers` in `self.consume` scope."""
+    ) -> Iterable["BasePublisherProto"]:
+        """Create Publisher objects to use it as one of `publishers` in `self.consume` scope."""
         return ()
 
     def get_log_context(
@@ -1293,8 +1291,8 @@ class ObjStoreWatchSubscriber(
             "StreamMessage[ObjectInfo]",
             Doc("Message requiring reply"),
         ],
-    ) -> Sequence[FakePublisher]:
-        """Create FakePublisher object to use it as one of `publishers` in `self.consume` scope."""
+    ) -> Iterable["BasePublisherProto"]:
+        """Create Publisher objects to use it as one of `publishers` in `self.consume` scope."""
         return ()
 
     def get_log_context(

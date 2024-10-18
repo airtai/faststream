@@ -1,12 +1,14 @@
-from typing import TYPE_CHECKING, Any, Optional
+from collections.abc import Awaitable
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from typing_extensions import Self
 
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from faststream._internal.basic_types import AsyncFunc, AsyncFuncAny
+    from faststream._internal.basic_types import AsyncFuncAny
     from faststream.message import StreamMessage
+    from faststream.response.response import PublishCommand
 
 
 class BaseMiddleware:
@@ -73,10 +75,8 @@ class BaseMiddleware:
 
     async def on_publish(
         self,
-        msg: Any,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Any:
+        msg: "PublishCommand",
+    ) -> "PublishCommand":
         """Asynchronously handle a publish event."""
         return msg
 
@@ -90,19 +90,13 @@ class BaseMiddleware:
 
     async def publish_scope(
         self,
-        call_next: "AsyncFunc",
-        msg: Any,
-        *args: Any,
-        **kwargs: Any,
+        call_next: Callable[["PublishCommand"], Awaitable["PublishCommand"]],
+        msg: "PublishCommand",
     ) -> Any:
         """Publish a message and return an async iterator."""
         err: Optional[Exception] = None
         try:
-            result = await call_next(
-                await self.on_publish(msg, *args, **kwargs),
-                *args,
-                **kwargs,
-            )
+            result = await call_next(await self.on_publish(msg))
 
         except Exception as e:
             err = e

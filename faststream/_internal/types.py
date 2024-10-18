@@ -10,9 +10,10 @@ from typing import (
 
 from typing_extensions import ParamSpec, TypeAlias
 
-from faststream._internal.basic_types import AsyncFunc, AsyncFuncAny
+from faststream._internal.basic_types import AsyncFuncAny
 from faststream.message import StreamMessage
 from faststream.middlewares import BaseMiddleware
+from faststream.response.response import PublishCommand
 
 MsgType = TypeVar("MsgType")
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
@@ -76,7 +77,6 @@ class PublisherMiddleware(Protocol):
 
     def __call__(
         self,
-        call_next: AsyncFunc,
-        *__args: Any,
-        **__kwargs: Any,
+        call_next: Callable[[PublishCommand], Awaitable[PublishCommand]],
+        msg: PublishCommand,
     ) -> Any: ...
