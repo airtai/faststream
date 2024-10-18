@@ -9,7 +9,6 @@ from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream.message import encode_message
 from faststream.nats.parser import NatsParser
-from faststream.nats.response import NatsPublishCommand
 
 if TYPE_CHECKING:
     from nats.aio.client import Client
@@ -20,6 +19,7 @@ if TYPE_CHECKING:
         AsyncCallable,
         CustomCallable,
     )
+    from faststream.nats.response import NatsPublishCommand
 
 
 class NatsFastProducer(ProducerProto):
@@ -44,7 +44,7 @@ class NatsFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: NatsPublishCommand,
+        message: "NatsPublishCommand",
     ) -> None:
         payload, content_type = encode_message(message.body)
 
@@ -126,7 +126,7 @@ class NatsJSFastProducer(ProducerProto):
         self,
         message: "NatsPublishCommand",
     ) -> "Msg":
-        payload, content_type = encode_message(message)
+        payload, content_type = encode_message(message.body)
 
         reply_to = self._connection._nc.new_inbox()
         future: asyncio.Future[Msg] = asyncio.Future()
