@@ -9,6 +9,7 @@ search:
 # template variables
 fastapi_plugin: If you want to use **FastStream** in conjunction with **FastAPI**, perhaps you should use a special [plugin](../fastapi/index.md){.internal-link}
 no_hook: However, even if such a hook is not provided, you can do it yourself.
+and_not_only_http: And not only HTTP frameworks.
 ---
 
 # INTEGRATIONS
