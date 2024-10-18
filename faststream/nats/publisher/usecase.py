@@ -17,7 +17,7 @@ from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
-from faststream.nats.response import NatsPublishCommand, ensure_nats_publish_cmd
+from faststream.nats.response import NatsPublishCommand
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
@@ -120,7 +120,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
         """This method should be called in subscriber flow only."""
-        cmd = ensure_nats_publish_cmd(cmd)
+        cmd = NatsPublishCommand.from_cmd(cmd)
         cmd.headers = cmd.headers or self.headers
         cmd.destination = self.subject
         cmd.reply_to = self.reply_to

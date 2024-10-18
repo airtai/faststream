@@ -71,19 +71,20 @@ class NatsPublishCommand(PublishCommand):
 
         return headers | self.headers
 
+    @classmethod
+    def from_cmd(
+        cls,
+        cmd: Union[PublishCommand, "NatsPublishCommand"],
+    ) -> "NatsPublishCommand":
+        if isinstance(cmd, NatsPublishCommand):
+            # NOTE: Should return a copy probably.
+            return cmd
 
-def ensure_nats_publish_cmd(
-    cmd: Union[PublishCommand, NatsPublishCommand],
-) -> NatsPublishCommand:
-    if isinstance(cmd, NatsPublishCommand):
-        # NOTE: Should return a copy probably.
-        return cmd
-
-    return NatsPublishCommand(
-        message=cmd.body,
-        subject=cmd.destination,
-        correlation_id=cmd.correlation_id,
-        headers=cmd.headers,
-        reply_to=cmd.reply_to,
-        _publish_type=cmd.publish_type,
-    )
+        return cls(
+            message=cmd.body,
+            subject=cmd.destination,
+            correlation_id=cmd.correlation_id,
+            headers=cmd.headers,
+            reply_to=cmd.reply_to,
+            _publish_type=cmd.publish_type,
+        )

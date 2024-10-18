@@ -6,7 +6,6 @@ from typing_extensions import override
 
 from faststream._internal.proto import Endpoint
 from faststream._internal.types import MsgType
-from faststream.response.response import PublishCommand
 from faststream.specification.base.proto import EndpointProto
 
 if TYPE_CHECKING:
@@ -18,6 +17,7 @@ if TYPE_CHECKING:
         PublisherMiddleware,
         T_HandlerReturn,
     )
+    from faststream.response.response import PublishCommand
 
 
 class ProducerProto(Protocol):
@@ -65,7 +65,7 @@ class BasePublisherProto(Protocol):
     @abstractmethod
     async def _publish(
         self,
-        cmd: PublishCommand,
+        cmd: "PublishCommand",
         *,
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
