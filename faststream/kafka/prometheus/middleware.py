@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Optional, Sequence
 
 from faststream.kafka.prometheus.provider import settings_provider_factory
 from faststream.prometheus.middleware import BasePrometheusMiddleware
+from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
@@ -13,7 +14,7 @@ class KafkaPrometheusMiddleware(BasePrometheusMiddleware):
         *,
         registry: "CollectorRegistry",
         app_name: str = "faststream",
-        metrics_prefix: str = "faststream",
+        metrics_prefix: str = EMPTY,
         received_messages_size_buckets: Optional[Sequence[float]] = None,
     ) -> None:
         super().__init__(
