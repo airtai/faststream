@@ -144,11 +144,7 @@ class WatcherContext:
         exc_tb: Optional["TracebackType"],
     ) -> bool:
         """Exit the asynchronous context manager."""
-        if self.message.committed:
-            if self.message.committed in (AckStatus.acked, AckStatus.rejected):
-                self.watcher.remove(self.message.message_id)
-
-        elif not exc_type:
+        if not exc_type:
             await self.__ack()
 
         elif isinstance(exc_val, HandlerException):
