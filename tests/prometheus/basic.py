@@ -43,15 +43,15 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             pytest.param(
                 AckStatus.acked,
                 RejectMessage,
-                id="acked_status_with_reject_message_exception",
+                id="acked status with reject message exception",
             ),
             pytest.param(
-                AckStatus.acked, Exception, id="acked_status_with_not_handler_exception"
+                AckStatus.acked, Exception, id="acked status with not handler exception"
             ),
-            pytest.param(AckStatus.acked, None, id="acked_status_without_exception"),
-            pytest.param(AckStatus.nacked, None, id="nacked_status_without_exception"),
+            pytest.param(AckStatus.acked, None, id="acked status without exception"),
+            pytest.param(AckStatus.nacked, None, id="nacked status without exception"),
             pytest.param(
-                AckStatus.rejected, None, id="rejected_status_without_exception"
+                AckStatus.rejected, None, id="rejected status without exception"
             ),
         ],
     )

@@ -98,8 +98,8 @@ class TestCaseMetrics:
     @pytest.mark.parametrize(
         "is_default_buckets",
         [
-            pytest.param(True, id="with_default_buckets"),
-            pytest.param(False, id="with_custom_buckets"),
+            pytest.param(True, id="with default buckets"),
+            pytest.param(False, id="with custom buckets"),
         ],
     )
     def test_observe_received_messages_size(
@@ -260,11 +260,11 @@ class TestCaseMetrics:
     @pytest.mark.parametrize(
         "status",
         [
-            pytest.param(ProcessingStatus.acked, id="acked_status"),
-            pytest.param(ProcessingStatus.nacked, id="nacked_status"),
-            pytest.param(ProcessingStatus.rejected, id="rejected_status"),
-            pytest.param(ProcessingStatus.skipped, id="skipped_status"),
-            pytest.param(ProcessingStatus.error, id="error_status"),
+            pytest.param(ProcessingStatus.acked, id="acked status"),
+            pytest.param(ProcessingStatus.nacked, id="nacked status"),
+            pytest.param(ProcessingStatus.rejected, id="rejected status"),
+            pytest.param(ProcessingStatus.skipped, id="skipped status"),
+            pytest.param(ProcessingStatus.error, id="error status"),
         ],
     )
     def test_add_received_processed_message(
@@ -457,8 +457,8 @@ class TestCaseMetrics:
     @pytest.mark.parametrize(
         "status",
         [
-            pytest.param(PublishingStatus.success, id="success_status"),
-            pytest.param(PublishingStatus.error, id="error_status"),
+            pytest.param(PublishingStatus.success, id="success status"),
+            pytest.param(PublishingStatus.error, id="error status"),
         ],
     )
     def test_add_published_message(
