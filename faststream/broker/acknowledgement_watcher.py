@@ -4,7 +4,6 @@ from collections import Counter
 from typing import TYPE_CHECKING, Any, Optional, Type, Union
 from typing import Counter as CounterType
 
-from faststream.broker.message import AckStatus
 from faststream.exceptions import (
     AckMessage,
     HandlerException,
