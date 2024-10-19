@@ -99,7 +99,7 @@ class TestCaseMetrics:
         "is_default_buckets",
         [
             pytest.param(True, id="with_default_buckets"),
-            pytest.param(True, id="with_custom_buckets"),
+            pytest.param(False, id="with_custom_buckets"),
         ],
     )
     def test_observe_received_messages_size(
