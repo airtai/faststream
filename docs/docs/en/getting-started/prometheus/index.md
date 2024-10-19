@@ -65,7 +65,7 @@ passing in the registry that was passed to `PrometheusMiddleware`.
 | **received_processed_messages_duration_seconds** | **Histogram** | {{ received_processed_messages_duration_seconds_description }} | `app_name`, `broker`, `handler`                       |
 | **received_processed_messages_exceptions_total** | **Counter**   | {{ received_processed_messages_exceptions_total_description }} | `app_name`, `broker`, `handler`, `exception_type`     |
 | **published_messages_total**                     | **Counter**   | {{ published_messages_total_description }}                     | `app_name`, `broker`, `destination`, `status`         |
-| **published_messages_duration_seconds_time**     | **Histogram** | {{ published_messages_duration_seconds_description }}          | `app_name`, `broker`, `destination`                   |
+| **published_messages_duration_seconds**          | **Histogram** | {{ published_messages_duration_seconds_description }}          | `app_name`, `broker`, `destination`                   |
 | **published_messages_exceptions_total**          | **Counter**   | {{ published_messages_exceptions_total_description }}          | `app_name`, `broker`, `destination`, `exception_type` |
 
 ### Labels
