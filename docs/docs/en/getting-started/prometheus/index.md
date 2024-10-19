@@ -10,10 +10,10 @@ search:
 
 # Prometheus
 
-**Prometheus** is an open-source monitoring and alerting toolkit originally built at SoundCloud.
-With a focus on reliability, robustness, and easy scalability, Prometheus allows users to collect metrics,
+[**Prometheus**](https://prometheus.io/){.external-link target="_blank"} is an open-source monitoring and alerting toolkit originally built at SoundCloud.
+With a focus on reliability, robustness, and easy scalability, **Prometheus** allows users to collect metrics,
 scrape data from various sources, store them efficiently, and query them in real-time. Its flexible data model,
-powerful query language, and seamless integration with Grafana make it a popular choice for monitoring the health
+powerful query language, and seamless integration with [**Grafana**](https://grafana.com/){.external-link target="_blank"} make it a popular choice for monitoring the health
 and performance of systems and applications.
 
 ### FastStream Metrics
