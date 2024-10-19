@@ -18,7 +18,7 @@ from tests.brokers.base.basic import BaseTestcaseConfig
 
 @pytest.mark.asyncio
 class LocalPrometheusTestcase(BaseTestcaseConfig):
-    def get_broker(self, **kwargs):
+    def get_broker(self, apply_types=False, **kwargs):
         raise NotImplementedError
 
     def get_middleware(self, **kwargs):
@@ -66,7 +66,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
 
-        broker = self.get_broker(middlewares=(middleware,))
+        broker = self.get_broker(apply_types=True, middlewares=(middleware,))
 
         args, kwargs = self.get_subscriber_params(queue)
 

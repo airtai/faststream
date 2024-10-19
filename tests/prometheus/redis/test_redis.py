@@ -14,8 +14,8 @@ from tests.prometheus.basic import LocalPrometheusTestcase
 
 @pytest.mark.redis
 class TestPrometheus(LocalPrometheusTestcase):
-    def get_broker(self, **kwargs):
-        return RedisBroker(**kwargs)
+    def get_broker(self, apply_types=False, **kwargs):
+        return RedisBroker(apply_types=apply_types, **kwargs)
 
     def get_middleware(self, **kwargs):
         return RedisPrometheusMiddleware(**kwargs)
@@ -29,7 +29,7 @@ class TestPrometheus(LocalPrometheusTestcase):
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
 
-        broker = self.get_broker(middlewares=(middleware,))
+        broker = self.get_broker(apply_types=True, middlewares=(middleware,))
 
         args, kwargs = self.get_subscriber_params(list=ListSub(queue, batch=True))
 

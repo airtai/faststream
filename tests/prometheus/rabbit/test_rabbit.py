@@ -15,8 +15,8 @@ def exchange(queue):
 
 @pytest.mark.rabbit
 class TestPrometheus(LocalPrometheusTestcase):
-    def get_broker(self, **kwargs):
-        return RabbitBroker(**kwargs)
+    def get_broker(self, apply_types=False, **kwargs):
+        return RabbitBroker(apply_types=apply_types, **kwargs)
 
     def get_middleware(self, **kwargs):
         return RabbitPrometheusMiddleware(**kwargs)
