@@ -4309,6 +4309,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/howto/nats/dynaconf/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/howto/nats/in-progress/</loc>
+        <lastmod>2024-10-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/howto/nats/in-progress/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/kafka/</loc>
         <lastmod>2024-10-20</lastmod>
         <changefreq>daily</changefreq>
