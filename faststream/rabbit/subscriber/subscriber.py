@@ -26,6 +26,8 @@ class SpecificationSubscriber(LogicSubscriber):
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
                             routing_key=self.queue.routing,
+                            queue=amqp.Queue.from_queue(self.queue),
+                            exchange=amqp.Exchange.from_exchange(self.exchange),
                             ack=True,
                             reply_to=None,
                             persist=None,

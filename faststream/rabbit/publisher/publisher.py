@@ -55,6 +55,8 @@ class SpecificationPublisher(LogicPublisher):
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
                             routing_key=self.routing or None,
+                            queue=amqp.Queue.from_queue(self.queue),
+                            exchange=amqp.Exchange.from_exchange(self.exchange),
                             ack=True,
                             persist=self.message_kwargs.get("persist"),
                             mandatory=self.message_kwargs.get("mandatory"),  # type: ignore[arg-type]

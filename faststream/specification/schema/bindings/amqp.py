@@ -70,6 +70,8 @@ class ChannelBinding:
 @dataclass
 class OperationBinding:
     routing_key: Optional[str]
+    queue: Queue
+    exchange: Exchange
     ack: bool
     reply_to: Optional[str]
     persist: Optional[bool]
