@@ -54,10 +54,11 @@ class SpecificationPublisher(LogicPublisher):
                 operation=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
-                            cc=self.routing or None,
-                            delivery_mode=2
-                            if self.message_kwargs.get("persist")
-                            else 1,
+                            routing_key=self.routing or None,
+                            queue=amqp.Queue.from_queue(self.queue),
+                            exchange=amqp.Exchange.from_exchange(self.exchange),
+                            ack=True,
+                            persist=self.message_kwargs.get("persist"),
                             mandatory=self.message_kwargs.get("mandatory"),  # type: ignore[arg-type]
                             reply_to=self.message_kwargs.get("reply_to"),  # type: ignore[arg-type]
                             priority=self.message_kwargs.get("priority"),  # type: ignore[arg-type]

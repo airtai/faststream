@@ -69,9 +69,11 @@ class ChannelBinding:
 
 @dataclass
 class OperationBinding:
-    cc: Optional[str] = None  # TODO: rename
-    ack: bool = True
-    reply_to: Optional[str] = None
-    delivery_mode: Optional[int] = None
-    mandatory: Optional[bool] = None
-    priority: Optional[int] = None
+    routing_key: Optional[str]
+    queue: Queue
+    exchange: Exchange
+    ack: bool
+    reply_to: Optional[str]
+    persist: Optional[bool]
+    mandatory: Optional[bool]
+    priority: Optional[int]

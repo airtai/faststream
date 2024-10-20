@@ -25,7 +25,14 @@ class SpecificationSubscriber(LogicSubscriber):
                 operation=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
-                            cc=self.queue.routing,
+                            routing_key=self.queue.routing,
+                            queue=amqp.Queue.from_queue(self.queue),
+                            exchange=amqp.Exchange.from_exchange(self.exchange),
+                            ack=True,
+                            reply_to=None,
+                            persist=None,
+                            mandatory=None,
+                            priority=None,
                         ),
                     )
                     if exchange_binding.is_respect_routing_key
