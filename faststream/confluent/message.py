@@ -66,7 +66,7 @@ class KafkaMessage(
         """Acknowledge the Kafka message."""
         if self.is_manual and not self.committed:
             await self.consumer.commit()
-            await super().ack()
+        await super().ack()
 
     async def nack(self) -> None:
         """Reject the Kafka message."""
@@ -81,4 +81,4 @@ class KafkaMessage(
                 partition=raw_message.partition(),
                 offset=raw_message.offset(),
             )
-            await super().nack()
+        await super().nack()

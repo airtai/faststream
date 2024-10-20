@@ -63,13 +63,16 @@ class StreamMessage(Generic[MsgType]):
     _decoded_body: Optional["DecodedMessage"] = field(default=None, init=False)
 
     async def ack(self) -> None:
-        self.committed = AckStatus.acked
+        if not self.committed:
+            self.committed = AckStatus.acked
 
     async def nack(self) -> None:
-        self.committed = AckStatus.nacked
+        if not self.committed:
+            self.committed = AckStatus.nacked
 
     async def reject(self) -> None:
-        self.committed = AckStatus.rejected
+        if not self.committed:
+            self.committed = AckStatus.rejected
 
     async def decode(self) -> Optional["DecodedMessage"]:
         """Serialize the message by lazy decoder."""
