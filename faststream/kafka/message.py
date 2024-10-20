@@ -77,7 +77,7 @@ class KafkaMessage(
                 partition=topic_partition,
                 offset=raw_message.offset,
             )
-            await super().nack()
+        await super().nack()
 
 
 class KafkaAckableMessage(KafkaMessage):
@@ -85,4 +85,4 @@ class KafkaAckableMessage(KafkaMessage):
         """Acknowledge the Kafka message."""
         if not self.committed:
             await self.consumer.commit()
-            await super().ack()
+        await super().ack()

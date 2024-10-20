@@ -44,6 +44,7 @@ search:
     - [CLI](getting-started/cli/index.md)
     - [ASGI](getting-started/asgi.md)
     - [OpenTelemetry](getting-started/opentelemetry/index.md)
+    - [Prometheus](getting-started/prometheus/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
     - [Task Scheduling](scheduling.md)
