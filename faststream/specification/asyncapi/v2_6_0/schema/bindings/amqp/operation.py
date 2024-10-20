@@ -3,7 +3,7 @@
 References: https://github.com/asyncapi/bindings/tree/master/amqp
 """
 
-from typing import Optional, overload, ClassVar
+from typing import Optional, overload, ClassVar, Any, Union
 
 from pydantic import BaseModel, PositiveInt
 from typing_extensions import Self
@@ -29,9 +29,9 @@ class OperationBinding(BaseModel):
     priority: Optional[PositiveInt]
     bindingVersion: str
 
-    delivery_mode_spec_to_asyncapi: ClassVar[dict] = {
-        "persistent": 2,
-        "transient": 1,
+    persist_to_delivery_mode: ClassVar[dict[Union[bool, None], Any]] = {
+        True: 2,
+        False: 1,
         None: None,
     }
 
@@ -52,7 +52,7 @@ class OperationBinding(BaseModel):
             cc=binding.routing_key,
             ack=binding.ack,
             replyTo=binding.reply_to,
-            deliveryMode=cls.delivery_mode_spec_to_asyncapi[binding.delivery_mode],
+            deliveryMode=cls.persist_to_delivery_mode[binding.persist],
             mandatory=binding.mandatory,
             priority=binding.priority,
             bindingVersion="0.2.0",
@@ -75,7 +75,7 @@ class OperationBinding(BaseModel):
             cc=binding.routing_key,
             ack=binding.ack,
             replyTo=binding.reply_to,
-            deliveryMode=cls.delivery_mode_spec_to_asyncapi[binding.delivery_mode],
+            deliveryMode=cls.persist_to_delivery_mode[binding.persist],
             mandatory=binding.mandatory,
             priority=binding.priority,
             bindingVersion="0.2.0",

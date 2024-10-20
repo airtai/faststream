@@ -72,6 +72,6 @@ class OperationBinding:
     routing_key: Optional[str]
     ack: bool
     reply_to: Optional[str]
-    delivery_mode: Optional[Literal["persistent", "transient"]]
+    persist: Optional[bool]
     mandatory: Optional[bool]
     priority: Optional[int]

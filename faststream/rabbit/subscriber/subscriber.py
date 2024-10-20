@@ -28,7 +28,7 @@ class SpecificationSubscriber(LogicSubscriber):
                             routing_key=self.queue.routing,
                             ack=True,
                             reply_to=None,
-                            delivery_mode=None,
+                            persist=None,
                             mandatory=None,
                             priority=None,
                         ),
