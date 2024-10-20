@@ -80,3 +80,17 @@ passing in the registry that was passed to `PrometheusMiddleware`.
 | status (while publishing)         | Message publishing status                                       | `success`, `error`                                |
 | destination                       | Where the message is sent                                       |                                                   |
 | exception_type (while publishing) | Exception type when publishing message                          |                                                   |
+
+### Grafana dashboard
+
+You can import the [**Grafana dashboard**](https://grafana.com/grafana/dashboards/22130-faststream-metrics/){.external-link target="_blank"} to visualize the metrics collected by middleware.
+
+Enter the dashboard **URL** `https://grafana.com/grafana/dashboards/22130-faststream-metrics/` (or just the **ID**, `22130`), and click on **Load**.
+
+![HTML-page](../../../assets/img/import-dashboard.png){ .on-glb loading=lazy }
+`Import dashboard`
+
+An [example](https://github.com/draincoder/faststream-monitoring){.external-link target="_blank"} application with configured **metrics**, **Prometheus** and **Grafana**.
+
+![HTML-page](../../../assets/img/grafana-dashboard.png){ .on-glb loading=lazy }
+`Grafana dashboard`
