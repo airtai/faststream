@@ -3,7 +3,7 @@
 References: https://github.com/asyncapi/bindings/tree/master/amqp
 """
 
-from typing import Optional, overload
+from typing import Optional, overload, ClassVar
 
 from pydantic import BaseModel, PositiveInt
 from typing_extensions import Self
@@ -21,13 +21,19 @@ class OperationBinding(BaseModel):
         bindingVersion : string representing the binding version
     """
 
-    cc: Optional[str] = None
-    ack: bool = True
-    replyTo: Optional[str] = None
-    deliveryMode: Optional[int] = None
-    mandatory: Optional[bool] = None
-    priority: Optional[PositiveInt] = None
-    bindingVersion: str = "0.2.0"
+    cc: Optional[str]
+    ack: bool
+    replyTo: Optional[str]
+    deliveryMode: Optional[int]
+    mandatory: Optional[bool]
+    priority: Optional[PositiveInt]
+    bindingVersion: str
+
+    delivery_mode_spec_to_asyncapi: ClassVar[dict] = {
+        "persistent": 2,
+        "transient": 1,
+        None: None,
+    }
 
     @overload
     @classmethod
@@ -43,12 +49,13 @@ class OperationBinding(BaseModel):
             return None
 
         return cls(
-            cc=binding.cc,
+            cc=binding.routing_key,
             ack=binding.ack,
             replyTo=binding.reply_to,
-            deliveryMode=binding.delivery_mode,
+            deliveryMode=cls.delivery_mode_spec_to_asyncapi[binding.delivery_mode],
             mandatory=binding.mandatory,
             priority=binding.priority,
+            bindingVersion="0.2.0",
         )
 
     @overload
@@ -65,10 +72,11 @@ class OperationBinding(BaseModel):
             return None
 
         return cls(
-            cc=binding.cc,
+            cc=binding.routing_key,
             ack=binding.ack,
             replyTo=binding.reply_to,
-            deliveryMode=binding.delivery_mode,
+            deliveryMode=cls.delivery_mode_spec_to_asyncapi[binding.delivery_mode],
             mandatory=binding.mandatory,
             priority=binding.priority,
+            bindingVersion="0.2.0",
         )
