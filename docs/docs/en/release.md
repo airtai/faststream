@@ -12,6 +12,62 @@ hide:
 ---
 
 # Release Notes
+## 0.5.28
+
+### What's Changed
+
+There were a lot of time since [**0.5.7 OpenTelemetry** release](https://github.com/airtai/faststream/releases/tag/0.5.7) and now we completed **Observability** features we planned! **FastStream** supports **Prometheus** metrics in a native way!
+
+Special thanks to @roma-frolov and @draincoder (again) for it!
+
+To collect **Prometheus** metrics for your **FastStream** application you just need to install special distribution
+
+```cmd
+pip install faststream[prometheus]
+```
+
+And use **PrometheusMiddleware**. Also, it could be helpful to use our [**ASGI**](https://faststream.airt.ai/latest/getting-started/asgi/) to serve metrics endpoint in the same app.
+
+```python
+from prometheus_client import CollectorRegistry, make_asgi_app
+from faststream.asgi import AsgiFastStream
+from faststream.nats import NatsBroker
+from faststream.nats.prometheus import NatsPrometheusMiddleware
+
+registry = CollectorRegistry()
+
+broker = NatsBroker(
+    middlewares=(
+        NatsPrometheusMiddleware(registry=registry),
+    )
+)
+
+app = AsgiFastStream(
+    broker,
+    asgi_routes=[
+        ("/metrics", make_asgi_app(registry)),
+    ]
+)
+```
+
+Moreover, we have a ready-to-use [**Grafana** dashboard](https://grafana.com/grafana/dashboards/22130-faststream-metrics/) you can just import and use!
+
+To find more information about **Prometheus** support, just visit [our documentation](https://faststream.airt.ai/latest/getting-started/prometheus/).
+
+### All changes
+
+* docs: Correct minimum FastAPI version for lifespan handling by @tim-hutchinson in https://github.com/airtai/faststream/pull/1853
+* add aiogram example by @IvanKirpichnikov in https://github.com/airtai/faststream/pull/1858
+* Feature: Prometheus Middleware by @roma-frolov in https://github.com/airtai/faststream/pull/1791
+* Add in-progress tutorial to how-to section by @sheldygg in https://github.com/airtai/faststream/pull/1859
+* docs: Add info about Grafana dashboard by @draincoder in https://github.com/airtai/faststream/pull/1863
+
+### New Contributors
+
+* @tim-hutchinson made their first contribution in https://github.com/airtai/faststream/pull/1853
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.27...0.5.28
+
 ## 0.5.27
 
 ### What's Changed
