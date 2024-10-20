@@ -176,12 +176,12 @@ class BasePrometheusMiddleware:
             [Any], Optional[MetricsSettingsProvider[Any]]
         ],
         registry: "CollectorRegistry",
-        app_name: str = "faststream",
-        metrics_prefix: str = EMPTY,
+        app_name: str = EMPTY,
+        metrics_prefix: str = "faststream",
         received_messages_size_buckets: Optional[Sequence[float]] = None,
     ):
-        if metrics_prefix is EMPTY:
-            metrics_prefix = app_name
+        if app_name is EMPTY:
+            app_name = metrics_prefix
 
         self._settings_provider_factory = settings_provider_factory
         self._metrics_container = MetricsContainer(
