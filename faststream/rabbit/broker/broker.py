@@ -22,6 +22,7 @@ from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
+from faststream.rabbit.response import RabbitPublishCommand
 from faststream.rabbit.schemas import (
     RABBIT_REPLY,
     RabbitExchange,
@@ -29,6 +30,7 @@ from faststream.rabbit.schemas import (
 )
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.utils import build_url
+from faststream.response.publish_type import PublishType
 
 from .logging import make_rabbit_logger_state
 from .registrator import RabbitRegistrator
@@ -619,31 +621,30 @@ class RabbitBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        routing = routing_key or RabbitQueue.validate(queue).routing
-        correlation_id = correlation_id or gen_cor_id()
-
-        return await super().publish(
+        cmd = RabbitPublishCommand(
             message,
-            producer=self._producer,
-            routing_key=routing,
+            routing_key=routing_key or RabbitQueue.validate(queue).routing,
+            exchange=RabbitExchange.validate(exchange),
+            correlation_id=correlation_id or gen_cor_id(),
             app_id=self.app_id,
-            exchange=exchange,
             mandatory=mandatory,
             immediate=immediate,
             persist=persist,
             reply_to=reply_to,
             headers=headers,
-            correlation_id=correlation_id,
             content_type=content_type,
             content_encoding=content_encoding,
             expiration=expiration,
             message_id=message_id,
-            timestamp=timestamp,
             message_type=message_type,
+            timestamp=timestamp,
             user_id=user_id,
             timeout=timeout,
             priority=priority,
+            _publish_type=PublishType.Publish,
         )
+
+        return await super().publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -739,16 +740,12 @@ class RabbitBroker(
             Doc("The message priority (0 by default)."),
         ] = None,
     ) -> "RabbitMessage":
-        routing = routing_key or RabbitQueue.validate(queue).routing
-        correlation_id = correlation_id or gen_cor_id()
-
-        msg: RabbitMessage = await super().request(
+        cmd = RabbitPublishCommand(
             message,
-            producer=self._producer,
-            correlation_id=correlation_id,
-            routing_key=routing,
+            routing_key=routing_key or RabbitQueue.validate(queue).routing,
+            exchange=RabbitExchange.validate(exchange),
+            correlation_id=correlation_id or gen_cor_id(),
             app_id=self.app_id,
-            exchange=exchange,
             mandatory=mandatory,
             immediate=immediate,
             persist=persist,
@@ -757,12 +754,15 @@ class RabbitBroker(
             content_encoding=content_encoding,
             expiration=expiration,
             message_id=message_id,
-            timestamp=timestamp,
             message_type=message_type,
+            timestamp=timestamp,
             user_id=user_id,
             timeout=timeout,
             priority=priority,
+            _publish_type=PublishType.Request,
         )
+
+        msg: RabbitMessage = await super().request(cmd, producer=self._producer)
         return msg
 
     async def declare_queue(

@@ -48,6 +48,7 @@ if TYPE_CHECKING:
         ProducerProto,
         PublisherProto,
     )
+    from faststream.response.response import PublishCommand
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
 
@@ -318,11 +319,9 @@ class BrokerUsecase(
 
     async def publish(
         self,
-        msg: Any,
+        cmd: "PublishCommand",
         *,
         producer: Optional["ProducerProto"],
-        correlation_id: Optional[str] = None,
-        **kwargs: Any,
     ) -> Optional[Any]:
         """Publish message directly."""
         assert producer, NOT_CONNECTED_YET  # nosec B101
@@ -332,15 +331,13 @@ class BrokerUsecase(
         for m in self._middlewares:
             publish = partial(m(None).publish_scope, publish)
 
-        return await publish(msg, correlation_id=correlation_id, **kwargs)
+        return await publish(cmd)
 
     async def request(
         self,
-        msg: Any,
+        cmd: "PublishCommand",
         *,
         producer: Optional["ProducerProto"],
-        correlation_id: Optional[str] = None,
-        **kwargs: Any,
     ) -> Any:
         """Publish message directly."""
         assert producer, NOT_CONNECTED_YET  # nosec B101
@@ -349,11 +346,7 @@ class BrokerUsecase(
         for m in self._middlewares:
             request = partial(m(None).publish_scope, request)
 
-        published_msg = await request(
-            msg,
-            correlation_id=correlation_id,
-            **kwargs,
-        )
+        published_msg = await request(cmd)
 
         message: Any = await process_msg(
             msg=published_msg,

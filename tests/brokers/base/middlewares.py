@@ -8,6 +8,7 @@ from faststream import Context
 from faststream._internal.basic_types import DecodedMessage
 from faststream.exceptions import SkipMessage
 from faststream.middlewares import BaseMiddleware, ExceptionMiddleware
+from faststream.response import PublishCommand
 
 from .basic import BaseTestcaseConfig
 
@@ -331,8 +332,9 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         event: asyncio.Event,
     ) -> None:
         class Mid(BaseMiddleware):
-            async def on_publish(self, msg: str, *args, **kwargs) -> str:
-                return msg * 2
+            async def on_publish(self, msg: PublishCommand) -> PublishCommand:
+                msg.body *= 2
+                return msg
 
         broker = self.get_broker(middlewares=(Mid,))
 
@@ -370,11 +372,10 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         mock: Mock,
     ) -> None:
         class Mid(BaseMiddleware):
-            async def on_publish(self, msg: str, *args, **kwargs) -> str:
-                data = msg * 2
-                assert args or kwargs
-                mock.enter(data)
-                return data
+            async def on_publish(self, msg: PublishCommand) -> PublishCommand:
+                msg.body *= 2
+                mock.enter(msg.body)
+                return msg
 
             async def after_publish(self, *args, **kwargs) -> None:
                 mock.end()
