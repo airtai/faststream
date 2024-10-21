@@ -158,7 +158,8 @@
 <span class=normal><a href=#__codelineno-0-126>126</a></span>
 <span class=normal><a href=#__codelineno-0-127>127</a></span>
 <span class=normal><a href=#__codelineno-0-128>128</a></span>
-<span class=normal><a href=#__codelineno-0-129>129</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-77 name=__codelineno-0-77></a><span class=nd>@override</span>
+<span class=normal><a href=#__codelineno-0-129>129</a></span>
+<span class=normal><a href=#__codelineno-0-130>130</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-77 name=__codelineno-0-77></a><span class=nd>@override</span>
 <a id=__codelineno-0-78 name=__codelineno-0-78></a><span class=k>async</span> <span class=k>def</span> <span class=nf>request</span><span class=p>(</span>
 <a id=__codelineno-0-79 name=__codelineno-0-79></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-80 name=__codelineno-0-80></a>    <span class=n>message</span><span class=p>:</span> <span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span>
@@ -208,9 +209,10 @@
 <a id=__codelineno-0-124 name=__codelineno-0-124></a>
 <a id=__codelineno-0-125 name=__codelineno-0-125></a>        <span class=n>parsed_msg</span> <span class=o>=</span> <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>_producer</span><span class=o>.</span><span class=n>_parser</span><span class=p>(</span><span class=n>published_msg</span><span class=p>)</span>
 <a id=__codelineno-0-126 name=__codelineno-0-126></a>        <span class=n>parsed_msg</span><span class=o>.</span><span class=n>_decoded_body</span> <span class=o>=</span> <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>_producer</span><span class=o>.</span><span class=n>_decoder</span><span class=p>(</span><span class=n>parsed_msg</span><span class=p>)</span>
-<a id=__codelineno-0-127 name=__codelineno-0-127></a>        <span class=k>return</span> <span class=k>await</span> <span class=n>return_msg</span><span class=p>(</span><span class=n>parsed_msg</span><span class=p>)</span>
-<a id=__codelineno-0-128 name=__codelineno-0-128></a>
-<a id=__codelineno-0-129 name=__codelineno-0-129></a>    <span class=k>raise</span> <span class=ne>AssertionError</span><span class=p>(</span><span class=s2>&quot;unreachable&quot;</span><span class=p>)</span>
+<a id=__codelineno-0-127 name=__codelineno-0-127></a>        <span class=n>parsed_msg</span><span class=o>.</span><span class=n>_source_type</span> <span class=o>=</span> <span class=n>SourceType</span><span class=o>.</span><span class=n>Response</span>
+<a id=__codelineno-0-128 name=__codelineno-0-128></a>        <span class=k>return</span> <span class=k>await</span> <span class=n>return_msg</span><span class=p>(</span><span class=n>parsed_msg</span><span class=p>)</span>
+<a id=__codelineno-0-129 name=__codelineno-0-129></a>
+<a id=__codelineno-0-130 name=__codelineno-0-130></a>    <span class=k>raise</span> <span class=ne>AssertionError</span><span class=p>(</span><span class=s2>&quot;unreachable&quot;</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.confluent.publisher.asyncapi.AsyncAPIPublisher.setup class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">setup</span> <a href=#faststream.confluent.publisher.asyncapi.AsyncAPIPublisher.setup class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>setup</span><span class=p>(</span><span class=o>*</span><span class=p>,</span> <span class=n>producer</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/broker/publisher/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-97> 97</a></span>
 <span class=normal><a href=#__codelineno-0-98> 98</a></span>
