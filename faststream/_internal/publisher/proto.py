@@ -57,7 +57,7 @@ class BasePublisherProto(Protocol):
         cmd: "PublishCommand",
         *,
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-    ) -> Optional[Any]:
+    ) -> None:
         """Private method to publish a message.
 
         Should be called inside `publish` method or as a step of `consume` scope.

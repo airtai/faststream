@@ -1,11 +1,8 @@
-from collections.abc import Awaitable, Iterable
-from functools import partial
-from itertools import chain
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
     Optional,
     Union,
 )
@@ -14,7 +11,6 @@ from nats.aio.msg import Msg
 from typing_extensions import Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.nats.response import NatsPublishCommand
@@ -97,7 +93,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
                 Can be omitted without any effect.
             timeout (float, optional): Timeout to send message to NATS in seconds (default is `None`).
         """
-        return await self.__publish(
+        return await self._basic_publish(
             NatsPublishCommand(
                 message,
                 subject=subject or self.subject,
@@ -129,28 +125,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             cmd.stream = self.stream.name
             cmd.timeout = self.timeout
 
-        return await self.__publish(cmd, _extra_middlewares=_extra_middlewares)
-
-    async def __publish(
-        self,
-        cmd: "NatsPublishCommand",
-        *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-    ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        pub: Callable[..., Awaitable[Any]] = self._producer.publish
-
-        for pub_m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            pub = partial(pub_m, pub)
-
-        await pub(cmd)
+        return await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(
@@ -198,22 +173,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             _publish_type=PublishType.Request,
         )
 
-        request: Callable[..., Awaitable[Any]] = self._producer.request
-
-        for pub_m in chain(
-            (m(None).publish_scope for m in self._broker_middlewares),
-            self._middlewares,
-        ):
-            request = partial(pub_m, request)
-
-        published_msg = await request(cmd)
-
-        msg: NatsMessage = await process_msg(
-            msg=published_msg,
-            middlewares=self._broker_middlewares,
-            parser=self._producer._parser,
-            decoder=self._producer._decoder,
-        )
+        msg: NatsMessage = await self._basic_request(cmd)
         return msg
 
     def add_prefix(self, prefix: str) -> None:

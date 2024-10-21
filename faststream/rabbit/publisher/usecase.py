@@ -1,12 +1,9 @@
-from collections.abc import Awaitable, Iterable
+from collections.abc import Iterable
 from copy import deepcopy
-from functools import partial
-from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
     Optional,
     Union,
 )
@@ -15,7 +12,6 @@ from aio_pika import IncomingMessage
 from typing_extensions import Doc, Unpack, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.utils.data import filter_by_dict
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
@@ -174,7 +170,11 @@ class LogicPublisher(
             **(self.publish_options | self.message_options | publish_kwargs),
         )
 
-        return await self.__publish(cmd, _extra_middlewares=())
+        frame: Optional[aiormq.abc.ConfirmationFrameType] = await self._basic_publish(
+            cmd,
+            _extra_middlewares=(),
+        )
+        return frame
 
     @override
     async def _publish(
@@ -182,7 +182,7 @@ class LogicPublisher(
         cmd: Union["RabbitPublishCommand", "PublishCommand"],
         *,
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-    ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
+    ) -> None:
         """This method should be called in subscriber flow only."""
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -197,32 +197,7 @@ class LogicPublisher(
         cmd.message_options = {**self.message_options, **cmd.message_options}
         cmd.publish_options = {**self.publish_options, **cmd.publish_options}
 
-        return await self.__publish(cmd, _extra_middlewares=_extra_middlewares)
-
-    @override
-    async def __publish(
-        self,
-        cmd: "RabbitPublishCommand",
-        *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-    ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        call: Callable[
-            ...,
-            Awaitable[Optional[aiormq.abc.ConfirmationFrameType]],
-        ] = self._producer.publish
-
-        for pub_m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(pub_m, call)
-
-        return await call(cmd)
+        await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(
@@ -274,22 +249,7 @@ class LogicPublisher(
             **(self.publish_options | self.message_options | publish_kwargs),
         )
 
-        request: Callable[..., Awaitable[Any]] = self._producer.request
-
-        for pub_m in chain(
-            (m(None).publish_scope for m in self._broker_middlewares),
-            self._middlewares,
-        ):
-            request = partial(pub_m, request)
-
-        published_msg = await request(cmd)
-
-        msg: RabbitMessage = await process_msg(
-            msg=published_msg,
-            middlewares=self._broker_middlewares,
-            parser=self._producer._parser,
-            decoder=self._producer._decoder,
-        )
+        msg: RabbitMessage = await self._basic_request(cmd)
         return msg
 
     def add_prefix(self, prefix: str) -> None:
