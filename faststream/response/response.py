@@ -19,17 +19,6 @@ class Response:
         self.headers = headers or {}
         self.correlation_id = correlation_id
 
-    def add_headers(
-        self,
-        extra_headers: "AnyDict",
-        *,
-        override: bool = True,
-    ) -> None:
-        if override:
-            self.headers = {**self.headers, **extra_headers}
-        else:
-            self.headers = {**extra_headers, **self.headers}
-
     def as_publish_command(self) -> "PublishCommand":
         return PublishCommand(
             body=self.body,
