@@ -1,12 +1,11 @@
 from typing import (
     TYPE_CHECKING,
     Optional,
-    Union,
     cast,
 )
 
 import anyio
-from typing_extensions import override
+from typing_extensions import Unpack, override
 
 from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
 
     import aiormq
     from aio_pika import IncomingMessage, RobustQueue
-    from aio_pika.abc import AbstractIncomingMessage, DateType, HeadersType, TimeoutType
+    from aio_pika.abc import AbstractIncomingMessage, TimeoutType
     from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
     from faststream._internal.types import (
@@ -26,6 +25,7 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
+    from faststream.rabbit.response import MessageOptions, RabbitPublishCommand
     from faststream.rabbit.types import AioPikaSendableMessage
 
 
@@ -53,99 +53,40 @@ class AioPikaFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "AioPikaSendableMessage",
-        exchange: Union["RabbitExchange", str, None] = None,
-        *,
-        correlation_id: str = "",
-        routing_key: str = "",
-        mandatory: bool = True,
-        immediate: bool = False,
-        timeout: "TimeoutType" = None,
-        persist: bool = False,
-        reply_to: Optional[str] = None,
-        headers: Optional["HeadersType"] = None,
-        content_type: Optional[str] = None,
-        content_encoding: Optional[str] = None,
-        priority: Optional[int] = None,
-        expiration: Optional["DateType"] = None,
-        message_id: Optional[str] = None,
-        timestamp: Optional["DateType"] = None,
-        message_type: Optional[str] = None,
-        user_id: Optional[str] = None,
-        app_id: Optional[str] = None,
+        cmd: "RabbitPublishCommand",
     ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
         """Publish a message to a RabbitMQ queue."""
         return await self._publish(
-            message=message,
-            exchange=exchange,
-            routing_key=routing_key,
-            mandatory=mandatory,
-            immediate=immediate,
-            timeout=timeout,
-            persist=persist,
-            reply_to=reply_to,
-            headers=headers,
-            content_type=content_type,
-            content_encoding=content_encoding,
-            priority=priority,
-            correlation_id=correlation_id,
-            expiration=expiration,
-            message_id=message_id,
-            timestamp=timestamp,
-            message_type=message_type,
-            user_id=user_id,
-            app_id=app_id,
+            message=cmd.body,
+            exchange=cmd.exchange,
+            routing_key=cmd.destination,
+            reply_to=cmd.reply_to,
+            headers=cmd.headers,
+            correlation_id=cmd.correlation_id,
+            **cmd.publish_options,
+            **cmd.message_options,
         )
 
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "AioPikaSendableMessage",
-        exchange: Union["RabbitExchange", str, None] = None,
-        *,
-        correlation_id: str = "",
-        routing_key: str = "",
-        mandatory: bool = True,
-        immediate: bool = False,
-        timeout: Optional[float] = None,
-        persist: bool = False,
-        headers: Optional["HeadersType"] = None,
-        content_type: Optional[str] = None,
-        content_encoding: Optional[str] = None,
-        priority: Optional[int] = None,
-        expiration: Optional["DateType"] = None,
-        message_id: Optional[str] = None,
-        timestamp: Optional["DateType"] = None,
-        message_type: Optional[str] = None,
-        user_id: Optional[str] = None,
-        app_id: Optional[str] = None,
+        cmd: "RabbitPublishCommand",
     ) -> "IncomingMessage":
         """Publish a message to a RabbitMQ queue."""
         async with _RPCCallback(
             self._rpc_lock,
             await self.declarer.declare_queue(RABBIT_REPLY),
         ) as response_queue:
-            with anyio.fail_after(timeout):
+            with anyio.fail_after(cmd.timeout):
                 await self._publish(
-                    message=message,
-                    exchange=exchange,
-                    routing_key=routing_key,
-                    mandatory=mandatory,
-                    immediate=immediate,
-                    timeout=timeout,
-                    persist=persist,
+                    message=cmd.body,
+                    exchange=cmd.exchange,
+                    routing_key=cmd.destination,
                     reply_to=RABBIT_REPLY.name,
-                    headers=headers,
-                    content_type=content_type,
-                    content_encoding=content_encoding,
-                    priority=priority,
-                    correlation_id=correlation_id,
-                    expiration=expiration,
-                    message_id=message_id,
-                    timestamp=timestamp,
-                    message_type=message_type,
-                    user_id=user_id,
-                    app_id=app_id,
+                    headers=cmd.headers,
+                    correlation_id=cmd.correlation_id,
+                    **cmd.publish_options,
+                    **cmd.message_options,
                 )
                 return await response_queue.receive()
 
@@ -153,45 +94,18 @@ class AioPikaFastProducer(ProducerProto):
         self,
         message: "AioPikaSendableMessage",
         *,
-        correlation_id: str,
-        exchange: Union["RabbitExchange", str, None],
+        exchange: "RabbitExchange",
         routing_key: str,
-        mandatory: bool,
-        immediate: bool,
-        timeout: "TimeoutType",
-        persist: bool,
-        reply_to: Optional[str],
-        headers: Optional["HeadersType"],
-        content_type: Optional[str],
-        content_encoding: Optional[str],
-        priority: Optional[int],
-        expiration: Optional["DateType"],
-        message_id: Optional[str],
-        timestamp: Optional["DateType"],
-        message_type: Optional[str],
-        user_id: Optional[str],
-        app_id: Optional[str],
+        mandatory: bool = True,
+        immediate: bool = False,
+        timeout: "TimeoutType" = None,
+        **message_options: Unpack["MessageOptions"],
     ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
         """Publish a message to a RabbitMQ exchange."""
-        message = AioPikaParser.encode_message(
-            message=message,
-            persist=persist,
-            reply_to=reply_to,
-            headers=headers,
-            content_type=content_type,
-            content_encoding=content_encoding,
-            priority=priority,
-            correlation_id=correlation_id,
-            expiration=expiration,
-            message_id=message_id,
-            timestamp=timestamp,
-            message_type=message_type,
-            user_id=user_id,
-            app_id=app_id,
-        )
+        message = AioPikaParser.encode_message(message=message, **message_options)
 
         exchange_obj = await self.declarer.declare_exchange(
-            exchange=RabbitExchange.validate(exchange),
+            exchange=exchange,
             passive=True,
         )
 

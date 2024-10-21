@@ -65,7 +65,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         self.subject = subject
         self.stream = stream
         self.timeout = timeout
-        self.headers = headers
+        self.headers = headers or {}
         self.reply_to = reply_to
 
     @override
@@ -101,7 +101,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             NatsPublishCommand(
                 message,
                 subject=subject or self.subject,
-                headers=headers or self.headers,
+                headers=self.headers | (headers or {}),
                 reply_to=reply_to or self.reply_to,
                 correlation_id=correlation_id or gen_cor_id(),
                 stream=stream or getattr(self.stream, "name", None),
@@ -121,9 +121,9 @@ class LogicPublisher(PublisherUsecase[Msg]):
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = NatsPublishCommand.from_cmd(cmd)
-        cmd.headers = cmd.headers or self.headers
+        cmd.headers = self.headers | cmd.headers
         cmd.destination = self.subject
-        cmd.reply_to = self.reply_to
+        cmd.reply_to = cmd.reply_to or self.reply_to
 
         if self.stream:
             cmd.stream = self.stream.name
@@ -191,7 +191,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         cmd = NatsPublishCommand(
             message=message,
             subject=subject or self.subject,
-            headers=headers or self.headers,
+            headers=self.headers | (headers or {}),
             timeout=timeout or self.timeout,
             correlation_id=correlation_id or gen_cor_id(),
             stream=getattr(self.stream, "name", None),

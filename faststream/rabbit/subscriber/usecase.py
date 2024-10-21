@@ -9,11 +9,11 @@ from typing import (
 import anyio
 from typing_extensions import override
 
-from faststream._internal.publisher.fake import FakePublisher
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
 from faststream.rabbit.parser import AioPikaParser
+from faststream.rabbit.publisher.fake import RabbitFakePublisher
 from faststream.rabbit.schemas import BaseRMQInformation
 
 if TYPE_CHECKING:
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.publisher.proto import BasePublisherProto
     from faststream._internal.setup import SetupState
     from faststream._internal.types import BrokerMiddleware, CustomCallable
     from faststream.message import StreamMessage
@@ -205,17 +206,15 @@ class LogicSubscriber(
     def _make_response_publisher(
         self,
         message: "StreamMessage[Any]",
-    ) -> Sequence["FakePublisher"]:
+    ) -> Sequence["BasePublisherProto"]:
         if self._producer is None:
             return ()
 
         return (
-            FakePublisher(
-                self._producer.publish,
-                publish_kwargs={
-                    "routing_key": message.reply_to,
-                    "app_id": self.app_id,
-                },
+            RabbitFakePublisher(
+                self._producer,
+                routing_key=message.reply_to,
+                app_id=self.app_id,
             ),
         )
 

@@ -31,8 +31,10 @@ class NatsResponse(Response):
             message=self.body,
             headers=self.headers,
             correlation_id=self.correlation_id,
-            stream=self.stream,
             _publish_type=PublishType.Reply,
+            # Nats specific
+            subject="",
+            stream=self.stream,
         )
 
 
@@ -40,13 +42,14 @@ class NatsPublishCommand(PublishCommand):
     def __init__(
         self,
         message: "SendableMessage",
-        _publish_type: PublishType,
+        *,
         subject: str = "",
         correlation_id: Optional[str] = None,
         headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
+        _publish_type: PublishType,
     ) -> None:
         super().__init__(
             body=message,
@@ -74,7 +77,7 @@ class NatsPublishCommand(PublishCommand):
     @classmethod
     def from_cmd(
         cls,
-        cmd: Union[PublishCommand, "NatsPublishCommand"],
+        cmd: Union["PublishCommand", "NatsPublishCommand"],
     ) -> "NatsPublishCommand":
         if isinstance(cmd, NatsPublishCommand):
             # NOTE: Should return a copy probably.
