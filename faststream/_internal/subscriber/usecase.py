@@ -329,7 +329,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             # enter all middlewares
             middlewares: list[BaseMiddleware] = []
             for base_m in self._broker_middlewares:
-                middleware = base_m(msg)
+                middleware = base_m(msg, context=context)
                 middlewares.append(middleware)
                 await middleware.__aenter__()
 

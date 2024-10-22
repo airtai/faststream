@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Annotated, Any, Callable, Optional
 
 from typing_extensions import Doc, override
 
+from faststream._internal.context.repository import context
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -164,7 +165,10 @@ class ChannelPublisher(LogicPublisher):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):
@@ -226,7 +230,10 @@ class ChannelPublisher(LogicPublisher):
         for pub_m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):
@@ -350,7 +357,10 @@ class ListPublisher(LogicPublisher):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):
@@ -413,7 +423,10 @@ class ListPublisher(LogicPublisher):
         for pub_m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):
@@ -488,7 +501,10 @@ class ListBatchPublisher(ListPublisher):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):
@@ -615,7 +631,10 @@ class StreamPublisher(LogicPublisher):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):
@@ -686,7 +705,10 @@ class StreamPublisher(LogicPublisher):
         for pub_m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):

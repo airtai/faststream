@@ -10,10 +10,7 @@ from opentelemetry.semconv.trace import SpanAttributes
 from opentelemetry.trace import Link, Span
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
-from faststream import (
-    BaseMiddleware,
-    context as fs_context,
-)
+from faststream import BaseMiddleware
 from faststream.opentelemetry.baggage import Baggage
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
@@ -22,7 +19,6 @@ from faststream.opentelemetry.consts import (
     WITH_BATCH,
     MessageAction,
 )
-from faststream.opentelemetry.provider import TelemetrySettingsProvider
 
 if TYPE_CHECKING:
     from contextvars import Token
@@ -33,11 +29,55 @@ if TYPE_CHECKING:
     from opentelemetry.util.types import Attributes
 
     from faststream._internal.basic_types import AnyDict, AsyncFunc, AsyncFuncAny
+    from faststream._internal.context.repository import ContextRepo
     from faststream.message import StreamMessage
+    from faststream.opentelemetry.provider import TelemetrySettingsProvider
 
 
 _BAGGAGE_PROPAGATOR = W3CBaggagePropagator()
 _TRACE_PROPAGATOR = TraceContextTextMapPropagator()
+
+
+class TelemetryMiddleware:
+    # NOTE: should it be class or function?
+    __slots__ = (
+        "_meter",
+        "_metrics",
+        "_settings_provider_factory",
+        "_tracer",
+    )
+
+    def __init__(
+        self,
+        *,
+        settings_provider_factory: Callable[
+            [Any],
+            Optional["TelemetrySettingsProvider[Any]"],
+        ],
+        tracer_provider: Optional["TracerProvider"] = None,
+        meter_provider: Optional["MeterProvider"] = None,
+        meter: Optional["Meter"] = None,
+        include_messages_counters: bool = False,
+    ) -> None:
+        self._tracer = _get_tracer(tracer_provider)
+        self._meter = _get_meter(meter_provider, meter)
+        self._metrics = _MetricsContainer(self._meter, include_messages_counters)
+        self._settings_provider_factory = settings_provider_factory
+
+    def __call__(
+        self,
+        msg: Optional[Any],
+        /,
+        *,
+        context: "ContextRepo",
+    ) -> "_BaseTelemetryMiddleware":
+        return _BaseTelemetryMiddleware(
+            tracer=self._tracer,
+            metrics_container=self._metrics,
+            settings_provider_factory=self._settings_provider_factory,
+            msg=msg,
+            context=context,
+        )
 
 
 class _MetricsContainer:
@@ -112,19 +152,20 @@ class _MetricsContainer:
             )
 
 
-class BaseTelemetryMiddleware(BaseMiddleware):
+class _BaseTelemetryMiddleware(BaseMiddleware):
     def __init__(
         self,
         *,
         tracer: "Tracer",
         settings_provider_factory: Callable[
             [Any],
-            Optional[TelemetrySettingsProvider[Any]],
+            Optional["TelemetrySettingsProvider[Any]"],
         ],
         metrics_container: _MetricsContainer,
-        msg: Optional[Any] = None,
+        context: "ContextRepo",
+        msg: Optional[Any],
     ) -> None:
-        self.msg = msg
+        super().__init__(msg, context=context)
 
         self._tracer = tracer
         self._metrics = metrics_container
@@ -147,7 +188,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         current_context = context.get_current()
         destination_name = provider.get_publish_destination_name(kwargs)
 
-        current_baggage: Optional[Baggage] = fs_context.get_local("baggage")
+        current_baggage: Optional[Baggage] = self.context.get_local("baggage")
         if current_baggage:
             headers.update(current_baggage.to_headers())
 
@@ -207,7 +248,7 @@ class BaseTelemetryMiddleware(BaseMiddleware):
             self._metrics.observe_publish(metrics_attributes, duration, msg_count)
 
         for key, token in self._scope_tokens:
-            fs_context.reset_local(key, token)
+            self.context.reset_local(key, token)
 
         return result
 
@@ -260,9 +301,15 @@ class BaseTelemetryMiddleware(BaseMiddleware):
                 )
                 self._current_span = span
 
-                self._scope_tokens.append(("span", fs_context.set_local("span", span)))
+                self._scope_tokens.append((
+                    "span",
+                    self.context.set_local("span", span),
+                ))
                 self._scope_tokens.append(
-                    ("baggage", fs_context.set_local("baggage", Baggage.from_msg(msg))),
+                    (
+                        "baggage",
+                        self.context.set_local("baggage", Baggage.from_msg(msg)),
+                    ),
                 )
 
                 new_context = trace.set_span_in_context(span, current_context)
@@ -293,41 +340,6 @@ class BaseTelemetryMiddleware(BaseMiddleware):
         if self._current_span and self._current_span.is_recording():
             self._current_span.end()
         return False
-
-
-class TelemetryMiddleware:
-    # NOTE: should it be class or function?
-    __slots__ = (
-        "_meter",
-        "_metrics",
-        "_settings_provider_factory",
-        "_tracer",
-    )
-
-    def __init__(
-        self,
-        *,
-        settings_provider_factory: Callable[
-            [Any],
-            Optional[TelemetrySettingsProvider[Any]],
-        ],
-        tracer_provider: Optional["TracerProvider"] = None,
-        meter_provider: Optional["MeterProvider"] = None,
-        meter: Optional["Meter"] = None,
-        include_messages_counters: bool = False,
-    ) -> None:
-        self._tracer = _get_tracer(tracer_provider)
-        self._meter = _get_meter(meter_provider, meter)
-        self._metrics = _MetricsContainer(self._meter, include_messages_counters)
-        self._settings_provider_factory = settings_provider_factory
-
-    def __call__(self, msg: Optional[Any]) -> BaseMiddleware:
-        return BaseTelemetryMiddleware(
-            tracer=self._tracer,
-            metrics_container=self._metrics,
-            settings_provider_factory=self._settings_provider_factory,
-            msg=msg,
-        )
 
 
 def _get_meter(

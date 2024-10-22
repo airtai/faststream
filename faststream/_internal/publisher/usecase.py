@@ -15,6 +15,7 @@ from fast_depends._compat import create_model, get_config_base
 from fast_depends.core import CallModel, build_call_model
 from typing_extensions import Doc, override
 
+from faststream._internal.context.repository import context
 from faststream._internal.publisher.proto import PublisherProto
 from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
 from faststream._internal.subscriber.utils import process_msg
@@ -148,7 +149,10 @@ class PublisherUsecase(PublisherProto[MsgType]):
         for pub_m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):
@@ -163,7 +167,7 @@ class PublisherUsecase(PublisherProto[MsgType]):
         request = self._producer.request
 
         for pub_m in chain(
-            (m(None).publish_scope for m in self._broker_middlewares),
+            (m(None, context=context).publish_scope for m in self._broker_middlewares),
             self._middlewares,
         ):
             request = partial(pub_m, request)

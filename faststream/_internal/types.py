@@ -11,6 +11,7 @@ from typing import (
 from typing_extensions import ParamSpec, TypeAlias
 
 from faststream._internal.basic_types import AsyncFuncAny
+from faststream._internal.context.repository import ContextRepo
 from faststream.message import StreamMessage
 from faststream.middlewares import BaseMiddleware
 from faststream.response.response import PublishCommand
@@ -65,7 +66,18 @@ WrappedHandlerCall: TypeAlias = Union[
 ]
 
 
-BrokerMiddleware: TypeAlias = Callable[[Optional[MsgType]], BaseMiddleware]
+class BrokerMiddleware(Protocol[MsgType]):
+    """Middleware builder interface."""
+
+    def __call__(
+        self,
+        msg: Optional[MsgType],
+        /,
+        *,
+        context: ContextRepo,
+    ) -> BaseMiddleware: ...
+
+
 SubscriberMiddleware: TypeAlias = Callable[
     [AsyncFuncAny, MsgType],
     MsgType,

@@ -2,7 +2,6 @@ import logging
 from typing import TYPE_CHECKING, Any, Optional
 
 from faststream._internal.context.repository import context
-from faststream._internal.setup.logger import LoggerState
 from faststream.exceptions import IgnoredException
 
 from .base import BaseMiddleware
@@ -10,22 +9,41 @@ from .base import BaseMiddleware
 if TYPE_CHECKING:
     from types import TracebackType
 
+    from faststream._internal.context.repository import ContextRepo
+    from faststream._internal.setup.logger import LoggerState
     from faststream.message import StreamMessage
 
 
 class CriticalLogMiddleware:
-    def __init__(self, logger: LoggerState) -> None:
+    def __init__(self, logger: "LoggerState") -> None:
         """Initialize the class."""
         self.logger = logger
 
-    def __call__(self, msg: Optional[Any] = None) -> Any:
-        return LoggingMiddleware(logger=self.logger)
+    def __call__(
+        self,
+        msg: Optional[Any],
+        /,
+        *,
+        context: "ContextRepo",
+    ) -> "_LoggingMiddleware":
+        return _LoggingMiddleware(
+            logger=self.logger,
+            msg=msg,
+            context=context,
+        )
 
 
-class LoggingMiddleware(BaseMiddleware):
+class _LoggingMiddleware(BaseMiddleware):
     """A middleware class for logging critical errors."""
 
-    def __init__(self, logger: LoggerState) -> None:
+    def __init__(
+        self,
+        *,
+        logger: "LoggerState",
+        context: "ContextRepo",
+        msg: Optional[Any],
+    ) -> None:
+        super().__init__(msg, context=context)
         self.logger = logger
 
     async def on_consume(

@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from faststream._internal.basic_types import AsyncFuncAny
+    from faststream._internal.context.repository import ContextRepo
     from faststream.message import StreamMessage
     from faststream.response.response import PublishCommand
 
@@ -14,8 +15,15 @@ if TYPE_CHECKING:
 class BaseMiddleware:
     """A base middleware class."""
 
-    def __init__(self, msg: Optional[Any] = None) -> None:
+    def __init__(
+        self,
+        msg: Optional[Any],
+        /,
+        *,
+        context: "ContextRepo",
+    ) -> None:
         self.msg = msg
+        self.context = context
 
     async def on_receive(self) -> None:
         """Hook to call on message receive."""

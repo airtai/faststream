@@ -15,6 +15,7 @@ from typing import (
 import anyio
 from typing_extensions import Literal, Self, overload
 
+from faststream._internal.context.repository import context
 from faststream._internal.subscriber.acknowledgement_watcher import (
     WatcherContext,
     get_watcher,
@@ -69,7 +70,7 @@ async def process_msg(
         ] = return_input
 
         for m in middlewares:
-            mid = m(msg)
+            mid = m(msg, context=context)
             await stack.enter_async_context(mid)
             return_msg = partial(mid.consume_scope, return_msg)
 

@@ -27,6 +27,7 @@ from typing_extensions import Doc, TypeAlias, override
 from faststream.__about__ import __version__
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
+from faststream._internal.context.repository import context
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
@@ -476,7 +477,7 @@ class RedisBroker(
         call: AsyncFunc = self._producer.publish_batch
 
         for m in self._middlewares:
-            call = partial(m(None).publish_scope, call)
+            call = partial(m(None, context=context).publish_scope, call)
 
         await call(
             *msgs,

@@ -13,6 +13,7 @@ from typing import (
 from confluent_kafka import Message
 from typing_extensions import override
 
+from faststream._internal.context.repository import context
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
@@ -100,7 +101,10 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         for pub_m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):
@@ -214,7 +218,10 @@ class DefaultPublisher(LogicPublisher[Message]):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):
@@ -315,7 +322,10 @@ class BatchPublisher(LogicPublisher[tuple[Message, ...]]):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):

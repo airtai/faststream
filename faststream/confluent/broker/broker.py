@@ -19,6 +19,7 @@ from typing_extensions import Doc, override
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
+from faststream._internal.context.repository import context
 from faststream._internal.utils.data import filter_by_dict
 from faststream.confluent.client import AsyncConfluentConsumer, AsyncConfluentProducer
 from faststream.confluent.config import ConfluentFastConfig
@@ -546,7 +547,7 @@ class KafkaBroker(
 
         call: AsyncFunc = self._producer.publish_batch
         for m in self._middlewares:
-            call = partial(m(None).publish_scope, call)
+            call = partial(m(None, context=context).publish_scope, call)
 
         await call(
             *msgs,

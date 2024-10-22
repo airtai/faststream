@@ -12,6 +12,7 @@ from typing import (
 from aiokafka import ConsumerRecord
 from typing_extensions import Doc, override
 
+from faststream._internal.context.repository import context
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.types import MsgType
 from faststream.kafka.message import KafkaMessage
@@ -348,7 +349,7 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
         call: AsyncFunc = self._producer.publish_batch
 
         for m in chain(
-            (m(None).publish_scope for m in self._broker_middlewares),
+            (m(None, context=context).publish_scope for m in self._broker_middlewares),
             self._middlewares,
         ):
             call = partial(m, call)
@@ -376,7 +377,10 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
             ),
             self._middlewares,
         ):

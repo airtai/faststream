@@ -15,6 +15,7 @@ from typing import (
 from typing_extensions import Doc, Self
 
 from faststream._internal._compat import is_test_env
+from faststream._internal.context.repository import context
 from faststream._internal.setup import (
     EmptyState,
     FastDependsData,
@@ -329,7 +330,7 @@ class BrokerUsecase(
         publish = producer.publish
 
         for m in self._middlewares:
-            publish = partial(m(None).publish_scope, publish)
+            publish = partial(m(None, context=context).publish_scope, publish)
 
         return await publish(cmd)
 
@@ -344,7 +345,7 @@ class BrokerUsecase(
 
         request = producer.request
         for m in self._middlewares:
-            request = partial(m(None).publish_scope, request)
+            request = partial(m(None, context=context).publish_scope, request)
 
         published_msg = await request(cmd)
 

@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from faststream._internal.basic_types import AsyncFuncAny
+    from faststream._internal.context.repository import ContextRepo
     from faststream.message import StreamMessage
 
 
@@ -46,61 +47,6 @@ CastedPublishingHandlers: TypeAlias = list[
         CastedPublishingExceptionHandler,
     ]
 ]
-
-
-class BaseExceptionMiddleware(BaseMiddleware):
-    def __init__(
-        self,
-        handlers: CastedHandlers,
-        publish_handlers: CastedPublishingHandlers,
-        msg: Optional[Any] = None,
-    ) -> None:
-        super().__init__(msg)
-        self._handlers = handlers
-        self._publish_handlers = publish_handlers
-
-    async def consume_scope(
-        self,
-        call_next: "AsyncFuncAny",
-        msg: "StreamMessage[Any]",
-    ) -> Any:
-        try:
-            return await call_next(await self.on_consume(msg))
-
-        except Exception as exc:
-            exc_type = type(exc)
-
-            for handler_type, handler in self._publish_handlers:
-                if issubclass(exc_type, handler_type):
-                    return await handler(exc)
-
-            raise
-
-    async def after_processed(
-        self,
-        exc_type: Optional[type[BaseException]] = None,
-        exc_val: Optional[BaseException] = None,
-        exc_tb: Optional["TracebackType"] = None,
-    ) -> Optional[bool]:
-        if exc_type:
-            for handler_type, handler in self._handlers:
-                if issubclass(exc_type, handler_type):
-                    # TODO: remove it after context will be moved to middleware
-                    # In case parser/decoder error occurred
-                    scope: AbstractContextManager[Any]
-                    if not context.get_local("message"):
-                        scope = context.scope("message", self.msg)
-                    else:
-                        scope = sync_fake_context()
-
-                    with scope:
-                        await handler(exc_val)
-
-                    return True
-
-            return False
-
-        return None
 
 
 class ExceptionMiddleware:
@@ -195,13 +141,77 @@ class ExceptionMiddleware:
 
         return default_wrapper
 
-    def __call__(self, msg: Optional[Any]) -> BaseExceptionMiddleware:
+    def __call__(
+        self,
+        msg: Optional[Any],
+        /,
+        *,
+        context: "ContextRepo",
+    ) -> "_BaseExceptionMiddleware":
         """Real middleware runtime constructor."""
-        return BaseExceptionMiddleware(
+        return _BaseExceptionMiddleware(
             handlers=self._handlers,
             publish_handlers=self._publish_handlers,
+            context=context,
             msg=msg,
         )
+
+
+class _BaseExceptionMiddleware(BaseMiddleware):
+    def __init__(
+        self,
+        *,
+        handlers: CastedHandlers,
+        publish_handlers: CastedPublishingHandlers,
+        context: "ContextRepo",
+        msg: Optional[Any],
+    ) -> None:
+        super().__init__(msg, context=context)
+        self._handlers = handlers
+        self._publish_handlers = publish_handlers
+
+    async def consume_scope(
+        self,
+        call_next: "AsyncFuncAny",
+        msg: "StreamMessage[Any]",
+    ) -> Any:
+        try:
+            return await call_next(await self.on_consume(msg))
+
+        except Exception as exc:
+            exc_type = type(exc)
+
+            for handler_type, handler in self._publish_handlers:
+                if issubclass(exc_type, handler_type):
+                    return await handler(exc)
+
+            raise
+
+    async def after_processed(
+        self,
+        exc_type: Optional[type[BaseException]] = None,
+        exc_val: Optional[BaseException] = None,
+        exc_tb: Optional["TracebackType"] = None,
+    ) -> Optional[bool]:
+        if exc_type:
+            for handler_type, handler in self._handlers:
+                if issubclass(exc_type, handler_type):
+                    # TODO: remove it after context will be moved to middleware
+                    # In case parser/decoder error occurred
+                    scope: AbstractContextManager[Any]
+                    if not context.get_local("message"):
+                        scope = context.scope("message", self.msg)
+                    else:
+                        scope = sync_fake_context()
+
+                    with scope:
+                        await handler(exc_val)
+
+                    return True
+
+            return False
+
+        return None
 
 
 async def ignore_handler(exception: IgnoredException) -> NoReturn:
