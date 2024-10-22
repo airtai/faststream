@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from faststream._internal.basic_types import SendableMessage
 from faststream._internal.publisher.proto import BasePublisherProto
-from faststream.rabbit.response import RabbitPublishCommand
+from faststream.kafka.response import KafkaPublishCommand
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AsyncFunc
@@ -13,19 +13,17 @@ if TYPE_CHECKING:
     from faststream.response.response import PublishCommand
 
 
-class RabbitFakePublisher(BasePublisherProto):
+class KafkaFakePublisher(BasePublisherProto):
     """Publisher Interface implementation to use as RPC or REPLY TO answer publisher."""
 
     def __init__(
         self,
         producer: "ProducerProto",
-        routing_key: str,
-        app_id: Optional[str],
+        topic: str,
     ) -> None:
         """Initialize an object."""
         self._producer = producer
-        self.routing_key = routing_key
-        self.app_id = str
+        self.topic = topic
 
     async def _publish(
         self,
@@ -34,9 +32,8 @@ class RabbitFakePublisher(BasePublisherProto):
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Any:
         """This method should be called in subscriber flow only."""
-        cmd = RabbitPublishCommand.from_cmd(cmd)
-        cmd.destination = self.routing_key
-        cmd.app_id = self.app_id
+        cmd = KafkaPublishCommand.from_cmd(cmd)
+        cmd.destination = self.topic
 
         call: AsyncFunc = self._producer.publish
         for m in _extra_middlewares:
@@ -51,7 +48,7 @@ class RabbitFakePublisher(BasePublisherProto):
         *,
         correlation_id: Optional[str] = None,
     ) -> Optional[Any]:
-        msg = "You can't use `RabbitFakePublisher` directly."
+        msg = "You can't use `KafkaFakePublisher` directly."
         raise NotImplementedError(msg)
 
     async def request(
@@ -62,7 +59,7 @@ class RabbitFakePublisher(BasePublisherProto):
         correlation_id: Optional[str] = None,
     ) -> Any:
         msg = (
-            "`RabbitFakePublisher` can be used only to publish "
+            "`KafkaFakePublisher` can be used only to publish "
             "a response for `reply-to` or `RPC` messages."
         )
         raise NotImplementedError(msg)

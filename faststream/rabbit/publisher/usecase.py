@@ -13,7 +13,6 @@ from typing_extensions import Doc, Unpack, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.utils.data import filter_by_dict
-from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.rabbit.response import RabbitPublishCommand
 from faststream.rabbit.schemas import BaseRMQInformation, RabbitExchange, RabbitQueue
@@ -184,8 +183,6 @@ class LogicPublisher(
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
         """This method should be called in subscriber flow only."""
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
         cmd = RabbitPublishCommand.from_cmd(cmd)
 
         cmd.destination = self.routing
@@ -230,8 +227,6 @@ class LogicPublisher(
         # publisher specific
         **publish_kwargs: "Unpack[RequestPublishKwargs]",
     ) -> "RabbitMessage":
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
         if not routing_key:
             if q := RabbitQueue.validate(queue):
                 routing_key = q.routing

@@ -24,9 +24,11 @@ from faststream._internal.constants import EMPTY
 from faststream._internal.utils.data import filter_by_dict
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
+from faststream.kafka.response import KafkaPublishCommand
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.kafka.security import parse_security
 from faststream.message import gen_cor_id
+from faststream.response.publish_type import PublishType
 
 from .logging import make_kafka_logger_state
 from .registrator import KafkaRegistrator
@@ -53,6 +55,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         CustomCallable,
     )
+    from faststream.kafka.message import KafkaMessage
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
 
@@ -734,21 +737,19 @@ class KafkaBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        correlation_id = correlation_id or gen_cor_id()
-
-        await super().publish(
+        cmd = KafkaPublishCommand(
             message,
-            producer=self._producer,
             topic=topic,
             key=key,
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=headers,
-            correlation_id=correlation_id,
             reply_to=reply_to,
             no_confirm=no_confirm,
-            **kwargs,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Publish,
         )
+        return await super().publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -809,20 +810,21 @@ class KafkaBroker(
             float,
             Doc("Timeout to send RPC request."),
         ] = 0.5,
-    ) -> Optional[Any]:
-        correlation_id = correlation_id or gen_cor_id()
-
-        return await super().request(
+    ) -> "KafkaMessage":
+        cmd = KafkaPublishCommand(
             message,
-            producer=self._producer,
             topic=topic,
             key=key,
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=headers,
-            correlation_id=correlation_id,
             timeout=timeout,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Request,
         )
+
+        msg: KafkaMessage = await super().request(cmd, producer=self._producer)
+        return msg
 
     async def publish_batch(
         self,
@@ -874,23 +876,24 @@ class KafkaBroker(
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        correlation_id = correlation_id or gen_cor_id()
-
-        call: AsyncFunc = self._producer.publish_batch
-
-        for m in self._middlewares:
-            call = partial(m(None).publish_scope, call)
-
-        await call(
+        cmd = KafkaPublishCommand(
             *msgs,
             topic=topic,
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=headers,
             reply_to=reply_to,
-            correlation_id=correlation_id,
             no_confirm=no_confirm,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Publish,
         )
+
+        call: AsyncFunc = self._producer.publish_batch
+
+        for m in self._middlewares:
+            call = partial(m(None).publish_scope, call)
+
+        await call(cmd)
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:

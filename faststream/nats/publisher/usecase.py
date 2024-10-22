@@ -11,7 +11,6 @@ from nats.aio.msg import Msg
 from typing_extensions import Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.nats.response import NatsPublishCommand
 from faststream.response.publish_type import PublishType
@@ -93,26 +92,23 @@ class LogicPublisher(PublisherUsecase[Msg]):
                 Can be omitted without any effect.
             timeout (float, optional): Timeout to send message to NATS in seconds (default is `None`).
         """
-        return await self._basic_publish(
-            NatsPublishCommand(
-                message,
-                subject=subject or self.subject,
-                headers=self.headers | (headers or {}),
-                reply_to=reply_to or self.reply_to,
-                correlation_id=correlation_id or gen_cor_id(),
-                stream=stream or getattr(self.stream, "name", None),
-                timeout=timeout or self.timeout,
-                _publish_type=PublishType.Publish,
-            ),
-            _extra_middlewares=(),
+        cmd = NatsPublishCommand(
+            message,
+            subject=subject or self.subject,
+            headers=self.headers | (headers or {}),
+            reply_to=reply_to or self.reply_to,
+            correlation_id=correlation_id or gen_cor_id(),
+            stream=stream or getattr(self.stream, "name", None),
+            timeout=timeout or self.timeout,
+            _publish_type=PublishType.Publish,
         )
+        return await self._basic_publish(cmd, _extra_middlewares=())
 
     @override
     async def _publish(
         self,
         cmd: Union["PublishCommand", "NatsPublishCommand"],
         *,
-        # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
         """This method should be called in subscriber flow only."""
@@ -161,8 +157,6 @@ class LogicPublisher(PublisherUsecase[Msg]):
             Doc("Timeout to send message to NATS."),
         ] = 0.5,
     ) -> "NatsMessage":
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
         cmd = NatsPublishCommand(
             message=message,
             subject=subject or self.subject,

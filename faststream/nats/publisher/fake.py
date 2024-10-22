@@ -57,7 +57,6 @@ class NatsFakePublisher(BasePublisherProto):
         /,
         *,
         correlation_id: Optional[str] = None,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Any:
         msg = (
             "`NatsFakePublisher` can be used only to publish "
