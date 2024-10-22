@@ -2,7 +2,7 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 
 from typing_extensions import Doc, override
-
+from faststream.middlewares.acknowledgement import AcknowledgementMiddleware, AckPolicy
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream.rabbit.publisher.factory import create_publisher
 from faststream.rabbit.publisher.specified import SpecificationPublisher
@@ -74,14 +74,10 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Iterable["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            Union[bool, int],
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
+        ack_policy: Annotated[
+            AckPolicy,
             Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -113,9 +109,8 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
                     exchange=RabbitExchange.validate(exchange),
                     consume_args=consume_args,
                     # subscriber args
-                    no_ack=no_ack,
+                    ack_policy=ack_policy,
                     no_reply=no_reply,
-                    retry=retry,
                     broker_middlewares=self._middlewares,
                     broker_dependencies=self._dependencies,
                     # AsyncAPI

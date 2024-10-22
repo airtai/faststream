@@ -12,7 +12,7 @@ from typing import (
 )
 
 from typing_extensions import Self, override
-
+from faststream.middlewares.acknowledgement import AcknowledgementMiddleware, AckPolicy
 from faststream._internal.context.repository import context
 from faststream._internal.subscriber.call_item import HandlerItem
 from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
@@ -92,9 +92,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     def __init__(
         self,
         *,
-        no_ack: bool,
+        ack_policy: AckPolicy,
         no_reply: bool,
-        retry: Union[bool, int],
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         default_parser: "AsyncCallable",
@@ -110,9 +109,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._parser = default_parser
         self._decoder = default_decoder
         self._no_reply = no_reply
-        # Watcher args
-        self._no_ack = no_ack
-        self._retry = retry
+        self._ack_policy = ack_policy
 
         self._call_options = None
         self._call_decorators = ()
@@ -133,6 +130,9 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self.title_ = title_
         self.description_ = description_
         self.include_in_schema = include_in_schema
+
+        if ack_policy != AckPolicy.DO_NOTHING:
+            self.add_middleware(AcknowledgementMiddleware(ack_policy))
 
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         self._broker_middlewares = (*self._broker_middlewares, middleware)
@@ -156,8 +156,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._producer = producer
         self.graceful_timeout = graceful_timeout
         self.extra_context = extra_context
-
-        self.watcher = get_watcher_context(logger, self._no_ack, self._retry)
 
         for call in self.calls:
             if parser := call.item_parser or broker_parser:
@@ -345,12 +343,12 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
                 if message is not None:
                     # Acknowledgement scope
                     # TODO: move it to scope enter at `retry` option deprecation
-                    await stack.enter_async_context(
-                        self.watcher(
-                            message,
-                            **self.extra_watcher_options,
-                        ),
-                    )
+                    # await stack.enter_async_context(
+                    #     self.watcher(
+                    #         message,
+                    #         **self.extra_watcher_options,
+                    #     )
+                    # )
 
                     stack.enter_context(
                         context.scope("log_context", self.get_log_context(message)),
