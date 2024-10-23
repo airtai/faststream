@@ -13,7 +13,7 @@ from faststream.exceptions import NackMessage, SkipMessage
 
 @pytest.fixture()
 def message():
-    return AsyncMock(message_id=1)
+    return AsyncMock(message_id=1, committed=None)
 
 
 @pytest.mark.asyncio()

@@ -9,6 +9,8 @@ from typing import (
 )
 from uuid import uuid4
 
+from .source_type import SourceType
+
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, DecodedMessage
 
@@ -37,11 +39,13 @@ class StreamMessage(Generic[MsgType]):
         content_type: Optional[str] = None,
         correlation_id: Optional[str] = None,
         message_id: Optional[str] = None,
+        source_type: SourceType = SourceType.Consume,
     ) -> None:
         self.raw_message = raw_message
         self.body = body
         self.reply_to = reply_to
         self.content_type = content_type
+        self._source_type = source_type
 
         self.headers = headers or {}
         self.batch_headers = batch_headers or []

@@ -44,6 +44,7 @@ search:
     - [CLI](getting-started/cli/index.md)
     - [ASGI](getting-started/asgi.md)
     - [OpenTelemetry](getting-started/opentelemetry/index.md)
+    - [Prometheus](getting-started/prometheus/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
     - [Task Scheduling](scheduling.md)
@@ -95,6 +96,9 @@ search:
     - [Publishing](nats/publishing/index.md)
     - [RPC](nats/rpc.md)
     - [Message Information](nats/message.md)
+    - [How-To](howto/nats/index.md)
+        - [DynaConf](howto/nats/dynaconf.md)
+        - [In-Progess](howto/nats/in-progress.md)
 - [Redis](redis/index.md)
     - [Pub/Sub](redis/pubsub/index.md)
         - [Subscription](redis/pubsub/subscription.md)
@@ -291,12 +295,14 @@ search:
                 - parser
                     - [AsyncConfluentParser](api/faststream/confluent/parser/AsyncConfluentParser.md)
                 - publisher
+                    - factory
+                        - [create_publisher](api/faststream/confluent/publisher/factory/create_publisher.md)
                     - producer
                         - [AsyncConfluentFastProducer](api/faststream/confluent/publisher/producer/AsyncConfluentFastProducer.md)
-                    - publisher
-                        - [SpecificationBatchPublisher](api/faststream/confluent/publisher/publisher/SpecificationBatchPublisher.md)
-                        - [SpecificationDefaultPublisher](api/faststream/confluent/publisher/publisher/SpecificationDefaultPublisher.md)
-                        - [SpecificationPublisher](api/faststream/confluent/publisher/publisher/SpecificationPublisher.md)
+                    - specified
+                        - [SpecificationBatchPublisher](api/faststream/confluent/publisher/specified/SpecificationBatchPublisher.md)
+                        - [SpecificationDefaultPublisher](api/faststream/confluent/publisher/specified/SpecificationDefaultPublisher.md)
+                        - [SpecificationPublisher](api/faststream/confluent/publisher/specified/SpecificationPublisher.md)
                     - usecase
                         - [BatchPublisher](api/faststream/confluent/publisher/usecase/BatchPublisher.md)
                         - [DefaultPublisher](api/faststream/confluent/publisher/usecase/DefaultPublisher.md)
@@ -318,10 +324,10 @@ search:
                 - subscriber
                     - factory
                         - [create_subscriber](api/faststream/confluent/subscriber/factory/create_subscriber.md)
-                    - subscriber
-                        - [SpecificationBatchSubscriber](api/faststream/confluent/subscriber/subscriber/SpecificationBatchSubscriber.md)
-                        - [SpecificationDefaultSubscriber](api/faststream/confluent/subscriber/subscriber/SpecificationDefaultSubscriber.md)
-                        - [SpecificationSubscriber](api/faststream/confluent/subscriber/subscriber/SpecificationSubscriber.md)
+                    - specified
+                        - [SpecificationBatchSubscriber](api/faststream/confluent/subscriber/specified/SpecificationBatchSubscriber.md)
+                        - [SpecificationDefaultSubscriber](api/faststream/confluent/subscriber/specified/SpecificationDefaultSubscriber.md)
+                        - [SpecificationSubscriber](api/faststream/confluent/subscriber/specified/SpecificationSubscriber.md)
                     - usecase
                         - [BatchSubscriber](api/faststream/confluent/subscriber/usecase/BatchSubscriber.md)
                         - [DefaultSubscriber](api/faststream/confluent/subscriber/usecase/DefaultSubscriber.md)
@@ -387,12 +393,14 @@ search:
                     - [AioKafkaBatchParser](api/faststream/kafka/parser/AioKafkaBatchParser.md)
                     - [AioKafkaParser](api/faststream/kafka/parser/AioKafkaParser.md)
                 - publisher
+                    - factory
+                        - [create_publisher](api/faststream/kafka/publisher/factory/create_publisher.md)
                     - producer
                         - [AioKafkaFastProducer](api/faststream/kafka/publisher/producer/AioKafkaFastProducer.md)
-                    - publisher
-                        - [SpecificationBatchPublisher](api/faststream/kafka/publisher/publisher/SpecificationBatchPublisher.md)
-                        - [SpecificationDefaultPublisher](api/faststream/kafka/publisher/publisher/SpecificationDefaultPublisher.md)
-                        - [SpecificationPublisher](api/faststream/kafka/publisher/publisher/SpecificationPublisher.md)
+                    - specified
+                        - [SpecificationBatchPublisher](api/faststream/kafka/publisher/specified/SpecificationBatchPublisher.md)
+                        - [SpecificationDefaultPublisher](api/faststream/kafka/publisher/specified/SpecificationDefaultPublisher.md)
+                        - [SpecificationPublisher](api/faststream/kafka/publisher/specified/SpecificationPublisher.md)
                     - usecase
                         - [BatchPublisher](api/faststream/kafka/publisher/usecase/BatchPublisher.md)
                         - [DefaultPublisher](api/faststream/kafka/publisher/usecase/DefaultPublisher.md)
@@ -411,10 +419,10 @@ search:
                 - subscriber
                     - factory
                         - [create_subscriber](api/faststream/kafka/subscriber/factory/create_subscriber.md)
-                    - subscriber
-                        - [SpecificationBatchSubscriber](api/faststream/kafka/subscriber/subscriber/SpecificationBatchSubscriber.md)
-                        - [SpecificationDefaultSubscriber](api/faststream/kafka/subscriber/subscriber/SpecificationDefaultSubscriber.md)
-                        - [SpecificationSubscriber](api/faststream/kafka/subscriber/subscriber/SpecificationSubscriber.md)
+                    - specified
+                        - [SpecificationBatchSubscriber](api/faststream/kafka/subscriber/specified/SpecificationBatchSubscriber.md)
+                        - [SpecificationDefaultSubscriber](api/faststream/kafka/subscriber/specified/SpecificationDefaultSubscriber.md)
+                        - [SpecificationSubscriber](api/faststream/kafka/subscriber/specified/SpecificationSubscriber.md)
                     - usecase
                         - [BatchSubscriber](api/faststream/kafka/subscriber/usecase/BatchSubscriber.md)
                         - [DefaultSubscriber](api/faststream/kafka/subscriber/usecase/DefaultSubscriber.md)
@@ -425,6 +433,7 @@ search:
                     - [build_message](api/faststream/kafka/testing/build_message.md)
             - message
                 - [AckStatus](api/faststream/message/AckStatus.md)
+                - [SourceType](api/faststream/message/SourceType.md)
                 - [StreamMessage](api/faststream/message/StreamMessage.md)
                 - [decode_message](api/faststream/message/decode_message.md)
                 - [encode_message](api/faststream/message/encode_message.md)
@@ -432,6 +441,8 @@ search:
                 - message
                     - [AckStatus](api/faststream/message/message/AckStatus.md)
                     - [StreamMessage](api/faststream/message/message/StreamMessage.md)
+                - source_type
+                    - [SourceType](api/faststream/message/source_type/SourceType.md)
                 - utils
                     - [decode_message](api/faststream/message/utils/decode_message.md)
                     - [encode_message](api/faststream/message/utils/encode_message.md)
@@ -517,11 +528,13 @@ search:
                     - [NatsParser](api/faststream/nats/parser/NatsParser.md)
                     - [ObjParser](api/faststream/nats/parser/ObjParser.md)
                 - publisher
+                    - factory
+                        - [create_publisher](api/faststream/nats/publisher/factory/create_publisher.md)
                     - producer
                         - [NatsFastProducer](api/faststream/nats/publisher/producer/NatsFastProducer.md)
                         - [NatsJSFastProducer](api/faststream/nats/publisher/producer/NatsJSFastProducer.md)
-                    - publisher
-                        - [SpecificationPublisher](api/faststream/nats/publisher/publisher/SpecificationPublisher.md)
+                    - specified
+                        - [SpecificationPublisher](api/faststream/nats/publisher/specified/SpecificationPublisher.md)
                     - usecase
                         - [LogicPublisher](api/faststream/nats/publisher/usecase/LogicPublisher.md)
                 - response
@@ -548,23 +561,23 @@ search:
                 - security
                     - [parse_security](api/faststream/nats/security/parse_security.md)
                 - subscriber
+                    - adapters
+                        - [UnsubscribeAdapter](api/faststream/nats/subscriber/adapters/UnsubscribeAdapter.md)
+                        - [Unsubscriptable](api/faststream/nats/subscriber/adapters/Unsubscriptable.md)
+                        - [Watchable](api/faststream/nats/subscriber/adapters/Watchable.md)
                     - factory
                         - [create_subscriber](api/faststream/nats/subscriber/factory/create_subscriber.md)
-                    - subscriber
-                        - [SpecificationBatchPullStreamSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationBatchPullStreamSubscriber.md)
-                        - [SpecificationConcurrentCoreSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationConcurrentCoreSubscriber.md)
-                        - [SpecificationConcurrentPullStreamSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationConcurrentPullStreamSubscriber.md)
-                        - [SpecificationConcurrentPushStreamSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationConcurrentPushStreamSubscriber.md)
-                        - [SpecificationCoreSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationCoreSubscriber.md)
-                        - [SpecificationKeyValueWatchSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationKeyValueWatchSubscriber.md)
-                        - [SpecificationObjStoreWatchSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationObjStoreWatchSubscriber.md)
-                        - [SpecificationPullStreamSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationPullStreamSubscriber.md)
-                        - [SpecificationStreamSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationStreamSubscriber.md)
-                        - [SpecificationSubscriber](api/faststream/nats/subscriber/subscriber/SpecificationSubscriber.md)
-                    - subscription
-                        - [UnsubscribeAdapter](api/faststream/nats/subscriber/subscription/UnsubscribeAdapter.md)
-                        - [Unsubscriptable](api/faststream/nats/subscriber/subscription/Unsubscriptable.md)
-                        - [Watchable](api/faststream/nats/subscriber/subscription/Watchable.md)
+                    - specified
+                        - [SpecificationBatchPullStreamSubscriber](api/faststream/nats/subscriber/specified/SpecificationBatchPullStreamSubscriber.md)
+                        - [SpecificationConcurrentCoreSubscriber](api/faststream/nats/subscriber/specified/SpecificationConcurrentCoreSubscriber.md)
+                        - [SpecificationConcurrentPullStreamSubscriber](api/faststream/nats/subscriber/specified/SpecificationConcurrentPullStreamSubscriber.md)
+                        - [SpecificationConcurrentPushStreamSubscriber](api/faststream/nats/subscriber/specified/SpecificationConcurrentPushStreamSubscriber.md)
+                        - [SpecificationCoreSubscriber](api/faststream/nats/subscriber/specified/SpecificationCoreSubscriber.md)
+                        - [SpecificationKeyValueWatchSubscriber](api/faststream/nats/subscriber/specified/SpecificationKeyValueWatchSubscriber.md)
+                        - [SpecificationObjStoreWatchSubscriber](api/faststream/nats/subscriber/specified/SpecificationObjStoreWatchSubscriber.md)
+                        - [SpecificationPullStreamSubscriber](api/faststream/nats/subscriber/specified/SpecificationPullStreamSubscriber.md)
+                        - [SpecificationStreamSubscriber](api/faststream/nats/subscriber/specified/SpecificationStreamSubscriber.md)
+                        - [SpecificationSubscriber](api/faststream/nats/subscriber/specified/SpecificationSubscriber.md)
                     - usecase
                         - [BatchPullStreamSubscriber](api/faststream/nats/subscriber/usecase/BatchPullStreamSubscriber.md)
                         - [ConcurrentCoreSubscriber](api/faststream/nats/subscriber/usecase/ConcurrentCoreSubscriber.md)
@@ -627,8 +640,8 @@ search:
                 - fastapi
                     - [Context](api/faststream/rabbit/fastapi/Context.md)
                     - [RabbitRouter](api/faststream/rabbit/fastapi/RabbitRouter.md)
-                    - router
-                        - [RabbitRouter](api/faststream/rabbit/fastapi/router/RabbitRouter.md)
+                    - fastapi
+                        - [RabbitRouter](api/faststream/rabbit/fastapi/fastapi/RabbitRouter.md)
                 - helpers
                     - declarer
                         - [RabbitDeclarer](api/faststream/rabbit/helpers/declarer/RabbitDeclarer.md)
@@ -643,10 +656,12 @@ search:
                 - parser
                     - [AioPikaParser](api/faststream/rabbit/parser/AioPikaParser.md)
                 - publisher
+                    - factory
+                        - [create_publisher](api/faststream/rabbit/publisher/factory/create_publisher.md)
                     - producer
                         - [AioPikaFastProducer](api/faststream/rabbit/publisher/producer/AioPikaFastProducer.md)
-                    - publisher
-                        - [SpecificationPublisher](api/faststream/rabbit/publisher/publisher/SpecificationPublisher.md)
+                    - specified
+                        - [SpecificationPublisher](api/faststream/rabbit/publisher/specified/SpecificationPublisher.md)
                     - usecase
                         - [LogicPublisher](api/faststream/rabbit/publisher/usecase/LogicPublisher.md)
                         - [PublishKwargs](api/faststream/rabbit/publisher/usecase/PublishKwargs.md)
@@ -675,8 +690,8 @@ search:
                 - subscriber
                     - factory
                         - [create_subscriber](api/faststream/rabbit/subscriber/factory/create_subscriber.md)
-                    - subscriber
-                        - [SpecificationSubscriber](api/faststream/rabbit/subscriber/subscriber/SpecificationSubscriber.md)
+                    - specified
+                        - [SpecificationSubscriber](api/faststream/rabbit/subscriber/specified/SpecificationSubscriber.md)
                     - usecase
                         - [LogicSubscriber](api/faststream/rabbit/subscriber/usecase/LogicSubscriber.md)
                 - testing
@@ -741,14 +756,16 @@ search:
                     - [RedisStreamParser](api/faststream/redis/parser/RedisStreamParser.md)
                     - [SimpleParser](api/faststream/redis/parser/SimpleParser.md)
                 - publisher
+                    - factory
+                        - [create_publisher](api/faststream/redis/publisher/factory/create_publisher.md)
                     - producer
                         - [RedisFastProducer](api/faststream/redis/publisher/producer/RedisFastProducer.md)
-                    - publisher
-                        - [AsyncAPIChannelPublisher](api/faststream/redis/publisher/publisher/AsyncAPIChannelPublisher.md)
-                        - [AsyncAPIListBatchPublisher](api/faststream/redis/publisher/publisher/AsyncAPIListBatchPublisher.md)
-                        - [AsyncAPIListPublisher](api/faststream/redis/publisher/publisher/AsyncAPIListPublisher.md)
-                        - [AsyncAPIStreamPublisher](api/faststream/redis/publisher/publisher/AsyncAPIStreamPublisher.md)
-                        - [SpecificationPublisher](api/faststream/redis/publisher/publisher/SpecificationPublisher.md)
+                    - specified
+                        - [SpecificationChannelPublisher](api/faststream/redis/publisher/specified/SpecificationChannelPublisher.md)
+                        - [SpecificationListBatchPublisher](api/faststream/redis/publisher/specified/SpecificationListBatchPublisher.md)
+                        - [SpecificationListPublisher](api/faststream/redis/publisher/specified/SpecificationListPublisher.md)
+                        - [SpecificationPublisher](api/faststream/redis/publisher/specified/SpecificationPublisher.md)
+                        - [SpecificationStreamPublisher](api/faststream/redis/publisher/specified/SpecificationStreamPublisher.md)
                     - usecase
                         - [ChannelPublisher](api/faststream/redis/publisher/usecase/ChannelPublisher.md)
                         - [ListBatchPublisher](api/faststream/redis/publisher/usecase/ListBatchPublisher.md)
@@ -768,7 +785,7 @@ search:
                     - list_sub
                         - [ListSub](api/faststream/redis/schemas/list_sub/ListSub.md)
                     - proto
-                        - [RedisAsyncAPIProtocol](api/faststream/redis/schemas/proto/RedisAsyncAPIProtocol.md)
+                        - [RedisSpecificationProtocol](api/faststream/redis/schemas/proto/RedisSpecificationProtocol.md)
                         - [validate_options](api/faststream/redis/schemas/proto/validate_options.md)
                     - pub_sub
                         - [PubSub](api/faststream/redis/schemas/pub_sub/PubSub.md)
@@ -779,13 +796,13 @@ search:
                 - subscriber
                     - factory
                         - [create_subscriber](api/faststream/redis/subscriber/factory/create_subscriber.md)
-                    - subscriber
-                        - [AsyncAPIChannelSubscriber](api/faststream/redis/subscriber/subscriber/AsyncAPIChannelSubscriber.md)
-                        - [AsyncAPIListBatchSubscriber](api/faststream/redis/subscriber/subscriber/AsyncAPIListBatchSubscriber.md)
-                        - [AsyncAPIListSubscriber](api/faststream/redis/subscriber/subscriber/AsyncAPIListSubscriber.md)
-                        - [AsyncAPIStreamBatchSubscriber](api/faststream/redis/subscriber/subscriber/AsyncAPIStreamBatchSubscriber.md)
-                        - [AsyncAPIStreamSubscriber](api/faststream/redis/subscriber/subscriber/AsyncAPIStreamSubscriber.md)
-                        - [SpecificationSubscriber](api/faststream/redis/subscriber/subscriber/SpecificationSubscriber.md)
+                    - specified
+                        - [AsyncAPIChannelSubscriber](api/faststream/redis/subscriber/specified/AsyncAPIChannelSubscriber.md)
+                        - [AsyncAPIListBatchSubscriber](api/faststream/redis/subscriber/specified/AsyncAPIListBatchSubscriber.md)
+                        - [AsyncAPIListSubscriber](api/faststream/redis/subscriber/specified/AsyncAPIListSubscriber.md)
+                        - [AsyncAPIStreamBatchSubscriber](api/faststream/redis/subscriber/specified/AsyncAPIStreamBatchSubscriber.md)
+                        - [AsyncAPIStreamSubscriber](api/faststream/redis/subscriber/specified/AsyncAPIStreamSubscriber.md)
+                        - [SpecificationSubscriber](api/faststream/redis/subscriber/specified/SpecificationSubscriber.md)
                     - usecase
                         - [BatchListSubscriber](api/faststream/redis/subscriber/usecase/BatchListSubscriber.md)
                         - [BatchStreamSubscriber](api/faststream/redis/subscriber/usecase/BatchStreamSubscriber.md)
@@ -816,21 +833,14 @@ search:
                 - [SASLScram256](api/faststream/security/SASLScram256.md)
                 - [SASLScram512](api/faststream/security/SASLScram512.md)
             - specification
+                - [AsyncAPI](api/faststream/specification/AsyncAPI.md)
+                - [Contact](api/faststream/specification/Contact.md)
+                - [ExternalDocs](api/faststream/specification/ExternalDocs.md)
+                - [License](api/faststream/specification/License.md)
+                - [Tag](api/faststream/specification/Tag.md)
                 - asyncapi
                     - [AsyncAPI](api/faststream/specification/asyncapi/AsyncAPI.md)
-                    - [AsyncAPIProto](api/faststream/specification/asyncapi/AsyncAPIProto.md)
                     - [get_asyncapi_html](api/faststream/specification/asyncapi/get_asyncapi_html.md)
-                    - base
-                        - [AsyncAPIProto](api/faststream/specification/asyncapi/base/AsyncAPIProto.md)
-                        - asyncapi
-                            - [AsyncAPIProto](api/faststream/specification/asyncapi/base/asyncapi/AsyncAPIProto.md)
-                        - schema
-                            - [BaseInfo](api/faststream/specification/asyncapi/base/schema/BaseInfo.md)
-                            - [BaseSchema](api/faststream/specification/asyncapi/base/schema/BaseSchema.md)
-                            - info
-                                - [BaseInfo](api/faststream/specification/asyncapi/base/schema/info/BaseInfo.md)
-                            - schema
-                                - [BaseSchema](api/faststream/specification/asyncapi/base/schema/schema/BaseSchema.md)
                     - factory
                         - [AsyncAPI](api/faststream/specification/asyncapi/factory/AsyncAPI.md)
                     - message
@@ -1041,10 +1051,20 @@ search:
                                 - [Schema](api/faststream/specification/asyncapi/v3_0_0/schema/schema/Schema.md)
                             - servers
                                 - [Server](api/faststream/specification/asyncapi/v3_0_0/schema/servers/Server.md)
-                - proto
-                    - [SpecApplication](api/faststream/specification/proto/SpecApplication.md)
-                    - [SpecificationProto](api/faststream/specification/proto/SpecificationProto.md)
+                - base
+                    - info
+                        - [BaseInfo](api/faststream/specification/base/info/BaseInfo.md)
+                    - proto
+                        - [EndpointProto](api/faststream/specification/base/proto/EndpointProto.md)
+                    - schema
+                        - [BaseSchema](api/faststream/specification/base/schema/BaseSchema.md)
+                    - specification
+                        - [Specification](api/faststream/specification/base/specification/Specification.md)
                 - schema
+                    - [Contact](api/faststream/specification/schema/Contact.md)
+                    - [ExternalDocs](api/faststream/specification/schema/ExternalDocs.md)
+                    - [License](api/faststream/specification/schema/License.md)
+                    - [Tag](api/faststream/specification/schema/Tag.md)
                     - bindings
                         - [ChannelBinding](api/faststream/specification/schema/bindings/ChannelBinding.md)
                         - [OperationBinding](api/faststream/specification/schema/bindings/OperationBinding.md)
@@ -1088,8 +1108,6 @@ search:
                         - [Message](api/faststream/specification/schema/message/Message.md)
                     - operation
                         - [Operation](api/faststream/specification/schema/operation/Operation.md)
-                    - schema
-                        - [BaseSchema](api/faststream/specification/schema/schema/BaseSchema.md)
                     - security
                         - [OauthFlowObj](api/faststream/specification/schema/security/OauthFlowObj.md)
                         - [OauthFlows](api/faststream/specification/schema/security/OauthFlows.md)

@@ -122,6 +122,8 @@ An example includes:
 * Three `FastStream` services
 * Exporting traces to `Grafana Tempo` via `gRPC`
 * Visualization of traces via `Grafana`
+* Collecting metrics and exporting using `Prometheus`
+* `Grafana dashboard` for metrics
 * Examples with custom spans
 * Configured `docker-compose` with the entire infrastructure
 

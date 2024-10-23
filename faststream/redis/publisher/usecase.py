@@ -10,7 +10,7 @@ from typing_extensions import Doc, override
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.message import gen_cor_id
+from faststream.message import SourceType, gen_cor_id
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
@@ -243,6 +243,7 @@ class ChannelPublisher(LogicPublisher):
             parser=self._producer._parser,
             decoder=self._producer._decoder,
         )
+        msg._source_type = SourceType.Response
         return msg
 
 
@@ -430,6 +431,7 @@ class ListPublisher(LogicPublisher):
             parser=self._producer._parser,
             decoder=self._producer._decoder,
         )
+        msg._source_type = SourceType.Response
         return msg
 
 
@@ -703,4 +705,5 @@ class StreamPublisher(LogicPublisher):
             parser=self._producer._parser,
             decoder=self._producer._decoder,
         )
+        msg._source_type = SourceType.Response
         return msg

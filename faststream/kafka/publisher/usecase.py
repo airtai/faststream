@@ -18,7 +18,7 @@ from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.message import gen_cor_id
+from faststream.message import SourceType, gen_cor_id
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AsyncFunc, SendableMessage
@@ -168,6 +168,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
             parser=self._producer._parser,
             decoder=self._producer._decoder,
         )
+        msg._source_type = SourceType.Response
         return msg
 
 

@@ -17,7 +17,7 @@ from typing_extensions import Doc, TypedDict, Unpack, override
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.message import gen_cor_id
+from faststream.message import SourceType, gen_cor_id
 from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
 
 if TYPE_CHECKING:
@@ -355,6 +355,7 @@ class LogicPublisher(
             parser=self._producer._parser,
             decoder=self._producer._decoder,
         )
+        msg._source_type = SourceType.Response
         return msg
 
     def add_prefix(self, prefix: str) -> None:

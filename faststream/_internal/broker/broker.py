@@ -34,6 +34,7 @@ from faststream._internal.types import (
 )
 from faststream._internal.utils.functions import to_async
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.message.source_type import SourceType
 from faststream.middlewares.logging import CriticalLogMiddleware
 
 from .abc_broker import ABCBroker
@@ -361,6 +362,7 @@ class BrokerUsecase(
             parser=producer._parser,
             decoder=producer._decoder,
         )
+        message._source_type = SourceType.Response
         return message
 
     @abstractmethod
