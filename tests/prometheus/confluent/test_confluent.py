@@ -13,7 +13,7 @@ from tests.brokers.confluent.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase
 
 
-@pytest.mark.confluent
+@pytest.mark.confluent()
 class TestPrometheus(ConfluentTestcaseConfig, LocalPrometheusTestcase):
     def get_broker(self, apply_types=False, **kwargs):
         return KafkaBroker(apply_types=apply_types, **kwargs)
@@ -59,7 +59,7 @@ class TestPrometheus(ConfluentTestcaseConfig, LocalPrometheusTestcase):
         self.assert_publish_metrics(metrics_manager=metrics_manager_mock)
 
 
-@pytest.mark.confluent
+@pytest.mark.confluent()
 class TestPublishWithPrometheus(TestPublish):
     def get_broker(self, apply_types: bool = False, **kwargs):
         return KafkaBroker(
@@ -69,7 +69,7 @@ class TestPublishWithPrometheus(TestPublish):
         )
 
 
-@pytest.mark.confluent
+@pytest.mark.confluent()
 class TestConsumeWithPrometheus(TestConsume):
     def get_broker(self, apply_types: bool = False, **kwargs):
         return KafkaBroker(

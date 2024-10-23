@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, List, Sequence, Union, cast
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Union, cast
 
 from nats.aio.msg import Msg
 
@@ -37,10 +38,10 @@ class NatsMetricsSettingsProvider(BaseNatsMetricsSettingsProvider["Msg"]):
         }
 
 
-class BatchNatsMetricsSettingsProvider(BaseNatsMetricsSettingsProvider[List["Msg"]]):
+class BatchNatsMetricsSettingsProvider(BaseNatsMetricsSettingsProvider[list["Msg"]]):
     def get_consume_attrs_from_message(
         self,
-        msg: "StreamMessage[List[Msg]]",
+        msg: "StreamMessage[list[Msg]]",
     ) -> ConsumeAttrs:
         raw_message = msg.raw_message[0]
         return {
@@ -59,8 +60,7 @@ def settings_provider_factory(
 ]:
     if isinstance(msg, Sequence):
         return BatchNatsMetricsSettingsProvider()
-    elif isinstance(msg, Msg) or msg is None:
+    if isinstance(msg, Msg) or msg is None:
         return NatsMetricsSettingsProvider()
-    else:
-        # KeyValue and Object Storage watch cases
-        return None
+    # KeyValue and Object Storage watch cases
+    return None

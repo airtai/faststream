@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 from nats.js.api import ObjectStoreConfig
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class OSBucketDeclarer:
-    buckets: Dict[str, "ObjectStore"]
+    buckets: dict[str, "ObjectStore"]
 
     def __init__(self, connection: "JetStreamContext") -> None:
         self._connection = connection

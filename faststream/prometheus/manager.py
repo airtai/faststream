@@ -3,9 +3,11 @@ from faststream.prometheus.types import ProcessingStatus, PublishingStatus
 
 
 class MetricsManager:
-    __slots__ = ("_container", "_app_name")
+    __slots__ = ("_app_name", "_container")
 
-    def __init__(self, container: MetricsContainer, *, app_name: str = "faststream"):
+    def __init__(
+        self, container: MetricsContainer, *, app_name: str = "faststream"
+    ) -> None:
         self._container = container
         self._app_name = app_name
 

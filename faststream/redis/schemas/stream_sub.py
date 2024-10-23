@@ -1,7 +1,7 @@
 import warnings
 from typing import Optional
 
-from faststream.broker.schemas import NameRequired
+from faststream._internal.proto import NameRequired
 from faststream.exceptions import SetupError
 
 
@@ -9,15 +9,15 @@ class StreamSub(NameRequired):
     """A class to represent a Redis Stream subscriber."""
 
     __slots__ = (
-        "name",
-        "polling_interval",
-        "last_id",
-        "group",
-        "consumer",
-        "no_ack",
         "batch",
+        "consumer",
+        "group",
+        "last_id",
         "max_records",
         "maxlen",
+        "name",
+        "no_ack",
+        "polling_interval",
     )
 
     def __init__(
@@ -33,7 +33,8 @@ class StreamSub(NameRequired):
         max_records: Optional[int] = None,
     ) -> None:
         if (group and not consumer) or (not group and consumer):
-            raise SetupError("You should specify `group` and `consumer` both")
+            msg = "You should specify `group` and `consumer` both"
+            raise SetupError(msg)
 
         if group and consumer and no_ack:
             warnings.warn(
@@ -55,10 +56,3 @@ class StreamSub(NameRequired):
         self.last_id = last_id
         self.maxlen = maxlen
         self.max_records = max_records
-
-    def __hash__(self) -> int:
-        if self.group is not None:
-            return hash(
-                f"stream:{self.name} group:{self.group} consumer:{self.consumer}"
-            )
-        return hash(f"stream:{self.name}")

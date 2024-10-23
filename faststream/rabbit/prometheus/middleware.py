@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Optional, Sequence
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Optional
 
 from faststream.prometheus.middleware import BasePrometheusMiddleware
 from faststream.rabbit.prometheus.provider import RabbitMetricsSettingsProvider

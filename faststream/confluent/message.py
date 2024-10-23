@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Any, Optional, Protocol, Tuple, Union
+from typing import TYPE_CHECKING, Any, Optional, Protocol, Union
 
-from faststream.broker.message import StreamMessage
+from faststream.message import StreamMessage
 
 if TYPE_CHECKING:
     from confluent_kafka import Message
@@ -41,9 +41,9 @@ class KafkaMessage(
     StreamMessage[
         Union[
             "Message",
-            Tuple["Message", ...],
+            tuple["Message", ...],
         ]
-    ]
+    ],
 ):
     """Represents a Kafka message in the FastStream framework.
 

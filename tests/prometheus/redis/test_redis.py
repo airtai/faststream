@@ -12,7 +12,7 @@ from tests.brokers.redis.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase
 
 
-@pytest.mark.redis
+@pytest.mark.redis()
 class TestPrometheus(LocalPrometheusTestcase):
     def get_broker(self, apply_types=False, **kwargs):
         return RedisBroker(apply_types=apply_types, **kwargs)
@@ -57,7 +57,7 @@ class TestPrometheus(LocalPrometheusTestcase):
         self.assert_publish_metrics(metrics_manager=metrics_manager_mock)
 
 
-@pytest.mark.redis
+@pytest.mark.redis()
 class TestPublishWithPrometheus(TestPublish):
     def get_broker(self, apply_types: bool = False, **kwargs):
         return RedisBroker(
@@ -67,7 +67,7 @@ class TestPublishWithPrometheus(TestPublish):
         )
 
 
-@pytest.mark.redis
+@pytest.mark.redis()
 class TestConsumeWithPrometheus(TestConsume):
     def get_broker(self, apply_types: bool = False, **kwargs):
         return RedisBroker(

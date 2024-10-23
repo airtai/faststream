@@ -1,16 +1,16 @@
 import asyncio
-from typing import List
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
 
-from faststream.redis import ListSub, RedisRouter, StreamSub
+from faststream.redis import ListSub, RedisBroker, RedisRouter, StreamSub
 from faststream.redis.fastapi import RedisRouter as StreamRouter
-from faststream.redis.testing import TestRedisBroker, build_message
+from faststream.redis.testing import TestRedisBroker
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
-@pytest.mark.redis
+@pytest.mark.redis()
 class TestRouter(FastAPITestcase):
     router_class = StreamRouter
     broker_router_class = RedisRouter
@@ -20,11 +20,11 @@ class TestRouter(FastAPITestcase):
         queue: str,
         event: asyncio.Event,
         mock: Mock,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber("in.{name}")
-        def subscriber(msg: str, name: str):
+        def subscriber(msg: str, name: str) -> None:
             mock(msg=msg, name=name)
             event.set()
 
@@ -41,9 +41,10 @@ class TestRouter(FastAPITestcase):
         assert event.is_set()
         mock.assert_called_once_with(msg="hello", name="john")
 
-    async def test_connection_params(self, settings):
+    async def test_connection_params(self, settings) -> None:
         broker = self.router_class(
-            host="fake-host", port=6377
+            host="fake-host",
+            port=6377,
         ).broker  # kwargs will be ignored
         await broker.connect(
             host=settings.host,
@@ -57,11 +58,11 @@ class TestRouter(FastAPITestcase):
         mock: Mock,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber(list=ListSub(queue, batch=True, max_records=1))
-        async def hello(msg: List[str]):
+        async def hello(msg: list[str]):
             event.set()
             return mock(msg)
 
@@ -78,17 +79,17 @@ class TestRouter(FastAPITestcase):
         assert event.is_set()
         mock.assert_called_with(["hi"])
 
-    @pytest.mark.slow
+    @pytest.mark.slow()
     async def test_consume_stream(
         self,
         event: asyncio.Event,
         mock: Mock,
         queue,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber(stream=StreamSub(queue, polling_interval=10))
-        async def handler(msg):
+        async def handler(msg) -> None:
             mock(msg)
             event.set()
 
@@ -106,17 +107,17 @@ class TestRouter(FastAPITestcase):
 
         mock.assert_called_once_with("hello")
 
-    @pytest.mark.slow
+    @pytest.mark.slow()
     async def test_consume_stream_batch(
         self,
         event: asyncio.Event,
         mock: Mock,
         queue,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber(stream=StreamSub(queue, polling_interval=10, batch=True))
-        async def handler(msg: List[str]):
+        async def handler(msg: list[str]) -> None:
             mock(msg)
             event.set()
 
@@ -138,26 +139,27 @@ class TestRouter(FastAPITestcase):
 class TestRouterLocal(FastAPILocalTestcase):
     router_class = StreamRouter
     broker_router_class = RedisRouter
-    broker_test = staticmethod(TestRedisBroker)
-    build_message = staticmethod(build_message)
+
+    def patch_broker(self, broker: RedisBroker, **kwargs: Any) -> RedisBroker:
+        return TestRedisBroker(broker, **kwargs)
 
     async def test_batch_testclient(
         self,
         mock: Mock,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber(list=ListSub(queue, batch=True, max_records=1))
-        async def hello(msg: List[str]):
+        async def hello(msg: list[str]):
             event.set()
             return mock(msg)
 
-        async with TestRedisBroker(router.broker):
+        async with self.patch_broker(router.broker) as br:
             await asyncio.wait(
                 (
-                    asyncio.create_task(router.broker.publish("hi", list=queue)),
+                    asyncio.create_task(br.publish("hi", list=queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -171,18 +173,18 @@ class TestRouterLocal(FastAPILocalTestcase):
         mock: Mock,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         router = self.router_class()
 
         @router.subscriber(stream=StreamSub(queue, batch=True))
-        async def hello(msg: List[str]):
+        async def hello(msg: list[str]):
             event.set()
             return mock(msg)
 
-        async with TestRedisBroker(router.broker):
+        async with self.patch_broker(router.broker) as br:
             await asyncio.wait(
                 (
-                    asyncio.create_task(router.broker.publish("hi", stream=queue)),
+                    asyncio.create_task(br.publish("hi", stream=queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -191,18 +193,17 @@ class TestRouterLocal(FastAPILocalTestcase):
         assert event.is_set()
         mock.assert_called_with(["hi"])
 
-    async def test_path(self, queue: str):
+    async def test_path(self, queue: str) -> None:
         router = self.router_class()
 
         @router.subscriber(queue + ".{name}")
         async def hello(name):
             return name
 
-        async with self.broker_test(router.broker):
-            r = await router.broker.publish(
+        async with self.patch_broker(router.broker) as br:
+            r = await br.request(
                 "hi",
                 f"{queue}.john",
-                rpc=True,
-                rpc_timeout=0.5,
+                timeout=0.5,
             )
-            assert r == "john"
+            assert await r.decode() == "john"

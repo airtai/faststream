@@ -4,6 +4,6 @@ from faststream.prometheus.types import ConsumeAttrs
 
 __all__ = (
     "BasePrometheusMiddleware",
-    "MetricsSettingsProvider",
     "ConsumeAttrs",
+    "MetricsSettingsProvider",
 )

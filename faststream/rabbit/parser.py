@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 from aio_pika import Message
 from aio_pika.abc import DeliveryMode
 
-from faststream.broker.message import (
+from faststream.message import (
     StreamMessage,
     decode_message,
     encode_message,
@@ -17,8 +17,8 @@ if TYPE_CHECKING:
     from aio_pika import IncomingMessage
     from aio_pika.abc import DateType, HeadersType
 
+    from faststream._internal.basic_types import DecodedMessage
     from faststream.rabbit.types import AioPikaSendableMessage
-    from faststream.types import DecodedMessage
 
 
 class AioPikaParser:
@@ -79,26 +79,25 @@ class AioPikaParser:
         if isinstance(message, Message):
             return message
 
-        else:
-            message_body, generated_content_type = encode_message(message)
+        message_body, generated_content_type = encode_message(message)
 
-            delivery_mode = (
-                DeliveryMode.PERSISTENT if persist else DeliveryMode.NOT_PERSISTENT
-            )
+        delivery_mode = (
+            DeliveryMode.PERSISTENT if persist else DeliveryMode.NOT_PERSISTENT
+        )
 
-            return Message(
-                message_body,
-                content_type=content_type or generated_content_type,
-                delivery_mode=delivery_mode,
-                reply_to=reply_to,
-                correlation_id=correlation_id or gen_cor_id(),
-                headers=headers,
-                content_encoding=content_encoding,
-                priority=priority,
-                expiration=expiration,
-                message_id=message_id,
-                timestamp=timestamp,
-                type=message_type,
-                user_id=user_id,
-                app_id=app_id,
-            )
+        return Message(
+            message_body,
+            content_type=content_type or generated_content_type,
+            delivery_mode=delivery_mode,
+            reply_to=reply_to,
+            correlation_id=correlation_id or gen_cor_id(),
+            headers=headers,
+            content_encoding=content_encoding,
+            priority=priority,
+            expiration=expiration,
+            message_id=message_id,
+            timestamp=timestamp,
+            type=message_type,
+            user_id=user_id,
+            app_id=app_id,
+        )

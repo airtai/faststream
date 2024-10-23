@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from faststream.redis import RedisBroker
@@ -7,11 +9,13 @@ from tests.brokers.base.middlewares import (
 )
 
 
-@pytest.mark.redis
+@pytest.mark.redis()
 class TestMiddlewares(MiddlewareTestcase):
-    broker_class = RedisBroker
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
+        return RedisBroker(apply_types=apply_types, **kwargs)
 
 
-@pytest.mark.redis
+@pytest.mark.redis()
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
-    broker_class = RedisBroker
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
+        return RedisBroker(apply_types=apply_types, **kwargs)

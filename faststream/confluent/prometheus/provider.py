@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Sequence, Tuple, Union, cast
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Union, cast
 
 from faststream.broker.message import MsgType, StreamMessage
 from faststream.prometheus import (
@@ -38,11 +39,11 @@ class ConfluentMetricsSettingsProvider(BaseConfluentMetricsSettingsProvider["Mes
 
 
 class BatchConfluentMetricsSettingsProvider(
-    BaseConfluentMetricsSettingsProvider[Tuple["Message", ...]]
+    BaseConfluentMetricsSettingsProvider[tuple["Message", ...]]
 ):
     def get_consume_attrs_from_message(
         self,
-        msg: "StreamMessage[Tuple[Message, ...]]",
+        msg: "StreamMessage[tuple[Message, ...]]",
     ) -> ConsumeAttrs:
         raw_message = msg.raw_message[0]
         return {
@@ -60,5 +61,4 @@ def settings_provider_factory(
 ]:
     if isinstance(msg, Sequence):
         return BatchConfluentMetricsSettingsProvider()
-    else:
-        return ConfluentMetricsSettingsProvider()
+    return ConfluentMetricsSettingsProvider()

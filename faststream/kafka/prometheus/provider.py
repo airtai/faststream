@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Sequence, Tuple, Union, cast
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Union, cast
 
 from faststream.broker.message import MsgType, StreamMessage
 from faststream.prometheus import (
@@ -38,11 +39,11 @@ class KafkaMetricsSettingsProvider(BaseKafkaMetricsSettingsProvider["ConsumerRec
 
 
 class BatchKafkaMetricsSettingsProvider(
-    BaseKafkaMetricsSettingsProvider[Tuple["ConsumerRecord", ...]]
+    BaseKafkaMetricsSettingsProvider[tuple["ConsumerRecord", ...]]
 ):
     def get_consume_attrs_from_message(
         self,
-        msg: "StreamMessage[Tuple[ConsumerRecord, ...]]",
+        msg: "StreamMessage[tuple[ConsumerRecord, ...]]",
     ) -> "ConsumeAttrs":
         raw_message = msg.raw_message[0]
         return {
@@ -60,5 +61,4 @@ def settings_provider_factory(
 ]:
     if isinstance(msg, Sequence):
         return BatchKafkaMetricsSettingsProvider()
-    else:
-        return KafkaMetricsSettingsProvider()
+    return KafkaMetricsSettingsProvider()

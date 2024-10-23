@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from faststream.confluent import KafkaBroker
@@ -9,11 +11,13 @@ from tests.brokers.base.middlewares import (
 from .basic import ConfluentTestcaseConfig
 
 
-@pytest.mark.confluent
+@pytest.mark.confluent()
 class TestMiddlewares(ConfluentTestcaseConfig, MiddlewareTestcase):
-    broker_class = KafkaBroker
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
+        return KafkaBroker(apply_types=apply_types, **kwargs)
 
 
-@pytest.mark.confluent
+@pytest.mark.confluent()
 class TestExceptionMiddlewares(ConfluentTestcaseConfig, ExceptionMiddlewareTestcase):
-    broker_class = KafkaBroker
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
+        return KafkaBroker(apply_types=apply_types, **kwargs)

@@ -13,38 +13,38 @@ from nats.js.api import (
     StreamSource,
 )
 
+from faststream._internal.testing.app import TestApp
 from faststream.nats.annotations import NatsMessage
 from faststream.nats.broker.broker import NatsBroker
 from faststream.nats.response import NatsResponse
 from faststream.nats.router import NatsPublisher, NatsRoute, NatsRouter
 from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
 from faststream.nats.testing import TestNatsBroker
-from faststream.testing.app import TestApp
 
 __all__ = (
-    "TestApp",
-    "NatsBroker",
-    "JStream",
-    "PullSub",
-    "KvWatch",
-    "ObjWatch",
-    "NatsRoute",
-    "NatsRouter",
-    "NatsPublisher",
-    "TestNatsBroker",
-    "NatsMessage",
-    "NatsResponse",
+    "AckPolicy",
     # Nats imports
     "ConsumerConfig",
     "DeliverPolicy",
-    "AckPolicy",
-    "ReplayPolicy",
     "DiscardPolicy",
-    "RetentionPolicy",
     "ExternalStream",
+    "JStream",
+    "KvWatch",
+    "NatsBroker",
+    "NatsMessage",
+    "NatsPublisher",
+    "NatsResponse",
+    "NatsRoute",
+    "NatsRouter",
+    "ObjWatch",
     "Placement",
+    "PullSub",
     "RePublish",
+    "ReplayPolicy",
+    "RetentionPolicy",
     "StorageType",
     "StreamConfig",
     "StreamSource",
+    "TestApp",
+    "TestNatsBroker",
 )

@@ -1,15 +1,11 @@
 import logging
+from collections.abc import Iterable, Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
-    Dict,
-    Iterable,
-    List,
-    Mapping,
     Optional,
-    Sequence,
-    Type,
     Union,
     cast,
 )
@@ -24,17 +20,15 @@ from redis.asyncio.connection import (
 )
 from starlette.responses import JSONResponse
 from starlette.routing import BaseRoute
-from typing_extensions import Annotated, Doc, deprecated, override
+from typing_extensions import Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.utils import default_filter
+from faststream._internal.constants import EMPTY
+from faststream._internal.fastapi.router import StreamRouter
 from faststream.redis.broker.broker import RedisBroker as RB
 from faststream.redis.message import UnifyRedisDict
-from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
-from faststream.types import EMPTY
+from faststream.redis.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -45,17 +39,17 @@ if TYPE_CHECKING:
     from starlette.responses import Response
     from starlette.types import ASGIApp, Lifespan
 
-    from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
     from faststream.redis.message import UnifyRedisMessage
+    from faststream.redis.publisher.specified import SpecificationPublisher
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, LoggerProto
+    from faststream.specification.schema.tag import Tag, TagDict
 
 
 class RedisRouter(StreamRouter[UnifyRedisDict]):
@@ -71,7 +65,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         host: str = EMPTY,
         port: Union[str, int] = EMPTY,
         db: Union[str, int] = EMPTY,
-        connection_class: Type["Connection"] = EMPTY,
+        connection_class: type["Connection"] = EMPTY,
         client_name: Optional[str] = SERVICE_NAME,
         health_check_interval: float = 0,
         max_connections: Optional[int] = None,
@@ -85,13 +79,13 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         encoding: str = "utf-8",
         encoding_errors: str = "strict",
         decode_responses: bool = False,
-        parser_class: Type["BaseParser"] = DefaultParser,
-        encoder_class: Type["Encoder"] = Encoder,
+        parser_class: type["BaseParser"] = DefaultParser,
+        encoder_class: type["Encoder"] = Encoder,
         # broker base args
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ] = 15.0,
         decoder: Annotated[
@@ -110,10 +104,10 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security information."
+                "Security options to connect broker and generate AsyncAPI server security information.",
             ),
         ] = None,
-        asyncapi_url: Annotated[
+        specification_url: Annotated[
             Optional[str],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
@@ -129,8 +123,8 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Optional[str],
             Doc("AsyncAPI server description."),
         ] = None,
-        asyncapi_tags: Annotated[
-            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+        specification_tags: Annotated[
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags."),
         ] = None,
         # logging args
@@ -151,13 +145,13 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             bool,
             Doc(
                 "Whether to add broker to app scope in lifespan. "
-                "You should disable this option at old ASGI servers."
+                "You should disable this option at old ASGI servers.",
             ),
         ] = True,
         schema_url: Annotated[
             Optional[str],
             Doc(
-                "AsyncAPI schema url. You should set this option to `None` to disable AsyncAPI routes at all."
+                "AsyncAPI schema url. You should set this option to `None` to disable AsyncAPI routes at all.",
             ),
         ] = "/asyncapi",
         # FastAPI args
@@ -166,7 +160,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Doc("An optional path prefix for the router."),
         ] = "",
         tags: Annotated[
-            Optional[List[Union[str, "Enum"]]],
+            Optional[list[Union[str, "Enum"]]],
             Doc(
                 """
                 A list of tags to be applied to all the *path operations* in this
@@ -176,7 +170,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for Path Operation Configuration](https://fastapi.tiangolo.com/tutorial/path-operation-configuration/).
-                """
+                """,
             ),
         ] = None,
         dependencies: Annotated[
@@ -188,22 +182,22 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for Bigger Applications - Multiple Files](https://fastapi.tiangolo.com/tutorial/bigger-applications/#include-an-apirouter-with-a-custom-prefix-tags-responses-and-dependencies).
-                """
+                """,
             ),
         ] = None,
         default_response_class: Annotated[
-            Type["Response"],
+            type["Response"],
             Doc(
                 """
                 The default response class to be used.
 
                 Read more in the
                 [FastAPI docs for Custom Response - HTML, Stream, File, others](https://fastapi.tiangolo.com/advanced/custom-response/#default-response-class).
-                """
+                """,
             ),
         ] = Default(JSONResponse),
         responses: Annotated[
-            Optional[Dict[Union[int, str], "AnyDict"]],
+            Optional[dict[Union[int, str], "AnyDict"]],
             Doc(
                 """
                 Additional responses to be shown in OpenAPI.
@@ -215,11 +209,11 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 And in the
                 [FastAPI docs for Bigger Applications](https://fastapi.tiangolo.com/tutorial/bigger-applications/#include-an-apirouter-with-a-custom-prefix-tags-responses-and-dependencies).
-                """
+                """,
             ),
         ] = None,
         callbacks: Annotated[
-            Optional[List[BaseRoute]],
+            Optional[list[BaseRoute]],
             Doc(
                 """
                 OpenAPI callbacks that should apply to all *path operations* in this
@@ -229,11 +223,11 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for OpenAPI Callbacks](https://fastapi.tiangolo.com/advanced/openapi-callbacks/).
-                """
+                """,
             ),
         ] = None,
         routes: Annotated[
-            Optional[List[BaseRoute]],
+            Optional[list[BaseRoute]],
             Doc(
                 """
                 **Note**: you probably shouldn't use this parameter, it is inherited
@@ -242,7 +236,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 ---
 
                 A list of routes to serve incoming HTTP and WebSocket requests.
-                """
+                """,
             ),
             deprecated(
                 """
@@ -251,7 +245,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 In FastAPI, you normally would use the *path operation methods*,
                 like `router.get()`, `router.post()`, etc.
-                """
+                """,
             ),
         ] = None,
         redirect_slashes: Annotated[
@@ -260,7 +254,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 """
                 Whether to detect and redirect slashes in URLs when the client doesn't
                 use the same format.
-                """
+                """,
             ),
         ] = True,
         default: Annotated[
@@ -269,7 +263,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 """
                 Default function handler for this router. Used to handle
                 404 Not Found errors.
-                """
+                """,
             ),
         ] = None,
         dependency_overrides_provider: Annotated[
@@ -280,18 +274,18 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 You shouldn't need to use it. It normally points to the `FastAPI` app
                 object.
-                """
+                """,
             ),
         ] = None,
         route_class: Annotated[
-            Type["APIRoute"],
+            type["APIRoute"],
             Doc(
                 """
                 Custom route (*path operation*) class to be used by this router.
 
                 Read more about it in the
                 [FastAPI docs for Custom Request and APIRoute class](https://fastapi.tiangolo.com/how-to/custom-request-and-route/#custom-apiroute-class-in-a-router).
-                """
+                """,
             ),
         ] = APIRoute,
         on_startup: Annotated[
@@ -303,7 +297,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 You should instead use the `lifespan` handlers.
 
                 Read more in the [FastAPI docs for `lifespan`](https://fastapi.tiangolo.com/advanced/events/).
-                """
+                """,
             ),
         ] = None,
         on_shutdown: Annotated[
@@ -316,7 +310,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more in the
                 [FastAPI docs for `lifespan`](https://fastapi.tiangolo.com/advanced/events/).
-                """
+                """,
             ),
         ] = None,
         lifespan: Annotated[
@@ -328,7 +322,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more in the
                 [FastAPI docs for `lifespan`](https://fastapi.tiangolo.com/advanced/events/).
-                """
+                """,
             ),
         ] = None,
         deprecated: Annotated[
@@ -341,7 +335,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for Path Operation Configuration](https://fastapi.tiangolo.com/tutorial/path-operation-configuration/).
-                """
+                """,
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -355,7 +349,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for Query Parameters and String Validations](https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#exclude-from-openapi).
-                """
+                """,
             ),
         ] = True,
         generate_unique_id_function: Annotated[
@@ -370,7 +364,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs about how to Generate Clients](https://fastapi.tiangolo.com/advanced/generate-clients/#custom-generate-unique-id-function).
-                """
+                """,
             ),
         ] = Default(generate_unique_id),
     ) -> None:
@@ -410,8 +404,8 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             protocol=protocol,
             description=description,
             protocol_version=protocol_version,
-            asyncapi_tags=asyncapi_tags,
-            asyncapi_url=asyncapi_url,
+            specification_tags=specification_tags,
+            specification_url=specification_url,
             # FastAPI kwargs
             prefix=prefix,
             tags=tags,
@@ -456,7 +450,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         parser: Annotated[
             Optional["CustomCallable"],
             Doc(
-                "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
+                "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one.",
             ),
         ] = None,
         decoder: Annotated[
@@ -467,17 +461,6 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Iterable["SubscriberMiddleware[UnifyRedisMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[UnifyRedisMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             bool,
             Doc("Whether to `nack` message at processing exception."),
@@ -489,7 +472,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         no_reply: Annotated[
             bool,
             Doc(
-                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not.",
             ),
         ] = False,
         # AsyncAPI information
@@ -501,7 +484,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Optional[str],
             Doc(
                 "AsyncAPI subscriber object description. "
-                "Uses decorated docstring as default."
+                "Uses decorated docstring as default.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -540,7 +523,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model](https://fastapi.tiangolo.com/tutorial/response-model/).
-                """
+                """,
             ),
         ] = Default(None),
         response_model_include: Annotated[
@@ -552,7 +535,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
-                """
+                """,
             ),
         ] = None,
         response_model_exclude: Annotated[
@@ -564,7 +547,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
-                """
+                """,
             ),
         ] = None,
         response_model_by_alias: Annotated[
@@ -576,7 +559,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_include-and-response_model_exclude).
-                """
+                """,
             ),
         ] = True,
         response_model_exclude_unset: Annotated[
@@ -594,7 +577,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).
-                """
+                """,
             ),
         ] = False,
         response_model_exclude_defaults: Annotated[
@@ -611,7 +594,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response_model_exclude_unset-parameter).
-                """
+                """,
             ),
         ] = False,
         response_model_exclude_none: Annotated[
@@ -628,12 +611,12 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
 
                 Read more about it in the
                 [FastAPI docs for Response Model - Return Type](https://fastapi.tiangolo.com/tutorial/response-model/#response_model_exclude_none).
-                """
+                """,
             ),
         ] = False,
-    ) -> AsyncAPISubscriber:
+    ) -> SpecificationSubscriber:
         return cast(
-            AsyncAPISubscriber,
+            SpecificationSubscriber,
             super().subscriber(
                 channel=channel,
                 list=list,
@@ -642,7 +625,6 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 parser=parser,
                 decoder=decoder,
                 middlewares=middlewares,
-                filter=filter,
                 retry=retry,
                 no_ack=no_ack,
                 no_reply=no_reply,
@@ -679,7 +661,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Optional["AnyDict"],
             Doc(
                 "Message headers to store metainformation. "
-                "Can be overridden by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified.",
             ),
         ] = None,
         reply_to: Annotated[
@@ -703,14 +685,14 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Optional[Any],
             Doc(
                 "AsyncAPI publishing message type. "
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
+                "Should be any python-native object annotation or `pydantic.BaseModel`.",
             ),
         ] = None,
         include_in_schema: Annotated[
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIPublisher:
+    ) -> "SpecificationPublisher":
         return self.broker.publisher(
             channel,
             list=list,

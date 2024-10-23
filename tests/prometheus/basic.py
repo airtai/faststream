@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Optional, Type
+from typing import Any, Optional
 from unittest.mock import ANY, Mock, call
 
 import pytest
@@ -16,7 +16,7 @@ from faststream.prometheus.types import ProcessingStatus
 from tests.brokers.base.basic import BaseTestcaseConfig
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class LocalPrometheusTestcase(BaseTestcaseConfig):
     def get_broker(self, apply_types=False, **kwargs):
         raise NotImplementedError
@@ -39,7 +39,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             "status",
             "exception_class",
         ),
-        [
+        (
             pytest.param(
                 AckStatus.acked,
                 RejectMessage,
@@ -53,14 +53,14 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             pytest.param(
                 AckStatus.rejected, None, id="rejected status without exception"
             ),
-        ],
+        ),
     )
     async def test_metrics(
         self,
         event: asyncio.Event,
         queue: str,
         status: AckStatus,
-        exception_class: Optional[Type[Exception]],
+        exception_class: Optional[type[Exception]],
     ):
         middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
@@ -110,7 +110,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         *,
         metrics_manager: Any,
         message: Any,
-        exception_class: Optional[Type[Exception]],
+        exception_class: Optional[type[Exception]],
     ):
         settings_provider = self.settings_provider_factory(message.raw_message)
         consume_attrs = settings_provider.get_consume_attrs_from_message(message)

@@ -1,6 +1,9 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
+from faststream.message import (
+    StreamMessage,
+    decode_message,
+)
 from faststream.nats.message import (
     NatsBatchMessage,
     NatsKvMessage,
@@ -14,7 +17,7 @@ if TYPE_CHECKING:
     from nats.js.api import ObjectInfo
     from nats.js.kv import KeyValue
 
-    from faststream.types import AnyDict, DecodedMessage
+    from faststream._internal.basic_types import AnyDict, DecodedMessage
 
 
 class NatsBaseParser:
@@ -76,8 +79,8 @@ class NatsParser(NatsBaseParser):
             reply_to=message.reply,
             headers=headers,
             content_type=headers.get("content-type", ""),
-            message_id=headers.get("message_id", gen_cor_id()),
-            correlation_id=headers.get("correlation_id", gen_cor_id()),
+            message_id=headers.get("message_id"),
+            correlation_id=headers.get("correlation_id"),
         )
 
 
@@ -101,9 +104,9 @@ class JsParser(NatsBaseParser):
             path=path or {},
             reply_to=headers.get("reply_to", ""),  # differ from core
             headers=headers,
-            content_type=headers.get("content-type", ""),
-            message_id=headers.get("message_id", gen_cor_id()),
-            correlation_id=headers.get("correlation_id", gen_cor_id()),
+            content_type=headers.get("content-type"),
+            message_id=headers.get("message_id"),
+            correlation_id=headers.get("correlation_id"),
         )
 
 
@@ -112,10 +115,10 @@ class BatchParser(JsParser):
 
     async def parse_batch(
         self,
-        message: List["Msg"],
-    ) -> "StreamMessage[List[Msg]]":
-        body: List[bytes] = []
-        batch_headers: List[Dict[str, str]] = []
+        message: list["Msg"],
+    ) -> "StreamMessage[list[Msg]]":
+        body: list[bytes] = []
+        batch_headers: list[dict[str, str]] = []
 
         if message:
             path = self.get_path(message[0].subject)
@@ -139,9 +142,9 @@ class BatchParser(JsParser):
 
     async def decode_batch(
         self,
-        msg: "StreamMessage[List[Msg]]",
-    ) -> List["DecodedMessage"]:
-        data: List[DecodedMessage] = []
+        msg: "StreamMessage[list[Msg]]",
+    ) -> list["DecodedMessage"]:
+        data: list[DecodedMessage] = []
 
         path: Optional[AnyDict] = None
         for m in msg.raw_message:
@@ -155,7 +158,8 @@ class BatchParser(JsParser):
 
 class KvParser(NatsBaseParser):
     async def parse_message(
-        self, msg: "KeyValue.Entry"
+        self,
+        msg: "KeyValue.Entry",
     ) -> StreamMessage["KeyValue.Entry"]:
         return NatsKvMessage(
             raw_message=msg,

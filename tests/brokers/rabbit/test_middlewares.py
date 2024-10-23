@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from faststream.rabbit import RabbitBroker
@@ -7,11 +9,13 @@ from tests.brokers.base.middlewares import (
 )
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestMiddlewares(MiddlewareTestcase):
-    broker_class = RabbitBroker
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
+        return RabbitBroker(apply_types=apply_types, **kwargs)
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
-    broker_class = RabbitBroker
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
+        return RabbitBroker(apply_types=apply_types, **kwargs)

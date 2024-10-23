@@ -1,9 +1,13 @@
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional, Union
+from collections.abc import Awaitable, Iterable
+from typing import TYPE_CHECKING, Annotated, Any, Callable, Optional, Union
 
-from typing_extensions import Annotated, Doc, deprecated
+from typing_extensions import Doc
 
-from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
-from faststream.broker.utils import default_filter
+from faststream._internal.broker.router import (
+    ArgsContainer,
+    BrokerRouter,
+    SubscriberRoute,
+)
 from faststream.rabbit.broker.registrator import RabbitRegistrator
 
 if TYPE_CHECKING:
@@ -12,10 +16,10 @@ if TYPE_CHECKING:
     from broker.types import PublisherMiddleware
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
@@ -23,9 +27,7 @@ if TYPE_CHECKING:
         RabbitExchange,
         RabbitQueue,
     )
-    from faststream.rabbit.schemas.reply import ReplyConfig
     from faststream.rabbit.types import AioPikaSendableMessage
-    from faststream.types import AnyDict
 
 
 class RabbitPublisher(ArgsContainer):
@@ -49,21 +51,21 @@ class RabbitPublisher(ArgsContainer):
             str,
             Doc(
                 "Default message routing key to publish with. "
-                "Overrides `queue` option if presented."
+                "Overrides `queue` option if presented.",
             ),
         ] = "",
         mandatory: Annotated[
             bool,
             Doc(
                 "Client waits for confirmation that the message is placed to some queue. "
-                "RabbitMQ returns message to client if there is no suitable queue."
+                "RabbitMQ returns message to client if there is no suitable queue.",
             ),
         ] = True,
         immediate: Annotated[
             bool,
             Doc(
                 "Client expects that there is consumer ready to take the message to work. "
-                "RabbitMQ returns message to client if there is no suitable consumer."
+                "RabbitMQ returns message to client if there is no suitable consumer.",
             ),
         ] = False,
         timeout: Annotated[
@@ -77,7 +79,7 @@ class RabbitPublisher(ArgsContainer):
         reply_to: Annotated[
             Optional[str],
             Doc(
-                "Reply message routing key to send with (always sending to default exchange)."
+                "Reply message routing key to send with (always sending to default exchange).",
             ),
         ] = None,
         priority: Annotated[
@@ -102,7 +104,7 @@ class RabbitPublisher(ArgsContainer):
             Optional[Any],
             Doc(
                 "AsyncAPI publishing message type. "
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
+                "Should be any python-native object annotation or `pydantic.BaseModel`.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -114,7 +116,7 @@ class RabbitPublisher(ArgsContainer):
             Optional["HeadersType"],
             Doc(
                 "Message headers to store metainformation. "
-                "Can be overridden by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified.",
             ),
         ] = None,
         content_type: Annotated[
@@ -122,7 +124,7 @@ class RabbitPublisher(ArgsContainer):
             Doc(
                 "Message **content-type** header. "
                 "Used by application, not core RabbitMQ. "
-                "Will be set automatically if not specified."
+                "Will be set automatically if not specified.",
             ),
         ] = None,
         content_encoding: Annotated[
@@ -183,14 +185,14 @@ class RabbitRoute(SubscriberRoute):
             ],
             Doc(
                 "Message handler function "
-                "to wrap the same with `@broker.subscriber(...)` way."
+                "to wrap the same with `@broker.subscriber(...)` way.",
             ),
         ],
         queue: Annotated[
             Union[str, "RabbitQueue"],
             Doc(
                 "RabbitMQ queue to listen. "
-                "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default)."
+                "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default).",
             ),
         ],
         exchange: Annotated[
@@ -198,7 +200,7 @@ class RabbitRoute(SubscriberRoute):
             Doc(
                 "RabbitMQ exchange to bind queue to. "
                 "Uses default exchange if not presented. "
-                "**FastStream** declares exchange object automatically if it is not passive (by default)."
+                "**FastStream** declares exchange object automatically if it is not passive (by default).",
             ),
         ] = None,
         *,
@@ -209,15 +211,6 @@ class RabbitRoute(SubscriberRoute):
         consume_args: Annotated[
             Optional["AnyDict"],
             Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
-        ] = None,
-        reply_config: Annotated[
-            Optional["ReplyConfig"],
-            Doc("Extra options to use at replies publishing."),
-            deprecated(
-                "Deprecated in **FastStream 0.5.16**. "
-                "Please, use `RabbitResponse` object as a handler return instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
         ] = None,
         # broker arguments
         dependencies: Annotated[
@@ -236,17 +229,6 @@ class RabbitRoute(SubscriberRoute):
             Iterable["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        filter: Annotated[
-            "Filter[RabbitMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
         retry: Annotated[
             Union[bool, int],
             Doc("Whether to `nack` message at processing exception."),
@@ -258,7 +240,7 @@ class RabbitRoute(SubscriberRoute):
         no_reply: Annotated[
             bool,
             Doc(
-                "Whether to disable **FastStream** RPC and Reply To auto responses or not."
+                "Whether to disable **FastStream** RPC and Reply To auto responses or not.",
             ),
         ] = False,
         # AsyncAPI information
@@ -270,7 +252,7 @@ class RabbitRoute(SubscriberRoute):
             Optional[str],
             Doc(
                 "AsyncAPI subscriber object description. "
-                "Uses decorated docstring as default."
+                "Uses decorated docstring as default.",
             ),
         ] = None,
         include_in_schema: Annotated[
@@ -284,12 +266,10 @@ class RabbitRoute(SubscriberRoute):
             queue=queue,
             exchange=exchange,
             consume_args=consume_args,
-            reply_config=reply_config,
             dependencies=dependencies,
             parser=parser,
             decoder=decoder,
             middlewares=middlewares,
-            filter=filter,
             retry=retry,
             no_ack=no_ack,
             no_reply=no_reply,
@@ -319,7 +299,7 @@ class RabbitRouter(
         dependencies: Annotated[
             Iterable["Depends"],
             Doc(
-                "Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers."
+                "Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers.",
             ),
         ] = (),
         middlewares: Annotated[

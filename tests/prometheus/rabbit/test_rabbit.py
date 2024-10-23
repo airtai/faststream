@@ -8,12 +8,12 @@ from tests.brokers.rabbit.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase
 
 
-@pytest.fixture
+@pytest.fixture()
 def exchange(queue):
     return RabbitExchange(name=queue)
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestPrometheus(LocalPrometheusTestcase):
     def get_broker(self, apply_types=False, **kwargs):
         return RabbitBroker(apply_types=apply_types, **kwargs)
@@ -22,7 +22,7 @@ class TestPrometheus(LocalPrometheusTestcase):
         return RabbitPrometheusMiddleware(**kwargs)
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestPublishWithPrometheus(TestPublish):
     def get_broker(self, apply_types: bool = False, **kwargs):
         return RabbitBroker(
@@ -32,7 +32,7 @@ class TestPublishWithPrometheus(TestPublish):
         )
 
 
-@pytest.mark.rabbit
+@pytest.mark.rabbit()
 class TestConsumeWithPrometheus(TestConsume):
     def get_broker(self, apply_types: bool = False, **kwargs):
         return RabbitBroker(

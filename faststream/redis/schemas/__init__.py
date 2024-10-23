@@ -3,8 +3,8 @@ from faststream.redis.schemas.pub_sub import PubSub
 from faststream.redis.schemas.stream_sub import StreamSub
 
 __all__ = (
-    "PubSub",
     "ListSub",
+    "PubSub",
     "StreamSub",
 )
 

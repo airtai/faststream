@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Optional, Sized, Union, cast
+from collections.abc import Sized
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 from faststream.prometheus import (
     ConsumeAttrs,
@@ -59,5 +60,4 @@ def settings_provider_factory(
 ]:
     if msg is not None and msg.get("type", "").startswith("b"):
         return BatchRedisMetricsSettingsProvider()
-    else:
-        return RedisMetricsSettingsProvider()
+    return RedisMetricsSettingsProvider()

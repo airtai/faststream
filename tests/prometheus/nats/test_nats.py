@@ -12,12 +12,12 @@ from tests.brokers.nats.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase
 
 
-@pytest.fixture
+@pytest.fixture()
 def stream(queue):
     return JStream(queue)
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestPrometheus(LocalPrometheusTestcase):
     def get_broker(self, apply_types=False, **kwargs):
         return NatsBroker(apply_types=apply_types, **kwargs)
@@ -66,7 +66,7 @@ class TestPrometheus(LocalPrometheusTestcase):
         self.assert_publish_metrics(metrics_manager=metrics_manager_mock)
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestPublishWithPrometheus(TestPublish):
     def get_broker(self, apply_types: bool = False, **kwargs):
         return NatsBroker(
@@ -76,7 +76,7 @@ class TestPublishWithPrometheus(TestPublish):
         )
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestConsumeWithPrometheus(TestConsume):
     def get_broker(self, apply_types: bool = False, **kwargs):
         return NatsBroker(

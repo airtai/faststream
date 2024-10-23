@@ -2,13 +2,13 @@ from typing import TYPE_CHECKING, Optional
 
 from typing_extensions import override
 
-from faststream.broker.response import Response
+from faststream.response import Response
 
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, TimeoutType
 
+    from faststream._internal.basic_types import AnyDict
     from faststream.rabbit.types import AioPikaSendableMessage
-    from faststream.types import AnyDict
 
 
 class RabbitResponse(Response):
@@ -48,7 +48,7 @@ class RabbitResponse(Response):
 
     @override
     def as_publish_kwargs(self) -> "AnyDict":
-        publish_options = {
+        return {
             **super().as_publish_kwargs(),
             "message_id": self.message_id,
             "mandatory": self.mandatory,
@@ -61,4 +61,3 @@ class RabbitResponse(Response):
             "expiration": self.expiration,
             "content_encoding": self.content_encoding,
         }
-        return publish_options

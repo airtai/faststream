@@ -1,12 +1,14 @@
+from typing import Annotated
+
 from nats.aio.client import Client as NatsClient
 from nats.js.client import JetStreamContext
-from typing_extensions import Annotated
 
-from faststream.broker.fastapi.context import Context, ContextRepo, Logger
+from faststream._internal.fastapi.context import Context, ContextRepo, Logger
 from faststream.nats.broker import NatsBroker as NB
-from faststream.nats.fastapi.fastapi import NatsRouter
 from faststream.nats.message import NatsMessage as NM
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
+
+from .fastapi import NatsRouter
 
 NatsMessage = Annotated[NM, Context("message")]
 NatsBroker = Annotated[NB, Context("broker")]
@@ -16,14 +18,14 @@ NatsProducer = Annotated[NatsFastProducer, Context("broker._producer")]
 NatsJsProducer = Annotated[NatsJSFastProducer, Context("broker._js_producer")]
 
 __all__ = (
-    "Context",
-    "Logger",
-    "ContextRepo",
-    "NatsRouter",
-    "NatsBroker",
-    "NatsMessage",
     "Client",
+    "Context",
+    "ContextRepo",
     "JsClient",
-    "NatsProducer",
+    "Logger",
+    "NatsBroker",
     "NatsJsProducer",
+    "NatsMessage",
+    "NatsProducer",
+    "NatsRouter",
 )

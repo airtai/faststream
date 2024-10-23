@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any, NoReturn
 from unittest.mock import Mock, patch
 
 import pytest
@@ -11,21 +12,21 @@ from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestConsume(BrokerRealConsumeTestcase):
-    def get_broker(self, apply_types: bool = False) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types)
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
+        return NatsBroker(apply_types=apply_types, **kwargs)
 
     async def test_consume_js(
         self,
         queue: str,
         stream: JStream,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(queue, stream=stream)
-        def subscriber(m):
+        def subscriber(m) -> None:
             event.set()
 
         async with self.patch_broker(consume_broker) as br:
@@ -45,14 +46,14 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue,
         mock: Mock,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
             config=ConsumerConfig(filter_subjects=[f"{queue}.a"]),
             stream=JStream(queue, subjects=[f"{queue}.*"]),
         )
-        def subscriber(m):
+        def subscriber(m) -> None:
             mock(m)
             event.set()
 
@@ -75,7 +76,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         stream: JStream,
         event: asyncio.Event,
         mock,
-    ):
+    ) -> None:
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
@@ -83,7 +84,7 @@ class TestConsume(BrokerRealConsumeTestcase):
             stream=stream,
             pull_sub=PullSub(1),
         )
-        def subscriber(m):
+        def subscriber(m) -> None:
             mock(m)
             event.set()
 
@@ -107,7 +108,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         stream: JStream,
         event: asyncio.Event,
         mock,
-    ):
+    ) -> None:
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
@@ -115,7 +116,7 @@ class TestConsume(BrokerRealConsumeTestcase):
             stream=stream,
             pull_sub=PullSub(1, batch=True),
         )
-        def subscriber(m):
+        def subscriber(m) -> None:
             mock(m)
             event.set()
 
@@ -138,11 +139,11 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, stream=stream)
-        async def handler(msg: NatsMessage):
+        async def handler(msg: NatsMessage) -> None:
             event.set()
 
         async with self.patch_broker(consume_broker) as br:
@@ -165,11 +166,11 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, no_ack=True)
-        async def handler(msg: NatsMessage):
+        async def handler(msg: NatsMessage) -> None:
             if not msg.raw_message._ackd:
                 event.set()
 
@@ -191,11 +192,11 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, stream=stream)
-        async def handler(msg: NatsMessage):
+        async def handler(msg: NatsMessage) -> None:
             await msg.ack()
             event.set()
 
@@ -219,13 +220,13 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, stream=stream)
-        async def handler(msg: NatsMessage):
+        async def handler(msg: NatsMessage) -> NoReturn:
             event.set()
-            raise AckMessage()
+            raise AckMessage
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
@@ -247,11 +248,11 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, stream=stream)
-        async def handler(msg: NatsMessage):
+        async def handler(msg: NatsMessage) -> None:
             await msg.nack()
             event.set()
 
@@ -274,11 +275,11 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         event: asyncio.Event,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, no_ack=True)
-        async def handler(msg: NatsMessage):
+        async def handler(msg: NatsMessage) -> None:
             event.set()
 
         async with self.patch_broker(consume_broker) as br:
@@ -302,7 +303,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         stream: JStream,
         event: asyncio.Event,
         mock,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(
@@ -310,13 +311,13 @@ class TestConsume(BrokerRealConsumeTestcase):
             stream=stream,
             pull_sub=PullSub(1, batch=True),
         )
-        def subscriber(m, msg: NatsMessage):
+        def subscriber(m, msg: NatsMessage) -> None:
             check = all(
                 (
                     msg.headers,
                     [msg.headers] == msg.batch_headers,
                     msg.headers.get("custom") == "1",
-                )
+                ),
             )
             mock(check)
             event.set()
@@ -334,17 +335,17 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
         mock.assert_called_once_with(True)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_kv(
         self,
         queue: str,
         event: asyncio.Event,
         mock,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, kv_watch=queue + "1")
-        async def handler(m):
+        async def handler(m) -> None:
             mock(m)
             event.set()
 
@@ -358,7 +359,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                         bucket.put(
                             queue,
                             b"world",
-                        )
+                        ),
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -368,17 +369,17 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
         mock.assert_called_with(b"world")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_os(
         self,
         queue: str,
         event: asyncio.Event,
         mock,
-    ):
+    ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, obj_watch=True)
-        async def handler(filename: str):
+        async def handler(filename: str) -> None:
             event.set()
             mock(filename)
 
@@ -392,7 +393,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                         bucket.put(
                             "hello",
                             b"world",
-                        )
+                        ),
                     ),
                     asyncio.create_task(event.wait()),
                 ),
@@ -407,7 +408,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(queue, stream=stream)
 
@@ -416,11 +417,11 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             message = None
 
-            async def consume():
+            async def consume() -> None:
                 nonlocal message
                 message = await subscriber.get_one(timeout=5)
 
-            async def publish():
+            async def publish() -> None:
                 await br.publish("test_message", queue, stream=stream.name)
 
             await asyncio.wait(
@@ -439,7 +440,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         stream: JStream,
         mock,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(queue, stream=stream)
 
@@ -454,7 +455,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(
             queue,
@@ -467,11 +468,11 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             message = None
 
-            async def consume():
+            async def consume() -> None:
                 nonlocal message
                 message = await subscriber.get_one(timeout=5)
 
-            async def publish():
+            async def publish() -> None:
                 await br.publish("test_message", queue)
 
             await asyncio.wait(
@@ -491,7 +492,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         event: asyncio.Event,
         stream: JStream,
         mock: Mock,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(
             queue,
@@ -510,7 +511,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(
             queue,
@@ -523,11 +524,11 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             message = None
 
-            async def consume():
+            async def consume() -> None:
                 nonlocal message
                 message = await subscriber.get_one(timeout=5)
 
-            async def publish():
+            async def publish() -> None:
                 await br.publish("test_message", queue)
 
             await asyncio.wait(
@@ -547,7 +548,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         event: asyncio.Event,
         stream: JStream,
         mock: Mock,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(
             queue,
@@ -566,7 +567,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(
             config=ConsumerConfig(filter_subjects=[f"{queue}.a"]),
@@ -578,11 +579,11 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             message = None
 
-            async def consume():
+            async def consume() -> None:
                 nonlocal message
                 message = await subscriber.get_one(timeout=5)
 
-            async def publish():
+            async def publish() -> None:
                 await br.publish("test_message", f"{queue}.a")
 
             await asyncio.wait(
@@ -601,7 +602,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(queue, kv_watch=queue + "1")
 
@@ -611,11 +612,11 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             message = None
 
-            async def consume():
+            async def consume() -> None:
                 nonlocal message
                 message = await subscriber.get_one(timeout=5)
 
-            async def publish():
+            async def publish() -> None:
                 await bucket.put(queue, b"test_message")
 
             await asyncio.wait(
@@ -635,7 +636,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         event: asyncio.Event,
         stream: JStream,
         mock: Mock,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(queue, kv_watch=queue + "1")
 
@@ -650,7 +651,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         event: asyncio.Event,
         stream: JStream,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(queue, obj_watch=True)
 
@@ -660,12 +661,12 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             new_object_id = None
 
-            async def consume():
+            async def consume() -> None:
                 nonlocal new_object_id
                 new_object_event = await subscriber.get_one(timeout=5)
                 new_object_id = await new_object_event.decode()
 
-            async def publish():
+            async def publish() -> None:
                 await bucket.put(queue, b"test_message")
 
             await asyncio.wait(
@@ -685,7 +686,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         event: asyncio.Event,
         stream: JStream,
         mock: Mock,
-    ):
+    ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(queue, obj_watch=True)
 

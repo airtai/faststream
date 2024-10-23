@@ -9,9 +9,9 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_nested_depends_kafka():
+async def test_nested_depends_kafka() -> None:
     from docs.docs_src.getting_started.dependencies.basic.kafka.nested_depends import (
         broker,
         handler,
@@ -23,9 +23,9 @@ async def test_nested_depends_kafka():
         handler.mock.assert_called_once_with({})
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_confluent
-async def test_nested_depends_confluent():
+async def test_nested_depends_confluent() -> None:
     from docs.docs_src.getting_started.dependencies.basic.confluent.nested_depends import (
         broker,
         handler,
@@ -37,9 +37,9 @@ async def test_nested_depends_confluent():
         handler.mock.assert_called_once_with({})
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiopika
-async def test_nested_depends_rabbit():
+async def test_nested_depends_rabbit() -> None:
     from docs.docs_src.getting_started.dependencies.basic.rabbit.nested_depends import (
         broker,
         handler,
@@ -51,9 +51,9 @@ async def test_nested_depends_rabbit():
         handler.mock.assert_called_once_with({})
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_nats
-async def test_nested_depends_nats():
+async def test_nested_depends_nats() -> None:
     from docs.docs_src.getting_started.dependencies.basic.nats.nested_depends import (
         broker,
         handler,
@@ -65,9 +65,9 @@ async def test_nested_depends_nats():
         handler.mock.assert_called_once_with({})
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_redis
-async def test_nested_depends_redis():
+async def test_nested_depends_redis() -> None:
     from docs.docs_src.getting_started.dependencies.basic.redis.nested_depends import (
         broker,
         handler,
