@@ -61,7 +61,7 @@ class BasePublisherProto(Protocol):
         self,
         cmd: "PublishCommand",
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """Private method to publish a message.
 

@@ -109,7 +109,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         self,
         cmd: Union["PublishCommand", "NatsPublishCommand"],
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = NatsPublishCommand.from_cmd(cmd)

@@ -180,7 +180,7 @@ class LogicPublisher(
         self,
         cmd: Union["RabbitPublishCommand", "PublishCommand"],
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = RabbitPublishCommand.from_cmd(cmd)

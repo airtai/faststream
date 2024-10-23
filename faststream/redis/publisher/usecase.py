@@ -143,7 +143,7 @@ class ChannelPublisher(LogicPublisher):
         self,
         cmd: Union["PublishCommand", "RedisPublishCommand"],
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = RedisPublishCommand.from_cmd(cmd)
@@ -281,7 +281,7 @@ class ListPublisher(LogicPublisher):
         self,
         cmd: Union["PublishCommand", "RedisPublishCommand"],
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = RedisPublishCommand.from_cmd(cmd)
@@ -378,7 +378,7 @@ class ListBatchPublisher(ListPublisher):
         self,
         cmd: Union["PublishCommand", "RedisPublishCommand"],
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = RedisPublishCommand.from_cmd(cmd, batch=True)
@@ -485,7 +485,7 @@ class StreamPublisher(LogicPublisher):
         self,
         cmd: Union["PublishCommand", "RedisPublishCommand"],
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = RedisPublishCommand.from_cmd(cmd)

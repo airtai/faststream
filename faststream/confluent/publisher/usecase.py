@@ -161,7 +161,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         self,
         cmd: Union["PublishCommand", "KafkaPublishCommand"],
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = KafkaPublishCommand.from_cmd(cmd)
@@ -233,7 +233,7 @@ class BatchPublisher(LogicPublisher[tuple[Message, ...]]):
         self,
         cmd: Union["PublishCommand", "KafkaPublishCommand"],
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = KafkaPublishCommand.from_cmd(cmd, batch=True)
