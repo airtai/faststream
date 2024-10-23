@@ -20,7 +20,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Configure Git user
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
@@ -39,7 +41,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install uv
           uv pip install --system requests
 
       - name: Run update_releases.py script

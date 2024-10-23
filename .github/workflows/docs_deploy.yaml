@@ -19,6 +19,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
@@ -28,7 +31,6 @@ jobs:
           path: .cache
       - run: |
           set -ux
-          python -m pip install uv
           uv pip install --system -e .[dev]
           uv pip uninstall --system email-validator # This is to fix broken link in docs
       - run: ./scripts/build-docs.sh
