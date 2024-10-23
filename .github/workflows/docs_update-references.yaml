@@ -25,6 +25,9 @@ jobs:
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.head_ref }}
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -35,7 +38,6 @@ jobs:
         # should install with `-e`
         run: |
           set -ux
-          python -m pip install uv
           uv pip install --system -e .[dev]
       - name: Run build docs
         run: bash scripts/build-docs.sh
