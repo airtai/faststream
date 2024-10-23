@@ -140,7 +140,7 @@ class PublisherUsecase(PublisherProto[MsgType]):
         self,
         cmd: "PublishCommand",
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> Any:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -164,6 +164,8 @@ class PublisherUsecase(PublisherProto[MsgType]):
         self,
         cmd: "PublishCommand",
     ) -> Optional[Any]:
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
         request = self._producer.request
 
         for pub_m in chain(
@@ -180,6 +182,24 @@ class PublisherUsecase(PublisherProto[MsgType]):
             parser=self._producer._parser,
             decoder=self._producer._decoder,
         )
+
+    async def _basic_publish_batch(
+        self,
+        cmd: "PublishCommand",
+        *,
+        _extra_middlewares: Iterable["PublisherMiddleware"],
+    ) -> Optional[Any]:
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        pub = self._producer.publish_batch
+
+        for pub_m in chain(
+            (m(None, context=context).publish_scope for m in self._broker_middlewares),
+            self._middlewares,
+        ):
+            pub = partial(pub_m, pub)
+
+        await pub(cmd)
 
     def get_payloads(self) -> list[tuple["AnyDict", str]]:
         payloads: list[tuple[AnyDict, str]] = []

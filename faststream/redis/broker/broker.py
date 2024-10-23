@@ -425,7 +425,7 @@ class RedisBroker(
             headers=headers,
             _publish_type=PublishType.Publish,
         )
-        await super().publish(cmd, producer=self._producer)
+        await super()._basic_publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -451,7 +451,7 @@ class RedisBroker(
             timeout=timeout,
             _publish_type=PublishType.Request,
         )
-        msg: RedisMessage = await super().request(cmd, producer=self._producer)
+        msg: RedisMessage = await super()._basic_request(cmd, producer=self._producer)
         return msg
 
     async def publish_batch(
@@ -495,7 +495,7 @@ class RedisBroker(
         for m in self._middlewares:
             call = partial(m(None, context=context).publish_scope, call)
 
-        await call(cmd)
+        await self._basic_publish_batch(cmd, producer=self._producer)
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:

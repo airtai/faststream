@@ -117,6 +117,14 @@ class AioPikaFastProducer(ProducerProto):
             timeout=timeout,
         )
 
+    @override
+    async def publish_batch(
+        self,
+        cmd: "RabbitPublishCommand",
+    ) -> None:
+        msg = "RabbitMQ doesn't support publishing in batches."
+        raise NotImplementedError(msg)
+
 
 class _RPCCallback:
     """A class provides an RPC lock."""

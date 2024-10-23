@@ -644,7 +644,7 @@ class RabbitBroker(
             _publish_type=PublishType.Publish,
         )
 
-        return await super().publish(cmd, producer=self._producer)
+        return await super()._basic_publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -762,7 +762,7 @@ class RabbitBroker(
             _publish_type=PublishType.Request,
         )
 
-        msg: RabbitMessage = await super().request(cmd, producer=self._producer)
+        msg: RabbitMessage = await super()._basic_request(cmd, producer=self._producer)
         return msg
 
     async def declare_queue(

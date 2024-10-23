@@ -740,7 +740,7 @@ class NatsBroker(
         producer: Optional[ProducerProto]
         producer = self._producer if stream is None else self._js_producer
 
-        await super().publish(cmd, producer=producer)
+        await super()._basic_publish(cmd, producer=producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -795,7 +795,7 @@ class NatsBroker(
         producer: Optional[ProducerProto]
         producer = self._producer if stream is None else self._js_producer
 
-        msg: NatsMessage = await super().request(cmd, producer=producer)
+        msg: NatsMessage = await super()._basic_request(cmd, producer=producer)
         return msg
 
     @override

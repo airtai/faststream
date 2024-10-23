@@ -98,6 +98,7 @@ class RedisFastProducer(ProducerProto):
 
         return response_msg
 
+    @override
     async def publish_batch(
         self,
         cmd: "RedisPublishCommand",

@@ -79,6 +79,14 @@ class NatsFastProducer(ProducerProto):
             timeout=cmd.timeout,
         )
 
+    @override
+    async def publish_batch(
+        self,
+        cmd: "NatsPublishCommand",
+    ) -> None:
+        msg = "NATS doesn't support publishing in batches."
+        raise NotImplementedError(msg)
+
 
 class NatsJSFastProducer(ProducerProto):
     """A class to represent a NATS JetStream producer."""
@@ -160,3 +168,11 @@ class NatsJSFastProducer(ProducerProto):
                 raise nats.errors.NoRespondersError
 
             return msg
+
+    @override
+    async def publish_batch(
+        self,
+        cmd: "NatsPublishCommand",
+    ) -> None:
+        msg = "NATS doesn't support publishing in batches."
+        raise NotImplementedError(msg)

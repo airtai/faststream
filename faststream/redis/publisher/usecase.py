@@ -1,13 +1,10 @@
 from abc import abstractmethod
 from collections.abc import Iterable
 from copy import deepcopy
-from functools import partial
-from itertools import chain
 from typing import TYPE_CHECKING, Annotated, Any, Optional, Union
 
 from typing_extensions import Doc, override
 
-from faststream._internal.context.repository import context
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
@@ -15,7 +12,7 @@ from faststream.redis.response import RedisPublishCommand
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
+    from faststream._internal.basic_types import AnyDict, SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.redis.message import RedisMessage
     from faststream.redis.publisher.producer import RedisFastProducer
@@ -374,14 +371,7 @@ class ListBatchPublisher(ListPublisher):
             _publish_type=PublishType.Publish,
         )
 
-        call: AsyncFunc = self._producer.publish_batch
-        for m in chain(
-            (m(None, context=context).publish_scope for m in self._broker_middlewares),
-            self._middlewares,
-        ):
-            call = partial(m, call)
-
-        await call(cmd)
+        await self._basic_publish_batch(cmd, _extra_middlewares=())
 
     @override
     async def _publish(  # type: ignore[override]
@@ -398,20 +388,7 @@ class ListBatchPublisher(ListPublisher):
         cmd.headers = self.headers | cmd.headers
         cmd.reply_to = cmd.reply_to or self.reply_to
 
-        call: AsyncFunc = self._producer.publish_batch
-        for m in chain(
-            (
-                _extra_middlewares
-                or (
-                    m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
-                )
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
-
-        await call(cmd)
+        await self._basic_publish_batch(cmd, _extra_middlewares=_extra_middlewares)
 
 
 class StreamPublisher(LogicPublisher):

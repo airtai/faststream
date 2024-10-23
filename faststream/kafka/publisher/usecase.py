@@ -1,6 +1,4 @@
 from collections.abc import Iterable
-from functools import partial
-from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -12,7 +10,6 @@ from typing import (
 from aiokafka import ConsumerRecord
 from typing_extensions import Doc, override
 
-from faststream._internal.context.repository import context
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.types import MsgType
 from faststream.kafka.message import KafkaMessage
@@ -21,7 +18,7 @@ from faststream.message import gen_cor_id
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AsyncFunc, SendableMessage
+    from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.kafka.message import KafkaMessage
     from faststream.kafka.publisher.producer import AioKafkaFastProducer
@@ -412,14 +409,7 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
             _publish_type=PublishType.Publish,
         )
 
-        call: AsyncFunc = self._producer.publish_batch
-        for m in chain(
-            (m(None, context=context).publish_scope for m in self._broker_middlewares),
-            self._middlewares,
-        ):
-            call = partial(m, call)
-
-        await call(cmd)
+        await self._basic_publish_batch(cmd, _extra_middlewares=())
 
     @override
     async def _publish(
@@ -437,17 +427,4 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
         cmd.reply_to = cmd.reply_to or self.reply_to
         cmd.partition = cmd.partition or self.partition
 
-        call: AsyncFunc = self._producer.publish_batch
-        for m in chain(
-            (
-                _extra_middlewares
-                or (
-                    m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
-                )
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
-
-        await call(cmd)
+        await self._basic_publish_batch(cmd, _extra_middlewares=_extra_middlewares)

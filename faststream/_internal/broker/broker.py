@@ -318,7 +318,7 @@ class BrokerUsecase(
 
         self.running = False
 
-    async def publish(
+    async def _basic_publish(
         self,
         cmd: "PublishCommand",
         *,
@@ -334,7 +334,23 @@ class BrokerUsecase(
 
         return await publish(cmd)
 
-    async def request(
+    async def _basic_publish_batch(
+        self,
+        cmd: "PublishCommand",
+        *,
+        producer: Optional["ProducerProto"],
+    ) -> None:
+        """Publish a messages batch directly."""
+        assert producer, NOT_CONNECTED_YET  # nosec B101
+
+        publish = producer.publish_batch
+
+        for m in self._middlewares:
+            publish = partial(m(None, context=context).publish_scope, publish)
+
+        await publish(cmd)
+
+    async def _basic_request(
         self,
         cmd: "PublishCommand",
         *,
