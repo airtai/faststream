@@ -61,6 +61,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -73,14 +76,13 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[optionals,testing]
+          uv sync --system .[optionals,testing]
       - name: Install Pydantic v1
         if: matrix.pydantic-version == 'pydantic-v1'
-        run: uv pip install --system "pydantic>=1.10.0,<2.0.0"
+        run: uv run --system "pydantic>=1.10.0,<2.0.0"
       - name: Install Pydantic v2
         if: matrix.pydantic-version == 'pydantic-v2'
-        run: uv pip install --system --pre "pydantic>=2.0.0b2,<3.0.0"
+        run: uv run --system --pre "pydantic>=2.0.0b2,<3.0.0"
       - run: mkdir coverage
       - name: Test
         run: >
@@ -102,6 +104,9 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -109,8 +114,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[optionals,testing]
+          uv sync --system .[optionals,testing]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -121,6 +125,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -128,8 +135,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[optionals,testing]
+          uv sync --system .[optionals,testing]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -140,6 +146,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -147,8 +156,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[kafka,test-core,cli]
+          uv sync --system .[kafka,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -179,6 +187,9 @@ jobs:
           ALLOW_PLAINTEXT_LISTENER: "true"
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -186,8 +197,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[optionals,testing]
+          uv sync --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
         run: >
@@ -209,6 +219,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -216,8 +229,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[confluent,test-core,cli]
+          uv sync --system .[confluent,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -248,6 +260,9 @@ jobs:
           ALLOW_PLAINTEXT_LISTENER: "true"
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -255,8 +270,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[optionals,testing]
+          uv sync --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
         run: >
@@ -278,6 +292,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -285,8 +302,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[rabbit,test-core,cli]
+          uv sync --system .[rabbit,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -306,6 +322,9 @@ jobs:
           - 5672:5672
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -313,8 +332,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[optionals,testing]
+          uv sync --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
         run: >
@@ -336,6 +354,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -343,8 +364,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[nats,test-core,cli]
+          uv sync --system .[nats,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -364,6 +384,9 @@ jobs:
           - 4222:4222
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -371,8 +394,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[optionals,testing]
+          uv sync --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
         run: >
@@ -394,6 +416,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -401,8 +426,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[redis,test-core,cli]
+          uv sync --system .[redis,test-core,cli]
       - name: Test
         run: >
           bash scripts/test.sh
@@ -422,6 +446,9 @@ jobs:
           - 6379:6379
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -429,8 +456,7 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          python -m pip install uv
-          uv pip install --system .[optionals,testing]
+          uv sync --system .[optionals,testing]
       - run: mkdir coverage
       - name: Test
         run: >
@@ -460,7 +486,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.8"
@@ -473,8 +501,7 @@ jobs:
           merge-multiple: true
 
       - run: |
-          python -m pip install uv
-          uv pip install --system coverage[toml]
+          uv sync--system coverage[toml]
 
       - run: ls -la coverage
       - run: coverage combine coverage
