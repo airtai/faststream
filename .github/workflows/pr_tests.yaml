@@ -61,7 +61,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -104,7 +104,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -125,7 +125,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -146,7 +146,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -187,7 +187,7 @@ jobs:
           ALLOW_PLAINTEXT_LISTENER: "true"
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -219,7 +219,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -260,7 +260,7 @@ jobs:
           ALLOW_PLAINTEXT_LISTENER: "true"
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -292,7 +292,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -322,7 +322,7 @@ jobs:
           - 5672:5672
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -354,7 +354,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -384,7 +384,7 @@ jobs:
           - 4222:4222
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -416,7 +416,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -446,7 +446,7 @@ jobs:
           - 6379:6379
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - name: Set up Python
@@ -486,7 +486,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
+      - uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
       - uses: actions/setup-python@v5
