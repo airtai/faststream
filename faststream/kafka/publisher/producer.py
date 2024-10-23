@@ -4,7 +4,7 @@ from typing_extensions import override
 
 from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
-from faststream.exceptions import OperationForbiddenError
+from faststream.exceptions import FeatureNotSupportedException
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
 from faststream.message import encode_message
@@ -104,6 +104,4 @@ class AioKafkaFastProducer(ProducerProto):
         cmd: "KafkaPublishCommand",
     ) -> Any:
         msg = "Kafka doesn't support `request` method without test client."
-        raise OperationForbiddenError(
-            msg,
-        )
+        raise FeatureNotSupportedException(msg)

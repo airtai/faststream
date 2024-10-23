@@ -25,6 +25,7 @@ from faststream._internal.types import (
     T_HandlerReturn,
 )
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.message.source_type import SourceType
 from faststream.specification.asyncapi.message import get_response_schema
 from faststream.specification.asyncapi.utils import to_camelcase
 
@@ -176,12 +177,14 @@ class PublisherUsecase(PublisherProto[MsgType]):
 
         published_msg = await request(cmd)
 
-        return await process_msg(
+        message: Any = await process_msg(
             msg=published_msg,
             middlewares=self._broker_middlewares,
             parser=self._producer._parser,
             decoder=self._producer._decoder,
         )
+        message._source_type = SourceType.Response
+        return message
 
     async def _basic_publish_batch(
         self,

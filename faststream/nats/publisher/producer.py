@@ -7,6 +7,7 @@ from typing_extensions import override
 
 from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream.exceptions import FeatureNotSupportedException
 from faststream.message import encode_message
 from faststream.nats.parser import NatsParser
 
@@ -85,7 +86,7 @@ class NatsFastProducer(ProducerProto):
         cmd: "NatsPublishCommand",
     ) -> None:
         msg = "NATS doesn't support publishing in batches."
-        raise NotImplementedError(msg)
+        raise FeatureNotSupportedException(msg)
 
 
 class NatsJSFastProducer(ProducerProto):
@@ -175,4 +176,4 @@ class NatsJSFastProducer(ProducerProto):
         cmd: "NatsPublishCommand",
     ) -> None:
         msg = "NATS doesn't support publishing in batches."
-        raise NotImplementedError(msg)
+        raise FeatureNotSupportedException(msg)

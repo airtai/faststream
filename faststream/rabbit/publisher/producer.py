@@ -9,6 +9,7 @@ from typing_extensions import Unpack, override
 
 from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream.exceptions import FeatureNotSupportedException
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import RABBIT_REPLY, RabbitExchange
 
@@ -123,7 +124,7 @@ class AioPikaFastProducer(ProducerProto):
         cmd: "RabbitPublishCommand",
     ) -> None:
         msg = "RabbitMQ doesn't support publishing in batches."
-        raise NotImplementedError(msg)
+        raise FeatureNotSupportedException(msg)
 
 
 class _RPCCallback:
