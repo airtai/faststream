@@ -3,29 +3,29 @@ from typing import Any
 import pytest
 
 from faststream import Response
-from faststream.kafka.response import KafkaPublishCommand, KafkaResponse
+from faststream.redis.response import RedisPublishCommand, RedisResponse
 from faststream.response import ensure_response
 
 
 def test_simple_reponse():
     response = ensure_response(1)
-    cmd = KafkaPublishCommand.from_cmd(response.as_publish_command())
+    cmd = RedisPublishCommand.from_cmd(response.as_publish_command())
     assert cmd.body == 1
 
 
 def test_base_response_class():
     response = ensure_response(Response(body=1, headers={1: 1}))
-    cmd = KafkaPublishCommand.from_cmd(response.as_publish_command())
+    cmd = RedisPublishCommand.from_cmd(response.as_publish_command())
     assert cmd.body == 1
     assert cmd.headers == {1: 1}
 
 
 def test_kafka_response_class():
-    response = ensure_response(KafkaResponse(body=1, headers={1: 1}, key=b"1"))
-    cmd = KafkaPublishCommand.from_cmd(response.as_publish_command())
+    response = ensure_response(RedisResponse(body=1, headers={1: 1}, maxlen=1))
+    cmd = RedisPublishCommand.from_cmd(response.as_publish_command())
     assert cmd.body == 1
     assert cmd.headers == {1: 1}
-    assert cmd.key == b"1"
+    assert cmd.maxlen == 1
 
 
 @pytest.mark.parametrize(
@@ -39,7 +39,7 @@ def test_kafka_response_class():
 )
 def test_batch_response(data: Any, expected_body: Any):
     response = ensure_response(data)
-    cmd = KafkaPublishCommand.from_cmd(
+    cmd = RedisPublishCommand.from_cmd(
         response.as_publish_command(),
         batch=True,
     )

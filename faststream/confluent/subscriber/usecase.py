@@ -12,18 +12,18 @@ import anyio
 from confluent_kafka import KafkaException, Message
 from typing_extensions import override
 
-from faststream._internal.publisher.fake import FakePublisher
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
+from faststream.confluent.publisher.fake import KafkaFakePublisher
 from faststream.confluent.schemas import TopicPartition
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream._internal.basic_types import AnyDict, LoggerProto
-    from faststream._internal.publisher.proto import ProducerProto
+    from faststream._internal.publisher.proto import BasePublisherProto, ProducerProto
     from faststream._internal.setup import SetupState
     from faststream._internal.types import (
         AsyncCallable,
@@ -182,16 +182,14 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     def _make_response_publisher(
         self,
         message: "StreamMessage[Any]",
-    ) -> Sequence[FakePublisher]:
+    ) -> Sequence["BasePublisherProto"]:
         if self._producer is None:
             return ()
 
         return (
-            FakePublisher(
-                self._producer.publish,
-                publish_kwargs={
-                    "topic": message.reply_to,
-                },
+            KafkaFakePublisher(
+                self._producer,
+                topic=message.reply_to,
             ),
         )
 

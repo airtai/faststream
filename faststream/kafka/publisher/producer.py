@@ -91,7 +91,9 @@ class AioKafkaFastProducer(ProducerProto):
             )
 
         send_future = await self._producer.send_batch(
-            batch, cmd.destination, partition=cmd.partition
+            batch,
+            cmd.destination,
+            partition=cmd.partition,
         )
         if not cmd.no_confirm:
             await send_future

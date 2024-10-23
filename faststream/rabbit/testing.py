@@ -132,6 +132,7 @@ def build_message(
 
     routing = routing_key or que.routing
 
+    correlation_id = correlation_id or gen_cor_id()
     msg = AioPikaParser.encode_message(
         message=message,
         persist=persist,
@@ -142,7 +143,7 @@ def build_message(
         priority=priority,
         correlation_id=correlation_id,
         expiration=expiration,
-        message_id=message_id or gen_cor_id(),
+        message_id=message_id or correlation_id,
         timestamp=timestamp,
         message_type=message_type,
         user_id=user_id,

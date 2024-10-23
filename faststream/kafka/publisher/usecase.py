@@ -132,7 +132,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         cmd = KafkaPublishCommand(
             message,
             topic=topic or self.topic,
-            key=key or self.key,
+            key=key,
             partition=partition or self.partition,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
@@ -149,7 +149,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
     def __init__(
         self,
         *,
-        key: Optional[bytes],
+        key: Union[bytes, str, None],
         topic: str,
         partition: Optional[int],
         headers: Optional[dict[str, str]],
@@ -277,16 +277,83 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
 
         await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
+    @override
+    async def request(
+        self,
+        message: Annotated[
+            "SendableMessage",
+            Doc("Message body to send."),
+        ],
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ] = "",
+        *,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc(
+                """
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """,
+            ),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc(
+                """
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """,
+            ),
+        ] = None,
+        timestamp_ms: Annotated[
+            Optional[int],
+            Doc(
+                """
+            Epoch milliseconds (from Jan 1 1970 UTC) to use as
+            the message timestamp. Defaults to current time.
+            """,
+            ),
+        ] = None,
+        headers: Annotated[
+            Optional[dict[str, str]],
+            Doc("Message headers to store metainformation."),
+        ] = None,
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages.",
+            ),
+        ] = None,
+        timeout: Annotated[
+            float,
+            Doc("Timeout to send RPC request."),
+        ] = 0.5,
+    ) -> "KafkaMessage":
+        return await super().request(
+            message,
+            topic=topic,
+            key=key or self.key,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            correlation_id=correlation_id,
+            timeout=timeout,
+        )
+
 
 class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
     @override
     async def publish(
         self,
-        message: Annotated[
-            Union["SendableMessage", Iterable["SendableMessage"]],
-            Doc("One message or iterable messages bodies to send."),
-        ],
-        *extra_messages: Annotated[
+        *messages: Annotated[
             "SendableMessage",
             Doc("Messages bodies to send."),
         ],
@@ -333,8 +400,7 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
         ] = False,
     ) -> None:
         cmd = KafkaPublishCommand(
-            message,
-            *extra_messages,
+            *messages,
             key=None,
             topic=topic or self.topic,
             partition=partition or self.partition,
@@ -347,7 +413,6 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
         )
 
         call: AsyncFunc = self._producer.publish_batch
-
         for m in chain(
             (m(None, context=context).publish_scope for m in self._broker_middlewares),
             self._middlewares,
@@ -373,7 +438,6 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
         cmd.partition = cmd.partition or self.partition
 
         call: AsyncFunc = self._producer.publish_batch
-
         for m in chain(
             (
                 _extra_middlewares

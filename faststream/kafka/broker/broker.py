@@ -728,8 +728,6 @@ class KafkaBroker(
             bool,
             Doc("Do not wait for Kafka publish confirmation."),
         ] = False,
-        # extra options to be compatible with test client
-        **kwargs: Any,
     ) -> None:
         """Publish message directly.
 
@@ -829,14 +827,14 @@ class KafkaBroker(
 
     async def publish_batch(
         self,
-        *msgs: Annotated[
+        *messages: Annotated[
             "SendableMessage",
             Doc("Messages bodies to send."),
         ],
         topic: Annotated[
             str,
             Doc("Topic where the message will be published."),
-        ],
+        ] = "",
         partition: Annotated[
             Optional[int],
             Doc(
@@ -878,7 +876,7 @@ class KafkaBroker(
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         cmd = KafkaPublishCommand(
-            *msgs,
+            *messages,
             topic=topic,
             partition=partition,
             timestamp_ms=timestamp_ms,

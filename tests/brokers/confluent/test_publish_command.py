@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from faststream import Response
-from faststream.kafka.response import KafkaPublishCommand, KafkaResponse
+from faststream.confluent.response import KafkaPublishCommand, KafkaResponse
 from faststream.response import ensure_response
 
 

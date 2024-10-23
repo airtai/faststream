@@ -47,6 +47,7 @@ class KafkaPublishCommand(PublishCommand):
     def __init__(
         self,
         message: "SendableMessage",
+        /,
         *messages: "SendableMessage",
         topic: str,
         _publish_type: PublishType,
@@ -95,7 +96,7 @@ class KafkaPublishCommand(PublishCommand):
             return cmd
 
         body, extra_bodies = cmd.body, []
-        if batch and isinstance(body, Sequence):
+        if batch and isinstance(body, Sequence) and not isinstance(body, str):
             if body:
                 body, extra_bodies = body[0], body[1:]
             else:

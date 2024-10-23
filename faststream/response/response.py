@@ -37,7 +37,7 @@ class PublishCommand(Response):
         reply_to: str = "",
         destination: str = "",
         correlation_id: Optional[str] = None,
-        headers: Optional[dict[str, str]] = None,
+        headers: Optional["AnyDict"] = None,
     ) -> None:
         super().__init__(
             body,

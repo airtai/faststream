@@ -9,9 +9,9 @@ from faststream.exceptions import OperationForbiddenError
 from faststream.message import encode_message
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import CustomCallable
     from faststream.confluent.client import AsyncConfluentProducer
+    from faststream.confluent.response import KafkaPublishCommand
 
 
 class AsyncConfluentFastProducer(ProducerProto):
@@ -30,71 +30,42 @@ class AsyncConfluentFastProducer(ProducerProto):
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 
-    @override
-    async def publish(  # type: ignore[override]
-        self,
-        message: "SendableMessage",
-        topic: str,
-        *,
-        key: Optional[bytes] = None,
-        partition: Optional[int] = None,
-        timestamp_ms: Optional[int] = None,
-        headers: Optional[dict[str, str]] = None,
-        correlation_id: str = "",
-        reply_to: str = "",
-        no_confirm: bool = False,
-    ) -> None:
-        """Publish a message to a topic."""
-        message, content_type = encode_message(message)
-
-        headers_to_send = {
-            "content-type": content_type or "",
-            "correlation_id": correlation_id,
-            **(headers or {}),
-        }
-
-        if reply_to:
-            headers_to_send["reply_to"] = headers_to_send.get(
-                "reply_to",
-                reply_to,
-            )
-
-        await self._producer.send(
-            topic=topic,
-            value=message,
-            key=key,
-            partition=partition,
-            timestamp_ms=timestamp_ms,
-            headers=[(i, (j or "").encode()) for i, j in headers_to_send.items()],
-            no_confirm=no_confirm,
-        )
-
     async def stop(self) -> None:
         await self._producer.stop()
 
+    @override
+    async def publish(  # type: ignore[override]
+        self,
+        cmd: "KafkaPublishCommand",
+    ) -> None:
+        """Publish a message to a topic."""
+        message, content_type = encode_message(cmd.body)
+
+        headers_to_send = {
+            "content-type": content_type or "",
+            **cmd.headers_to_publish(),
+        }
+
+        await self._producer.send(
+            topic=cmd.destination,
+            value=message,
+            key=cmd.key,
+            partition=cmd.partition,
+            timestamp_ms=cmd.timestamp_ms,
+            headers=[(i, (j or "").encode()) for i, j in headers_to_send.items()],
+            no_confirm=cmd.no_confirm,
+        )
+
     async def publish_batch(
         self,
-        *msgs: "SendableMessage",
-        topic: str,
-        partition: Optional[int] = None,
-        timestamp_ms: Optional[int] = None,
-        headers: Optional[dict[str, str]] = None,
-        reply_to: str = "",
-        correlation_id: str = "",
-        no_confirm: bool = False,
+        cmd: "KafkaPublishCommand",
     ) -> None:
         """Publish a batch of messages to a topic."""
         batch = self._producer.create_batch()
 
-        headers_to_send = {"correlation_id": correlation_id, **(headers or {})}
+        headers_to_send = cmd.headers_to_publish()
 
-        if reply_to:
-            headers_to_send["reply_to"] = headers_to_send.get(
-                "reply_to",
-                reply_to,
-            )
-
-        for msg in msgs:
+        for msg in cmd.batch_bodies:
             message, content_type = encode_message(msg)
 
             if content_type:
@@ -108,19 +79,22 @@ class AsyncConfluentFastProducer(ProducerProto):
             batch.append(
                 key=None,
                 value=message,
-                timestamp=timestamp_ms,
+                timestamp=cmd.timestamp_ms,
                 headers=[(i, j.encode()) for i, j in final_headers.items()],
             )
 
         await self._producer.send_batch(
             batch,
-            topic,
-            partition=partition,
-            no_confirm=no_confirm,
+            cmd.destination,
+            partition=cmd.partition,
+            no_confirm=cmd.no_confirm,
         )
 
     @override
-    async def request(self, *args: Any, **kwargs: Any) -> Optional[Any]:
+    async def request(
+        self,
+        cmd: "KafkaPublishCommand",
+    ) -> Optional[Any]:
         msg = "Kafka doesn't support `request` method without test client."
         raise OperationForbiddenError(
             msg,

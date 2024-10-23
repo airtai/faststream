@@ -1,25 +1,26 @@
 from abc import abstractmethod
-from collections.abc import Awaitable, Iterable
+from collections.abc import Iterable
 from copy import deepcopy
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Annotated, Any, Callable, Optional
+from typing import TYPE_CHECKING, Annotated, Any, Optional, Union
 
 from typing_extensions import Doc, override
 
 from faststream._internal.context.repository import context
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream._internal.subscriber.utils import process_msg
-from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
-from faststream.redis.schemas import ListSub, PubSub, StreamSub
+from faststream.redis.response import RedisPublishCommand
+from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, SendableMessage
+    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.redis.message import RedisMessage
     from faststream.redis.publisher.producer import RedisFastProducer
+    from faststream.redis.schemas import ListSub, PubSub, StreamSub
+    from faststream.response.response import PublishCommand
 
 
 class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
@@ -52,7 +53,7 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
         )
 
         self.reply_to = reply_to
-        self.headers = headers
+        self.headers = headers or {}
 
         self._producer = None
 
@@ -129,59 +130,33 @@ class ChannelPublisher(LogicPublisher):
                 "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
-        **kwargs: Any,  # option to suppress maxlen
     ) -> None:
-        return await self._publish(
+        cmd = RedisPublishCommand(
             message,
-            channel=channel,
-            reply_to=reply_to,
-            headers=headers,
-            correlation_id=correlation_id,
-            _extra_middlewares=(),
-            **kwargs,
+            channel=channel or self.channel.name,
+            reply_to=reply_to or self.reply_to,
+            headers=self.headers | (headers or {}),
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Publish,
         )
+        await self._basic_publish(cmd, _extra_middlewares=())
 
     @override
     async def _publish(
         self,
-        message: "SendableMessage" = None,
-        channel: Optional[str] = None,
-        reply_to: str = "",
-        headers: Optional["AnyDict"] = None,
-        correlation_id: Optional[str] = None,
-        # publisher specific
+        cmd: Union["PublishCommand", "RedisPublishCommand"],
+        *,
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-        **kwargs: Any,  # option to suppress maxlen
     ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        """This method should be called in subscriber flow only."""
+        cmd = RedisPublishCommand.from_cmd(cmd)
 
-        channel_sub = PubSub.validate(channel or self.channel)
-        reply_to = reply_to or self.reply_to
-        headers = headers or self.headers
-        correlation_id = correlation_id or gen_cor_id()
+        cmd.set_destination(channel=self.channel.name)
 
-        call: Callable[..., Awaitable[None]] = self._producer.publish
+        cmd.headers = self.headers | cmd.headers
+        cmd.reply_to = cmd.reply_to or self.reply_to
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (
-                    m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
-                )
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
-
-        await call(
-            message,
-            channel=channel_sub.name,
-            # basic args
-            reply_to=reply_to,
-            headers=headers,
-            correlation_id=correlation_id,
-        )
+        await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(
@@ -210,46 +185,17 @@ class ChannelPublisher(LogicPublisher):
             Optional[float],
             Doc("RPC reply waiting time."),
         ] = 30.0,
-        # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
     ) -> "RedisMessage":
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        kwargs = {
-            "channel": PubSub.validate(channel or self.channel).name,
-            # basic args
-            "headers": headers or self.headers,
-            "correlation_id": correlation_id or gen_cor_id(),
-            "timeout": timeout,
-        }
-        request: Callable[..., Awaitable[Any]] = self._producer.request
-
-        for pub_m in chain(
-            (
-                _extra_middlewares
-                or (
-                    m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
-                )
-            ),
-            self._middlewares,
-        ):
-            request = partial(pub_m, request)
-
-        published_msg = await request(
+        cmd = RedisPublishCommand(
             message,
-            **kwargs,
+            channel=channel or self.channel.name,
+            headers=self.headers | (headers or {}),
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Request,
+            timeout=timeout,
         )
 
-        msg: RedisMessage = await process_msg(
-            msg=published_msg,
-            middlewares=self._broker_middlewares,
-            parser=self._producer._parser,
-            decoder=self._producer._decoder,
-        )
+        msg: RedisMessage = await self._basic_request(cmd)
         return msg
 
 
@@ -321,59 +267,34 @@ class ListPublisher(LogicPublisher):
                 "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
-        # publisher specific
-        **kwargs: Any,  # option to suppress maxlen
     ) -> None:
-        return await self._publish(
+        cmd = RedisPublishCommand(
             message,
-            list=list,
-            reply_to=reply_to,
-            headers=headers,
-            correlation_id=correlation_id,
-            _extra_middlewares=(),
-            **kwargs,
+            list=list or self.list.name,
+            reply_to=reply_to or self.reply_to,
+            headers=self.headers | (headers or {}),
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Publish,
         )
+
+        return await self._basic_publish(cmd, _extra_middlewares=())
 
     @override
     async def _publish(
         self,
-        message: "SendableMessage" = None,
-        list: Optional[str] = None,
-        reply_to: str = "",
-        headers: Optional["AnyDict"] = None,
-        correlation_id: Optional[str] = None,
-        # publisher specific
+        cmd: Union["PublishCommand", "RedisPublishCommand"],
+        *,
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-        **kwargs: Any,  # option to suppress maxlen
     ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        """This method should be called in subscriber flow only."""
+        cmd = RedisPublishCommand.from_cmd(cmd)
 
-        list_sub = ListSub.validate(list or self.list)
-        reply_to = reply_to or self.reply_to
-        correlation_id = correlation_id or gen_cor_id()
+        cmd.set_destination(list=self.list.name)
 
-        call: Callable[..., Awaitable[None]] = self._producer.publish
+        cmd.headers = self.headers | cmd.headers
+        cmd.reply_to = cmd.reply_to or self.reply_to
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (
-                    m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
-                )
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
-
-        await call(
-            message,
-            list=list_sub.name,
-            # basic args
-            reply_to=reply_to,
-            headers=headers or self.headers,
-            correlation_id=correlation_id,
-        )
+        await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(
@@ -402,47 +323,17 @@ class ListPublisher(LogicPublisher):
             Optional[float],
             Doc("RPC reply waiting time."),
         ] = 30.0,
-        # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
     ) -> "RedisMessage":
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        kwargs = {
-            "list": ListSub.validate(list or self.list).name,
-            # basic args
-            "headers": headers or self.headers,
-            "correlation_id": correlation_id or gen_cor_id(),
-            "timeout": timeout,
-        }
-
-        request: Callable[..., Awaitable[Any]] = self._producer.request
-
-        for pub_m in chain(
-            (
-                _extra_middlewares
-                or (
-                    m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
-                )
-            ),
-            self._middlewares,
-        ):
-            request = partial(pub_m, request)
-
-        published_msg = await request(
+        cmd = RedisPublishCommand(
             message,
-            **kwargs,
+            list=list or self.list.name,
+            headers=self.headers | (headers or {}),
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Request,
+            timeout=timeout,
         )
 
-        msg: RedisMessage = await process_msg(
-            msg=published_msg,
-            middlewares=self._broker_middlewares,
-            parser=self._producer._parser,
-            decoder=self._producer._decoder,
-        )
+        msg: RedisMessage = await self._basic_request(cmd)
         return msg
 
 
@@ -450,54 +341,64 @@ class ListBatchPublisher(ListPublisher):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: Annotated[
-            Iterable["SendableMessage"],
-            Doc("Message body to send."),
-        ] = (),
+        *messages: Annotated[
+            "SendableMessage",
+            Doc("Messages bodies to send."),
+        ],
         list: Annotated[
-            Optional[str],
-            Doc("Redis List object name to send message."),
-        ] = None,
-        *,
+            str,
+            Doc("Redis List object name to send messages."),
+        ],
         correlation_id: Annotated[
             Optional[str],
-            Doc("Has no real effect. Option to be compatible with original protocol."),
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages.",
+            ),
         ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Reply message destination PubSub object name."),
+        ] = "",
         headers: Annotated[
             Optional["AnyDict"],
             Doc("Message headers to store metainformation."),
         ] = None,
-        # publisher specific
-        **kwargs: Any,  # option to suppress maxlen
     ) -> None:
-        return await self._publish(
-            message,
-            list=list,
-            correlation_id=correlation_id,
-            headers=headers,
-            _extra_middlewares=(),
-            **kwargs,
+        cmd = RedisPublishCommand(
+            *messages,
+            list=list or self.list.name,
+            reply_to=reply_to or self.reply_to,
+            headers=self.headers | (headers or {}),
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Publish,
         )
+
+        call: AsyncFunc = self._producer.publish_batch
+        for m in chain(
+            (m(None, context=context).publish_scope for m in self._broker_middlewares),
+            self._middlewares,
+        ):
+            call = partial(m, call)
+
+        await call(cmd)
 
     @override
     async def _publish(  # type: ignore[override]
         self,
-        message: "SendableMessage" = (),
-        list: Optional[str] = None,
+        cmd: Union["PublishCommand", "RedisPublishCommand"],
         *,
-        correlation_id: Optional[str] = None,
-        headers: Optional["AnyDict"] = None,
-        # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-        **kwargs: Any,  # option to suppress maxlen
     ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        """This method should be called in subscriber flow only."""
+        cmd = RedisPublishCommand.from_cmd(cmd, batch=True)
 
-        list_sub = ListSub.validate(list or self.list)
-        correlation_id = correlation_id or gen_cor_id()
+        cmd.set_destination(list=self.list.name)
 
-        call: Callable[..., Awaitable[None]] = self._producer.publish_batch
+        cmd.headers = self.headers | cmd.headers
+        cmd.reply_to = cmd.reply_to or self.reply_to
 
+        call: AsyncFunc = self._producer.publish_batch
         for m in chain(
             (
                 _extra_middlewares
@@ -510,12 +411,7 @@ class ListBatchPublisher(ListPublisher):
         ):
             call = partial(m, call)
 
-        await call(
-            *message,
-            list=list_sub.name,
-            correlation_id=correlation_id,
-            headers=headers or self.headers,
-        )
+        await call(cmd)
 
 
 class StreamPublisher(LogicPublisher):
@@ -595,60 +491,35 @@ class StreamPublisher(LogicPublisher):
             ),
         ] = None,
     ) -> None:
-        return await self._publish(
+        cmd = RedisPublishCommand(
             message,
-            stream=stream,
-            reply_to=reply_to,
-            headers=headers,
-            correlation_id=correlation_id,
-            maxlen=maxlen,
-            _extra_middlewares=(),
+            stream=stream or self.stream.name,
+            reply_to=reply_to or self.reply_to,
+            headers=self.headers | (headers or {}),
+            correlation_id=correlation_id or gen_cor_id(),
+            maxlen=maxlen or self.stream.maxlen,
+            _publish_type=PublishType.Publish,
         )
+
+        return await self._basic_publish(cmd, _extra_middlewares=())
 
     @override
     async def _publish(
         self,
-        message: "SendableMessage" = None,
-        stream: Optional[str] = None,
-        reply_to: str = "",
-        headers: Optional["AnyDict"] = None,
-        correlation_id: Optional[str] = None,
+        cmd: Union["PublishCommand", "RedisPublishCommand"],
         *,
-        maxlen: Optional[int] = None,
-        # publisher specific
         _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        """This method should be called in subscriber flow only."""
+        cmd = RedisPublishCommand.from_cmd(cmd)
 
-        stream_sub = StreamSub.validate(stream or self.stream)
-        maxlen = maxlen or stream_sub.maxlen
-        reply_to = reply_to or self.reply_to
-        headers = headers or self.headers
-        correlation_id = correlation_id or gen_cor_id()
+        cmd.set_destination(stream=self.stream.name)
 
-        call: Callable[..., Awaitable[None]] = self._producer.publish
+        cmd.headers = self.headers | cmd.headers
+        cmd.reply_to = cmd.reply_to or self.reply_to
+        cmd.maxlen = self.stream.maxlen
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (
-                    m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
-                )
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
-
-        await call(
-            message,
-            stream=stream_sub.name,
-            maxlen=maxlen,
-            # basic args
-            reply_to=reply_to,
-            headers=headers,
-            correlation_id=correlation_id,
-        )
+        await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(
@@ -684,45 +555,16 @@ class StreamPublisher(LogicPublisher):
             Optional[float],
             Doc("RPC reply waiting time."),
         ] = 30.0,
-        # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
     ) -> "RedisMessage":
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        kwargs = {
-            "stream": StreamSub.validate(stream or self.stream).name,
-            # basic args
-            "headers": headers or self.headers,
-            "correlation_id": correlation_id or gen_cor_id(),
-            "timeout": timeout,
-        }
-
-        request: Callable[..., Awaitable[Any]] = self._producer.request
-
-        for pub_m in chain(
-            (
-                _extra_middlewares
-                or (
-                    m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
-                )
-            ),
-            self._middlewares,
-        ):
-            request = partial(pub_m, request)
-
-        published_msg = await request(
+        cmd = RedisPublishCommand(
             message,
-            **kwargs,
+            stream=stream or self.stream.name,
+            headers=self.headers | (headers or {}),
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Request,
+            maxlen=maxlen or self.stream.maxlen,
+            timeout=timeout,
         )
 
-        msg: RedisMessage = await process_msg(
-            msg=published_msg,
-            middlewares=self._broker_middlewares,
-            parser=self._producer._parser,
-            decoder=self._producer._decoder,
-        )
+        msg: RedisMessage = await self._basic_request(cmd)
         return msg

@@ -23,7 +23,7 @@ def validate_options(
     channel: Union["PubSub", str, None],
     list: Union["ListSub", str, None],
     stream: Union["StreamSub", str, None],
-) -> None:
+) -> str:
     if all((channel, list)):
         msg = "You can't use `PubSub` and `ListSub` both"
         raise SetupError(msg)
@@ -33,3 +33,4 @@ def validate_options(
     if all((list, stream)):
         msg = "You can't use `ListSub` and `StreamSub` both"
         raise SetupError(msg)
+    return channel or list or stream
