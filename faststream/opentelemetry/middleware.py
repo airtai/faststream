@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from faststream._internal.context.repository import ContextRepo
     from faststream.message import StreamMessage
     from faststream.opentelemetry.provider import TelemetrySettingsProvider
+    from faststream.response.response import PublishCommand
 
 
 _BAGGAGE_PROPAGATOR = W3CBaggagePropagator()
@@ -177,29 +178,27 @@ class _BaseTelemetryMiddleware(BaseMiddleware):
     async def publish_scope(
         self,
         call_next: "AsyncFunc",
-        msg: Any,
-        *args: Any,
-        **kwargs: Any,
+        msg: "PublishCommand",
     ) -> Any:
         if (provider := self.__settings_provider) is None:
-            return await call_next(msg, *args, **kwargs)
+            return await call_next(msg)
 
-        headers = kwargs.pop("headers", {}) or {}
+        headers = msg.headers
         current_context = context.get_current()
-        destination_name = provider.get_publish_destination_name(kwargs)
+        destination_name = provider.get_publish_destination_name(msg)
 
         current_baggage: Optional[Baggage] = self.context.get_local("baggage")
         if current_baggage:
             headers.update(current_baggage.to_headers())
 
-        trace_attributes = provider.get_publish_attrs_from_kwargs(kwargs)
+        trace_attributes = provider.get_publish_attrs_from_kwargs(msg)
         metrics_attributes = {
             SpanAttributes.MESSAGING_SYSTEM: provider.messaging_system,
             SpanAttributes.MESSAGING_DESTINATION_NAME: destination_name,
         }
 
         # NOTE: if batch with single message?
-        if (msg_count := len((msg, *args))) > 1:
+        if (msg_count := len(msg.batch_bodies)) > 1:
             trace_attributes[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = msg_count
             current_context = _BAGGAGE_PROPAGATOR.extract(headers, current_context)
             _BAGGAGE_PROPAGATOR.inject(
@@ -237,7 +236,8 @@ class _BaseTelemetryMiddleware(BaseMiddleware):
                     SpanAttributes.MESSAGING_OPERATION,
                     MessageAction.PUBLISH,
                 )
-                result = await call_next(msg, *args, headers=headers, **kwargs)
+                msg.headers = headers
+                result = await call_next(msg)
 
         except Exception as e:
             metrics_attributes[ERROR_TYPE] = type(e).__name__

@@ -49,3 +49,9 @@ class PublishCommand(Response):
         self.reply_to = reply_to
 
         self.publish_type = _publish_type
+
+    @property
+    def batch_bodies(self) -> tuple["Any", ...]:
+        if self.body:
+            return (self.body,)
+        return ()
