@@ -1,5 +1,7 @@
-from collections.abc import Iterable
+from collections.abc import Awaitable, Iterable
+from functools import partial
 from inspect import unwrap
+from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -13,13 +15,17 @@ from fast_depends._compat import create_model, get_config_base
 from fast_depends.core import CallModel, build_call_model
 from typing_extensions import Doc, override
 
+from faststream._internal.context.repository import context
 from faststream._internal.publisher.proto import PublisherProto
 from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
+from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import (
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
 )
+from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.message.source_type import SourceType
 from faststream.specification.asyncapi.message import get_response_schema
 from faststream.specification.asyncapi.utils import to_camelcase
 
@@ -30,6 +36,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         PublisherMiddleware,
     )
+    from faststream.response.response import PublishCommand
 
 
 class PublisherUsecase(PublisherProto[MsgType]):
@@ -129,6 +136,73 @@ class PublisherUsecase(PublisherProto[MsgType]):
         handler_call._publishers.append(self)
         self.calls.append(handler_call._original_call)
         return handler_call
+
+    async def _basic_publish(
+        self,
+        cmd: "PublishCommand",
+        *,
+        _extra_middlewares: Iterable["PublisherMiddleware"],
+    ) -> Any:
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        pub: Callable[..., Awaitable[Any]] = self._producer.publish
+
+        for pub_m in chain(
+            (
+                _extra_middlewares
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
+            ),
+            self._middlewares,
+        ):
+            pub = partial(pub_m, pub)
+
+        await pub(cmd)
+
+    async def _basic_request(
+        self,
+        cmd: "PublishCommand",
+    ) -> Optional[Any]:
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        request = self._producer.request
+
+        for pub_m in chain(
+            (m(None, context=context).publish_scope for m in self._broker_middlewares),
+            self._middlewares,
+        ):
+            request = partial(pub_m, request)
+
+        published_msg = await request(cmd)
+
+        response_msg: Any = await process_msg(
+            msg=published_msg,
+            middlewares=self._broker_middlewares,
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+            source_type=SourceType.Response,
+        )
+        return response_msg
+
+    async def _basic_publish_batch(
+        self,
+        cmd: "PublishCommand",
+        *,
+        _extra_middlewares: Iterable["PublisherMiddleware"],
+    ) -> Optional[Any]:
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        pub = self._producer.publish_batch
+
+        for pub_m in chain(
+            (m(None, context=context).publish_scope for m in self._broker_middlewares),
+            self._middlewares,
+        ):
+            pub = partial(pub_m, pub)
+
+        await pub(cmd)
 
     def get_payloads(self) -> list[tuple["AnyDict", str]]:
         payloads: list[tuple[AnyDict, str]] = []

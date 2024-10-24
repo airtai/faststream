@@ -15,6 +15,7 @@ from typing import (
 from typing_extensions import Doc, Self
 
 from faststream._internal._compat import is_test_env
+from faststream._internal.context.repository import context
 from faststream._internal.setup import (
     EmptyState,
     FastDependsData,
@@ -49,6 +50,7 @@ if TYPE_CHECKING:
         ProducerProto,
         PublisherProto,
     )
+    from faststream.response.response import PublishCommand
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
 
@@ -317,13 +319,11 @@ class BrokerUsecase(
 
         self.running = False
 
-    async def publish(
+    async def _basic_publish(
         self,
-        msg: Any,
+        cmd: "PublishCommand",
         *,
         producer: Optional["ProducerProto"],
-        correlation_id: Optional[str] = None,
-        **kwargs: Any,
     ) -> Optional[Any]:
         """Publish message directly."""
         assert producer, NOT_CONNECTED_YET  # nosec B101
@@ -331,39 +331,49 @@ class BrokerUsecase(
         publish = producer.publish
 
         for m in self._middlewares:
-            publish = partial(m(None).publish_scope, publish)
+            publish = partial(m(None, context=context).publish_scope, publish)
 
-        return await publish(msg, correlation_id=correlation_id, **kwargs)
+        return await publish(cmd)
 
-    async def request(
+    async def _basic_publish_batch(
         self,
-        msg: Any,
+        cmd: "PublishCommand",
         *,
         producer: Optional["ProducerProto"],
-        correlation_id: Optional[str] = None,
-        **kwargs: Any,
+    ) -> None:
+        """Publish a messages batch directly."""
+        assert producer, NOT_CONNECTED_YET  # nosec B101
+
+        publish = producer.publish_batch
+
+        for m in self._middlewares:
+            publish = partial(m(None, context=context).publish_scope, publish)
+
+        await publish(cmd)
+
+    async def _basic_request(
+        self,
+        cmd: "PublishCommand",
+        *,
+        producer: Optional["ProducerProto"],
     ) -> Any:
         """Publish message directly."""
         assert producer, NOT_CONNECTED_YET  # nosec B101
 
         request = producer.request
         for m in self._middlewares:
-            request = partial(m(None).publish_scope, request)
+            request = partial(m(None, context=context).publish_scope, request)
 
-        published_msg = await request(
-            msg,
-            correlation_id=correlation_id,
-            **kwargs,
-        )
+        published_msg = await request(cmd)
 
-        message: Any = await process_msg(
+        response_msg: Any = await process_msg(
             msg=published_msg,
             middlewares=self._middlewares,
             parser=producer._parser,
             decoder=producer._decoder,
+            source_type=SourceType.Response,
         )
-        message._source_type = SourceType.Response
-        return message
+        return response_msg
 
     @abstractmethod
     async def ping(self, timeout: Optional[float]) -> bool:

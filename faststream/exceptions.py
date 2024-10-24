@@ -115,7 +115,7 @@ class StartupValidationError(FastStreamException, ValueError):
         )
 
 
-class OperationForbiddenError(FastStreamException, NotImplementedError):
+class FeatureNotSupportedException(FastStreamException, NotImplementedError):  # noqa: N818
     """Raises at planned NotImplemented operation call."""
 
 

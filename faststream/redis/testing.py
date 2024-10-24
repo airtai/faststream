@@ -28,6 +28,7 @@ from faststream.redis.message import (
 )
 from faststream.redis.parser import RawMessage, RedisPubSubParser
 from faststream.redis.publisher.producer import RedisFastProducer
+from faststream.redis.response import DestinationType, RedisPublishCommand
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.redis.subscriber.usecase import (
     ChannelSubscriber,
@@ -108,26 +109,16 @@ class FakeProducer(RedisFastProducer):
     @override
     async def publish(
         self,
-        message: "SendableMessage",
-        *,
-        channel: Optional[str] = None,
-        list: Optional[str] = None,
-        stream: Optional[str] = None,
-        maxlen: Optional[int] = None,
-        headers: Optional["AnyDict"] = None,
-        reply_to: str = "",
-        correlation_id: Optional[str] = None,
+        cmd: "RedisPublishCommand",
     ) -> None:
-        correlation_id = correlation_id or gen_cor_id()
-
         body = build_message(
-            message=message,
-            reply_to=reply_to,
-            correlation_id=correlation_id,
-            headers=headers,
+            message=cmd.body,
+            reply_to=cmd.reply_to,
+            correlation_id=cmd.correlation_id or gen_cor_id(),
+            headers=cmd.headers,
         )
 
-        destination = _make_destionation_kwargs(channel, list, stream)
+        destination = _make_destionation_kwargs(cmd)
         visitors = (ChannelVisitor(), ListVisitor(), StreamVisitor())
 
         for handler in self.broker._subscribers:  # pragma: no branch
@@ -144,25 +135,15 @@ class FakeProducer(RedisFastProducer):
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        *,
-        correlation_id: str,
-        channel: Optional[str] = None,
-        list: Optional[str] = None,
-        stream: Optional[str] = None,
-        maxlen: Optional[int] = None,
-        headers: Optional["AnyDict"] = None,
-        timeout: Optional[float] = 30.0,
+        cmd: "RedisPublishCommand",
     ) -> "PubSubMessage":
-        correlation_id = correlation_id or gen_cor_id()
-
         body = build_message(
-            message=message,
-            correlation_id=correlation_id,
-            headers=headers,
+            message=cmd.body,
+            correlation_id=cmd.correlation_id or gen_cor_id(),
+            headers=cmd.headers,
         )
 
-        destination = _make_destionation_kwargs(channel, list, stream)
+        destination = _make_destionation_kwargs(cmd)
         visitors = (ChannelVisitor(), ListVisitor(), StreamVisitor())
 
         for handler in self.broker._subscribers:  # pragma: no branch
@@ -174,34 +155,33 @@ class FakeProducer(RedisFastProducer):
                         handler,  # type: ignore[arg-type]
                     )
 
-                    with anyio.fail_after(timeout):
+                    with anyio.fail_after(cmd.timeout):
                         return await self._execute_handler(msg, handler)
 
         raise SubscriberNotFound
 
     async def publish_batch(
         self,
-        *msgs: "SendableMessage",
-        list: str,
-        headers: Optional["AnyDict"] = None,
-        correlation_id: Optional[str] = None,
+        cmd: "RedisPublishCommand",
     ) -> None:
         data_to_send = [
             build_message(
                 m,
-                correlation_id=correlation_id or gen_cor_id(),
-                headers=headers,
+                correlation_id=cmd.correlation_id or gen_cor_id(),
+                headers=cmd.headers,
             )
-            for m in msgs
+            for m in cmd.batch_bodies
         ]
 
         visitor = ListVisitor()
         for handler in self.broker._subscribers:  # pragma: no branch
-            if visitor.visit(list=list, sub=handler):
+            if visitor.visit(list=cmd.destination, sub=handler):
                 casted_handler = cast(_ListHandlerMixin, handler)
 
                 if casted_handler.list_sub.batch:
-                    msg = visitor.get_message(list, data_to_send, casted_handler)
+                    msg = visitor.get_message(
+                        cmd.destination, data_to_send, casted_handler
+                    )
 
                     await self._execute_handler(msg, handler)
 
@@ -375,18 +355,14 @@ class _DestinationKwargs(TypedDict, total=False):
     stream: str
 
 
-def _make_destionation_kwargs(
-    channel: Optional[str],
-    list: Optional[str],
-    stream: Optional[str],
-) -> _DestinationKwargs:
+def _make_destionation_kwargs(cmd: RedisPublishCommand) -> _DestinationKwargs:
     destination: _DestinationKwargs = {}
-    if channel:
-        destination["channel"] = channel
-    if list:
-        destination["list"] = list
-    if stream:
-        destination["stream"] = stream
+    if cmd.destination_type is DestinationType.Channel:
+        destination["channel"] = cmd.destination
+    if cmd.destination_type is DestinationType.List:
+        destination["list"] = cmd.destination
+    if cmd.destination_type is DestinationType.Stream:
+        destination["stream"] = cmd.destination
 
     if len(destination) != 1:
         raise SetupError(INCORRECT_SETUP_MSG)

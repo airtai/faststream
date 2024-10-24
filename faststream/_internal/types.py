@@ -10,9 +10,11 @@ from typing import (
 
 from typing_extensions import ParamSpec, TypeAlias
 
-from faststream._internal.basic_types import AsyncFunc, AsyncFuncAny
+from faststream._internal.basic_types import AsyncFuncAny
+from faststream._internal.context.repository import ContextRepo
 from faststream.message import StreamMessage
 from faststream.middlewares import BaseMiddleware
+from faststream.response.response import PublishCommand
 
 MsgType = TypeVar("MsgType")
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
@@ -64,7 +66,18 @@ WrappedHandlerCall: TypeAlias = Union[
 ]
 
 
-BrokerMiddleware: TypeAlias = Callable[[Optional[MsgType]], BaseMiddleware]
+class BrokerMiddleware(Protocol[MsgType]):
+    """Middleware builder interface."""
+
+    def __call__(
+        self,
+        msg: Optional[MsgType],
+        /,
+        *,
+        context: ContextRepo,
+    ) -> BaseMiddleware: ...
+
+
 SubscriberMiddleware: TypeAlias = Callable[
     [AsyncFuncAny, MsgType],
     MsgType,
@@ -76,7 +89,6 @@ class PublisherMiddleware(Protocol):
 
     def __call__(
         self,
-        call_next: AsyncFunc,
-        *__args: Any,
-        **__kwargs: Any,
+        call_next: Callable[[PublishCommand], Awaitable[PublishCommand]],
+        msg: PublishCommand,
     ) -> Any: ...

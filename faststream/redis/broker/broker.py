@@ -27,11 +27,13 @@ from typing_extensions import Doc, TypeAlias, override
 from faststream.__about__ import __version__
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
-from faststream.exceptions import NOT_CONNECTED_YET
+from faststream._internal.context.repository import context
 from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.producer import RedisFastProducer
+from faststream.redis.response import RedisPublishCommand
 from faststream.redis.security import parse_security
+from faststream.response.publish_type import PublishType
 
 from .logging import make_redis_logger_state
 from .registrator import RedisRegistrator
@@ -412,9 +414,8 @@ class RedisBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        await super().publish(
+        cmd = RedisPublishCommand(
             message,
-            producer=self._producer,
             correlation_id=correlation_id or gen_cor_id(),
             channel=channel,
             list=list,
@@ -422,7 +423,9 @@ class RedisBroker(
             maxlen=maxlen,
             reply_to=reply_to,
             headers=headers,
+            _publish_type=PublishType.Publish,
         )
+        await super()._basic_publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -437,9 +440,8 @@ class RedisBroker(
         headers: Optional["AnyDict"] = None,
         timeout: Optional[float] = 30.0,
     ) -> "RedisMessage":
-        msg: RedisMessage = await super().request(
+        cmd = RedisPublishCommand(
             message,
-            producer=self._producer,
             correlation_id=correlation_id or gen_cor_id(),
             channel=channel,
             list=list,
@@ -447,12 +449,14 @@ class RedisBroker(
             maxlen=maxlen,
             headers=headers,
             timeout=timeout,
+            _publish_type=PublishType.Request,
         )
+        msg: RedisMessage = await super()._basic_request(cmd, producer=self._producer)
         return msg
 
     async def publish_batch(
         self,
-        *msgs: Annotated[
+        *messages: Annotated[
             "SendableMessage",
             Doc("Messages bodies to send."),
         ],
@@ -467,22 +471,31 @@ class RedisBroker(
                 "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Reply message destination PubSub object name."),
+        ] = "",
+        headers: Annotated[
+            Optional["AnyDict"],
+            Doc("Message headers to store metainformation."),
+        ] = None,
     ) -> None:
         """Publish multiple messages to Redis List by one request."""
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        correlation_id = correlation_id or gen_cor_id()
+        cmd = RedisPublishCommand(
+            *messages,
+            list=list,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Publish,
+        )
 
         call: AsyncFunc = self._producer.publish_batch
 
         for m in self._middlewares:
-            call = partial(m(None).publish_scope, call)
+            call = partial(m(None, context=context).publish_scope, call)
 
-        await call(
-            *msgs,
-            list=list,
-            correlation_id=correlation_id,
-        )
+        await self._basic_publish_batch(cmd, producer=self._producer)
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:

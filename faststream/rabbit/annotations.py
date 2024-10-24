@@ -4,7 +4,6 @@ from aio_pika import RobustChannel, RobustConnection
 
 from faststream._internal.context import Context
 from faststream.annotations import ContextRepo, Logger
-from faststream.params import NoCast
 from faststream.rabbit.broker import RabbitBroker as RB
 from faststream.rabbit.message import RabbitMessage as RM
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -14,7 +13,6 @@ __all__ = (
     "Connection",
     "ContextRepo",
     "Logger",
-    "NoCast",
     "RabbitBroker",
     "RabbitMessage",
     "RabbitProducer",

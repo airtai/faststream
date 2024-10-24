@@ -9,6 +9,7 @@ from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream.message import StreamMessage
+    from faststream.redis.response import RedisPublishCommand
 
 
 class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
@@ -44,19 +45,19 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
 
     def get_publish_attrs_from_kwargs(
         self,
-        kwargs: "AnyDict",
+        cmd: "RedisPublishCommand",
     ) -> "AnyDict":
         return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
-            SpanAttributes.MESSAGING_DESTINATION_NAME: self._get_destination(kwargs),
-            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: kwargs["correlation_id"],
+            SpanAttributes.MESSAGING_DESTINATION_NAME: cmd.destination,
+            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: cmd.correlation_id,
         }
 
     def get_publish_destination_name(
         self,
-        kwargs: "AnyDict",
+        cmd: "RedisPublishCommand",
     ) -> str:
-        return self._get_destination(kwargs)
+        return cmd.destination
 
     @staticmethod
     def _get_destination(kwargs: "AnyDict") -> str:

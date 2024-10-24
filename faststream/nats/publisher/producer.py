@@ -7,6 +7,7 @@ from typing_extensions import override
 
 from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
+from faststream.exceptions import FeatureNotSupportedException
 from faststream.message import encode_message
 from faststream.nats.parser import NatsParser
 
@@ -15,11 +16,11 @@ if TYPE_CHECKING:
     from nats.aio.msg import Msg
     from nats.js import JetStreamContext
 
-    from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import (
         AsyncCallable,
         CustomCallable,
     )
+    from faststream.nats.response import NatsPublishCommand
 
 
 class NatsFastProducer(ProducerProto):
@@ -44,53 +45,48 @@ class NatsFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        subject: str,
-        *,
-        correlation_id: str,
-        headers: Optional[dict[str, str]] = None,
-        reply_to: str = "",
-        **kwargs: Any,  # suprress stream option
+        cmd: "NatsPublishCommand",
     ) -> None:
-        payload, content_type = encode_message(message)
+        payload, content_type = encode_message(cmd.body)
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id,
-            **(headers or {}),
+            **cmd.headers_to_publish(),
         }
 
         await self._connection.publish(
-            subject=subject,
+            subject=cmd.destination,
             payload=payload,
-            reply=reply_to,
+            reply=cmd.reply_to,
             headers=headers_to_send,
         )
 
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        subject: str,
-        *,
-        correlation_id: str,
-        headers: Optional[dict[str, str]] = None,
-        timeout: float = 0.5,
+        cmd: "NatsPublishCommand",
     ) -> "Msg":
-        payload, content_type = encode_message(message)
+        payload, content_type = encode_message(cmd.body)
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id,
-            **(headers or {}),
+            **cmd.headers_to_publish(),
         }
 
         return await self._connection.request(
-            subject=subject,
+            subject=cmd.destination,
             payload=payload,
             headers=headers_to_send,
-            timeout=timeout,
+            timeout=cmd.timeout,
         )
+
+    @override
+    async def publish_batch(
+        self,
+        cmd: "NatsPublishCommand",
+    ) -> None:
+        msg = "NATS doesn't support publishing in batches."
+        raise FeatureNotSupportedException(msg)
 
 
 class NatsJSFastProducer(ProducerProto):
@@ -115,32 +111,21 @@ class NatsJSFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        subject: str,
-        *,
-        correlation_id: str,
-        headers: Optional[dict[str, str]] = None,
-        reply_to: str = "",
-        stream: Optional[str] = None,
-        timeout: Optional[float] = None,
+        cmd: "NatsPublishCommand",
     ) -> Optional[Any]:
-        payload, content_type = encode_message(message)
+        payload, content_type = encode_message(cmd.body)
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id,
-            **(headers or {}),
+            **cmd.headers_to_publish(js=True),
         }
 
-        if reply_to:
-            headers_to_send.update({"reply_to": reply_to})
-
         await self._connection.publish(
-            subject=subject,
+            subject=cmd.destination,
             payload=payload,
             headers=headers_to_send,
-            stream=stream,
-            timeout=timeout,
+            stream=cmd.stream,
+            timeout=cmd.timeout,
         )
 
         return None
@@ -148,15 +133,9 @@ class NatsJSFastProducer(ProducerProto):
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        subject: str,
-        *,
-        correlation_id: str,
-        headers: Optional[dict[str, str]] = None,
-        stream: Optional[str] = None,
-        timeout: float = 0.5,
+        cmd: "NatsPublishCommand",
     ) -> "Msg":
-        payload, content_type = encode_message(message)
+        payload, content_type = encode_message(cmd.body)
 
         reply_to = self._connection._nc.new_inbox()
         future: asyncio.Future[Msg] = asyncio.Future()
@@ -165,18 +144,17 @@ class NatsJSFastProducer(ProducerProto):
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id,
             "reply_to": reply_to,
-            **(headers or {}),
+            **cmd.headers_to_publish(js=False),
         }
 
-        with anyio.fail_after(timeout):
+        with anyio.fail_after(cmd.timeout):
             await self._connection.publish(
-                subject=subject,
+                subject=cmd.destination,
                 payload=payload,
                 headers=headers_to_send,
-                stream=stream,
-                timeout=timeout,
+                stream=cmd.stream,
+                timeout=cmd.timeout,
             )
 
             msg = await future
@@ -191,3 +169,11 @@ class NatsJSFastProducer(ProducerProto):
                 raise nats.errors.NoRespondersError
 
             return msg
+
+    @override
+    async def publish_batch(
+        self,
+        cmd: "NatsPublishCommand",
+    ) -> None:
+        msg = "NATS doesn't support publishing in batches."
+        raise FeatureNotSupportedException(msg)

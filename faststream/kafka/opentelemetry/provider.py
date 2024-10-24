@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from aiokafka import ConsumerRecord
 
     from faststream._internal.basic_types import AnyDict
+    from faststream.kafka.response import KafkaPublishCommand
     from faststream.message import StreamMessage
 
 
@@ -22,27 +23,27 @@ class BaseKafkaTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
 
     def get_publish_attrs_from_kwargs(
         self,
-        kwargs: "AnyDict",
+        cmd: "KafkaPublishCommand",
     ) -> "AnyDict":
         attrs = {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
-            SpanAttributes.MESSAGING_DESTINATION_NAME: kwargs["topic"],
-            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: kwargs["correlation_id"],
+            SpanAttributes.MESSAGING_DESTINATION_NAME: cmd.destination,
+            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: cmd.correlation_id,
         }
 
-        if (partition := kwargs.get("partition")) is not None:
-            attrs[SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION] = partition
+        if cmd.partition is not None:
+            attrs[SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION] = cmd.partition
 
-        if (key := kwargs.get("key")) is not None:
-            attrs[SpanAttributes.MESSAGING_KAFKA_MESSAGE_KEY] = key
+        if cmd.key is not None:
+            attrs[SpanAttributes.MESSAGING_KAFKA_MESSAGE_KEY] = cmd.key
 
         return attrs
 
     def get_publish_destination_name(
         self,
-        kwargs: "AnyDict",
+        cmd: "KafkaPublishCommand",
     ) -> str:
-        return cast(str, kwargs["topic"])
+        return cmd.destination
 
 
 class KafkaTelemetrySettingsProvider(

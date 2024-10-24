@@ -9,5 +9,5 @@ class BaseRMQInformation(Protocol):
 
     virtual_host: str
     queue: RabbitQueue
-    exchange: Optional[RabbitExchange]
+    exchange: RabbitExchange
     app_id: Optional[str]
