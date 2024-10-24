@@ -74,14 +74,6 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Iterable["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            Union[bool, int],
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
         no_reply: Annotated[
             bool,
             Doc(
@@ -113,9 +105,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
                     exchange=RabbitExchange.validate(exchange),
                     consume_args=consume_args,
                     # subscriber args
-                    no_ack=no_ack,
                     no_reply=no_reply,
-                    retry=retry,
                     broker_middlewares=self._middlewares,
                     broker_dependencies=self._dependencies,
                     # AsyncAPI

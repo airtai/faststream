@@ -18,9 +18,7 @@ def create_subscriber(
     exchange: "RabbitExchange",
     consume_args: Optional["AnyDict"],
     # Subscriber args
-    no_ack: bool,
     no_reply: bool,
-    retry: Union[bool, int],
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
     # AsyncAPI args
@@ -32,9 +30,7 @@ def create_subscriber(
         queue=queue,
         exchange=exchange,
         consume_args=consume_args,
-        no_ack=no_ack,
         no_reply=no_reply,
-        retry=retry,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,
         title_=title_,

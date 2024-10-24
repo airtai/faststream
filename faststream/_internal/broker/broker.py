@@ -14,7 +14,6 @@ from typing import (
 
 from typing_extensions import Doc, Self
 
-from faststream._internal._compat import is_test_env
 from faststream._internal.setup import (
     EmptyState,
     FastDependsData,
@@ -34,6 +33,7 @@ from faststream._internal.types import (
 )
 from faststream._internal.utils.functions import to_async
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.middlewares import AcknowledgementMiddleware
 from faststream.middlewares.logging import CriticalLogMiddleware
 
 from .abc_broker import ABCBroker
@@ -48,6 +48,7 @@ if TYPE_CHECKING:
         ProducerProto,
         PublisherProto,
     )
+    from faststream.middlewares import AckPolicy
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
 
@@ -88,6 +89,10 @@ class BrokerUsecase(
             Doc(
                 "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
+        ],
+        ack_policy: Annotated[
+            "AckPolicy",
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
         ],
         # Logging args
         logger_state: LoggerState,
@@ -160,12 +165,11 @@ class BrokerUsecase(
         self._connection = None
         self._producer = None
 
-        # TODO: remove useless middleware filter
-        if not is_test_env():
-            self._middlewares = (
-                CriticalLogMiddleware(logger_state),
-                *self._middlewares,
-            )
+        self._middlewares = (
+            AcknowledgementMiddleware(ack_policy, logger_state),
+            CriticalLogMiddleware(logger_state),
+            *self._middlewares,
+        )
 
         self._state = EmptyState(
             depends_params=FastDependsData(
@@ -243,7 +247,8 @@ class BrokerUsecase(
             for h in self._subscribers:
                 log_context = h.get_log_context(None)
                 log_context.pop("message_id", None)
-                self._state.logger_state.params_storage.setup_log_contest(log_context)
+                self._state.logger_state.params_storage.setup_log_contest(
+                    log_context)
 
             self._state._setup()
 

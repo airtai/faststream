@@ -29,6 +29,7 @@ from faststream.rabbit.schemas import (
 )
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.utils import build_url
+from faststream.middlewares import AckPolicy
 
 from .logging import make_rabbit_logger_state
 from .registrator import RabbitRegistrator
@@ -168,6 +169,10 @@ class RabbitBroker(
             Iterable["BrokerMiddleware[IncomingMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
+        ack_policy: Annotated[
+            "AckPolicy",
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         # AsyncAPI args
         security: Annotated[
             Optional["BaseSecurity"],
@@ -265,6 +270,7 @@ class RabbitBroker(
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
+            ack_policy=ack_policy,
             # AsyncAPI args
             description=description,
             specification_url=specification_url,

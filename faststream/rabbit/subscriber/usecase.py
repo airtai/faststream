@@ -53,9 +53,7 @@ class LogicSubscriber(
         exchange: "RabbitExchange",
         consume_args: Optional["AnyDict"],
         # Subscriber args
-        no_ack: bool,
         no_reply: bool,
-        retry: Union[bool, int],
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
         # AsyncAPI args
@@ -69,9 +67,7 @@ class LogicSubscriber(
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
-            no_ack=no_ack,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
             # AsyncAPI
