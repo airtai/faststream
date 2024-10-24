@@ -177,14 +177,14 @@ class PublisherUsecase(PublisherProto[MsgType]):
 
         published_msg = await request(cmd)
 
-        message: Any = await process_msg(
+        response_msg: Any = await process_msg(
             msg=published_msg,
             middlewares=self._broker_middlewares,
             parser=self._producer._parser,
             decoder=self._producer._decoder,
+            source_type=SourceType.Response,
         )
-        message._source_type = SourceType.Response
-        return message
+        return response_msg
 
     async def _basic_publish_batch(
         self,

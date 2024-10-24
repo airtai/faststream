@@ -366,14 +366,14 @@ class BrokerUsecase(
 
         published_msg = await request(cmd)
 
-        message: Any = await process_msg(
+        response_msg: Any = await process_msg(
             msg=published_msg,
             middlewares=self._middlewares,
             parser=producer._parser,
             decoder=producer._decoder,
+            source_type=SourceType.Response,
         )
-        message._source_type = SourceType.Response
-        return message
+        return response_msg
 
     @abstractmethod
     async def ping(self, timeout: Optional[float]) -> bool:
