@@ -1240,7 +1240,7 @@ class ObjStoreWatchSubscriber(
             with suppress(TimeoutError):
                 message = cast(
                     Optional["ObjectInfo"],
-                    await obj_watch.updates(self.obj_watch.timeout),
+                    await obj_watch.updates(self.obj_watch.timeout),  # type: ignore[no-untyped-call]
                 )
 
                 if message:
