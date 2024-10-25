@@ -185,4 +185,4 @@ class TestArguments(PublisherTestcase):
                 },
                 "servers": ["development"],
             },
-        }
+        }, schema["channels"]

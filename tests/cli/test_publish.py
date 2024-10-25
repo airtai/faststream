@@ -1,10 +1,11 @@
+from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, patch
 
-from dirty_equals import IsPartialDict
 from typer.testing import CliRunner
 
 from faststream import FastStream
 from faststream._internal.cli.main import cli as faststream_app
+from faststream.response.publish_type import PublishType
 from tests.marks import (
     require_aiokafka,
     require_aiopika,
@@ -12,6 +13,15 @@ from tests.marks import (
     require_nats,
     require_redis,
 )
+
+if TYPE_CHECKING:
+    from faststream.confluent.response import (
+        KafkaPublishCommand as ConfluentPublishCommand,
+    )
+    from faststream.kafka.response import KafkaPublishCommand
+    from faststream.nats.response import NatsPublishCommand
+    from faststream.rabbit.response import RabbitPublishCommand
+    from faststream.redis.response import RedisPublishCommand
 
 
 def get_mock_app(broker_type, producer_type) -> tuple[FastStream, AsyncMock]:
@@ -46,10 +56,6 @@ def test_publish_command_with_redis_options(runner) -> None:
                 "channelname",
                 "--reply_to",
                 "tester",
-                "--list",
-                "listname",
-                "--stream",
-                "streamname",
                 "--correlation_id",
                 "someId",
             ],
@@ -57,14 +63,11 @@ def test_publish_command_with_redis_options(runner) -> None:
 
         assert result.exit_code == 0
 
-        assert producer_mock.publish.call_args.args[0] == "hello world"
-        assert producer_mock.publish.call_args.kwargs == IsPartialDict(
-            reply_to="tester",
-            stream="streamname",
-            list="listname",
-            channel="channelname",
-            correlation_id="someId",
-        )
+        cmd: RedisPublishCommand = producer_mock.publish.call_args.args[0]
+        assert cmd.body == "hello world"
+        assert cmd.reply_to == "tester"
+        assert cmd.destination == "channelname"
+        assert cmd.correlation_id == "someId"
 
 
 @require_confluent
@@ -93,11 +96,10 @@ def test_publish_command_with_confluent_options(runner) -> None:
 
         assert result.exit_code == 0
 
-        assert producer_mock.publish.call_args.args[0] == "hello world"
-        assert producer_mock.publish.call_args.kwargs == IsPartialDict(
-            topic="topicname",
-            correlation_id="someId",
-        )
+        cmd: ConfluentPublishCommand = producer_mock.publish.call_args.args[0]
+        assert cmd.body == "hello world"
+        assert cmd.destination == "topicname"
+        assert cmd.correlation_id == "someId"
 
 
 @require_aiokafka
@@ -125,11 +127,11 @@ def test_publish_command_with_kafka_options(runner) -> None:
         )
 
         assert result.exit_code == 0
-        assert producer_mock.publish.call_args.args[0] == "hello world"
-        assert producer_mock.publish.call_args.kwargs == IsPartialDict(
-            topic="topicname",
-            correlation_id="someId",
-        )
+
+        cmd: KafkaPublishCommand = producer_mock.publish.call_args.args[0]
+        assert cmd.body == "hello world"
+        assert cmd.destination == "topicname"
+        assert cmd.correlation_id == "someId"
 
 
 @require_nats
@@ -160,12 +162,11 @@ def test_publish_command_with_nats_options(runner) -> None:
 
         assert result.exit_code == 0
 
-        assert producer_mock.publish.call_args.args[0] == "hello world"
-        assert producer_mock.publish.call_args.kwargs == IsPartialDict(
-            subject="subjectname",
-            reply_to="tester",
-            correlation_id="someId",
-        )
+        cmd: NatsPublishCommand = producer_mock.publish.call_args.args[0]
+        assert cmd.body == "hello world"
+        assert cmd.destination == "subjectname"
+        assert cmd.reply_to == "tester"
+        assert cmd.correlation_id == "someId"
 
 
 @require_aiopika
@@ -185,6 +186,8 @@ def test_publish_command_with_rabbit_options(runner) -> None:
                 "publish",
                 "fastream:app",
                 "hello world",
+                "--queue",
+                "queuename",
                 "--correlation_id",
                 "someId",
             ],
@@ -192,12 +195,10 @@ def test_publish_command_with_rabbit_options(runner) -> None:
 
         assert result.exit_code == 0
 
-        assert producer_mock.publish.call_args.args[0] == "hello world"
-        assert producer_mock.publish.call_args.kwargs == IsPartialDict(
-            {
-                "correlation_id": "someId",
-            },
-        )
+        cmd: RabbitPublishCommand = producer_mock.publish.call_args.args[0]
+        assert cmd.body == "hello world"
+        assert cmd.destination == "queuename"
+        assert cmd.correlation_id == "someId"
 
 
 @require_nats
@@ -225,8 +226,8 @@ def test_publish_nats_request_command(runner: CliRunner) -> None:
             ],
         )
 
-        assert producer_mock.request.call_args.args[0] == "hello world"
-        assert producer_mock.request.call_args.kwargs == IsPartialDict(
-            subject="subjectname",
-            timeout=1.0,
-        )
+        cmd: NatsPublishCommand = producer_mock.request.call_args.args[0]
+
+        assert cmd.destination == "subjectname"
+        assert cmd.timeout == 1.0
+        assert cmd.publish_type is PublishType.Request

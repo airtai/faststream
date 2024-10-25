@@ -175,9 +175,7 @@ class _PrometheusMiddleware(BaseMiddleware):
         start_time = time.perf_counter()
 
         try:
-            result = await call_next(
-                await self.on_publish(cmd),
-            )
+            result = await call_next(cmd)
 
         except Exception as e:
             err = e
