@@ -266,9 +266,9 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         cmd = KafkaPublishCommand.from_cmd(cmd)
 
         cmd.destination = self.topic
-
-        cmd.headers = self.headers | cmd.headers
+        cmd.add_headers(self.headers, override=False)
         cmd.reply_to = cmd.reply_to or self.reply_to
+
         cmd.partition = cmd.partition or self.partition
         cmd.key = cmd.key or self.key
 
@@ -422,9 +422,9 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
         cmd = KafkaPublishCommand.from_cmd(cmd, batch=True)
 
         cmd.destination = self.topic
-
-        cmd.headers = self.headers | cmd.headers
+        cmd.add_headers(self.headers, override=False)
         cmd.reply_to = cmd.reply_to or self.reply_to
+
         cmd.partition = cmd.partition or self.partition
 
         await self._basic_publish_batch(cmd, _extra_middlewares=_extra_middlewares)

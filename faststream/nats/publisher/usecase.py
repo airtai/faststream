@@ -113,8 +113,9 @@ class LogicPublisher(PublisherUsecase[Msg]):
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = NatsPublishCommand.from_cmd(cmd)
-        cmd.headers = self.headers | cmd.headers
+
         cmd.destination = self.subject
+        cmd.add_headers(self.headers, override=False)
         cmd.reply_to = cmd.reply_to or self.reply_to
 
         if self.stream:

@@ -186,9 +186,9 @@ class LogicPublisher(
         cmd = RabbitPublishCommand.from_cmd(cmd)
 
         cmd.destination = self.routing
-
         cmd.reply_to = cmd.reply_to or self.reply_to
-        cmd.headers = self.headers | cmd.headers
+        cmd.add_headers(self.headers, override=False)
+
         cmd.timeout = cmd.timeout or self.timeout
 
         cmd.message_options = {**self.message_options, **cmd.message_options}

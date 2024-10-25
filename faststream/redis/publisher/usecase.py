@@ -150,7 +150,7 @@ class ChannelPublisher(LogicPublisher):
 
         cmd.set_destination(channel=self.channel.name)
 
-        cmd.headers = self.headers | cmd.headers
+        cmd.add_headers(self.headers, override=False)
         cmd.reply_to = cmd.reply_to or self.reply_to
 
         await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
@@ -288,7 +288,7 @@ class ListPublisher(LogicPublisher):
 
         cmd.set_destination(list=self.list.name)
 
-        cmd.headers = self.headers | cmd.headers
+        cmd.add_headers(self.headers, override=False)
         cmd.reply_to = cmd.reply_to or self.reply_to
 
         await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
@@ -385,7 +385,7 @@ class ListBatchPublisher(ListPublisher):
 
         cmd.set_destination(list=self.list.name)
 
-        cmd.headers = self.headers | cmd.headers
+        cmd.add_headers(self.headers, override=False)
         cmd.reply_to = cmd.reply_to or self.reply_to
 
         await self._basic_publish_batch(cmd, _extra_middlewares=_extra_middlewares)
@@ -492,7 +492,7 @@ class StreamPublisher(LogicPublisher):
 
         cmd.set_destination(stream=self.stream.name)
 
-        cmd.headers = self.headers | cmd.headers
+        cmd.add_headers(self.headers, override=False)
         cmd.reply_to = cmd.reply_to or self.reply_to
         cmd.maxlen = self.stream.maxlen
 
