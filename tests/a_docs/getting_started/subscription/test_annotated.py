@@ -1,7 +1,8 @@
-from typing import Any, TypeAlias
+from typing import Any
 
 import pytest
 from pydantic import ValidationError
+from typing_extensions import TypeAlias
 
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.subscriber.usecase import SubscriberUsecase
