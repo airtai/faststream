@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.exceptions.OperationForbiddenError
+::: faststream.prometheus.MetricsSettingsProvider

@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.middlewares.logging.LoggingMiddleware
+::: faststream.confluent.publisher.fake.KafkaFakePublisher
