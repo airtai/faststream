@@ -2,7 +2,6 @@ import logging
 import os
 import signal
 from contextlib import asynccontextmanager
-from typing import NoReturn
 from unittest.mock import AsyncMock, Mock, patch
 
 import anyio
@@ -303,7 +302,7 @@ async def test_test_app(mock: Mock) -> None:
 
 
 @pytest.mark.asyncio()
-async def test_test_app_with_excp(mock: Mock) -> NoReturn:
+async def test_test_app_with_excp(mock: Mock) -> None:
     app = FastStream()
 
     app.on_startup(mock.on)
@@ -330,7 +329,7 @@ def test_sync_test_app(mock: Mock) -> None:
     mock.off.assert_called_once()
 
 
-def test_sync_test_app_with_excp(mock: Mock) -> NoReturn:
+def test_sync_test_app_with_excp(mock: Mock) -> None:
     app = FastStream()
 
     app.on_startup(mock.on)

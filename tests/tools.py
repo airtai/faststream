@@ -1,7 +1,9 @@
 import inspect
 from functools import wraps
-from typing import Callable, ParamSpec, Protocol, TypeVar
+from typing import Callable, Protocol, TypeVar
 from unittest.mock import MagicMock
+
+from typing_extensions import ParamSpec
 
 P = ParamSpec("P")
 T = TypeVar("T")

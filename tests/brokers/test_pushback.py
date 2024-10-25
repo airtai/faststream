@@ -1,4 +1,3 @@
-from typing import NoReturn
 from unittest.mock import AsyncMock
 
 import pytest
@@ -92,7 +91,7 @@ async def test_push_endless_back_watcher(async_mock: AsyncMock, message) -> None
 
 
 @pytest.mark.asyncio()
-async def test_ignore_skip(async_mock: AsyncMock, message) -> NoReturn:
+async def test_ignore_skip(async_mock: AsyncMock, message) -> None:
     watcher = CounterWatcher(3)
 
     context = WatcherContext(
@@ -111,7 +110,7 @@ async def test_ignore_skip(async_mock: AsyncMock, message) -> NoReturn:
 @pytest.mark.asyncio()
 async def test_additional_params_with_handler_exception(
     async_mock: AsyncMock, message
-) -> NoReturn:
+) -> None:
     watcher = EndlessWatcher()
 
     context = WatcherContext(

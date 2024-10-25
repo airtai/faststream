@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, NoReturn
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -180,7 +180,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         )
 
         @consume_broker.subscriber(*args, **kwargs)
-        async def handler(msg: KafkaMessage) -> NoReturn:
+        async def handler(msg: KafkaMessage):
             event.set()
             raise AckMessage
 

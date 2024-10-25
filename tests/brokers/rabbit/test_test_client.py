@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, NoReturn
+from typing import Any
 
 import pytest
 
@@ -213,13 +213,13 @@ class TestTestclient(BrokerTestclientTestcase):
             consume.set()
 
         @broker.subscriber(queue=queue + "1", exchange=exchange, retry=1)
-        async def handler2(msg: RabbitMessage) -> NoReturn:
+        async def handler2(msg: RabbitMessage):
             await msg.raw_message.nack()
             consume2.set()
             raise ValueError
 
         @broker.subscriber(queue=queue + "2", exchange=exchange, retry=1)
-        async def handler3(msg: RabbitMessage) -> NoReturn:
+        async def handler3(msg: RabbitMessage):
             await msg.raw_message.reject()
             consume3.set()
             raise ValueError

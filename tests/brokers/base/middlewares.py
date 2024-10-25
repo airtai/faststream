@@ -1,5 +1,4 @@
 import asyncio
-from typing import NoReturn
 from unittest.mock import Mock, call
 
 import pytest
@@ -210,7 +209,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue, middlewares=(mid,))
 
         @broker.subscriber(*args, **kwargs)
-        async def handler2(m) -> NoReturn:
+        async def handler2(m):
             event.set()
             raise ValueError
 
@@ -430,7 +429,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1")
-        async def subscriber1(m) -> NoReturn:
+        async def subscriber1(m):
             raise ValueError
 
         args, kwargs = self.get_subscriber_params(queue + "1")
@@ -463,7 +462,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ValueError, publish=True)
-        async def value_error_handler(exc) -> NoReturn:
+        async def value_error_handler(exc):
             event.set()
             raise SkipMessage
 
@@ -472,7 +471,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1")
-        async def subscriber1(m) -> NoReturn:
+        async def subscriber1(m):
             raise ValueError
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
@@ -510,7 +509,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def subscriber(m) -> NoReturn:
+        async def subscriber(m):
             event.set()
             raise SkipMessage
 
@@ -537,7 +536,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ValueError, publish=True)
-        async def value_error_handler(exc) -> NoReturn:
+        async def value_error_handler(exc):
             event.set()
             raise exc
 
@@ -546,7 +545,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1")
-        async def subscriber1(m) -> NoReturn:
+        async def subscriber1(m):
             raise ValueError
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
@@ -591,14 +590,14 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @publisher
-        async def subscriber1(m) -> NoReturn:
+        async def subscriber1(m):
             raise ZeroDivisionError
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
         @broker.subscriber(*args2, **kwargs2)
         @publisher
-        async def subscriber2(m) -> NoReturn:
+        async def subscriber2(m):
             raise ValueError
 
         args3, kwargs3 = self.get_subscriber_params(queue + "2")
@@ -671,7 +670,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def subscriber1(m) -> NoReturn:
+        async def subscriber1(m):
             raise ZeroDivisionError
 
         async with self.patch_broker(broker) as br:

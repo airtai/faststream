@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, NoReturn
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -197,7 +197,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage) -> NoReturn:
+        async def handler(msg: RabbitMessage):
             await msg.nack()
             event.set()
             raise ValueError
@@ -268,7 +268,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage) -> NoReturn:
+        async def handler(msg: RabbitMessage):
             await msg.reject()
             event.set()
             raise ValueError

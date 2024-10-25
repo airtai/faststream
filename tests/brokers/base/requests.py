@@ -1,5 +1,3 @@
-from typing import NoReturn
-
 import anyio
 import pytest
 
@@ -7,10 +5,10 @@ from .basic import BaseTestcaseConfig
 
 
 class RequestsTestcase(BaseTestcaseConfig):
-    def get_middleware(self, **kwargs) -> NoReturn:
+    def get_middleware(self, **kwargs):
         raise NotImplementedError
 
-    def get_router(self, **kwargs) -> NoReturn:
+    def get_router(self, **kwargs):
         raise NotImplementedError
 
     async def test_request_timeout(self, queue: str) -> None:
