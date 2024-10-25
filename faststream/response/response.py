@@ -56,7 +56,12 @@ class PublishCommand(Response):
             return (self.body,)
         return ()
 
-    def add_headers(self, headers: "AnyDict", *, override: bool = False) -> None:
+    def add_headers(
+        self,
+        headers: "AnyDict",
+        *,
+        override: bool = True,
+    ) -> None:
         if override:
             self.headers |= headers
         else:

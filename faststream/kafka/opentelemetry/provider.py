@@ -21,7 +21,7 @@ class BaseKafkaTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
     def __init__(self) -> None:
         self.messaging_system = "kafka"
 
-    def get_publish_attrs_from_kwargs(
+    def get_publish_attrs_from_cmd(
         self,
         cmd: "KafkaPublishCommand",
     ) -> "AnyDict":

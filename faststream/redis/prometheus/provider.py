@@ -7,8 +7,9 @@ from faststream.prometheus import (
 )
 
 if TYPE_CHECKING:
-    from faststream.broker.message import StreamMessage
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
+    from faststream.message.message import StreamMessage
+    from faststream.redis.response import RedisPublishCommand
 
 
 class BaseRedisMetricsSettingsProvider(MetricsSettingsProvider["AnyDict"]):
@@ -17,15 +18,11 @@ class BaseRedisMetricsSettingsProvider(MetricsSettingsProvider["AnyDict"]):
     def __init__(self) -> None:
         self.messaging_system = "redis"
 
-    def get_publish_destination_name_from_kwargs(
+    def get_publish_destination_name_from_cmd(
         self,
-        kwargs: "AnyDict",
+        cmd: "RedisPublishCommand",
     ) -> str:
-        return self._get_destination(kwargs)
-
-    @staticmethod
-    def _get_destination(kwargs: "AnyDict") -> str:
-        return kwargs.get("channel") or kwargs.get("list") or kwargs.get("stream") or ""
+        return cmd.destination
 
 
 class RedisMetricsSettingsProvider(BaseRedisMetricsSettingsProvider):
@@ -34,7 +31,7 @@ class RedisMetricsSettingsProvider(BaseRedisMetricsSettingsProvider):
         msg: "StreamMessage[AnyDict]",
     ) -> ConsumeAttrs:
         return {
-            "destination_name": self._get_destination(msg.raw_message),
+            "destination_name": _get_destination(msg.raw_message),
             "message_size": len(msg.body),
             "messages_count": 1,
         }
@@ -46,7 +43,7 @@ class BatchRedisMetricsSettingsProvider(BaseRedisMetricsSettingsProvider):
         msg: "StreamMessage[AnyDict]",
     ) -> ConsumeAttrs:
         return {
-            "destination_name": self._get_destination(msg.raw_message),
+            "destination_name": _get_destination(msg.raw_message),
             "message_size": len(msg.body),
             "messages_count": len(cast(Sized, msg._decoded_body)),
         }
@@ -61,3 +58,7 @@ def settings_provider_factory(
     if msg is not None and msg.get("type", "").startswith("b"):
         return BatchRedisMetricsSettingsProvider()
     return RedisMetricsSettingsProvider()
+
+
+def _get_destination(kwargs: "AnyDict") -> str:
+    return kwargs.get("channel") or kwargs.get("list") or kwargs.get("stream") or ""

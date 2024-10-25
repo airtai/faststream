@@ -43,7 +43,7 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
     ) -> str:
         return self._get_destination(msg.raw_message)
 
-    def get_publish_attrs_from_kwargs(
+    def get_publish_attrs_from_cmd(
         self,
         cmd: "RedisPublishCommand",
     ) -> "AnyDict":

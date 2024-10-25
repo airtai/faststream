@@ -21,7 +21,7 @@ class TelemetrySettingsProvider(Protocol[MsgType]):
         msg: "StreamMessage[MsgType]",
     ) -> str: ...
 
-    def get_publish_attrs_from_kwargs(
+    def get_publish_attrs_from_cmd(
         self,
         cmd: "PublishCommand",
     ) -> "AnyDict": ...

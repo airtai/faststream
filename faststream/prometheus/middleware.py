@@ -3,6 +3,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from faststream import BaseMiddleware
+from faststream._internal.constants import EMPTY
 from faststream.prometheus.consts import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
@@ -11,28 +12,74 @@ from faststream.prometheus.container import MetricsContainer
 from faststream.prometheus.manager import MetricsManager
 from faststream.prometheus.provider import MetricsSettingsProvider
 from faststream.prometheus.types import ProcessingStatus, PublishingStatus
-from faststream.types import EMPTY
 
 if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
 
-    from faststream.broker.message import StreamMessage
+    from faststream._internal.context.repository import ContextRepo
+    from faststream.message.message import StreamMessage
+    from faststream.response.response import PublishCommand
     from faststream.types import AsyncFunc, AsyncFuncAny
 
 
-class PrometheusMiddleware(BaseMiddleware):
+class PrometheusMiddleware:
+    __slots__ = ("_metrics_container", "_metrics_manager", "_settings_provider_factory")
+
     def __init__(
         self,
-        msg: Optional[Any] = None,
+        *,
+        settings_provider_factory: Callable[
+            [Any], Optional[MetricsSettingsProvider[Any]]
+        ],
+        registry: "CollectorRegistry",
+        app_name: str = EMPTY,
+        metrics_prefix: str = "faststream",
+        received_messages_size_buckets: Optional[Sequence[float]] = None,
+    ) -> None:
+        if app_name is EMPTY:
+            app_name = metrics_prefix
+
+        self._settings_provider_factory = settings_provider_factory
+        self._metrics_container = MetricsContainer(
+            registry,
+            metrics_prefix=metrics_prefix,
+            received_messages_size_buckets=received_messages_size_buckets,
+        )
+        self._metrics_manager = MetricsManager(
+            self._metrics_container,
+            app_name=app_name,
+        )
+
+    def __call__(
+        self,
+        msg: Optional[Any],
+        /,
+        *,
+        context: "ContextRepo",
+    ) -> "_PrometheusMiddleware":
+        return _PrometheusMiddleware(
+            msg,
+            metrics_manager=self._metrics_manager,
+            settings_provider_factory=self._settings_provider_factory,
+            context=context,
+        )
+
+
+class _PrometheusMiddleware(BaseMiddleware):
+    def __init__(
+        self,
+        msg: Optional[Any],
+        /,
         *,
         settings_provider_factory: Callable[
             [Any], Optional[MetricsSettingsProvider[Any]]
         ],
         metrics_manager: MetricsManager,
+        context: "ContextRepo",
     ) -> None:
         self._metrics_manager = metrics_manager
         self._settings_provider = settings_provider_factory(msg)
-        super().__init__(msg)
+        super().__init__(msg, context=context)
 
     async def consume_scope(
         self,
@@ -114,15 +161,13 @@ class PrometheusMiddleware(BaseMiddleware):
     async def publish_scope(
         self,
         call_next: "AsyncFunc",
-        msg: Any,
-        *args: Any,
-        **kwargs: Any,
+        cmd: "PublishCommand",
     ) -> Any:
         if self._settings_provider is None:
-            return await call_next(msg, *args, **kwargs)
+            return await call_next(cmd)
 
         destination_name = (
-            self._settings_provider.get_publish_destination_name_from_kwargs(kwargs)
+            self._settings_provider.get_publish_destination_name_from_cmd(cmd)
         )
         messaging_system = self._settings_provider.messaging_system
 
@@ -131,9 +176,7 @@ class PrometheusMiddleware(BaseMiddleware):
 
         try:
             result = await call_next(
-                await self.on_publish(msg, *args, **kwargs),
-                *args,
-                **kwargs,
+                await self.on_publish(cmd),
             )
 
         except Exception as e:
@@ -155,49 +198,12 @@ class PrometheusMiddleware(BaseMiddleware):
             )
 
             status = PublishingStatus.error if err else PublishingStatus.success
-            messages_count = len((msg, *args))
 
             self._metrics_manager.add_published_message(
-                amount=messages_count,
+                amount=len(cmd.batch_bodies),
                 status=status,
                 broker=messaging_system,
                 destination=destination_name,
             )
 
         return result
-
-
-class BasePrometheusMiddleware:
-    __slots__ = ("_metrics_container", "_metrics_manager", "_settings_provider_factory")
-
-    def __init__(
-        self,
-        *,
-        settings_provider_factory: Callable[
-            [Any], Optional[MetricsSettingsProvider[Any]]
-        ],
-        registry: "CollectorRegistry",
-        app_name: str = EMPTY,
-        metrics_prefix: str = "faststream",
-        received_messages_size_buckets: Optional[Sequence[float]] = None,
-    ) -> None:
-        if app_name is EMPTY:
-            app_name = metrics_prefix
-
-        self._settings_provider_factory = settings_provider_factory
-        self._metrics_container = MetricsContainer(
-            registry,
-            metrics_prefix=metrics_prefix,
-            received_messages_size_buckets=received_messages_size_buckets,
-        )
-        self._metrics_manager = MetricsManager(
-            self._metrics_container,
-            app_name=app_name,
-        )
-
-    def __call__(self, msg: Optional[Any]) -> BaseMiddleware:
-        return PrometheusMiddleware(
-            msg=msg,
-            metrics_manager=self._metrics_manager,
-            settings_provider_factory=self._settings_provider_factory,
-        )

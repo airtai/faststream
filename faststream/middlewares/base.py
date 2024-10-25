@@ -98,13 +98,13 @@ class BaseMiddleware:
 
     async def publish_scope(
         self,
-        call_next: Callable[["PublishCommand"], Awaitable["PublishCommand"]],
-        msg: "PublishCommand",
+        call_next: Callable[["PublishCommand"], Awaitable[Any]],
+        cmd: "PublishCommand",
     ) -> Any:
         """Publish a message and return an async iterator."""
         err: Optional[Exception] = None
         try:
-            result = await call_next(await self.on_publish(msg))
+            result = await call_next(await self.on_publish(cmd))
 
         except Exception as e:
             err = e

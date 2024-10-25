@@ -41,7 +41,7 @@ class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage
         routing_key = msg.raw_message.routing_key
         return f"{exchange}.{routing_key}"
 
-    def get_publish_attrs_from_kwargs(
+    def get_publish_attrs_from_cmd(
         self,
         cmd: "RabbitPublishCommand",
     ) -> "AnyDict":

@@ -20,7 +20,7 @@ class BaseNatsTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
     def __init__(self) -> None:
         self.messaging_system = "nats"
 
-    def get_publish_attrs_from_kwargs(
+    def get_publish_attrs_from_cmd(
         self,
         cmd: "NatsPublishCommand",
     ) -> "AnyDict":

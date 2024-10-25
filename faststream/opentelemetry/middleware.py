@@ -73,10 +73,10 @@ class TelemetryMiddleware:
         context: "ContextRepo",
     ) -> "_BaseTelemetryMiddleware":
         return _BaseTelemetryMiddleware(
+            msg,
             tracer=self._tracer,
             metrics_container=self._metrics,
             settings_provider_factory=self._settings_provider_factory,
-            msg=msg,
             context=context,
         )
 
@@ -156,6 +156,8 @@ class _MetricsContainer:
 class _BaseTelemetryMiddleware(BaseMiddleware):
     def __init__(
         self,
+        msg: Optional[Any],
+        /,
         *,
         tracer: "Tracer",
         settings_provider_factory: Callable[
@@ -164,7 +166,6 @@ class _BaseTelemetryMiddleware(BaseMiddleware):
         ],
         metrics_container: _MetricsContainer,
         context: "ContextRepo",
-        msg: Optional[Any],
     ) -> None:
         super().__init__(msg, context=context)
 
@@ -191,7 +192,7 @@ class _BaseTelemetryMiddleware(BaseMiddleware):
         if current_baggage:
             headers.update(current_baggage.to_headers())
 
-        trace_attributes = provider.get_publish_attrs_from_kwargs(msg)
+        trace_attributes = provider.get_publish_attrs_from_cmd(msg)
         metrics_attributes = {
             SpanAttributes.MESSAGING_SYSTEM: provider.messaging_system,
             SpanAttributes.MESSAGING_DESTINATION_NAME: destination_name,

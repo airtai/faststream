@@ -1,16 +1,16 @@
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, Union
 
 from nats.aio.msg import Msg
 
-from faststream.broker.message import MsgType, StreamMessage
+from faststream.message.message import MsgType, StreamMessage
 from faststream.prometheus import (
     ConsumeAttrs,
     MetricsSettingsProvider,
 )
 
 if TYPE_CHECKING:
-    from faststream.types import AnyDict
+    from faststream.nats.response import NatsPublishCommand
 
 
 class BaseNatsMetricsSettingsProvider(MetricsSettingsProvider[MsgType]):
@@ -19,11 +19,11 @@ class BaseNatsMetricsSettingsProvider(MetricsSettingsProvider[MsgType]):
     def __init__(self) -> None:
         self.messaging_system = "nats"
 
-    def get_publish_destination_name_from_kwargs(
+    def get_publish_destination_name_from_cmd(
         self,
-        kwargs: "AnyDict",
+        cmd: "NatsPublishCommand",
     ) -> str:
-        return cast(str, kwargs["subject"])
+        return cmd.destination
 
 
 class NatsMetricsSettingsProvider(BaseNatsMetricsSettingsProvider["Msg"]):
