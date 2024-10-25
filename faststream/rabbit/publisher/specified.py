@@ -47,7 +47,9 @@ class SpecificationPublisher(LogicPublisher):
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
                             cc=self.routing or None,
-                            deliveryMode=2 if self.message_options.get("persist") else 1,
+                            deliveryMode=2
+                            if self.message_options.get("persist")
+                            else 1,
                             replyTo=self.message_options.get("reply_to"),  # type: ignore[arg-type]
                             mandatory=self.publish_options.get("mandatory"),  # type: ignore[arg-type]
                             priority=self.message_options.get("priority"),  # type: ignore[arg-type]
