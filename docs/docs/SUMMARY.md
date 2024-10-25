@@ -294,9 +294,20 @@ search:
                         - [telemetry_attributes_provider_factory](api/faststream/confluent/opentelemetry/provider/telemetry_attributes_provider_factory.md)
                 - parser
                     - [AsyncConfluentParser](api/faststream/confluent/parser/AsyncConfluentParser.md)
+                - prometheus
+                    - [KafkaPrometheusMiddleware](api/faststream/confluent/prometheus/KafkaPrometheusMiddleware.md)
+                    - middleware
+                        - [KafkaPrometheusMiddleware](api/faststream/confluent/prometheus/middleware/KafkaPrometheusMiddleware.md)
+                    - provider
+                        - [BaseConfluentMetricsSettingsProvider](api/faststream/confluent/prometheus/provider/BaseConfluentMetricsSettingsProvider.md)
+                        - [BatchConfluentMetricsSettingsProvider](api/faststream/confluent/prometheus/provider/BatchConfluentMetricsSettingsProvider.md)
+                        - [ConfluentMetricsSettingsProvider](api/faststream/confluent/prometheus/provider/ConfluentMetricsSettingsProvider.md)
+                        - [settings_provider_factory](api/faststream/confluent/prometheus/provider/settings_provider_factory.md)
                 - publisher
                     - factory
                         - [create_publisher](api/faststream/confluent/publisher/factory/create_publisher.md)
+                    - fake
+                        - [KafkaFakePublisher](api/faststream/confluent/publisher/fake/KafkaFakePublisher.md)
                     - producer
                         - [AsyncConfluentFastProducer](api/faststream/confluent/publisher/producer/AsyncConfluentFastProducer.md)
                     - specified
@@ -308,6 +319,7 @@ search:
                         - [DefaultPublisher](api/faststream/confluent/publisher/usecase/DefaultPublisher.md)
                         - [LogicPublisher](api/faststream/confluent/publisher/usecase/LogicPublisher.md)
                 - response
+                    - [KafkaPublishCommand](api/faststream/confluent/response/KafkaPublishCommand.md)
                     - [KafkaResponse](api/faststream/confluent/response/KafkaResponse.md)
                 - router
                     - [KafkaPublisher](api/faststream/confluent/router/KafkaPublisher.md)
@@ -341,11 +353,11 @@ search:
                 - [AckMessage](api/faststream/exceptions/AckMessage.md)
                 - [ContextError](api/faststream/exceptions/ContextError.md)
                 - [FastStreamException](api/faststream/exceptions/FastStreamException.md)
+                - [FeatureNotSupportedException](api/faststream/exceptions/FeatureNotSupportedException.md)
                 - [HandlerException](api/faststream/exceptions/HandlerException.md)
                 - [IgnoredException](api/faststream/exceptions/IgnoredException.md)
                 - [IncorrectState](api/faststream/exceptions/IncorrectState.md)
                 - [NackMessage](api/faststream/exceptions/NackMessage.md)
-                - [OperationForbiddenError](api/faststream/exceptions/OperationForbiddenError.md)
                 - [RejectMessage](api/faststream/exceptions/RejectMessage.md)
                 - [SetupError](api/faststream/exceptions/SetupError.md)
                 - [SkipMessage](api/faststream/exceptions/SkipMessage.md)
@@ -392,9 +404,20 @@ search:
                 - parser
                     - [AioKafkaBatchParser](api/faststream/kafka/parser/AioKafkaBatchParser.md)
                     - [AioKafkaParser](api/faststream/kafka/parser/AioKafkaParser.md)
+                - prometheus
+                    - [KafkaPrometheusMiddleware](api/faststream/kafka/prometheus/KafkaPrometheusMiddleware.md)
+                    - middleware
+                        - [KafkaPrometheusMiddleware](api/faststream/kafka/prometheus/middleware/KafkaPrometheusMiddleware.md)
+                    - provider
+                        - [BaseKafkaMetricsSettingsProvider](api/faststream/kafka/prometheus/provider/BaseKafkaMetricsSettingsProvider.md)
+                        - [BatchKafkaMetricsSettingsProvider](api/faststream/kafka/prometheus/provider/BatchKafkaMetricsSettingsProvider.md)
+                        - [KafkaMetricsSettingsProvider](api/faststream/kafka/prometheus/provider/KafkaMetricsSettingsProvider.md)
+                        - [settings_provider_factory](api/faststream/kafka/prometheus/provider/settings_provider_factory.md)
                 - publisher
                     - factory
                         - [create_publisher](api/faststream/kafka/publisher/factory/create_publisher.md)
+                    - fake
+                        - [KafkaFakePublisher](api/faststream/kafka/publisher/fake/KafkaFakePublisher.md)
                     - producer
                         - [AioKafkaFastProducer](api/faststream/kafka/publisher/producer/AioKafkaFastProducer.md)
                     - specified
@@ -406,6 +429,7 @@ search:
                         - [DefaultPublisher](api/faststream/kafka/publisher/usecase/DefaultPublisher.md)
                         - [LogicPublisher](api/faststream/kafka/publisher/usecase/LogicPublisher.md)
                 - response
+                    - [KafkaPublishCommand](api/faststream/kafka/response/KafkaPublishCommand.md)
                     - [KafkaResponse](api/faststream/kafka/response/KafkaResponse.md)
                 - router
                     - [KafkaPublisher](api/faststream/kafka/router/KafkaPublisher.md)
@@ -453,12 +477,10 @@ search:
                 - base
                     - [BaseMiddleware](api/faststream/middlewares/base/BaseMiddleware.md)
                 - exception
-                    - [BaseExceptionMiddleware](api/faststream/middlewares/exception/BaseExceptionMiddleware.md)
                     - [ExceptionMiddleware](api/faststream/middlewares/exception/ExceptionMiddleware.md)
                     - [ignore_handler](api/faststream/middlewares/exception/ignore_handler.md)
                 - logging
                     - [CriticalLogMiddleware](api/faststream/middlewares/logging/CriticalLogMiddleware.md)
-                    - [LoggingMiddleware](api/faststream/middlewares/logging/LoggingMiddleware.md)
             - nats
                 - [AckPolicy](api/faststream/nats/AckPolicy.md)
                 - [ConsumerConfig](api/faststream/nats/ConsumerConfig.md)
@@ -527,9 +549,20 @@ search:
                     - [NatsBaseParser](api/faststream/nats/parser/NatsBaseParser.md)
                     - [NatsParser](api/faststream/nats/parser/NatsParser.md)
                     - [ObjParser](api/faststream/nats/parser/ObjParser.md)
+                - prometheus
+                    - [NatsPrometheusMiddleware](api/faststream/nats/prometheus/NatsPrometheusMiddleware.md)
+                    - middleware
+                        - [NatsPrometheusMiddleware](api/faststream/nats/prometheus/middleware/NatsPrometheusMiddleware.md)
+                    - provider
+                        - [BaseNatsMetricsSettingsProvider](api/faststream/nats/prometheus/provider/BaseNatsMetricsSettingsProvider.md)
+                        - [BatchNatsMetricsSettingsProvider](api/faststream/nats/prometheus/provider/BatchNatsMetricsSettingsProvider.md)
+                        - [NatsMetricsSettingsProvider](api/faststream/nats/prometheus/provider/NatsMetricsSettingsProvider.md)
+                        - [settings_provider_factory](api/faststream/nats/prometheus/provider/settings_provider_factory.md)
                 - publisher
                     - factory
                         - [create_publisher](api/faststream/nats/publisher/factory/create_publisher.md)
+                    - fake
+                        - [NatsFakePublisher](api/faststream/nats/publisher/fake/NatsFakePublisher.md)
                     - producer
                         - [NatsFastProducer](api/faststream/nats/publisher/producer/NatsFastProducer.md)
                         - [NatsJSFastProducer](api/faststream/nats/publisher/producer/NatsJSFastProducer.md)
@@ -538,6 +571,7 @@ search:
                     - usecase
                         - [LogicPublisher](api/faststream/nats/publisher/usecase/LogicPublisher.md)
                 - response
+                    - [NatsPublishCommand](api/faststream/nats/response/NatsPublishCommand.md)
                     - [NatsResponse](api/faststream/nats/response/NatsResponse.md)
                 - router
                     - [NatsPublisher](api/faststream/nats/router/NatsPublisher.md)
@@ -603,7 +637,6 @@ search:
                 - consts
                     - [MessageAction](api/faststream/opentelemetry/consts/MessageAction.md)
                 - middleware
-                    - [BaseTelemetryMiddleware](api/faststream/opentelemetry/middleware/BaseTelemetryMiddleware.md)
                     - [TelemetryMiddleware](api/faststream/opentelemetry/middleware/TelemetryMiddleware.md)
                 - provider
                     - [TelemetrySettingsProvider](api/faststream/opentelemetry/provider/TelemetrySettingsProvider.md)
@@ -618,6 +651,22 @@ search:
                     - [Context](api/faststream/params/params/Context.md)
                     - [Header](api/faststream/params/params/Header.md)
                     - [Path](api/faststream/params/params/Path.md)
+            - prometheus
+                - [ConsumeAttrs](api/faststream/prometheus/ConsumeAttrs.md)
+                - [MetricsSettingsProvider](api/faststream/prometheus/MetricsSettingsProvider.md)
+                - [PrometheusMiddleware](api/faststream/prometheus/PrometheusMiddleware.md)
+                - container
+                    - [MetricsContainer](api/faststream/prometheus/container/MetricsContainer.md)
+                - manager
+                    - [MetricsManager](api/faststream/prometheus/manager/MetricsManager.md)
+                - middleware
+                    - [PrometheusMiddleware](api/faststream/prometheus/middleware/PrometheusMiddleware.md)
+                - provider
+                    - [MetricsSettingsProvider](api/faststream/prometheus/provider/MetricsSettingsProvider.md)
+                - types
+                    - [ConsumeAttrs](api/faststream/prometheus/types/ConsumeAttrs.md)
+                    - [ProcessingStatus](api/faststream/prometheus/types/ProcessingStatus.md)
+                    - [PublishingStatus](api/faststream/prometheus/types/PublishingStatus.md)
             - rabbit
                 - [ExchangeType](api/faststream/rabbit/ExchangeType.md)
                 - [RabbitBroker](api/faststream/rabbit/RabbitBroker.md)
@@ -655,9 +704,20 @@ search:
                         - [RabbitTelemetrySettingsProvider](api/faststream/rabbit/opentelemetry/provider/RabbitTelemetrySettingsProvider.md)
                 - parser
                     - [AioPikaParser](api/faststream/rabbit/parser/AioPikaParser.md)
+                - prometheus
+                    - [RabbitPrometheusMiddleware](api/faststream/rabbit/prometheus/RabbitPrometheusMiddleware.md)
+                    - middleware
+                        - [RabbitPrometheusMiddleware](api/faststream/rabbit/prometheus/middleware/RabbitPrometheusMiddleware.md)
+                    - provider
+                        - [RabbitMetricsSettingsProvider](api/faststream/rabbit/prometheus/provider/RabbitMetricsSettingsProvider.md)
                 - publisher
                     - factory
                         - [create_publisher](api/faststream/rabbit/publisher/factory/create_publisher.md)
+                    - fake
+                        - [RabbitFakePublisher](api/faststream/rabbit/publisher/fake/RabbitFakePublisher.md)
+                    - options
+                        - [MessageOptions](api/faststream/rabbit/publisher/options/MessageOptions.md)
+                        - [PublishOptions](api/faststream/rabbit/publisher/options/PublishOptions.md)
                     - producer
                         - [AioPikaFastProducer](api/faststream/rabbit/publisher/producer/AioPikaFastProducer.md)
                     - specified
@@ -667,6 +727,7 @@ search:
                         - [PublishKwargs](api/faststream/rabbit/publisher/usecase/PublishKwargs.md)
                         - [RequestPublishKwargs](api/faststream/rabbit/publisher/usecase/RequestPublishKwargs.md)
                 - response
+                    - [RabbitPublishCommand](api/faststream/rabbit/response/RabbitPublishCommand.md)
                     - [RabbitResponse](api/faststream/rabbit/response/RabbitResponse.md)
                 - router
                     - [RabbitPublisher](api/faststream/rabbit/router/RabbitPublisher.md)
@@ -755,9 +816,20 @@ search:
                     - [RedisPubSubParser](api/faststream/redis/parser/RedisPubSubParser.md)
                     - [RedisStreamParser](api/faststream/redis/parser/RedisStreamParser.md)
                     - [SimpleParser](api/faststream/redis/parser/SimpleParser.md)
+                - prometheus
+                    - [RedisPrometheusMiddleware](api/faststream/redis/prometheus/RedisPrometheusMiddleware.md)
+                    - middleware
+                        - [RedisPrometheusMiddleware](api/faststream/redis/prometheus/middleware/RedisPrometheusMiddleware.md)
+                    - provider
+                        - [BaseRedisMetricsSettingsProvider](api/faststream/redis/prometheus/provider/BaseRedisMetricsSettingsProvider.md)
+                        - [BatchRedisMetricsSettingsProvider](api/faststream/redis/prometheus/provider/BatchRedisMetricsSettingsProvider.md)
+                        - [RedisMetricsSettingsProvider](api/faststream/redis/prometheus/provider/RedisMetricsSettingsProvider.md)
+                        - [settings_provider_factory](api/faststream/redis/prometheus/provider/settings_provider_factory.md)
                 - publisher
                     - factory
                         - [create_publisher](api/faststream/redis/publisher/factory/create_publisher.md)
+                    - fake
+                        - [RedisFakePublisher](api/faststream/redis/publisher/fake/RedisFakePublisher.md)
                     - producer
                         - [RedisFastProducer](api/faststream/redis/publisher/producer/RedisFastProducer.md)
                     - specified
@@ -773,6 +845,8 @@ search:
                         - [LogicPublisher](api/faststream/redis/publisher/usecase/LogicPublisher.md)
                         - [StreamPublisher](api/faststream/redis/publisher/usecase/StreamPublisher.md)
                 - response
+                    - [DestinationType](api/faststream/redis/response/DestinationType.md)
+                    - [RedisPublishCommand](api/faststream/redis/response/RedisPublishCommand.md)
                     - [RedisResponse](api/faststream/redis/response/RedisResponse.md)
                 - router
                     - [RedisPublisher](api/faststream/redis/router/RedisPublisher.md)
@@ -819,9 +893,14 @@ search:
                     - [Visitor](api/faststream/redis/testing/Visitor.md)
                     - [build_message](api/faststream/redis/testing/build_message.md)
             - response
+                - [PublishCommand](api/faststream/response/PublishCommand.md)
+                - [PublishType](api/faststream/response/PublishType.md)
                 - [Response](api/faststream/response/Response.md)
                 - [ensure_response](api/faststream/response/ensure_response.md)
+                - publish_type
+                    - [PublishType](api/faststream/response/publish_type/PublishType.md)
                 - response
+                    - [PublishCommand](api/faststream/response/response/PublishCommand.md)
                     - [Response](api/faststream/response/response/Response.md)
                 - utils
                     - [ensure_response](api/faststream/response/utils/ensure_response.md)
