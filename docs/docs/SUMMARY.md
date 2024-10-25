@@ -416,6 +416,9 @@ search:
                 - subscriber
                     - call_item
                         - [HandlerItem](api/faststream/broker/subscriber/call_item/HandlerItem.md)
+                    - mixins
+                        - [ConcurrentMixin](api/faststream/broker/subscriber/mixins/ConcurrentMixin.md)
+                        - [TasksMixin](api/faststream/broker/subscriber/mixins/TasksMixin.md)
                     - proto
                         - [SubscriberProto](api/faststream/broker/subscriber/proto/SubscriberProto.md)
                     - usecase

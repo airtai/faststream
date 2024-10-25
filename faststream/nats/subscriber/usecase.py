@@ -28,6 +28,7 @@ from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import MsgType
 from faststream.broker.utils import process_msg
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.nats.message import NatsMessage
 from faststream.nats.parser import (
     BatchParser,
     JsParser,
@@ -58,7 +59,7 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
-    from faststream.nats.message import NatsKvMessage, NatsMessage, NatsObjMessage
+    from faststream.nats.message import NatsKvMessage, NatsObjMessage
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
     from faststream.types import AnyDict, Decorator, LoggerProto, SendableMessage
 
@@ -921,12 +922,15 @@ class BatchPullStreamSubscriber(
         except TimeoutError:
             return None
 
-        msg = cast(NatsMessage, await process_msg(
-            msg=raw_message,
-            middlewares=self._broker_middlewares,
-            parser=self._parser,
-            decoder=self._decoder,
-        ))
+        msg = cast(
+            NatsMessage,
+            await process_msg(
+                msg=raw_message,
+                middlewares=self._broker_middlewares,
+                parser=self._parser,
+                decoder=self._decoder,
+            ),
+        )
         return msg
 
     @override
