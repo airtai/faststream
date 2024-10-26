@@ -151,8 +151,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         # dependant args
         state: "SetupState",
     ) -> None:
-        self.lock = MultiLock()
-
         self._producer = producer
         self.graceful_timeout = graceful_timeout
         self.extra_context = extra_context
@@ -191,6 +189,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     @abstractmethod
     async def start(self) -> None:
         """Start the handler."""
+        self.lock = MultiLock()
+
         self.running = True
 
     @abstractmethod
@@ -329,7 +329,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             # enter all middlewares
             middlewares: list[BaseMiddleware] = []
             for base_m in self._broker_middlewares:
-                middleware = base_m(msg)
+                middleware = base_m(msg, context=context)
                 middlewares.append(middleware)
                 await middleware.__aenter__()
 
@@ -377,9 +377,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
                         h.handler._publishers,
                     ):
                         await p._publish(
-                            result_msg.body,
-                            **result_msg.as_publish_kwargs(),
-                            # publisher middlewares
+                            result_msg.as_publish_command(),
                             _extra_middlewares=(m.publish_scope for m in middlewares),
                         )
 

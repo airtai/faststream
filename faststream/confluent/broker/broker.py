@@ -23,10 +23,11 @@ from faststream._internal.utils.data import filter_by_dict
 from faststream.confluent.client import AsyncConfluentConsumer, AsyncConfluentProducer
 from faststream.confluent.config import ConfluentFastConfig
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
+from faststream.confluent.response import KafkaPublishCommand
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
-from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
+from faststream.response.publish_type import PublishType
 
 from .logging import make_kafka_logger_state
 from .registrator import KafkaRegistrator
@@ -39,7 +40,6 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import (
         AnyDict,
-        AsyncFunc,
         Decorator,
         LoggerProto,
         SendableMessage,
@@ -49,6 +49,7 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.confluent.config import ConfluentConfig
+    from faststream.confluent.message import KafkaMessage
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
 
@@ -474,64 +475,90 @@ class KafkaBroker(
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        topic: str,
-        key: Optional[bytes] = None,
+        message: Annotated[
+            "SendableMessage",
+            Doc("Message body to send."),
+        ],
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
+        *,
+        key: Union[bytes, str, None] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[dict[str, str]] = None,
-        correlation_id: Optional[str] = None,
-        *,
-        reply_to: str = "",
-        no_confirm: bool = False,
-        # extra options to be compatible with test client
-        **kwargs: Any,
+        headers: Annotated[
+            Optional[dict[str, str]],
+            Doc("Message headers to store metainformation."),
+        ] = None,
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages.",
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Reply message topic name to send response."),
+        ] = "",
+        no_confirm: Annotated[
+            bool,
+            Doc("Do not wait for Kafka publish confirmation."),
+        ] = False,
     ) -> None:
-        correlation_id = correlation_id or gen_cor_id()
+        """Publish message directly.
 
-        await super().publish(
+        This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
+        applications or to publish messages from time to time.
+
+        Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
+        """
+        cmd = KafkaPublishCommand(
             message,
-            producer=self._producer,
             topic=topic,
             key=key,
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=headers,
-            correlation_id=correlation_id,
             reply_to=reply_to,
             no_confirm=no_confirm,
-            **kwargs,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Publish,
         )
+        return await super()._basic_publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
         self,
         message: "SendableMessage",
         topic: str,
-        key: Optional[bytes] = None,
+        *,
+        key: Union[bytes, str, None] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
         headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         timeout: float = 0.5,
-    ) -> Optional[Any]:
-        correlation_id = correlation_id or gen_cor_id()
-
-        return await super().request(
+    ) -> "KafkaMessage":
+        cmd = KafkaPublishCommand(
             message,
-            producer=self._producer,
             topic=topic,
             key=key,
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=headers,
-            correlation_id=correlation_id,
             timeout=timeout,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Request,
         )
+
+        msg: KafkaMessage = await super()._basic_request(cmd, producer=self._producer)
+        return msg
 
     async def publish_batch(
         self,
-        *msgs: "SendableMessage",
+        *messages: "SendableMessage",
         topic: str,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
@@ -540,24 +567,19 @@ class KafkaBroker(
         correlation_id: Optional[str] = None,
         no_confirm: bool = False,
     ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        correlation_id = correlation_id or gen_cor_id()
-
-        call: AsyncFunc = self._producer.publish_batch
-        for m in self._middlewares:
-            call = partial(m(None).publish_scope, call)
-
-        await call(
-            *msgs,
+        cmd = KafkaPublishCommand(
+            *messages,
             topic=topic,
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=headers,
             reply_to=reply_to,
-            correlation_id=correlation_id,
             no_confirm=no_confirm,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.Publish,
         )
+
+        await self._basic_publish_batch(cmd, producer=self._producer)
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:

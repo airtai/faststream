@@ -7,7 +7,6 @@ from faststream.annotations import ContextRepo, Logger
 from faststream.kafka.broker import KafkaBroker as KB
 from faststream.kafka.message import KafkaMessage as KM
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
-from faststream.params import NoCast
 
 __all__ = (
     "ContextRepo",
@@ -15,7 +14,6 @@ __all__ = (
     "KafkaMessage",
     "KafkaProducer",
     "Logger",
-    "NoCast",
 )
 
 Consumer = Annotated[AIOKafkaConsumer, Context("handler_.consumer")]

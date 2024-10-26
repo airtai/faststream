@@ -6,6 +6,7 @@ from typing_extensions import override
 
 from faststream._internal.proto import Endpoint
 from faststream._internal.types import MsgType
+from faststream.response.response import PublishCommand
 from faststream.specification.base.proto import EndpointProto
 
 if TYPE_CHECKING:
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
         PublisherMiddleware,
         T_HandlerReturn,
     )
+    from faststream.response.response import PublishCommand
 
 
 class ProducerProto(Protocol):
@@ -24,25 +26,18 @@ class ProducerProto(Protocol):
     _decoder: "AsyncCallable"
 
     @abstractmethod
-    async def publish(
-        self,
-        message: "SendableMessage",
-        /,
-        *,
-        correlation_id: Optional[str] = None,
-    ) -> Optional[Any]:
+    async def publish(self, cmd: "PublishCommand") -> Optional[Any]:
         """Publishes a message asynchronously."""
         ...
 
     @abstractmethod
-    async def request(
-        self,
-        message: "SendableMessage",
-        /,
-        *,
-        correlation_id: Optional[str] = None,
-    ) -> Any:
+    async def request(self, cmd: "PublishCommand") -> Any:
         """Publishes a message synchronously."""
+        ...
+
+    @abstractmethod
+    async def publish_batch(self, cmd: "PublishCommand") -> None:
+        """Publishes a messages batch asynchronously."""
         ...
 
 
@@ -64,12 +59,10 @@ class BasePublisherProto(Protocol):
     @abstractmethod
     async def _publish(
         self,
-        message: "SendableMessage",
-        /,
+        cmd: "PublishCommand",
         *,
-        correlation_id: Optional[str] = None,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-    ) -> Optional[Any]:
+        _extra_middlewares: Iterable["PublisherMiddleware"],
+    ) -> None:
         """Private method to publish a message.
 
         Should be called inside `publish` method or as a step of `consume` scope.
@@ -83,7 +76,6 @@ class BasePublisherProto(Protocol):
         /,
         *,
         correlation_id: Optional[str] = None,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
         """Publishes a message synchronously."""
         ...

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, NoReturn
+from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
@@ -224,7 +224,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, stream=stream)
-        async def handler(msg: NatsMessage) -> NoReturn:
+        async def handler(msg: NatsMessage):
             event.set()
             raise AckMessage
 

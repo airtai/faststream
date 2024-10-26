@@ -1,6 +1,5 @@
 import asyncio
 from abc import abstractmethod
-from typing import NoReturn
 from unittest.mock import Mock
 
 import anyio
@@ -117,7 +116,7 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         args, kwargs = self.get_subscriber_params(queue)
 
         @test_broker.subscriber(*args, **kwargs)
-        async def m(msg) -> NoReturn:  # pragma: no cover
+        async def m(msg):  # pragma: no cover
             raise ValueError
 
         async with self.patch_broker(test_broker) as br:

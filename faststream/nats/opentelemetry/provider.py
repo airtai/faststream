@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Optional, Union, overload
 from nats.aio.msg import Msg
 from opentelemetry.semconv.trace import SpanAttributes
 
-from faststream.__about__ import SERVICE_NAME
 from faststream._internal.types import MsgType
 from faststream.opentelemetry import TelemetrySettingsProvider
 from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
@@ -12,6 +11,7 @@ from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream.message import StreamMessage
+    from faststream.nats.response import NatsPublishCommand
 
 
 class BaseNatsTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
@@ -20,22 +20,21 @@ class BaseNatsTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
     def __init__(self) -> None:
         self.messaging_system = "nats"
 
-    def get_publish_attrs_from_kwargs(
+    def get_publish_attrs_from_cmd(
         self,
-        kwargs: "AnyDict",
+        cmd: "NatsPublishCommand",
     ) -> "AnyDict":
         return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
-            SpanAttributes.MESSAGING_DESTINATION_NAME: kwargs["subject"],
-            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: kwargs["correlation_id"],
+            SpanAttributes.MESSAGING_DESTINATION_NAME: cmd.destination,
+            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: cmd.correlation_id,
         }
 
     def get_publish_destination_name(
         self,
-        kwargs: "AnyDict",
+        cmd: "NatsPublishCommand",
     ) -> str:
-        subject: str = kwargs.get("subject", SERVICE_NAME)
-        return subject
+        return cmd.destination
 
 
 class NatsTelemetrySettingsProvider(BaseNatsTelemetrySettingsProvider["Msg"]):

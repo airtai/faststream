@@ -5,6 +5,7 @@ from faststream._internal.types import MsgType
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream.message import StreamMessage
+    from faststream.response.response import PublishCommand
 
 
 class TelemetrySettingsProvider(Protocol[MsgType]):
@@ -20,12 +21,12 @@ class TelemetrySettingsProvider(Protocol[MsgType]):
         msg: "StreamMessage[MsgType]",
     ) -> str: ...
 
-    def get_publish_attrs_from_kwargs(
+    def get_publish_attrs_from_cmd(
         self,
-        kwargs: "AnyDict",
+        cmd: "PublishCommand",
     ) -> "AnyDict": ...
 
     def get_publish_destination_name(
         self,
-        kwargs: "AnyDict",
+        cmd: "PublishCommand",
     ) -> str: ...

@@ -15,12 +15,14 @@ from typing import (
 import anyio
 from typing_extensions import Literal, Self, overload
 
+from faststream._internal.context.repository import context
 from faststream._internal.subscriber.acknowledgement_watcher import (
     WatcherContext,
     get_watcher,
 )
 from faststream._internal.types import MsgType
 from faststream._internal.utils.functions import fake_context, return_input, to_async
+from faststream.message.source_type import SourceType
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -41,6 +43,7 @@ async def process_msg(
     middlewares: Iterable["BrokerMiddleware[MsgType]"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
+    source_type: SourceType = SourceType.Consume,
 ) -> None: ...
 
 
@@ -50,6 +53,7 @@ async def process_msg(
     middlewares: Iterable["BrokerMiddleware[MsgType]"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
+    source_type: SourceType = SourceType.Consume,
 ) -> "StreamMessage[MsgType]": ...
 
 
@@ -58,6 +62,7 @@ async def process_msg(
     middlewares: Iterable["BrokerMiddleware[MsgType]"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
+    source_type: SourceType = SourceType.Consume,
 ) -> Optional["StreamMessage[MsgType]"]:
     if msg is None:
         return None
@@ -69,11 +74,12 @@ async def process_msg(
         ] = return_input
 
         for m in middlewares:
-            mid = m(msg)
+            mid = m(msg, context=context)
             await stack.enter_async_context(mid)
             return_msg = partial(mid.consume_scope, return_msg)
 
         parsed_msg = await parser(msg)
+        parsed_msg._source_type = source_type
         parsed_msg._decoded_body = await decoder(parsed_msg)
         return await return_msg(parsed_msg)
 

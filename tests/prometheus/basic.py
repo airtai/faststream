@@ -6,8 +6,8 @@ import pytest
 from prometheus_client import CollectorRegistry
 
 from faststream import Context
-from faststream.broker.message import AckStatus
 from faststream.exceptions import RejectMessage
+from faststream.message import AckStatus
 from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,

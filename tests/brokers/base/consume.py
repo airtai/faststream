@@ -1,5 +1,4 @@
 import asyncio
-from typing import NoReturn
 from unittest.mock import MagicMock
 
 import anyio
@@ -343,7 +342,7 @@ class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
         args, kwargs = self.get_subscriber_params(queue)
 
         @consume_broker.subscriber(*args, **kwargs)
-        def subscriber(m) -> NoReturn:
+        def subscriber(m):
             mock()
             event.set()
             raise StopConsume

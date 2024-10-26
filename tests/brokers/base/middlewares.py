@@ -1,5 +1,4 @@
 import asyncio
-from typing import NoReturn
 from unittest.mock import Mock, call
 
 import pytest
@@ -8,6 +7,7 @@ from faststream import Context
 from faststream._internal.basic_types import DecodedMessage
 from faststream.exceptions import SkipMessage
 from faststream.middlewares import BaseMiddleware, ExceptionMiddleware
+from faststream.response import PublishCommand
 
 from .basic import BaseTestcaseConfig
 
@@ -209,7 +209,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue, middlewares=(mid,))
 
         @broker.subscriber(*args, **kwargs)
-        async def handler2(m) -> NoReturn:
+        async def handler2(m):
             event.set()
             raise ValueError
 
@@ -331,8 +331,9 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         event: asyncio.Event,
     ) -> None:
         class Mid(BaseMiddleware):
-            async def on_publish(self, msg: str, *args, **kwargs) -> str:
-                return msg * 2
+            async def on_publish(self, msg: PublishCommand) -> PublishCommand:
+                msg.body *= 2
+                return msg
 
         broker = self.get_broker(middlewares=(Mid,))
 
@@ -370,11 +371,10 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         mock: Mock,
     ) -> None:
         class Mid(BaseMiddleware):
-            async def on_publish(self, msg: str, *args, **kwargs) -> str:
-                data = msg * 2
-                assert args or kwargs
-                mock.enter(data)
-                return data
+            async def on_publish(self, msg: PublishCommand) -> PublishCommand:
+                msg.body *= 2
+                mock.enter(msg.body)
+                return msg
 
             async def after_publish(self, *args, **kwargs) -> None:
                 mock.end()
@@ -429,7 +429,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1")
-        async def subscriber1(m) -> NoReturn:
+        async def subscriber1(m):
             raise ValueError
 
         args, kwargs = self.get_subscriber_params(queue + "1")
@@ -462,7 +462,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ValueError, publish=True)
-        async def value_error_handler(exc) -> NoReturn:
+        async def value_error_handler(exc):
             event.set()
             raise SkipMessage
 
@@ -471,7 +471,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1")
-        async def subscriber1(m) -> NoReturn:
+        async def subscriber1(m):
             raise ValueError
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
@@ -509,7 +509,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def subscriber(m) -> NoReturn:
+        async def subscriber(m):
             event.set()
             raise SkipMessage
 
@@ -536,7 +536,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ValueError, publish=True)
-        async def value_error_handler(exc) -> NoReturn:
+        async def value_error_handler(exc):
             event.set()
             raise exc
 
@@ -545,7 +545,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @broker.publisher(queue + "1")
-        async def subscriber1(m) -> NoReturn:
+        async def subscriber1(m):
             raise ValueError
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
@@ -590,14 +590,14 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         @publisher
-        async def subscriber1(m) -> NoReturn:
+        async def subscriber1(m):
             raise ZeroDivisionError
 
         args2, kwargs2 = self.get_subscriber_params(queue + "1")
 
         @broker.subscriber(*args2, **kwargs2)
         @publisher
-        async def subscriber2(m) -> NoReturn:
+        async def subscriber2(m):
             raise ValueError
 
         args3, kwargs3 = self.get_subscriber_params(queue + "2")
@@ -670,7 +670,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def subscriber1(m) -> NoReturn:
+        async def subscriber1(m):
             raise ZeroDivisionError
 
         async with self.patch_broker(broker) as br:

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from opentelemetry.semconv.trace import SpanAttributes
 
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import AnyDict
     from faststream.message import StreamMessage
-    from faststream.rabbit.schemas.exchange import RabbitExchange
+    from faststream.rabbit.response import RabbitPublishCommand
 
 
 class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage"]):
@@ -41,28 +41,19 @@ class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage
         routing_key = msg.raw_message.routing_key
         return f"{exchange}.{routing_key}"
 
-    def get_publish_attrs_from_kwargs(
+    def get_publish_attrs_from_cmd(
         self,
-        kwargs: "AnyDict",
+        cmd: "RabbitPublishCommand",
     ) -> "AnyDict":
-        exchange: Union[None, str, RabbitExchange] = kwargs.get("exchange")
         return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
-            SpanAttributes.MESSAGING_DESTINATION_NAME: getattr(
-                exchange,
-                "name",
-                exchange or "",
-            ),
-            SpanAttributes.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY: kwargs[
-                "routing_key"
-            ],
-            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: kwargs["correlation_id"],
+            SpanAttributes.MESSAGING_DESTINATION_NAME: cmd.exchange.name,
+            SpanAttributes.MESSAGING_RABBITMQ_DESTINATION_ROUTING_KEY: cmd.destination,
+            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: cmd.correlation_id,
         }
 
     def get_publish_destination_name(
         self,
-        kwargs: "AnyDict",
+        cmd: "RabbitPublishCommand",
     ) -> str:
-        exchange: str = kwargs.get("exchange") or "default"
-        routing_key: str = kwargs["routing_key"]
-        return f"{exchange}.{routing_key}"
+        return f"{cmd.exchange.name or 'default'}.{cmd.destination}"

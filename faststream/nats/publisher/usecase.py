@@ -1,11 +1,8 @@
-from collections.abc import Awaitable, Iterable
-from functools import partial
-from itertools import chain
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
     Optional,
     Union,
 )
@@ -14,16 +11,17 @@ from nats.aio.msg import Msg
 from typing_extensions import Doc, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream._internal.subscriber.utils import process_msg
-from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.message import SourceType, gen_cor_id
+from faststream.message import gen_cor_id
+from faststream.nats.response import NatsPublishCommand
+from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, SendableMessage
+    from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
     from faststream.nats.schemas import JStream
+    from faststream.response.response import PublishCommand
 
 
 class LogicPublisher(PublisherUsecase[Msg]):
@@ -62,7 +60,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         self.subject = subject
         self.stream = stream
         self.timeout = timeout
-        self.headers = headers
+        self.headers = headers or {}
         self.reply_to = reply_to
 
     @override
@@ -94,55 +92,37 @@ class LogicPublisher(PublisherUsecase[Msg]):
                 Can be omitted without any effect.
             timeout (float, optional): Timeout to send message to NATS in seconds (default is `None`).
         """
-        return await self._publish(
+        cmd = NatsPublishCommand(
             message,
-            subject=subject,
-            headers=headers,
-            reply_to=reply_to,
-            correlation_id=correlation_id,
-            stream=stream,
-            timeout=timeout,
-            _extra_middlewares=(),
+            subject=subject or self.subject,
+            headers=self.headers | (headers or {}),
+            reply_to=reply_to or self.reply_to,
+            correlation_id=correlation_id or gen_cor_id(),
+            stream=stream or getattr(self.stream, "name", None),
+            timeout=timeout or self.timeout,
+            _publish_type=PublishType.Publish,
         )
+        return await self._basic_publish(cmd, _extra_middlewares=())
 
     @override
     async def _publish(
         self,
-        message: "SendableMessage",
-        subject: str = "",
+        cmd: Union["PublishCommand", "NatsPublishCommand"],
         *,
-        headers: Optional[dict[str, str]] = None,
-        reply_to: str = "",
-        correlation_id: Optional[str] = None,
-        stream: Optional[str] = None,
-        timeout: Optional[float] = None,
-        # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        """This method should be called in subscriber flow only."""
+        cmd = NatsPublishCommand.from_cmd(cmd)
 
-        kwargs: AnyDict = {
-            "subject": subject or self.subject,
-            "headers": headers or self.headers,
-            "reply_to": reply_to or self.reply_to,
-            "correlation_id": correlation_id or gen_cor_id(),
-        }
+        cmd.destination = self.subject
+        cmd.add_headers(self.headers, override=False)
+        cmd.reply_to = cmd.reply_to or self.reply_to
 
-        if stream := stream or getattr(self.stream, "name", None):
-            kwargs.update({"stream": stream, "timeout": timeout or self.timeout})
+        if self.stream:
+            cmd.stream = self.stream.name
+            cmd.timeout = self.timeout
 
-        call: Callable[..., Awaitable[Any]] = self._producer.publish
-
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
-
-        await call(message, **kwargs)
+        return await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(
@@ -177,44 +157,18 @@ class LogicPublisher(PublisherUsecase[Msg]):
             float,
             Doc("Timeout to send message to NATS."),
         ] = 0.5,
-        # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
     ) -> "NatsMessage":
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        kwargs: AnyDict = {
-            "subject": subject or self.subject,
-            "headers": headers or self.headers,
-            "timeout": timeout or self.timeout,
-            "correlation_id": correlation_id or gen_cor_id(),
-        }
-
-        request: Callable[..., Awaitable[Any]] = self._producer.request
-
-        for pub_m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            request = partial(pub_m, request)
-
-        published_msg = await request(
-            message,
-            **kwargs,
+        cmd = NatsPublishCommand(
+            message=message,
+            subject=subject or self.subject,
+            headers=self.headers | (headers or {}),
+            timeout=timeout or self.timeout,
+            correlation_id=correlation_id or gen_cor_id(),
+            stream=getattr(self.stream, "name", None),
+            _publish_type=PublishType.Request,
         )
 
-        msg: NatsMessage = await process_msg(
-            msg=published_msg,
-            middlewares=self._broker_middlewares,
-            parser=self._producer._parser,
-            decoder=self._producer._decoder,
-        )
-        msg._source_type = SourceType.Response
+        msg: NatsMessage = await self._basic_request(cmd)
         return msg
 
     def add_prefix(self, prefix: str) -> None:

@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.opentelemetry.middleware.BaseTelemetryMiddleware
+::: faststream.redis.prometheus.RedisPrometheusMiddleware

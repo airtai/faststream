@@ -23,6 +23,7 @@ from faststream.nats.schemas.js_stream import is_subject_match_wildcard
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
     from faststream.nats.publisher.specified import SpecificationPublisher
+    from faststream.nats.response import NatsPublishCommand
     from faststream.nats.subscriber.usecase import LogicSubscriber
 
 __all__ = ("TestNatsBroker",)
@@ -74,28 +75,20 @@ class FakeProducer(NatsFastProducer):
 
     @override
     async def publish(  # type: ignore[override]
-        self,
-        message: "SendableMessage",
-        subject: str,
-        reply_to: str = "",
-        headers: Optional[dict[str, str]] = None,
-        correlation_id: Optional[str] = None,
-        # NatsJSFastProducer compatibility
-        timeout: Optional[float] = None,
-        stream: Optional[str] = None,
+        self, cmd: "NatsPublishCommand"
     ) -> None:
         incoming = build_message(
-            message=message,
-            subject=subject,
-            headers=headers,
-            correlation_id=correlation_id,
-            reply_to=reply_to,
+            message=cmd.body,
+            subject=cmd.destination,
+            headers=cmd.headers,
+            correlation_id=cmd.correlation_id,
+            reply_to=cmd.reply_to,
         )
 
         for handler in _find_handler(
             self.broker._subscribers,
-            subject,
-            stream,
+            cmd.destination,
+            cmd.stream,
         ):
             msg: Union[list[PatchedMessage], PatchedMessage]
 
@@ -104,31 +97,24 @@ class FakeProducer(NatsFastProducer):
             else:
                 msg = incoming
 
-            await self._execute_handler(msg, subject, handler)
+            await self._execute_handler(msg, cmd.destination, handler)
 
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        subject: str,
-        *,
-        correlation_id: Optional[str] = None,
-        headers: Optional[dict[str, str]] = None,
-        timeout: float = 0.5,
-        # NatsJSFastProducer compatibility
-        stream: Optional[str] = None,
+        cmd: "NatsPublishCommand",
     ) -> "PatchedMessage":
         incoming = build_message(
-            message=message,
-            subject=subject,
-            headers=headers,
-            correlation_id=correlation_id,
+            message=cmd.body,
+            subject=cmd.destination,
+            headers=cmd.headers,
+            correlation_id=cmd.correlation_id,
         )
 
         for handler in _find_handler(
             self.broker._subscribers,
-            subject,
-            stream,
+            cmd.destination,
+            cmd.stream,
         ):
             msg: Union[list[PatchedMessage], PatchedMessage]
 
@@ -137,8 +123,8 @@ class FakeProducer(NatsFastProducer):
             else:
                 msg = incoming
 
-            with anyio.fail_after(timeout):
-                return await self._execute_handler(msg, subject, handler)
+            with anyio.fail_after(cmd.timeout):
+                return await self._execute_handler(msg, cmd.destination, handler)
 
         raise SubscriberNotFound
 

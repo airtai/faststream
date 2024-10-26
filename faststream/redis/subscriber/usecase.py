@@ -19,7 +19,6 @@ from redis.asyncio.client import (
 from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
-from faststream._internal.publisher.fake import FakePublisher
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.redis.message import (
@@ -40,13 +39,14 @@ from faststream.redis.parser import (
     RedisPubSubParser,
     RedisStreamParser,
 )
+from faststream.redis.publisher.fake import RedisFakePublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream._internal.basic_types import AnyDict, LoggerProto
-    from faststream._internal.publisher.proto import ProducerProto
+    from faststream._internal.publisher.proto import BasePublisherProto, ProducerProto
     from faststream._internal.setup import SetupState
     from faststream._internal.types import (
         AsyncCallable,
@@ -130,16 +130,14 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
     def _make_response_publisher(
         self,
         message: "BrokerStreamMessage[UnifyRedisDict]",
-    ) -> Sequence[FakePublisher]:
+    ) -> Sequence["BasePublisherProto"]:
         if self._producer is None:
             return ()
 
         return (
-            FakePublisher(
-                self._producer.publish,
-                publish_kwargs={
-                    "channel": message.reply_to,
-                },
+            RedisFakePublisher(
+                self._producer,
+                channel=message.reply_to,
             ),
         )
 
