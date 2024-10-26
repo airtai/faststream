@@ -151,8 +151,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         # dependant args
         state: "SetupState",
     ) -> None:
-        self.lock = MultiLock()
-
         self._producer = producer
         self.graceful_timeout = graceful_timeout
         self.extra_context = extra_context
@@ -191,6 +189,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     @abstractmethod
     async def start(self) -> None:
         """Start the handler."""
+        self.lock = MultiLock()
+
         self.running = True
 
     @abstractmethod

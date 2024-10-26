@@ -14,6 +14,7 @@ from unittest import mock
 from unittest.mock import MagicMock
 
 from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.subscriber.utils import MultiLock
 from faststream._internal.testing.app import TestApp
 from faststream._internal.testing.ast import is_contains_context_name
 from faststream._internal.utils.functions import sync_fake_context
@@ -159,6 +160,7 @@ class TestBroker(Generic[Broker]):
 
         for subscriber in broker._subscribers:
             subscriber.running = True
+            subscriber.lock = MultiLock()
 
     def _fake_close(
         self,
