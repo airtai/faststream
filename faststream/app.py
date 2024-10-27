@@ -17,7 +17,6 @@ from faststream._internal.application import Application
 from faststream.asgi.app import AsgiFastStream
 from faststream.cli.supervisors.utils import set_exit
 from faststream.exceptions import ValidationError
-from faststream.utils.functions import fake_context
 
 P_HookParams = ParamSpec("P_HookParams")
 T_HookReturn = TypeVar("T_HookReturn")
@@ -77,4 +76,6 @@ try:
             raise ValidationError(fields=fields) from e
 
 except ImportError:
+    from faststream.utils.functions import fake_context
+
     catch_startup_validation_error = fake_context
