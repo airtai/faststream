@@ -66,11 +66,13 @@ def run(
         1,
         show_default=False,
         help="Run [workers] applications with process spawning.",
+        envvar="FASTSTREAM_WORKERS",
     ),
     log_level: LogLevels = typer.Option(
         LogLevels.notset,
         case_sensitive=False,
         help="Set selected level for FastStream and brokers logger objects.",
+        envvar="FASTSTREAM_LOG_LEVEL",
     ),
     reload: bool = typer.Option(
         False,
@@ -93,6 +95,7 @@ def run(
             "Look for APP in the specified directory, by adding this to the PYTHONPATH."
             " Defaults to the current working directory."
         ),
+        envvar="FASTSTREAM_APP_DIR",
     ),
     is_factory: bool = typer.Option(
         False,
