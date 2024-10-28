@@ -1,6 +1,5 @@
-import asyncio
 from abc import abstractmethod
-from collections.abc import Awaitable, Coroutine, Iterable
+from collections.abc import Awaitable, Iterable
 from contextlib import suppress
 from typing import (
     TYPE_CHECKING,
@@ -21,10 +20,12 @@ from nats.js.api import ConsumerConfig, ObjectInfo
 from typing_extensions import Doc, override
 
 from faststream._internal.context.repository import context
+from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.nats.message import NatsMessage
 from faststream.nats.parser import (
     BatchParser,
     JsParser,
@@ -40,7 +41,6 @@ from faststream.nats.subscriber.adapters import (
 )
 
 if TYPE_CHECKING:
-    from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
     from nats.aio.client import Client
     from nats.aio.msg import Msg
     from nats.aio.subscription import Subscription
@@ -62,7 +62,7 @@ if TYPE_CHECKING:
     )
     from faststream.message import StreamMessage
     from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
-    from faststream.nats.message import NatsKvMessage, NatsMessage, NatsObjMessage
+    from faststream.nats.message import NatsKvMessage, NatsObjMessage
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
 
 
@@ -296,73 +296,6 @@ class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
         )
 
 
-class _TasksMixin(LogicSubscriber[Any, Any]):
-    def __init__(self, **kwargs: Any) -> None:
-        self.tasks: list[asyncio.Task[Any]] = []
-
-        super().__init__(**kwargs)
-
-    def add_task(self, coro: Coroutine[Any, Any, Any]) -> None:
-        self.tasks.append(asyncio.create_task(coro))
-
-    async def close(self) -> None:
-        """Clean up handler subscription, cancel consume task in graceful mode."""
-        await super().close()
-
-        for task in self.tasks:
-            if not task.done():
-                task.cancel()
-
-        self.tasks = []
-
-
-class _ConcurrentMixin(_TasksMixin):
-    send_stream: "MemoryObjectSendStream[Msg]"
-    receive_stream: "MemoryObjectReceiveStream[Msg]"
-
-    def __init__(
-        self,
-        *,
-        max_workers: int,
-        **kwargs: Any,
-    ) -> None:
-        self.max_workers = max_workers
-
-        self.send_stream, self.receive_stream = anyio.create_memory_object_stream(
-            max_buffer_size=max_workers,
-        )
-        self.limiter = anyio.Semaphore(max_workers)
-
-        super().__init__(**kwargs)
-
-    def start_consume_task(self) -> None:
-        self.add_task(self._serve_consume_queue())
-
-    async def _serve_consume_queue(
-        self,
-    ) -> None:
-        """Endless task consuming messages from in-memory queue.
-
-        Suitable to batch messages by amount, timestamps, etc and call `consume` for this batches.
-        """
-        async with anyio.create_task_group() as tg:
-            async for msg in self.receive_stream:
-                tg.start_soon(self._consume_msg, msg)
-
-    async def _consume_msg(
-        self,
-        msg: "Msg",
-    ) -> None:
-        """Proxy method to call `self.consume` with semaphore block."""
-        async with self.limiter:
-            await self.consume(msg)
-
-    async def _put_msg(self, msg: "Msg") -> None:
-        """Proxy method to put msg into in-memory queue with semaphore block."""
-        async with self.limiter:
-            await self.send_stream.send(msg)
-
-
 class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
     subscription: Optional["Subscription"]
     _fetch_sub: Optional["Subscription"]
@@ -475,7 +408,7 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
 
 
 class ConcurrentCoreSubscriber(
-    _ConcurrentMixin,
+    ConcurrentMixin,
     CoreSubscriber,
 ):
     def __init__(
@@ -668,7 +601,7 @@ class PushStreamSubscription(_StreamSubscriber):
 
 
 class ConcurrentPushStreamSubscriber(
-    _ConcurrentMixin,
+    ConcurrentMixin,
     _StreamSubscriber,
 ):
     subscription: Optional["JetStreamContext.PushSubscription"]
@@ -736,7 +669,7 @@ class ConcurrentPushStreamSubscriber(
 
 
 class PullStreamSubscriber(
-    _TasksMixin,
+    TasksMixin,
     _StreamSubscriber,
 ):
     subscription: Optional["JetStreamContext.PullSubscription"]
@@ -821,7 +754,7 @@ class PullStreamSubscriber(
 
 
 class ConcurrentPullStreamSubscriber(
-    _ConcurrentMixin,
+    ConcurrentMixin,
     PullStreamSubscriber,
 ):
     def __init__(
@@ -886,7 +819,7 @@ class ConcurrentPullStreamSubscriber(
 
 
 class BatchPullStreamSubscriber(
-    _TasksMixin,
+    TasksMixin,
     _DefaultSubscriber["JetStreamContext", list["Msg"]],
 ):
     """Batch-message consumer class."""
@@ -966,13 +899,15 @@ class BatchPullStreamSubscriber(
         except TimeoutError:
             return None
 
-        msg: NatsMessage = await process_msg(
-            msg=raw_message,
-            middlewares=self._broker_middlewares,
-            parser=self._parser,
-            decoder=self._decoder,
+        return cast(
+            NatsMessage,
+            await process_msg(
+                msg=raw_message,
+                middlewares=self._broker_middlewares,
+                parser=self._parser,
+                decoder=self._decoder,
+            ),
         )
-        return msg
 
     @override
     async def _create_subscription(
@@ -1007,7 +942,7 @@ class BatchPullStreamSubscriber(
 
 
 class KeyValueWatchSubscriber(
-    _TasksMixin,
+    TasksMixin,
     LogicSubscriber["KVBucketDeclarer", "KeyValue.Entry"],
 ):
     subscription: Optional["UnsubscribeAdapter[KeyValue.KeyWatcher]"]
@@ -1161,7 +1096,7 @@ OBJECT_STORAGE_CONTEXT_KEY = "__object_storage"
 
 
 class ObjStoreWatchSubscriber(
-    _TasksMixin,
+    TasksMixin,
     LogicSubscriber["OSBucketDeclarer", ObjectInfo],
 ):
     subscription: Optional["UnsubscribeAdapter[ObjectStore.ObjectWatcher]"]
@@ -1278,7 +1213,7 @@ class ObjStoreWatchSubscriber(
             with suppress(TimeoutError):
                 message = cast(
                     Optional["ObjectInfo"],
-                    await obj_watch.updates(self.obj_watch.timeout),
+                    await obj_watch.updates(self.obj_watch.timeout),  # type: ignore[no-untyped-call]
                 )
 
                 if message:
