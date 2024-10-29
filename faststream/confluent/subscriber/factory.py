@@ -14,7 +14,7 @@ from faststream.confluent.subscriber.specified import (
 
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
@@ -36,7 +36,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
     # Specification args
     title_: Optional[str],
@@ -60,7 +60,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
     # Specification args
     title_: Optional[str],
@@ -84,7 +84,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConfluentMsg, tuple[ConfluentMsg, ...]]]"
     ],
@@ -112,7 +112,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConfluentMsg, tuple[ConfluentMsg, ...]]]"
     ],

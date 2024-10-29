@@ -14,12 +14,11 @@ from typing import (
 )
 
 import anyio
-from fast_depends.dependencies import Depends
+from fast_depends.dependencies import Dependant
 from nats.errors import ConnectionClosedError, TimeoutError
 from nats.js.api import ConsumerConfig, ObjectInfo
 from typing_extensions import Doc, override
 
-from faststream._internal.context.repository import context
 from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
@@ -89,7 +88,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType], Generic[ConnectionType, MsgTyp
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -241,7 +240,7 @@ class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -312,7 +311,7 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -369,7 +368,10 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
 
         msg: NatsMessage = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -424,7 +426,7 @@ class ConcurrentCoreSubscriber(
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -486,7 +488,7 @@ class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -571,7 +573,10 @@ class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
 
         msg: NatsMessage = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -620,7 +625,7 @@ class ConcurrentPushStreamSubscriber(
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -687,7 +692,7 @@ class PullStreamSubscriber(
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -771,7 +776,7 @@ class ConcurrentPullStreamSubscriber(
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -840,7 +845,7 @@ class BatchPullStreamSubscriber(
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[list[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -903,7 +908,10 @@ class BatchPullStreamSubscriber(
             NatsMessage,
             await process_msg(
                 msg=raw_message,
-                middlewares=self._broker_middlewares,
+                middlewares=(
+                    m(raw_message, context=self._state.depends_params.context)
+                    for m in self._broker_middlewares
+                ),
                 parser=self._parser,
                 decoder=self._decoder,
             ),
@@ -954,7 +962,7 @@ class KeyValueWatchSubscriber(
         subject: str,
         config: "ConsumerConfig",
         kv_watch: "KvWatch",
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[KeyValue.Entry]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -1020,7 +1028,10 @@ class KeyValueWatchSubscriber(
 
         msg: NatsKvMessage = await process_msg(
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -1108,7 +1119,7 @@ class ObjStoreWatchSubscriber(
         subject: str,
         config: "ConsumerConfig",
         obj_watch: "ObjWatch",
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[list[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -1175,7 +1186,10 @@ class ObjStoreWatchSubscriber(
 
         msg: NatsObjMessage = await process_msg(
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -1217,7 +1231,9 @@ class ObjStoreWatchSubscriber(
                 )
 
                 if message:
-                    with context.scope(OBJECT_STORAGE_CONTEXT_KEY, self.bucket):
+                    with self._state.depends_params.context.scope(
+                        OBJECT_STORAGE_CONTEXT_KEY, self.bucket
+                    ):
                         await self.consume(message)
 
     def _make_response_publisher(

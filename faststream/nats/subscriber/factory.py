@@ -25,7 +25,7 @@ from faststream.nats.subscriber.specified import (
 )
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
     from nats.js import api
 
     from faststream._internal.basic_types import AnyDict
@@ -62,7 +62,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     retry: Union[bool, int],
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[Any]"],
     # Specification information
     title_: Optional[str],

@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 from inspect import isclass
-from typing import TYPE_CHECKING, Any, Optional, overload
+from typing import TYPE_CHECKING, Optional, overload
 
 from pydantic import BaseModel, create_model
 
@@ -16,15 +16,15 @@ if TYPE_CHECKING:
     from fast_depends.core import CallModel
 
 
-def parse_handler_params(call: "CallModel[Any, Any]", prefix: str = "") -> AnyDict:
+def parse_handler_params(call: "CallModel", prefix: str = "") -> AnyDict:
     """Parses the handler parameters."""
-    model = call.model
+    model = getattr(call, "serializer", call).model
     assert model  # nosec B101
 
     body = get_model_schema(
         create_model(  # type: ignore[call-overload]
             model.__name__,
-            **call.flat_params,
+            **{p.field_name: (p.field_type, p.default_value) for p in call.flat_params},
         ),
         prefix=prefix,
         exclude=tuple(call.custom_fields.keys()),
@@ -41,11 +41,11 @@ def get_response_schema(call: None, prefix: str = "") -> None: ...
 
 
 @overload
-def get_response_schema(call: "CallModel[Any, Any]", prefix: str = "") -> AnyDict: ...
+def get_response_schema(call: "CallModel", prefix: str = "") -> AnyDict: ...
 
 
 def get_response_schema(
-    call: Optional["CallModel[Any, Any]"],
+    call: Optional["CallModel"],
     prefix: str = "",
 ) -> Optional[AnyDict]:
     """Get the response schema for a given call."""

@@ -19,7 +19,7 @@ from faststream.exceptions import SetupError
 
 if TYPE_CHECKING:
     from confluent_kafka import Message
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.types import (
         CustomCallable,
@@ -279,8 +279,8 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -550,8 +550,8 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -821,8 +821,8 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -1095,8 +1095,8 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],

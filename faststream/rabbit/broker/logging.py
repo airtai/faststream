@@ -9,6 +9,7 @@ from faststream._internal.setup.logger import (
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.context import ContextRepo
 
 
 class RabbitParamsStorage(DefaultLoggerStorage):
@@ -31,7 +32,7 @@ class RabbitParamsStorage(DefaultLoggerStorage):
             len(params.get("queue", "")),
         )
 
-    def get_logger(self) -> "LoggerProto":
+    def get_logger(self, *, context: "ContextRepo") -> "LoggerProto":
         message_id_ln = 10
 
         # TODO: generate unique logger names to not share between brokers
@@ -50,6 +51,7 @@ class RabbitParamsStorage(DefaultLoggerStorage):
                 f"%(message_id)-{message_id_ln}s "
                 "- %(message)s"
             ),
+            context=context,
         )
 
 

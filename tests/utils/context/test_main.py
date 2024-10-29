@@ -1,5 +1,5 @@
 import pytest
-from pydantic import ValidationError
+from fast_depends.exceptions import ValidationError
 
 from faststream import Context, ContextRepo
 from faststream._internal.utils import apply_types

@@ -17,20 +17,6 @@ def test_init(app: FastStream, broker) -> None:
     assert app.logger is logger
 
 
-def test_init_without_broker(app_without_broker: FastStream) -> None:
-    assert app_without_broker.broker is None
-
-
-def test_init_without_logger(app_without_logger: FastStream) -> None:
-    assert app_without_logger.logger is None
-
-
-def test_set_broker(broker, app_without_broker: FastStream) -> None:
-    assert app_without_broker.broker is None
-    app_without_broker.set_broker(broker)
-    assert app_without_broker.broker is broker
-
-
 def test_log(app: FastStream, app_without_logger: FastStream) -> None:
     app._log(logging.INFO, "test")
     app_without_logger._log(logging.INFO, "test")
@@ -46,7 +32,7 @@ async def test_on_startup_calls(async_mock: AsyncMock, mock: Mock) -> None:
         await async_mock.call_start2()
         assert mock.call_start1.call_count == 1
 
-    test_app = FastStream(on_startup=[call1, call2])
+    test_app = FastStream(AsyncMock(), on_startup=[call1, call2])
 
     await test_app.start()
 
@@ -55,9 +41,7 @@ async def test_on_startup_calls(async_mock: AsyncMock, mock: Mock) -> None:
 
 
 @pytest.mark.asyncio()
-async def test_startup_calls_lifespans(
-    mock: Mock, app_without_broker: FastStream
-) -> None:
+async def test_startup_calls_lifespans(mock: Mock, app: FastStream) -> None:
     def call1() -> None:
         mock.call_start1()
         assert not mock.call_start2.called
@@ -66,10 +50,10 @@ async def test_startup_calls_lifespans(
         mock.call_start2()
         assert mock.call_start1.call_count == 1
 
-    app_without_broker.on_startup(call1)
-    app_without_broker.on_startup(call2)
+    app.on_startup(call1)
+    app.on_startup(call2)
 
-    await app_without_broker.start()
+    await app.start()
 
     mock.call_start1.assert_called_once()
     mock.call_start2.assert_called_once()
@@ -85,7 +69,7 @@ async def test_on_shutdown_calls(async_mock: AsyncMock, mock: Mock) -> None:
         await async_mock.call_stop2()
         assert mock.call_stop1.call_count == 1
 
-    test_app = FastStream(on_shutdown=[call1, call2])
+    test_app = FastStream(AsyncMock(), on_shutdown=[call1, call2])
 
     await test_app.stop()
 
@@ -94,9 +78,9 @@ async def test_on_shutdown_calls(async_mock: AsyncMock, mock: Mock) -> None:
 
 
 @pytest.mark.asyncio()
-async def test_shutdown_calls_lifespans(
-    mock: Mock, app_without_broker: FastStream
-) -> None:
+async def test_shutdown_calls_lifespans(mock: Mock) -> None:
+    app = FastStream(AsyncMock())
+
     def call1() -> None:
         mock.call_stop1()
         assert not mock.call_stop2.called
@@ -105,10 +89,10 @@ async def test_shutdown_calls_lifespans(
         mock.call_stop2()
         assert mock.call_stop1.call_count == 1
 
-    app_without_broker.on_shutdown(call1)
-    app_without_broker.on_shutdown(call2)
+    app.on_shutdown(call1)
+    app.on_shutdown(call2)
 
-    await app_without_broker.stop()
+    await app.stop()
 
     mock.call_stop1.assert_called_once()
     mock.call_stop2.assert_called_once()
@@ -265,23 +249,14 @@ async def test_running_lifespan_contextmanager(
         yield
         mock.off()
 
-    app = FastStream(app.broker, lifespan=lifespan)
+    app = FastStream(async_mock, lifespan=lifespan)
     app.exit()
 
-    with (
-        patch.object(app.broker, "start", async_mock.broker_run),
-        patch.object(
-            app.broker,
-            "connect",
-            async_mock.broker_connect,
-        ),
-        patch.object(app.broker, "close", async_mock.broker_stopped),
-    ):
-        await app.run(run_extra_options={"env": "test"})
+    await app.run(run_extra_options={"env": "test"})
 
-    async_mock.broker_connect.assert_called_once()
-    async_mock.broker_run.assert_called_once()
-    async_mock.broker_stopped.assert_called_once()
+    async_mock.start.assert_called_once()
+    async_mock.connect.assert_called_once()
+    async_mock.close.assert_called_once()
 
     mock.on.assert_called_once_with("test")
     mock.off.assert_called_once()
@@ -289,7 +264,7 @@ async def test_running_lifespan_contextmanager(
 
 @pytest.mark.asyncio()
 async def test_test_app(mock: Mock) -> None:
-    app = FastStream()
+    app = FastStream(AsyncMock())
 
     app.on_startup(mock.on)
     app.on_shutdown(mock.off)
@@ -303,7 +278,7 @@ async def test_test_app(mock: Mock) -> None:
 
 @pytest.mark.asyncio()
 async def test_test_app_with_excp(mock: Mock) -> None:
-    app = FastStream()
+    app = FastStream(AsyncMock())
 
     app.on_startup(mock.on)
     app.on_shutdown(mock.off)
@@ -317,7 +292,7 @@ async def test_test_app_with_excp(mock: Mock) -> None:
 
 
 def test_sync_test_app(mock: Mock) -> None:
-    app = FastStream()
+    app = FastStream(AsyncMock())
 
     app.on_startup(mock.on)
     app.on_shutdown(mock.off)
@@ -330,7 +305,7 @@ def test_sync_test_app(mock: Mock) -> None:
 
 
 def test_sync_test_app_with_excp(mock: Mock) -> None:
-    app = FastStream()
+    app = FastStream(AsyncMock())
 
     app.on_startup(mock.on)
     app.on_shutdown(mock.off)

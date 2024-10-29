@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Any, Optional, cast
 
-from faststream._internal.context.repository import context
-from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
+from faststream.kafka.message import FAKE_CONSUMER, ConsumerProtocol, KafkaMessage
 from faststream.message import decode_message
 
 if TYPE_CHECKING:
@@ -10,7 +9,6 @@ if TYPE_CHECKING:
     from aiokafka import ConsumerRecord
 
     from faststream._internal.basic_types import DecodedMessage
-    from faststream.kafka.subscriber.usecase import LogicSubscriber
     from faststream.message import StreamMessage
 
 
@@ -25,13 +23,17 @@ class AioKafkaParser:
         self.msg_class = msg_class
         self.regex = regex
 
+        self._consumer: ConsumerProtocol = FAKE_CONSUMER
+
+    def _setup(self, consumer: ConsumerProtocol) -> None:
+        self._consumer = consumer
+
     async def parse_message(
         self,
         message: "ConsumerRecord",
     ) -> "StreamMessage[ConsumerRecord]":
         """Parses a Kafka message."""
         headers = {i: j.decode() for i, j in message.headers}
-        handler: Optional[LogicSubscriber[Any]] = context.get_local("handler_")
 
         return self.msg_class(
             body=message.value,
@@ -42,7 +44,7 @@ class AioKafkaParser:
             correlation_id=headers.get("correlation_id"),
             raw_message=message,
             path=self.get_path(message.topic),
-            consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
+            consumer=self._consumer,
         )
 
     async def decode_message(
@@ -76,8 +78,6 @@ class AioKafkaBatchParser(AioKafkaParser):
 
         headers = next(iter(batch_headers), {})
 
-        handler: Optional[LogicSubscriber[Any]] = context.get_local("handler_")
-
         return self.msg_class(
             body=body,
             headers=headers,
@@ -88,7 +88,7 @@ class AioKafkaBatchParser(AioKafkaParser):
             correlation_id=headers.get("correlation_id"),
             raw_message=message,
             path=self.get_path(first.topic),
-            consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
+            consumer=self._consumer,
         )
 
     async def decode_message(

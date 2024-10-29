@@ -1,12 +1,15 @@
 import warnings
 from dataclasses import dataclass, field
-from typing import Optional, Protocol
+from typing import TYPE_CHECKING, Optional, Protocol
 
 from faststream._internal.basic_types import AnyDict, LoggerProto
 from faststream._internal.constants import EMPTY
 from faststream.exceptions import IncorrectState
 
 from .proto import SetupAble
+
+if TYPE_CHECKING:
+    from faststream._internal.context import ContextRepo
 
 __all__ = (
     "DefaultLoggerStorage",
@@ -105,14 +108,14 @@ class _RealLoggerObject(_LoggerObject):
 class LoggerParamsStorage(Protocol):
     def setup_log_contest(self, params: "AnyDict") -> None: ...
 
-    def get_logger(self) -> Optional["LoggerProto"]: ...
+    def get_logger(self, *, context: "ContextRepo") -> Optional["LoggerProto"]: ...
 
 
 class _EmptyLoggerStorage(LoggerParamsStorage):
     def setup_log_contest(self, params: AnyDict) -> None:
         pass
 
-    def get_logger(self) -> None:
+    def get_logger(self, *, context: "ContextRepo") -> None:
         return None
 
 
@@ -123,7 +126,7 @@ class _ManualLoggerStorage(LoggerParamsStorage):
     def setup_log_contest(self, params: AnyDict) -> None:
         pass
 
-    def get_logger(self) -> LoggerProto:
+    def get_logger(self, *, context: "ContextRepo") -> LoggerProto:
         return self.__logger
 
 
@@ -153,8 +156,8 @@ class LoggerState(SetupAble):
             exc_info=exc_info,
         )
 
-    def _setup(self) -> None:
-        if logger := self.params_storage.get_logger():
+    def _setup(self, *, context: "ContextRepo") -> None:
+        if logger := self.params_storage.get_logger(context=context):
             self.logger = _RealLoggerObject(logger)
         else:
             self.logger = _EmptyLoggerObject()

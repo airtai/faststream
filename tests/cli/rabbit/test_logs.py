@@ -31,11 +31,6 @@ def test_set_level(level, app: FastStream) -> None:
     (
         pytest.param(
             logging.CRITICAL,
-            FastStream(),
-            id="empty app",
-        ),
-        pytest.param(
-            logging.CRITICAL,
             FastStream(RabbitBroker(), logger=None),
             id="app without logger",
         ),
@@ -57,7 +52,7 @@ def test_set_level_to_none(level, app: FastStream) -> None:
 
 
 def test_set_default() -> None:
-    app = FastStream()
+    app = FastStream(None)
     level = "wrong_level"
     set_log_level(get_log_level(level), app)
     assert app.logger.level is logging.INFO

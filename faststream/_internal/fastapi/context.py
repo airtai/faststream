@@ -15,14 +15,18 @@ def Context(  # noqa: N802
     initial: Optional[Callable[..., Any]] = None,
 ) -> Any:
     """Get access to objects of the Context."""
-    return params.Depends(
-        lambda: resolve_context_by_name(
+
+    def solve_context(
+        context: Annotated[Any, params.Header(alias="context__")],
+    ) -> Any:
+        return resolve_context_by_name(
             name=name,
             default=default,
             initial=initial,
-        ),
-        use_cache=True,
-    )
+            context=context,
+        )
+
+    return params.Depends(solve_context, use_cache=True)
 
 
 Logger = Annotated[logging.Logger, Context("logger")]

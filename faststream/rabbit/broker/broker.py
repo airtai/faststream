@@ -46,7 +46,8 @@ if TYPE_CHECKING:
         RobustQueue,
     )
     from aio_pika.abc import DateType, HeadersType, SSLOptions, TimeoutType
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
+    from fast_depends.library.serializer import SerializerProto
     from pamqp.common import FieldTable
     from yarl import URL
 
@@ -163,7 +164,7 @@ class RabbitBroker(
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
@@ -215,10 +216,7 @@ class RabbitBroker(
             bool,
             Doc("Whether to use FastDepends or not."),
         ] = True,
-        validate: Annotated[
-            bool,
-            Doc("Whether to cast types using Pydantic validation."),
-        ] = True,
+        serializer: Optional["SerializerProto"] = EMPTY,
         _get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
@@ -282,7 +280,7 @@ class RabbitBroker(
             ),
             # FastDepends args
             apply_types=apply_types,
-            validate=validate,
+            serializer=serializer,
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
         )

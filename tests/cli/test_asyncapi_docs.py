@@ -75,7 +75,7 @@ def test_serve_asyncapi_docs(
         m.setattr(HTTPServer, "serve_forever", mock)
         r = runner.invoke(cli, SERVE_CMD + [kafka_ascynapi_project])  # noqa: RUF005
 
-    assert r.exit_code == 0
+    assert r.exit_code == 0, r.exc_info
     mock.assert_called_once()
 
 
@@ -94,7 +94,7 @@ def test_serve_asyncapi_json_schema(
         m.setattr(HTTPServer, "serve_forever", mock)
         r = runner.invoke(cli, SERVE_CMD + [str(schema_path)])  # noqa: RUF005
 
-    assert r.exit_code == 0
+    assert r.exit_code == 0, r.exc_info
     mock.assert_called_once()
 
     schema_path.unlink()
@@ -115,7 +115,7 @@ def test_serve_asyncapi_yaml_schema(
         m.setattr(HTTPServer, "serve_forever", mock)
         r = runner.invoke(cli, SERVE_CMD + [str(schema_path)])  # noqa: RUF005
 
-    assert r.exit_code == 0
+    assert r.exit_code == 0, r.exc_info
     mock.assert_called_once()
 
     schema_path.unlink()

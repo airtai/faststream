@@ -67,6 +67,7 @@ class Context(CustomField):
                 name=name,
                 default=self.default,
                 initial=self.initial,
+                context=kwargs["context__"],
             )
         ):
             kwargs[self.param_name] = v

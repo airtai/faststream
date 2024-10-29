@@ -5,7 +5,6 @@ from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Generic,
     Optional,
     cast,
@@ -18,9 +17,10 @@ from faststream._internal.types import MsgType
 from faststream.exceptions import IgnoredException, SetupError
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AsyncFuncAny, Decorator
+    from faststream._internal.setup import FastDependsData
     from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
     from faststream._internal.types import (
         AsyncCallable,
@@ -54,7 +54,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         item_parser: Optional["CustomCallable"],
         item_decoder: Optional["CustomCallable"],
         item_middlewares: Iterable["SubscriberMiddleware[StreamMessage[MsgType]]"],
-        dependencies: Iterable["Depends"],
+        dependencies: Iterable["Dependant"],
     ) -> None:
         self.handler = handler
         self.filter = filter
@@ -75,10 +75,8 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         *,
         parser: "AsyncCallable",
         decoder: "AsyncCallable",
-        broker_dependencies: Iterable["Depends"],
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
+        broker_dependencies: Iterable["Dependant"],
+        fast_depends_state: "FastDependsData",
         _call_decorators: Iterable["Decorator"],
     ) -> None:
         if self.dependant is None:
@@ -88,17 +86,15 @@ class HandlerItem(SetupAble, Generic[MsgType]):
             dependencies = (*broker_dependencies, *self.dependencies)
 
             dependant = self.handler.set_wrapped(
-                apply_types=apply_types,
-                is_validate=is_validate,
                 dependencies=dependencies,
-                _get_dependant=_get_dependant,
                 _call_decorators=_call_decorators,
+                state=fast_depends_state,
             )
 
-            if _get_dependant is None:
+            if fast_depends_state.get_dependent is None:
                 self.dependant = dependant
             else:
-                self.dependant = _get_dependant(
+                self.dependant = fast_depends_state.get_dependent(
                     self.handler._original_call,
                     dependencies,
                 )

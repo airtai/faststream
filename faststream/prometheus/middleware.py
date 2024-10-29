@@ -16,10 +16,10 @@ from faststream.prometheus.types import ProcessingStatus, PublishingStatus
 if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
 
+    from faststream._internal.basic_types import AsyncFunc, AsyncFuncAny
     from faststream._internal.context.repository import ContextRepo
     from faststream.message.message import StreamMessage
     from faststream.response.response import PublishCommand
-    from faststream.types import AsyncFunc, AsyncFuncAny
 
 
 class PrometheusMiddleware:

@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from aiokafka import TopicPartition
     from aiokafka.abc import ConsumerRebalanceListener
     from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.types import (
         CustomCallable,
@@ -381,8 +381,8 @@ class KafkaRegistrator(
         ] = (),
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -751,8 +751,8 @@ class KafkaRegistrator(
         ] = (),
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -1121,8 +1121,8 @@ class KafkaRegistrator(
         ] = (),
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -1494,8 +1494,8 @@ class KafkaRegistrator(
         ] = (),
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],

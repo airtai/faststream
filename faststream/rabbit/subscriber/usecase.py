@@ -18,7 +18,7 @@ from faststream.rabbit.schemas import BaseRMQInformation
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict, LoggerProto
     from faststream._internal.publisher.proto import BasePublisherProto
@@ -57,7 +57,7 @@ class LogicSubscriber(
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -197,7 +197,10 @@ class LogicSubscriber(
 
         msg: Optional[RabbitMessage] = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )

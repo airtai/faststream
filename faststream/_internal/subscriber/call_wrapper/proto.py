@@ -19,7 +19,7 @@ from faststream._internal.types import (
 )
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from .call import HandlerCallWrapper
 
@@ -36,7 +36,7 @@ class WrapperProto(Protocol[MsgType]):
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
@@ -54,7 +54,7 @@ class WrapperProto(Protocol[MsgType]):
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
 
     def __call__(
@@ -69,7 +69,7 @@ class WrapperProto(Protocol[MsgType]):
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
     ) -> Union[
         "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
         Callable[

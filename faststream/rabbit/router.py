@@ -13,13 +13,13 @@ from faststream.rabbit.broker.registrator import RabbitRegistrator
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
     from aio_pika.message import IncomingMessage
-    from broker.types import PublisherMiddleware
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
+        PublisherMiddleware,
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
@@ -214,8 +214,8 @@ class RabbitRoute(SubscriberRoute):
         ] = None,
         # broker arguments
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -297,9 +297,9 @@ class RabbitRouter(
         ] = (),
         *,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc(
-                "Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers.",
+                "Dependencies list (`[Dependant(),]`) to apply to all routers' publishers/subscribers.",
             ),
         ] = (),
         middlewares: Annotated[

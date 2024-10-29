@@ -1,6 +1,6 @@
 from collections.abc import Awaitable, Iterable
 from functools import partial
-from inspect import unwrap
+from inspect import Parameter, unwrap
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
@@ -11,11 +11,10 @@ from typing import (
 )
 from unittest.mock import MagicMock
 
-from fast_depends._compat import create_model, get_config_base
-from fast_depends.core import CallModel, build_call_model
+from fast_depends.core import build_call_model
+from fast_depends.pydantic._compat import create_model, get_config_base
 from typing_extensions import Doc, override
 
-from faststream._internal.context.repository import context
 from faststream._internal.publisher.proto import PublisherProto
 from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
 from faststream._internal.subscriber.utils import process_msg
@@ -26,12 +25,15 @@ from faststream._internal.types import (
 )
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message.source_type import SourceType
-from faststream.specification.asyncapi.message import get_response_schema
+from faststream.specification.asyncapi.message import (
+    get_model_schema,
+)
 from faststream.specification.asyncapi.utils import to_camelcase
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import ProducerProto
+    from faststream._internal.setup import SetupState
     from faststream._internal.types import (
         BrokerMiddleware,
         PublisherMiddleware,
@@ -96,11 +98,10 @@ class PublisherUsecase(PublisherProto[MsgType]):
 
     @override
     def _setup(  # type: ignore[override]
-        self,
-        *,
-        producer: Optional["ProducerProto"],
+        self, *, producer: Optional["ProducerProto"], state: Optional["SetupState"]
     ) -> None:
         self._producer = producer
+        self._state = state
 
     def set_test(
         self,
@@ -151,7 +152,7 @@ class PublisherUsecase(PublisherProto[MsgType]):
             (
                 _extra_middlewares
                 or (
-                    m(None, context=context).publish_scope
+                    m(None, context=self._state.depends_params.context).publish_scope
                     for m in self._broker_middlewares
                 )
             ),
@@ -167,6 +168,8 @@ class PublisherUsecase(PublisherProto[MsgType]):
     ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
+        context = self._state.depends_params.context
+
         request = self._producer.request
 
         for pub_m in chain(
@@ -179,7 +182,9 @@ class PublisherUsecase(PublisherProto[MsgType]):
 
         response_msg: Any = await process_msg(
             msg=published_msg,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(published_msg, context=context) for m in self._broker_middlewares
+            ),
             parser=self._producer._parser,
             decoder=self._producer._decoder,
             source_type=SourceType.Response,
@@ -197,7 +202,13 @@ class PublisherUsecase(PublisherProto[MsgType]):
         pub = self._producer.publish_batch
 
         for pub_m in chain(
-            (m(None, context=context).publish_scope for m in self._broker_middlewares),
+            (
+                _extra_middlewares
+                or (
+                    m(None, context=self._state.depends_params.context).publish_scope
+                    for m in self._broker_middlewares
+                )
+            ),
             self._middlewares,
         ):
             pub = partial(pub_m, pub)
@@ -208,34 +219,39 @@ class PublisherUsecase(PublisherProto[MsgType]):
         payloads: list[tuple[AnyDict, str]] = []
 
         if self.schema_:
-            params = {"response__": (self.schema_, ...)}
-
-            call_model: CallModel[Any, Any] = CallModel(
-                call=lambda: None,
-                model=create_model("Fake"),
-                response_model=create_model(  # type: ignore[call-overload]
+            body = get_model_schema(
+                call=create_model(
                     "",
                     __config__=get_config_base(),
-                    **params,
+                    response__=(self.schema_, ...),
                 ),
-                params=params,
-            )
-
-            body = get_response_schema(
-                call_model,
                 prefix=f"{self.name}:Message",
             )
+
             if body:  # pragma: no branch
                 payloads.append((body, ""))
 
         else:
             for call in self.calls:
-                call_model = build_call_model(call)
-                body = get_response_schema(
-                    call_model,
-                    prefix=f"{self.name}:Message",
+                call_model = build_call_model(
+                    call,
+                    dependency_provider=self._state.depends_params.provider,
+                    serializer_cls=self._state.depends_params.serializer,
                 )
-                if body:
-                    payloads.append((body, to_camelcase(unwrap(call).__name__)))
+
+                response_type = next(
+                    iter(call_model.serializer.response_option.values())
+                ).field_type
+                if response_type is not None and response_type is not Parameter.empty:
+                    body = get_model_schema(
+                        create_model(
+                            "",
+                            __config__=get_config_base(),
+                            response__=(response_type, ...),
+                        ),
+                        prefix=f"{self.name}:Message",
+                    )
+                    if body:
+                        payloads.append((body, to_camelcase(unwrap(call).__name__)))
 
         return payloads

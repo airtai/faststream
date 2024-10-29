@@ -12,10 +12,13 @@ from typing import (
     cast,
 )
 
+from fast_depends import Provider
+from fast_depends.pydantic import PydanticSerializer
 from typing_extensions import Doc, Self
 
 from faststream._internal._compat import is_test_env
-from faststream._internal.context.repository import context
+from faststream._internal.constants import EMPTY
+from faststream._internal.context.repository import ContextRepo
 from faststream._internal.setup import (
     EmptyState,
     FastDependsData,
@@ -43,7 +46,8 @@ from .abc_broker import ABCBroker
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
+    from fast_depends.library.serializer import SerializerProto
 
     from faststream._internal.basic_types import AnyDict, Decorator
     from faststream._internal.publisher.proto import (
@@ -79,7 +83,7 @@ class BrokerUsecase(
             Doc("Custom parser object."),
         ],
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc("Dependencies to apply to all broker subscribers."),
         ],
         middlewares: Annotated[
@@ -99,10 +103,7 @@ class BrokerUsecase(
             bool,
             Doc("Whether to use FastDepends or not."),
         ],
-        validate: Annotated[
-            bool,
-            Doc("Whether to cast types using Pydantic validation."),
-        ],
+        serializer: Optional["SerializerProto"] = EMPTY,
         _get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
@@ -170,12 +171,17 @@ class BrokerUsecase(
                 *self._middlewares,
             )
 
+        self.provider = Provider()
+        self.context = ContextRepo()
+
         self._state = EmptyState(
             depends_params=FastDependsData(
-                apply_types=apply_types,
-                is_validate=validate,
+                use_fastdepends=apply_types,
                 get_dependent=_get_dependant,
                 call_decorators=_call_decorators,
+                serializer=PydanticSerializer() if serializer is EMPTY else serializer,
+                provider=self.provider,
+                context=self.context,
             ),
             logger_state=logger_state,
         )
@@ -232,13 +238,26 @@ class BrokerUsecase(
             # parent container like FastStream object
             default_state = self._state.copy_to_state(SetupState)
 
-            if state:
-                self._state = state.copy_with_params(
-                    depends_params=default_state.depends_params,
+            if state is not None:
+                new_state = state.copy_with_params(
                     logger_state=default_state.logger_state,
                 )
+                self.provider = state.depends_params.provider
+                self.context = state.depends_params.context
+
+                new_state._depends_params = FastDependsData(
+                    use_fastdepends=self._state.depends_params.use_fastdepends,
+                    call_decorators=self._state.depends_params.call_decorators,
+                    get_dependent=self._state.depends_params.get_dependent,
+                    # from parent
+                    serializer=state.depends_params.serializer,
+                    provider=state.depends_params.provider,
+                    context=state.depends_params.context,
+                )
             else:
-                self._state = default_state
+                new_state = default_state
+
+            self._state = new_state
 
         if not self.running:
             self.running = True
@@ -266,7 +285,7 @@ class BrokerUsecase(
         """Setup the Subscriber to prepare it to starting."""
         data = self._subscriber_setup_extra.copy()
         data.update(kwargs)
-        subscriber._setup(**data)
+        subscriber._setup(**data, state=self._state)
 
     def setup_publisher(
         self,
@@ -276,7 +295,7 @@ class BrokerUsecase(
         """Setup the Publisher to prepare it to starting."""
         data = self._publisher_setup_extra.copy()
         data.update(kwargs)
-        publisher._setup(**data)
+        publisher._setup(**data, state=self._state)
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
@@ -291,8 +310,6 @@ class BrokerUsecase(
             # broker options
             "broker_parser": self._parser,
             "broker_decoder": self._decoder,
-            # dependant args
-            "state": self._state,
         }
 
     @property
@@ -331,7 +348,7 @@ class BrokerUsecase(
         publish = producer.publish
 
         for m in self._middlewares:
-            publish = partial(m(None, context=context).publish_scope, publish)
+            publish = partial(m(None, context=self.context).publish_scope, publish)
 
         return await publish(cmd)
 
@@ -347,7 +364,7 @@ class BrokerUsecase(
         publish = producer.publish_batch
 
         for m in self._middlewares:
-            publish = partial(m(None, context=context).publish_scope, publish)
+            publish = partial(m(None, context=self.context).publish_scope, publish)
 
         await publish(cmd)
 
@@ -362,13 +379,15 @@ class BrokerUsecase(
 
         request = producer.request
         for m in self._middlewares:
-            request = partial(m(None, context=context).publish_scope, request)
+            request = partial(m(None, context=self.context).publish_scope, request)
 
         published_msg = await request(cmd)
 
         response_msg: Any = await process_msg(
             msg=published_msg,
-            middlewares=self._middlewares,
+            middlewares=(
+                m(published_msg, context=self.context) for m in self._middlewares
+            ),
             parser=producer._parser,
             decoder=producer._decoder,
             source_type=SourceType.Response,

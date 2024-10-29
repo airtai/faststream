@@ -5,6 +5,7 @@ from typing import (
     Any,
     Callable,
     Optional,
+    TypeVar,
     Union,
     overload,
 )
@@ -12,6 +13,7 @@ from typing import (
 import anyio
 from fast_depends.core import CallModel
 from fast_depends.utils import run_async as call_or_await
+from typing_extensions import ParamSpec
 
 from faststream._internal.basic_types import F_Return, F_Spec
 
@@ -22,6 +24,9 @@ __all__ = (
     "timeout_scope",
     "to_async",
 )
+
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
 @overload
@@ -72,10 +77,8 @@ def sync_fake_context(*args: Any, **kwargs: Any) -> Iterator[None]:
     yield None
 
 
-def drop_response_type(
-    model: CallModel[F_Spec, F_Return],
-) -> CallModel[F_Spec, F_Return]:
-    model.response_model = None
+def drop_response_type(model: CallModel) -> CallModel:
+    model.serializer.response_callback = None
     return model
 
 

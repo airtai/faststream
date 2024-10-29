@@ -94,7 +94,7 @@ class FakeProducer(AsyncConfluentFastProducer):
     def __init__(self, broker: KafkaBroker) -> None:
         self.broker = broker
 
-        default = AsyncConfluentParser
+        default = AsyncConfluentParser()
 
         self._parser = resolve_custom_func(broker._parser, default.parse_message)
         self._decoder = resolve_custom_func(broker._decoder, default.decode_message)

@@ -17,10 +17,5 @@ def app_without_logger(broker):
 
 
 @pytest.fixture()
-def app_without_broker():
-    return FastStream()
-
-
-@pytest.fixture()
 def app(broker):
     return FastStream(broker)

@@ -1,6 +1,7 @@
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Callable, cast
 
+from fast_depends.library.serializer import OptionItem
 from fastapi.dependencies.utils import get_dependant, get_parameterless_sub_dependant
 
 from faststream._internal._compat import PYDANTIC_V2
@@ -120,6 +121,9 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
     )
 
     dependant.custom_fields = {}  # type: ignore[attr-defined]
-    dependant.flat_params = params_unique  # type: ignore[attr-defined]
+    dependant.flat_params = [
+        OptionItem(field_name=name, field_type=type_, default_value=default)
+        for name, (type_, default) in params_unique.items()
+    ]  # type: ignore[attr-defined]
 
     return dependant
