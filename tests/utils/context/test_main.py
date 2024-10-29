@@ -18,7 +18,7 @@ async def test_context_apply(context: ContextRepo) -> None:
     a = 1000
     context.set_global("key", a)
 
-    @apply_types
+    @apply_types(context__=context)
     async def use(key=Context()):
         return key is a
 
@@ -30,7 +30,7 @@ async def test_context_ignore(context: ContextRepo) -> None:
     a = 3
     context.set_global("key", a)
 
-    @apply_types
+    @apply_types(context__=context)
     async def use() -> None:
         return None
 
@@ -45,19 +45,19 @@ async def test_context_apply_multi(context: ContextRepo) -> None:
     b = 1000
     context.set_global("key_b", b)
 
-    @apply_types
+    @apply_types(context__=context)
     async def use1(key_a=Context()):
         return key_a is a
 
     assert await use1()
 
-    @apply_types
+    @apply_types(context__=context)
     async def use2(key_b=Context()):
         return key_b is b
 
     assert await use2()
 
-    @apply_types
+    @apply_types(context__=context)
     async def use3(key_a=Context(), key_b=Context()):
         return key_a is a and key_b is b
 
@@ -72,7 +72,7 @@ async def test_context_overrides(context: ContextRepo) -> None:
     b = 1000
     context.set_global("test", b)
 
-    @apply_types
+    @apply_types(context__=context)
     async def use(test=Context()):
         return test is b
 
@@ -84,11 +84,11 @@ async def test_context_nested_apply(context: ContextRepo) -> None:
     a = 1000
     context.set_global("key", a)
 
-    @apply_types
+    @apply_types(context__=context)
     def use_nested(key=Context()):
         return key
 
-    @apply_types
+    @apply_types(context__=context)
     async def use(key=Context()):
         return key is use_nested() is a
 
@@ -101,7 +101,7 @@ async def test_reset_global(context: ContextRepo) -> None:
     context.set_global("key", a)
     context.reset_global("key")
 
-    @apply_types
+    @apply_types(context__=context)
     async def use(key=Context()) -> None: ...
 
     with pytest.raises(ValidationError):
@@ -114,7 +114,7 @@ async def test_clear_context(context: ContextRepo) -> None:
     context.set_global("key", a)
     context.clear()
 
-    @apply_types
+    @apply_types(context__=context)
     async def use(key=Context(default=None)):
         return key is None
 
@@ -122,7 +122,7 @@ async def test_clear_context(context: ContextRepo) -> None:
 
 
 def test_scope(context: ContextRepo) -> None:
-    @apply_types
+    @apply_types(context__=context)
     def use(key=Context(), key2=Context()) -> None:
         assert key == 1
         assert key2 == 1
@@ -135,7 +135,7 @@ def test_scope(context: ContextRepo) -> None:
 
 
 def test_default(context: ContextRepo) -> None:
-    @apply_types
+    @apply_types(context__=context)
     def use(
         key=Context(),
         key2=Context(),
@@ -169,8 +169,8 @@ def test_local_default(context: ContextRepo) -> None:
     assert context.get_local(key, 1) == 1
 
 
-def test_initial() -> None:
-    @apply_types
+def test_initial(context: ContextRepo) -> None:
+    @apply_types(context__=context)
     def use(
         a,
         key=Context(initial=list),
@@ -201,7 +201,7 @@ async def test_context_with_custom_object_implementing_comparison(
     user2 = User(user_id=2)
     user3 = User(user_id=3)
 
-    @apply_types
+    @apply_types(context__=context)
     async def use(
         key1=Context("user1"),
         key2=Context("user2", default=user2),
