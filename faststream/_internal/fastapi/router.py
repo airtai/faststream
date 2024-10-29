@@ -1,4 +1,5 @@
 import json
+import warnings
 from abc import abstractmethod
 from collections.abc import AsyncIterator, Awaitable, Iterable, Mapping, Sequence
 from contextlib import asynccontextmanager
@@ -196,6 +197,8 @@ class StreamRouter(
         self._after_startup_hooks = []
         self._on_shutdown_hooks = []
 
+        self._lifespan_started = False
+
     def _get_dependencies_overides_provider(self) -> Optional[Any]:
         """Dependency provider WeakRef resolver."""
         if self.dependency_overrides_provider is not None:
@@ -317,13 +320,16 @@ class StreamRouter(
                 self.weak_dependencies_provider.add(app)
 
             async with lifespan_context(app) as maybe_context:
-                if maybe_context is None:
-                    lifespan_extra: AnyDict = {}
-                else:
-                    lifespan_extra = dict(maybe_context)
+                lifespan_extra = {"broker": self.broker, **(maybe_context or {})}
 
-                lifespan_extra.update({"broker": self.broker})
-                await self._start_broker()
+                if not self._lifespan_started:
+                    await self._start_broker()
+                    self._lifespan_started = True
+                else:
+                    warnings.warn(
+                        "Specifying 'lifespan_context' manually is no longer necessary with FastAPI >= 0.112.2.",
+                        stacklevel=2,
+                    )
 
                 for h in self._after_startup_hooks:
                     lifespan_extra.update(await h(app) or {})
