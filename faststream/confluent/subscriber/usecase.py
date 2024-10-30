@@ -169,7 +169,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.task = None
 
     @override
-    async def get_one(
+    async def get_one(  # type: ignore[override]
         self,
         *,
         timeout: float = 5.0,
@@ -181,8 +181,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         raw_message = await self.consumer.getone(timeout=timeout)
 
-        msg = await process_msg(
-            msg=raw_message,
+        msg = await process_msg(  # type: ignore[func-returns-value]
+            msg=raw_message,  # type: ignore[arg-type]
             middlewares=self._broker_middlewares,
             parser=self._parser,
             decoder=self._decoder,

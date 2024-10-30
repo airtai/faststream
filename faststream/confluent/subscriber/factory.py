@@ -100,7 +100,7 @@ def create_subscriber(
 ]: ...
 
 
-def create_subscriber(
+def create_subscriber(  # type: ignore[misc]
     *topics: str,
     partitions: Sequence["TopicPartition"],
     polling_interval: float,

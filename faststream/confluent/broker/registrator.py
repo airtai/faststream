@@ -52,10 +52,12 @@ class KafkaRegistrator(
 ):
     """Includable to KafkaBroker router."""
 
-    _subscribers: Dict[
+    _subscribers: Dict[  # type: ignore[assignment]
         int, Union["AsyncAPIBatchSubscriber", "AsyncAPIDefaultSubscriber"]
     ]
-    _publishers: Dict[int, Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"]]
+    _publishers: Dict[  # type: ignore[assignment]
+        int, Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"]
+    ]
 
     @overload  # type: ignore[override]
     def subscriber(
@@ -1194,7 +1196,7 @@ class KafkaRegistrator(
             raise SetupError("You should install `group_id` with manual commit mode")
 
         subscriber = super().subscriber(
-            create_subscriber(
+            create_subscriber(  # type: ignore[arg-type]
                 *topics,
                 polling_interval=polling_interval,
                 partitions=partitions,
@@ -1577,6 +1579,6 @@ class KafkaRegistrator(
         )
 
         if batch:
-            return cast("AsyncAPIBatchPublisher", super().publisher(publisher))
+            return cast("AsyncAPIBatchPublisher", super().publisher(publisher))  # type: ignore[arg-type]
         else:
-            return cast("AsyncAPIDefaultPublisher", super().publisher(publisher))
+            return cast("AsyncAPIDefaultPublisher", super().publisher(publisher))  # type: ignore[arg-type]

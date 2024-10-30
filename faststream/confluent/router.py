@@ -22,8 +22,8 @@ if TYPE_CHECKING:
     from confluent_kafka import Message
     from fast_depends.dependencies import Depends
 
+    from faststream.broker.middlewares.base import BaseMiddleware
     from faststream.broker.types import (
-        BrokerMiddleware,
         CustomCallable,
         Filter,
         PublisherMiddleware,
@@ -492,12 +492,7 @@ class KafkaRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable[
-                Union[
-                    "BrokerMiddleware[Message]",
-                    "BrokerMiddleware[Tuple[Message, ...]]",
-                ]
-            ],
+            "Iterable[Callable[[Union[Message, Tuple[Message, ...], None]], BaseMiddleware]]",
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[

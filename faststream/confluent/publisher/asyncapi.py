@@ -125,7 +125,7 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         "AsyncAPIDefaultPublisher",
     ]: ...
 
-    @override
+    @override  # type: ignore[misc]
     @staticmethod
     def create(
         *,
