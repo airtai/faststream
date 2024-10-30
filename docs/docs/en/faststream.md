@@ -12,6 +12,11 @@ search:
 ---
 
 <p align="center">
+  <a href="https://trendshift.io/repositories/3043" target="_blank"><img src="https://trendshift.io/api/badge/repositories/3043" alt="airtai%2Ffaststream | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+
+  <br/>
+  <br/>
+
   <a href="https://github.com/airtai/faststream/actions/workflows/pr_tests.yaml" target="_blank">
     <img src="https://github.com/airtai/faststream/actions/workflows/pr_tests.yaml/badge.svg?branch=main" alt="Test Passing"/>
   </a>
