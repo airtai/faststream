@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
+    from faststream.middlewares import AckPolicy
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
 
 
@@ -59,9 +60,8 @@ def create_subscriber(
     max_workers: int,
     stream: Optional["JStream"],
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: Union[bool, int],
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[Any]"],
     # Specification information
@@ -159,9 +159,8 @@ def create_subscriber(
                 # basic args
                 extra_options=extra_options,
                 # Subscriber args
-                no_ack=no_ack,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
-                retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
                 # Specification
@@ -177,9 +176,8 @@ def create_subscriber(
             # basic args
             extra_options=extra_options,
             # Subscriber args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             # Specification
@@ -199,9 +197,8 @@ def create_subscriber(
                 # basic args
                 extra_options=extra_options,
                 # Subscriber args
-                no_ack=no_ack,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
-                retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
                 # Specification
@@ -219,9 +216,8 @@ def create_subscriber(
             # basic args
             extra_options=extra_options,
             # Subscriber args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             # Specification
@@ -240,9 +236,8 @@ def create_subscriber(
                 # basic args
                 extra_options=extra_options,
                 # Subscriber args
-                no_ack=no_ack,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
-                retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
                 # Specification
@@ -259,9 +254,8 @@ def create_subscriber(
             # basic args
             extra_options=extra_options,
             # Subscriber args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             # Specification
@@ -278,9 +272,8 @@ def create_subscriber(
         # basic args
         extra_options=extra_options,
         # Subscriber args
-        no_ack=no_ack,
+        ack_policy=ack_policy,
         no_reply=no_reply,
-        retry=retry,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,
         # Specification information

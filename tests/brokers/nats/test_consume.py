@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 import pytest
 from nats.aio.msg import Msg
 
+from faststream import AckPolicy
 from faststream.exceptions import AckMessage
 from faststream.nats import ConsumerConfig, JStream, NatsBroker, PullSub
 from faststream.nats.annotations import NatsMessage
@@ -169,7 +170,7 @@ class TestConsume(BrokerRealConsumeTestcase):
     ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, no_ack=True)
+        @consume_broker.subscriber(queue, ack_policy=AckPolicy.DO_NOTHING)
         async def handler(msg: NatsMessage) -> None:
             if not msg.raw_message._ackd:
                 event.set()
@@ -278,7 +279,7 @@ class TestConsume(BrokerRealConsumeTestcase):
     ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, no_ack=True)
+        @consume_broker.subscriber(queue, ack_policy=AckPolicy.DO_NOTHING)
         async def handler(msg: NatsMessage) -> None:
             event.set()
 

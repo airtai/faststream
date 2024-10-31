@@ -5,6 +5,7 @@ import anyio
 import nats
 from typing_extensions import override
 
+from faststream import AckPolicy
 from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream.exceptions import FeatureNotSupportedException
@@ -38,7 +39,7 @@ class NatsFastProducer(ProducerProto):
     ) -> None:
         self._connection = connection
 
-        default = NatsParser(pattern="", no_ack=False)
+        default = NatsParser(pattern="", ack_policy=AckPolicy.REJECT_ON_ERROR)
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 
@@ -104,7 +105,7 @@ class NatsJSFastProducer(ProducerProto):
     ) -> None:
         self._connection = connection
 
-        default = NatsParser(pattern="", no_ack=False)
+        default = NatsParser(pattern="", ack_policy=AckPolicy.REJECT_ON_ERROR)
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 

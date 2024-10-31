@@ -20,6 +20,7 @@ from typing_extensions import Doc, deprecated, override
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
 from faststream._internal.fastapi.router import StreamRouter
+from faststream.middlewares import AckPolicy
 from faststream.rabbit.broker.broker import RabbitBroker as RB
 from faststream.rabbit.schemas import (
     RabbitExchange,
@@ -511,14 +512,10 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Iterable["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            Union[bool, int],
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -675,8 +672,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 parser=parser,
                 decoder=decoder,
                 middlewares=middlewares,
-                retry=retry,
-                no_ack=no_ack,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
                 title=title,
                 description=description,

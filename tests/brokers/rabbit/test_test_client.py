@@ -207,18 +207,18 @@ class TestTestclient(BrokerTestclientTestcase):
         consume2 = asyncio.Event()
         consume3 = asyncio.Event()
 
-        @broker.subscriber(queue=queue, exchange=exchange, retry=1)
+        @broker.subscriber(queue=queue, exchange=exchange)
         async def handler(msg: RabbitMessage) -> None:
             await msg.raw_message.ack()
             consume.set()
 
-        @broker.subscriber(queue=queue + "1", exchange=exchange, retry=1)
+        @broker.subscriber(queue=queue + "1", exchange=exchange)
         async def handler2(msg: RabbitMessage):
             await msg.raw_message.nack()
             consume2.set()
             raise ValueError
 
-        @broker.subscriber(queue=queue + "2", exchange=exchange, retry=1)
+        @broker.subscriber(queue=queue + "2", exchange=exchange)
         async def handler3(msg: RabbitMessage):
             await msg.raw_message.reject()
             consume3.set()

@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from aiokafka import AIOKafkaConsumer
 
+from faststream import AckPolicy
 from faststream.exceptions import AckMessage
 from faststream.kafka import KafkaBroker, TopicPartition
 from faststream.kafka.annotations import KafkaMessage
@@ -296,7 +297,9 @@ class TestConsume(BrokerRealConsumeTestcase):
     ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", no_ack=True)
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.DO_NOTHING
+        )
         async def handler(msg: KafkaMessage) -> None:
             event.set()
 

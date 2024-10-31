@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     )
     from faststream.confluent.client import AsyncConfluentConsumer
     from faststream.message import StreamMessage
+    from faststream.middlewares import AckPolicy
 
 
 class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
@@ -58,9 +59,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
@@ -72,9 +72,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             default_parser=default_parser,
             default_decoder=default_decoder,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
             # AsyncAPI args
@@ -260,9 +259,8 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[Message]"],
         # AsyncAPI args
@@ -281,9 +279,8 @@ class DefaultSubscriber(LogicSubscriber[Message]):
             default_parser=AsyncConfluentParser.parse_message,
             default_decoder=AsyncConfluentParser.decode_message,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
             # AsyncAPI args
@@ -324,9 +321,8 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
         connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[tuple[Message, ...]]"],
         # AsyncAPI args
@@ -347,9 +343,8 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
             default_parser=AsyncConfluentParser.parse_message_batch,
             default_decoder=AsyncConfluentParser.decode_message_batch,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
             # AsyncAPI args

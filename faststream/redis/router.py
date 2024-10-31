@@ -8,6 +8,7 @@ from faststream._internal.broker.router import (
     BrokerRouter,
     SubscriberRoute,
 )
+from faststream.middlewares import AckPolicy
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.message import BaseMessage
 
@@ -147,14 +148,10 @@ class RedisRoute(SubscriberRoute):
             Iterable["SubscriberMiddleware[UnifyRedisMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -188,8 +185,7 @@ class RedisRoute(SubscriberRoute):
             parser=parser,
             decoder=decoder,
             middlewares=middlewares,
-            retry=retry,
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
             title=title,
             description=description,

@@ -16,10 +16,6 @@ import anyio
 from typing_extensions import Literal, Self, overload
 
 from faststream._internal.context.repository import context
-from faststream._internal.subscriber.acknowledgement_watcher import (
-    WatcherContext,
-    get_watcher,
-)
 from faststream._internal.types import MsgType
 from faststream._internal.utils.functions import fake_context, return_input, to_async
 from faststream.message.source_type import SourceType
@@ -90,24 +86,6 @@ async def process_msg(
 async def default_filter(msg: "StreamMessage[Any]") -> bool:
     """A function to filter stream messages."""
     return not msg.processed
-
-
-def get_watcher_context(
-    logger: Optional["LoggerProto"],
-    no_ack: bool,
-    retry: Union[bool, int],
-    **extra_options: Any,
-) -> Callable[..., "AbstractAsyncContextManager[None]"]:
-    """Create Acknowledgement scope."""
-    if no_ack:
-        return fake_context
-
-    return partial(
-        WatcherContext,
-        watcher=get_watcher(logger, retry),
-        logger=logger,
-        **extra_options,
-    )
 
 
 class MultiLock:

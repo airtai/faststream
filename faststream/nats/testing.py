@@ -11,6 +11,7 @@ import anyio
 from nats.aio.msg import Msg
 from typing_extensions import override
 
+from faststream import AckPolicy
 from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream._internal.testing.broker import TestBroker
 from faststream.exceptions import SubscriberNotFound
@@ -69,7 +70,7 @@ class FakeProducer(NatsFastProducer):
     def __init__(self, broker: NatsBroker) -> None:
         self.broker = broker
 
-        default = NatsParser(pattern="", no_ack=False)
+        default = NatsParser(pattern="", ack_policy=AckPolicy.REJECT_ON_ERROR)
         self._parser = resolve_custom_func(broker._parser, default.parse_message)
         self._decoder = resolve_custom_func(broker._decoder, default.decode_message)
 

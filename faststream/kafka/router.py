@@ -18,6 +18,7 @@ from faststream._internal.broker.router import (
     SubscriberRoute,
 )
 from faststream.kafka.broker.registrator import KafkaRegistrator
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord, TopicPartition
@@ -483,14 +484,10 @@ class KafkaRoute(SubscriberRoute):
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -555,8 +552,7 @@ class KafkaRoute(SubscriberRoute):
             description=description,
             include_in_schema=include_in_schema,
             # FastDepends args
-            retry=retry,
-            no_ack=no_ack,
+            ack_policy=ack_policy,
         )
 
 

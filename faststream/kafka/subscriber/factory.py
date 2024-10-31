@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
+    from faststream.middlewares import AckPolicy
 
 
 @overload
@@ -36,9 +37,8 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
     # Specification args
@@ -62,9 +62,8 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
     # Specification args
@@ -88,9 +87,8 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
@@ -118,9 +116,8 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
     broker_dependencies: Iterable["Depends"],
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
@@ -163,9 +160,8 @@ def create_subscriber(
             connection_args=connection_args,
             partitions=partitions,
             is_manual=is_manual,
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             title_=title_,
@@ -181,9 +177,8 @@ def create_subscriber(
         connection_args=connection_args,
         partitions=partitions,
         is_manual=is_manual,
-        no_ack=no_ack,
+        ack_policy=ack_policy,
         no_reply=no_reply,
-        retry=retry,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,
         title_=title_,
