@@ -41,7 +41,11 @@ async def test_on_startup_calls(async_mock: AsyncMock, mock: Mock) -> None:
 
 
 @pytest.mark.asyncio()
-async def test_startup_calls_lifespans(mock: Mock, app: FastStream) -> None:
+async def test_startup_calls_lifespans(
+    mock: Mock,
+    app: FastStream,
+    async_mock: AsyncMock,
+) -> None:
     def call1() -> None:
         mock.call_start1()
         assert not mock.call_start2.called
@@ -53,7 +57,8 @@ async def test_startup_calls_lifespans(mock: Mock, app: FastStream) -> None:
     app.on_startup(call1)
     app.on_startup(call2)
 
-    await app.start()
+    with patch.object(app.broker, "start", async_mock):
+        await app.start()
 
     mock.call_start1.assert_called_once()
     mock.call_start2.assert_called_once()
@@ -110,14 +115,7 @@ async def test_after_startup_calls(async_mock: AsyncMock, mock: Mock, broker) ->
 
     test_app = FastStream(broker, after_startup=[call1, call2])
 
-    with (
-        patch.object(test_app.broker, "start", async_mock.broker_start),
-        patch.object(
-            test_app.broker,
-            "connect",
-            async_mock.broker_connect,
-        ),
-    ):
+    with patch.object(test_app.broker, "start", async_mock.broker_start):
         await test_app.start()
 
     mock.after_startup1.assert_called_once()
