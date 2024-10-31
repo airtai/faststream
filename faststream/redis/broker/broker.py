@@ -1,6 +1,5 @@
 import logging
 from collections.abc import Iterable, Mapping
-from functools import partial
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -27,7 +26,6 @@ from typing_extensions import Doc, TypeAlias, override
 from faststream.__about__ import __version__
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
-from faststream._internal.context.repository import context
 from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.producer import RedisFastProducer
@@ -41,13 +39,13 @@ from .registrator import RedisRegistrator
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
+    from fast_depends.library.serializer import SerializerProto
     from redis.asyncio.connection import BaseParser
     from typing_extensions import TypedDict, Unpack
 
     from faststream._internal.basic_types import (
         AnyDict,
-        AsyncFunc,
         Decorator,
         LoggerProto,
         SendableMessage,
@@ -133,7 +131,7 @@ class RedisBroker(
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
@@ -185,10 +183,7 @@ class RedisBroker(
             bool,
             Doc("Whether to use FastDepends or not."),
         ] = True,
-        validate: Annotated[
-            bool,
-            Doc("Whether to cast types using Pydantic validation."),
-        ] = True,
+        serializer: Optional["SerializerProto"] = EMPTY,
         _get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
@@ -250,7 +245,7 @@ class RedisBroker(
             ),
             # FastDepends args
             apply_types=apply_types,
-            validate=validate,
+            serializer=serializer,
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
         )
@@ -489,11 +484,6 @@ class RedisBroker(
             correlation_id=correlation_id or gen_cor_id(),
             _publish_type=PublishType.Publish,
         )
-
-        call: AsyncFunc = self._producer.publish_batch
-
-        for m in self._middlewares:
-            call = partial(m(None, context=context).publish_scope, call)
 
         await self._basic_publish_batch(cmd, producer=self._producer)
 

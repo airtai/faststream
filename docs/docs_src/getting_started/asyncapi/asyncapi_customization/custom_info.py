@@ -7,9 +7,7 @@ from faststream.kafka import KafkaBroker
 broker = KafkaBroker("localhost:9092")
 description="""# Title of the description
 This description supports **Markdown** syntax"""
-app = FastStream(
-    broker,
-)
+app = FastStream(broker)
 docs_obj = AsyncAPI(
     broker,
     title="My App",

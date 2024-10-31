@@ -15,7 +15,7 @@ from faststream.redis.subscriber.specified import (
 )
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.types import BrokerMiddleware
     from faststream.redis.message import UnifyRedisDict
@@ -38,7 +38,7 @@ def create_subscriber(
     no_ack: bool = False,
     no_reply: bool = False,
     retry: bool = False,
-    broker_dependencies: Iterable["Depends"] = (),
+    broker_dependencies: Iterable["Dependant"] = (),
     broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"] = (),
     # AsyncAPI args
     title_: Optional[str] = None,

@@ -8,23 +8,21 @@ from typing import (
     Callable,
     Generic,
     Optional,
-    TypeVar,
     Union,
     cast,
 )
 
 import anyio
-from fast_depends.dependencies import Depends
+from fast_depends.dependencies import Dependant
 from nats.errors import ConnectionClosedError, TimeoutError
 from nats.js.api import ConsumerConfig, ObjectInfo
 from typing_extensions import Doc, override
 
-from faststream._internal.context.repository import context
 from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
-from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import (
     BatchParser,
@@ -40,8 +38,9 @@ from faststream.nats.subscriber.adapters import (
     Unsubscriptable,
 )
 
+from .state import ConnectedSubscriberState, EmptySubscriberState, SubscriberState
+
 if TYPE_CHECKING:
-    from nats.aio.client import Client
     from nats.aio.msg import Msg
     from nats.aio.subscription import Subscription
     from nats.js import JetStreamContext
@@ -61,21 +60,18 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.message import StreamMessage
+    from faststream.nats.broker.state import BrokerState
     from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
     from faststream.nats.message import NatsKvMessage, NatsObjMessage
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
 
 
-ConnectionType = TypeVar("ConnectionType")
-
-
-class LogicSubscriber(SubscriberUsecase[MsgType], Generic[ConnectionType, MsgType]):
+class LogicSubscriber(SubscriberUsecase[MsgType], Generic[MsgType]):
     """A class to represent a NATS handler."""
 
     subscription: Optional[Unsubscriptable]
     _fetch_sub: Optional[Unsubscriptable]
     producer: Optional["ProducerProto"]
-    _connection: Optional[ConnectionType]
 
     def __init__(
         self,
@@ -89,7 +85,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType], Generic[ConnectionType, MsgTyp
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -116,16 +112,19 @@ class LogicSubscriber(SubscriberUsecase[MsgType], Generic[ConnectionType, MsgTyp
             include_in_schema=include_in_schema,
         )
 
-        self._connection = None
         self._fetch_sub = None
         self.subscription = None
         self.producer = None
+
+        self._connection_state: SubscriberState = EmptySubscriberState()
 
     @override
     def _setup(  # type: ignore[override]
         self,
         *,
-        connection: ConnectionType,
+        connection_state: "BrokerState",
+        os_declarer: "OSBucketDeclarer",
+        kv_declarer: "KVBucketDeclarer",
         # basic args
         logger: Optional["LoggerProto"],
         producer: Optional["ProducerProto"],
@@ -137,7 +136,11 @@ class LogicSubscriber(SubscriberUsecase[MsgType], Generic[ConnectionType, MsgTyp
         # dependant args
         state: "SetupState",
     ) -> None:
-        self._connection = connection
+        self._connection_state = ConnectedSubscriberState(
+            parent_state=connection_state,
+            os_declarer=os_declarer,
+            kv_declarer=kv_declarer,
+        )
 
         super()._setup(
             logger=logger,
@@ -157,12 +160,10 @@ class LogicSubscriber(SubscriberUsecase[MsgType], Generic[ConnectionType, MsgTyp
 
     async def start(self) -> None:
         """Create NATS subscription and start consume tasks."""
-        assert self._connection, NOT_CONNECTED_YET  # nosec B101
-
         await super().start()
 
         if self.calls:
-            await self._create_subscription(connection=self._connection)
+            await self._create_subscription()
 
     async def close(self) -> None:
         """Clean up handler subscription, cancel consume task in graceful mode."""
@@ -177,11 +178,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType], Generic[ConnectionType, MsgTyp
             self.subscription = None
 
     @abstractmethod
-    async def _create_subscription(
-        self,
-        *,
-        connection: ConnectionType,
-    ) -> None:
+    async def _create_subscription(self) -> None:
         """Create NATS subscription object to consume messages."""
         raise NotImplementedError
 
@@ -227,7 +224,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType], Generic[ConnectionType, MsgTyp
         return self.subject or ", ".join(self.config.filter_subjects or ())
 
 
-class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
+class _DefaultSubscriber(LogicSubscriber[MsgType]):
     def __init__(
         self,
         *,
@@ -241,7 +238,7 @@ class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -296,7 +293,7 @@ class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
         )
 
 
-class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
+class CoreSubscriber(_DefaultSubscriber["Msg"]):
     subscription: Optional["Subscription"]
     _fetch_sub: Optional["Subscription"]
 
@@ -312,7 +309,7 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -348,13 +345,12 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
         *,
         timeout: float = 5.0,
     ) -> "Optional[NatsMessage]":
-        assert self._connection, "Please, start() subscriber first"  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
         if self._fetch_sub is None:
-            fetch_sub = self._fetch_sub = await self._connection.subscribe(
+            fetch_sub = self._fetch_sub = await self._connection_state.client.subscribe(
                 subject=self.clear_subject,
                 queue=self.queue,
                 **self.extra_options,
@@ -369,23 +365,22 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
 
         msg: NatsMessage = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
         return msg
 
     @override
-    async def _create_subscription(
-        self,
-        *,
-        connection: "Client",
-    ) -> None:
+    async def _create_subscription(self) -> None:
         """Create NATS subscription and start consume task."""
         if self.subscription:
             return
 
-        self.subscription = await connection.subscribe(
+        self.subscription = await self._connection_state.client.subscribe(
             subject=self.clear_subject,
             queue=self.queue,
             cb=self.consume,
@@ -424,7 +419,7 @@ class ConcurrentCoreSubscriber(
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -451,18 +446,14 @@ class ConcurrentCoreSubscriber(
         )
 
     @override
-    async def _create_subscription(
-        self,
-        *,
-        connection: "Client",
-    ) -> None:
+    async def _create_subscription(self) -> None:
         """Create NATS subscription and start consume task."""
         if self.subscription:
             return
 
         self.start_consume_task()
 
-        self.subscription = await connection.subscribe(
+        self.subscription = await self._connection_state.client.subscribe(
             subject=self.clear_subject,
             queue=self.queue,
             cb=self._put_msg,
@@ -470,7 +461,7 @@ class ConcurrentCoreSubscriber(
         )
 
 
-class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
+class _StreamSubscriber(_DefaultSubscriber["Msg"]):
     _fetch_sub: Optional["JetStreamContext.PullSubscription"]
 
     def __init__(
@@ -486,7 +477,7 @@ class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -538,7 +529,6 @@ class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
         *,
         timeout: float = 5,
     ) -> Optional["NatsMessage"]:
-        assert self._connection, "Please, start() subscriber first"  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
@@ -553,7 +543,7 @@ class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
             if inbox_prefix := self.extra_options.get("inbox_prefix"):
                 extra_options["inbox_prefix"] = inbox_prefix
 
-            self._fetch_sub = await self._connection.pull_subscribe(
+            self._fetch_sub = await self._connection_state.js.pull_subscribe(
                 subject=self.clear_subject,
                 config=self.config,
                 **extra_options,
@@ -571,7 +561,10 @@ class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
 
         msg: NatsMessage = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -582,16 +575,12 @@ class PushStreamSubscription(_StreamSubscriber):
     subscription: Optional["JetStreamContext.PushSubscription"]
 
     @override
-    async def _create_subscription(
-        self,
-        *,
-        connection: "JetStreamContext",
-    ) -> None:
+    async def _create_subscription(self) -> None:
         """Create NATS subscription and start consume task."""
         if self.subscription:
             return
 
-        self.subscription = await connection.subscribe(
+        self.subscription = await self._connection_state.js.subscribe(
             subject=self.clear_subject,
             queue=self.queue,
             cb=self.consume,
@@ -620,7 +609,7 @@ class ConcurrentPushStreamSubscriber(
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -648,18 +637,14 @@ class ConcurrentPushStreamSubscriber(
         )
 
     @override
-    async def _create_subscription(
-        self,
-        *,
-        connection: "JetStreamContext",
-    ) -> None:
+    async def _create_subscription(self) -> None:
         """Create NATS subscription and start consume task."""
         if self.subscription:
             return
 
         self.start_consume_task()
 
-        self.subscription = await connection.subscribe(
+        self.subscription = await self._connection_state.js.subscribe(
             subject=self.clear_subject,
             queue=self.queue,
             cb=self._put_msg,
@@ -687,7 +672,7 @@ class PullStreamSubscriber(
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -716,16 +701,12 @@ class PullStreamSubscriber(
         )
 
     @override
-    async def _create_subscription(
-        self,
-        *,
-        connection: "JetStreamContext",
-    ) -> None:
+    async def _create_subscription(self) -> None:
         """Create NATS subscription and start consume task."""
         if self.subscription:
             return
 
-        self.subscription = await connection.pull_subscribe(
+        self.subscription = await self._connection_state.js.pull_subscribe(
             subject=self.clear_subject,
             config=self.config,
             **self.extra_options,
@@ -771,7 +752,7 @@ class ConcurrentPullStreamSubscriber(
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -799,18 +780,14 @@ class ConcurrentPullStreamSubscriber(
         )
 
     @override
-    async def _create_subscription(
-        self,
-        *,
-        connection: "JetStreamContext",
-    ) -> None:
+    async def _create_subscription(self) -> None:
         """Create NATS subscription and start consume task."""
         if self.subscription:
             return
 
         self.start_consume_task()
 
-        self.subscription = await connection.pull_subscribe(
+        self.subscription = await self._connection_state.js.pull_subscribe(
             subject=self.clear_subject,
             config=self.config,
             **self.extra_options,
@@ -820,7 +797,7 @@ class ConcurrentPullStreamSubscriber(
 
 class BatchPullStreamSubscriber(
     TasksMixin,
-    _DefaultSubscriber["JetStreamContext", list["Msg"]],
+    _DefaultSubscriber[list["Msg"]],
 ):
     """Batch-message consumer class."""
 
@@ -840,7 +817,7 @@ class BatchPullStreamSubscriber(
         no_ack: bool,
         no_reply: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[list[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -877,13 +854,14 @@ class BatchPullStreamSubscriber(
         *,
         timeout: float = 5,
     ) -> Optional["NatsMessage"]:
-        assert self._connection, "Please, start() subscriber first"  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
         if not self._fetch_sub:
-            fetch_sub = self._fetch_sub = await self._connection.pull_subscribe(
+            fetch_sub = (
+                self._fetch_sub
+            ) = await self._connection_state.js.pull_subscribe(
                 subject=self.clear_subject,
                 config=self.config,
                 **self.extra_options,
@@ -903,23 +881,22 @@ class BatchPullStreamSubscriber(
             NatsMessage,
             await process_msg(
                 msg=raw_message,
-                middlewares=self._broker_middlewares,
+                middlewares=(
+                    m(raw_message, context=self._state.depends_params.context)
+                    for m in self._broker_middlewares
+                ),
                 parser=self._parser,
                 decoder=self._decoder,
             ),
         )
 
     @override
-    async def _create_subscription(
-        self,
-        *,
-        connection: "JetStreamContext",
-    ) -> None:
+    async def _create_subscription(self) -> None:
         """Create NATS subscription and start consume task."""
         if self.subscription:
             return
 
-        self.subscription = await connection.pull_subscribe(
+        self.subscription = await self._connection_state.js.pull_subscribe(
             subject=self.clear_subject,
             config=self.config,
             **self.extra_options,
@@ -943,7 +920,7 @@ class BatchPullStreamSubscriber(
 
 class KeyValueWatchSubscriber(
     TasksMixin,
-    LogicSubscriber["KVBucketDeclarer", "KeyValue.Entry"],
+    LogicSubscriber["KeyValue.Entry"],
 ):
     subscription: Optional["UnsubscribeAdapter[KeyValue.KeyWatcher]"]
     _fetch_sub: Optional[UnsubscribeAdapter["KeyValue.KeyWatcher"]]
@@ -954,7 +931,7 @@ class KeyValueWatchSubscriber(
         subject: str,
         config: "ConsumerConfig",
         kv_watch: "KvWatch",
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[KeyValue.Entry]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -987,13 +964,12 @@ class KeyValueWatchSubscriber(
         *,
         timeout: float = 5,
     ) -> Optional["NatsKvMessage"]:
-        assert self._connection, "Please, start() subscriber first"  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
         if not self._fetch_sub:
-            bucket = await self._connection.create_key_value(
+            bucket = await self._connection_state.kv_declarer.create_key_value(
                 bucket=self.kv_watch.name,
                 declare=self.kv_watch.declare,
             )
@@ -1014,28 +990,28 @@ class KeyValueWatchSubscriber(
         sleep_interval = timeout / 10
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
-                raw_message := await fetch_sub.obj.updates(timeout)  # type: ignore[no-untyped-call]
+                # type: ignore[no-untyped-call]
+                raw_message := await fetch_sub.obj.updates(timeout)
             ) is None:
                 await anyio.sleep(sleep_interval)
 
         msg: NatsKvMessage = await process_msg(
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
         return msg
 
     @override
-    async def _create_subscription(
-        self,
-        *,
-        connection: "KVBucketDeclarer",
-    ) -> None:
+    async def _create_subscription(self) -> None:
         if self.subscription:
             return
 
-        bucket = await connection.create_key_value(
+        bucket = await self._connection_state.kv_declarer.create_key_value(
             bucket=self.kv_watch.name,
             declare=self.kv_watch.declare,
         )
@@ -1050,9 +1026,9 @@ class KeyValueWatchSubscriber(
             ),
         )
 
-        self.add_task(self._consume_watch())
+        self.add_task(self.__consume_watch())
 
-    async def _consume_watch(self) -> None:
+    async def __consume_watch(self) -> None:
         assert self.subscription, "You should call `create_subscription` at first."  # nosec B101
 
         key_watcher = self.subscription.obj
@@ -1061,7 +1037,8 @@ class KeyValueWatchSubscriber(
             with suppress(ConnectionClosedError, TimeoutError):
                 message = cast(
                     Optional["KeyValue.Entry"],
-                    await key_watcher.updates(self.kv_watch.timeout),  # type: ignore[no-untyped-call]
+                    # type: ignore[no-untyped-call]
+                    await key_watcher.updates(self.kv_watch.timeout),
                 )
 
                 if message:
@@ -1097,7 +1074,7 @@ OBJECT_STORAGE_CONTEXT_KEY = "__object_storage"
 
 class ObjStoreWatchSubscriber(
     TasksMixin,
-    LogicSubscriber["OSBucketDeclarer", ObjectInfo],
+    LogicSubscriber[ObjectInfo],
 ):
     subscription: Optional["UnsubscribeAdapter[ObjectStore.ObjectWatcher]"]
     _fetch_sub: Optional[UnsubscribeAdapter["ObjectStore.ObjectWatcher"]]
@@ -1108,7 +1085,7 @@ class ObjStoreWatchSubscriber(
         subject: str,
         config: "ConsumerConfig",
         obj_watch: "ObjWatch",
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable[Dependant],
         broker_middlewares: Iterable["BrokerMiddleware[list[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -1143,13 +1120,12 @@ class ObjStoreWatchSubscriber(
         *,
         timeout: float = 5,
     ) -> Optional["NatsObjMessage"]:
-        assert self._connection, "Please, start() subscriber first"  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
         if not self._fetch_sub:
-            self.bucket = await self._connection.create_object_store(
+            self.bucket = await self._connection_state.os_declarer.create_object_store(
                 bucket=self.subject,
                 declare=self.obj_watch.declare,
             )
@@ -1169,35 +1145,35 @@ class ObjStoreWatchSubscriber(
         sleep_interval = timeout / 10
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
-                raw_message := await fetch_sub.obj.updates(timeout)  # type: ignore[no-untyped-call]
+                # type: ignore[no-untyped-call]
+                raw_message := await fetch_sub.obj.updates(timeout)
             ) is None:
                 await anyio.sleep(sleep_interval)
 
         msg: NatsObjMessage = await process_msg(
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
         return msg
 
     @override
-    async def _create_subscription(
-        self,
-        *,
-        connection: "OSBucketDeclarer",
-    ) -> None:
+    async def _create_subscription(self) -> None:
         if self.subscription:
             return
 
-        self.bucket = await connection.create_object_store(
+        self.bucket = await self._connection_state.os_declarer.create_object_store(
             bucket=self.subject,
             declare=self.obj_watch.declare,
         )
 
-        self.add_task(self._consume_watch())
+        self.add_task(self.__consume_watch())
 
-    async def _consume_watch(self) -> None:
+    async def __consume_watch(self) -> None:
         assert self.bucket, "You should call `create_subscription` at first."  # nosec B101
 
         # Should be created inside task to avoid nats-py lock
@@ -1213,11 +1189,14 @@ class ObjStoreWatchSubscriber(
             with suppress(TimeoutError):
                 message = cast(
                     Optional["ObjectInfo"],
-                    await obj_watch.updates(self.obj_watch.timeout),  # type: ignore[no-untyped-call]
+                    # type: ignore[no-untyped-call]
+                    await obj_watch.updates(self.obj_watch.timeout),
                 )
 
                 if message:
-                    with context.scope(OBJECT_STORAGE_CONTEXT_KEY, self.bucket):
+                    with self._state.depends_params.context.scope(
+                        OBJECT_STORAGE_CONTEXT_KEY, self.bucket
+                    ):
                         await self.consume(message)
 
     def _make_response_publisher(

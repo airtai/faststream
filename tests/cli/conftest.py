@@ -13,12 +13,7 @@ def broker():
 
 @pytest.fixture()
 def app_without_logger(broker):
-    return FastStream(broker, None)
-
-
-@pytest.fixture()
-def app_without_broker():
-    return FastStream()
+    return FastStream(broker, logger=None)
 
 
 @pytest.fixture()

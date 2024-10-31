@@ -1,14 +1,16 @@
-from typing import Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from faststream._internal.constants import EMPTY
 
-from .repository import context
+if TYPE_CHECKING:
+    from .repository import ContextRepo
 
 
 def resolve_context_by_name(
     name: str,
     default: Any,
     initial: Optional[Callable[..., Any]],
+    context: "ContextRepo",
 ) -> Any:
     value: Any = EMPTY
 

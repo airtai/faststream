@@ -15,6 +15,7 @@ import anyio
 
 from faststream._internal._compat import HAS_TYPER, ExceptionGroup
 from faststream._internal.application import Application
+from faststream._internal.constants import EMPTY
 from faststream._internal.log import logger
 from faststream.asgi.response import AsgiResponse
 from faststream.asgi.websocket import WebSocketClose
@@ -24,6 +25,8 @@ if TYPE_CHECKING:
     from types import FrameType
 
     from anyio.abc import TaskStatus
+    from fast_depends import Provider
+    from fast_depends.library.serializer import SerializerProto
 
     from faststream._internal.basic_types import (
         AnyCallable,
@@ -75,11 +78,13 @@ class AsgiFastStream(Application):
 
     def __init__(
         self,
-        broker: Optional["BrokerUsecase[Any, Any]"] = None,
+        broker: "BrokerUsecase[Any, Any]",
         /,
         asgi_routes: Sequence[tuple[str, "ASGIApp"]] = (),
         # regular broker args
         logger: Optional["LoggerProto"] = logger,
+        provider: Optional["Provider"] = None,
+        serializer: Optional["SerializerProto"] = EMPTY,
         lifespan: Optional["Lifespan"] = None,
         # hooks
         on_startup: Sequence["AnyCallable"] = (),
@@ -88,8 +93,10 @@ class AsgiFastStream(Application):
         after_shutdown: Sequence["AnyCallable"] = (),
     ) -> None:
         super().__init__(
-            broker=broker,
+            broker,
             logger=logger,
+            provider=provider,
+            serializer=serializer,
             lifespan=lifespan,
             on_startup=on_startup,
             after_startup=after_startup,

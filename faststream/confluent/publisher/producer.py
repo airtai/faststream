@@ -26,7 +26,7 @@ class AsyncConfluentFastProducer(ProducerProto):
         self._producer = producer
 
         # NOTE: register default parser to be compatible with request
-        default = AsyncConfluentParser
+        default = AsyncConfluentParser()
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 

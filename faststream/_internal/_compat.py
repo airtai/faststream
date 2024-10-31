@@ -13,13 +13,12 @@ from typing import (
     Union,
 )
 
-from fast_depends._compat import (  # type: ignore[attr-defined]
-    PYDANTIC_V2,
-    PYDANTIC_VERSION,
-)
 from pydantic import BaseModel
+from pydantic.version import VERSION as PYDANTIC_VERSION
 
 from faststream._internal.basic_types import AnyDict
+
+PYDANTIC_V2 = PYDANTIC_VERSION.startswith("2.")
 
 IS_WINDOWS = (
     sys.platform == "win32" or sys.platform == "cygwin" or sys.platform == "msys"

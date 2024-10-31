@@ -8,7 +8,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, Header
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
-from faststream import Response, context
+from faststream import Response
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.broker.router import BrokerRouter
 from faststream._internal.fastapi.context import Context
@@ -79,6 +79,10 @@ class FastAPITestcase(BaseTestcaseConfig):
 
     async def test_context(self, mock: Mock, queue: str, event: asyncio.Event) -> None:
         router = self.router_class()
+        context = router.context
+        from loguru import logger
+
+        logger.debug(context)
 
         context_key = "message.headers"
 
@@ -86,14 +90,19 @@ class FastAPITestcase(BaseTestcaseConfig):
 
         @router.subscriber(*args, **kwargs)
         async def hello(msg=Context(context_key)):
-            event.set()
-            return mock(msg == context.resolve(context_key))
+            try:
+                mock(msg == context.resolve(context_key) and msg["1"] == "1")
+            finally:
+                event.set()
 
+        router._setup()
         async with router.broker:
             await router.broker.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(router.broker.publish("", queue)),
+                    asyncio.create_task(
+                        router.broker.publish("", queue, headers={"1": "1"})
+                    ),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -104,6 +113,7 @@ class FastAPITestcase(BaseTestcaseConfig):
 
     async def test_initial_context(self, queue: str, event: asyncio.Event) -> None:
         router = self.router_class()
+        context = router.context
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -113,6 +123,7 @@ class FastAPITestcase(BaseTestcaseConfig):
             if len(data) == 2:
                 event.set()
 
+        router._setup()
         async with router.broker:
             await router.broker.start()
             await asyncio.wait(

@@ -15,7 +15,7 @@ from faststream._internal.types import (
 from .abc_broker import ABCBroker
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
 
@@ -64,7 +64,7 @@ class BrokerRouter(ABCBroker[MsgType]):
         handlers: Iterable[SubscriberRoute],
         # base options
         prefix: str,
-        dependencies: Iterable["Depends"],
+        dependencies: Iterable["Dependant"],
         middlewares: Iterable["BrokerMiddleware[MsgType]"],
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],

@@ -9,6 +9,7 @@ from faststream._internal.setup.logger import (
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.context import ContextRepo
 
 
 class NatsParamsStorage(DefaultLoggerStorage):
@@ -42,7 +43,7 @@ class NatsParamsStorage(DefaultLoggerStorage):
             ),
         )
 
-    def get_logger(self) -> Optional["LoggerProto"]:
+    def get_logger(self, *, context: "ContextRepo") -> Optional["LoggerProto"]:
         message_id_ln = 10
 
         # TODO: generate unique logger names to not share between brokers
@@ -67,6 +68,7 @@ class NatsParamsStorage(DefaultLoggerStorage):
                 f"%(message_id)-{message_id_ln}s - ",
                 "%(message)s",
             )),
+            context=context,
         )
 
 
