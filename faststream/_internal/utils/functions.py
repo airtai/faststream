@@ -12,7 +12,11 @@ from typing import (
 
 import anyio
 from fast_depends.core import CallModel
-from fast_depends.utils import run_async as call_or_await
+from fast_depends.utils import (
+    is_coroutine_callable,
+    run_async as call_or_await,
+    run_in_threadpool,
+)
 from typing_extensions import ParamSpec
 
 from faststream._internal.basic_types import F_Return, F_Spec
@@ -48,11 +52,13 @@ def to_async(
     ],
 ) -> Callable[F_Spec, Awaitable[F_Return]]:
     """Converts a synchronous function to an asynchronous function."""
+    if is_coroutine_callable(func):
+        return func
 
     @wraps(func)
     async def to_async_wrapper(*args: F_Spec.args, **kwargs: F_Spec.kwargs) -> F_Return:
         """Wraps a function to make it asynchronous."""
-        return await call_or_await(func, *args, **kwargs)
+        return await run_in_threadpool(func, *args, **kwargs)
 
     return to_async_wrapper
 

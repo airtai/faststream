@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from fastapi.types import IncEx
 
     from faststream._internal.basic_types import AnyDict
-    from faststream._internal.setup import SetupState
+    from faststream._internal.setup import FastDependsData
     from faststream.message import StreamMessage as NativeMessage
 
 
@@ -76,7 +76,7 @@ def wrap_callable_to_fastapi_compatible(
     response_model_exclude_unset: bool,
     response_model_exclude_defaults: bool,
     response_model_exclude_none: bool,
-    state: "SetupState",
+    state: "FastDependsData",
 ) -> Callable[["NativeMessage[Any]"], Awaitable[Any]]:
     __magic_attr = "__faststream_consumer__"
 
@@ -120,7 +120,7 @@ def build_faststream_to_fastapi_parser(
     response_model_exclude_unset: bool,
     response_model_exclude_defaults: bool,
     response_model_exclude_none: bool,
-    state: "SetupState",
+    state: "FastDependsData",
 ) -> Callable[["NativeMessage[Any]"], Awaitable[Any]]:
     """Creates a session for handling requests."""
     assert dependent.call  # nosec B101
@@ -162,14 +162,14 @@ def build_faststream_to_fastapi_parser(
 
             stream_message = StreamMessage(
                 body=fastapi_body,
-                headers={"context__": state.depends_params.context, **message.headers},
+                headers={"context__": state.context, **message.headers},
                 path={**path, **message.path},
             )
 
         else:
             stream_message = StreamMessage(
                 body={},
-                headers={"context__": state.depends_params.context},
+                headers={"context__": state.context},
                 path={},
             )
 

@@ -171,17 +171,14 @@ class BrokerUsecase(
                 *self._middlewares,
             )
 
-        self.provider = Provider()
-        self.context = ContextRepo()
-
         self._state = EmptyState(
             depends_params=FastDependsData(
                 use_fastdepends=apply_types,
                 get_dependent=_get_dependant,
                 call_decorators=_call_decorators,
                 serializer=PydanticSerializer() if serializer is EMPTY else serializer,
-                provider=self.provider,
-                context=self.context,
+                provider=Provider(),
+                context=ContextRepo(),
             ),
             logger_state=logger_state,
         )
@@ -193,6 +190,14 @@ class BrokerUsecase(
         self.description = description
         self.tags = tags
         self.security = security
+
+    @property
+    def context(self) -> ContextRepo:
+        return self._state.depends_params.context
+
+    @property
+    def provider(self) -> Provider:
+        return self._state.depends_params.provider
 
     async def __aenter__(self) -> "Self":
         await self.connect()
@@ -231,31 +236,27 @@ class BrokerUsecase(
         """Connect to a resource."""
         raise NotImplementedError
 
-    def _setup(self, state: Optional[BaseState] = None) -> None:
+    def _setup(self, di_state: Optional[FastDependsData] = None) -> None:
         """Prepare all Broker entities to startup."""
         if not self._state:
-            # Fallback to default state if there no
-            # parent container like FastStream object
-            default_state = self._state.copy_to_state(SetupState)
-
-            if state is not None:
-                new_state = state.copy_with_params(
-                    logger_state=default_state.logger_state,
+            if di_state is not None:
+                new_state = SetupState(
+                    logger_state=self._state.logger_state,
+                    depends_params=FastDependsData(
+                        use_fastdepends=self._state.depends_params.use_fastdepends,
+                        call_decorators=self._state.depends_params.call_decorators,
+                        get_dependent=self._state.depends_params.get_dependent,
+                        # from parent
+                        serializer=di_state.serializer,
+                        provider=di_state.provider,
+                        context=di_state.context,
+                    ),
                 )
-                self.provider = state.depends_params.provider
-                self.context = state.depends_params.context
 
-                new_state._depends_params = FastDependsData(
-                    use_fastdepends=self._state.depends_params.use_fastdepends,
-                    call_decorators=self._state.depends_params.call_decorators,
-                    get_dependent=self._state.depends_params.get_dependent,
-                    # from parent
-                    serializer=state.depends_params.serializer,
-                    provider=state.depends_params.provider,
-                    context=state.depends_params.context,
-                )
             else:
-                new_state = default_state
+                # Fallback to default state if there no
+                # parent container like FastStream object
+                new_state = self._state.copy_to_state(SetupState)
 
             self._state = new_state
 

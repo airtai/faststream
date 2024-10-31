@@ -145,7 +145,6 @@ class StreamRouter(
         self._init_setupable_(
             broker,
             provider=None,
-            serializer=None,
         )
 
         self.setup_state = setup_state

@@ -211,16 +211,10 @@ async def test_running(async_mock: AsyncMock, app: FastStream) -> None:
 
     with (
         patch.object(app.broker, "start", async_mock.broker_run),
-        patch.object(
-            app.broker,
-            "connect",
-            async_mock.broker_connect,
-        ),
         patch.object(app.broker, "close", async_mock.broker_stopped),
     ):
         await app.run()
 
-    async_mock.broker_connect.assert_called_once()
     async_mock.broker_run.assert_called_once()
     async_mock.broker_stopped.assert_called_once()
 
@@ -255,7 +249,6 @@ async def test_running_lifespan_contextmanager(
     await app.run(run_extra_options={"env": "test"})
 
     async_mock.start.assert_called_once()
-    async_mock.connect.assert_called_once()
     async_mock.close.assert_called_once()
 
     mock.on.assert_called_once_with("test")
@@ -329,11 +322,6 @@ async def test_lifespan_contextmanager(async_mock: AsyncMock, app: FastStream) -
 
     with (
         patch.object(app.broker, "start", async_mock.broker_run),
-        patch.object(
-            app.broker,
-            "connect",
-            async_mock.broker_connect,
-        ),
         patch.object(app.broker, "close", async_mock.broker_stopped),
     ):
         async with TestApp(app, {"env": "test"}):
@@ -342,7 +330,6 @@ async def test_lifespan_contextmanager(async_mock: AsyncMock, app: FastStream) -
     async_mock.on.assert_awaited_once_with("test")
     async_mock.off.assert_awaited_once()
     async_mock.broker_run.assert_called_once()
-    async_mock.broker_connect.assert_called_once()
     async_mock.broker_stopped.assert_called_once()
 
 
@@ -362,7 +349,6 @@ def test_sync_lifespan_contextmanager(async_mock: AsyncMock, app: FastStream) ->
             "close",
             async_mock.broker_stopped,
         ),
-        patch.object(app.broker, "connect", async_mock.broker_connect),
         TestApp(
             app,
             {"env": "test"},
@@ -373,7 +359,6 @@ def test_sync_lifespan_contextmanager(async_mock: AsyncMock, app: FastStream) ->
     async_mock.on.assert_awaited_once_with("test")
     async_mock.off.assert_awaited_once()
     async_mock.broker_run.assert_called_once()
-    async_mock.broker_connect.assert_called_once()
     async_mock.broker_stopped.assert_called_once()
 
 
@@ -382,11 +367,6 @@ def test_sync_lifespan_contextmanager(async_mock: AsyncMock, app: FastStream) ->
 async def test_stop_with_sigint(async_mock, app: FastStream) -> None:
     with (
         patch.object(app.broker, "start", async_mock.broker_run_sigint),
-        patch.object(
-            app.broker,
-            "connect",
-            async_mock.broker_connect,
-        ),
         patch.object(app.broker, "close", async_mock.broker_stopped_sigint),
     ):
         async with anyio.create_task_group() as tg:
@@ -394,7 +374,6 @@ async def test_stop_with_sigint(async_mock, app: FastStream) -> None:
             tg.start_soon(_kill, signal.SIGINT)
 
     async_mock.broker_run_sigint.assert_called_once()
-    async_mock.broker_connect.assert_called_once()
     async_mock.broker_stopped_sigint.assert_called_once()
 
 
@@ -403,11 +382,6 @@ async def test_stop_with_sigint(async_mock, app: FastStream) -> None:
 async def test_stop_with_sigterm(async_mock, app: FastStream) -> None:
     with (
         patch.object(app.broker, "start", async_mock.broker_run_sigterm),
-        patch.object(
-            app.broker,
-            "connect",
-            async_mock.broker_connect,
-        ),
         patch.object(app.broker, "close", async_mock.broker_stopped_sigterm),
     ):
         async with anyio.create_task_group() as tg:
@@ -415,7 +389,6 @@ async def test_stop_with_sigterm(async_mock, app: FastStream) -> None:
             tg.start_soon(_kill, signal.SIGTERM)
 
     async_mock.broker_run_sigterm.assert_called_once()
-    async_mock.broker_connect.assert_called_once()
     async_mock.broker_stopped_sigterm.assert_called_once()
 
 
@@ -435,11 +408,6 @@ async def test_run_asgi(async_mock: AsyncMock, app: FastStream) -> None:
 
     with (
         patch.object(app.broker, "start", async_mock.broker_run),
-        patch.object(
-            app.broker,
-            "connect",
-            async_mock.broker_connect,
-        ),
         patch.object(app.broker, "close", async_mock.broker_stopped),
     ):
         async with anyio.create_task_group() as tg:
@@ -447,7 +415,6 @@ async def test_run_asgi(async_mock: AsyncMock, app: FastStream) -> None:
             tg.start_soon(_kill, signal.SIGINT)
 
     async_mock.broker_run.assert_called_once()
-    async_mock.broker_connect.assert_called_once()
     async_mock.broker_stopped.assert_called_once()
 
 

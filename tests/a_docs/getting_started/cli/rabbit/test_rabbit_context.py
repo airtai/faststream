@@ -1,6 +1,6 @@
 import pytest
 
-from faststream import TestApp, context
+from faststream import TestApp
 from faststream.rabbit import TestRabbitBroker
 from tests.marks import pydantic_v2
 from tests.mocks import mock_pydantic_settings_env
@@ -16,6 +16,6 @@ async def test() -> None:
 
         async with TestRabbitBroker(broker), TestApp(app, {"env": ".env"}):
             assert (
-                context.get("settings").host
+                app.context.get("settings").host
                 == "amqp://guest:guest@localhost:5673/"  # pragma: allowlist secret
             )

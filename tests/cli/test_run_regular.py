@@ -9,7 +9,7 @@ from faststream._internal.cli.main import cli as faststream_app
 
 
 def test_run(runner: CliRunner) -> None:
-    app = FastStream(None)
+    app = FastStream(MagicMock())
     app.run = AsyncMock()
 
     with patch(
@@ -35,7 +35,7 @@ def test_run(runner: CliRunner) -> None:
 
 
 def test_run_factory(runner: CliRunner) -> None:
-    app = FastStream(None)
+    app = FastStream(MagicMock())
     app.run = AsyncMock()
     app_factory = MagicMock(return_value=app)
 
@@ -58,7 +58,7 @@ def test_run_factory(runner: CliRunner) -> None:
 
 
 def test_run_workers(runner: CliRunner) -> None:
-    app = FastStream(None)
+    app = FastStream(MagicMock())
     app.run = AsyncMock()
 
     with (
@@ -85,7 +85,7 @@ def test_run_workers(runner: CliRunner) -> None:
 
 
 def test_run_factory_with_workers(runner: CliRunner) -> None:
-    app = FastStream(None)
+    app = FastStream(MagicMock())
     app.run = AsyncMock()
     app_factory = MagicMock(return_value=app)
 
@@ -113,7 +113,7 @@ def test_run_factory_with_workers(runner: CliRunner) -> None:
 
 
 def test_run_reloader(runner: CliRunner) -> None:
-    app = FastStream(None)
+    app = FastStream(MagicMock())
     app.run = AsyncMock()
 
     with (
@@ -150,7 +150,7 @@ def test_run_reloader(runner: CliRunner) -> None:
 
 
 def test_run_reloader_with_factory(runner: CliRunner) -> None:
-    app = FastStream(None)
+    app = FastStream(MagicMock())
     app.run = AsyncMock()
     app_factory = MagicMock(return_value=app)
 

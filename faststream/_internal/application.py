@@ -14,8 +14,9 @@ from fast_depends import Provider
 from typing_extensions import ParamSpec
 
 from faststream._internal.constants import EMPTY
+from faststream._internal.context import ContextRepo
 from faststream._internal.log import logger
-from faststream._internal.setup.state import EmptyState, FastDependsData
+from faststream._internal.setup.state import FastDependsData
 from faststream._internal.utils import apply_types
 from faststream._internal.utils.functions import (
     drop_response_type,
@@ -89,36 +90,31 @@ class StartAbleApplication:
         provider: Optional["Provider"] = None,
         serializer: Optional["SerializerProto"] = EMPTY,
     ) -> None:
-        from faststream._internal.context import context  # TODO: remove global
-
-        self.context = context
+        self.context = ContextRepo()
+        self.provider = provider or Provider()
 
         if serializer is EMPTY:
             from fast_depends.pydantic.serializer import PydanticSerializer
 
             serializer = PydanticSerializer()
 
-        self.provider = provider or Provider()
-
-        self._state = EmptyState(
-            depends_params=FastDependsData(
-                use_fastdepends=True,
-                get_dependent=None,
-                call_decorators=(),
-                serializer=serializer,
-                provider=self.provider,
-                context=self.context,
-            )
+        self._state = FastDependsData(
+            use_fastdepends=True,
+            get_dependent=None,
+            call_decorators=(),
+            serializer=serializer,
+            provider=self.provider,
+            context=self.context,
         )
 
         self.broker = broker
 
+        self._setup()
+
     def _setup(self) -> None:
-        self.broker._setup(self._state)
+        self.broker._setup(di_state=self._state)
 
     async def _start_broker(self) -> None:
-        await self.broker.connect()
-        self._setup()
         await self.broker.start()
 
 
