@@ -4,6 +4,7 @@ from faststream.message import (
     StreamMessage,
     decode_message,
 )
+from faststream.middlewares import AckPolicy
 from faststream.nats.message import (
     NatsBatchMessage,
     NatsKvMessage,
@@ -54,9 +55,9 @@ class NatsBaseParser:
 class NatsParser(NatsBaseParser):
     """A class to parse NATS core messages."""
 
-    def __init__(self, *, pattern: str, no_ack: bool) -> None:
+    def __init__(self, *, pattern: str, ack_policy: AckPolicy) -> None:
         super().__init__(pattern=pattern)
-        self.no_ack = no_ack
+        self.ack_policy = ack_policy
 
     async def parse_message(
         self,
@@ -69,7 +70,7 @@ class NatsParser(NatsBaseParser):
 
         headers = message.header or {}
 
-        if not self.no_ack:
+        if self.ack_policy is not AckPolicy.DO_NOTHING:
             message._ackd = True  # prevent message from acking
 
         return NatsMessage(

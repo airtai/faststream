@@ -36,6 +36,7 @@ if TYPE_CHECKING:
     from faststream._internal.publisher.proto import BasePublisherProto, ProducerProto
     from faststream._internal.setup import SetupState
     from faststream.message import StreamMessage
+    from faststream.middlewares import AckPolicy
 
 
 class LogicSubscriber(SubscriberUsecase[MsgType]):
@@ -64,9 +65,8 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
@@ -78,9 +78,8 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             default_parser=default_parser,
             default_decoder=default_decoder,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
             # AsyncAPI args
@@ -292,9 +291,8 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         partitions: Iterable["TopicPartition"],
         is_manual: bool,
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
         # AsyncAPI args
@@ -328,9 +326,8 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             default_parser=self.parser.parse_message,
             default_decoder=self.parser.decode_message,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
             # AsyncAPI args
@@ -373,9 +370,8 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
         partitions: Iterable["TopicPartition"],
         is_manual: bool,
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable[
             "BrokerMiddleware[Sequence[tuple[ConsumerRecord, ...]]]"
@@ -414,9 +410,8 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
             default_parser=self.parser.parse_message,
             default_decoder=self.parser.decode_message,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
             # AsyncAPI args

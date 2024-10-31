@@ -4,7 +4,7 @@ from faststream._internal.testing.app import TestApp
 from faststream._internal.utils import apply_types
 from faststream.annotations import ContextRepo, Logger
 from faststream.app import FastStream
-from faststream.middlewares import BaseMiddleware, ExceptionMiddleware
+from faststream.middlewares import BaseMiddleware, ExceptionMiddleware, AckPolicy
 from faststream.params import (
     Context,
     Depends,
@@ -16,12 +16,13 @@ from faststream.response import Response
 
 __all__ = (
     # middlewares
+    "AckPolicy",
     "BaseMiddleware",
+    "ExceptionMiddleware",
     # params
     "Context",
     "ContextRepo",
     "Depends",
-    "ExceptionMiddleware",
     # app
     "FastStream",
     "Header",

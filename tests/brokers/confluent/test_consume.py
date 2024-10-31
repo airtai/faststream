@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
+from faststream import AckPolicy
 from faststream.confluent import KafkaBroker
 from faststream.confluent.annotations import KafkaMessage
 from faststream.confluent.client import AsyncConfluentConsumer
@@ -251,7 +252,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     ) -> None:
         consume_broker = self.get_broker(apply_types=True)
 
-        args, kwargs = self.get_subscriber_params(queue, group_id="test", no_ack=True)
+        args, kwargs = self.get_subscriber_params(
+            queue, group_id="test", ack_policy=AckPolicy.DO_NOTHING
+        )
 
         @consume_broker.subscriber(*args, **kwargs)
         async def handler(msg: KafkaMessage) -> None:

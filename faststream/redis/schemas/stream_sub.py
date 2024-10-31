@@ -3,6 +3,7 @@ from typing import Optional
 
 from faststream._internal.proto import NameRequired
 from faststream.exceptions import SetupError
+from faststream.middlewares import AckPolicy
 
 
 class StreamSub(NameRequired):
@@ -27,11 +28,13 @@ class StreamSub(NameRequired):
         group: Optional[str] = None,
         consumer: Optional[str] = None,
         batch: bool = False,
-        no_ack: bool = False,
+        ack_policy: AckPolicy = AckPolicy.REJECT_ON_ERROR,
         last_id: Optional[str] = None,
         maxlen: Optional[int] = None,
         max_records: Optional[int] = None,
     ) -> None:
+        no_ack = True if ack_policy is AckPolicy.DO_NOTHING else False
+
         if (group and not consumer) or (not group and consumer):
             msg = "You should specify `group` and `consumer` both"
             raise SetupError(msg)

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
+from faststream.middlewares import AckPolicy
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.factory import create_publisher
 from faststream.redis.publisher.specified import SpecificationPublisher
@@ -65,14 +66,10 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             Iterable["SubscriberMiddleware[UnifyRedisMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -104,9 +101,8 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
                     list=list,
                     stream=stream,
                     # subscriber args
-                    no_ack=no_ack,
+                    ack_policy=ack_policy,
                     no_reply=no_reply,
-                    retry=retry,
                     broker_middlewares=self._middlewares,
                     broker_dependencies=self._dependencies,
                     # AsyncAPI

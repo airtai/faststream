@@ -28,6 +28,7 @@ from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
 from faststream._internal.fastapi.router import StreamRouter
 from faststream.kafka.broker.broker import KafkaBroker as KB
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
@@ -944,14 +945,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1434,14 +1431,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1924,14 +1917,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -2417,14 +2406,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -2607,8 +2592,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             parser=parser,
             decoder=decoder,
             middlewares=middlewares,
-            retry=retry,
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
             title=title,
             description=description,

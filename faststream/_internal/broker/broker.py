@@ -16,7 +16,6 @@ from fast_depends import Provider
 from fast_depends.pydantic import PydanticSerializer
 from typing_extensions import Doc, Self
 
-from faststream._internal._compat import is_test_env
 from faststream._internal.constants import EMPTY
 from faststream._internal.context.repository import ContextRepo
 from faststream._internal.setup import (
@@ -164,12 +163,10 @@ class BrokerUsecase(
         self._connection = None
         self._producer = None
 
-        # TODO: remove useless middleware filter
-        if not is_test_env():
-            self._middlewares = (
-                CriticalLogMiddleware(logger_state),
-                *self._middlewares,
-            )
+        self._middlewares = (
+            CriticalLogMiddleware(logger_state),
+            *self._middlewares,
+        )
 
         self._state = EmptyState(
             depends_params=FastDependsData(
@@ -266,7 +263,9 @@ class BrokerUsecase(
             for h in self._subscribers:
                 log_context = h.get_log_context(None)
                 log_context.pop("message_id", None)
-                self._state.logger_state.params_storage.setup_log_contest(log_context)
+                self._state.logger_state.params_storage.setup_log_contest(
+                    log_context
+                )
 
             self._state._setup()
 
