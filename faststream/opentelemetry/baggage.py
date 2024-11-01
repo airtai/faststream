@@ -78,6 +78,6 @@ class Baggage:
         """Create a Baggage instance from headers."""
         payload = baggage.get_all(_BAGGAGE_PROPAGATOR.extract(headers))
         return cls(cast("AnyDict", payload))
-        
+
     def __repr__(self) -> str:
         return self._baggage.__repr__()
