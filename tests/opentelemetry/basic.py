@@ -535,3 +535,39 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
         assert event.is_set()
         mock.assert_called_once_with(msg)
+
+    async def test_get_baggage_from_headers(
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+    ):
+        mid = self.telemetry_middleware_class()
+        broker = self.broker_class(middlewares=(mid,))
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        expected_baggage = {"foo": "bar", "bar": "baz"}
+        baggage_instance = Baggage(expected_baggage)
+        headers = baggage_instance.to_headers()
+
+        @broker.subscriber(*args, **kwargs)
+        async def handler(m):
+            extracted_baggage = Baggage.from_headers(m.headers).get_all()
+            assert extracted_baggage == expected_baggage
+            mock(m)
+            event.set()
+
+        broker = self.patch_broker(broker)
+        msg = "start"
+
+        async with broker:
+            await broker.start()
+            tasks = (
+                asyncio.create_task(broker.publish(msg, queue, headers=headers)),
+                asyncio.create_task(event.wait()),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
+
+        assert event.is_set()
+        mock.assert_called_once_with(msg)
