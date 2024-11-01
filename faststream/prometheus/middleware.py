@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from faststream import BaseMiddleware
 from faststream._internal.constants import EMPTY
+from faststream.message import SourceType
 from faststream.prometheus.consts import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
@@ -12,6 +13,7 @@ from faststream.prometheus.container import MetricsContainer
 from faststream.prometheus.manager import MetricsManager
 from faststream.prometheus.provider import MetricsSettingsProvider
 from faststream.prometheus.types import ProcessingStatus, PublishingStatus
+from faststream.response import PublishType
 
 if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
@@ -86,7 +88,7 @@ class _PrometheusMiddleware(BaseMiddleware):
         call_next: "AsyncFuncAny",
         msg: "StreamMessage[Any]",
     ) -> Any:
-        if self._settings_provider is None:
+        if self._settings_provider is None or msg._source_type is SourceType.Response:
             return await call_next(msg)
 
         messaging_system = self._settings_provider.messaging_system
@@ -163,7 +165,7 @@ class _PrometheusMiddleware(BaseMiddleware):
         call_next: "AsyncFunc",
         cmd: "PublishCommand",
     ) -> Any:
-        if self._settings_provider is None:
+        if self._settings_provider is None or cmd.publish_type is PublishType.Reply:
             return await call_next(cmd)
 
         destination_name = (

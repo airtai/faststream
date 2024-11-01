@@ -9,7 +9,7 @@ from faststream.nats import JStream, NatsBroker, PullSub
 from faststream.nats.prometheus.middleware import NatsPrometheusMiddleware
 from tests.brokers.nats.test_consume import TestConsume
 from tests.brokers.nats.test_publish import TestPublish
-from tests.prometheus.basic import LocalPrometheusTestcase
+from tests.prometheus.basic import LocalPrometheusTestcase, LocalRPCPrometheusTestcase
 
 
 @pytest.fixture()
@@ -18,7 +18,7 @@ def stream(queue):
 
 
 @pytest.mark.nats()
-class TestPrometheus(LocalPrometheusTestcase):
+class TestPrometheus(LocalPrometheusTestcase, LocalRPCPrometheusTestcase):
     def get_broker(self, apply_types=False, **kwargs):
         return NatsBroker(apply_types=apply_types, **kwargs)
 

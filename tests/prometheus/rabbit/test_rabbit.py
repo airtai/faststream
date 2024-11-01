@@ -5,7 +5,7 @@ from faststream.rabbit import RabbitBroker, RabbitExchange
 from faststream.rabbit.prometheus.middleware import RabbitPrometheusMiddleware
 from tests.brokers.rabbit.test_consume import TestConsume
 from tests.brokers.rabbit.test_publish import TestPublish
-from tests.prometheus.basic import LocalPrometheusTestcase
+from tests.prometheus.basic import LocalPrometheusTestcase, LocalRPCPrometheusTestcase
 
 
 @pytest.fixture()
@@ -14,7 +14,7 @@ def exchange(queue):
 
 
 @pytest.mark.rabbit()
-class TestPrometheus(LocalPrometheusTestcase):
+class TestPrometheus(LocalPrometheusTestcase, LocalRPCPrometheusTestcase):
     def get_broker(self, apply_types=False, **kwargs):
         return RabbitBroker(apply_types=apply_types, **kwargs)
 

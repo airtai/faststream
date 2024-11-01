@@ -202,3 +202,34 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                 status="success",
             ),
         ]
+
+
+class LocalRPCPrometheusTestcase:
+    @pytest.mark.asyncio()
+    async def test_rpc_request(
+        self,
+        queue: str,
+        event: asyncio.Event,
+    ) -> None:
+        middleware = self.get_middleware(registry=CollectorRegistry())
+        metrics_manager_mock = Mock()
+        middleware._metrics_manager = metrics_manager_mock
+
+        broker = self.get_broker(apply_types=True, middlewares=(middleware,))
+
+        @broker.subscriber(queue)
+        async def handle():
+            event.set()
+            return ""
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            await asyncio.wait_for(
+                br.request("", queue),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        metrics_manager_mock.add_received_message.assert_called_once()
+        metrics_manager_mock.add_published_message.assert_called_once()
