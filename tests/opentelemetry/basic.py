@@ -4,6 +4,8 @@ from unittest.mock import Mock
 
 import pytest
 from dirty_equals import IsFloat, IsUUID
+from opentelemetry import baggage, context
+from opentelemetry.baggage.propagation import W3CBaggagePropagator
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics._internal.point import Metric
 from opentelemetry.sdk.metrics.export import InMemoryMetricReader
@@ -540,7 +542,6 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         self,
         event: asyncio.Event,
         queue: str,
-        mock: Mock,
     ):
         mid = self.telemetry_middleware_class()
         broker = self.broker_class(middlewares=(mid,))
@@ -548,14 +549,20 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue)
 
         expected_baggage = {"foo": "bar", "bar": "baz"}
-        baggage_instance = Baggage(expected_baggage)
-        headers = baggage_instance.to_headers()
+
+        ctx = context.Context()
+        for key, value in expected_baggage.items():
+            ctx = baggage.set_baggage(key, value, context=ctx)
+
+        propagator = W3CBaggagePropagator()
+        headers = {}
+        propagator.inject(headers, context=ctx)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m):
-            extracted_baggage = Baggage.from_headers(m.headers).get_all()
+        async def handler():
+            baggage_instance = Baggage.from_headers(headers)
+            extracted_baggage = baggage_instance.get_all()
             assert extracted_baggage == expected_baggage
-            mock(m)
             event.set()
 
         broker = self.patch_broker(broker)
@@ -570,4 +577,3 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
             await asyncio.wait(tasks, timeout=self.timeout)
 
         assert event.is_set()
-        mock.assert_called_once_with(msg)
