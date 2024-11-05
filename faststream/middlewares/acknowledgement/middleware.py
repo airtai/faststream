@@ -1,24 +1,20 @@
 import logging
 from typing import TYPE_CHECKING, Any, Optional
 
-from faststream.middlewares.acknowledgement.conf import AckPolicy
-from faststream.middlewares.base import BaseMiddleware
-
-if TYPE_CHECKING:
-    from types import TracebackType
-
-    from faststream._internal.context.repository import ContextRepo
-
 from faststream.exceptions import (
     AckMessage,
     HandlerException,
     NackMessage,
     RejectMessage,
 )
+from faststream.middlewares.acknowledgement.conf import AckPolicy
+from faststream.middlewares.base import BaseMiddleware
 
 if TYPE_CHECKING:
     from types import TracebackType
 
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.context.repository import ContextRepo
     from faststream.message import StreamMessage
 
 
@@ -26,7 +22,7 @@ class BaseAcknowledgementMiddleware(BaseMiddleware):
     def __init__(
         self,
         ack_policy: AckPolicy,
-        extra_options: dict[str, Any],
+        extra_options: "AnyDict",
         msg: Optional[Any],
         context: "ContextRepo",
         message: Optional["StreamMessage[Any]"] = None,
@@ -98,7 +94,7 @@ class BaseAcknowledgementMiddleware(BaseMiddleware):
 
 
 class AcknowledgementMiddleware:
-    def __init__(self, ack_policy: AckPolicy, extra_options: dict[str, Any]) -> None:
+    def __init__(self, ack_policy: AckPolicy, extra_options: "AnyDict") -> None:
         self.ack_policy = ack_policy
         self.extra_options = extra_options
 
