@@ -74,11 +74,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -220,11 +216,7 @@ class ChannelSubscriber(LogicSubscriber):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -348,11 +340,7 @@ class _ListHandlerMixin(LogicSubscriber):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -457,11 +445,7 @@ class ListSubscriber(_ListHandlerMixin):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -508,11 +492,7 @@ class BatchListSubscriber(_ListHandlerMixin):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -564,11 +544,7 @@ class _StreamHandlerMixin(LogicSubscriber):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -757,11 +733,7 @@ class StreamSubscriber(_StreamHandlerMixin):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -828,11 +800,7 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],

@@ -38,11 +38,7 @@ def create_subscriber(
     # Subscriber args
     ack_policy: "AckPolicy",
     no_reply: bool = False,
-<<<<<<< HEAD
-    broker_dependencies: Iterable["Depends"] = (),
-=======
     broker_dependencies: Iterable["Dependant"] = (),
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
     broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"] = (),
     # AsyncAPI args
     title_: Optional[str] = None,

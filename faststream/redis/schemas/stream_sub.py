@@ -33,7 +33,7 @@ class StreamSub(NameRequired):
         maxlen: Optional[int] = None,
         max_records: Optional[int] = None,
     ) -> None:
-        no_ack = True if ack_policy is AckPolicy.DO_NOTHING else False
+        no_ack = ack_policy is AckPolicy.DO_NOTHING
 
         if (group and not consumer) or (not group and consumer):
             msg = "You should specify `group` and `consumer` both"

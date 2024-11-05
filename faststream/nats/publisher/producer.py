@@ -41,11 +41,6 @@ class NatsFastProducer(ProducerProto):
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
-<<<<<<< HEAD
-        self._connection = connection
-
-=======
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         default = NatsParser(pattern="", ack_policy=AckPolicy.REJECT_ON_ERROR)
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
@@ -117,11 +112,6 @@ class NatsJSFastProducer(ProducerProto):
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
-<<<<<<< HEAD
-        self._connection = connection
-
-=======
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         default = NatsParser(pattern="", ack_policy=AckPolicy.REJECT_ON_ERROR)
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)

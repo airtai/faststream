@@ -8,12 +8,10 @@ from typing import (
     Callable,
     Generic,
     Optional,
-    Union,
     cast,
 )
 
 import anyio
-from fast_depends.dependencies import Dependant
 from nats.errors import ConnectionClosedError, TimeoutError
 from nats.js.api import ConsumerConfig, ObjectInfo
 from typing_extensions import Doc, override
@@ -22,13 +20,8 @@ from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
-<<<<<<< HEAD
-from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.middlewares import AckPolicy
-=======
 from faststream.middlewares import AckPolicy
 from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import (
     BatchParser,
@@ -47,6 +40,7 @@ from faststream.nats.subscriber.adapters import (
 from .state import ConnectedSubscriberState, EmptySubscriberState, SubscriberState
 
 if TYPE_CHECKING:
+    from fast_depends.dependencies import Dependant
     from nats.aio.msg import Msg
     from nats.aio.subscription import Subscription
     from nats.js import JetStreamContext
@@ -90,11 +84,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType], Generic[MsgType]):
         default_decoder: "AsyncCallable",
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable[Depends],
-=======
-        broker_dependencies: Iterable[Dependant],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -245,11 +235,7 @@ class _DefaultSubscriber(LogicSubscriber[MsgType]):
         default_decoder: "AsyncCallable",
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable[Depends],
-=======
-        broker_dependencies: Iterable[Dependant],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -318,11 +304,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable[Depends],
-=======
-        broker_dependencies: Iterable[Dependant],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -430,11 +412,7 @@ class ConcurrentCoreSubscriber(
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable[Depends],
-=======
-        broker_dependencies: Iterable[Dependant],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -490,11 +468,7 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable[Depends],
-=======
-        broker_dependencies: Iterable[Dependant],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -624,11 +598,7 @@ class ConcurrentPushStreamSubscriber(
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable[Depends],
-=======
-        broker_dependencies: Iterable[Dependant],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -689,11 +659,7 @@ class PullStreamSubscriber(
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable[Depends],
-=======
-        broker_dependencies: Iterable[Dependant],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -771,11 +737,7 @@ class ConcurrentPullStreamSubscriber(
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable[Depends],
-=======
-        broker_dependencies: Iterable[Dependant],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -838,11 +800,7 @@ class BatchPullStreamSubscriber(
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable[Depends],
-=======
-        broker_dependencies: Iterable[Dependant],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[list[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -955,7 +913,7 @@ class KeyValueWatchSubscriber(
         subject: str,
         config: "ConsumerConfig",
         kv_watch: "KvWatch",
-        broker_dependencies: Iterable[Dependant],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[KeyValue.Entry]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -1108,7 +1066,7 @@ class ObjStoreWatchSubscriber(
         subject: str,
         config: "ConsumerConfig",
         obj_watch: "ObjWatch",
-        broker_dependencies: Iterable[Dependant],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[list[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],

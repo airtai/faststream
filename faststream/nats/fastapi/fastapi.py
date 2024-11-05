@@ -11,7 +11,6 @@ from typing import (
 )
 
 from fastapi.datastructures import Default
-from faststream.middlewares import AckPolicy
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
 from nats.aio.client import (
@@ -33,6 +32,7 @@ from typing_extensions import Doc, deprecated, override
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
 from faststream._internal.fastapi.router import StreamRouter
+from faststream.middlewares import AckPolicy
 from faststream.nats.broker import NatsBroker
 from faststream.nats.subscriber.specified import SpecificationSubscriber
 

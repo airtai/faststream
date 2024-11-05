@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
 from faststream.rabbit.subscriber.specified import SpecificationSubscriber
 
@@ -20,11 +20,7 @@ def create_subscriber(
     consume_args: Optional["AnyDict"],
     # Subscriber args
     no_reply: bool,
-<<<<<<< HEAD
-    broker_dependencies: Iterable["Depends"],
-=======
     broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
     broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
     ack_policy: "AckPolicy",
     # AsyncAPI args

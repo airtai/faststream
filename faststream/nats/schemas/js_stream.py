@@ -189,7 +189,7 @@ class JStream(NameRequired):
         super().__init__(name)
 
         subjects = subjects or []
-        no_ack = True if ack_policy is AckPolicy.DO_NOTHING else False
+        no_ack = ack_policy is AckPolicy.DO_NOTHING
 
         self.subjects = subjects
         self.declare = declare

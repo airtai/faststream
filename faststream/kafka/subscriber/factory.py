@@ -39,11 +39,7 @@ def create_subscriber(
     # Subscriber args
     ack_policy: "AckPolicy",
     no_reply: bool,
-<<<<<<< HEAD
-    broker_dependencies: Iterable["Depends"],
-=======
     broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
     broker_middlewares: Iterable["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
     # Specification args
     title_: Optional[str],
@@ -68,11 +64,7 @@ def create_subscriber(
     # Subscriber args
     ack_policy: "AckPolicy",
     no_reply: bool,
-<<<<<<< HEAD
-    broker_dependencies: Iterable["Depends"],
-=======
     broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
     broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
     # Specification args
     title_: Optional[str],
@@ -97,11 +89,7 @@ def create_subscriber(
     # Subscriber args
     ack_policy: "AckPolicy",
     no_reply: bool,
-<<<<<<< HEAD
-    broker_dependencies: Iterable["Depends"],
-=======
     broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
     ],
@@ -130,11 +118,7 @@ def create_subscriber(
     # Subscriber args
     ack_policy: "AckPolicy",
     no_reply: bool,
-<<<<<<< HEAD
-    broker_dependencies: Iterable["Depends"],
-=======
     broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
     ],

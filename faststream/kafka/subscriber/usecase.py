@@ -67,11 +67,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         default_decoder: "AsyncCallable",
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -297,11 +293,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -380,11 +372,7 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable[
             "BrokerMiddleware[Sequence[tuple[ConsumerRecord, ...]]]"
         ],

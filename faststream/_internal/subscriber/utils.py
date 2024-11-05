@@ -1,7 +1,7 @@
 import asyncio
 import inspect
 from collections.abc import Awaitable, Iterable
-from contextlib import AbstractAsyncContextManager, AsyncExitStack, suppress
+from contextlib import AsyncExitStack, suppress
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -15,18 +15,13 @@ from typing import (
 import anyio
 from typing_extensions import Literal, Self, overload
 
-<<<<<<< HEAD
-from faststream._internal.context.repository import context
-=======
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
 from faststream._internal.types import MsgType
-from faststream._internal.utils.functions import fake_context, return_input, to_async
+from faststream._internal.utils.functions import return_input, to_async
 from faststream.message.source_type import SourceType
 
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from faststream._internal.basic_types import LoggerProto
     from faststream._internal.types import (
         AsyncCallable,
         CustomCallable,

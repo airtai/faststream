@@ -3,7 +3,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Optional,
-    Union,
 )
 
 import anyio
@@ -19,17 +18,13 @@ from faststream.rabbit.schemas import BaseRMQInformation
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
-<<<<<<< HEAD
-    from fast_depends.dependencies import Depends
-=======
     from fast_depends.dependencies import Dependant
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
+
     from faststream._internal.basic_types import AnyDict, LoggerProto
     from faststream._internal.publisher.proto import BasePublisherProto
     from faststream._internal.setup import SetupState
     from faststream._internal.types import BrokerMiddleware, CustomCallable
     from faststream.message import StreamMessage
-    from faststream.middlewares import AckPolicy
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -61,11 +56,7 @@ class LogicSubscriber(
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -192,7 +183,7 @@ class LogicSubscriber(
         sleep_interval = timeout / 10
 
         raw_message: Optional[IncomingMessage] = None
-        no_ack = True if self.ack_policy is AckPolicy.DO_NOTHING else False
+        no_ack = self.ack_policy is AckPolicy.DO_NOTHING
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
                 raw_message := await self._queue_obj.get(

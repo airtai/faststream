@@ -16,12 +16,8 @@ from fast_depends import Provider
 from fast_depends.pydantic import PydanticSerializer
 from typing_extensions import Doc, Self
 
-<<<<<<< HEAD
-from faststream._internal.context.repository import context
-=======
 from faststream._internal.constants import EMPTY
 from faststream._internal.context.repository import ContextRepo
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
 from faststream._internal.setup import (
     EmptyState,
     FastDependsData,
@@ -267,9 +263,7 @@ class BrokerUsecase(
             for h in self._subscribers:
                 log_context = h.get_log_context(None)
                 log_context.pop("message_id", None)
-                self._state.logger_state.params_storage.setup_log_contest(
-                    log_context
-                )
+                self._state.logger_state.params_storage.setup_log_contest(log_context)
 
             self._state._setup()
 

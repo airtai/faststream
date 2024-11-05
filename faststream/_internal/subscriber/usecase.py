@@ -7,7 +7,6 @@ from typing import (
     Any,
     Callable,
     Optional,
-    Union,
     overload,
 )
 
@@ -26,9 +25,9 @@ from faststream._internal.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.middlewares import AckPolicy, AcknowledgementMiddleware
 from faststream._internal.utils.functions import sync_fake_context, to_async
 from faststream.exceptions import SetupError, StopConsume, SubscriberNotFound
+from faststream.middlewares import AckPolicy, AcknowledgementMiddleware
 from faststream.response import ensure_response
 from faststream.specification.asyncapi.message import parse_handler_params
 from faststream.specification.asyncapi.utils import to_camelcase
@@ -93,16 +92,11 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self,
         *,
         no_reply: bool,
-<<<<<<< HEAD
-        broker_dependencies: Iterable["Depends"],
-=======
         broker_dependencies: Iterable["Dependant"],
->>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         ack_policy: AckPolicy,
-
         # AsyncAPI information
         title_: Optional[str],
         description_: Optional[str],
@@ -127,7 +121,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         if self.ack_policy is not AckPolicy.DO_NOTHING:
             self._broker_middlewares = (
                 AcknowledgementMiddleware(self.ack_policy),
-                *self._broker_middlewares
+                *self._broker_middlewares,
             )
 
         # register in setup later
@@ -143,10 +137,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
 
         if self.ack_policy is not AckPolicy.DO_NOTHING:
             self._broker_middlewares = (
-                AcknowledgementMiddleware(
-                    self.ack_policy, self.extra_watcher_options
-                ),
-                *self._broker_middlewares
+                AcknowledgementMiddleware(self.ack_policy, self.extra_watcher_options),
+                *self._broker_middlewares,
             )
 
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
