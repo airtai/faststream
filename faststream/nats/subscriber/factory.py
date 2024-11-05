@@ -127,7 +127,9 @@ def create_subscriber(
     if obj_watch is not None:
         if max_workers > 1:
             warnings.warn(
-                "You are try using `max_workers` with `obj_watch`. "
+                "`max_workers` has no effect for ObjectValue subscriber.",
+                RuntimeWarning,
+                stacklevel=3,
             )
 
         return AsyncAPIObjStoreWatchSubscriber(
@@ -144,7 +146,9 @@ def create_subscriber(
     if kv_watch is not None:
         if max_workers > 1:
             warnings.warn(
-                "You are try using `max_workers` with `kv_watch`. "
+                "`max_workers` has no effect for KeyValue subscriber.",
+                RuntimeWarning,
+                stacklevel=3,
             )
 
         return AsyncAPIKeyValueWatchSubscriber(
