@@ -8,6 +8,7 @@ from prometheus_client import CollectorRegistry
 from faststream import Context
 from faststream.exceptions import RejectMessage
 from faststream.message import AckStatus
+from faststream.prometheus import MetricsSettingsProvider
 from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
@@ -233,3 +234,21 @@ class LocalRPCPrometheusTestcase:
         assert event.is_set()
         metrics_manager_mock.add_received_message.assert_called_once()
         metrics_manager_mock.add_published_message.assert_called_once()
+
+
+class LocalMetricsSettingsProviderTestcase:
+    messaging_system: str
+
+    @staticmethod
+    def get_provider() -> MetricsSettingsProvider:
+        raise NotImplementedError
+
+    def test_messaging_system(self) -> None:
+        provider = self.get_provider()
+        assert provider.messaging_system == self.messaging_system
+
+    def test_get_consume_attrs_from_message(self, *args, **kwargs) -> None:
+        raise NotImplementedError
+
+    def test_get_publish_destination_name_from_cmd(self, *args, **kwargs) -> None:
+        raise NotImplementedError

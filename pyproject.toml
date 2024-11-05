@@ -56,7 +56,7 @@ dynamic = ["version"]
 
 dependencies = [
     "anyio>=3.7.1,<5",
-    "fast-depends[pydantic]>=3.0.0a2,<4.0.0",
+    "fast-depends[pydantic]>=3.0.0a3,<4.0.0",
     "typing-extensions>=4.8.0",
 ]
 
@@ -171,8 +171,6 @@ files = ["faststream", "tests/mypy"]
 strict = true
 python_version = "3.9"
 ignore_missing_imports = true
-install_types = true
-non_interactive = true
 plugins = ["pydantic.mypy"]
 
 # from https://blog.wolt.com/engineering/2021/09/30/professional-grade-mypy-configuration/
