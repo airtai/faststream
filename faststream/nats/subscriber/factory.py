@@ -1,3 +1,5 @@
+import warnings
+
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
 from nats.aio.subscription import (
@@ -123,6 +125,11 @@ def create_subscriber(
         }
 
     if obj_watch is not None:
+        if max_workers > 1:
+            warnings.warn(
+                "You are try using `max_workers` with `obj_watch`. "
+            )
+
         return AsyncAPIObjStoreWatchSubscriber(
             subject=subject,
             config=config,
@@ -135,6 +142,11 @@ def create_subscriber(
         )
 
     if kv_watch is not None:
+        if max_workers > 1:
+            warnings.warn(
+                "You are try using `max_workers` with `kv_watch`. "
+            )
+
         return AsyncAPIKeyValueWatchSubscriber(
             subject=subject,
             config=config,
