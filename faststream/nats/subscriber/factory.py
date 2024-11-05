@@ -1,5 +1,4 @@
 import warnings
-
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
 from nats.aio.subscription import (
