@@ -10,11 +10,13 @@ from typing import (
     TypeVar,
 )
 
+from fast_depends import Provider
 from typing_extensions import ParamSpec
 
-from faststream._internal.context import context
+from faststream._internal.constants import EMPTY
+from faststream._internal.context import ContextRepo
 from faststream._internal.log import logger
-from faststream._internal.setup.state import EmptyState
+from faststream._internal.setup.state import FastDependsData
 from faststream._internal.utils import apply_types
 from faststream._internal.utils.functions import (
     drop_response_type,
@@ -23,6 +25,8 @@ from faststream._internal.utils.functions import (
 )
 
 if TYPE_CHECKING:
+    from fast_depends.library.serializer import SerializerProto
+
     from faststream._internal.basic_types import (
         AnyCallable,
         AsyncFunc,
@@ -68,59 +72,94 @@ T_HookReturn = TypeVar("T_HookReturn")
 class StartAbleApplication:
     def __init__(
         self,
-        broker: Optional["BrokerUsecase[Any, Any]"] = None,
+        broker: "BrokerUsecase[Any, Any]",
+        /,
+        provider: Optional["Provider"] = None,
+        serializer: Optional["SerializerProto"] = EMPTY,
     ) -> None:
-        self._state = EmptyState()
+        self._init_setupable_(
+            broker,
+            provider=provider,
+            serializer=serializer,
+        )
+
+    def _init_setupable_(  # noqa: PLW3201
+        self,
+        broker: "BrokerUsecase[Any, Any]",
+        /,
+        provider: Optional["Provider"] = None,
+        serializer: Optional["SerializerProto"] = EMPTY,
+    ) -> None:
+        self.context = ContextRepo()
+        self.provider = provider or Provider()
+
+        if serializer is EMPTY:
+            from fast_depends.pydantic.serializer import PydanticSerializer
+
+            serializer = PydanticSerializer()
+
+        self._state = FastDependsData(
+            use_fastdepends=True,
+            get_dependent=None,
+            call_decorators=(),
+            serializer=serializer,
+            provider=self.provider,
+            context=self.context,
+        )
 
         self.broker = broker
 
+        self._setup()
+
     def _setup(self) -> None:
-        if self.broker is not None:
-            self.broker._setup(self._state)
+        self.broker._setup(di_state=self._state)
 
     async def _start_broker(self) -> None:
-        if self.broker is not None:
-            await self.broker.connect()
-            self._setup()
-            await self.broker.start()
+        await self.broker.start()
 
 
 class Application(StartAbleApplication):
     def __init__(
         self,
-        *,
-        broker: Optional["BrokerUsecase[Any, Any]"] = None,
+        broker: "BrokerUsecase[Any, Any]",
+        /,
         logger: Optional["LoggerProto"] = logger,
+        provider: Optional["Provider"] = None,
+        serializer: Optional["SerializerProto"] = EMPTY,
         lifespan: Optional["Lifespan"] = None,
         on_startup: Sequence["AnyCallable"] = (),
         after_startup: Sequence["AnyCallable"] = (),
         on_shutdown: Sequence["AnyCallable"] = (),
         after_shutdown: Sequence["AnyCallable"] = (),
     ) -> None:
-        super().__init__(broker)
+        super().__init__(
+            broker,
+            provider=provider,
+            serializer=serializer,
+        )
 
-        context.set_global("app", self)
+        self.context.set_global("app", self)
 
         self.logger = logger
-        self.context = context
 
         self._on_startup_calling: list[AsyncFunc] = [
-            apply_types(to_async(x)) for x in on_startup
+            apply_types(to_async(x), context__=self.context) for x in on_startup
         ]
         self._after_startup_calling: list[AsyncFunc] = [
-            apply_types(to_async(x)) for x in after_startup
+            apply_types(to_async(x), context__=self.context) for x in after_startup
         ]
         self._on_shutdown_calling: list[AsyncFunc] = [
-            apply_types(to_async(x)) for x in on_shutdown
+            apply_types(to_async(x), context__=self.context) for x in on_shutdown
         ]
         self._after_shutdown_calling: list[AsyncFunc] = [
-            apply_types(to_async(x)) for x in after_shutdown
+            apply_types(to_async(x), context__=self.context) for x in after_shutdown
         ]
 
         if lifespan is not None:
             self.lifespan_context = apply_types(
                 func=lifespan,
                 wrap_model=drop_response_type,
+                context__=self.context,
             )
         else:
             self.lifespan_context = fake_context
@@ -198,8 +237,7 @@ class Application(StartAbleApplication):
     async def stop(self) -> None:
         """Executes shutdown hooks and stop broker."""
         async with self._shutdown_hooks_context():
-            if self.broker is not None:
-                await self.broker.close()
+            await self.broker.close()
 
     @asynccontextmanager
     async def _shutdown_hooks_context(self) -> AsyncIterator[None]:
@@ -235,13 +273,6 @@ class Application(StartAbleApplication):
         if self.logger is not None:
             self.logger.log(level, message)
 
-    def set_broker(self, broker: "BrokerUsecase[Any, Any]") -> None:
-        """Set already existed App object broker.
-
-        Useful then you create/init broker in `on_startup` hook.
-        """
-        self.broker = broker
-
     # Hooks
 
     def on_startup(
@@ -252,7 +283,9 @@ class Application(StartAbleApplication):
 
         This hook also takes an extra CLI options as a kwargs.
         """
-        self._on_startup_calling.append(apply_types(to_async(func)))
+        self._on_startup_calling.append(
+            apply_types(to_async(func), context__=self.context)
+        )
         return func
 
     def on_shutdown(
@@ -260,7 +293,9 @@ class Application(StartAbleApplication):
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
         """Add hook running BEFORE broker disconnected."""
-        self._on_shutdown_calling.append(apply_types(to_async(func)))
+        self._on_shutdown_calling.append(
+            apply_types(to_async(func), context__=self.context)
+        )
         return func
 
     def after_startup(
@@ -268,7 +303,9 @@ class Application(StartAbleApplication):
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
         """Add hook running AFTER broker connected."""
-        self._after_startup_calling.append(apply_types(to_async(func)))
+        self._after_startup_calling.append(
+            apply_types(to_async(func), context__=self.context)
+        )
         return func
 
     def after_shutdown(
@@ -276,5 +313,7 @@ class Application(StartAbleApplication):
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
         """Add hook running AFTER broker disconnected."""
-        self._after_shutdown_calling.append(apply_types(to_async(func)))
+        self._after_shutdown_calling.append(
+            apply_types(to_async(func), context__=self.context)
+        )
         return func

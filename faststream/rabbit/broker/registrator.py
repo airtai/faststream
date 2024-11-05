@@ -18,7 +18,7 @@ from faststream.rabbit.subscriber.specified import SpecificationSubscriber
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage  # noqa: F401
     from aio_pika.abc import DateType, HeadersType, TimeoutType
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import (
@@ -64,8 +64,8 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         ] = AckPolicy.REJECT_ON_ERROR,
         # broker arguments
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],

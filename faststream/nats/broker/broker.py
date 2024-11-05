@@ -42,12 +42,14 @@ from faststream.response.publish_type import PublishType
 
 from .logging import make_nats_logger_state
 from .registrator import NatsRegistrator
+from .state import BrokerState, ConnectedState, EmptyBrokerState
 
 if TYPE_CHECKING:
     import ssl
     from types import TracebackType
 
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
+    from fast_depends.library.serializer import SerializerProto
     from nats.aio.client import (
         Callback,
         Credentials,
@@ -56,7 +58,6 @@ if TYPE_CHECKING:
         SignatureCallback,
     )
     from nats.js.api import Placement, RePublish, StorageType
-    from nats.js.client import JetStreamContext
     from nats.js.kv import KeyValue
     from nats.js.object_store import ObjectStore
     from typing_extensions import TypedDict, Unpack
@@ -223,12 +224,11 @@ class NatsBroker(
     """A class to represent a NATS broker."""
 
     url: list[str]
-    stream: Optional["JetStreamContext"]
 
-    _producer: Optional["NatsFastProducer"]
-    _js_producer: Optional["NatsJSFastProducer"]
-    _kv_declarer: Optional["KVBucketDeclarer"]
-    _os_declarer: Optional["OSBucketDeclarer"]
+    _producer: "NatsFastProducer"
+    _js_producer: "NatsJSFastProducer"
+    _kv_declarer: "KVBucketDeclarer"
+    _os_declarer: "OSBucketDeclarer"
 
     def __init__(
         self,
@@ -387,7 +387,7 @@ class NatsBroker(
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
@@ -439,10 +439,7 @@ class NatsBroker(
             bool,
             Doc("Whether to use FastDepends or not."),
         ] = True,
-        validate: Annotated[
-            bool,
-            Doc("Whether to cast types using Pydantic validation."),
-        ] = True,
+        serializer: Optional["SerializerProto"] = EMPTY,
         _get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
@@ -545,19 +542,25 @@ class NatsBroker(
             ),
             # FastDepends args
             apply_types=apply_types,
-            validate=validate,
+            serializer=serializer,
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
         )
 
-        self.__is_connected = False
-        self._producer = None
+        self._producer = NatsFastProducer(
+            decoder=self._decoder,
+            parser=self._parser,
+        )
 
-        # JS options
-        self.stream = None
-        self._js_producer = None
-        self._kv_declarer = None
-        self._os_declarer = None
+        self._js_producer = NatsJSFastProducer(
+            decoder=self._decoder,
+            parser=self._parser,
+        )
+
+        self._kv_declarer = KVBucketDeclarer()
+        self._os_declarer = OSBucketDeclarer()
+
+        self._connection_state: BrokerState = EmptyBrokerState()
 
     @override
     async def connect(  # type: ignore[override]
@@ -583,25 +586,17 @@ class NatsBroker(
         return await super().connect(**connect_kwargs)
 
     async def _connect(self, **kwargs: Any) -> "Client":
-        self.__is_connected = True
         connection = await nats.connect(**kwargs)
 
-        self._producer = NatsFastProducer(
-            connection=connection,
-            decoder=self._decoder,
-            parser=self._parser,
-        )
+        stream = connection.jetstream()
 
-        stream = self.stream = connection.jetstream()
+        self._producer.connect(connection)
+        self._js_producer.connect(stream)
 
-        self._js_producer = NatsJSFastProducer(
-            connection=stream,
-            decoder=self._decoder,
-            parser=self._parser,
-        )
+        self._kv_declarer.connect(stream)
+        self._os_declarer.connect(stream)
 
-        self._kv_declarer = KVBucketDeclarer(stream)
-        self._os_declarer = OSBucketDeclarer(stream)
+        self._connection_state = ConnectedState(connection, stream)
 
         return connection
 
@@ -617,24 +612,26 @@ class NatsBroker(
             await self._connection.drain()
             self._connection = None
 
-        self.stream = None
-        self._producer = None
-        self._js_producer = None
-        self.__is_connected = False
+        self._producer.disconnect()
+        self._js_producer.disconnect()
+        self._kv_declarer.disconnect()
+        self._os_declarer.disconnect()
+
+        self._connection_state = EmptyBrokerState()
 
     async def start(self) -> None:
         """Connect broker to NATS cluster and startup all subscribers."""
         await self.connect()
         self._setup()
 
-        assert self.stream, "Broker should be started already"  # nosec B101
+        stream_context = self._connection_state.stream
 
         for stream in filter(
             lambda x: x.declare,
             self._stream_builder.objects.values(),
         ):
             try:
-                await self.stream.add_stream(
+                await stream_context.add_stream(
                     config=stream.config,
                     subjects=stream.subjects,
                 )
@@ -651,15 +648,14 @@ class NatsBroker(
                     e.description
                     == "stream name already in use with a different configuration"
                 ):
-                    old_config = (await self.stream.stream_info(stream.name)).config
+                    old_config = (await stream_context.stream_info(stream.name)).config
 
                     self._state.logger_state.log(str(e), logging.WARNING, log_context)
-                    await self.stream.update_stream(
-                        config=stream.config,
-                        subjects=tuple(
-                            set(old_config.subjects or ()).union(stream.subjects),
-                        ),
-                    )
+
+                    for subject in old_config.subjects or ():
+                        stream.add_subject(subject)
+
+                    await stream_context.update_stream(config=stream.config)
 
                 else:  # pragma: no cover
                     self._state.logger_state.log(
@@ -803,29 +799,11 @@ class NatsBroker(
         self,
         subscriber: "SpecificationSubscriber",
     ) -> None:
-        connection: Union[
-            Client,
-            JetStreamContext,
-            KVBucketDeclarer,
-            OSBucketDeclarer,
-            None,
-        ] = None
-
-        if getattr(subscriber, "kv_watch", None):
-            connection = self._kv_declarer
-
-        elif getattr(subscriber, "obj_watch", None):
-            connection = self._os_declarer
-
-        elif getattr(subscriber, "stream", None):
-            connection = self.stream
-
-        else:
-            connection = self._connection
-
         return super().setup_subscriber(
             subscriber,
-            connection=connection,
+            connection_state=self._connection_state,
+            kv_declarer=self._kv_declarer,
+            os_declarer=self._os_declarer,
         )
 
     @override
@@ -833,14 +811,7 @@ class NatsBroker(
         self,
         publisher: "SpecificationPublisher",
     ) -> None:
-        producer: Optional[ProducerProto] = None
-
-        if publisher.stream is not None:
-            if self._js_producer is not None:
-                producer = self._js_producer
-
-        elif self._producer is not None:
-            producer = self._producer
+        producer = self._producer if publisher.stream is None else self._js_producer
 
         super().setup_publisher(publisher, producer=producer)
 
@@ -861,8 +832,6 @@ class NatsBroker(
         # custom
         declare: bool = True,
     ) -> "KeyValue":
-        assert self._kv_declarer, "Broker should be connected already."  # nosec B101
-
         return await self._kv_declarer.create_key_value(
             bucket=bucket,
             description=description,
@@ -891,8 +860,6 @@ class NatsBroker(
         # custom
         declare: bool = True,
     ) -> "ObjectStore":
-        assert self._os_declarer, "Broker should be connected already."  # nosec B101
-
         return await self._os_declarer.create_object_store(
             bucket=bucket,
             description=description,
@@ -914,14 +881,14 @@ class NatsBroker(
             if error_cb is not None:
                 await error_cb(err)
 
-            if isinstance(err, Error) and self.__is_connected:
+            if isinstance(err, Error) and self._connection_state:
                 self._state.logger_state.log(
                     f"Connection broken with {err!r}",
                     logging.WARNING,
                     c,
                     exc_info=err,
                 )
-                self.__is_connected = False
+                self._connection_state = self._connection_state.brake()
 
         return wrapper
 
@@ -935,9 +902,9 @@ class NatsBroker(
             if cb is not None:
                 await cb()
 
-            if not self.__is_connected:
+            if not self._connection_state:
                 self._state.logger_state.log("Connection established", logging.INFO, c)
-                self.__is_connected = True
+                self._connection_state = self._connection_state.reconnect()
 
         return wrapper
 

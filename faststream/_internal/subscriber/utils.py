@@ -15,7 +15,10 @@ from typing import (
 import anyio
 from typing_extensions import Literal, Self, overload
 
+<<<<<<< HEAD
 from faststream._internal.context.repository import context
+=======
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
 from faststream._internal.types import MsgType
 from faststream._internal.utils.functions import fake_context, return_input, to_async
 from faststream.message.source_type import SourceType
@@ -26,17 +29,17 @@ if TYPE_CHECKING:
     from faststream._internal.basic_types import LoggerProto
     from faststream._internal.types import (
         AsyncCallable,
-        BrokerMiddleware,
         CustomCallable,
         SyncCallable,
     )
     from faststream.message import StreamMessage
+    from faststream.middlewares import BaseMiddleware
 
 
 @overload
 async def process_msg(
     msg: Literal[None],
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    middlewares: Iterable["BaseMiddleware"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
     source_type: SourceType = SourceType.Consume,
@@ -46,7 +49,7 @@ async def process_msg(
 @overload
 async def process_msg(
     msg: MsgType,
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    middlewares: Iterable["BaseMiddleware"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
     source_type: SourceType = SourceType.Consume,
@@ -55,7 +58,7 @@ async def process_msg(
 
 async def process_msg(
     msg: Optional[MsgType],
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    middlewares: Iterable["BaseMiddleware"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
     source_type: SourceType = SourceType.Consume,
@@ -70,9 +73,8 @@ async def process_msg(
         ] = return_input
 
         for m in middlewares:
-            mid = m(msg, context=context)
-            await stack.enter_async_context(mid)
-            return_msg = partial(mid.consume_scope, return_msg)
+            await stack.enter_async_context(m)
+            return_msg = partial(m.consume_scope, return_msg)
 
         parsed_msg = await parser(msg)
         parsed_msg._source_type = source_type

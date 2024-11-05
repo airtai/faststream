@@ -13,7 +13,7 @@ from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.message import BaseMessage
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict, SendableMessage
     from faststream._internal.types import (
@@ -131,8 +131,8 @@ class RedisRoute(SubscriberRoute):
         ] = None,
         # broker arguments
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -211,9 +211,9 @@ class RedisRouter(
         ] = (),
         *,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc(
-                "Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers.",
+                "Dependencies list (`[Dependant(),]`) to apply to all routers' publishers/subscribers.",
             ),
         ] = (),
         middlewares: Annotated[

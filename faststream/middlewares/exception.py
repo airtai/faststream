@@ -12,7 +12,6 @@ from typing import (
 
 from typing_extensions import Literal, TypeAlias
 
-from faststream._internal.context import context
 from faststream._internal.utils import apply_types
 from faststream._internal.utils.functions import sync_fake_context, to_async
 from faststream.exceptions import IgnoredException
@@ -183,7 +182,7 @@ class _BaseExceptionMiddleware(BaseMiddleware):
 
             for handler_type, handler in self._publish_handlers:
                 if issubclass(exc_type, handler_type):
-                    return await handler(exc)
+                    return await handler(exc, context__=self.context)
 
             raise
 
@@ -199,13 +198,13 @@ class _BaseExceptionMiddleware(BaseMiddleware):
                     # TODO: remove it after context will be moved to middleware
                     # In case parser/decoder error occurred
                     scope: AbstractContextManager[Any]
-                    if not context.get_local("message"):
-                        scope = context.scope("message", self.msg)
+                    if not self.context.get_local("message"):
+                        scope = self.context.scope("message", self.msg)
                     else:
                         scope = sync_fake_context()
 
                     with scope:
-                        await handler(exc_val)
+                        await handler(exc_val, context__=self.context)
 
                     return True
 
@@ -214,5 +213,8 @@ class _BaseExceptionMiddleware(BaseMiddleware):
         return None
 
 
-async def ignore_handler(exception: IgnoredException) -> NoReturn:
+async def ignore_handler(
+    exception: IgnoredException,
+    **kwargs: Any,  # suppress context
+) -> NoReturn:
     raise exception

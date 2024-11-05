@@ -30,7 +30,7 @@ from faststream.kafka.publisher.fake import KafkaFakePublisher
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer, ConsumerRecord
     from aiokafka.abc import ConsumerRebalanceListener
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict, LoggerProto
     from faststream._internal.publisher.proto import BasePublisherProto, ProducerProto
@@ -51,6 +51,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
     task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
     batch: bool
+    parser: AioKafkaParser
 
     def __init__(
         self,
@@ -66,7 +67,11 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         default_decoder: "AsyncCallable",
         ack_policy: "AckPolicy",
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -142,6 +147,8 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             **self.__connection_args,
         )
 
+        self.parser._setup(consumer)
+
         if self.topics or self._pattern:
             consumer.subscribe(
                 topics=self.topics,
@@ -193,7 +200,10 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
 
         msg: StreamMessage[MsgType] = await process_msg(
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -287,7 +297,11 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -304,7 +318,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         else:
             reg = None
 
-        parser = AioKafkaParser(
+        self.parser = AioKafkaParser(
             msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
             regex=reg,
         )
@@ -317,8 +331,8 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             connection_args=connection_args,
             partitions=partitions,
             # subscriber args
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
+            default_parser=self.parser.parse_message,
+            default_decoder=self.parser.decode_message,
             # Propagated args
             ack_policy=ack_policy,
             no_reply=no_reply,
@@ -366,7 +380,11 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable[
             "BrokerMiddleware[Sequence[tuple[ConsumerRecord, ...]]]"
         ],
@@ -388,7 +406,7 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
         else:
             reg = None
 
-        parser = AioKafkaBatchParser(
+        self.parser = AioKafkaBatchParser(
             msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
             regex=reg,
         )
@@ -401,8 +419,8 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
             connection_args=connection_args,
             partitions=partitions,
             # subscriber args
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
+            default_parser=self.parser.parse_message,
+            default_decoder=self.parser.decode_message,
             # Propagated args
             ack_policy=ack_policy,
             no_reply=no_reply,

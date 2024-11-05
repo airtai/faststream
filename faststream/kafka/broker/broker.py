@@ -41,7 +41,8 @@ if TYPE_CHECKING:
 
     from aiokafka import ConsumerRecord
     from aiokafka.abc import AbstractTokenProvider
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
+    from fast_depends.library.serializer import SerializerProto
     from typing_extensions import TypedDict, Unpack
 
     from faststream._internal.basic_types import (
@@ -440,7 +441,7 @@ class KafkaBroker(
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
@@ -497,10 +498,7 @@ class KafkaBroker(
             bool,
             Doc("Whether to use FastDepends or not."),
         ] = True,
-        validate: Annotated[
-            bool,
-            Doc("Whether to cast types using Pydantic validation."),
-        ] = True,
+        serializer: Optional["SerializerProto"] = EMPTY,
         _get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
@@ -578,7 +576,7 @@ class KafkaBroker(
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
             apply_types=apply_types,
-            validate=validate,
+            serializer=serializer,
         )
 
         self.client_id = client_id

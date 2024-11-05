@@ -13,7 +13,6 @@ from typing import (
 
 from typing_extensions import Self, override
 
-from faststream._internal.context.repository import context
 from faststream._internal.subscriber.call_item import HandlerItem
 from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
 from faststream._internal.subscriber.proto import SubscriberProto
@@ -35,9 +34,10 @@ from faststream.specification.asyncapi.message import parse_handler_params
 from faststream.specification.asyncapi.utils import to_camelcase
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.context.repository import ContextRepo
     from faststream._internal.publisher.proto import (
         BasePublisherProto,
         ProducerProto,
@@ -69,7 +69,7 @@ class _CallOptions:
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
         middlewares: Iterable["SubscriberMiddleware[Any]"],
-        dependencies: Iterable["Depends"],
+        dependencies: Iterable["Dependant"],
     ) -> None:
         self.parser = parser
         self.decoder = decoder
@@ -85,7 +85,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     extra_context: "AnyDict"
     graceful_timeout: Optional[float]
 
-    _broker_dependencies: Iterable["Depends"]
+    _broker_dependencies: Iterable["Dependant"]
     _call_options: Optional["_CallOptions"]
     _call_decorators: Iterable["Decorator"]
 
@@ -93,7 +93,11 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self,
         *,
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
@@ -137,6 +141,14 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self.description_ = description_
         self.include_in_schema = include_in_schema
 
+        if self.ack_policy is not AckPolicy.DO_NOTHING:
+            self._broker_middlewares = (
+                AcknowledgementMiddleware(
+                    self.ack_policy, self.extra_watcher_options
+                ),
+                *self._broker_middlewares
+            )
+
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         self._broker_middlewares = (*self._broker_middlewares, middleware)
 
@@ -154,6 +166,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         # dependant args
         state: "SetupState",
     ) -> None:
+        self._state = state
+
         self._producer = producer
         self.graceful_timeout = graceful_timeout
         self.extra_context = extra_context
@@ -175,9 +189,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             call._setup(
                 parser=async_parser,
                 decoder=async_decoder,
-                apply_types=state.depends_params.apply_types,
-                is_validate=state.depends_params.is_validate,
-                _get_dependant=state.depends_params.get_dependent,
+                fast_depends_state=state.depends_params,
                 _call_decorators=(
                     *self._call_decorators,
                     *state.depends_params.call_decorators,
@@ -210,7 +222,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         parser_: Optional["CustomCallable"],
         decoder_: Optional["CustomCallable"],
         middlewares_: Iterable["SubscriberMiddleware[Any]"],
-        dependencies_: Iterable["Depends"],
+        dependencies_: Iterable["Dependant"],
     ) -> Self:
         self._call_options = _CallOptions(
             parser=parser_,
@@ -229,7 +241,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
@@ -244,7 +256,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
 
     def __call__(
@@ -255,7 +267,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
     ) -> Any:
         if (options := self._call_options) is None:
             msg = (
@@ -309,7 +321,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             # Stop handler at `exit()` call
             await self.close()
 
-            if app := context.get("app"):
+            if app := self._state.depends_params.context.get("app"):
                 app.exit()
 
         except Exception:  # nosec B110
@@ -318,6 +330,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
 
     async def process_message(self, msg: MsgType) -> "Response":
         """Execute all message processing stages."""
+        context: ContextRepo = self._state.depends_params.context
+
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
 
@@ -386,7 +400,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
 
             msg = f"There is no suitable handler for {msg=}"
             raise SubscriberNotFound(msg)
-
         # An error was raised and processed by some middleware
         return ensure_response(None)
 

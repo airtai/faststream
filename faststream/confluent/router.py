@@ -21,7 +21,7 @@ from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from confluent_kafka import Message
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import (
@@ -366,8 +366,8 @@ class KafkaRoute(SubscriberRoute):
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -469,9 +469,9 @@ class KafkaRouter(
         ] = (),
         *,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc(
-                "Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers.",
+                "Dependencies list (`[Dependant(),]`) to apply to all routers' publishers/subscribers.",
             ),
         ] = (),
         middlewares: Annotated[

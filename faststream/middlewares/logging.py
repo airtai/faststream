@@ -1,7 +1,6 @@
 import logging
 from typing import TYPE_CHECKING, Any, Optional
 
-from faststream._internal.context.repository import context
 from faststream.exceptions import IgnoredException
 from faststream.message.source_type import SourceType
 
@@ -59,7 +58,7 @@ class _LoggingMiddleware(BaseMiddleware):
         if source_type is not SourceType.Response:
             self.logger.log(
                 "Received",
-                extra=context.get_local("log_context", {}),
+                extra=self.context.get_local("log_context", {}),
             )
 
         return await call_next(msg)
@@ -72,7 +71,7 @@ class _LoggingMiddleware(BaseMiddleware):
     ) -> bool:
         """Asynchronously called after processing."""
         if self._source_type is not SourceType.Response:
-            c = context.get_local("log_context", {})
+            c = self.context.get_local("log_context", {})
 
             if exc_type:
                 if issubclass(exc_type, IgnoredException):

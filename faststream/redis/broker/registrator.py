@@ -12,7 +12,7 @@ from faststream.redis.subscriber.factory import SubsciberType, create_subscriber
 from faststream.redis.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import (
@@ -49,8 +49,8 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         ] = None,
         # broker arguments
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],

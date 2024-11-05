@@ -21,7 +21,7 @@ from faststream.specification.schema.message import CorrelationId, Message
 from faststream.specification.schema.operation import Operation
 
 
-class SpecificationSubscriber(LogicSubscriber[Any, Any]):
+class SpecificationSubscriber(LogicSubscriber[Any]):
     """A class to represent a NATS handler."""
 
     def get_name(self) -> str:

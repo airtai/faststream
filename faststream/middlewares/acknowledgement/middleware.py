@@ -25,12 +25,20 @@ class BaseAcknowledgementMiddleware(BaseMiddleware):
     def __init__(
         self,
         ack_policy: AckPolicy,
+<<<<<<< HEAD
+=======
+        extra_options: dict[str, Any],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         msg: Optional[Any],
         context: "ContextRepo",
         message: Optional["StreamMessage[Any]"] = None,
     ) -> None:
         super().__init__(msg, context=context)
         self.ack_policy = ack_policy
+<<<<<<< HEAD
+=======
+        self.extra_options = extra_options
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         self.logger = context.get_local("logger")
         self.message = message
 
@@ -77,31 +85,56 @@ class BaseAcknowledgementMiddleware(BaseMiddleware):
 
     async def __ack(self, **exc_extra_options: Any) -> None:
         try:
+<<<<<<< HEAD
             await self.message.ack(**exc_extra_options)
+=======
+            await self.message.ack(**exc_extra_options, **self.extra_options)
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         except Exception as er:
             if self.logger is not None:
                 self.logger.log(logging.ERROR, er, exc_info=er)
 
     async def __nack(self, **exc_extra_options: Any) -> None:
         try:
+<<<<<<< HEAD
             await self.message.nack(**exc_extra_options)
+=======
+            await self.message.nack(**exc_extra_options, **self.extra_options)
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         except Exception as er:
             if self.logger is not None:
                 self.logger.log(logging.ERROR, er, exc_info=er)
 
     async def __reject(self, **exc_extra_options: Any) -> None:
         try:
+<<<<<<< HEAD
             await self.message.reject(**exc_extra_options)
+=======
+            await self.message.reject(**exc_extra_options, **self.extra_options)
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         except Exception as er:
             if self.logger is not None:
                 self.logger.log(logging.ERROR, er, exc_info=er)
 
 
 class AcknowledgementMiddleware:
+<<<<<<< HEAD
     def __init__(self, ack_policy: AckPolicy):
         self.ack_policy = ack_policy
 
     def __call__(self, msg: Optional[Any], context: "ContextRepo") -> Any:
         return BaseAcknowledgementMiddleware(
             ack_policy=self.ack_policy, msg=msg, context=context,
+=======
+    def __init__(self, ack_policy: AckPolicy, extra_options: dict[str, Any]):
+        self.ack_policy = ack_policy
+        self.extra_options = extra_options
+
+    def __call__(self, msg: Optional[Any], context: "ContextRepo") -> Any:
+        return BaseAcknowledgementMiddleware(
+            ack_policy=self.ack_policy,
+            extra_options=self.extra_options,
+            msg=msg,
+            context=context,
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         )

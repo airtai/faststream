@@ -14,7 +14,7 @@ from faststream.nats.subscriber.factory import create_subscriber
 from faststream.nats.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
     from nats.aio.msg import Msg
 
     from faststream._internal.types import (
@@ -142,8 +142,8 @@ class NatsRegistrator(ABCBroker["Msg"]):
         ] = None,
         # broker arguments
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -342,7 +342,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         router: "NatsRegistrator",
         *,
         prefix: str = "",
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
         middlewares: Iterable["BrokerMiddleware[Msg]"] = (),
         include_in_schema: Optional[bool] = None,
     ) -> None:

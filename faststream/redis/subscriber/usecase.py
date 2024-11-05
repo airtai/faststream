@@ -43,7 +43,7 @@ from faststream.redis.publisher.fake import RedisFakePublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict, LoggerProto
     from faststream._internal.publisher.proto import BasePublisherProto, ProducerProto
@@ -74,7 +74,11 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -216,7 +220,11 @@ class ChannelSubscriber(LogicSubscriber):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -287,15 +295,18 @@ class ChannelSubscriber(LogicSubscriber):
 
         sleep_interval = timeout / 10
 
-        message: Optional[PubSubMessage] = None
+        raw_message: Optional[PubSubMessage] = None
 
         with anyio.move_on_after(timeout):
-            while (message := await self._get_message(self.subscription)) is None:  # noqa: ASYNC110
+            while (raw_message := await self._get_message(self.subscription)) is None:  # noqa: ASYNC110
                 await anyio.sleep(sleep_interval)
 
         msg: Optional[RedisMessage] = await process_msg(  # type: ignore[assignment]
-            msg=message,
-            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
+            msg=raw_message,
+            middlewares=(
+                m(raw_message, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -337,7 +348,11 @@ class _ListHandlerMixin(LogicSubscriber):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -411,13 +426,18 @@ class _ListHandlerMixin(LogicSubscriber):
         if not raw_message:
             return None
 
+        redis_incoming_msg = DefaultListMessage(
+            type="list",
+            data=raw_message,
+            channel=self.list_sub.name,
+        )
+
         msg: RedisListMessage = await process_msg(  # type: ignore[assignment]
-            msg=DefaultListMessage(
-                type="list",
-                data=raw_message,
-                channel=self.list_sub.name,
+            msg=redis_incoming_msg,
+            middlewares=(
+                m(redis_incoming_msg, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
             ),
-            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -437,7 +457,11 @@ class ListSubscriber(_ListHandlerMixin):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -484,7 +508,11 @@ class BatchListSubscriber(_ListHandlerMixin):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -536,7 +564,11 @@ class _StreamHandlerMixin(LogicSubscriber):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -693,14 +725,19 @@ class _StreamHandlerMixin(LogicSubscriber):
 
         self.last_id = message_id.decode()
 
+        redis_incoming_msg = DefaultStreamMessage(
+            type="stream",
+            channel=stream_name.decode(),
+            message_ids=[message_id],
+            data=raw_message,
+        )
+
         msg: RedisStreamMessage = await process_msg(  # type: ignore[assignment]
-            msg=DefaultStreamMessage(
-                type="stream",
-                channel=stream_name.decode(),
-                message_ids=[message_id],
-                data=raw_message,
+            msg=redis_incoming_msg,
+            middlewares=(
+                m(redis_incoming_msg, context=self._state.depends_params.context)
+                for m in self._broker_middlewares
             ),
-            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -720,7 +757,11 @@ class StreamSubscriber(_StreamHandlerMixin):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -787,7 +828,11 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
+<<<<<<< HEAD
         broker_dependencies: Iterable["Depends"],
+=======
+        broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],

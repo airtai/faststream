@@ -193,6 +193,7 @@ class JStream(NameRequired):
 
         self.subjects = subjects
         self.declare = declare
+
         self.config = StreamConfig(
             name=name,
             description=description,

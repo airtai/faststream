@@ -5,7 +5,7 @@ from faststream.rabbit.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
@@ -20,7 +20,11 @@ def create_subscriber(
     consume_args: Optional["AnyDict"],
     # Subscriber args
     no_reply: bool,
+<<<<<<< HEAD
     broker_dependencies: Iterable["Depends"],
+=======
+    broker_dependencies: Iterable["Dependant"],
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
     broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
     ack_policy: "AckPolicy",
     # AsyncAPI args

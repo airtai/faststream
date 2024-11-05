@@ -7,8 +7,6 @@ from faststream._internal.basic_types import AnyDict
 from faststream._internal.constants import EMPTY
 from faststream.exceptions import ContextError
 
-__all__ = ("ContextRepo", "context")
-
 
 class ContextRepo:
     """A class to represent a context repository."""
@@ -171,6 +169,3 @@ class ContextRepo:
     def clear(self) -> None:
         self._global_context = {"context": self}
         self._scope_context.clear()
-
-
-context = ContextRepo()

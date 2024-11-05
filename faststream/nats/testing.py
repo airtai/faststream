@@ -17,6 +17,7 @@ from faststream._internal.testing.broker import TestBroker
 from faststream.exceptions import SubscriberNotFound
 from faststream.message import encode_message, gen_cor_id
 from faststream.nats.broker import NatsBroker
+from faststream.nats.broker.state import ConnectedState
 from faststream.nats.parser import NatsParser
 from faststream.nats.publisher.producer import NatsFastProducer
 from faststream.nats.schemas.js_stream import is_subject_match_wildcard
@@ -59,7 +60,7 @@ class TestNatsBroker(TestBroker[NatsBroker]):
         *args: Any,
         **kwargs: Any,
     ) -> AsyncMock:
-        broker.stream = AsyncMock()
+        broker._connection_state = ConnectedState(AsyncMock(), AsyncMock())
         broker._js_producer = broker._producer = FakeProducer(  # type: ignore[assignment]
             broker,
         )

@@ -6,10 +6,7 @@ import pytest
 from typer.testing import CliRunner
 
 from faststream.__about__ import __version__
-from faststream._internal.context import (
-    ContextRepo,
-    context as global_context,
-)
+from faststream._internal.context import ContextRepo
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -58,8 +55,7 @@ def version() -> str:
 
 @pytest.fixture()
 def context() -> ContextRepo:
-    yield global_context
-    global_context.clear()
+    return ContextRepo()
 
 
 @pytest.fixture()

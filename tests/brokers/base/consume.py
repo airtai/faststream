@@ -205,7 +205,7 @@ class BrokerConsumeTestcase(BaseTestcaseConfig):
     ) -> None:
         consume_broker = self.get_broker(
             apply_types=True,
-            validate=False,
+            serializer=None,
         )
 
         class Foo(BaseModel):

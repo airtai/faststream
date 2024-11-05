@@ -3,9 +3,6 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 from faststream.specification.base.specification import Specification
 
-from .v2_6_0.facade import AsyncAPI2
-from .v3_0_0.facade import AsyncAPI3
-
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, AnyHttpUrl
     from faststream._internal.broker.broker import BrokerUsecase
@@ -34,6 +31,8 @@ class AsyncAPI(Specification):
         identifier: Optional[str] = None,
     ) -> Specification:
         if schema_version.startswith("3.0."):
+            from .v3_0_0.facade import AsyncAPI3
+
             return AsyncAPI3(
                 broker,
                 title=title,
@@ -48,6 +47,8 @@ class AsyncAPI(Specification):
                 external_docs=external_docs,
             )
         if schema_version.startswith("2.6."):
+            from .v2_6_0.facade import AsyncAPI2
+
             return AsyncAPI2(
                 broker,
                 title=title,

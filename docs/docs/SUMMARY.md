@@ -513,6 +513,11 @@ search:
                         - [NatsParamsStorage](api/faststream/nats/broker/logging/NatsParamsStorage.md)
                     - registrator
                         - [NatsRegistrator](api/faststream/nats/broker/registrator/NatsRegistrator.md)
+                    - state
+                        - [BrokerState](api/faststream/nats/broker/state/BrokerState.md)
+                        - [ConnectedState](api/faststream/nats/broker/state/ConnectedState.md)
+                        - [ConnectionBrokenState](api/faststream/nats/broker/state/ConnectionBrokenState.md)
+                        - [EmptyBrokerState](api/faststream/nats/broker/state/EmptyBrokerState.md)
                 - fastapi
                     - [Context](api/faststream/nats/fastapi/Context.md)
                     - [NatsRouter](api/faststream/nats/fastapi/NatsRouter.md)
@@ -528,6 +533,10 @@ search:
                         - [OSBucketDeclarer](api/faststream/nats/helpers/obj_storage_declarer/OSBucketDeclarer.md)
                     - object_builder
                         - [StreamBuilder](api/faststream/nats/helpers/object_builder/StreamBuilder.md)
+                    - state
+                        - [ConnectedState](api/faststream/nats/helpers/state/ConnectedState.md)
+                        - [ConnectionState](api/faststream/nats/helpers/state/ConnectionState.md)
+                        - [EmptyConnectionState](api/faststream/nats/helpers/state/EmptyConnectionState.md)
                 - message
                     - [NatsBatchMessage](api/faststream/nats/message/NatsBatchMessage.md)
                     - [NatsKvMessage](api/faststream/nats/message/NatsKvMessage.md)
@@ -612,6 +621,10 @@ search:
                         - [SpecificationPullStreamSubscriber](api/faststream/nats/subscriber/specified/SpecificationPullStreamSubscriber.md)
                         - [SpecificationStreamSubscriber](api/faststream/nats/subscriber/specified/SpecificationStreamSubscriber.md)
                         - [SpecificationSubscriber](api/faststream/nats/subscriber/specified/SpecificationSubscriber.md)
+                    - state
+                        - [ConnectedSubscriberState](api/faststream/nats/subscriber/state/ConnectedSubscriberState.md)
+                        - [EmptySubscriberState](api/faststream/nats/subscriber/state/EmptySubscriberState.md)
+                        - [SubscriberState](api/faststream/nats/subscriber/state/SubscriberState.md)
                     - usecase
                         - [BatchPullStreamSubscriber](api/faststream/nats/subscriber/usecase/BatchPullStreamSubscriber.md)
                         - [ConcurrentCoreSubscriber](api/faststream/nats/subscriber/usecase/ConcurrentCoreSubscriber.md)

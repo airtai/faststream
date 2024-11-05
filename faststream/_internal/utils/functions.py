@@ -5,13 +5,19 @@ from typing import (
     Any,
     Callable,
     Optional,
+    TypeVar,
     Union,
     overload,
 )
 
 import anyio
 from fast_depends.core import CallModel
-from fast_depends.utils import run_async as call_or_await
+from fast_depends.utils import (
+    is_coroutine_callable,
+    run_async as call_or_await,
+    run_in_threadpool,
+)
+from typing_extensions import ParamSpec
 
 from faststream._internal.basic_types import F_Return, F_Spec
 
@@ -22,6 +28,9 @@ __all__ = (
     "timeout_scope",
     "to_async",
 )
+
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
 @overload
@@ -43,11 +52,13 @@ def to_async(
     ],
 ) -> Callable[F_Spec, Awaitable[F_Return]]:
     """Converts a synchronous function to an asynchronous function."""
+    if is_coroutine_callable(func):
+        return func
 
     @wraps(func)
     async def to_async_wrapper(*args: F_Spec.args, **kwargs: F_Spec.kwargs) -> F_Return:
         """Wraps a function to make it asynchronous."""
-        return await call_or_await(func, *args, **kwargs)
+        return await run_in_threadpool(func, *args, **kwargs)
 
     return to_async_wrapper
 
@@ -72,10 +83,8 @@ def sync_fake_context(*args: Any, **kwargs: Any) -> Iterator[None]:
     yield None
 
 
-def drop_response_type(
-    model: CallModel[F_Spec, F_Return],
-) -> CallModel[F_Spec, F_Return]:
-    model.response_model = None
+def drop_response_type(model: CallModel) -> CallModel:
+    model.serializer.response_callback = None
     return model
 
 

@@ -23,6 +23,7 @@ from .options import MessageOptions, PublishOptions
 if TYPE_CHECKING:
     import aiormq
 
+    from faststream._internal.setup import SetupState
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -107,6 +108,7 @@ class LogicPublisher(
         producer: Optional["AioPikaFastProducer"],
         app_id: Optional[str],
         virtual_host: str,
+        state: "SetupState",
     ) -> None:
         if app_id:
             self.message_options["app_id"] = app_id
@@ -114,7 +116,7 @@ class LogicPublisher(
 
         self.virtual_host = virtual_host
 
-        super()._setup(producer=producer)
+        super()._setup(producer=producer, state=state)
 
     @property
     def routing(self) -> str:

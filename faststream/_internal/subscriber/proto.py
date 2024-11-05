@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from typing_extensions import Self, override
 
@@ -10,13 +10,14 @@ from faststream._internal.types import MsgType
 from faststream.specification.base.proto import EndpointProto
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.basic_types import AnyDict, LoggerProto
     from faststream._internal.publisher.proto import (
         BasePublisherProto,
         ProducerProto,
     )
+    from faststream._internal.setup import SetupState
     from faststream._internal.subscriber.call_item import HandlerItem
     from faststream._internal.types import (
         BrokerMiddleware,
@@ -36,7 +37,7 @@ class SubscriberProto(
     calls: list["HandlerItem[MsgType]"]
     running: bool
 
-    _broker_dependencies: Iterable["Depends"]
+    _broker_dependencies: Iterable["Dependant"]
     _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
     _producer: Optional["ProducerProto"]
 
@@ -56,16 +57,14 @@ class SubscriberProto(
         self,
         *,
         logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
         graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
-        producer: Optional["ProducerProto"],
-        extra_context: "AnyDict",
-        # FastDepends options
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
-        _call_decorators: Iterable["Decorator"],
+        # dependant args
+        state: "SetupState",
     ) -> None: ...
 
     @abstractmethod
@@ -105,5 +104,5 @@ class SubscriberProto(
         parser_: "CustomCallable",
         decoder_: "CustomCallable",
         middlewares_: Iterable["SubscriberMiddleware[Any]"],
-        dependencies_: Iterable["Depends"],
+        dependencies_: Iterable["Dependant"],
     ) -> Self: ...

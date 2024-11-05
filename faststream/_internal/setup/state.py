@@ -25,7 +25,7 @@ class BaseState(SetupAble):
         raise NotImplementedError
 
     def _setup(self) -> None:
-        self.logger_state._setup()
+        self.logger_state._setup(context=self.depends_params.context)
 
     def copy_with_params(
         self,

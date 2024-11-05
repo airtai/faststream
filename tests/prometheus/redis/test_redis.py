@@ -9,11 +9,11 @@ from faststream.redis import ListSub, RedisBroker
 from faststream.redis.prometheus.middleware import RedisPrometheusMiddleware
 from tests.brokers.redis.test_consume import TestConsume
 from tests.brokers.redis.test_publish import TestPublish
-from tests.prometheus.basic import LocalPrometheusTestcase
+from tests.prometheus.basic import LocalPrometheusTestcase, LocalRPCPrometheusTestcase
 
 
 @pytest.mark.redis()
-class TestPrometheus(LocalPrometheusTestcase):
+class TestPrometheus(LocalPrometheusTestcase, LocalRPCPrometheusTestcase):
     def get_broker(self, apply_types=False, **kwargs):
         return RedisBroker(apply_types=apply_types, **kwargs)
 

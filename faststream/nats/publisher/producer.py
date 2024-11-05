@@ -10,6 +10,11 @@ from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream.exceptions import FeatureNotSupportedException
 from faststream.message import encode_message
+from faststream.nats.helpers.state import (
+    ConnectedState,
+    ConnectionState,
+    EmptyConnectionState,
+)
 from faststream.nats.parser import NatsParser
 
 if TYPE_CHECKING:
@@ -33,15 +38,25 @@ class NatsFastProducer(ProducerProto):
     def __init__(
         self,
         *,
-        connection: "Client",
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
+<<<<<<< HEAD
         self._connection = connection
 
+=======
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         default = NatsParser(pattern="", ack_policy=AckPolicy.REJECT_ON_ERROR)
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
+
+        self.__state: ConnectionState[Client] = EmptyConnectionState()
+
+    def connect(self, connection: "Client") -> None:
+        self.__state = ConnectedState(connection)
+
+    def disconnect(self) -> None:
+        self.__state = EmptyConnectionState()
 
     @override
     async def publish(  # type: ignore[override]
@@ -55,7 +70,7 @@ class NatsFastProducer(ProducerProto):
             **cmd.headers_to_publish(),
         }
 
-        await self._connection.publish(
+        await self.__state.connection.publish(
             subject=cmd.destination,
             payload=payload,
             reply=cmd.reply_to,
@@ -74,7 +89,7 @@ class NatsFastProducer(ProducerProto):
             **cmd.headers_to_publish(),
         }
 
-        return await self._connection.request(
+        return await self.__state.connection.request(
             subject=cmd.destination,
             payload=payload,
             headers=headers_to_send,
@@ -99,15 +114,25 @@ class NatsJSFastProducer(ProducerProto):
     def __init__(
         self,
         *,
-        connection: "JetStreamContext",
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
+<<<<<<< HEAD
         self._connection = connection
 
+=======
+>>>>>>> 42935de6f041c74825f264fd7070624d9f977ada
         default = NatsParser(pattern="", ack_policy=AckPolicy.REJECT_ON_ERROR)
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
+
+        self.__state: ConnectionState[JetStreamContext] = EmptyConnectionState()
+
+    def connect(self, connection: "Client") -> None:
+        self.__state = ConnectedState(connection)
+
+    def disconnect(self) -> None:
+        self.__state = EmptyConnectionState()
 
     @override
     async def publish(  # type: ignore[override]
@@ -121,7 +146,7 @@ class NatsJSFastProducer(ProducerProto):
             **cmd.headers_to_publish(js=True),
         }
 
-        await self._connection.publish(
+        await self.__state.connection.publish(
             subject=cmd.destination,
             payload=payload,
             headers=headers_to_send,
@@ -138,9 +163,11 @@ class NatsJSFastProducer(ProducerProto):
     ) -> "Msg":
         payload, content_type = encode_message(cmd.body)
 
-        reply_to = self._connection._nc.new_inbox()
+        reply_to = self.__state.connection._nc.new_inbox()
         future: asyncio.Future[Msg] = asyncio.Future()
-        sub = await self._connection._nc.subscribe(reply_to, future=future, max_msgs=1)
+        sub = await self.__state.connection._nc.subscribe(
+            reply_to, future=future, max_msgs=1
+        )
         await sub.unsubscribe(limit=1)
 
         headers_to_send = {
@@ -150,7 +177,7 @@ class NatsJSFastProducer(ProducerProto):
         }
 
         with anyio.fail_after(cmd.timeout):
-            await self._connection.publish(
+            await self.__state.connection.publish(
                 subject=cmd.destination,
                 payload=payload,
                 headers=headers_to_send,
