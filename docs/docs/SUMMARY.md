@@ -119,6 +119,7 @@ search:
 - [Reference - Code API](api/index.md)
     - Public API
         - faststream
+            - [AckPolicy](public_api/faststream/AckPolicy.md)
             - [BaseMiddleware](public_api/faststream/BaseMiddleware.md)
             - [Context](public_api/faststream/Context.md)
             - [Depends](public_api/faststream/Depends.md)
@@ -205,6 +206,7 @@ search:
                 - [TestRedisBroker](public_api/faststream/redis/TestRedisBroker.md)
     - All API
         - faststream
+            - [AckPolicy](api/faststream/AckPolicy.md)
             - [BaseMiddleware](api/faststream/BaseMiddleware.md)
             - [Context](api/faststream/Context.md)
             - [Depends](api/faststream/Depends.md)
@@ -472,8 +474,15 @@ search:
                     - [encode_message](api/faststream/message/utils/encode_message.md)
                     - [gen_cor_id](api/faststream/message/utils/gen_cor_id.md)
             - middlewares
+                - [AckPolicy](api/faststream/middlewares/AckPolicy.md)
+                - [AcknowledgementMiddleware](api/faststream/middlewares/AcknowledgementMiddleware.md)
                 - [BaseMiddleware](api/faststream/middlewares/BaseMiddleware.md)
                 - [ExceptionMiddleware](api/faststream/middlewares/ExceptionMiddleware.md)
+                - acknowledgement
+                    - conf
+                        - [AckPolicy](api/faststream/middlewares/acknowledgement/conf/AckPolicy.md)
+                    - middleware
+                        - [AcknowledgementMiddleware](api/faststream/middlewares/acknowledgement/middleware/AcknowledgementMiddleware.md)
                 - base
                     - [BaseMiddleware](api/faststream/middlewares/base/BaseMiddleware.md)
                 - exception
