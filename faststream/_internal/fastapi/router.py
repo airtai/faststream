@@ -327,6 +327,7 @@ class StreamRouter(
                 else:
                     warnings.warn(
                         "Specifying 'lifespan_context' manually is no longer necessary with FastAPI >= 0.112.2.",
+                        category=RuntimeWarning,
                         stacklevel=2,
                     )
 

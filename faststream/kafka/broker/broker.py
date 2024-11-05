@@ -744,7 +744,7 @@ class KafkaBroker(
             correlation_id=correlation_id or gen_cor_id(),
             _publish_type=PublishType.Publish,
         )
-        return await super()._basic_publish(cmd, producer=self._producer)
+        await super()._basic_publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
