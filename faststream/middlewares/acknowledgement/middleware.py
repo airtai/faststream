@@ -25,12 +25,14 @@ class BaseAcknowledgementMiddleware(BaseMiddleware):
     def __init__(
         self,
         ack_policy: AckPolicy,
+        extra_options: dict[str, Any],
         msg: Optional[Any],
         context: "ContextRepo",
         message: Optional["StreamMessage[Any]"] = None,
     ) -> None:
         super().__init__(msg, context=context)
         self.ack_policy = ack_policy
+        self.extra_options = extra_options
         self.logger = context.get_local("logger")
         self.message = message
 
@@ -77,31 +79,35 @@ class BaseAcknowledgementMiddleware(BaseMiddleware):
 
     async def __ack(self, **exc_extra_options: Any) -> None:
         try:
-            await self.message.ack(**exc_extra_options)
+            await self.message.ack(**exc_extra_options, **self.extra_options)
         except Exception as er:
             if self.logger is not None:
                 self.logger.log(logging.ERROR, er, exc_info=er)
 
     async def __nack(self, **exc_extra_options: Any) -> None:
         try:
-            await self.message.nack(**exc_extra_options)
+            await self.message.nack(**exc_extra_options, **self.extra_options)
         except Exception as er:
             if self.logger is not None:
                 self.logger.log(logging.ERROR, er, exc_info=er)
 
     async def __reject(self, **exc_extra_options: Any) -> None:
         try:
-            await self.message.reject(**exc_extra_options)
+            await self.message.reject(**exc_extra_options, **self.extra_options)
         except Exception as er:
             if self.logger is not None:
                 self.logger.log(logging.ERROR, er, exc_info=er)
 
 
 class AcknowledgementMiddleware:
-    def __init__(self, ack_policy: AckPolicy):
+    def __init__(self, ack_policy: AckPolicy, extra_options: dict[str, Any]):
         self.ack_policy = ack_policy
+        self.extra_options = extra_options
 
     def __call__(self, msg: Optional[Any], context: "ContextRepo") -> Any:
         return BaseAcknowledgementMiddleware(
-            ack_policy=self.ack_policy, msg=msg, context=context,
+            ack_policy=self.ack_policy,
+            extra_options=self.extra_options,
+            msg=msg,
+            context=context,
         )

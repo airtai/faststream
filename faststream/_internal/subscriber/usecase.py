@@ -120,11 +120,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         # Setup in include
         self._broker_dependencies = broker_dependencies
         self._broker_middlewares = broker_middlewares
-        if self.ack_policy is not AckPolicy.DO_NOTHING:
-            self._broker_middlewares = (
-                AcknowledgementMiddleware(self.ack_policy),
-                *self._broker_middlewares
-            )
 
         # register in setup later
         self._producer = None
@@ -136,6 +131,14 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self.title_ = title_
         self.description_ = description_
         self.include_in_schema = include_in_schema
+
+        if self.ack_policy is not AckPolicy.DO_NOTHING:
+            self._broker_middlewares = (
+                AcknowledgementMiddleware(
+                    self.ack_policy, self.extra_watcher_options
+                ),
+                *self._broker_middlewares
+            )
 
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         self._broker_middlewares = (*self._broker_middlewares, middleware)
