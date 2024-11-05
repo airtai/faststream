@@ -18,6 +18,7 @@ from typing_extensions import Doc, override
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream.kafka.publisher.factory import create_publisher
 from faststream.kafka.subscriber.factory import create_subscriber
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from aiokafka import TopicPartition
@@ -396,14 +397,10 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -766,14 +763,10 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1136,14 +1129,10 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1509,14 +1498,10 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1576,9 +1561,8 @@ class KafkaRegistrator(
                 partitions=partitions,
                 is_manual=not auto_commit,
                 # subscriber args
-                no_ack=no_ack,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
-                retry=retry,
                 broker_middlewares=self._middlewares,
                 broker_dependencies=self._dependencies,
                 # Specification

@@ -5,6 +5,7 @@ from nats.js import api
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
+from faststream.middlewares import AckPolicy
 from faststream.nats.helpers import StreamBuilder
 from faststream.nats.publisher.factory import create_publisher
 from faststream.nats.publisher.specified import SpecificationPublisher
@@ -160,14 +161,10 @@ class NatsRegistrator(ABCBroker["Msg"]):
             int,
             Doc("Number of workers to process messages concurrently."),
         ] = 1,
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -222,9 +219,8 @@ class NatsRegistrator(ABCBroker["Msg"]):
                     inbox_prefix=inbox_prefix,
                     ack_first=ack_first,
                     # subscriber args
-                    no_ack=no_ack,
+                    ack_policy=ack_policy,
                     no_reply=no_reply,
-                    retry=retry,
                     broker_middlewares=self._middlewares,
                     broker_dependencies=self._dependencies,
                     # AsyncAPI

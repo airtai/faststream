@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.types import BrokerMiddleware
+    from faststream.middlewares import AckPolicy
     from faststream.redis.message import UnifyRedisDict
 
 SubsciberType: TypeAlias = Union[
@@ -35,9 +36,8 @@ def create_subscriber(
     list: Union["ListSub", str, None],
     stream: Union["StreamSub", str, None],
     # Subscriber args
-    no_ack: bool = False,
+    ack_policy: "AckPolicy",
     no_reply: bool = False,
-    retry: bool = False,
     broker_dependencies: Iterable["Dependant"] = (),
     broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"] = (),
     # AsyncAPI args
@@ -51,9 +51,8 @@ def create_subscriber(
         return AsyncAPIChannelSubscriber(
             channel=channel_sub,
             # basic args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             # AsyncAPI args
@@ -67,9 +66,8 @@ def create_subscriber(
             return AsyncAPIStreamBatchSubscriber(
                 stream=stream_sub,
                 # basic args
-                no_ack=no_ack,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
-                retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
                 # AsyncAPI args
@@ -80,9 +78,8 @@ def create_subscriber(
         return AsyncAPIStreamSubscriber(
             stream=stream_sub,
             # basic args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             # AsyncAPI args
@@ -96,9 +93,8 @@ def create_subscriber(
             return AsyncAPIListBatchSubscriber(
                 list=list_sub,
                 # basic args
-                no_ack=no_ack,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
-                retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
                 # AsyncAPI args
@@ -109,9 +105,8 @@ def create_subscriber(
         return AsyncAPIListSubscriber(
             list=list_sub,
             # basic args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             # AsyncAPI args

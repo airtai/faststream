@@ -32,6 +32,7 @@ from typing_extensions import Doc, deprecated, override
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
 from faststream._internal.fastapi.router import StreamRouter
+from faststream.middlewares import AckPolicy
 from faststream.nats.broker import NatsBroker
 from faststream.nats.subscriber.specified import SpecificationSubscriber
 
@@ -692,14 +693,10 @@ class NatsRouter(StreamRouter["Msg"]):
             int,
             Doc("Number of workers to process messages concurrently."),
         ] = 1,
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         no_reply: Annotated[
             bool,
             Doc(
@@ -871,8 +868,7 @@ class NatsRouter(StreamRouter["Msg"]):
                 decoder=decoder,
                 middlewares=middlewares,
                 max_workers=max_workers,
-                retry=retry,
-                no_ack=no_ack,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
                 title=title,
                 description=description,

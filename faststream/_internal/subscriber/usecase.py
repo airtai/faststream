@@ -7,7 +7,6 @@ from typing import (
     Any,
     Callable,
     Optional,
-    Union,
     overload,
 )
 
@@ -19,7 +18,6 @@ from faststream._internal.subscriber.proto import SubscriberProto
 from faststream._internal.subscriber.utils import (
     MultiLock,
     default_filter,
-    get_watcher_context,
     resolve_custom_func,
 )
 from faststream._internal.types import (
@@ -29,6 +27,7 @@ from faststream._internal.types import (
 )
 from faststream._internal.utils.functions import sync_fake_context, to_async
 from faststream.exceptions import SetupError, StopConsume, SubscriberNotFound
+from faststream.middlewares import AckPolicy, AcknowledgementMiddleware
 from faststream.response import ensure_response
 from faststream.specification.asyncapi.message import parse_handler_params
 from faststream.specification.asyncapi.utils import to_camelcase
@@ -92,13 +91,12 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     def __init__(
         self,
         *,
-        no_ack: bool,
         no_reply: bool,
-        retry: Union[bool, int],
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
+        ack_policy: AckPolicy,
         # AsyncAPI information
         title_: Optional[str],
         description_: Optional[str],
@@ -110,9 +108,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._parser = default_parser
         self._decoder = default_decoder
         self._no_reply = no_reply
-        # Watcher args
-        self._no_ack = no_ack
-        self._retry = retry
+        self.ack_policy = ack_policy
 
         self._call_options = None
         self._call_decorators = ()
@@ -133,6 +129,15 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self.title_ = title_
         self.description_ = description_
         self.include_in_schema = include_in_schema
+
+        if self.ack_policy is not AckPolicy.DO_NOTHING:
+            self._broker_middlewares = (
+                AcknowledgementMiddleware(
+                    self.ack_policy,
+                    self.extra_watcher_options,
+                ),
+                *self._broker_middlewares,
+            )
 
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         self._broker_middlewares = (*self._broker_middlewares, middleware)
@@ -156,8 +161,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._producer = producer
         self.graceful_timeout = graceful_timeout
         self.extra_context = extra_context
-
-        self.watcher = get_watcher_context(logger, self._no_ack, self._retry)
 
         for call in self.calls:
             if parser := call.item_parser or broker_parser:
@@ -345,15 +348,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
                     break
 
                 if message is not None:
-                    # Acknowledgement scope
-                    # TODO: move it to scope enter at `retry` option deprecation
-                    await stack.enter_async_context(
-                        self.watcher(
-                            message,
-                            **self.extra_watcher_options,
-                        ),
-                    )
-
                     stack.enter_context(
                         context.scope("log_context", self.get_log_context(message)),
                     )

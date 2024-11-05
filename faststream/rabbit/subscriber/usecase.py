@@ -3,7 +3,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Optional,
-    Union,
 )
 
 import anyio
@@ -12,6 +11,7 @@ from typing_extensions import override
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
+from faststream.middlewares import AckPolicy
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.fake import RabbitFakePublisher
 from faststream.rabbit.schemas import BaseRMQInformation
@@ -54,9 +54,8 @@ class LogicSubscriber(
         exchange: "RabbitExchange",
         consume_args: Optional["AnyDict"],
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: Union[bool, int],
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
         # AsyncAPI args
@@ -70,9 +69,8 @@ class LogicSubscriber(
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
             # AsyncAPI
@@ -175,7 +173,7 @@ class LogicSubscriber(
         self,
         *,
         timeout: float = 5.0,
-        no_ack: bool = True,
+        ack_policy: AckPolicy = AckPolicy.REJECT_ON_ERROR,
     ) -> "Optional[RabbitMessage]":
         assert self._queue_obj, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
@@ -185,6 +183,7 @@ class LogicSubscriber(
         sleep_interval = timeout / 10
 
         raw_message: Optional[IncomingMessage] = None
+        no_ack = self.ack_policy is AckPolicy.DO_NOTHING
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
                 raw_message := await self._queue_obj.get(
