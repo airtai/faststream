@@ -13,29 +13,47 @@ from faststream.middlewares.base import BaseMiddleware
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.basic_types import AnyDict, AsyncFuncAny
     from faststream._internal.context.repository import ContextRepo
     from faststream.message import StreamMessage
 
 
-class BaseAcknowledgementMiddleware(BaseMiddleware):
+class AcknowledgementMiddleware:
+    def __init__(self, ack_policy: AckPolicy, extra_options: "AnyDict") -> None:
+        self.ack_policy = ack_policy
+        self.extra_options = extra_options
+
+    def __call__(self, msg: Optional[Any], context: "ContextRepo") -> "_AcknowledgementMiddleware":
+        return _AcknowledgementMiddleware(
+            msg,
+            ack_policy=self.ack_policy,
+            extra_options=self.extra_options,
+            context=context,
+        )
+
+
+class _AcknowledgementMiddleware(BaseMiddleware):
     def __init__(
         self,
+        msg: Optional[Any],
+        /,
+        *,
+        context: "ContextRepo",
         ack_policy: AckPolicy,
         extra_options: "AnyDict",
-        msg: Optional[Any],
-        context: "ContextRepo",
-        message: Optional["StreamMessage[Any]"] = None,
     ) -> None:
         super().__init__(msg, context=context)
         self.ack_policy = ack_policy
         self.extra_options = extra_options
         self.logger = context.get_local("logger")
-        self.message = message
 
-    async def on_consume(self, msg: "StreamMessage[Any]") -> "StreamMessage[Any]":
+    async def consume_scope(
+        self,
+        call_next: "AsyncFuncAny",
+        msg: "StreamMessage[Any]",
+    ) -> Any:
         self.message = msg
-        return msg
+        return await call_next(msg)
 
     async def __aexit__(
         self,
@@ -91,17 +109,3 @@ class BaseAcknowledgementMiddleware(BaseMiddleware):
         except Exception as er:
             if self.logger is not None:
                 self.logger.log(logging.ERROR, er, exc_info=er)
-
-
-class AcknowledgementMiddleware:
-    def __init__(self, ack_policy: AckPolicy, extra_options: "AnyDict") -> None:
-        self.ack_policy = ack_policy
-        self.extra_options = extra_options
-
-    def __call__(self, msg: Optional[Any], context: "ContextRepo") -> Any:
-        return BaseAcknowledgementMiddleware(
-            ack_policy=self.ack_policy,
-            extra_options=self.extra_options,
-            msg=msg,
-            context=context,
-        )
