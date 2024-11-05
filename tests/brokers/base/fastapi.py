@@ -80,9 +80,6 @@ class FastAPITestcase(BaseTestcaseConfig):
     async def test_context(self, mock: Mock, queue: str, event: asyncio.Event) -> None:
         router = self.router_class()
         context = router.context
-        from loguru import logger
-
-        logger.debug(context)
 
         context_key = "message.headers"
 
