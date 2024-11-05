@@ -29,7 +29,7 @@ class TestRabbitMetricsSettingsProvider(LocalMetricsSettingsProviderTestcase):
     ) -> None:
         body = b"Hello"
         expected_attrs = {
-            "destination_name": f"{exchange or "default"}.{queue}",
+            "destination_name": f"{exchange or 'default'}.{queue}",
             "message_size": len(body),
             "messages_count": 1,
         }
