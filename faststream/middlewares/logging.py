@@ -46,7 +46,7 @@ class _LoggingMiddleware(BaseMiddleware):
     ) -> None:
         super().__init__(msg, context=context)
         self.logger = logger
-        self._source_type = SourceType.Consume
+        self._source_type = SourceType.CONSUME
 
     async def consume_scope(
         self,
@@ -55,7 +55,7 @@ class _LoggingMiddleware(BaseMiddleware):
     ) -> "StreamMessage[Any]":
         source_type = self._source_type = msg._source_type
 
-        if source_type is not SourceType.Response:
+        if source_type is not SourceType.RESPONSE:
             self.logger.log(
                 "Received",
                 extra=self.context.get_local("log_context", {}),
@@ -70,7 +70,7 @@ class _LoggingMiddleware(BaseMiddleware):
         exc_tb: Optional["TracebackType"] = None,
     ) -> bool:
         """Asynchronously called after processing."""
-        if self._source_type is not SourceType.Response:
+        if self._source_type is not SourceType.RESPONSE:
             c = self.context.get_local("log_context", {})
 
             if exc_type:

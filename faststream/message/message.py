@@ -19,9 +19,9 @@ MsgType = TypeVar("MsgType")
 
 
 class AckStatus(str, Enum):
-    acked = "acked"
-    nacked = "nacked"
-    rejected = "rejected"
+    ACKED = "ACKED"
+    NACKED = "NACKED"
+    REJECTED = "REJECTED"
 
 
 class StreamMessage(Generic[MsgType]):
@@ -39,7 +39,7 @@ class StreamMessage(Generic[MsgType]):
         content_type: Optional[str] = None,
         correlation_id: Optional[str] = None,
         message_id: Optional[str] = None,
-        source_type: SourceType = SourceType.Consume,
+        source_type: SourceType = SourceType.CONSUME,
     ) -> None:
         self.raw_message = raw_message
         self.body = body
@@ -85,12 +85,12 @@ class StreamMessage(Generic[MsgType]):
 
     async def ack(self) -> None:
         if self.committed is None:
-            self.committed = AckStatus.acked
+            self.committed = AckStatus.ACKED
 
     async def nack(self) -> None:
         if self.committed is None:
-            self.committed = AckStatus.nacked
+            self.committed = AckStatus.NACKED
 
     async def reject(self) -> None:
         if self.committed is None:
-            self.committed = AckStatus.rejected
+            self.committed = AckStatus.REJECTED

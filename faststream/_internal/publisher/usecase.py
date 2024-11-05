@@ -187,7 +187,7 @@ class PublisherUsecase(PublisherProto[MsgType]):
             ),
             parser=self._producer._parser,
             decoder=self._producer._decoder,
-            source_type=SourceType.Response,
+            source_type=SourceType.RESPONSE,
         )
         return response_msg
 

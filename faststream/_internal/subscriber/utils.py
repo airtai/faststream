@@ -37,7 +37,7 @@ async def process_msg(
     middlewares: Iterable["BaseMiddleware"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
-    source_type: SourceType = SourceType.Consume,
+    source_type: SourceType = SourceType.CONSUME,
 ) -> None: ...
 
 
@@ -47,7 +47,7 @@ async def process_msg(
     middlewares: Iterable["BaseMiddleware"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
-    source_type: SourceType = SourceType.Consume,
+    source_type: SourceType = SourceType.CONSUME,
 ) -> "StreamMessage[MsgType]": ...
 
 
@@ -56,7 +56,7 @@ async def process_msg(
     middlewares: Iterable["BaseMiddleware"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
-    source_type: SourceType = SourceType.Consume,
+    source_type: SourceType = SourceType.CONSUME,
 ) -> Optional["StreamMessage[MsgType]"]:
     if msg is None:
         return None

@@ -388,7 +388,7 @@ class BrokerUsecase(
             ),
             parser=producer._parser,
             decoder=producer._decoder,
-            source_type=SourceType.Response,
+            source_type=SourceType.RESPONSE,
         )
         return response_msg
 

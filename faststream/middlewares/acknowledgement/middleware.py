@@ -23,7 +23,9 @@ class AcknowledgementMiddleware:
         self.ack_policy = ack_policy
         self.extra_options = extra_options
 
-    def __call__(self, msg: Optional[Any], context: "ContextRepo") -> "_AcknowledgementMiddleware":
+    def __call__(
+        self, msg: Optional[Any], context: "ContextRepo"
+    ) -> "_AcknowledgementMiddleware":
         return _AcknowledgementMiddleware(
             msg,
             ack_policy=self.ack_policy,

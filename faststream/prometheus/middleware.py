@@ -88,7 +88,7 @@ class _PrometheusMiddleware(BaseMiddleware):
         call_next: "AsyncFuncAny",
         msg: "StreamMessage[Any]",
     ) -> Any:
-        if self._settings_provider is None or msg._source_type is SourceType.Response:
+        if self._settings_provider is None or msg._source_type is SourceType.RESPONSE:
             return await call_next(msg)
 
         messaging_system = self._settings_provider.messaging_system

@@ -7,8 +7,8 @@ ContentType = str
 class ContentTypes(str, Enum):
     """A class to represent content types."""
 
-    text = "text/plain"
-    json = "application/json"
+    TEXT = "text/plain"
+    JSON = "application/json"
 
 
 class EmptyPlaceholder:

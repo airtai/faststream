@@ -98,7 +98,7 @@ def get_app_schema(
             externalDocs=docs_from_spec(external_docs) if external_docs else None,
         ),
         asyncapi=schema_version,
-        defaultContentType=ContentTypes.json.value,
+        defaultContentType=ContentTypes.JSON.value,
         id=identifier,
         servers=servers,
         channels=channels,

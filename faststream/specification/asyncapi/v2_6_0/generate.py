@@ -72,7 +72,7 @@ def get_app_schema(
             license=license_from_spec(license) if license else None,
         ),
         asyncapi=schema_version,
-        defaultContentType=ContentTypes.json.value,
+        defaultContentType=ContentTypes.JSON.value,
         id=identifier,
         tags=[tag_from_spec(tag) for tag in tags] if tags else None,
         externalDocs=docs_from_spec(external_docs) if external_docs else None,

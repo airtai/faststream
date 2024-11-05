@@ -11,7 +11,7 @@ PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP = {
 
 
 PROCESSING_STATUS_BY_ACK_STATUS = {
-    AckStatus.acked: ProcessingStatus.acked,
-    AckStatus.nacked: ProcessingStatus.nacked,
-    AckStatus.rejected: ProcessingStatus.rejected,
+    AckStatus.ACKED: ProcessingStatus.acked,
+    AckStatus.NACKED: ProcessingStatus.nacked,
+    AckStatus.REJECTED: ProcessingStatus.rejected,
 }

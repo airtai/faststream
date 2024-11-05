@@ -42,17 +42,17 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         ),
         (
             pytest.param(
-                AckStatus.acked,
+                AckStatus.ACKED,
                 RejectMessage,
                 id="acked status with reject message exception",
             ),
             pytest.param(
-                AckStatus.acked, Exception, id="acked status with not handler exception"
+                AckStatus.ACKED, Exception, id="acked status with not handler exception"
             ),
-            pytest.param(AckStatus.acked, None, id="acked status without exception"),
-            pytest.param(AckStatus.nacked, None, id="nacked status without exception"),
+            pytest.param(AckStatus.ACKED, None, id="acked status without exception"),
+            pytest.param(AckStatus.NACKED, None, id="nacked status without exception"),
             pytest.param(
-                AckStatus.rejected, None, id="rejected status without exception"
+                AckStatus.REJECTED, None, id="rejected status without exception"
             ),
         ),
     )
@@ -83,11 +83,11 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             if exception_class:
                 raise exception_class
 
-            if status == AckStatus.acked:
+            if status == AckStatus.ACKED:
                 await message.ack()
-            elif status == AckStatus.nacked:
+            elif status == AckStatus.NACKED:
                 await message.nack()
-            elif status == AckStatus.rejected:
+            elif status == AckStatus.REJECTED:
                 await message.reject()
 
         async with broker:
