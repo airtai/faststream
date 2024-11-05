@@ -75,5 +75,11 @@ class Baggage:
 
         return cls(cumulative_baggage, batch_baggage)
 
+    @classmethod
+    def from_headers(cls, headers: "AnyDict") -> Self:
+        """Create a Baggage instance from headers."""
+        payload = baggage.get_all(_BAGGAGE_PROPAGATOR.extract(headers))
+        return cls(cast("AnyDict", payload))
+
     def __repr__(self) -> str:
         return self._baggage.__repr__()

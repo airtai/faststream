@@ -63,7 +63,7 @@ class NackMessage(HandlerException):
     signature.
 
     Args:
-        extra_options (Any): Additional parameters that will be passed to `message.nack(**extra_options)` method.
+        kwargs (Any): Additional parameters that will be passed to `message.nack(**extra_options)` method.
     """
 
     def __init__(self, **kwargs: Any) -> None:
@@ -82,7 +82,7 @@ class RejectMessage(HandlerException):
     signature.
 
     Args:
-        extra_options (Any): Additional parameters that will be passed to `message.reject(**extra_options)` method.
+        kwargs (Any): Additional parameters that will be passed to `message.reject(**extra_options)` method.
     """
 
     def __init__(self, **kwargs: Any) -> None:
