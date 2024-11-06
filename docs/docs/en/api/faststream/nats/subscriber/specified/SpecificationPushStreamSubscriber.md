@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.redis.subscriber.specified.AsyncAPIStreamSubscriber
+::: faststream.nats.subscriber.specified.SpecificationPushStreamSubscriber

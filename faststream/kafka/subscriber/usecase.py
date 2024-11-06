@@ -14,6 +14,7 @@ from aiokafka import TopicPartition
 from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import override
 
+from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import (
@@ -65,7 +66,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
-        ack_policy: "AckPolicy",
+        ack_policy: "AckPolicy" = EMPTY,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
@@ -291,7 +292,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         partitions: Iterable["TopicPartition"],
         is_manual: bool,
         # Subscriber args
-        ack_policy: "AckPolicy",
+        ack_policy: "AckPolicy" = EMPTY,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
@@ -370,7 +371,7 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
         partitions: Iterable["TopicPartition"],
         is_manual: bool,
         # Subscriber args
-        ack_policy: "AckPolicy",
+        ack_policy: "AckPolicy" = EMPTY,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable[

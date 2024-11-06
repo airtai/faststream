@@ -1,6 +1,7 @@
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Optional
 
+from faststream._internal.constants import EMPTY
 from faststream.rabbit.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
@@ -22,7 +23,7 @@ def create_subscriber(
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
-    ack_policy: "AckPolicy",
+    ack_policy: "AckPolicy" = EMPTY,
     # AsyncAPI args
     title_: Optional[str],
     description_: Optional[str],
@@ -32,7 +33,7 @@ def create_subscriber(
         queue=queue,
         exchange=exchange,
         consume_args=consume_args,
-        ack_policy=ack_policy,
+        ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY else ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,

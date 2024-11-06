@@ -19,6 +19,7 @@ from redis.asyncio.client import (
 from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
+from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.redis.message import (
@@ -72,7 +73,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
-        ack_policy: "AckPolicy",
+        ack_policy: "AckPolicy" = EMPTY,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -214,7 +215,6 @@ class ChannelSubscriber(LogicSubscriber):
         *,
         channel: "PubSub",
         # Subscriber args
-        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -228,7 +228,7 @@ class ChannelSubscriber(LogicSubscriber):
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
-            ack_policy=ack_policy,
+            ack_policy=AckPolicy.DO_NOTHING,
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -338,7 +338,7 @@ class _ListHandlerMixin(LogicSubscriber):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
-        ack_policy: "AckPolicy",
+        ack_policy: "AckPolicy" = EMPTY,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -443,7 +443,6 @@ class ListSubscriber(_ListHandlerMixin):
         *,
         list: ListSub,
         # Subscriber args
-        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -458,7 +457,7 @@ class ListSubscriber(_ListHandlerMixin):
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
-            ack_policy=ack_policy,
+            ack_policy=AckPolicy.DO_NOTHING,
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -490,7 +489,6 @@ class BatchListSubscriber(_ListHandlerMixin):
         *,
         list: ListSub,
         # Subscriber args
-        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -505,7 +503,7 @@ class BatchListSubscriber(_ListHandlerMixin):
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
-            ack_policy=ack_policy,
+            ack_policy=AckPolicy.DO_NOTHING,
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -542,7 +540,7 @@ class _StreamHandlerMixin(LogicSubscriber):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
-        ack_policy: "AckPolicy",
+        ack_policy: "AckPolicy" = EMPTY,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -731,7 +729,7 @@ class StreamSubscriber(_StreamHandlerMixin):
         *,
         stream: StreamSub,
         # Subscriber args
-        ack_policy: "AckPolicy",
+        ack_policy: "AckPolicy" = EMPTY,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -792,13 +790,13 @@ class StreamSubscriber(_StreamHandlerMixin):
                     await self.consume(msg)  # type: ignore[arg-type]
 
 
-class BatchStreamSubscriber(_StreamHandlerMixin):
+class StreamBatchSubscriber(_StreamHandlerMixin):
     def __init__(
         self,
         *,
         stream: StreamSub,
         # Subscriber args
-        ack_policy: "AckPolicy",
+        ack_policy: "AckPolicy" = EMPTY,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],

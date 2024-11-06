@@ -8,6 +8,7 @@ from typing import (
 import anyio
 from typing_extensions import override
 
+from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
@@ -54,7 +55,7 @@ class LogicSubscriber(
         exchange: "RabbitExchange",
         consume_args: Optional["AnyDict"],
         # Subscriber args
-        ack_policy: "AckPolicy",
+        ack_policy: "AckPolicy" = EMPTY,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],

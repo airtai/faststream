@@ -1,3 +1,4 @@
+import warnings
 from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
@@ -7,6 +8,7 @@ from typing import (
     overload,
 )
 
+from faststream._internal.constants import EMPTY
 from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationDefaultSubscriber,
@@ -34,7 +36,7 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy",
+    ack_policy: "AckPolicy" = EMPTY,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
@@ -57,7 +59,7 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy",
+    ack_policy: "AckPolicy" = EMPTY,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
@@ -80,7 +82,7 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy",
+    ack_policy: "AckPolicy" = EMPTY,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -107,7 +109,7 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy",
+    ack_policy: "AckPolicy" = EMPTY,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -121,6 +123,9 @@ def create_subscriber(
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
 ]:
+    if ack_policy is not EMPTY and is_manual == False:
+        warnings.warn(RuntimeWarning, "You can't use acknowledgement policy with core subscriber", stacklevel=2)
+
     if batch:
         return SpecificationBatchSubscriber(
             *topics,
@@ -130,7 +135,7 @@ def create_subscriber(
             group_id=group_id,
             connection_data=connection_data,
             is_manual=is_manual,
-            ack_policy=ack_policy,
+            ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY and is_manual == True else ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -145,7 +150,7 @@ def create_subscriber(
         group_id=group_id,
         connection_data=connection_data,
         is_manual=is_manual,
-        ack_policy=ack_policy,
+        ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY and is_manual == True else ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,

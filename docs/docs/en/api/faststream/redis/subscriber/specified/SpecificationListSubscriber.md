@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.redis.subscriber.specified.AsyncAPIListBatchSubscriber
+::: faststream.redis.subscriber.specified.SpecificationListSubscriber

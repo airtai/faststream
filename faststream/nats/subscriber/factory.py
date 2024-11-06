@@ -1,3 +1,4 @@
+import warnings
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Optional, Union
 
@@ -11,6 +12,7 @@ from nats.js.client import (
     DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
 )
 
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
 from faststream.nats.subscriber.specified import (
     SpecificationBatchPullStreamSubscriber,
@@ -21,7 +23,7 @@ from faststream.nats.subscriber.specified import (
     SpecificationKeyValueWatchSubscriber,
     SpecificationObjStoreWatchSubscriber,
     SpecificationPullStreamSubscriber,
-    SpecificationStreamSubscriber,
+    SpecificationPushStreamSubscriber,
 )
 
 if TYPE_CHECKING:
@@ -60,7 +62,7 @@ def create_subscriber(
     max_workers: int,
     stream: Optional["JStream"],
     # Subscriber args
-    ack_policy: "AckPolicy",
+    ack_policy: "AckPolicy" = EMPTY,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[Any]"],
@@ -71,7 +73,7 @@ def create_subscriber(
 ) -> Union[
     "SpecificationCoreSubscriber",
     "SpecificationConcurrentCoreSubscriber",
-    "SpecificationStreamSubscriber",
+    "SpecificationPushStreamSubscriber",
     "SpecificationConcurrentPushStreamSubscriber",
     "SpecificationPullStreamSubscriber",
     "SpecificationConcurrentPullStreamSubscriber",
@@ -126,6 +128,9 @@ def create_subscriber(
         }
 
     if obj_watch is not None:
+        if ack_policy is not EMPTY:
+            warnings.warn(RuntimeWarning, "You can't use acknowledgement policy with core subscriber", stacklevel=2)
+
         return SpecificationObjStoreWatchSubscriber(
             subject=subject,
             config=config,
@@ -138,6 +143,9 @@ def create_subscriber(
         )
 
     if kv_watch is not None:
+        if ack_policy is not EMPTY:
+            warnings.warn(RuntimeWarning, "You can't use acknowledgement policy with core subscriber", stacklevel=2)
+
         return SpecificationKeyValueWatchSubscriber(
             subject=subject,
             config=config,
@@ -150,7 +158,11 @@ def create_subscriber(
         )
 
     if stream is None:
+        if ack_policy is not EMPTY:
+            warnings.warn(RuntimeWarning, "You can't use acknowledgement policy with core subscriber", stacklevel=2)
+
         if max_workers > 1:
+
             return SpecificationConcurrentCoreSubscriber(
                 max_workers=max_workers,
                 subject=subject,
@@ -197,7 +209,7 @@ def create_subscriber(
                 # basic args
                 extra_options=extra_options,
                 # Subscriber args
-                ack_policy=ack_policy,
+                ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY else ack_policy,
                 no_reply=no_reply,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
@@ -216,7 +228,7 @@ def create_subscriber(
             # basic args
             extra_options=extra_options,
             # Subscriber args
-            ack_policy=ack_policy,
+            ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY else ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -236,7 +248,7 @@ def create_subscriber(
                 # basic args
                 extra_options=extra_options,
                 # Subscriber args
-                ack_policy=ack_policy,
+                ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY else ack_policy,
                 no_reply=no_reply,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
@@ -254,7 +266,7 @@ def create_subscriber(
             # basic args
             extra_options=extra_options,
             # Subscriber args
-            ack_policy=ack_policy,
+            ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY else ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -264,7 +276,7 @@ def create_subscriber(
             include_in_schema=include_in_schema,
         )
 
-    return SpecificationStreamSubscriber(
+    return SpecificationPushStreamSubscriber(
         stream=stream,
         subject=subject,
         queue=queue,
@@ -272,7 +284,7 @@ def create_subscriber(
         # basic args
         extra_options=extra_options,
         # Subscriber args
-        ack_policy=ack_policy,
+        ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY else ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,

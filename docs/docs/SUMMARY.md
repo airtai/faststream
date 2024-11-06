@@ -628,7 +628,7 @@ search:
                         - [SpecificationKeyValueWatchSubscriber](api/faststream/nats/subscriber/specified/SpecificationKeyValueWatchSubscriber.md)
                         - [SpecificationObjStoreWatchSubscriber](api/faststream/nats/subscriber/specified/SpecificationObjStoreWatchSubscriber.md)
                         - [SpecificationPullStreamSubscriber](api/faststream/nats/subscriber/specified/SpecificationPullStreamSubscriber.md)
-                        - [SpecificationStreamSubscriber](api/faststream/nats/subscriber/specified/SpecificationStreamSubscriber.md)
+                        - [SpecificationPushStreamSubscriber](api/faststream/nats/subscriber/specified/SpecificationPushStreamSubscriber.md)
                         - [SpecificationSubscriber](api/faststream/nats/subscriber/specified/SpecificationSubscriber.md)
                     - state
                         - [ConnectedSubscriberState](api/faststream/nats/subscriber/state/ConnectedSubscriberState.md)
@@ -893,18 +893,18 @@ search:
                     - factory
                         - [create_subscriber](api/faststream/redis/subscriber/factory/create_subscriber.md)
                     - specified
-                        - [AsyncAPIChannelSubscriber](api/faststream/redis/subscriber/specified/AsyncAPIChannelSubscriber.md)
-                        - [AsyncAPIListBatchSubscriber](api/faststream/redis/subscriber/specified/AsyncAPIListBatchSubscriber.md)
-                        - [AsyncAPIListSubscriber](api/faststream/redis/subscriber/specified/AsyncAPIListSubscriber.md)
-                        - [AsyncAPIStreamBatchSubscriber](api/faststream/redis/subscriber/specified/AsyncAPIStreamBatchSubscriber.md)
-                        - [AsyncAPIStreamSubscriber](api/faststream/redis/subscriber/specified/AsyncAPIStreamSubscriber.md)
+                        - [SpecificationChannelSubscriber](api/faststream/redis/subscriber/specified/SpecificationChannelSubscriber.md)
+                        - [SpecificationListBatchSubscriber](api/faststream/redis/subscriber/specified/SpecificationListBatchSubscriber.md)
+                        - [SpecificationListSubscriber](api/faststream/redis/subscriber/specified/SpecificationListSubscriber.md)
+                        - [SpecificationStreamBatchSubscriber](api/faststream/redis/subscriber/specified/SpecificationStreamBatchSubscriber.md)
+                        - [SpecificationStreamSubscriber](api/faststream/redis/subscriber/specified/SpecificationStreamSubscriber.md)
                         - [SpecificationSubscriber](api/faststream/redis/subscriber/specified/SpecificationSubscriber.md)
                     - usecase
                         - [BatchListSubscriber](api/faststream/redis/subscriber/usecase/BatchListSubscriber.md)
-                        - [BatchStreamSubscriber](api/faststream/redis/subscriber/usecase/BatchStreamSubscriber.md)
                         - [ChannelSubscriber](api/faststream/redis/subscriber/usecase/ChannelSubscriber.md)
                         - [ListSubscriber](api/faststream/redis/subscriber/usecase/ListSubscriber.md)
                         - [LogicSubscriber](api/faststream/redis/subscriber/usecase/LogicSubscriber.md)
+                        - [StreamBatchSubscriber](api/faststream/redis/subscriber/usecase/StreamBatchSubscriber.md)
                         - [StreamSubscriber](api/faststream/redis/subscriber/usecase/StreamSubscriber.md)
                 - testing
                     - [ChannelVisitor](api/faststream/redis/testing/ChannelVisitor.md)

@@ -1,17 +1,19 @@
+import warnings
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Optional, Union
 
 from typing_extensions import TypeAlias
 
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
 from faststream.redis.subscriber.specified import (
-    AsyncAPIChannelSubscriber,
-    AsyncAPIListBatchSubscriber,
-    AsyncAPIListSubscriber,
-    AsyncAPIStreamBatchSubscriber,
-    AsyncAPIStreamSubscriber,
+    SpecificationChannelSubscriber,
+    SpecificationListBatchSubscriber,
+    SpecificationListSubscriber,
+    SpecificationStreamBatchSubscriber,
+    SpecificationStreamSubscriber,
 )
 
 if TYPE_CHECKING:
@@ -22,11 +24,11 @@ if TYPE_CHECKING:
     from faststream.redis.message import UnifyRedisDict
 
 SubsciberType: TypeAlias = Union[
-    "AsyncAPIChannelSubscriber",
-    "AsyncAPIStreamBatchSubscriber",
-    "AsyncAPIStreamSubscriber",
-    "AsyncAPIListBatchSubscriber",
-    "AsyncAPIListSubscriber",
+    "SpecificationChannelSubscriber",
+    "SpecificationStreamBatchSubscriber",
+    "SpecificationStreamSubscriber",
+    "SpecificationListBatchSubscriber",
+    "SpecificationListSubscriber",
 ]
 
 
@@ -36,7 +38,7 @@ def create_subscriber(
     list: Union["ListSub", str, None],
     stream: Union["StreamSub", str, None],
     # Subscriber args
-    ack_policy: "AckPolicy",
+    ack_policy: "AckPolicy" = EMPTY,
     no_reply: bool = False,
     broker_dependencies: Iterable["Dependant"] = (),
     broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"] = (),
@@ -48,7 +50,10 @@ def create_subscriber(
     validate_options(channel=channel, list=list, stream=stream)
 
     if (channel_sub := PubSub.validate(channel)) is not None:
-        return AsyncAPIChannelSubscriber(
+        if ack_policy is not EMPTY:
+            warnings.warn(RuntimeWarning, "You can't use acknowledgement policy with core subscriber", 2)
+
+        return SpecificationChannelSubscriber(
             channel=channel_sub,
             # basic args
             ack_policy=ack_policy,
@@ -63,10 +68,10 @@ def create_subscriber(
 
     if (stream_sub := StreamSub.validate(stream)) is not None:
         if stream_sub.batch:
-            return AsyncAPIStreamBatchSubscriber(
+            return SpecificationStreamBatchSubscriber(
                 stream=stream_sub,
                 # basic args
-                ack_policy=ack_policy,
+                ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY else ack_policy,
                 no_reply=no_reply,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
@@ -75,10 +80,10 @@ def create_subscriber(
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
-        return AsyncAPIStreamSubscriber(
+        return SpecificationStreamSubscriber(
             stream=stream_sub,
             # basic args
-            ack_policy=ack_policy,
+            ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY else ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -89,8 +94,11 @@ def create_subscriber(
         )
 
     if (list_sub := ListSub.validate(list)) is not None:
+        if ack_policy is not EMPTY:
+            warnings.warn(RuntimeWarning, "You can't use acknowledgement policy with core subscriber", 2)
+
         if list_sub.batch:
-            return AsyncAPIListBatchSubscriber(
+            return SpecificationListBatchSubscriber(
                 list=list_sub,
                 # basic args
                 ack_policy=ack_policy,
@@ -102,7 +110,7 @@ def create_subscriber(
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
-        return AsyncAPIListSubscriber(
+        return SpecificationListSubscriber(
             list=list_sub,
             # basic args
             ack_policy=ack_policy,

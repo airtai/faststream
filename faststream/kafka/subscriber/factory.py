@@ -1,3 +1,4 @@
+import warnings
 from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
@@ -7,6 +8,7 @@ from typing import (
     overload,
 )
 
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
 from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
@@ -37,7 +39,7 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy",
+    ack_policy: "AckPolicy" = EMPTY,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
@@ -62,7 +64,7 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy",
+    ack_policy: "AckPolicy" = EMPTY,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
@@ -87,7 +89,7 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy",
+    ack_policy: "AckPolicy" = EMPTY,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -116,7 +118,7 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy",
+    ack_policy: "AckPolicy" = EMPTY,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -130,6 +132,9 @@ def create_subscriber(
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
 ]:
+    if ack_policy is not EMPTY and is_manual == False:
+        warnings.warn(RuntimeWarning, "You can't use acknowledgement policy with core subscriber", stacklevel=2)
+
     if is_manual and not group_id:
         msg = "You must use `group_id` with manual commit mode."
         raise SetupError(msg)
@@ -160,7 +165,7 @@ def create_subscriber(
             connection_args=connection_args,
             partitions=partitions,
             is_manual=is_manual,
-            ack_policy=ack_policy,
+            ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY and is_manual == True else ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -177,7 +182,7 @@ def create_subscriber(
         connection_args=connection_args,
         partitions=partitions,
         is_manual=is_manual,
-        ack_policy=ack_policy,
+        ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY and is_manual == True else ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,

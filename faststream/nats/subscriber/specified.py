@@ -66,7 +66,7 @@ class SpecificationConcurrentCoreSubscriber(
     """One-message core concurrent consumer with Specification methods."""
 
 
-class SpecificationStreamSubscriber(
+class SpecificationPushStreamSubscriber(
     SpecificationSubscriber,
     PushStreamSubscription,
 ):
