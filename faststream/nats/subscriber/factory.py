@@ -159,7 +159,7 @@ def create_subscriber(
 
     if stream is None:
         if ack_policy is not EMPTY:
-            warnings.warn(RuntimeWarning, "You can't use acknowledgement policy with core subscriber", stacklevel=2)
+            warnings.warn("You can't use acknowledgement policy with core subscriber", RuntimeWarning, stacklevel=2)
 
         if max_workers > 1:
 

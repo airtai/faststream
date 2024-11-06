@@ -51,7 +51,7 @@ def create_subscriber(
 
     if (channel_sub := PubSub.validate(channel)) is not None:
         if ack_policy is not EMPTY:
-            warnings.warn(RuntimeWarning, "You can't use acknowledgement policy with core subscriber", 2)
+            warnings.warn("You can't use acknowledgement policy with core subscriber", RuntimeWarning, stacklevel=2)
 
         return SpecificationChannelSubscriber(
             channel=channel_sub,
@@ -95,7 +95,7 @@ def create_subscriber(
 
     if (list_sub := ListSub.validate(list)) is not None:
         if ack_policy is not EMPTY:
-            warnings.warn(RuntimeWarning, "You can't use acknowledgement policy with core subscriber", 2)
+            warnings.warn("You can't use acknowledgement policy with core subscriber", RuntimeWarning, stacklevel=2)
 
         if list_sub.batch:
             return SpecificationListBatchSubscriber(
