@@ -68,7 +68,6 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
-    from faststream._internal.publisher.proto import ProducerProto
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -547,9 +546,9 @@ class NatsBroker(
             _call_decorators=_call_decorators,
         )
 
-        self._producer = NatsFastProducer(
-            decoder=self._decoder,
+        self._state.producer = NatsFastProducer(
             parser=self._parser,
+            decoder=self._decoder,
         )
 
         self._js_producer = NatsJSFastProducer(
@@ -590,7 +589,7 @@ class NatsBroker(
 
         stream = connection.jetstream()
 
-        self._producer.connect(connection)
+        self._state.producer.connect(connection)
         self._js_producer.connect(stream)
 
         self._kv_declarer.connect(stream)
@@ -612,7 +611,7 @@ class NatsBroker(
             await self._connection.drain()
             self._connection = None
 
-        self._producer.disconnect()
+        self._state.producer.disconnect()
         self._js_producer.disconnect()
         self._kv_declarer.disconnect()
         self._os_declarer.disconnect()
@@ -730,11 +729,10 @@ class NatsBroker(
             reply_to=reply_to,
             stream=stream,
             timeout=timeout,
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
 
-        producer: Optional[ProducerProto]
-        producer = self._producer if stream is None else self._js_producer
+        producer = self._state.producer if stream is None else self._js_producer
 
         await super()._basic_publish(cmd, producer=producer)
 
@@ -785,11 +783,10 @@ class NatsBroker(
             headers=headers,
             timeout=timeout,
             stream=stream,
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
         )
 
-        producer: Optional[ProducerProto]
-        producer = self._producer if stream is None else self._js_producer
+        producer = self._state.producer if stream is None else self._js_producer
 
         msg: NatsMessage = await super()._basic_request(cmd, producer=producer)
         return msg
@@ -811,7 +808,9 @@ class NatsBroker(
         self,
         publisher: "SpecificationPublisher",
     ) -> None:
-        producer = self._producer if publisher.stream is None else self._js_producer
+        producer = (
+            self._state.producer if publisher.stream is None else self._js_producer
+        )
 
         super().setup_publisher(publisher, producer=producer)
 

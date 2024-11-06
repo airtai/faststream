@@ -135,7 +135,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
             correlation_id=correlation_id or gen_cor_id(),
             timestamp_ms=timestamp_ms,
             timeout=timeout,
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
         )
 
         msg: KafkaMessage = await self._basic_request(cmd)
@@ -251,7 +251,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
             correlation_id=correlation_id or gen_cor_id(),
             timestamp_ms=timestamp_ms,
             no_confirm=no_confirm,
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
         await self._basic_publish(cmd, _extra_middlewares=())
 
@@ -406,7 +406,7 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
             correlation_id=correlation_id or gen_cor_id(),
             timestamp_ms=timestamp_ms,
             no_confirm=no_confirm,
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
 
         await self._basic_publish_batch(cmd, _extra_middlewares=())

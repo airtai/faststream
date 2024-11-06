@@ -37,7 +37,7 @@ class ABCBroker(Generic[MsgType]):
         self._publishers = []
 
         self._dependencies = dependencies
-        self._middlewares = middlewares
+        self.middlewares = middlewares
         self._parser = parser
         self._decoder = decoder
 
@@ -46,7 +46,7 @@ class ABCBroker(Generic[MsgType]):
 
         Current middleware will be used as a most inner of already existed ones.
         """
-        self._middlewares = (*self._middlewares, middleware)
+        self.middlewares = (*self.middlewares, middleware)
 
         for sub in self._subscribers:
             sub.add_middleware(middleware)
@@ -91,7 +91,7 @@ class ABCBroker(Generic[MsgType]):
                 h.include_in_schema = include_in_schema
 
             h._broker_middlewares = (
-                *self._middlewares,
+                *self.middlewares,
                 *middlewares,
                 *h._broker_middlewares,
             )
@@ -111,7 +111,7 @@ class ABCBroker(Generic[MsgType]):
                 p.include_in_schema = include_in_schema
 
             p._broker_middlewares = (
-                *self._middlewares,
+                *self.middlewares,
                 *middlewares,
                 *p._broker_middlewares,
             )

@@ -37,7 +37,6 @@ class NatsFastProducer(ProducerProto):
 
     def __init__(
         self,
-        *,
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:

@@ -22,9 +22,9 @@ from faststream.confluent.schemas import TopicPartition
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, LoggerProto
-    from faststream._internal.publisher.proto import BasePublisherProto, ProducerProto
-    from faststream._internal.setup import SetupState
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.publisher.proto import BasePublisherProto
+    from faststream._internal.state import BrokerState
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -102,24 +102,18 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         *,
         client_id: Optional[str],
         builder: Callable[..., "AsyncConfluentConsumer"],
-        # basic args
-        logger: Optional["LoggerProto"],
-        producer: Optional["ProducerProto"],
-        graceful_timeout: Optional[float],
+        # basic args,
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "SetupState",
+        state: "BrokerState",
     ) -> None:
         self.client_id = client_id
         self.builder = builder
 
         super()._setup(
-            logger=logger,
-            producer=producer,
-            graceful_timeout=graceful_timeout,
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
@@ -174,7 +168,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         return await process_msg(
             msg=raw_message,
             middlewares=(
-                m(raw_message, context=self._state.depends_params.context)
+                m(raw_message, context=self._state.di_state.context)
                 for m in self._broker_middlewares
             ),
             parser=self._parser,
@@ -185,12 +179,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self,
         message: "StreamMessage[Any]",
     ) -> Sequence["BasePublisherProto"]:
-        if self._producer is None:
-            return ()
-
         return (
             KafkaFakePublisher(
-                self._producer,
+                self._state.producer,
                 topic=message.reply_to,
             ),
         )

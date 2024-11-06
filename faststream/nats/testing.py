@@ -1,4 +1,5 @@
-from collections.abc import Generator, Iterable
+from collections.abc import Generator, Iterable, Iterator
+from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -54,16 +55,20 @@ class TestNatsBroker(TestBroker[NatsBroker]):
 
         return sub, is_real
 
-    @staticmethod
-    async def _fake_connect(  # type: ignore[override]
+    @contextmanager
+    def _patch_producer(self, broker: NatsBroker) -> Iterator[None]:
+        old_js_producer, old_producer = broker._js_producer, broker._state.producer
+        broker._js_producer = broker._state.producer = FakeProducer(broker)
+        yield
+        broker._js_producer, broker._state.producer = old_js_producer, old_producer
+
+    async def _fake_connect(
+        self,
         broker: NatsBroker,
         *args: Any,
         **kwargs: Any,
     ) -> AsyncMock:
         broker._connection_state = ConnectedState(AsyncMock(), AsyncMock())
-        broker._js_producer = broker._producer = FakeProducer(  # type: ignore[assignment]
-            broker,
-        )
         return AsyncMock()
 
 

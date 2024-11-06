@@ -20,9 +20,9 @@ if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
     from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import BasePublisherProto
-    from faststream._internal.setup import SetupState
+    from faststream._internal.state import BrokerState
     from faststream._internal.types import BrokerMiddleware, CustomCallable
     from faststream.message import StreamMessage
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
@@ -100,24 +100,18 @@ class LogicSubscriber(
         virtual_host: str,
         declarer: "RabbitDeclarer",
         # basic args
-        logger: Optional["LoggerProto"],
-        producer: Optional["AioPikaFastProducer"],
-        graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "SetupState",
+        state: "BrokerState",
     ) -> None:
         self.app_id = app_id
         self.virtual_host = virtual_host
         self.declarer = declarer
 
         super()._setup(
-            logger=logger,
-            producer=producer,
-            graceful_timeout=graceful_timeout,
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
@@ -173,6 +167,7 @@ class LogicSubscriber(
         self,
         *,
         timeout: float = 5.0,
+        # TODO: make it no_ack
         ack_policy: AckPolicy = AckPolicy.REJECT_ON_ERROR,
     ) -> "Optional[RabbitMessage]":
         assert self._queue_obj, "You should start subscriber at first."  # nosec B101
@@ -197,7 +192,7 @@ class LogicSubscriber(
         msg: Optional[RabbitMessage] = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
             middlewares=(
-                m(raw_message, context=self._state.depends_params.context)
+                m(raw_message, context=self._state.di_state.context)
                 for m in self._broker_middlewares
             ),
             parser=self._parser,
@@ -209,12 +204,9 @@ class LogicSubscriber(
         self,
         message: "StreamMessage[Any]",
     ) -> Sequence["BasePublisherProto"]:
-        if self._producer is None:
-            return ()
-
         return (
             RabbitFakePublisher(
-                self._producer,
+                self._state.producer,
                 routing_key=message.reply_to,
                 app_id=self.app_id,
             ),

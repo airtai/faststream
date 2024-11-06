@@ -2,11 +2,11 @@ from enum import Enum
 
 
 class PublishType(str, Enum):
-    Publish = "Publish"
+    PUBLISH = "PUBLISH"
     """Regular `broker/publisher.publish(...)` call."""
 
-    Reply = "Reply"
+    REPLY = "REPLY"
     """Response to RPC/Reply-To request."""
 
-    Request = "Request"
+    REQUEST = "REQUEST"
     """RPC request call."""

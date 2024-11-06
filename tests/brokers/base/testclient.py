@@ -129,17 +129,19 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         test_broker = self.get_broker()
         await test_broker.start()
 
+        old_producer = test_broker._state.producer
+
         async with self.patch_broker(test_broker) as br:
             assert isinstance(br.start, Mock)
             assert isinstance(br._connect, Mock)
             assert isinstance(br.close, Mock)
-            assert isinstance(br._producer, fake_producer_cls)
+            assert isinstance(br._state.producer, fake_producer_cls)
 
         assert not isinstance(br.start, Mock)
         assert not isinstance(br._connect, Mock)
         assert not isinstance(br.close, Mock)
         assert br._connection is not None
-        assert not isinstance(br._producer, fake_producer_cls)
+        assert br._state.producer == old_producer
 
     async def test_broker_with_real_doesnt_get_patched(self) -> None:
         test_broker = self.get_broker()

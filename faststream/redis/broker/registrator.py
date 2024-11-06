@@ -103,7 +103,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
                     # subscriber args
                     ack_policy=ack_policy,
                     no_reply=no_reply,
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     broker_dependencies=self._dependencies,
                     # AsyncAPI
                     title_=title,
@@ -189,7 +189,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
                     headers=headers,
                     reply_to=reply_to,
                     # Specific
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     middlewares=middlewares,
                     # AsyncAPI
                     title_=title,

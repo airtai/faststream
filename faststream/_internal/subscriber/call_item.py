@@ -12,7 +12,7 @@ from typing import (
 
 from typing_extensions import override
 
-from faststream._internal.setup import SetupAble
+from faststream._internal.state import SetupAble
 from faststream._internal.types import MsgType
 from faststream.exceptions import IgnoredException, SetupError
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AsyncFuncAny, Decorator
-    from faststream._internal.setup import FastDependsData
+    from faststream._internal.state import DIState
     from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
     from faststream._internal.types import (
         AsyncCallable,
@@ -76,7 +76,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         parser: "AsyncCallable",
         decoder: "AsyncCallable",
         broker_dependencies: Iterable["Dependant"],
-        fast_depends_state: "FastDependsData",
+        fast_depends_state: "DIState",
         _call_decorators: Iterable["Decorator"],
     ) -> None:
         if self.dependant is None:

@@ -23,7 +23,7 @@ from .options import MessageOptions, PublishOptions
 if TYPE_CHECKING:
     import aiormq
 
-    from faststream._internal.setup import SetupState
+    from faststream._internal.state import BrokerState
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -108,7 +108,7 @@ class LogicPublisher(
         producer: Optional["AioPikaFastProducer"],
         app_id: Optional[str],
         virtual_host: str,
-        state: "SetupState",
+        state: "BrokerState",
     ) -> None:
         if app_id:
             self.message_options["app_id"] = app_id
@@ -167,7 +167,7 @@ class LogicPublisher(
             exchange=RabbitExchange.validate(exchange or self.exchange),
             correlation_id=correlation_id or gen_cor_id(),
             headers=headers,
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
             **(self.publish_options | self.message_options | publish_kwargs),
         )
 
@@ -242,7 +242,7 @@ class LogicPublisher(
             exchange=RabbitExchange.validate(exchange or self.exchange),
             correlation_id=correlation_id or gen_cor_id(),
             headers=headers,
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
             **(self.publish_options | self.message_options | publish_kwargs),
         )
 

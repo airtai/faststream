@@ -1,6 +1,5 @@
 from abc import abstractmethod
 from collections.abc import Iterable, Sequence
-from functools import partial
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -13,21 +12,21 @@ from typing import (
 )
 
 from fast_depends import Provider
-from fast_depends.pydantic import PydanticSerializer
 from typing_extensions import Doc, Self
 
 from faststream._internal.constants import EMPTY
 from faststream._internal.context.repository import ContextRepo
-from faststream._internal.setup import (
-    EmptyState,
-    FastDependsData,
+from faststream._internal.state import (
+    DIState,
     LoggerState,
     SetupAble,
-    SetupState,
 )
-from faststream._internal.setup.state import BaseState
+from faststream._internal.state.broker import (
+    BrokerState,
+    InitialBrokerState,
+)
+from faststream._internal.state.producer import ProducerUnset
 from faststream._internal.subscriber.proto import SubscriberProto
-from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import (
     AsyncCustomCallable,
     BrokerMiddleware,
@@ -36,11 +35,10 @@ from faststream._internal.types import (
     MsgType,
 )
 from faststream._internal.utils.functions import to_async
-from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.message.source_type import SourceType
 from faststream.middlewares.logging import CriticalLogMiddleware
 
 from .abc_broker import ABCBroker
+from .pub_base import BrokerPublishMixin
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -53,7 +51,6 @@ if TYPE_CHECKING:
         ProducerProto,
         PublisherProto,
     )
-    from faststream.response.response import PublishCommand
     from faststream.security import BaseSecurity
     from faststream.specification.schema.tag import Tag, TagDict
 
@@ -61,14 +58,14 @@ if TYPE_CHECKING:
 class BrokerUsecase(
     ABCBroker[MsgType],
     SetupAble,
+    BrokerPublishMixin[MsgType],
     Generic[MsgType, ConnectionType],
 ):
     """A class representing a broker async use case."""
 
     url: Union[str, Sequence[str]]
     _connection: Optional[ConnectionType]
-    _producer: Optional["ProducerProto"]
-    _state: BaseState
+    _producer: "ProducerProto"
 
     def __init__(
         self,
@@ -157,27 +154,27 @@ class BrokerUsecase(
         )
 
         self.running = False
-        self.graceful_timeout = graceful_timeout
 
         self._connection_kwargs = connection_kwargs
         self._connection = None
-        self._producer = None
 
-        self._middlewares = (
+        self.middlewares = (
             CriticalLogMiddleware(logger_state),
-            *self._middlewares,
+            *self.middlewares,
         )
 
-        self._state = EmptyState(
-            depends_params=FastDependsData(
+        self._state: BrokerState = InitialBrokerState(
+            di_state=DIState(
                 use_fastdepends=apply_types,
                 get_dependent=_get_dependant,
                 call_decorators=_call_decorators,
-                serializer=PydanticSerializer() if serializer is EMPTY else serializer,
+                serializer=serializer,
                 provider=Provider(),
                 context=ContextRepo(),
             ),
             logger_state=logger_state,
+            graceful_timeout=graceful_timeout,
+            producer=ProducerUnset(),
         )
 
         # AsyncAPI information
@@ -189,12 +186,16 @@ class BrokerUsecase(
         self.security = security
 
     @property
-    def context(self) -> ContextRepo:
-        return self._state.depends_params.context
+    def _producer(self) -> "ProducerProto":
+        return self._state.producer
+
+    @property
+    def context(self) -> "ContextRepo":
+        return self._state.di_state.context
 
     @property
     def provider(self) -> Provider:
-        return self._state.depends_params.provider
+        return self._state.di_state.provider
 
     async def __aenter__(self) -> "Self":
         await self.connect()
@@ -212,12 +213,19 @@ class BrokerUsecase(
     async def start(self) -> None:
         """Start the broker async use case."""
         # TODO: filter by already running handlers after TestClient refactor
-        for handler in self._subscribers:
+        for subscriber in self._subscribers:
+            log_context = subscriber.get_log_context(None)
+            log_context.pop("message_id", None)
+            self._state.logger_state.params_storage.setup_log_contest(log_context)
+
+        self._state._setup_logger_state()
+
+        for subscriber in self._subscribers:
             self._state.logger_state.log(
-                f"`{handler.call_name}` waiting for messages",
-                extra=handler.get_log_context(None),
+                f"`{subscriber.call_name}` waiting for messages",
+                extra=subscriber.get_log_context(None),
             )
-            await handler.start()
+            await subscriber.start()
 
     async def connect(self, **kwargs: Any) -> ConnectionType:
         """Connect to a remote server."""
@@ -233,42 +241,42 @@ class BrokerUsecase(
         """Connect to a resource."""
         raise NotImplementedError
 
-    def _setup(self, di_state: Optional[FastDependsData] = None) -> None:
-        """Prepare all Broker entities to startup."""
-        if not self._state:
-            if di_state is not None:
-                new_state = SetupState(
-                    logger_state=self._state.logger_state,
-                    depends_params=FastDependsData(
-                        use_fastdepends=self._state.depends_params.use_fastdepends,
-                        call_decorators=self._state.depends_params.call_decorators,
-                        get_dependent=self._state.depends_params.get_dependent,
-                        # from parent
-                        serializer=di_state.serializer,
-                        provider=di_state.provider,
-                        context=di_state.context,
-                    ),
-                )
+    def _setup(self, di_state: Optional[DIState] = None) -> None:
+        """Prepare all Broker entities to startup.
 
-            else:
-                # Fallback to default state if there no
-                # parent container like FastStream object
-                new_state = self._state.copy_to_state(SetupState)
+        Method should be idempotent due could be called twice
+        """
+        broker_serializer = self._state.di_state.serializer
 
-            self._state = new_state
+        if di_state is not None:
+            if broker_serializer is EMPTY:
+                broker_serializer = di_state.serializer
 
+            self._state.di_state.update(
+                serializer=broker_serializer,
+                provider=di_state.provider,
+                context=di_state.context,
+            )
+
+        else:
+            # Fallback to default state if there no
+            # parent container like FastStream object
+            if broker_serializer is EMPTY:
+                from fast_depends.pydantic import PydanticSerializer
+
+                broker_serializer = PydanticSerializer()
+
+            self._state.di_state.update(
+                serializer=broker_serializer,
+            )
+
+        self._state._setup()
+
+        # TODO: move to start
         if not self.running:
             self.running = True
 
-            for h in self._subscribers:
-                log_context = h.get_log_context(None)
-                log_context.pop("message_id", None)
-                self._state.logger_state.params_storage.setup_log_contest(log_context)
-
-            self._state._setup()
-
-        # TODO: why we can't move it to running?
-        # TODO: can we setup subscriber in running broker automatically?
+        # TODO: move setup to object creation
         for h in self._subscribers:
             self.setup_subscriber(h)
 
@@ -298,12 +306,8 @@ class BrokerUsecase(
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
-            "logger": self._state.logger_state.logger.logger,
-            "producer": self._producer,
-            "graceful_timeout": self.graceful_timeout,
             "extra_context": {
                 "broker": self,
-                "logger": self._state.logger_state.logger.logger,
             },
             # broker options
             "broker_parser": self._parser,
@@ -333,64 +337,6 @@ class BrokerUsecase(
             await h.close()
 
         self.running = False
-
-    async def _basic_publish(
-        self,
-        cmd: "PublishCommand",
-        *,
-        producer: Optional["ProducerProto"],
-    ) -> Optional[Any]:
-        """Publish message directly."""
-        assert producer, NOT_CONNECTED_YET  # nosec B101
-
-        publish = producer.publish
-
-        for m in self._middlewares:
-            publish = partial(m(None, context=self.context).publish_scope, publish)
-
-        return await publish(cmd)
-
-    async def _basic_publish_batch(
-        self,
-        cmd: "PublishCommand",
-        *,
-        producer: Optional["ProducerProto"],
-    ) -> None:
-        """Publish a messages batch directly."""
-        assert producer, NOT_CONNECTED_YET  # nosec B101
-
-        publish = producer.publish_batch
-
-        for m in self._middlewares:
-            publish = partial(m(None, context=self.context).publish_scope, publish)
-
-        await publish(cmd)
-
-    async def _basic_request(
-        self,
-        cmd: "PublishCommand",
-        *,
-        producer: Optional["ProducerProto"],
-    ) -> Any:
-        """Publish message directly."""
-        assert producer, NOT_CONNECTED_YET  # nosec B101
-
-        request = producer.request
-        for m in self._middlewares:
-            request = partial(m(None, context=self.context).publish_scope, request)
-
-        published_msg = await request(cmd)
-
-        response_msg: Any = await process_msg(
-            msg=published_msg,
-            middlewares=(
-                m(published_msg, context=self.context) for m in self._middlewares
-            ),
-            parser=producer._parser,
-            decoder=producer._decoder,
-            source_type=SourceType.RESPONSE,
-        )
-        return response_msg
 
     @abstractmethod
     async def ping(self, timeout: Optional[float]) -> bool:

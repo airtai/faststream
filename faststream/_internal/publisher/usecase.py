@@ -16,6 +16,7 @@ from fast_depends.pydantic._compat import create_model, get_config_base
 from typing_extensions import Doc, override
 
 from faststream._internal.publisher.proto import PublisherProto
+from faststream._internal.state.producer import ProducerUnset
 from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import (
@@ -23,7 +24,6 @@ from faststream._internal.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message.source_type import SourceType
 from faststream.specification.asyncapi.message import (
     get_model_schema,
@@ -33,7 +33,7 @@ from faststream.specification.asyncapi.utils import to_camelcase
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import ProducerProto
-    from faststream._internal.setup import SetupState
+    from faststream._internal.state import BrokerState
     from faststream._internal.types import (
         BrokerMiddleware,
         PublisherMiddleware,
@@ -80,9 +80,10 @@ class PublisherUsecase(PublisherProto[MsgType]):
         ],
     ) -> None:
         self.calls = []
-        self._middlewares = middlewares
+        self.middlewares = middlewares
         self._broker_middlewares = broker_middlewares
-        self._producer = None
+
+        self._producer: ProducerProto = ProducerUnset()
 
         self._fake_handler = False
         self.mock = None
@@ -98,10 +99,13 @@ class PublisherUsecase(PublisherProto[MsgType]):
 
     @override
     def _setup(  # type: ignore[override]
-        self, *, producer: Optional["ProducerProto"], state: Optional["SetupState"]
+        self,
+        *,
+        producer: "ProducerProto",
+        state: Optional["BrokerState"],
     ) -> None:
-        self._producer = producer
         self._state = state
+        self._producer = producer
 
     def set_test(
         self,
@@ -144,19 +148,17 @@ class PublisherUsecase(PublisherProto[MsgType]):
         *,
         _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> Any:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
         pub: Callable[..., Awaitable[Any]] = self._producer.publish
 
         for pub_m in chain(
             (
                 _extra_middlewares
                 or (
-                    m(None, context=self._state.depends_params.context).publish_scope
+                    m(None, context=self._state.di_state.context).publish_scope
                     for m in self._broker_middlewares
                 )
             ),
-            self._middlewares,
+            self.middlewares,
         ):
             pub = partial(pub_m, pub)
 
@@ -166,15 +168,13 @@ class PublisherUsecase(PublisherProto[MsgType]):
         self,
         cmd: "PublishCommand",
     ) -> Optional[Any]:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        context = self._state.depends_params.context
+        context = self._state.di_state.context
 
         request = self._producer.request
 
         for pub_m in chain(
             (m(None, context=context).publish_scope for m in self._broker_middlewares),
-            self._middlewares,
+            self.middlewares,
         ):
             request = partial(pub_m, request)
 
@@ -197,19 +197,17 @@ class PublisherUsecase(PublisherProto[MsgType]):
         *,
         _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> Optional[Any]:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
         pub = self._producer.publish_batch
 
         for pub_m in chain(
             (
                 _extra_middlewares
                 or (
-                    m(None, context=self._state.depends_params.context).publish_scope
+                    m(None, context=self._state.di_state.context).publish_scope
                     for m in self._broker_middlewares
                 )
             ),
-            self._middlewares,
+            self.middlewares,
         ):
             pub = partial(pub_m, pub)
 
@@ -235,8 +233,8 @@ class PublisherUsecase(PublisherProto[MsgType]):
             for call in self.calls:
                 call_model = build_call_model(
                     call,
-                    dependency_provider=self._state.depends_params.provider,
-                    serializer_cls=self._state.depends_params.serializer,
+                    dependency_provider=self._state.di_state.provider,
+                    serializer_cls=self._state.di_state.serializer,
                 )
 
                 response_type = next(

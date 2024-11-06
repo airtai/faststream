@@ -11,7 +11,7 @@ from faststream.specification.base.proto import EndpointProto
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
-    from faststream._internal.setup import SetupState
+    from faststream._internal.state import BrokerState
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -40,6 +40,12 @@ class ProducerProto(Protocol):
     async def publish_batch(self, cmd: "PublishCommand") -> None:
         """Publishes a messages batch asynchronously."""
         ...
+
+
+class ProducerFactory(Protocol):
+    def __call__(
+        self, parser: "AsyncCallable", decoder: "AsyncCallable"
+    ) -> ProducerProto: ...
 
 
 class BasePublisherProto(Protocol):
@@ -103,7 +109,7 @@ class PublisherProto(
         self,
         *,
         producer: Optional["ProducerProto"],
-        state: "SetupState",
+        state: "BrokerState",
     ) -> None: ...
 
     @abstractmethod

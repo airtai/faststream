@@ -1,8 +1,9 @@
+import logging
 from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.log.logging import get_broker_logger
-from faststream._internal.setup.logger import (
+from faststream._internal.state.logger import (
     DefaultLoggerStorage,
     make_logger_state,
 )
@@ -22,6 +23,11 @@ class NatsParamsStorage(DefaultLoggerStorage):
         self._max_queue_len = 0
         self._max_stream_len = 0
         self._max_subject_len = 4
+
+        self.logger_log_level = logging.INFO
+
+    def set_level(self, level: int) -> None:
+        self.logger_log_level = level
 
     def setup_log_contest(self, params: "AnyDict") -> None:
         self._max_subject_len = max(
@@ -69,10 +75,11 @@ class NatsParamsStorage(DefaultLoggerStorage):
                 "%(message)s",
             )),
             context=context,
+            log_level=self.logger_log_level,
         )
 
 
 make_nats_logger_state = partial(
     make_logger_state,
-    default_storag_cls=NatsParamsStorage,
+    default_storage_cls=NatsParamsStorage,
 )

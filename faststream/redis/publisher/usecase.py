@@ -134,7 +134,7 @@ class ChannelPublisher(LogicPublisher):
             reply_to=reply_to or self.reply_to,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
         await self._basic_publish(cmd, _extra_middlewares=())
 
@@ -188,7 +188,7 @@ class ChannelPublisher(LogicPublisher):
             channel=channel or self.channel.name,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
             timeout=timeout,
         )
 
@@ -271,7 +271,7 @@ class ListPublisher(LogicPublisher):
             reply_to=reply_to or self.reply_to,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
 
         return await self._basic_publish(cmd, _extra_middlewares=())
@@ -326,7 +326,7 @@ class ListPublisher(LogicPublisher):
             list=list or self.list.name,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
             timeout=timeout,
         )
 
@@ -368,7 +368,7 @@ class ListBatchPublisher(ListPublisher):
             reply_to=reply_to or self.reply_to,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
 
         await self._basic_publish_batch(cmd, _extra_middlewares=())
@@ -475,7 +475,7 @@ class StreamPublisher(LogicPublisher):
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
             maxlen=maxlen or self.stream.maxlen,
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
 
         return await self._basic_publish(cmd, _extra_middlewares=())
@@ -538,7 +538,7 @@ class StreamPublisher(LogicPublisher):
             stream=stream or self.stream.name,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
             maxlen=maxlen or self.stream.maxlen,
             timeout=timeout,
         )

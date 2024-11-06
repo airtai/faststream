@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import Decorator
     from faststream._internal.publisher.proto import PublisherProto
-    from faststream._internal.setup.fast_depends import FastDependsData
+    from faststream._internal.state.fast_depends import DIState
     from faststream.message import StreamMessage
 
 
@@ -148,7 +148,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         *,
         dependencies: Iterable["Dependant"],
         _call_decorators: Iterable["Decorator"],
-        state: "FastDependsData",
+        state: "DIState",
     ) -> Optional["CallModel"]:
         call = self._original_call
         for decor in _call_decorators:

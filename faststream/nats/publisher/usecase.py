@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 class LogicPublisher(PublisherUsecase[Msg]):
     """A class to represent a NATS publisher."""
 
-    _producer: Union["NatsFastProducer", "NatsJSFastProducer", None]
+    _producer: Union["NatsFastProducer", "NatsJSFastProducer"]
 
     def __init__(
         self,
@@ -100,7 +100,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             correlation_id=correlation_id or gen_cor_id(),
             stream=stream or getattr(self.stream, "name", None),
             timeout=timeout or self.timeout,
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
         return await self._basic_publish(cmd, _extra_middlewares=())
 
@@ -165,7 +165,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             timeout=timeout or self.timeout,
             correlation_id=correlation_id or gen_cor_id(),
             stream=getattr(self.stream, "name", None),
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
         )
 
         msg: NatsMessage = await self._basic_request(cmd)

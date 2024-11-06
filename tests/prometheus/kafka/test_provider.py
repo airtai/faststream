@@ -81,7 +81,7 @@ class TestBatchKafkaMetricsSettingsProvider(
         pytest.param(
             (SimpleNamespace(), SimpleNamespace()),
             BatchKafkaMetricsSettingsProvider(),
-            id="message is batch",
+            id="batch message",
         ),
         pytest.param(
             SimpleNamespace(),
@@ -91,7 +91,7 @@ class TestBatchKafkaMetricsSettingsProvider(
         pytest.param(
             None,
             KafkaMetricsSettingsProvider(),
-            id="message is None",
+            id="None message",
         ),
     ),
 )

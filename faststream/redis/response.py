@@ -41,7 +41,7 @@ class RedisResponse(Response):
             self.body,
             headers=self.headers,
             correlation_id=self.correlation_id,
-            _publish_type=PublishType.Reply,
+            _publish_type=PublishType.REPLY,
             # Kafka specific
             channel="fake-channel",  # it will be replaced by reply-sender
             maxlen=self.maxlen,

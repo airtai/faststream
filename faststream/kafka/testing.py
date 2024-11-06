@@ -1,5 +1,6 @@
 import re
-from collections.abc import Generator, Iterable
+from collections.abc import Generator, Iterable, Iterator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import (
     TYPE_CHECKING,
@@ -37,13 +38,19 @@ __all__ = ("TestKafkaBroker",)
 class TestKafkaBroker(TestBroker[KafkaBroker]):
     """A class to test Kafka brokers."""
 
+    @contextmanager
+    def _patch_producer(self, broker: KafkaBroker) -> Iterator[None]:
+        old_producer = broker._state.producer
+        broker._state.producer = FakeProducer(broker)
+        yield
+        broker._state.producer = old_producer
+
     @staticmethod
     async def _fake_connect(  # type: ignore[override]
         broker: KafkaBroker,
         *args: Any,
         **kwargs: Any,
     ) -> Callable[..., AsyncMock]:
-        broker._producer = FakeProducer(broker)
         return _fake_connection
 
     @staticmethod
@@ -96,6 +103,13 @@ class FakeProducer(AioKafkaFastProducer):
 
         self._parser = resolve_custom_func(broker._parser, default.parse_message)
         self._decoder = resolve_custom_func(broker._decoder, default.decode_message)
+
+    def __bool__(self) -> None:
+        return True
+
+    @property
+    def closed(self) -> bool:
+        return False
 
     @override
     async def publish(  # type: ignore[override]

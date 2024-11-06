@@ -35,13 +35,12 @@ from faststream.specification.asyncapi.utils import to_camelcase
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.basic_types import AnyDict, Decorator
     from faststream._internal.context.repository import ContextRepo
     from faststream._internal.publisher.proto import (
         BasePublisherProto,
-        ProducerProto,
     )
-    from faststream._internal.setup import SetupState
+    from faststream._internal.state import BrokerState
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -120,8 +119,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._broker_middlewares = broker_middlewares
 
         # register in setup later
-        self._producer = None
-        self.graceful_timeout = None
         self.extra_context = {}
         self.extra_watcher_options = {}
 
@@ -146,20 +143,15 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     def _setup(  # type: ignore[override]
         self,
         *,
-        logger: Optional["LoggerProto"],
-        producer: Optional["ProducerProto"],
-        graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "SetupState",
+        state: "BrokerState",
     ) -> None:
         self._state = state
 
-        self._producer = producer
-        self.graceful_timeout = graceful_timeout
         self.extra_context = extra_context
 
         for call in self.calls:
@@ -179,10 +171,10 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             call._setup(
                 parser=async_parser,
                 decoder=async_decoder,
-                fast_depends_state=state.depends_params,
+                fast_depends_state=state.di_state,
                 _call_decorators=(
                     *self._call_decorators,
-                    *state.depends_params.call_decorators,
+                    *state.di_state.call_decorators,
                 ),
                 broker_dependencies=self._broker_dependencies,
             )
@@ -204,7 +196,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         """
         self.running = False
         if isinstance(self.lock, MultiLock):
-            await self.lock.wait_release(self.graceful_timeout)
+            await self.lock.wait_release(self._state.graceful_timeout)
 
     def add_call(
         self,
@@ -311,7 +303,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             # Stop handler at `exit()` call
             await self.close()
 
-            if app := self._state.depends_params.context.get("app"):
+            if app := self._state.di_state.context.get("app"):
                 app.exit()
 
         except Exception:  # nosec B110
@@ -320,12 +312,15 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
 
     async def process_message(self, msg: MsgType) -> "Response":
         """Execute all message processing stages."""
-        context: ContextRepo = self._state.depends_params.context
+        context: ContextRepo = self._state.di_state.context
 
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
 
             # Enter context before middlewares
+            stack.enter_context(
+                context.scope("logger", self._state.logger_state.logger.logger)
+            )
             for k, v in self.extra_context.items():
                 stack.enter_context(context.scope(k, v))
 
@@ -390,6 +385,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
 
             msg = f"There is no suitable handler for {msg=}"
             raise SubscriberNotFound(msg)
+
         # An error was raised and processed by some middleware
         return ensure_response(None)
 

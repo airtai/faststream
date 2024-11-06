@@ -18,7 +18,6 @@ from typing_extensions import Doc, override
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
-from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -69,9 +68,10 @@ class RabbitBroker(
     """A class to represent a RabbitMQ broker."""
 
     url: str
-    _producer: Optional["AioPikaFastProducer"]
 
-    declarer: Optional[RabbitDeclarer]
+    _producer: "AioPikaFastProducer"
+    declarer: RabbitDeclarer
+
     _channel: Optional["RobustChannel"]
 
     def __init__(
@@ -290,7 +290,13 @@ class RabbitBroker(
         self.app_id = app_id
 
         self._channel = None
-        self.declarer = None
+
+        declarer = self.declarer = RabbitDeclarer()
+        self._state.producer = AioPikaFastProducer(
+            declarer=declarer,
+            decoder=self._decoder,
+            parser=self._parser,
+        )
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
@@ -461,17 +467,13 @@ class RabbitBroker(
                 ),
             )
 
-            declarer = self.declarer = RabbitDeclarer(channel)
-            await declarer.declare_queue(RABBIT_REPLY)
-
-            self._producer = AioPikaFastProducer(
-                declarer=declarer,
-                decoder=self._decoder,
-                parser=self._parser,
-            )
-
             if self._max_consumers:
                 await channel.set_qos(prefetch_count=int(self._max_consumers))
+
+            self.declarer.connect(connection=connection, channel=channel)
+            await self.declarer.declare_queue(RABBIT_REPLY)
+
+            self._producer.connect()
 
         return connection
 
@@ -493,24 +495,22 @@ class RabbitBroker(
             await self._connection.close()
             self._connection = None
 
-        self.declarer = None
-        self._producer = None
+        self.declarer.disconnect()
+        self._producer.disconnect()
 
     async def start(self) -> None:
         """Connect broker to RabbitMQ and startup all subscribers."""
         await self.connect()
         self._setup()
 
-        if self._max_consumers:
-            self._state.logger_state.log(f"Set max consumers to {self._max_consumers}")
-
-        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
-
         for publisher in self._publishers:
             if publisher.exchange is not None:
                 await self.declare_exchange(publisher.exchange)
 
         await super().start()
+
+        if self._max_consumers:
+            self._state.logger_state.log(f"Set max consumers to {self._max_consumers}")
 
     @override
     async def publish(  # type: ignore[override]
@@ -639,7 +639,7 @@ class RabbitBroker(
             user_id=user_id,
             timeout=timeout,
             priority=priority,
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
 
         return await super()._basic_publish(cmd, producer=self._producer)
@@ -757,7 +757,7 @@ class RabbitBroker(
             user_id=user_id,
             timeout=timeout,
             priority=priority,
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
         )
 
         msg: RabbitMessage = await super()._basic_request(cmd, producer=self._producer)
@@ -771,7 +771,6 @@ class RabbitBroker(
         ],
     ) -> "RobustQueue":
         """Declares queue object in **RabbitMQ**."""
-        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_queue(queue)
 
     async def declare_exchange(
@@ -782,7 +781,6 @@ class RabbitBroker(
         ],
     ) -> "RobustExchange":
         """Declares exchange object in **RabbitMQ**."""
-        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_exchange(exchange)
 
     @override

@@ -58,9 +58,10 @@ def get_broker_logger(
     message_id_ln: int,
     fmt: str,
     context: "ContextRepo",
+    log_level: int,
 ) -> logging.Logger:
     logger = logging.getLogger(f"faststream.access.{name}")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(log_level)
     logger.propagate = False
     logger.addFilter(ExtendedFilter(default_context, message_id_ln, context=context))
     handler = logging.StreamHandler(stream=sys.stdout)

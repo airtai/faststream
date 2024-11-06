@@ -1,4 +1,4 @@
-from collections.abc import Generator, Mapping
+from collections.abc import Generator, Iterator, Mapping
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Optional, Union
 from unittest import mock
@@ -56,9 +56,16 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
         ):
             yield
 
+    @contextmanager
+    def _patch_producer(self, broker: RabbitBroker) -> Iterator[None]:
+        old_producer = broker._state.producer
+        broker._state.producer = FakeProducer(broker)
+        yield
+        broker._state.producer = old_producer
+
     @staticmethod
     async def _fake_connect(broker: "RabbitBroker", *args: Any, **kwargs: Any) -> None:
-        broker._producer = FakeProducer(broker)
+        pass
 
     @staticmethod
     def create_publisher_fake_subscriber(

@@ -1,5 +1,6 @@
 import re
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
+from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -72,13 +73,19 @@ class TestRedisBroker(TestBroker[RedisBroker]):
 
         return sub, is_real
 
+    @contextmanager
+    def _patch_producer(self, broker: RedisBroker) -> Iterator[None]:
+        old_producer = broker._state.producer
+        broker._state.producer = FakeProducer(broker)
+        yield
+        broker._state.producer = old_producer
+
     @staticmethod
     async def _fake_connect(  # type: ignore[override]
         broker: RedisBroker,
         *args: Any,
         **kwargs: Any,
     ) -> AsyncMock:
-        broker._producer = FakeProducer(broker)
         connection = MagicMock()
 
         pub_sub = AsyncMock()

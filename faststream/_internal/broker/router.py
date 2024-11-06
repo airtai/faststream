@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 class ArgsContainer:
     """Class to store any arguments."""
 
+    __slots__ = ("args", "kwargs")
+
     args: Iterable[Any]
     kwargs: "AnyDict"
 
@@ -37,6 +39,8 @@ class ArgsContainer:
 
 class SubscriberRoute(ArgsContainer):
     """A generic class to represent a broker route."""
+
+    __slots__ = ("args", "call", "kwargs", "publishers")
 
     call: Callable[..., Any]
     publishers: Iterable[Any]

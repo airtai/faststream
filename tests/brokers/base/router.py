@@ -448,7 +448,7 @@ class RouterTestcase(
         sub = next(iter(pub_broker._subscribers))
         publisher = next(iter(pub_broker._publishers))
         assert len((*sub._broker_middlewares, *sub.calls[0].item_middlewares)) == 5
-        assert len((*publisher._broker_middlewares, *publisher._middlewares)) == 4
+        assert len((*publisher._broker_middlewares, *publisher.middlewares)) == 4
 
     async def test_router_include_with_middlewares(
         self,
@@ -473,7 +473,7 @@ class RouterTestcase(
 
         sub_middlewares = (*sub._broker_middlewares, *sub.calls[0].item_middlewares)
         assert len(sub_middlewares) == 5, sub_middlewares
-        assert len((*publisher._broker_middlewares, *publisher._middlewares)) == 4
+        assert len((*publisher._broker_middlewares, *publisher.middlewares)) == 4
 
     async def test_router_parser(
         self,

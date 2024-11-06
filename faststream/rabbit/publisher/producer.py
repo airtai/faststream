@@ -1,6 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Optional,
+    Protocol,
     cast,
 )
 
@@ -9,7 +10,7 @@ from typing_extensions import Unpack, override
 
 from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
-from faststream.exceptions import FeatureNotSupportedException
+from faststream.exceptions import FeatureNotSupportedException, IncorrectState
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import RABBIT_REPLY, RabbitExchange
 
@@ -30,6 +31,26 @@ if TYPE_CHECKING:
     from faststream.rabbit.types import AioPikaSendableMessage
 
 
+class LockState(Protocol):
+    lock: "anyio.Lock"
+
+
+class LockUnset(LockState):
+    __slots__ = ()
+
+    @property
+    def lock(self) -> "anyio.Lock":
+        msg = "You should call `producer.connect()` method at first."
+        raise IncorrectState(msg)
+
+
+class RealLock(LockState):
+    __slots__ = ("lock",)
+
+    def __init__(self) -> None:
+        self.lock = anyio.Lock()
+
+
 class AioPikaFastProducer(ProducerProto):
     """A class for fast producing messages using aio-pika."""
 
@@ -45,11 +66,21 @@ class AioPikaFastProducer(ProducerProto):
     ) -> None:
         self.declarer = declarer
 
-        self._rpc_lock = anyio.Lock()
+        self.__lock: LockState = LockUnset()
 
         default_parser = AioPikaParser()
         self._parser = resolve_custom_func(parser, default_parser.parse_message)
         self._decoder = resolve_custom_func(decoder, default_parser.decode_message)
+
+    def connect(self) -> None:
+        """Lock initialization.
+
+        Should be called in async context due `anyio.Lock` object can't be created outside event loop.
+        """
+        self.__lock = RealLock()
+
+    def disconnect(self) -> None:
+        self.__lock = LockUnset()
 
     @override
     async def publish(  # type: ignore[override]
@@ -75,7 +106,7 @@ class AioPikaFastProducer(ProducerProto):
     ) -> "IncomingMessage":
         """Publish a message to a RabbitMQ queue."""
         async with _RPCCallback(
-            self._rpc_lock,
+            self.__lock.lock,
             await self.declarer.declare_queue(RABBIT_REPLY),
         ) as response_queue:
             with anyio.fail_after(cmd.timeout):

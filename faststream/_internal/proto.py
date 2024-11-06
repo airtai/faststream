@@ -1,10 +1,8 @@
 from abc import abstractmethod
 from typing import Any, Optional, Protocol, TypeVar, Union, overload
 
-from .setup import SetupAble
 
-
-class Endpoint(SetupAble, Protocol):
+class Endpoint(Protocol):
     @abstractmethod
     def add_prefix(self, prefix: str) -> None: ...
 

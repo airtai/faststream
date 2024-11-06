@@ -90,7 +90,7 @@ class RedisBroker(
     """Redis broker."""
 
     url: str
-    _producer: Optional[RedisFastProducer]
+    _producer: "RedisFastProducer"
 
     def __init__(
         self,
@@ -193,8 +193,6 @@ class RedisBroker(
             Doc("Any custom decorator to apply to wrapped functions."),
         ] = (),
     ) -> None:
-        self._producer = None
-
         if specification_url is None:
             specification_url = url
 
@@ -248,6 +246,11 @@ class RedisBroker(
             serializer=serializer,
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
+        )
+
+        self._state.producer = RedisFastProducer(
+            parser=self._parser,
+            decoder=self._decoder,
         )
 
     @override
@@ -328,11 +331,7 @@ class RedisBroker(
         )
 
         client: Redis[bytes] = Redis.from_pool(pool)  # type: ignore[attr-defined]
-        self._producer = RedisFastProducer(
-            connection=client,
-            parser=self._parser,
-            decoder=self._decoder,
-        )
+        self._producer.connect(client)
         return client
 
     async def close(
@@ -342,6 +341,8 @@ class RedisBroker(
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         await super().close(exc_type, exc_val, exc_tb)
+
+        self._producer.disconnect()
 
         if self._connection is not None:
             await self._connection.aclose()  # type: ignore[attr-defined]
@@ -418,7 +419,7 @@ class RedisBroker(
             maxlen=maxlen,
             reply_to=reply_to,
             headers=headers,
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
         await super()._basic_publish(cmd, producer=self._producer)
 
@@ -444,7 +445,7 @@ class RedisBroker(
             maxlen=maxlen,
             headers=headers,
             timeout=timeout,
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
         )
         msg: RedisMessage = await super()._basic_request(cmd, producer=self._producer)
         return msg
@@ -482,7 +483,7 @@ class RedisBroker(
             reply_to=reply_to,
             headers=headers,
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
 
         await self._basic_publish_batch(cmd, producer=self._producer)

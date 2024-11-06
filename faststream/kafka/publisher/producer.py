@@ -9,6 +9,8 @@ from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
 from faststream.message import encode_message
 
+from .state import EmptyProducerState, ProducerState, RealProducer
+
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaProducer
 
@@ -21,22 +23,34 @@ class AioKafkaFastProducer(ProducerProto):
 
     def __init__(
         self,
-        producer: "AIOKafkaProducer",
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
-        self._producer = producer
+        self._producer: ProducerState = EmptyProducerState()
 
         # NOTE: register default parser to be compatible with request
         default = AioKafkaParser(
             msg_class=KafkaMessage,
             regex=None,
         )
+
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 
-    async def stop(self) -> None:
+    async def connect(self, producer: "AIOKafkaProducer") -> None:
+        await producer.start()
+        self._producer = RealProducer(producer)
+
+    async def disconnect(self) -> None:
         await self._producer.stop()
+        self._producer = EmptyProducerState()
+
+    def __bool__(self) -> None:
+        return bool(self._producer)
+
+    @property
+    def closed(self) -> bool:
+        return self._producer.closed
 
     @override
     async def publish(  # type: ignore[override]
@@ -51,7 +65,7 @@ class AioKafkaFastProducer(ProducerProto):
             **cmd.headers_to_publish(),
         }
 
-        send_future = await self._producer.send(
+        send_future = await self._producer.producer.send(
             topic=cmd.destination,
             value=message,
             key=cmd.key,
@@ -68,7 +82,7 @@ class AioKafkaFastProducer(ProducerProto):
         cmd: "KafkaPublishCommand",
     ) -> None:
         """Publish a batch of messages to a topic."""
-        batch = self._producer.create_batch()
+        batch = self._producer.producer.create_batch()
 
         headers_to_send = cmd.headers_to_publish()
 
@@ -90,7 +104,7 @@ class AioKafkaFastProducer(ProducerProto):
                 headers=[(i, j.encode()) for i, j in final_headers.items()],
             )
 
-        send_future = await self._producer.send_batch(
+        send_future = await self._producer.producer.send_batch(
             batch,
             cmd.destination,
             partition=cmd.partition,

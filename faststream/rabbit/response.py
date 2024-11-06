@@ -45,7 +45,7 @@ class RabbitResponse(Response):
             message=self.body,
             headers=self.headers,
             correlation_id=self.correlation_id,
-            _publish_type=PublishType.Reply,
+            _publish_type=PublishType.REPLY,
             # RMQ specific
             routing_key="",
             **self.publish_options,
