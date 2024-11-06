@@ -11,7 +11,6 @@ from typing_extensions import override
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
-from faststream.middlewares import AckPolicy
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.fake import RabbitFakePublisher
 from faststream.rabbit.schemas import BaseRMQInformation
@@ -25,6 +24,7 @@ if TYPE_CHECKING:
     from faststream._internal.state import BrokerState
     from faststream._internal.types import BrokerMiddleware, CustomCallable
     from faststream.message import StreamMessage
+    from faststream.middlewares import AckPolicy
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -167,8 +167,7 @@ class LogicSubscriber(
         self,
         *,
         timeout: float = 5.0,
-        # TODO: make it no_ack
-        ack_policy: AckPolicy = AckPolicy.REJECT_ON_ERROR,
+        no_ack: bool = True,
     ) -> "Optional[RabbitMessage]":
         assert self._queue_obj, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
@@ -178,7 +177,6 @@ class LogicSubscriber(
         sleep_interval = timeout / 10
 
         raw_message: Optional[IncomingMessage] = None
-        no_ack = self.ack_policy is AckPolicy.DO_NOTHING
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
                 raw_message := await self._queue_obj.get(
