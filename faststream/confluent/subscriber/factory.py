@@ -13,6 +13,7 @@ from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationDefaultSubscriber,
 )
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
@@ -21,7 +22,6 @@ if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
     from faststream.confluent.schemas import TopicPartition
-    from faststream.middlewares import AckPolicy
 
 
 @overload
@@ -124,7 +124,11 @@ def create_subscriber(
     "SpecificationBatchSubscriber",
 ]:
     if ack_policy is not EMPTY and not is_manual:
-        warnings.warn("You can't use acknowledgement policy with core subscriber", RuntimeWarning, stacklevel=2)
+        warnings.warn(
+            "You can't use acknowledgement policy with core subscriber",
+            RuntimeWarning,
+            stacklevel=2,
+        )
 
     if batch:
         return SpecificationBatchSubscriber(
@@ -135,7 +139,9 @@ def create_subscriber(
             group_id=group_id,
             connection_data=connection_data,
             is_manual=is_manual,
-            ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY and is_manual else ack_policy,
+            ack_policy=AckPolicy.REJECT_ON_ERROR
+            if ack_policy is EMPTY and is_manual
+            else ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -150,7 +156,9 @@ def create_subscriber(
         group_id=group_id,
         connection_data=connection_data,
         is_manual=is_manual,
-        ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY and is_manual else ack_policy,
+        ack_policy=AckPolicy.REJECT_ON_ERROR
+        if ack_policy is EMPTY and is_manual
+        else ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,

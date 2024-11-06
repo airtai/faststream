@@ -22,6 +22,7 @@ from typing_extensions import TypeAlias, override
 from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
+from faststream.middlewares import AckPolicy
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,
@@ -55,7 +56,6 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.message import StreamMessage as BrokerStreamMessage
-    from faststream.middlewares import AckPolicy
 
 
 TopicName: TypeAlias = bytes

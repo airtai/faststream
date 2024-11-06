@@ -14,6 +14,7 @@ from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationDefaultSubscriber,
 )
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord, TopicPartition
@@ -22,7 +23,6 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
-    from faststream.middlewares import AckPolicy
 
 
 @overload
@@ -133,7 +133,11 @@ def create_subscriber(
     "SpecificationBatchSubscriber",
 ]:
     if ack_policy is not EMPTY and not is_manual:
-        warnings.warn("You can't use acknowledgement policy with core subscriber", RuntimeWarning, stacklevel=2)
+        warnings.warn(
+            "You can't use acknowledgement policy with core subscriber",
+            RuntimeWarning,
+            stacklevel=2,
+        )
 
     if is_manual and not group_id:
         msg = "You must use `group_id` with manual commit mode."
@@ -165,7 +169,9 @@ def create_subscriber(
             connection_args=connection_args,
             partitions=partitions,
             is_manual=is_manual,
-            ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY and is_manual else ack_policy,
+            ack_policy=AckPolicy.REJECT_ON_ERROR
+            if ack_policy is EMPTY and is_manual
+            else ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -182,7 +188,9 @@ def create_subscriber(
         connection_args=connection_args,
         partitions=partitions,
         is_manual=is_manual,
-        ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY and is_manual else ack_policy,
+        ack_policy=AckPolicy.REJECT_ON_ERROR
+        if ack_policy is EMPTY and is_manual
+        else ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,

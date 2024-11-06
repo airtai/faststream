@@ -6,6 +6,7 @@ from typing_extensions import TypeAlias
 
 from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
+from faststream.middlewares import AckPolicy
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
 from faststream.redis.subscriber.specified import (
@@ -20,7 +21,6 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.types import BrokerMiddleware
-    from faststream.middlewares import AckPolicy
     from faststream.redis.message import UnifyRedisDict
 
 SubsciberType: TypeAlias = Union[
@@ -51,7 +51,11 @@ def create_subscriber(
 
     if (channel_sub := PubSub.validate(channel)) is not None:
         if ack_policy is not EMPTY:
-            warnings.warn("You can't use acknowledgement policy with core subscriber", RuntimeWarning, stacklevel=2)
+            warnings.warn(
+                "You can't use acknowledgement policy with core subscriber",
+                RuntimeWarning,
+                stacklevel=2,
+            )
 
         return SpecificationChannelSubscriber(
             channel=channel_sub,
@@ -71,7 +75,9 @@ def create_subscriber(
             return SpecificationStreamBatchSubscriber(
                 stream=stream_sub,
                 # basic args
-                ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY else ack_policy,
+                ack_policy=AckPolicy.REJECT_ON_ERROR
+                if ack_policy is EMPTY
+                else ack_policy,
                 no_reply=no_reply,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
@@ -95,7 +101,11 @@ def create_subscriber(
 
     if (list_sub := ListSub.validate(list)) is not None:
         if ack_policy is not EMPTY:
-            warnings.warn("You can't use acknowledgement policy with core subscriber", RuntimeWarning, stacklevel=2)
+            warnings.warn(
+                "You can't use acknowledgement policy with core subscriber",
+                RuntimeWarning,
+                stacklevel=2,
+            )
 
         if list_sub.batch:
             return SpecificationListBatchSubscriber(
