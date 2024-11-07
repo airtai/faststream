@@ -17,7 +17,7 @@ hide:
 ### What's Changed
 
 * feat: add explicit message source enum by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1866](https://github.com/airtai/faststream/pull/1866){.external-link target="_blank"}
-* Change uv manuall installation to setup-uv in CI by [@pavelepanov](https://github.com/pavelepanov){.external-link target="_blank"} in [#1871](https://github.com/airtai/faststream/pull/1871){.external-link target="_blank"}
+* Change uv manual installation to setup-uv in CI by [@pavelepanov](https://github.com/pavelepanov){.external-link target="_blank"} in [#1871](https://github.com/airtai/faststream/pull/1871){.external-link target="_blank"}
 * refactor: make Task and Concurrent mixins broker-agnostic by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1873](https://github.com/airtai/faststream/pull/1873){.external-link target="_blank"}
 * Add support for environment variables in faststream run command by [@ulbwa](https://github.com/ulbwa){.external-link target="_blank"} in [#1876](https://github.com/airtai/faststream/pull/1876){.external-link target="_blank"}
 * fastapi example update by [@xodiumx](https://github.com/xodiumx){.external-link target="_blank"} in [#1875](https://github.com/airtai/faststream/pull/1875){.external-link target="_blank"}
