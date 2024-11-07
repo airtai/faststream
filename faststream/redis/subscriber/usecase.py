@@ -126,7 +126,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
     ) -> Sequence["BasePublisherProto"]:
         return (
             RedisFakePublisher(
-                self._state.producer,
+                self._state.get().producer,
                 channel=message.reply_to,
             ),
         )
@@ -284,11 +284,12 @@ class ChannelSubscriber(LogicSubscriber):
             while (raw_message := await self._get_message(self.subscription)) is None:  # noqa: ASYNC110
                 await anyio.sleep(sleep_interval)
 
+        context = self._state.get().di_state.context
+
         msg: Optional[RedisMessage] = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
             middlewares=(
-                m(raw_message, context=self._state.di_state.context)
-                for m in self._broker_middlewares
+                m(raw_message, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,
@@ -411,11 +412,12 @@ class _ListHandlerMixin(LogicSubscriber):
             channel=self.list_sub.name,
         )
 
+        context = self._state.get().di_state.context
+
         msg: RedisListMessage = await process_msg(  # type: ignore[assignment]
             msg=redis_incoming_msg,
             middlewares=(
-                m(redis_incoming_msg, context=self._state.di_state.context)
-                for m in self._broker_middlewares
+                m(redis_incoming_msg, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,
@@ -699,11 +701,12 @@ class _StreamHandlerMixin(LogicSubscriber):
             data=raw_message,
         )
 
+        context = self._state.get().di_state.context
+
         msg: RedisStreamMessage = await process_msg(  # type: ignore[assignment]
             msg=redis_incoming_msg,
             middlewares=(
-                m(redis_incoming_msg, context=self._state.di_state.context)
-                for m in self._broker_middlewares
+                m(redis_incoming_msg, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,

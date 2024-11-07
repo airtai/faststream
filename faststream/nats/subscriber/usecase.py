@@ -52,7 +52,10 @@ if TYPE_CHECKING:
         SendableMessage,
     )
     from faststream._internal.publisher.proto import BasePublisherProto, ProducerProto
-    from faststream._internal.state import BrokerState as BasicState
+    from faststream._internal.state import (
+        BrokerState as BasicState,
+        Pointer,
+    )
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -128,7 +131,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType], Generic[MsgType]):
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "BasicState",
+        state: "Pointer[BasicState]",
     ) -> None:
         self._connection_state = ConnectedSubscriberState(
             parent_state=connection_state,
@@ -260,7 +263,7 @@ class _DefaultSubscriber(LogicSubscriber[MsgType]):
         """Create Publisher objects to use it as one of `publishers` in `self.consume` scope."""
         return (
             NatsFakePublisher(
-                producer=self._state.producer,
+                producer=self._state.get().producer,
                 subject=message.reply_to,
             ),
         )
@@ -347,11 +350,12 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         except TimeoutError:
             return None
 
+        context = self._state.get().di_state.context
+
         msg: NatsMessage = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
             middlewares=(
-                m(raw_message, context=self._state.di_state.context)
-                for m in self._broker_middlewares
+                m(raw_message, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,
@@ -539,11 +543,12 @@ class _StreamSubscriber(_DefaultSubscriber["Msg"]):
         except (TimeoutError, ConnectionClosedError):
             return None
 
+        context = self._state.get().di_state.context
+
         msg: NatsMessage = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
             middlewares=(
-                m(raw_message, context=self._state.di_state.context)
-                for m in self._broker_middlewares
+                m(raw_message, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,
@@ -849,13 +854,14 @@ class BatchPullStreamSubscriber(
         except TimeoutError:
             return None
 
+        context = self._state.get().di_state.context
+
         return cast(
             NatsMessage,
             await process_msg(
                 msg=raw_message,
                 middlewares=(
-                    m(raw_message, context=self._state.di_state.context)
-                    for m in self._broker_middlewares
+                    m(raw_message, context=context) for m in self._broker_middlewares
                 ),
                 parser=self._parser,
                 decoder=self._decoder,
@@ -966,11 +972,12 @@ class KeyValueWatchSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
+        context = self._state.get().di_state.context
+
         msg: NatsKvMessage = await process_msg(
             msg=raw_message,
             middlewares=(
-                m(raw_message, context=self._state.di_state.context)
-                for m in self._broker_middlewares
+                m(raw_message, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,
@@ -1120,11 +1127,12 @@ class ObjStoreWatchSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
+        context = self._state.get().di_state.context
+
         msg: NatsObjMessage = await process_msg(
             msg=raw_message,
             middlewares=(
-                m(raw_message, context=self._state.di_state.context)
-                for m in self._broker_middlewares
+                m(raw_message, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,
@@ -1155,6 +1163,8 @@ class ObjStoreWatchSubscriber(
 
         self.subscription = UnsubscribeAdapter["ObjectStore.ObjectWatcher"](obj_watch)
 
+        context = self._state.get().di_state.context
+
         while self.running:
             with suppress(TimeoutError):
                 message = cast(
@@ -1164,9 +1174,7 @@ class ObjStoreWatchSubscriber(
                 )
 
                 if message:
-                    with self._state.di_state.context.scope(
-                        OBJECT_STORAGE_CONTEXT_KEY, self.bucket
-                    ):
+                    with context.scope(OBJECT_STORAGE_CONTEXT_KEY, self.bucket):
                         await self.consume(message)
 
     def _make_response_publisher(

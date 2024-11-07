@@ -21,8 +21,9 @@ from faststream.rabbit import RabbitBroker
 def test_set_level(level, app: FastStream) -> None:
     level = get_log_level(level)
     set_log_level(level, app)
-    app.broker._state._setup_logger_state()
-    broker_logger = app.broker._state.logger_state.logger.logger
+    broker_state = app.broker._state.get()
+    broker_state._setup_logger_state()
+    broker_logger = broker_state.logger_state.logger.logger
     assert app.logger.level is broker_logger.level is level
 
 

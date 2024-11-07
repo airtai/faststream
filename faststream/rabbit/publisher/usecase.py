@@ -105,7 +105,6 @@ class LogicPublisher(
     def _setup(  # type: ignore[override]
         self,
         *,
-        producer: Optional["AioPikaFastProducer"],
         app_id: Optional[str],
         virtual_host: str,
         state: "BrokerState",
@@ -116,7 +115,7 @@ class LogicPublisher(
 
         self.virtual_host = virtual_host
 
-        super()._setup(producer=producer, state=state)
+        super()._setup(state=state)
 
     @property
     def routing(self) -> str:

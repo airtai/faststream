@@ -75,10 +75,10 @@ class TestRedisBroker(TestBroker[RedisBroker]):
 
     @contextmanager
     def _patch_producer(self, broker: RedisBroker) -> Iterator[None]:
-        old_producer = broker._state.producer
-        broker._state.producer = FakeProducer(broker)
+        old_producer = broker._state.get().producer
+        broker._state.patch_value(producer=FakeProducer(broker))
         yield
-        broker._state.producer = old_producer
+        broker._state.patch_value(producer=old_producer)
 
     @staticmethod
     async def _fake_connect(  # type: ignore[override]

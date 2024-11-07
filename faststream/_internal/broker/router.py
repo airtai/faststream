@@ -6,6 +6,7 @@ from typing import (
     Optional,
 )
 
+from faststream._internal.state.broker import EmptyBrokerState
 from faststream._internal.types import (
     BrokerMiddleware,
     CustomCallable,
@@ -81,6 +82,7 @@ class BrokerRouter(ABCBroker[MsgType]):
             parser=parser,
             decoder=decoder,
             include_in_schema=include_in_schema,
+            state=EmptyBrokerState("You should include router to any broker."),
         )
 
         for h in handlers:

@@ -22,7 +22,6 @@ from faststream._internal.state import (
     SetupAble,
 )
 from faststream._internal.state.broker import (
-    BrokerState,
     InitialBrokerState,
 )
 from faststream._internal.state.producer import ProducerUnset
@@ -137,6 +136,20 @@ class BrokerUsecase(
         ],
         **connection_kwargs: Any,
     ) -> None:
+        state = InitialBrokerState(
+            di_state=DIState(
+                use_fastdepends=apply_types,
+                get_dependent=_get_dependant,
+                call_decorators=_call_decorators,
+                serializer=serializer,
+                provider=Provider(),
+                context=ContextRepo(),
+            ),
+            logger_state=logger_state,
+            graceful_timeout=graceful_timeout,
+            producer=ProducerUnset(),
+        )
+
         super().__init__(
             middlewares=middlewares,
             dependencies=dependencies,
@@ -151,6 +164,7 @@ class BrokerUsecase(
             # Broker is a root router
             include_in_schema=True,
             prefix="",
+            state=state,
         )
 
         self.running = False
@@ -163,20 +177,6 @@ class BrokerUsecase(
             *self.middlewares,
         )
 
-        self._state: BrokerState = InitialBrokerState(
-            di_state=DIState(
-                use_fastdepends=apply_types,
-                get_dependent=_get_dependant,
-                call_decorators=_call_decorators,
-                serializer=serializer,
-                provider=Provider(),
-                context=ContextRepo(),
-            ),
-            logger_state=logger_state,
-            graceful_timeout=graceful_timeout,
-            producer=ProducerUnset(),
-        )
-
         # AsyncAPI information
         self.url = specification_url
         self.protocol = protocol
@@ -187,15 +187,15 @@ class BrokerUsecase(
 
     @property
     def _producer(self) -> "ProducerProto":
-        return self._state.producer
+        return self._state.get().producer
 
     @property
     def context(self) -> "ContextRepo":
-        return self._state.di_state.context
+        return self._state.get().di_state.context
 
     @property
     def provider(self) -> Provider:
-        return self._state.di_state.provider
+        return self._state.get().di_state.provider
 
     async def __aenter__(self) -> "Self":
         await self.connect()
@@ -213,19 +213,24 @@ class BrokerUsecase(
     async def start(self) -> None:
         """Start the broker async use case."""
         # TODO: filter by already running handlers after TestClient refactor
+        state = self._state.get()
+
         for subscriber in self._subscribers:
             log_context = subscriber.get_log_context(None)
             log_context.pop("message_id", None)
-            self._state.logger_state.params_storage.setup_log_contest(log_context)
+            state.logger_state.params_storage.setup_log_contest(log_context)
 
-        self._state._setup_logger_state()
+        state._setup_logger_state()
 
         for subscriber in self._subscribers:
-            self._state.logger_state.log(
+            state.logger_state.log(
                 f"`{subscriber.call_name}` waiting for messages",
                 extra=subscriber.get_log_context(None),
             )
             await subscriber.start()
+
+        if not self.running:
+            self.running = True
 
     async def connect(self, **kwargs: Any) -> ConnectionType:
         """Connect to a remote server."""
@@ -246,13 +251,15 @@ class BrokerUsecase(
 
         Method should be idempotent due could be called twice
         """
-        broker_serializer = self._state.di_state.serializer
+        broker_state = self._state.get()
+        current_di_state = broker_state.di_state
+        broker_serializer = current_di_state.serializer
 
         if di_state is not None:
             if broker_serializer is EMPTY:
                 broker_serializer = di_state.serializer
 
-            self._state.di_state.update(
+            current_di_state.update(
                 serializer=broker_serializer,
                 provider=di_state.provider,
                 context=di_state.context,
@@ -266,15 +273,11 @@ class BrokerUsecase(
 
                 broker_serializer = PydanticSerializer()
 
-            self._state.di_state.update(
+            current_di_state.update(
                 serializer=broker_serializer,
             )
 
-        self._state._setup()
-
-        # TODO: move to start
-        if not self.running:
-            self.running = True
+        broker_state._setup()
 
         # TODO: move setup to object creation
         for h in self._subscribers:
@@ -293,16 +296,6 @@ class BrokerUsecase(
         data.update(kwargs)
         subscriber._setup(**data, state=self._state)
 
-    def setup_publisher(
-        self,
-        publisher: "PublisherProto[MsgType]",
-        **kwargs: Any,
-    ) -> None:
-        """Setup the Publisher to prepare it to starting."""
-        data = self._publisher_setup_extra.copy()
-        data.update(kwargs)
-        publisher._setup(**data, state=self._state)
-
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
         return {
@@ -314,16 +307,9 @@ class BrokerUsecase(
             "broker_decoder": self._decoder,
         }
 
-    @property
-    def _publisher_setup_extra(self) -> "AnyDict":
-        return {
-            "producer": self._producer,
-        }
-
     def publisher(self, *args: Any, **kwargs: Any) -> "PublisherProto[MsgType]":
-        pub = super().publisher(*args, **kwargs)
-        if self.running:
-            self.setup_publisher(pub)
+        pub = super().publisher(*args, **kwargs, is_running=self.running)
+        self.setup_publisher(pub)
         return pub
 
     async def close(

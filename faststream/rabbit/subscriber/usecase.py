@@ -187,11 +187,12 @@ class LogicSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
+        context = self._state.get().di_state.context
+
         msg: Optional[RabbitMessage] = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
             middlewares=(
-                m(raw_message, context=self._state.di_state.context)
-                for m in self._broker_middlewares
+                m(raw_message, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,
@@ -204,7 +205,7 @@ class LogicSubscriber(
     ) -> Sequence["BasePublisherProto"]:
         return (
             RabbitFakePublisher(
-                self._state.producer,
+                self._state.get().producer,
                 routing_key=message.reply_to,
                 app_id=self.app_id,
             ),

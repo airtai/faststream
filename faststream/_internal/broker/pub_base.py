@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from collections.abc import Iterable
 from functools import partial
-from typing import TYPE_CHECKING, Any, Generic, Optional
+from typing import TYPE_CHECKING, Any, Generic
 
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
@@ -25,7 +25,7 @@ class BrokerPublishMixin(Generic[MsgType]):
         message: "SendableMessage",
         queue: str,
         /,
-    ) -> None:
+    ) -> Any:
         raise NotImplementedError
 
     async def _basic_publish(
@@ -33,11 +33,12 @@ class BrokerPublishMixin(Generic[MsgType]):
         cmd: "PublishCommand",
         *,
         producer: "ProducerProto",
-    ) -> Optional[Any]:
+    ) -> Any:
         publish = producer.publish
+        context = self.context  # caches property
 
         for m in self.middlewares:
-            publish = partial(m(None, context=self.context).publish_scope, publish)
+            publish = partial(m(None, context=context).publish_scope, publish)
 
         return await publish(cmd)
 
@@ -46,7 +47,7 @@ class BrokerPublishMixin(Generic[MsgType]):
         self,
         *messages: "SendableMessage",
         queue: str,
-    ) -> None:
+    ) -> Any:
         raise NotImplementedError
 
     async def _basic_publish_batch(
@@ -54,13 +55,14 @@ class BrokerPublishMixin(Generic[MsgType]):
         cmd: "PublishCommand",
         *,
         producer: "ProducerProto",
-    ) -> None:
+    ) -> Any:
         publish = producer.publish_batch
+        context = self.context  # caches property
 
         for m in self.middlewares:
-            publish = partial(m(None, context=self.context).publish_scope, publish)
+            publish = partial(m(None, context=context).publish_scope, publish)
 
-        await publish(cmd)
+        return await publish(cmd)
 
     @abstractmethod
     async def request(
@@ -79,17 +81,16 @@ class BrokerPublishMixin(Generic[MsgType]):
         producer: "ProducerProto",
     ) -> Any:
         request = producer.request
+        context = self.context  # caches property
 
         for m in self.middlewares:
-            request = partial(m(None, context=self.context).publish_scope, request)
+            request = partial(m(None, context=context).publish_scope, request)
 
         published_msg = await request(cmd)
 
         response_msg: Any = await process_msg(
             msg=published_msg,
-            middlewares=(
-                m(published_msg, context=self.context) for m in self.middlewares
-            ),
+            middlewares=(m(published_msg, context=context) for m in self.middlewares),
             parser=producer._parser,
             decoder=producer._decoder,
             source_type=SourceType.RESPONSE,

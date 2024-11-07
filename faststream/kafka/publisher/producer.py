@@ -12,6 +12,8 @@ from faststream.message import encode_message
 from .state import EmptyProducerState, ProducerState, RealProducer
 
 if TYPE_CHECKING:
+    import asyncio
+
     from aiokafka import AIOKafkaProducer
 
     from faststream._internal.types import CustomCallable
@@ -56,7 +58,7 @@ class AioKafkaFastProducer(ProducerProto):
     async def publish(  # type: ignore[override]
         self,
         cmd: "KafkaPublishCommand",
-    ) -> None:
+    ) -> "asyncio.Future":
         """Publish a message to a topic."""
         message, content_type = encode_message(cmd.body)
 
@@ -76,11 +78,12 @@ class AioKafkaFastProducer(ProducerProto):
 
         if not cmd.no_confirm:
             await send_future
+        return send_future
 
     async def publish_batch(
         self,
         cmd: "KafkaPublishCommand",
-    ) -> None:
+    ) -> "asyncio.Future":
         """Publish a batch of messages to a topic."""
         batch = self._producer.producer.create_batch()
 
@@ -111,6 +114,7 @@ class AioKafkaFastProducer(ProducerProto):
         )
         if not cmd.no_confirm:
             await send_future
+        return send_future
 
     @override
     async def request(

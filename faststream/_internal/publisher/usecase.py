@@ -33,7 +33,7 @@ from faststream.specification.asyncapi.utils import to_camelcase
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import ProducerProto
-    from faststream._internal.state import BrokerState
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.types import (
         BrokerMiddleware,
         PublisherMiddleware,
@@ -83,7 +83,7 @@ class PublisherUsecase(PublisherProto[MsgType]):
         self.middlewares = middlewares
         self._broker_middlewares = broker_middlewares
 
-        self._producer: ProducerProto = ProducerUnset()
+        self.__producer: Optional[ProducerProto] = ProducerUnset()
 
         self._fake_handler = False
         self.mock = None
@@ -97,15 +97,20 @@ class PublisherUsecase(PublisherProto[MsgType]):
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         self._broker_middlewares = (*self._broker_middlewares, middleware)
 
+    @property
+    def _producer(self) -> "ProducerProto":
+        return self.__producer or self._state.get().producer
+
     @override
     def _setup(  # type: ignore[override]
         self,
         *,
-        producer: "ProducerProto",
-        state: Optional["BrokerState"],
+        state: "Pointer[BrokerState]",
+        producer: Optional["ProducerProto"] = None,
     ) -> None:
+        # TODO: add EmptyBrokerState to init
         self._state = state
-        self._producer = producer
+        self.__producer = producer
 
     def set_test(
         self,
@@ -150,11 +155,13 @@ class PublisherUsecase(PublisherProto[MsgType]):
     ) -> Any:
         pub: Callable[..., Awaitable[Any]] = self._producer.publish
 
+        context = self._state.get().di_state.context
+
         for pub_m in chain(
             (
                 _extra_middlewares
                 or (
-                    m(None, context=self._state.di_state.context).publish_scope
+                    m(None, context=context).publish_scope
                     for m in self._broker_middlewares
                 )
             ),
@@ -168,9 +175,9 @@ class PublisherUsecase(PublisherProto[MsgType]):
         self,
         cmd: "PublishCommand",
     ) -> Optional[Any]:
-        context = self._state.di_state.context
-
         request = self._producer.request
+
+        context = self._state.get().di_state.context
 
         for pub_m in chain(
             (m(None, context=context).publish_scope for m in self._broker_middlewares),
@@ -199,11 +206,13 @@ class PublisherUsecase(PublisherProto[MsgType]):
     ) -> Optional[Any]:
         pub = self._producer.publish_batch
 
+        context = self._state.get().di_state.context
+
         for pub_m in chain(
             (
                 _extra_middlewares
                 or (
-                    m(None, context=self._state.di_state.context).publish_scope
+                    m(None, context=context).publish_scope
                     for m in self._broker_middlewares
                 )
             ),
@@ -230,11 +239,13 @@ class PublisherUsecase(PublisherProto[MsgType]):
                 payloads.append((body, ""))
 
         else:
+            di_state = self._state.get().di_state
+
             for call in self.calls:
                 call_model = build_call_model(
                     call,
-                    dependency_provider=self._state.di_state.provider,
-                    serializer_cls=self._state.di_state.serializer,
+                    dependency_provider=di_state.provider,
+                    serializer_cls=di_state.serializer,
                 )
 
                 response_type = next(

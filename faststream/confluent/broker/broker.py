@@ -33,6 +33,7 @@ from .logging import make_kafka_logger_state
 from .registrator import KafkaRegistrator
 
 if TYPE_CHECKING:
+    import asyncio
     from types import TracebackType
 
     from confluent_kafka import Message
@@ -401,9 +402,11 @@ class KafkaBroker(
 
         self.config = ConfluentFastConfig(config)
 
-        self._state.producer = AsyncConfluentFastProducer(
-            parser=self._parser,
-            decoder=self._decoder,
+        self._state.patch_value(
+            producer=AsyncConfluentFastProducer(
+                parser=self._parser,
+                decoder=self._decoder,
+            )
         )
 
     async def close(
@@ -452,7 +455,7 @@ class KafkaBroker(
         return partial(
             AsyncConfluentConsumer,
             **filter_by_dict(ConsumerConnectionParams, kwargs),
-            logger=self._state.logger_state,
+            logger=self._state.get().logger_state,
             config=self.config,
         )
 
@@ -503,7 +506,7 @@ class KafkaBroker(
             bool,
             Doc("Do not wait for Kafka publish confirmation."),
         ] = False,
-    ) -> None:
+    ) -> "asyncio.Future":
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
@@ -523,7 +526,7 @@ class KafkaBroker(
             correlation_id=correlation_id or gen_cor_id(),
             _publish_type=PublishType.PUBLISH,
         )
-        await super()._basic_publish(cmd, producer=self._producer)
+        return await super()._basic_publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -576,7 +579,7 @@ class KafkaBroker(
             _publish_type=PublishType.PUBLISH,
         )
 
-        await self._basic_publish_batch(cmd, producer=self._producer)
+        return await self._basic_publish_batch(cmd, producer=self._producer)
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:

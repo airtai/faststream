@@ -18,6 +18,7 @@ from typing_extensions import Doc, override
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
+from faststream._internal.publisher.proto import PublisherProto
 from faststream.message import gen_cor_id
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -292,10 +293,12 @@ class RabbitBroker(
         self._channel = None
 
         declarer = self.declarer = RabbitDeclarer()
-        self._state.producer = AioPikaFastProducer(
-            declarer=declarer,
-            decoder=self._decoder,
-            parser=self._parser,
+        self._state.patch_value(
+            producer=AioPikaFastProducer(
+                declarer=declarer,
+                decoder=self._decoder,
+                parser=self._parser,
+            )
         )
 
     @property
@@ -307,13 +310,21 @@ class RabbitBroker(
             "declarer": self.declarer,
         }
 
-    @property
-    def _publisher_setup_extra(self) -> "AnyDict":
-        return {
-            **super()._publisher_setup_extra,
-            "app_id": self.app_id,
-            "virtual_host": self.virtual_host,
-        }
+    def setup_publisher(
+        self,
+        publisher: PublisherProto[IncomingMessage],
+        **kwargs: Any,
+    ) -> None:
+        return super().setup_publisher(
+            publisher,
+            **(
+                {
+                    "app_id": self.app_id,
+                    "virtual_host": self.virtual_host,
+                }
+                | kwargs
+            ),
+        )
 
     @override
     async def connect(  # type: ignore[override]
@@ -509,8 +520,9 @@ class RabbitBroker(
 
         await super().start()
 
+        logger_state = self._state.get().logger_state
         if self._max_consumers:
-            self._state.logger_state.log(f"Set max consumers to {self._max_consumers}")
+            logger_state.log(f"Set max consumers to {self._max_consumers}")
 
     @override
     async def publish(  # type: ignore[override]

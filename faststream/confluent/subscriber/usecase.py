@@ -165,11 +165,12 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         raw_message = await self.consumer.getone(timeout=timeout)
 
+        context = self._state.get().di_state.context
+
         return await process_msg(
             msg=raw_message,
             middlewares=(
-                m(raw_message, context=self._state.di_state.context)
-                for m in self._broker_middlewares
+                m(raw_message, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,
@@ -181,7 +182,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     ) -> Sequence["BasePublisherProto"]:
         return (
             KafkaFakePublisher(
-                self._state.producer,
+                self._state.get().producer,
                 topic=message.reply_to,
             ),
         )

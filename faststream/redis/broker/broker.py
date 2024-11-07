@@ -248,9 +248,11 @@ class RedisBroker(
             _call_decorators=_call_decorators,
         )
 
-        self._state.producer = RedisFastProducer(
-            parser=self._parser,
-            decoder=self._decoder,
+        self._state.patch_value(
+            producer=RedisFastProducer(
+                parser=self._parser,
+                decoder=self._decoder,
+            )
         )
 
     @override
@@ -402,7 +404,7 @@ class RedisBroker(
                 "Remove eldest message if maxlen exceeded.",
             ),
         ] = None,
-    ) -> None:
+    ) -> int:
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
@@ -421,7 +423,7 @@ class RedisBroker(
             headers=headers,
             _publish_type=PublishType.PUBLISH,
         )
-        await super()._basic_publish(cmd, producer=self._producer)
+        return await super()._basic_publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -475,7 +477,7 @@ class RedisBroker(
             Optional["AnyDict"],
             Doc("Message headers to store metainformation."),
         ] = None,
-    ) -> None:
+    ) -> int:
         """Publish multiple messages to Redis List by one request."""
         cmd = RedisPublishCommand(
             *messages,
@@ -486,7 +488,7 @@ class RedisBroker(
             _publish_type=PublishType.PUBLISH,
         )
 
-        await self._basic_publish_batch(cmd, producer=self._producer)
+        return await self._basic_publish_batch(cmd, producer=self._producer)
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:

@@ -11,6 +11,8 @@ from faststream.message import encode_message
 from .state import EmptyProducerState, ProducerState, RealProducer
 
 if TYPE_CHECKING:
+    import asyncio
+
     from faststream._internal.types import CustomCallable
     from faststream.confluent.client import AsyncConfluentProducer
     from faststream.confluent.response import KafkaPublishCommand
@@ -48,7 +50,7 @@ class AsyncConfluentFastProducer(ProducerProto):
     async def publish(  # type: ignore[override]
         self,
         cmd: "KafkaPublishCommand",
-    ) -> None:
+    ) -> "asyncio.Future":
         """Publish a message to a topic."""
         message, content_type = encode_message(cmd.body)
 
@@ -57,7 +59,7 @@ class AsyncConfluentFastProducer(ProducerProto):
             **cmd.headers_to_publish(),
         }
 
-        await self._producer.producer.send(
+        return await self._producer.producer.send(
             topic=cmd.destination,
             value=message,
             key=cmd.key,
@@ -105,6 +107,6 @@ class AsyncConfluentFastProducer(ProducerProto):
     async def request(
         self,
         cmd: "KafkaPublishCommand",
-    ) -> Optional[Any]:
+    ) -> Any:
         msg = "Kafka doesn't support `request` method without test client."
         raise FeatureNotSupportedException(msg)

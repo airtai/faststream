@@ -57,10 +57,15 @@ class TestNatsBroker(TestBroker[NatsBroker]):
 
     @contextmanager
     def _patch_producer(self, broker: NatsBroker) -> Iterator[None]:
-        old_js_producer, old_producer = broker._js_producer, broker._state.producer
-        broker._js_producer = broker._state.producer = FakeProducer(broker)
-        yield
-        broker._js_producer, broker._state.producer = old_js_producer, old_producer
+        old_js_producer, old_producer = broker._js_producer, broker._producer
+        fake_producer = broker._js_producer = FakeProducer(broker)
+
+        broker._state.patch_value(producer=fake_producer)
+        try:
+            yield
+        finally:
+            broker._js_producer = old_js_producer
+            broker._state.patch_value(producer=old_producer)
 
     async def _fake_connect(
         self,

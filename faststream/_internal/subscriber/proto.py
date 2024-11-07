@@ -17,7 +17,7 @@ if TYPE_CHECKING:
         BasePublisherProto,
         ProducerProto,
     )
-    from faststream._internal.state import BrokerState
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.subscriber.call_item import HandlerItem
     from faststream._internal.types import (
         BrokerMiddleware,
@@ -61,7 +61,7 @@ class SubscriberProto(
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "BrokerState",
+        state: "Pointer[BrokerState]",
     ) -> None: ...
 
     @abstractmethod

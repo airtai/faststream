@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AsyncFuncAny, Decorator
-    from faststream._internal.state import DIState
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
     from faststream._internal.types import (
         AsyncCallable,
@@ -75,11 +75,13 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         *,
         parser: "AsyncCallable",
         decoder: "AsyncCallable",
+        state: "Pointer[BrokerState]",
         broker_dependencies: Iterable["Dependant"],
-        fast_depends_state: "DIState",
         _call_decorators: Iterable["Decorator"],
     ) -> None:
         if self.dependant is None:
+            di_state = state.get().di_state
+
             self.item_parser = parser
             self.item_decoder = decoder
 
@@ -87,14 +89,14 @@ class HandlerItem(SetupAble, Generic[MsgType]):
 
             dependant = self.handler.set_wrapped(
                 dependencies=dependencies,
-                _call_decorators=_call_decorators,
-                state=fast_depends_state,
+                _call_decorators=(*_call_decorators, *di_state.call_decorators),
+                state=di_state,
             )
 
-            if fast_depends_state.get_dependent is None:
+            if di_state.get_dependent is None:
                 self.dependant = dependant
             else:
-                self.dependant = fast_depends_state.get_dependent(
+                self.dependant = di_state.get_dependent(
                     self.handler._original_call,
                     dependencies,
                 )

@@ -100,10 +100,17 @@ class TestBroker(Generic[Broker]):
 
     @contextmanager
     def _patch_logger(self, broker: Broker) -> Iterator[None]:
-        old_logger = broker._state.logger_state.logger
-        broker._state.logger_state.logger = RealLoggerObject(MagicMock())
-        yield
-        broker._state.logger_state.logger = old_logger
+        state = broker._state.get()
+        state._setup_logger_state()
+
+        logger_state = state.logger_state
+        old_log_object = logger_state.logger
+
+        logger_state.logger = RealLoggerObject(MagicMock())
+        try:
+            yield
+        finally:
+            logger_state.logger = old_log_object
 
     @contextmanager
     def _patch_broker(self, broker: Broker) -> Generator[None, None, None]:

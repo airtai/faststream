@@ -16,6 +16,8 @@ from faststream.message import gen_cor_id
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
+    import asyncio
+
     from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.confluent.message import KafkaMessage
@@ -26,7 +28,7 @@ if TYPE_CHECKING:
 class LogicPublisher(PublisherUsecase[MsgType]):
     """A class to publish messages to a Kafka topic."""
 
-    _producer: Optional["AsyncConfluentFastProducer"]
+    _producer: "AsyncConfluentFastProducer"
 
     def __init__(
         self,
@@ -58,8 +60,6 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         self.partition = partition
         self.reply_to = reply_to
         self.headers = headers or {}
-
-        self._producer = None
 
     def add_prefix(self, prefix: str) -> None:
         self.topic = f"{prefix}{self.topic}"
@@ -141,7 +141,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         correlation_id: Optional[str] = None,
         reply_to: str = "",
         no_confirm: bool = False,
-    ) -> None:
+    ) -> "asyncio.Future":
         cmd = KafkaPublishCommand(
             message,
             topic=topic or self.topic,
@@ -154,7 +154,7 @@ class DefaultPublisher(LogicPublisher[Message]):
             no_confirm=no_confirm,
             _publish_type=PublishType.PUBLISH,
         )
-        await self._basic_publish(cmd, _extra_middlewares=())
+        return await self._basic_publish(cmd, _extra_middlewares=())
 
     @override
     async def _publish(
@@ -226,7 +226,7 @@ class BatchPublisher(LogicPublisher[tuple[Message, ...]]):
             _publish_type=PublishType.PUBLISH,
         )
 
-        await self._basic_publish_batch(cmd, _extra_middlewares=())
+        return await self._basic_publish_batch(cmd, _extra_middlewares=())
 
     @override
     async def _publish(

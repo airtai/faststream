@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
     """A class to represent a Redis publisher."""
 
-    _producer: Optional["RedisFastProducer"]
+    _producer: "RedisFastProducer"
 
     def __init__(
         self,
@@ -51,8 +51,6 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
 
         self.reply_to = reply_to
         self.headers = headers or {}
-
-        self._producer = None
 
     @abstractmethod
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":
@@ -127,7 +125,7 @@ class ChannelPublisher(LogicPublisher):
                 "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
-    ) -> None:
+    ) -> int:
         cmd = RedisPublishCommand(
             message,
             channel=channel or self.channel.name,
@@ -136,7 +134,7 @@ class ChannelPublisher(LogicPublisher):
             correlation_id=correlation_id or gen_cor_id(),
             _publish_type=PublishType.PUBLISH,
         )
-        await self._basic_publish(cmd, _extra_middlewares=())
+        return await self._basic_publish(cmd, _extra_middlewares=())
 
     @override
     async def _publish(
@@ -264,7 +262,7 @@ class ListPublisher(LogicPublisher):
                 "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
-    ) -> None:
+    ) -> int:
         cmd = RedisPublishCommand(
             message,
             list=list or self.list.name,
@@ -361,7 +359,7 @@ class ListBatchPublisher(ListPublisher):
             Optional["AnyDict"],
             Doc("Message headers to store metainformation."),
         ] = None,
-    ) -> None:
+    ) -> int:
         cmd = RedisPublishCommand(
             *messages,
             list=list or self.list.name,
@@ -371,7 +369,7 @@ class ListBatchPublisher(ListPublisher):
             _publish_type=PublishType.PUBLISH,
         )
 
-        await self._basic_publish_batch(cmd, _extra_middlewares=())
+        return await self._basic_publish_batch(cmd, _extra_middlewares=())
 
     @override
     async def _publish(  # type: ignore[override]
@@ -467,7 +465,7 @@ class StreamPublisher(LogicPublisher):
                 "Remove eldest message if maxlen exceeded.",
             ),
         ] = None,
-    ) -> None:
+    ) -> Any:
         cmd = RedisPublishCommand(
             message,
             stream=stream or self.stream.name,

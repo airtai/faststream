@@ -37,7 +37,6 @@ from faststream.nats.broker import NatsBroker
 from faststream.nats.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
-    import ssl
     from enum import Enum
 
     from fastapi import params
@@ -154,21 +153,9 @@ class NatsRouter(StreamRouter["Msg"]):
             bool,
             Doc("Boolean indicating should commands be echoed."),
         ] = False,
-        tls: Annotated[
-            Optional["ssl.SSLContext"],
-            Doc("Some SSL context to make NATS connections secure."),
-        ] = None,
         tls_hostname: Annotated[
             Optional[str],
             Doc("Hostname for TLS."),
-        ] = None,
-        user: Annotated[
-            Optional[str],
-            Doc("Username for NATS auth."),
-        ] = None,
-        password: Annotated[
-            Optional[str],
-            Doc("Username password for NATS auth."),
         ] = None,
         token: Annotated[
             Optional[str],
@@ -521,10 +508,7 @@ class NatsRouter(StreamRouter["Msg"]):
             dont_randomize=dont_randomize,
             flusher_queue_size=flusher_queue_size,
             no_echo=no_echo,
-            tls=tls,
             tls_hostname=tls_hostname,
-            user=user,
-            password=password,
             token=token,
             drain_timeout=drain_timeout,
             signature_cb=signature_cb,

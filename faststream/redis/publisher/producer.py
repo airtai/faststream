@@ -57,7 +57,7 @@ class RedisFastProducer(ProducerProto):
     async def publish(  # type: ignore[override]
         self,
         cmd: "RedisPublishCommand",
-    ) -> None:
+    ) -> int:
         msg = RawMessage.encode(
             message=cmd.body,
             reply_to=cmd.reply_to,
@@ -65,7 +65,7 @@ class RedisFastProducer(ProducerProto):
             correlation_id=cmd.correlation_id,
         )
 
-        await self.__publish(msg, cmd)
+        return await self.__publish(msg, cmd)
 
     @override
     async def request(  # type: ignore[override]
@@ -111,7 +111,7 @@ class RedisFastProducer(ProducerProto):
     async def publish_batch(
         self,
         cmd: "RedisPublishCommand",
-    ) -> None:
+    ) -> int:
         batch = [
             RawMessage.encode(
                 message=msg,
@@ -121,7 +121,7 @@ class RedisFastProducer(ProducerProto):
             )
             for msg in cmd.batch_bodies
         ]
-        await self._connection.client.rpush(cmd.destination, *batch)
+        return await self._connection.client.rpush(cmd.destination, *batch)
 
     async def __publish(self, msg: bytes, cmd: "RedisPublishCommand") -> None:
         if cmd.destination_type is DestinationType.Channel:

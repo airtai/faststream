@@ -11,7 +11,7 @@ from faststream.specification.base.proto import EndpointProto
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
-    from faststream._internal.state import BrokerState
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -109,7 +109,7 @@ class PublisherProto(
         self,
         *,
         producer: Optional["ProducerProto"],
-        state: "BrokerState",
+        state: "Pointer[BrokerState]",
     ) -> None: ...
 
     @abstractmethod

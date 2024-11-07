@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from faststream._internal.publisher.proto import (
         BasePublisherProto,
     )
-    from faststream._internal.state import BrokerState
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -148,8 +148,9 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "BrokerState",
+        state: "Pointer[BrokerState]",
     ) -> None:
+        # TODO: add EmptyBrokerState to init
         self._state = state
 
         self.extra_context = extra_context
@@ -171,12 +172,9 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             call._setup(
                 parser=async_parser,
                 decoder=async_decoder,
-                fast_depends_state=state.di_state,
-                _call_decorators=(
-                    *self._call_decorators,
-                    *state.di_state.call_decorators,
-                ),
+                state=state,
                 broker_dependencies=self._broker_dependencies,
+                _call_decorators=self._call_decorators,
             )
 
             call.handler.refresh(with_mock=False)
@@ -196,7 +194,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         """
         self.running = False
         if isinstance(self.lock, MultiLock):
-            await self.lock.wait_release(self._state.graceful_timeout)
+            await self.lock.wait_release(self._state.get().graceful_timeout)
 
     def add_call(
         self,
@@ -303,7 +301,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             # Stop handler at `exit()` call
             await self.close()
 
-            if app := self._state.di_state.context.get("app"):
+            if app := self._state.get().di_state.context.get("app"):
                 app.exit()
 
         except Exception:  # nosec B110
@@ -312,14 +310,15 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
 
     async def process_message(self, msg: MsgType) -> "Response":
         """Execute all message processing stages."""
-        context: ContextRepo = self._state.di_state.context
+        broker_state = self._state.get()
+        context: ContextRepo = broker_state.di_state.context
 
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
 
             # Enter context before middlewares
             stack.enter_context(
-                context.scope("logger", self._state.logger_state.logger.logger)
+                context.scope("logger", broker_state.logger_state.logger.logger)
             )
             for k, v in self.extra_context.items():
                 stack.enter_context(context.scope(k, v))
