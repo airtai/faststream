@@ -88,8 +88,19 @@ def create_subscriber(
     config = config or ConsumerConfig(filter_subjects=[])
 
     if stream:
-        # TODO: pull & queue warning
-        # TODO: push & durable warning
+        if pull_sub is not None and queue is not None:
+            warnings.warn(
+                "`queue` option has no effect with JetStream Pull Subscribtion. Probably, you wanted to use durable instead.",
+                RuntimeWarning,
+                stacklevel=3,
+            )
+
+        if pull_sub is None and durable is not None:
+            warnings.warn(
+                "We recommend use `queue` for Push Subscription.",
+                RuntimeWarning,
+                stacklevel=3,
+            )
 
         extra_options: AnyDict = {
             "pending_msgs_limit": pending_msgs_limit
@@ -114,6 +125,49 @@ def create_subscriber(
                     "manual_ack": not ack_first,
                 }
             )
+
+        if pull_sub is not None:
+            if ordered_consumer is not None:
+                warnings.warn(
+                    "`ordered_consumer` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
+
+            if idle_heartbeat is not None:
+                warnings.warn(
+                    "`idle_heartbeat` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
+
+            if flow_control is not None:
+                warnings.warn(
+                    "`flow_control` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
+
+            if deliver_policy is not None:
+                warnings.warn(
+                    "`deliver_policy` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
+
+            if headers_only is not None:
+                warnings.warn(
+                    "`headers_only` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
+
+            if ack_first:
+                warnings.warn(
+                    "`ack_first` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
 
     else:
         extra_options = {
