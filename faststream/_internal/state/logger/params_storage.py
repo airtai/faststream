@@ -57,7 +57,8 @@ class ManualLoggerStorage(LoggerParamsStorage):
         return self.__logger
 
     def set_level(self, level: int) -> None:
-        """We shouldn't set custom logger level by CLI."""
+        if getattr(self.__logger, "setLevel", None):
+            self.__logger.setLevel(level)  # type: ignore[attr-defined]
 
 
 class DefaultLoggerStorage(LoggerParamsStorage):

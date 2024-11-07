@@ -4,7 +4,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
-    from faststream.app import FastStream
+    from faststream._internal.application import Application
 
 
 class LogLevels(str, Enum):
@@ -63,7 +63,7 @@ def get_log_level(level: Union[LogLevels, str, int]) -> int:
     return None
 
 
-def set_log_level(level: int, app: "FastStream") -> None:
+def set_log_level(level: int, app: "Application") -> None:
     """Sets the log level for an application."""
     if app.logger and getattr(app.logger, "setLevel", None):
         app.logger.setLevel(level)  # type: ignore[attr-defined]
