@@ -159,7 +159,11 @@ def run(
             _run(*args)
 
     else:
-        _run(*args)
+        _run_imported_app(
+            app_obj,
+            extra_options=extra,
+            log_level=casted_log_level,
+        )
 
 
 def _run(
@@ -168,11 +172,24 @@ def _run(
     extra_options: Dict[str, "SettingField"],
     is_factory: bool,
     log_level: int = logging.NOTSET,
-    app_level: int = logging.INFO,
+    app_level: int = logging.INFO,  # option for reloader only
 ) -> None:
     """Runs the specified application."""
     _, app_obj = import_from_string(app, is_factory=is_factory)
+    _run_imported_app(
+        app_obj,
+        extra_options=extra_options,
+        log_level=log_level,
+        app_level=app_level,
+    )
 
+
+def _run_imported_app(
+    app_obj: "Application",
+    extra_options: Dict[str, "SettingField"],
+    log_level: int = logging.NOTSET,
+    app_level: int = logging.INFO,  # option for reloader only
+) -> None:
     if not isinstance(app_obj, Application):
         raise typer.BadParameter(
             f'Imported object "{app_obj}" must be "Application" type.',

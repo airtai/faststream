@@ -66,9 +66,14 @@ if PYDANTIC_V2:
             with_info_plain_validator_function as with_info_plain_validator_function,
         )
     else:
-        from pydantic._internal._annotated_handlers import (  # type: ignore[no-redef]
-            GetJsonSchemaHandler as GetJsonSchemaHandler,
-        )
+        if PYDANTIC_VERSION >= "2.10":
+            from pydantic.annotated_handlers import (
+                GetJsonSchemaHandler as GetJsonSchemaHandler,
+            )
+        else:
+            from pydantic._internal._annotated_handlers import (  # type: ignore[no-redef]
+                GetJsonSchemaHandler as GetJsonSchemaHandler,
+            )
         from pydantic_core.core_schema import (
             general_plain_validator_function as with_info_plain_validator_function,
         )
