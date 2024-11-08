@@ -359,7 +359,7 @@ class NatsBroker(
         nkeys_seed_str: Annotated[
             Optional[str],
             Doc("Raw nkeys seed to be used."),
-        ],
+        ] = None,
         inbox_prefix: Annotated[
             Union[str, bytes],
             Doc(
