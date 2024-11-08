@@ -74,6 +74,7 @@ class _LoggingMiddleware(BaseMiddleware):
             c = self.context.get_local("log_context", {})
 
             if exc_type:
+                # TODO: move critical logging to `subscriber.consume()` method
                 if issubclass(exc_type, IgnoredException):
                     self.logger.log(
                         log_level=logging.INFO,

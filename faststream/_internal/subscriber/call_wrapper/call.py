@@ -32,6 +32,18 @@ if TYPE_CHECKING:
     from faststream.message import StreamMessage
 
 
+def ensure_call_wrapper(
+    call: Union[
+        "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+        Callable[P_HandlerParams, T_HandlerReturn],
+    ],
+) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
+    if isinstance(call, HandlerCallWrapper):
+        return call
+
+    return HandlerCallWrapper(call)
+
+
 class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     """A generic class to wrap handler calls."""
 
@@ -52,31 +64,18 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         "mock",
     )
 
-    def __new__(
-        cls,
-        call: Union[
-            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
-            Callable[P_HandlerParams, T_HandlerReturn],
-        ],
-    ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-        """Create a new instance of the class."""
-        if isinstance(call, cls):
-            return call
-        return super().__new__(cls)
-
     def __init__(
         self,
         call: Callable[P_HandlerParams, T_HandlerReturn],
     ) -> None:
         """Initialize a handler."""
-        if not isinstance(call, HandlerCallWrapper):
-            self._original_call = call
-            self._wrapped_call = None
-            self._publishers = []
+        self._original_call = call
+        self._wrapped_call = None
+        self._publishers = []
 
-            self.mock = None
-            self.future = None
-            self.is_test = False
+        self.mock = None
+        self.future = None
+        self.is_test = False
 
     def __call__(
         self,

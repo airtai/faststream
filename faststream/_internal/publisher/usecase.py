@@ -1,23 +1,24 @@
 from collections.abc import Awaitable, Iterable
 from functools import partial
-from inspect import Parameter, unwrap
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
-    Annotated,
     Any,
     Callable,
     Optional,
+    Union,
 )
 from unittest.mock import MagicMock
 
-from fast_depends.core import build_call_model
-from fast_depends.pydantic._compat import create_model, get_config_base
-from typing_extensions import Doc, override
+from typing_extensions import override
 
 from faststream._internal.publisher.proto import PublisherProto
+from faststream._internal.state import BrokerState, EmptyBrokerState, Pointer
 from faststream._internal.state.producer import ProducerUnset
-from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
+from faststream._internal.subscriber.call_wrapper.call import (
+    HandlerCallWrapper,
+    ensure_call_wrapper,
+)
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import (
     MsgType,
@@ -25,15 +26,11 @@ from faststream._internal.types import (
     T_HandlerReturn,
 )
 from faststream.message.source_type import SourceType
-from faststream.specification.asyncapi.message import (
-    get_model_schema,
-)
-from faststream.specification.asyncapi.utils import to_camelcase
+
+from .specified import BaseSpicificationPublisher
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import ProducerProto
-    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.types import (
         BrokerMiddleware,
         PublisherMiddleware,
@@ -41,58 +38,38 @@ if TYPE_CHECKING:
     from faststream.response.response import PublishCommand
 
 
-class PublisherUsecase(PublisherProto[MsgType]):
+class PublisherUsecase(BaseSpicificationPublisher, PublisherProto[MsgType]):
     """A base class for publishers in an asynchronous API."""
-
-    mock: Optional[MagicMock]
-    calls: list[Callable[..., Any]]
 
     def __init__(
         self,
         *,
-        broker_middlewares: Annotated[
-            Iterable["BrokerMiddleware[MsgType]"],
-            Doc("Top-level middlewares to use in direct `.publish` call."),
-        ],
-        middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Publisher middlewares."),
-        ],
+        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
-        schema_: Annotated[
-            Optional[Any],
-            Doc(
-                "AsyncAPI publishing message type"
-                "Should be any python-native object annotation or `pydantic.BaseModel`.",
-            ),
-        ],
-        title_: Annotated[
-            Optional[str],
-            Doc("AsyncAPI object title."),
-        ],
-        description_: Annotated[
-            Optional[str],
-            Doc("AsyncAPI object description."),
-        ],
-        include_in_schema: Annotated[
-            bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
-        ],
+        schema_: Optional[Any],
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
     ) -> None:
-        self.calls = []
         self.middlewares = middlewares
         self._broker_middlewares = broker_middlewares
 
         self.__producer: Optional[ProducerProto] = ProducerUnset()
 
         self._fake_handler = False
-        self.mock = None
+        self.mock: Optional[MagicMock] = None
 
-        # AsyncAPI
-        self.title_ = title_
-        self.description_ = description_
-        self.include_in_schema = include_in_schema
-        self.schema_ = schema_
+        super().__init__(
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+            schema_=schema_,
+        )
+
+        self._state: Pointer[BrokerState] = Pointer(
+            EmptyBrokerState("You should include publisher to any broker.")
+        )
 
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         self._broker_middlewares = (*self._broker_middlewares, middleware)
@@ -108,21 +85,14 @@ class PublisherUsecase(PublisherProto[MsgType]):
         state: "Pointer[BrokerState]",
         producer: Optional["ProducerProto"] = None,
     ) -> None:
-        # TODO: add EmptyBrokerState to init
         self._state = state
         self.__producer = producer
 
     def set_test(
         self,
         *,
-        mock: Annotated[
-            MagicMock,
-            Doc("Mock object to check in tests."),
-        ],
-        with_fake: Annotated[
-            bool,
-            Doc("Whetevet publisher's fake subscriber created or not."),
-        ],
+        mock: MagicMock,
+        with_fake: bool,
     ) -> None:
         """Turn publisher to testing mode."""
         self.mock = mock
@@ -135,17 +105,18 @@ class PublisherUsecase(PublisherProto[MsgType]):
 
     def __call__(
         self,
-        func: Callable[P_HandlerParams, T_HandlerReturn],
+        func: Union[
+            Callable[P_HandlerParams, T_HandlerReturn],
+            HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
+        ],
     ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
         """Decorate user's function by current publisher."""
-        handler_call = HandlerCallWrapper[
-            MsgType,
-            P_HandlerParams,
-            T_HandlerReturn,
-        ](func)
-        handler_call._publishers.append(self)
-        self.calls.append(handler_call._original_call)
-        return handler_call
+        handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn] = (
+            ensure_call_wrapper(func)
+        )
+        handler._publishers.append(self)
+        super().__call__(handler)
+        return handler
 
     async def _basic_publish(
         self,
@@ -221,46 +192,3 @@ class PublisherUsecase(PublisherProto[MsgType]):
             pub = partial(pub_m, pub)
 
         await pub(cmd)
-
-    def get_payloads(self) -> list[tuple["AnyDict", str]]:
-        payloads: list[tuple[AnyDict, str]] = []
-
-        if self.schema_:
-            body = get_model_schema(
-                call=create_model(
-                    "",
-                    __config__=get_config_base(),
-                    response__=(self.schema_, ...),
-                ),
-                prefix=f"{self.name}:Message",
-            )
-
-            if body:  # pragma: no branch
-                payloads.append((body, ""))
-
-        else:
-            di_state = self._state.get().di_state
-
-            for call in self.calls:
-                call_model = build_call_model(
-                    call,
-                    dependency_provider=di_state.provider,
-                    serializer_cls=di_state.serializer,
-                )
-
-                response_type = next(
-                    iter(call_model.serializer.response_option.values())
-                ).field_type
-                if response_type is not None and response_type is not Parameter.empty:
-                    body = get_model_schema(
-                        create_model(
-                            "",
-                            __config__=get_config_base(),
-                            response__=(response_type, ...),
-                        ),
-                        prefix=f"{self.name}:Message",
-                    )
-                    if body:
-                        payloads.append((body, to_camelcase(unwrap(call).__name__)))
-
-        return payloads

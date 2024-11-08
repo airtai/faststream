@@ -34,7 +34,6 @@ from faststream._internal.types import (
     MsgType,
 )
 from faststream._internal.utils.functions import to_async
-from faststream.middlewares.logging import CriticalLogMiddleware
 
 from .abc_broker import ABCBroker
 from .pub_base import BrokerPublishMixin
@@ -171,11 +170,6 @@ class BrokerUsecase(
 
         self._connection_kwargs = connection_kwargs
         self._connection = None
-
-        self.middlewares = (
-            CriticalLogMiddleware(logger_state),
-            *self.middlewares,
-        )
 
         # AsyncAPI information
         self.url = specification_url

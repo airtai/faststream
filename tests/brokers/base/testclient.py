@@ -125,6 +125,25 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
             with pytest.raises(ValueError):  # noqa: PT011
                 await br.publish("hello", queue)
 
+    @pytest.mark.asyncio()
+    async def test_parser_exception_raises(self, queue: str) -> None:
+        test_broker = self.get_broker()
+
+        def parser(msg):
+            raise ValueError
+
+        args, kwargs = self.get_subscriber_params(queue, parser=parser)
+
+        @test_broker.subscriber(*args, **kwargs)
+        async def m(msg):  # pragma: no cover
+            pass
+
+        async with self.patch_broker(test_broker) as br:
+            await br.start()
+
+            with pytest.raises(ValueError):  # noqa: PT011
+                await br.publish("hello", queue)
+
     async def test_broker_gets_patched_attrs_within_cm(self, fake_producer_cls) -> None:
         test_broker = self.get_broker()
         await test_broker.start()

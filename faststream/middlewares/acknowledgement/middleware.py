@@ -15,19 +15,24 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import AnyDict, AsyncFuncAny
     from faststream._internal.context.repository import ContextRepo
+    from faststream._internal.state import LoggerState
     from faststream.message import StreamMessage
 
 
 class AcknowledgementMiddleware:
-    def __init__(self, ack_policy: AckPolicy, extra_options: "AnyDict") -> None:
+    def __init__(
+        self, logger: "LoggerState", ack_policy: "AckPolicy", extra_options: "AnyDict"
+    ) -> None:
         self.ack_policy = ack_policy
         self.extra_options = extra_options
+        self.logger = logger
 
     def __call__(
         self, msg: Optional[Any], context: "ContextRepo"
     ) -> "_AcknowledgementMiddleware":
         return _AcknowledgementMiddleware(
             msg,
+            logger=self.logger,
             ack_policy=self.ack_policy,
             extra_options=self.extra_options,
             context=context,
@@ -40,14 +45,19 @@ class _AcknowledgementMiddleware(BaseMiddleware):
         msg: Optional[Any],
         /,
         *,
+        logger: "LoggerState",
         context: "ContextRepo",
-        ack_policy: AckPolicy,
         extra_options: "AnyDict",
+        # can't be created with AckPolicy.DO_NOTHING
+        ack_policy: AckPolicy,
     ) -> None:
         super().__init__(msg, context=context)
+
         self.ack_policy = ack_policy
         self.extra_options = extra_options
-        self.logger = context.get_local("logger")
+        self.logger = logger
+
+        self.message: Optional[StreamMessage[Any]] = None
 
     async def consume_scope(
         self,
@@ -63,9 +73,6 @@ class _AcknowledgementMiddleware(BaseMiddleware):
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
-        if self.ack_policy is AckPolicy.DO_NOTHING:
-            return False
-
         if not exc_type:
             await self.__ack()
 
@@ -92,22 +99,25 @@ class _AcknowledgementMiddleware(BaseMiddleware):
         return False
 
     async def __ack(self, **exc_extra_options: Any) -> None:
-        try:
-            await self.message.ack(**exc_extra_options, **self.extra_options)
-        except Exception as er:
-            if self.logger is not None:
-                self.logger.log(logging.ERROR, er, exc_info=er)
+        if self.message:
+            try:
+                await self.message.ack(**exc_extra_options, **self.extra_options)
+            except Exception as er:
+                if self.logger is not None:
+                    self.logger.log(er, logging.CRITICAL, exc_info=er)
 
     async def __nack(self, **exc_extra_options: Any) -> None:
-        try:
-            await self.message.nack(**exc_extra_options, **self.extra_options)
-        except Exception as er:
-            if self.logger is not None:
-                self.logger.log(logging.ERROR, er, exc_info=er)
+        if self.message:
+            try:
+                await self.message.nack(**exc_extra_options, **self.extra_options)
+            except Exception as er:
+                if self.logger is not None:
+                    self.logger.log(er, logging.CRITICAL, exc_info=er)
 
     async def __reject(self, **exc_extra_options: Any) -> None:
-        try:
-            await self.message.reject(**exc_extra_options, **self.extra_options)
-        except Exception as er:
-            if self.logger is not None:
-                self.logger.log(logging.ERROR, er, exc_info=er)
+        if self.message:
+            try:
+                await self.message.reject(**exc_extra_options, **self.extra_options)
+            except Exception as er:
+                if self.logger is not None:
+                    self.logger.log(er, logging.CRITICAL, exc_info=er)

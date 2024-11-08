@@ -462,19 +462,21 @@ class ListSubscriber(_ListHandlerMixin):
         )
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
-        raw_msg = await client.lpop(name=self.list_sub.name)
+        raw_msg = await client.blpop(
+            self.list_sub.name,
+            timeout=self.list_sub.polling_interval,
+        )
 
         if raw_msg:
+            _, msg_data = raw_msg
+
             msg = DefaultListMessage(
                 type="list",
-                data=raw_msg,
+                data=msg_data,
                 channel=self.list_sub.name,
             )
 
-            await self.consume(msg)  # type: ignore[arg-type]
-
-        else:
-            await anyio.sleep(self.list_sub.polling_interval)
+            await self.consume(msg)
 
 
 class BatchListSubscriber(_ListHandlerMixin):

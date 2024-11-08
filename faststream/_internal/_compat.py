@@ -1,5 +1,4 @@
 import json
-import os
 import sys
 import warnings
 from collections.abc import Iterable, Mapping
@@ -26,10 +25,6 @@ IS_WINDOWS = (
 
 
 ModelVar = TypeVar("ModelVar", bound=BaseModel)
-
-
-def is_test_env() -> bool:
-    return bool(os.getenv("PYTEST_CURRENT_TEST"))
 
 
 json_dumps: Callable[..., bytes]

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 def make_logger_storage(
     logger: Optional["LoggerProto"],
     log_fmt: Optional[str],
-    default_storage_cls: type["DefaultLoggerStorage"],
+    default_storage_cls: type["LoggerParamsStorage"],
 ) -> "LoggerParamsStorage":
     if logger is EMPTY:
         return default_storage_cls(log_fmt)

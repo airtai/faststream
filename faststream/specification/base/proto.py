@@ -4,7 +4,7 @@ from typing import Any, Optional, Protocol
 from faststream.specification.schema.channel import Channel
 
 
-class EndpointProto(Protocol):
+class SpecificationEndpoint(Protocol):
     """A class representing an asynchronous API operation."""
 
     title_: Optional[str]

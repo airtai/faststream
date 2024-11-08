@@ -1,23 +1,14 @@
-from typing import TYPE_CHECKING, Optional, Protocol
+from collections.abc import Mapping
+from typing import Any, Optional
 
+from faststream._internal.basic_types import LoggerProto
 from faststream.exceptions import IncorrectState
 
-if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, LoggerProto
 
-
-class LoggerObject(Protocol):
+class LoggerObject(LoggerProto):
     logger: Optional["LoggerProto"]
 
     def __bool__(self) -> bool: ...
-
-    def log(
-        self,
-        message: str,
-        log_level: int,
-        extra: Optional["AnyDict"] = None,
-        exc_info: Optional[Exception] = None,
-    ) -> None: ...
 
 
 class NotSetLoggerObject(LoggerObject):
@@ -37,13 +28,15 @@ class NotSetLoggerObject(LoggerObject):
 
     def log(
         self,
-        message: str,
-        log_level: int,
-        extra: Optional["AnyDict"] = None,
-        exc_info: Optional[Exception] = None,
+        level: int,
+        msg: Any,
+        /,
+        *,
+        exc_info: Any = None,
+        extra: Optional[Mapping[str, Any]] = None,
     ) -> None:
-        msg = "Logger object not set. Please, call `_setup_logger_state` of parent broker state."
-        raise IncorrectState(msg)
+        err_msg = "Logger object not set. Please, call `_setup_logger_state` of parent broker state."
+        raise IncorrectState(err_msg)
 
 
 class EmptyLoggerObject(LoggerObject):
@@ -63,10 +56,12 @@ class EmptyLoggerObject(LoggerObject):
 
     def log(
         self,
-        message: str,
-        log_level: int,
-        extra: Optional["AnyDict"] = None,
-        exc_info: Optional[Exception] = None,
+        level: int,
+        msg: Any,
+        /,
+        *,
+        exc_info: Any = None,
+        extra: Optional[Mapping[str, Any]] = None,
     ) -> None:
         pass
 
@@ -89,14 +84,16 @@ class RealLoggerObject(LoggerObject):
 
     def log(
         self,
-        message: str,
-        log_level: int,
-        extra: Optional["AnyDict"] = None,
-        exc_info: Optional[Exception] = None,
+        level: int,
+        msg: Any,
+        /,
+        *,
+        exc_info: Any = None,
+        extra: Optional[Mapping[str, Any]] = None,
     ) -> None:
         self.logger.log(
-            log_level,
-            message,
+            level,
+            msg,
             extra=extra,
             exc_info=exc_info,
         )

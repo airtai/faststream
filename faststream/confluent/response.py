@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Optional, Union
 
 from typing_extensions import override
 
+from faststream._internal.constants import EMPTY
 from faststream.response.publish_type import PublishType
 from faststream.response.response import PublishCommand, Response
 
@@ -88,9 +89,9 @@ class KafkaPublishCommand(PublishCommand):
 
     @property
     def batch_bodies(self) -> tuple["SendableMessage", ...]:
-        if self.body:
-            return (self.body, *self.extra_bodies)
-        return self.extra_bodies
+        if self.body is EMPTY:
+            return self.extra_bodies
+        return (self.body, *self.extra_bodies)
 
     @classmethod
     def from_cmd(
@@ -104,11 +105,15 @@ class KafkaPublishCommand(PublishCommand):
             return cmd
 
         body, extra_bodies = cmd.body, []
-        if batch and isinstance(body, Sequence) and not isinstance(body, str):
-            if body:
-                body, extra_bodies = body[0], body[1:]
-            else:
-                body = None
+        if batch:
+            if body is None:
+                body = EMPTY
+
+            if isinstance(body, Sequence) and not isinstance(body, str):
+                if body:
+                    body, extra_bodies = body[0], body[1:]
+                else:
+                    body = EMPTY
 
         return cls(
             body,

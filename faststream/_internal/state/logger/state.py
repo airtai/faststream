@@ -58,8 +58,8 @@ class LoggerState(SetupAble):
         exc_info: Optional[Exception] = None,
     ) -> None:
         self.logger.log(
-            log_level=(log_level or self.log_level),
-            message=message,
+            (log_level or self.log_level),
+            message,
             extra=extra,
             exc_info=exc_info,
         )
