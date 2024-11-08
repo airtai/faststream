@@ -354,8 +354,91 @@ def _validate_input_for_misconfigure(
         )
 
     if not stream:
-        # TODO: add shared warnings for Core / ObjWatch / KvWatch cases
-        pass
+        if obj_watch is not None:
+            if idle_heartbeat is not None:
+                warnings.warn(
+                    "`idle_heartbeat` has no effect for ObjectValue subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
+
+            if flow_control is not None:
+                warnings.warn(
+                    "`flow_control` has no effect for ObjectValue subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
+
+            if deliver_policy is not None:
+                warnings.warn(
+                    "`deliver_policy` has no effect for ObjectValue subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
+
+            if headers_only is not None:
+                warnings.warn(
+                    "`headers_only` has no effect for ObjectValue subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
+
+        elif kv_watch is not None:
+            if idle_heartbeat is not None:
+                warnings.warn(
+                    "`idle_heartbeat` has no effect for KeyValue subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
+
+            if flow_control is not None:
+                warnings.warn(
+                    "`flow_control` has no effect for KeyValue subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
+
+            if deliver_policy is not None:
+                warnings.warn(
+                    "`deliver_policy` has no effect for KeyValue subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
+
+            if headers_only is not None:
+                warnings.warn(
+                    "`headers_only` has no effect for KeyValue subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
+        else:
+            if idle_heartbeat is not None:
+                warnings.warn(
+                    "`idle_heartbeat` has no effect for Core subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
+
+            if flow_control is not None:
+                warnings.warn(
+                    "`flow_control` has no effect for Core subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
+
+            if deliver_policy is not None:
+                warnings.warn(
+                    "`deliver_policy` has no effect for Core subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
+
+            if headers_only is not None:
+                warnings.warn(
+                    "`headers_only` has no effect for Core subscriber. It can be used with JetStream (Pull/Push) - only.",
+                    RuntimeWarning,
+                    stacklevel=4,
+                )
 
     if obj_watch is not None:
         # KeyStorage watch
