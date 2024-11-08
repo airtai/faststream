@@ -33,6 +33,102 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict
 
 
+def validate_input_for_warnings(
+    subject: str,
+    queue: str,
+    durable: Optional[str],
+    config: Optional["api.ConsumerConfig"],
+    ordered_consumer: bool,
+    idle_heartbeat: Optional[float],
+    flow_control: bool,
+    deliver_policy: Optional["api.DeliverPolicy"],
+    headers_only: Optional[bool],
+    pull_sub: Optional["PullSub"],
+    kv_watch: Optional["KvWatch"],
+    obj_watch: Optional["ObjWatch"],
+    ack_first: bool,
+    max_workers: int,
+    stream: Optional["JStream"],
+):
+    if pull_sub is not None and stream is None:
+        raise SetupError("Pull subscriber can be used only with a stream")
+
+    if not subject and not config:
+        raise SetupError("You must provide either `subject` or `config` option.")
+
+    if stream:
+        if pull_sub is not None and queue is not None:
+            warnings.warn(
+                "`queue` option has no effect with JetStream Pull Subscribtion. Probably, you wanted to use durable instead.",
+                RuntimeWarning,
+                stacklevel=3,
+            )
+
+        if pull_sub is None and durable is not None:
+            warnings.warn(
+                "JetStream Push consumer with durable option can't be scaled horizontally by multiple intsances. Probably, you are looking for `queue` option. Also, we strongly recommend to use Jetstream PullSubsriber with durable option as a default.",
+                RuntimeWarning,
+                stacklevel=3,
+            )
+
+        if pull_sub is not None:
+            if ordered_consumer is not None:
+                warnings.warn(
+                    "`ordered_consumer` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
+
+            if idle_heartbeat is not None:
+                warnings.warn(
+                    "`idle_heartbeat` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
+
+            if flow_control is not None:
+                warnings.warn(
+                    "`flow_control` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
+
+            if deliver_policy is not None:
+                warnings.warn(
+                    "`deliver_policy` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
+
+            if headers_only is not None:
+                warnings.warn(
+                    "`headers_only` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
+
+            if ack_first is not None:
+                warnings.warn(
+                    "`ack_first` option has no effect with JetStream Pull Subscribtion.",
+                    RuntimeWarning,
+                    stacklevel=3,
+                )
+
+    if obj_watch is not None and max_workers > 1:
+        warnings.warn(
+            "`max_workers` has no effect for ObjectValue subscriber.",
+            RuntimeWarning,
+            stacklevel=3,
+        )
+
+    if kv_watch is not None and max_workers > 1:
+        warnings.warn(
+            "`max_workers` has no effect for KeyValue subscriber.",
+            RuntimeWarning,
+            stacklevel=3,
+        )
+
+
 def create_subscriber(
     *,
     subject: str,
@@ -79,29 +175,27 @@ def create_subscriber(
     "AsyncAPIKeyValueWatchSubscriber",
     "AsyncAPIObjStoreWatchSubscriber",
 ]:
-    if pull_sub is not None and stream is None:
-        raise SetupError("Pull subscriber can be used only with a stream")
-
-    if not subject and not config:
-        raise SetupError("You must provide either `subject` or `config` option.")
+    validate_input_for_warnings(
+        subject=subject,
+        queue=queue,
+        durable=durable,
+        config=config,
+        ordered_consumer=ordered_consumer,
+        idle_heartbeat=idle_heartbeat,
+        flow_control=flow_control,
+        deliver_policy=deliver_policy,
+        headers_only=headers_only,
+        pull_sub=pull_sub,
+        kv_watch=kv_watch,
+        obj_watch=obj_watch,
+        ack_first=ack_first,
+        max_workers=max_workers,
+        stream=stream,
+    )
 
     config = config or ConsumerConfig(filter_subjects=[])
 
     if stream:
-        if pull_sub is not None and queue is not None:
-            warnings.warn(
-                "`queue` option has no effect with JetStream Pull Subscribtion. Probably, you wanted to use durable instead.",
-                RuntimeWarning,
-                stacklevel=3,
-            )
-
-        if pull_sub is None and durable is not None:
-            warnings.warn(
-                "We recommend use `queue` for Push Subscription.",
-                RuntimeWarning,
-                stacklevel=3,
-            )
-
         extra_options: AnyDict = {
             "pending_msgs_limit": pending_msgs_limit
             or DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
@@ -126,49 +220,6 @@ def create_subscriber(
                 }
             )
 
-        if pull_sub is not None:
-            if ordered_consumer is not None:
-                warnings.warn(
-                    "`ordered_consumer` option has no effect with JetStream Pull Subscribtion.",
-                    RuntimeWarning,
-                    stacklevel=3,
-                )
-
-            if idle_heartbeat is not None:
-                warnings.warn(
-                    "`idle_heartbeat` option has no effect with JetStream Pull Subscribtion.",
-                    RuntimeWarning,
-                    stacklevel=3,
-                )
-
-            if flow_control is not None:
-                warnings.warn(
-                    "`flow_control` option has no effect with JetStream Pull Subscribtion.",
-                    RuntimeWarning,
-                    stacklevel=3,
-                )
-
-            if deliver_policy is not None:
-                warnings.warn(
-                    "`deliver_policy` option has no effect with JetStream Pull Subscribtion.",
-                    RuntimeWarning,
-                    stacklevel=3,
-                )
-
-            if headers_only is not None:
-                warnings.warn(
-                    "`headers_only` option has no effect with JetStream Pull Subscribtion.",
-                    RuntimeWarning,
-                    stacklevel=3,
-                )
-
-            if ack_first:
-                warnings.warn(
-                    "`ack_first` option has no effect with JetStream Pull Subscribtion.",
-                    RuntimeWarning,
-                    stacklevel=3,
-                )
-
     else:
         extra_options = {
             "pending_msgs_limit": pending_msgs_limit or DEFAULT_SUB_PENDING_MSGS_LIMIT,
@@ -178,13 +229,6 @@ def create_subscriber(
         }
 
     if obj_watch is not None:
-        if max_workers > 1:
-            warnings.warn(
-                "`max_workers` has no effect for ObjectValue subscriber.",
-                RuntimeWarning,
-                stacklevel=3,
-            )
-
         return AsyncAPIObjStoreWatchSubscriber(
             subject=subject,
             config=config,
@@ -197,13 +241,6 @@ def create_subscriber(
         )
 
     if kv_watch is not None:
-        if max_workers > 1:
-            warnings.warn(
-                "`max_workers` has no effect for KeyValue subscriber.",
-                RuntimeWarning,
-                stacklevel=3,
-            )
-
         return AsyncAPIKeyValueWatchSubscriber(
             subject=subject,
             config=config,
