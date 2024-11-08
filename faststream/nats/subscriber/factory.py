@@ -356,28 +356,28 @@ def _validate_input_for_misconfigure(
     if not stream:
         if idle_heartbeat is not None:
             warnings.warn(
-                "`idle_heartbeat` has no effect for Core subscriber. It can be used with JetStream (Pull/Push) - only.",
+                "`idle_heartbeat` option can be used with JetStream (Pull/Push) - only.",
                 RuntimeWarning,
                 stacklevel=4,
             )
 
         if flow_control is not None:
             warnings.warn(
-                "`flow_control` has no effect for Core subscriber. It can be used with JetStream (Pull/Push) - only.",
+                "`flow_control` option can be used with JetStream (Pull/Push) - only.",
                 RuntimeWarning,
                 stacklevel=4,
             )
 
         if deliver_policy is not None:
             warnings.warn(
-                "`deliver_policy` has no effect for Core subscriber. It can be used with JetStream (Pull/Push) - only.",
+                "`deliver_policy` option can be used with JetStream (Pull/Push) - only.",
                 RuntimeWarning,
                 stacklevel=4,
             )
 
         if headers_only is not None:
             warnings.warn(
-                "`headers_only` has no effect for Core subscriber. It can be used with JetStream (Pull/Push) - only.",
+                "`headers_only` option can be used with JetStream (Pull/Push) - only.",
                 RuntimeWarning,
                 stacklevel=4,
             )
