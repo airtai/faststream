@@ -346,7 +346,7 @@ def _validate_input_for_misconfigure(
     if not subject and not config:
         raise SetupError("You must provide either `subject` or `config` option.")
 
-    if max_msgs > 0 and any((stream, kv_watch, obj_watch)):
+    if max_msgs > 0 and any((stream, kv_watch, obj_watch, pull_sub)):
         warnings.warn(
             "`max_msgs` option can be used with NATS Core Subscriber - only.",
             RuntimeWarning,
@@ -354,6 +354,7 @@ def _validate_input_for_misconfigure(
         )
 
     if not stream:
+        # Core/Obj/Kv Subscriber
         if idle_heartbeat is not None:
             warnings.warn(
                 "`idle_heartbeat` option can be used with JetStream (Pull/Push) - only.",
@@ -382,60 +383,12 @@ def _validate_input_for_misconfigure(
                 stacklevel=4,
             )
 
-    if obj_watch is not None:
-        # KeyStorage watch
-        if max_workers > 1:
-            warnings.warn(
-                message="`max_workers` has no effect for ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
-                category=RuntimeWarning,
-                stacklevel=4,
-            )
-
-        if pending_msgs_limit is not None:
-            warnings.warn(
-                message="`pending_msgs_limit` has no effect for ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
-                category=RuntimeWarning,
-                stacklevel=4,
-            )
-
-        if pending_bytes_limit is not None:
-            warnings.warn(
-                message="`pending_bytes_limit` has no effect for ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
-                category=RuntimeWarning,
-                stacklevel=4,
-            )
-
-    elif kv_watch is not None:
-        # KeyValue watch
-        if max_workers > 1:
-            warnings.warn(
-                message="`max_workers` has no effect for KeyValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
-                category=RuntimeWarning,
-                stacklevel=4,
-            )
-
-        if pending_msgs_limit is not None:
-            warnings.warn(
-                message="`pending_msgs_limit` has no effect for KeyValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
-                category=RuntimeWarning,
-                stacklevel=4,
-            )
-
-        if pending_bytes_limit is not None:
-            warnings.warn(
-                message="`pending_bytes_limit` has no effect for KeyValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
-                category=RuntimeWarning,
-                stacklevel=4,
-            )
-
     elif stream:
-        # JetStream subscribers
         if pull_sub is not None:
-            # JS PullSub
             if queue:  # default ""
                 warnings.warn(
-                    "`queue` option has no effect with JetStream Pull Subscription. Probably, you wanted to use durable instead.",
-                    RuntimeWarning,
+                    message="`queue` option has no effect with JetStream Pull Subscription. Probably, you wanted to use `durable` instead.",
+                    category=RuntimeWarning,
                     stacklevel=4,
                 )
 
@@ -462,6 +415,103 @@ def _validate_input_for_misconfigure(
                     stacklevel=4,
                 )
 
+    if obj_watch is not None or kv_watch is not None:
+        # Obj/Kv Subscriber
+        if pending_msgs_limit is not None:
+            warnings.warn(
+                message="`pending_msgs_limit` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+        if pending_bytes_limit is not None:
+            warnings.warn(
+                message="`pending_bytes_limit` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if queue:
+            warnings.warn(
+                message="`queue` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if durable:
+            warnings.warn(
+                message="`durable` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if config is not None:
+            warnings.warn(
+                message="`config` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if ordered_consumer:
+            warnings.warn(
+                message="`ordered_consumer` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if idle_heartbeat is not None:
+            warnings.warn(
+                message="`idle_heartbeat` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if flow_control:
+            warnings.warn(
+                message="`flow_control` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if deliver_policy:
+            warnings.warn(
+                message="`deliver_policy` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if headers_only:
+            warnings.warn(
+                message="`headers_only` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if ack_first:
+            warnings.warn(
+                message="`ack_first` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if max_workers > 1:
+            warnings.warn(
+                message="`max_workers` has no effect for KeyValue/ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
     else:
         # Core Subscriber
-        pass
+        if durable:
+            warnings.warn(
+                message="`durable` option has no effect for NATS Core Subscription. It can be used with JetStream (Pull/Push) - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if config:
+            warnings.warn(
+                message="`config` option has no effect for NATS Core Subscription. It can be used with JetStream (Pull/Push) - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
