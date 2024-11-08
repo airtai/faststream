@@ -330,7 +330,7 @@ def _validate_input_for_misconfigure(
     config: Optional["api.ConsumerConfig"],
     ordered_consumer: bool,
     idle_heartbeat: Optional[float],
-    flow_control: bool,
+    flow_control: Optional[bool],
     deliver_policy: Optional["api.DeliverPolicy"],
     headers_only: Optional[bool],
     pull_sub: Optional["PullSub"],
@@ -358,6 +358,7 @@ def _validate_input_for_misconfigure(
         pass
 
     if obj_watch is not None:
+        # KeyStorage watch
         if max_workers > 1:
             warnings.warn(
                 message="`max_workers` has no effect for ObjectValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
@@ -380,6 +381,7 @@ def _validate_input_for_misconfigure(
             )
 
     elif kv_watch is not None:
+        # KeyValue watch
         if max_workers > 1:
             warnings.warn(
                 message="`max_workers` has no effect for KeyValue subscriber. It can be used with JetStream (Pull/Push) or Core Subscription - only.",
@@ -405,21 +407,21 @@ def _validate_input_for_misconfigure(
         # JetStream subscribers
         if pull_sub is not None:
             # JS PullSub
-            if queue is not None:
+            if queue:  # default ""
                 warnings.warn(
                     "`queue` option has no effect with JetStream Pull Subscription. Probably, you wanted to use durable instead.",
                     RuntimeWarning,
                     stacklevel=4,
                 )
 
-            if ordered_consumer is not None:
+            if ordered_consumer:  # default False
                 warnings.warn(
                     "`ordered_consumer` option has no effect with JetStream Pull Subscription. It can be used with JetStream Push Subscription - only.",
                     RuntimeWarning,
                     stacklevel=4,
                 )
 
-            if ack_first is not None:
+            if ack_first:  # default False
                 warnings.warn(
                     message="`ack_first` option has no effect with JetStream Pull Subscription. It can be used with JetStream Push Subscription - only.",
                     category=RuntimeWarning,
