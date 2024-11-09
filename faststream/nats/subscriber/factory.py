@@ -448,7 +448,8 @@ def _validate_input_for_misconfigure(
                 stacklevel=4,
             )
 
-    elif stream:
+    else:
+        # JetStream Subscribers
         if pull_sub:
             if queue:
                 warnings.warn(
