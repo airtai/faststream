@@ -810,7 +810,6 @@ search:
                         - [AsyncAPISubscriber](api/faststream/nats/subscriber/asyncapi/AsyncAPISubscriber.md)
                     - factory
                         - [create_subscriber](api/faststream/nats/subscriber/factory/create_subscriber.md)
-                        - [validate_input_for_warnings](api/faststream/nats/subscriber/factory/validate_input_for_warnings.md)
                     - subscription
                         - [UnsubscribeAdapter](api/faststream/nats/subscriber/subscription/UnsubscribeAdapter.md)
                         - [Unsubscriptable](api/faststream/nats/subscriber/subscription/Unsubscriptable.md)
