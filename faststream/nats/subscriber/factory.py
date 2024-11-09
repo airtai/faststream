@@ -556,4 +556,3 @@ def _validate_input_for_misconfigure(
                 category=RuntimeWarning,
                 stacklevel=4,
             )
-
