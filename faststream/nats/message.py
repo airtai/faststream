@@ -17,6 +17,11 @@ class NatsMessage(StreamMessage[Msg]):
             await self.raw_message.ack()
         await super().ack()
 
+    def ack_sync(self) -> None:
+        if not self.raw_message._ackd:
+            self.raw_message.ack()
+        super().ack()
+
     async def nack(
         self,
         delay: Union[int, float, None] = None,
