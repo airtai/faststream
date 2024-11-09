@@ -503,7 +503,7 @@ def _validate_input_for_misconfigure(
         # Core Subscriber
         if durable:
             warnings.warn(
-                message="`durable` option has no effect for NATS Core Subscription. It can be used with JetStream (Pull/Push) - only.",
+                message="`durable` option has no effect for NATS Core Subscription. It can be used with JetStream (Pull) - only.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
@@ -511,6 +511,48 @@ def _validate_input_for_misconfigure(
         if config:
             warnings.warn(
                 message="`config` option has no effect for NATS Core Subscription. It can be used with JetStream (Pull/Push) - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if ordered_consumer:
+            warnings.warn(
+                message="`ordered_consumer` option has no effect for NATS Core Subscription. It can be used with JetStream Push - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if idle_heartbeat is not None:
+            warnings.warn(
+                message="`idle_heartbeat` option has no effect for NATS Core Subscription. It can be used with JetStream (Pull/Push) - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if flow_control:
+            warnings.warn(
+                message="`flow_control` option has no effect for NATS Core Subscription. It can be used with JetStream (Pull/Push) - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if deliver_policy:
+            warnings.warn(
+                message="`deliver_policy` option has no effect for NATS Core Subscription. It can be used with JetStream (Pull/Push) - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if headers_only:
+            warnings.warn(
+                message="`headers_only` option has no effect for NATS Core Subscription. It can be used with JetStream (Pull/Push) - only.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if ack_first:
+            warnings.warn(
+                message="`ack_first` option has no effect for NATS Core Subscription. It can be used with JetStream Push - only.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
