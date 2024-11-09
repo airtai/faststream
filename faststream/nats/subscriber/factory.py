@@ -339,7 +339,7 @@ def _validate_input_for_misconfigure(
     ack_first: bool,
     max_workers: int,
     stream: Optional["JStream"],
-):
+) -> None:
     if pull_sub is not None and stream is None:
         raise SetupError("Pull subscriber can be used only with a stream")
 
