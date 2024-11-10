@@ -28,6 +28,14 @@ class RabbitExchange(NameRequired):
         "type",
     )
 
+    def __repr__(self) -> str:
+        if self.passive:
+            body = ""
+        else:
+            body = f", robust={self.robust}, durable={self.durable}, auto_delete={self.auto_delete})"
+
+        return f"{self.__class__.__name__}({self.name}, type={self.type}, routing_key='{self.routing}'{body})"
+
     def __hash__(self) -> int:
         """Supports hash to store real objects in declarer."""
         return sum(

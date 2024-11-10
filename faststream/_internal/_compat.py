@@ -1,5 +1,4 @@
 import json
-import os
 import sys
 import warnings
 from collections.abc import Iterable, Mapping
@@ -26,10 +25,6 @@ IS_WINDOWS = (
 
 
 ModelVar = TypeVar("ModelVar", bound=BaseModel)
-
-
-def is_test_env() -> bool:
-    return bool(os.getenv("PYTEST_CURRENT_TEST"))
 
 
 json_dumps: Callable[..., bytes]
@@ -91,9 +86,14 @@ if PYDANTIC_V2:
             with_info_plain_validator_function,
         )
     else:
-        from pydantic._internal._annotated_handlers import (  # type: ignore[no-redef]
-            GetJsonSchemaHandler,
-        )
+        if PYDANTIC_VERSION >= "2.10":
+            from pydantic.annotated_handlers import (
+                GetJsonSchemaHandler,
+            )
+        else:
+            from pydantic._internal._annotated_handlers import (  # type: ignore[no-redef]
+                GetJsonSchemaHandler,
+            )
         from pydantic_core.core_schema import (
             general_plain_validator_function as with_info_plain_validator_function,
         )

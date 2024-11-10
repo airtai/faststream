@@ -1,8 +1,9 @@
+import logging
 from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.log.logging import get_broker_logger
-from faststream._internal.setup.logger import (
+from faststream._internal.state.logger import (
     DefaultLoggerStorage,
     make_logger_state,
 )
@@ -21,6 +22,11 @@ class RabbitParamsStorage(DefaultLoggerStorage):
 
         self._max_exchange_len = 4
         self._max_queue_len = 4
+
+        self.logger_log_level = logging.INFO
+
+    def set_level(self, level: int) -> None:
+        self.logger_log_level = level
 
     def setup_log_contest(self, params: "AnyDict") -> None:
         self._max_exchange_len = max(
@@ -52,10 +58,11 @@ class RabbitParamsStorage(DefaultLoggerStorage):
                 "- %(message)s"
             ),
             context=context,
+            log_level=self.logger_log_level,
         )
 
 
 make_rabbit_logger_state = partial(
     make_logger_state,
-    default_storag_cls=RabbitParamsStorage,
+    default_storage_cls=RabbitParamsStorage,
 )

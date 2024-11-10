@@ -165,7 +165,7 @@ class _PrometheusMiddleware(BaseMiddleware):
         call_next: "AsyncFunc",
         cmd: "PublishCommand",
     ) -> Any:
-        if self._settings_provider is None or cmd.publish_type is PublishType.Reply:
+        if self._settings_provider is None or cmd.publish_type is PublishType.REPLY:
             return await call_next(cmd)
 
         destination_name = (

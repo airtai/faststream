@@ -6,7 +6,8 @@ from faststream.rabbit.helpers.declarer import RabbitDeclarer
 
 @pytest.mark.asyncio()
 async def test_declare_queue(async_mock, queue: str) -> None:
-    declarer = RabbitDeclarer(async_mock)
+    declarer = RabbitDeclarer()
+    declarer.connect(async_mock, async_mock)
 
     q1 = await declarer.declare_queue(RabbitQueue(queue))
     q2 = await declarer.declare_queue(RabbitQueue(queue))
@@ -20,7 +21,8 @@ async def test_declare_exchange(
     async_mock,
     queue: str,
 ) -> None:
-    declarer = RabbitDeclarer(async_mock)
+    declarer = RabbitDeclarer()
+    declarer.connect(async_mock, async_mock)
 
     ex1 = await declarer.declare_exchange(RabbitExchange(queue))
     ex2 = await declarer.declare_exchange(RabbitExchange(queue))
@@ -34,7 +36,8 @@ async def test_declare_nested_exchange_cash_nested(
     async_mock,
     queue: str,
 ) -> None:
-    declarer = RabbitDeclarer(async_mock)
+    declarer = RabbitDeclarer()
+    declarer.connect(async_mock, async_mock)
 
     exchange = RabbitExchange(queue)
 
@@ -50,7 +53,8 @@ async def test_publisher_declare(
     async_mock,
     queue: str,
 ) -> None:
-    declarer = RabbitDeclarer(async_mock)
+    declarer = RabbitDeclarer()
+    declarer.connect(async_mock, async_mock)
 
     broker = RabbitBroker()
     broker._connection = async_mock

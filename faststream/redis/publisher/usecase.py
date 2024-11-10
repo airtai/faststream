@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
     """A class to represent a Redis publisher."""
 
-    _producer: Optional["RedisFastProducer"]
+    _producer: "RedisFastProducer"
 
     def __init__(
         self,
@@ -51,8 +51,6 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
 
         self.reply_to = reply_to
         self.headers = headers or {}
-
-        self._producer = None
 
     @abstractmethod
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":
@@ -127,16 +125,16 @@ class ChannelPublisher(LogicPublisher):
                 "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
-    ) -> None:
+    ) -> int:
         cmd = RedisPublishCommand(
             message,
             channel=channel or self.channel.name,
             reply_to=reply_to or self.reply_to,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
-        await self._basic_publish(cmd, _extra_middlewares=())
+        return await self._basic_publish(cmd, _extra_middlewares=())
 
     @override
     async def _publish(
@@ -188,7 +186,7 @@ class ChannelPublisher(LogicPublisher):
             channel=channel or self.channel.name,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
             timeout=timeout,
         )
 
@@ -264,14 +262,14 @@ class ListPublisher(LogicPublisher):
                 "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
-    ) -> None:
+    ) -> int:
         cmd = RedisPublishCommand(
             message,
             list=list or self.list.name,
             reply_to=reply_to or self.reply_to,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
 
         return await self._basic_publish(cmd, _extra_middlewares=())
@@ -326,7 +324,7 @@ class ListPublisher(LogicPublisher):
             list=list or self.list.name,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
             timeout=timeout,
         )
 
@@ -361,17 +359,17 @@ class ListBatchPublisher(ListPublisher):
             Optional["AnyDict"],
             Doc("Message headers to store metainformation."),
         ] = None,
-    ) -> None:
+    ) -> int:
         cmd = RedisPublishCommand(
             *messages,
             list=list or self.list.name,
             reply_to=reply_to or self.reply_to,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
 
-        await self._basic_publish_batch(cmd, _extra_middlewares=())
+        return await self._basic_publish_batch(cmd, _extra_middlewares=())
 
     @override
     async def _publish(  # type: ignore[override]
@@ -467,7 +465,7 @@ class StreamPublisher(LogicPublisher):
                 "Remove eldest message if maxlen exceeded.",
             ),
         ] = None,
-    ) -> None:
+    ) -> Any:
         cmd = RedisPublishCommand(
             message,
             stream=stream or self.stream.name,
@@ -475,7 +473,7 @@ class StreamPublisher(LogicPublisher):
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
             maxlen=maxlen or self.stream.maxlen,
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
 
         return await self._basic_publish(cmd, _extra_middlewares=())
@@ -538,7 +536,7 @@ class StreamPublisher(LogicPublisher):
             stream=stream or self.stream.name,
             headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
             maxlen=maxlen or self.stream.maxlen,
             timeout=timeout,
         )

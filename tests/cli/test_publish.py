@@ -31,7 +31,7 @@ def get_mock_app(broker_type, producer_type) -> tuple[FastStream, AsyncMock]:
     mock_producer.publish = AsyncMock()
     mock_producer._parser = AsyncMock()
     mock_producer._decoder = AsyncMock()
-    broker._producer = mock_producer
+    broker._state.patch_value(producer=mock_producer)
     return FastStream(broker), mock_producer
 
 
@@ -230,4 +230,4 @@ def test_publish_nats_request_command(runner: CliRunner) -> None:
 
         assert cmd.destination == "subjectname"
         assert cmd.timeout == 1.0
-        assert cmd.publish_type is PublishType.Request
+        assert cmd.publish_type is PublishType.REQUEST

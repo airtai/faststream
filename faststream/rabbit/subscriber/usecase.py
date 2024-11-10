@@ -12,7 +12,6 @@ from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
-from faststream.middlewares import AckPolicy
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.fake import RabbitFakePublisher
 from faststream.rabbit.schemas import BaseRMQInformation
@@ -21,11 +20,12 @@ if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
     from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import BasePublisherProto
-    from faststream._internal.setup import SetupState
+    from faststream._internal.state import BrokerState
     from faststream._internal.types import BrokerMiddleware, CustomCallable
     from faststream.message import StreamMessage
+    from faststream.middlewares import AckPolicy
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -101,24 +101,18 @@ class LogicSubscriber(
         virtual_host: str,
         declarer: "RabbitDeclarer",
         # basic args
-        logger: Optional["LoggerProto"],
-        producer: Optional["AioPikaFastProducer"],
-        graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "SetupState",
+        state: "BrokerState",
     ) -> None:
         self.app_id = app_id
         self.virtual_host = virtual_host
         self.declarer = declarer
 
         super()._setup(
-            logger=logger,
-            producer=producer,
-            graceful_timeout=graceful_timeout,
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
@@ -174,7 +168,7 @@ class LogicSubscriber(
         self,
         *,
         timeout: float = 5.0,
-        ack_policy: AckPolicy = AckPolicy.REJECT_ON_ERROR,
+        no_ack: bool = True,
     ) -> "Optional[RabbitMessage]":
         assert self._queue_obj, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
@@ -184,7 +178,6 @@ class LogicSubscriber(
         sleep_interval = timeout / 10
 
         raw_message: Optional[IncomingMessage] = None
-        no_ack = self.ack_policy is AckPolicy.DO_NOTHING
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
                 raw_message := await self._queue_obj.get(
@@ -195,11 +188,12 @@ class LogicSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
+        context = self._state.get().di_state.context
+
         msg: Optional[RabbitMessage] = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
             middlewares=(
-                m(raw_message, context=self._state.depends_params.context)
-                for m in self._broker_middlewares
+                m(raw_message, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,
@@ -210,12 +204,9 @@ class LogicSubscriber(
         self,
         message: "StreamMessage[Any]",
     ) -> Sequence["BasePublisherProto"]:
-        if self._producer is None:
-            return ()
-
         return (
             RabbitFakePublisher(
-                self._producer,
+                self._state.get().producer,
                 routing_key=message.reply_to,
                 app_id=self.app_id,
             ),

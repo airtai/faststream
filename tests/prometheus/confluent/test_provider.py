@@ -86,7 +86,7 @@ class TestBatchConfluentMetricsSettingsProvider(
         pytest.param(
             (SimpleNamespace(), SimpleNamespace()),
             BatchConfluentMetricsSettingsProvider(),
-            id="message is batch",
+            id="batch message",
         ),
         pytest.param(
             SimpleNamespace(),
@@ -96,7 +96,7 @@ class TestBatchConfluentMetricsSettingsProvider(
         pytest.param(
             None,
             ConfluentMetricsSettingsProvider(),
-            id="message is None",
+            id="None message",
         ),
     ),
 )

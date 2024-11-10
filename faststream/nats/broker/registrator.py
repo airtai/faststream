@@ -222,7 +222,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
                     # subscriber args
                     ack_policy=ack_policy,
                     no_reply=no_reply,
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     broker_dependencies=self._dependencies,
                     # AsyncAPI
                     title_=title,
@@ -321,7 +321,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
                     timeout=timeout,
                     stream=stream,
                     # Specific
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     middlewares=middlewares,
                     # AsyncAPI
                     title_=title,

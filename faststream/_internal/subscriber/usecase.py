@@ -13,7 +13,10 @@ from typing import (
 from typing_extensions import Self, override
 
 from faststream._internal.subscriber.call_item import HandlerItem
-from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
+from faststream._internal.subscriber.call_wrapper.call import (
+    HandlerCallWrapper,
+    ensure_call_wrapper,
+)
 from faststream._internal.subscriber.proto import SubscriberProto
 from faststream._internal.subscriber.utils import (
     MultiLock,
@@ -28,20 +31,20 @@ from faststream._internal.types import (
 from faststream._internal.utils.functions import sync_fake_context, to_async
 from faststream.exceptions import SetupError, StopConsume, SubscriberNotFound
 from faststream.middlewares import AckPolicy, AcknowledgementMiddleware
+from faststream.middlewares.logging import CriticalLogMiddleware
 from faststream.response import ensure_response
-from faststream.specification.asyncapi.message import parse_handler_params
-from faststream.specification.asyncapi.utils import to_camelcase
+
+from .specified import BaseSpicificationSubscriber
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.basic_types import AnyDict, Decorator
     from faststream._internal.context.repository import ContextRepo
     from faststream._internal.publisher.proto import (
         BasePublisherProto,
-        ProducerProto,
     )
-    from faststream._internal.setup import SetupState
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -76,7 +79,7 @@ class _CallOptions:
         self.dependencies = dependencies
 
 
-class SubscriberUsecase(SubscriberProto[MsgType]):
+class SubscriberUsecase(BaseSpicificationSubscriber, SubscriberProto[MsgType]):
     """A class representing an asynchronous handler."""
 
     lock: "AbstractContextManager[Any]"
@@ -103,6 +106,12 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         include_in_schema: bool,
     ) -> None:
         """Initialize a new instance of the class."""
+        super().__init__(
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
         self.calls = []
 
         self._parser = default_parser
@@ -112,6 +121,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
 
         self._call_options = None
         self._call_decorators = ()
+
         self.running = False
         self.lock = sync_fake_context()
 
@@ -120,24 +130,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._broker_middlewares = broker_middlewares
 
         # register in setup later
-        self._producer = None
-        self.graceful_timeout = None
         self.extra_context = {}
         self.extra_watcher_options = {}
-
-        # AsyncAPI
-        self.title_ = title_
-        self.description_ = description_
-        self.include_in_schema = include_in_schema
-
-        if self.ack_policy is not AckPolicy.DO_NOTHING:
-            self._broker_middlewares = (
-                AcknowledgementMiddleware(
-                    self.ack_policy,
-                    self.extra_watcher_options,
-                ),
-                *self._broker_middlewares,
-            )
 
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         self._broker_middlewares = (*self._broker_middlewares, middleware)
@@ -146,20 +140,16 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     def _setup(  # type: ignore[override]
         self,
         *,
-        logger: Optional["LoggerProto"],
-        producer: Optional["ProducerProto"],
-        graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "SetupState",
+        state: "Pointer[BrokerState]",
     ) -> None:
+        # TODO: add EmptyBrokerState to init
         self._state = state
 
-        self._producer = producer
-        self.graceful_timeout = graceful_timeout
         self.extra_context = extra_context
 
         for call in self.calls:
@@ -179,12 +169,9 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             call._setup(
                 parser=async_parser,
                 decoder=async_decoder,
-                fast_depends_state=state.depends_params,
-                _call_decorators=(
-                    *self._call_decorators,
-                    *state.depends_params.call_decorators,
-                ),
+                state=state,
                 broker_dependencies=self._broker_dependencies,
+                _call_decorators=self._call_decorators,
             )
 
             call.handler.refresh(with_mock=False)
@@ -204,7 +191,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         """
         self.running = False
         if isinstance(self.lock, MultiLock):
-            await self.lock.wait_release(self.graceful_timeout)
+            await self.lock.wait_release(self._state.get().graceful_timeout)
 
     def add_call(
         self,
@@ -274,8 +261,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         def real_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
         ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-            handler = HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn](
-                func,
+            handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn] = (
+                ensure_call_wrapper(func)
             )
             self.calls.append(
                 HandlerItem[MsgType](
@@ -311,7 +298,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             # Stop handler at `exit()` call
             await self.close()
 
-            if app := self._state.depends_params.context.get("app"):
+            if app := self._state.get().di_state.context.get("app"):
                 app.exit()
 
         except Exception:  # nosec B110
@@ -320,20 +307,21 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
 
     async def process_message(self, msg: MsgType) -> "Response":
         """Execute all message processing stages."""
-        context: ContextRepo = self._state.depends_params.context
+        broker_state = self._state.get()
+        context: ContextRepo = broker_state.di_state.context
+        logger_state = broker_state.logger_state
 
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
 
             # Enter context before middlewares
+            stack.enter_context(context.scope("logger", logger_state.logger.logger))
             for k, v in self.extra_context.items():
                 stack.enter_context(context.scope(k, v))
 
-            stack.enter_context(context.scope("handler_", self))
-
             # enter all middlewares
             middlewares: list[BaseMiddleware] = []
-            for base_m in self._broker_middlewares:
+            for base_m in self.__build__middlewares_stack():
                 middleware = base_m(msg, context=context)
                 middlewares.append(middleware)
                 await middleware.__aenter__()
@@ -385,13 +373,37 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             for m in middlewares:
                 stack.push_async_exit(m.__aexit__)
 
+            # Reraise it to catch in tests
             if parsing_error:
                 raise parsing_error
 
             msg = f"There is no suitable handler for {msg=}"
             raise SubscriberNotFound(msg)
+
         # An error was raised and processed by some middleware
         return ensure_response(None)
+
+    def __build__middlewares_stack(self) -> tuple["BaseMiddleware", ...]:
+        logger_state = self._state.get().logger_state
+
+        if self.ack_policy is AckPolicy.DO_NOTHING:
+            broker_middlewares = (
+                CriticalLogMiddleware(logger_state),
+                *self._broker_middlewares,
+            )
+
+        else:
+            broker_middlewares = (
+                AcknowledgementMiddleware(
+                    logger=logger_state,
+                    ack_policy=self.ack_policy,
+                    extra_options=self.extra_watcher_options,
+                ),
+                CriticalLogMiddleware(logger_state),
+                *self._broker_middlewares,
+            )
+
+        return broker_middlewares
 
     def __get_response_publisher(
         self,
@@ -410,48 +422,3 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         return {
             "message_id": getattr(message, "message_id", ""),
         }
-
-    # AsyncAPI methods
-
-    @property
-    def call_name(self) -> str:
-        """Returns the name of the handler call."""
-        if not self.calls:
-            return "Subscriber"
-
-        return to_camelcase(self.calls[0].call_name)
-
-    def get_description(self) -> Optional[str]:
-        """Returns the description of the handler."""
-        if not self.calls:  # pragma: no cover
-            return None
-
-        return self.calls[0].description
-
-    def get_payloads(self) -> list[tuple["AnyDict", str]]:
-        """Get the payloads of the handler."""
-        payloads: list[tuple[AnyDict, str]] = []
-
-        for h in self.calls:
-            if h.dependant is None:
-                msg = "You should setup `Handler` at first."
-                raise SetupError(msg)
-
-            body = parse_handler_params(
-                h.dependant,
-                prefix=f"{self.title_ or self.call_name}:Message",
-            )
-
-            payloads.append((body, to_camelcase(h.call_name)))
-
-        if not self.calls:
-            payloads.append(
-                (
-                    {
-                        "title": f"{self.title_ or self.call_name}:Message:Payload",
-                    },
-                    to_camelcase(self.call_name),
-                ),
-            )
-
-        return payloads

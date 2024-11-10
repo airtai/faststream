@@ -112,7 +112,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
                     # subscriber args
                     ack_policy=ack_policy,
                     no_reply=no_reply,
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     broker_dependencies=self._dependencies,
                     # AsyncAPI
                     title_=title,
@@ -269,7 +269,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
                     exchange=RabbitExchange.validate(exchange),
                     message_kwargs=message_kwargs,
                     # Specific
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     middlewares=middlewares,
                     # AsyncAPI
                     title_=title,

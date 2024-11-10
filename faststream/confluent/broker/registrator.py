@@ -1161,7 +1161,7 @@ class KafkaRegistrator(
                 # subscriber args
                 ack_policy=ack_policy,
                 no_reply=no_reply,
-                broker_middlewares=self._middlewares,
+                broker_middlewares=self.middlewares,
                 broker_dependencies=self._dependencies,
                 # Specification
                 title_=title,
@@ -1503,7 +1503,7 @@ class KafkaRegistrator(
             headers=headers,
             reply_to=reply_to,
             # publisher-specific
-            broker_middlewares=self._middlewares,
+            broker_middlewares=self.middlewares,
             middlewares=middlewares,
             # Specification
             title_=title,

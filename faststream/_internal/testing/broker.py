@@ -1,6 +1,6 @@
 import warnings
 from abc import abstractmethod
-from collections.abc import AsyncGenerator, Generator
+from collections.abc import AsyncGenerator, Generator, Iterator
 from contextlib import asynccontextmanager, contextmanager
 from functools import partial
 from typing import (
@@ -14,6 +14,7 @@ from unittest import mock
 from unittest.mock import MagicMock
 
 from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.state.logger.logger_proxy import RealLoggerObject
 from faststream._internal.subscriber.utils import MultiLock
 from faststream._internal.testing.app import TestApp
 from faststream._internal.testing.ast import is_contains_context_name
@@ -68,8 +69,13 @@ class TestBroker(Generic[Broker]):
         self._ctx = self._create_ctx()
         return await self._ctx.__aenter__()
 
-    async def __aexit__(self, *args: object) -> None:
-        await self._ctx.__aexit__(*args)
+    async def __aexit__(
+        self,
+        exc_type: Optional[type[BaseException]] = None,
+        exc_val: Optional[BaseException] = None,
+        exc_tb: Optional["TracebackType"] = None,
+    ) -> None:
+        await self._ctx.__aexit__(exc_type, exc_val, exc_tb)
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator[Broker, None]:
@@ -87,6 +93,24 @@ class TestBroker(Generic[Broker]):
                     yield self.broker
                 finally:
                     self._fake_close(self.broker)
+
+    @contextmanager
+    def _patch_producer(self, broker: Broker) -> Iterator[None]:
+        raise NotImplementedError
+
+    @contextmanager
+    def _patch_logger(self, broker: Broker) -> Iterator[None]:
+        state = broker._state.get()
+        state._setup_logger_state()
+
+        logger_state = state.logger_state
+        old_log_object = logger_state.logger
+
+        logger_state.logger = RealLoggerObject(MagicMock())
+        try:
+            yield
+        finally:
+            logger_state.logger = old_log_object
 
     @contextmanager
     def _patch_broker(self, broker: Broker) -> Generator[None, None, None]:
@@ -110,11 +134,8 @@ class TestBroker(Generic[Broker]):
                 "_connection",
                 new=None,
             ),
-            mock.patch.object(
-                broker,
-                "_producer",
-                new=None,
-            ),
+            self._patch_producer(broker),
+            self._patch_logger(broker),
             mock.patch.object(
                 broker,
                 "ping",

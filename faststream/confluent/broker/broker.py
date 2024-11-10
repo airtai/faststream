@@ -33,6 +33,7 @@ from .logging import make_kafka_logger_state
 from .registrator import KafkaRegistrator
 
 if TYPE_CHECKING:
+    import asyncio
     from types import TracebackType
 
     from confluent_kafka import Message
@@ -68,7 +69,7 @@ class KafkaBroker(
     ],
 ):
     url: list[str]
-    _producer: Optional[AsyncConfluentFastProducer]
+    _producer: AsyncConfluentFastProducer
 
     def __init__(
         self,
@@ -398,8 +399,15 @@ class KafkaBroker(
             serializer=serializer,
         )
         self.client_id = client_id
-        self._producer = None
+
         self.config = ConfluentFastConfig(config)
+
+        self._state.patch_value(
+            producer=AsyncConfluentFastProducer(
+                parser=self._parser,
+                decoder=self._decoder,
+            )
+        )
 
     async def close(
         self,
@@ -409,9 +417,7 @@ class KafkaBroker(
     ) -> None:
         await super().close(exc_type, exc_val, exc_tb)
 
-        if self._producer is not None:  # pragma: no branch
-            await self._producer.stop()
-            self._producer = None
+        await self._producer.disconnect()
 
         self._connection = None
 
@@ -444,16 +450,12 @@ class KafkaBroker(
             config=self.config,
         )
 
-        self._producer = AsyncConfluentFastProducer(
-            producer=native_producer,
-            parser=self._parser,
-            decoder=self._decoder,
-        )
+        self._producer.connect(native_producer)
 
         return partial(
             AsyncConfluentConsumer,
             **filter_by_dict(ConsumerConnectionParams, kwargs),
-            logger=self._state.logger_state,
+            logger=self._state.get().logger_state,
             config=self.config,
         )
 
@@ -504,7 +506,7 @@ class KafkaBroker(
             bool,
             Doc("Do not wait for Kafka publish confirmation."),
         ] = False,
-    ) -> None:
+    ) -> "asyncio.Future":
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
@@ -522,9 +524,9 @@ class KafkaBroker(
             reply_to=reply_to,
             no_confirm=no_confirm,
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
-        await super()._basic_publish(cmd, producer=self._producer)
+        return await super()._basic_publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -548,7 +550,7 @@ class KafkaBroker(
             headers=headers,
             timeout=timeout,
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
         )
 
         msg: KafkaMessage = await super()._basic_request(cmd, producer=self._producer)
@@ -574,24 +576,24 @@ class KafkaBroker(
             reply_to=reply_to,
             no_confirm=no_confirm,
             correlation_id=correlation_id or gen_cor_id(),
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
 
-        await self._basic_publish_batch(cmd, producer=self._producer)
+        return await self._basic_publish_batch(cmd, producer=self._producer)
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
         sleep_time = (timeout or 10) / 10
 
         with anyio.move_on_after(timeout) as cancel_scope:
-            if self._producer is None:
+            if not self._producer:
                 return False
 
             while True:
                 if cancel_scope.cancel_called:
                     return False
 
-                if await self._producer._producer.ping(timeout=timeout):
+                if await self._producer.ping(timeout=timeout):
                     return True
 
                 await anyio.sleep(sleep_time)

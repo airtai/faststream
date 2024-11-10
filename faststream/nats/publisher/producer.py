@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 import anyio
 import nats
@@ -20,7 +20,7 @@ from faststream.nats.parser import NatsParser
 if TYPE_CHECKING:
     from nats.aio.client import Client
     from nats.aio.msg import Msg
-    from nats.js import JetStreamContext
+    from nats.js import JetStreamContext, api
 
     from faststream._internal.types import (
         AsyncCallable,
@@ -37,7 +37,6 @@ class NatsFastProducer(ProducerProto):
 
     def __init__(
         self,
-        *,
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
@@ -65,7 +64,7 @@ class NatsFastProducer(ProducerProto):
             **cmd.headers_to_publish(),
         }
 
-        await self.__state.connection.publish(
+        return await self.__state.connection.publish(
             subject=cmd.destination,
             payload=payload,
             reply=cmd.reply_to,
@@ -128,7 +127,7 @@ class NatsJSFastProducer(ProducerProto):
     async def publish(  # type: ignore[override]
         self,
         cmd: "NatsPublishCommand",
-    ) -> Optional[Any]:
+    ) -> "api.PubAck":
         payload, content_type = encode_message(cmd.body)
 
         headers_to_send = {
@@ -136,15 +135,13 @@ class NatsJSFastProducer(ProducerProto):
             **cmd.headers_to_publish(js=True),
         }
 
-        await self.__state.connection.publish(
+        return await self.__state.connection.publish(
             subject=cmd.destination,
             payload=payload,
             headers=headers_to_send,
             stream=cmd.stream,
             timeout=cmd.timeout,
         )
-
-        return None
 
     @override
     async def request(  # type: ignore[override]

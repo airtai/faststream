@@ -1,4 +1,5 @@
-from collections.abc import Generator, Iterable
+from collections.abc import Generator, Iterable, Iterator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import (
     TYPE_CHECKING,
@@ -24,10 +25,10 @@ from faststream.message import encode_message, gen_cor_id
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
-    from faststream._internal.setup.logger import LoggerState
     from faststream.confluent.publisher.specified import SpecificationPublisher
     from faststream.confluent.response import KafkaPublishCommand
     from faststream.confluent.subscriber.usecase import LogicSubscriber
+
 
 __all__ = ("TestKafkaBroker",)
 
@@ -35,13 +36,19 @@ __all__ = ("TestKafkaBroker",)
 class TestKafkaBroker(TestBroker[KafkaBroker]):
     """A class to test Kafka brokers."""
 
+    @contextmanager
+    def _patch_producer(self, broker: KafkaBroker) -> Iterator[None]:
+        old_producer = broker._state.get().producer
+        broker._state.patch_value(producer=FakeProducer(broker))
+        yield
+        broker._state.patch_value(producer=old_producer)
+
     @staticmethod
     async def _fake_connect(  # type: ignore[override]
         broker: KafkaBroker,
         *args: Any,
         **kwargs: Any,
     ) -> Callable[..., AsyncMock]:
-        broker._producer = FakeProducer(broker)
         return _fake_connection
 
     @staticmethod
@@ -99,8 +106,11 @@ class FakeProducer(AsyncConfluentFastProducer):
         self._parser = resolve_custom_func(broker._parser, default.parse_message)
         self._decoder = resolve_custom_func(broker._decoder, default.decode_message)
 
-    def _setup(self, logger_stater: "LoggerState") -> None:
-        pass
+    def __bool__(self) -> bool:
+        return True
+
+    async def ping(self, timeout: float) -> None:
+        return True
 
     @override
     async def publish(  # type: ignore[override]

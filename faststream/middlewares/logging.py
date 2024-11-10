@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import AsyncFuncAny
     from faststream._internal.context.repository import ContextRepo
-    from faststream._internal.setup.logger import LoggerState
+    from faststream._internal.state.logger import LoggerState
     from faststream.message import StreamMessage
 
 
@@ -74,6 +74,7 @@ class _LoggingMiddleware(BaseMiddleware):
             c = self.context.get_local("log_context", {})
 
             if exc_type:
+                # TODO: move critical logging to `subscriber.consume()` method
                 if issubclass(exc_type, IgnoredException):
                     self.logger.log(
                         log_level=logging.INFO,

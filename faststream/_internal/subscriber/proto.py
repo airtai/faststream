@@ -7,17 +7,16 @@ from typing_extensions import Self, override
 from faststream._internal.proto import Endpoint
 from faststream._internal.subscriber.call_wrapper.proto import WrapperProto
 from faststream._internal.types import MsgType
-from faststream.specification.base.proto import EndpointProto
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import (
         BasePublisherProto,
         ProducerProto,
     )
-    from faststream._internal.setup import SetupState
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.subscriber.call_item import HandlerItem
     from faststream._internal.types import (
         BrokerMiddleware,
@@ -30,7 +29,6 @@ if TYPE_CHECKING:
 
 
 class SubscriberProto(
-    EndpointProto,
     Endpoint,
     WrapperProto[MsgType],
 ):
@@ -56,15 +54,12 @@ class SubscriberProto(
     def _setup(  # type: ignore[override]
         self,
         *,
-        logger: Optional["LoggerProto"],
-        producer: Optional["ProducerProto"],
-        graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "SetupState",
+        state: "Pointer[BrokerState]",
     ) -> None: ...
 
     @abstractmethod

@@ -49,7 +49,7 @@ class AsgiTestcase:
 
         with TestClient(app) as client:
             response = client.get("/health")
-            assert response.status_code == 500
+            assert response.status_code == 500, response.status_code
 
     @pytest.mark.asyncio()
     async def test_asgi_ping_healthy(self) -> None:

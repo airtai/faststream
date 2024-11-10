@@ -47,9 +47,9 @@ from faststream.redis.schemas import ListSub, PubSub, StreamSub
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, LoggerProto
-    from faststream._internal.publisher.proto import BasePublisherProto, ProducerProto
-    from faststream._internal.setup import SetupState
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.publisher.proto import BasePublisherProto
+    from faststream._internal.state import BrokerState
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -105,22 +105,16 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         *,
         connection: Optional["Redis[bytes]"],
         # basic args
-        logger: Optional["LoggerProto"],
-        producer: Optional["ProducerProto"],
-        graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "SetupState",
+        state: "BrokerState",
     ) -> None:
         self._client = connection
 
         super()._setup(
-            logger=logger,
-            producer=producer,
-            graceful_timeout=graceful_timeout,
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
@@ -131,12 +125,9 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         self,
         message: "BrokerStreamMessage[UnifyRedisDict]",
     ) -> Sequence["BasePublisherProto"]:
-        if self._producer is None:
-            return ()
-
         return (
             RedisFakePublisher(
-                self._producer,
+                self._state.get().producer,
                 channel=message.reply_to,
             ),
         )
@@ -293,11 +284,12 @@ class ChannelSubscriber(LogicSubscriber):
             while (raw_message := await self._get_message(self.subscription)) is None:  # noqa: ASYNC110
                 await anyio.sleep(sleep_interval)
 
+        context = self._state.get().di_state.context
+
         msg: Optional[RedisMessage] = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
             middlewares=(
-                m(raw_message, context=self._state.depends_params.context)
-                for m in self._broker_middlewares
+                m(raw_message, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,
@@ -420,11 +412,12 @@ class _ListHandlerMixin(LogicSubscriber):
             channel=self.list_sub.name,
         )
 
+        context = self._state.get().di_state.context
+
         msg: RedisListMessage = await process_msg(  # type: ignore[assignment]
             msg=redis_incoming_msg,
             middlewares=(
-                m(redis_incoming_msg, context=self._state.depends_params.context)
-                for m in self._broker_middlewares
+                m(redis_incoming_msg, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,
@@ -468,19 +461,21 @@ class ListSubscriber(_ListHandlerMixin):
         )
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
-        raw_msg = await client.lpop(name=self.list_sub.name)
+        raw_msg = await client.blpop(
+            self.list_sub.name,
+            timeout=self.list_sub.polling_interval,
+        )
 
         if raw_msg:
+            _, msg_data = raw_msg
+
             msg = DefaultListMessage(
                 type="list",
-                data=raw_msg,
+                data=msg_data,
                 channel=self.list_sub.name,
             )
 
-            await self.consume(msg)  # type: ignore[arg-type]
-
-        else:
-            await anyio.sleep(self.list_sub.polling_interval)
+            await self.consume(msg)
 
 
 class BatchListSubscriber(_ListHandlerMixin):
@@ -706,11 +701,12 @@ class _StreamHandlerMixin(LogicSubscriber):
             data=raw_message,
         )
 
+        context = self._state.get().di_state.context
+
         msg: RedisStreamMessage = await process_msg(  # type: ignore[assignment]
             msg=redis_incoming_msg,
             middlewares=(
-                m(redis_incoming_msg, context=self._state.depends_params.context)
-                for m in self._broker_middlewares
+                m(redis_incoming_msg, context=context) for m in self._broker_middlewares
             ),
             parser=self._parser,
             decoder=self._decoder,

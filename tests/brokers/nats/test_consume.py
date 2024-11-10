@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from nats.aio.msg import Msg
+from nats.js.api import PubAck
 
 from faststream import AckPolicy
 from faststream.exceptions import AckMessage
@@ -32,7 +33,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
-            await asyncio.wait(
+            completed, _ = await asyncio.wait(
                 (
                     asyncio.create_task(br.publish("hello", queue, stream=stream.name)),
                     asyncio.create_task(event.wait()),
@@ -40,7 +41,14 @@ class TestConsume(BrokerRealConsumeTestcase):
                 timeout=3,
             )
 
+            publish_with_stream_returns_ack_frame = False
+            for task in completed:
+                if isinstance(task.result(), PubAck):
+                    publish_with_stream_returns_ack_frame = True
+                    break
+
         assert event.is_set()
+        assert publish_with_stream_returns_ack_frame
 
     async def test_consume_with_filter(
         self,

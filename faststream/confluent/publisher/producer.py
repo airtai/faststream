@@ -8,7 +8,11 @@ from faststream.confluent.parser import AsyncConfluentParser
 from faststream.exceptions import FeatureNotSupportedException
 from faststream.message import encode_message
 
+from .state import EmptyProducerState, ProducerState, RealProducer
+
 if TYPE_CHECKING:
+    import asyncio
+
     from faststream._internal.types import CustomCallable
     from faststream.confluent.client import AsyncConfluentProducer
     from faststream.confluent.response import KafkaPublishCommand
@@ -19,25 +23,34 @@ class AsyncConfluentFastProducer(ProducerProto):
 
     def __init__(
         self,
-        producer: "AsyncConfluentProducer",
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
-        self._producer = producer
+        self._producer: ProducerState = EmptyProducerState()
 
         # NOTE: register default parser to be compatible with request
         default = AsyncConfluentParser()
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 
-    async def stop(self) -> None:
+    def connect(self, producer: "AsyncConfluentProducer") -> None:
+        self._producer = RealProducer(producer)
+
+    async def disconnect(self) -> None:
         await self._producer.stop()
+        self._producer = EmptyProducerState()
+
+    def __bool__(self) -> bool:
+        return bool(self._producer)
+
+    async def ping(self, timeout: float) -> None:
+        return await self._producer.ping(timeout=timeout)
 
     @override
     async def publish(  # type: ignore[override]
         self,
         cmd: "KafkaPublishCommand",
-    ) -> None:
+    ) -> "asyncio.Future":
         """Publish a message to a topic."""
         message, content_type = encode_message(cmd.body)
 
@@ -46,7 +59,7 @@ class AsyncConfluentFastProducer(ProducerProto):
             **cmd.headers_to_publish(),
         }
 
-        await self._producer.send(
+        return await self._producer.producer.send(
             topic=cmd.destination,
             value=message,
             key=cmd.key,
@@ -61,7 +74,7 @@ class AsyncConfluentFastProducer(ProducerProto):
         cmd: "KafkaPublishCommand",
     ) -> None:
         """Publish a batch of messages to a topic."""
-        batch = self._producer.create_batch()
+        batch = self._producer.producer.create_batch()
 
         headers_to_send = cmd.headers_to_publish()
 
@@ -83,7 +96,7 @@ class AsyncConfluentFastProducer(ProducerProto):
                 headers=[(i, j.encode()) for i, j in final_headers.items()],
             )
 
-        await self._producer.send_batch(
+        await self._producer.producer.send_batch(
             batch,
             cmd.destination,
             partition=cmd.partition,
@@ -94,6 +107,6 @@ class AsyncConfluentFastProducer(ProducerProto):
     async def request(
         self,
         cmd: "KafkaPublishCommand",
-    ) -> Optional[Any]:
+    ) -> Any:
         msg = "Kafka doesn't support `request` method without test client."
         raise FeatureNotSupportedException(msg)

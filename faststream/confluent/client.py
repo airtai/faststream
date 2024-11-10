@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from typing_extensions import NotRequired, TypedDict
 
     from faststream._internal.basic_types import AnyDict, LoggerProto
-    from faststream._internal.setup.logger import LoggerState
+    from faststream._internal.state.logger import LoggerState
 
     class _SendKwargs(TypedDict):
         value: Optional[Union[str, bytes]]
@@ -134,7 +134,7 @@ class AsyncConfluentProducer:
         timestamp_ms: Optional[int] = None,
         headers: Optional[list[tuple[str, Union[str, bytes]]]] = None,
         no_confirm: bool = False,
-    ) -> None:
+    ) -> "asyncio.Future":
         """Sends a single message to a Kafka topic."""
         kwargs: _SendKwargs = {
             "value": value,
@@ -164,6 +164,7 @@ class AsyncConfluentProducer:
 
         if not no_confirm:
             await result_future
+        return result_future
 
     def create_batch(self) -> "BatchBuilder":
         """Creates a batch for sending multiple messages."""

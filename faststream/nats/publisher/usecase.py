@@ -1,14 +1,13 @@
 from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
-    Annotated,
     Any,
     Optional,
     Union,
 )
 
 from nats.aio.msg import Msg
-from typing_extensions import Doc, override
+from typing_extensions import Literal, overload, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream.message import gen_cor_id
@@ -16,6 +15,8 @@ from faststream.nats.response import NatsPublishCommand
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
+    from nats.js import api
+
     from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.nats.message import NatsMessage
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
 class LogicPublisher(PublisherUsecase[Msg]):
     """A class to represent a NATS publisher."""
 
-    _producer: Union["NatsFastProducer", "NatsJSFastProducer", None]
+    _producer: Union["NatsFastProducer", "NatsJSFastProducer"]
 
     def __init__(
         self,
@@ -63,34 +64,66 @@ class LogicPublisher(PublisherUsecase[Msg]):
         self.headers = headers or {}
         self.reply_to = reply_to
 
-    @override
+    @overload
     async def publish(
         self,
         message: "SendableMessage",
         subject: str = "",
-        *,
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        stream: Literal[None] = None,
+        timeout: Optional[float] = None,
+    ) -> None: ...
+
+    @overload
+    async def publish(
+        self,
+        message: "SendableMessage",
+        subject: str = "",
         headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
-    ) -> None:
+    ) -> "api.PubAck": ...
+
+    @override
+    async def publish(
+        self,
+        message: "SendableMessage",
+        subject: str = "",
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        stream: Optional[str] = None,
+        timeout: Optional[float] = None,
+    ) -> Optional["api.PubAck"]:
         """Publish message directly.
 
         Args:
-            message (SendableMessage): Message body to send.
+            message:
+                Message body to send.
                 Can be any encodable object (native python types or `pydantic.BaseModel`).
-            subject (str): NATS subject to send message (default is `''`).
-            headers (:obj:`dict` of :obj:`str`: :obj:`str`, optional): Message headers to store metainformation (default is `None`).
+            subject:
+                NATS subject to send message.
+            headers:
+                Message headers to store metainformation.
                 **content-type** and **correlation_id** will be set automatically by framework anyway.
-
-            reply_to (str): NATS subject name to send response (default is `None`).
-            correlation_id (str, optional): Manual message **correlation_id** setter (default is `None`).
+            reply_to:
+                NATS subject name to send response.
+            correlation_id:
+                Manual message **correlation_id** setter.
                 **correlation_id** is a useful option to trace messages.
+            stream:
+                This option validates that the target subject is in presented stream.
+                Can be omitted without any effect if you doesn't want PubAck frame.
+            timeout:
+                Timeout to send message to NATS.
 
-            stream (str, optional): This option validates that the target subject is in presented stream (default is `None`).
-                Can be omitted without any effect.
-            timeout (float, optional): Timeout to send message to NATS in seconds (default is `None`).
+        Returns:
+            `None` if you publishes a regular message.
+            `nats.js.api.PubAck` if you publishes a message to stream.
         """
         cmd = NatsPublishCommand(
             message,
@@ -100,7 +133,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             correlation_id=correlation_id or gen_cor_id(),
             stream=stream or getattr(self.stream, "name", None),
             timeout=timeout or self.timeout,
-            _publish_type=PublishType.Publish,
+            _publish_type=PublishType.PUBLISH,
         )
         return await self._basic_publish(cmd, _extra_middlewares=())
 
@@ -127,37 +160,40 @@ class LogicPublisher(PublisherUsecase[Msg]):
     @override
     async def request(
         self,
-        message: Annotated[
-            "SendableMessage",
-            Doc(
-                "Message body to send. "
-                "Can be any encodable object (native python types or `pydantic.BaseModel`).",
-            ),
-        ],
-        subject: Annotated[
-            str,
-            Doc("NATS subject to send message."),
-        ] = "",
-        *,
-        headers: Annotated[
-            Optional[dict[str, str]],
-            Doc(
-                "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be set automatically by framework anyway.",
-            ),
-        ] = None,
-        correlation_id: Annotated[
-            Optional[str],
-            Doc(
-                "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages.",
-            ),
-        ] = None,
-        timeout: Annotated[
-            float,
-            Doc("Timeout to send message to NATS."),
-        ] = 0.5,
+        message: "SendableMessage",
+        subject: str = "",
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        timeout: float = 0.5,
     ) -> "NatsMessage":
+        """Make a synchronous request to outer subscriber.
+
+        If out subscriber listens subject by stream, you should setup the same **stream** explicitly.
+        Another way you will reseave confirmation frame as a response.
+
+        Note:
+            To setup **stream** option, please use `__init__` method.
+
+        Args:
+            message:
+                Message body to send.
+                Can be any encodable object (native python types or `pydantic.BaseModel`).
+            subject:
+                NATS subject to send message.
+            headers:
+                Message headers to store metainformation.
+                **content-type** and **correlation_id** will be set automatically by framework anyway.
+            reply_to:
+                NATS subject name to send response.
+            correlation_id:
+                Manual message **correlation_id** setter.
+                **correlation_id** is a useful option to trace messages.
+            timeout:
+                Timeout to send message to NATS.
+
+        Returns:
+            `faststream.nats.message.NatsMessage` object as an outer subscriber response.
+        """
         cmd = NatsPublishCommand(
             message=message,
             subject=subject or self.subject,
@@ -165,7 +201,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             timeout=timeout or self.timeout,
             correlation_id=correlation_id or gen_cor_id(),
             stream=getattr(self.stream, "name", None),
-            _publish_type=PublishType.Request,
+            _publish_type=PublishType.REQUEST,
         )
 
         msg: NatsMessage = await self._basic_request(cmd)

@@ -16,7 +16,7 @@ from typing_extensions import ParamSpec
 from faststream._internal.constants import EMPTY
 from faststream._internal.context import ContextRepo
 from faststream._internal.log import logger
-from faststream._internal.setup.state import FastDependsData
+from faststream._internal.state import DIState
 from faststream._internal.utils import apply_types
 from faststream._internal.utils.functions import (
     drop_response_type,
@@ -98,7 +98,7 @@ class StartAbleApplication:
 
             serializer = PydanticSerializer()
 
-        self._state = FastDependsData(
+        self._state = DIState(
             use_fastdepends=True,
             get_dependent=None,
             call_decorators=(),

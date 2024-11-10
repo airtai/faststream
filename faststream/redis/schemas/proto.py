@@ -2,14 +2,14 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Union
 
 from faststream.exceptions import SetupError
-from faststream.specification.base.proto import EndpointProto
+from faststream.specification.base.proto import SpecificationEndpoint
 
 if TYPE_CHECKING:
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
     from faststream.specification.schema.bindings import redis
 
 
-class RedisSpecificationProtocol(EndpointProto):
+class RedisSpecificationProtocol(SpecificationEndpoint):
     @property
     @abstractmethod
     def channel_binding(self) -> "redis.ChannelBinding": ...

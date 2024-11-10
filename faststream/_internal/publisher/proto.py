@@ -7,11 +7,10 @@ from typing_extensions import override
 from faststream._internal.proto import Endpoint
 from faststream._internal.types import MsgType
 from faststream.response.response import PublishCommand
-from faststream.specification.base.proto import EndpointProto
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
-    from faststream._internal.setup import SetupState
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -40,6 +39,12 @@ class ProducerProto(Protocol):
     async def publish_batch(self, cmd: "PublishCommand") -> None:
         """Publishes a messages batch asynchronously."""
         ...
+
+
+class ProducerFactory(Protocol):
+    def __call__(
+        self, parser: "AsyncCallable", decoder: "AsyncCallable"
+    ) -> ProducerProto: ...
 
 
 class BasePublisherProto(Protocol):
@@ -83,13 +88,10 @@ class BasePublisherProto(Protocol):
 
 
 class PublisherProto(
-    EndpointProto,
     Endpoint,
     BasePublisherProto,
     Generic[MsgType],
 ):
-    schema_: Any
-
     _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
     _middlewares: Iterable["PublisherMiddleware"]
     _producer: Optional["ProducerProto"]
@@ -103,7 +105,7 @@ class PublisherProto(
         self,
         *,
         producer: Optional["ProducerProto"],
-        state: "SetupState",
+        state: "Pointer[BrokerState]",
     ) -> None: ...
 
     @abstractmethod

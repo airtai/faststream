@@ -34,6 +34,14 @@ class RabbitQueue(NameRequired):
         "timeout",
     )
 
+    def __repr__(self) -> str:
+        if self.passive:
+            body = ""
+        else:
+            body = f", robust={self.robust}, durable={self.durable}, exclusive={self.exclusive}, auto_delete={self.auto_delete})"
+
+        return f"{self.__class__.__name__}({self.name}, routing_key='{self.routing}'{body})"
+
     def __hash__(self) -> int:
         """Supports hash to store real objects in declarer."""
         return sum(

@@ -105,7 +105,7 @@ class TestBatchRedisMetricsSettingsProvider(
         pytest.param(
             {"type": "blist"},
             BatchRedisMetricsSettingsProvider(),
-            id="message is batch",
+            id="batch message",
         ),
         pytest.param(
             {"type": "not_blist"},
@@ -115,7 +115,7 @@ class TestBatchRedisMetricsSettingsProvider(
         pytest.param(
             None,
             RedisMetricsSettingsProvider(),
-            id="message is None",
+            id="None message",
         ),
     ),
 )

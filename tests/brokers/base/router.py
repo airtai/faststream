@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream import BaseMiddleware, Depends
+from faststream import Depends
 from faststream._internal.broker.router import (
     ArgsContainer,
     BrokerRouter,
@@ -433,8 +433,8 @@ class RouterTestcase(
     ) -> None:
         pub_broker = self.get_broker()
 
-        router = type(router)(middlewares=(BaseMiddleware,))
-        router2 = type(router)(middlewares=(BaseMiddleware,))
+        router = type(router)(middlewares=(1,))
+        router2 = type(router)(middlewares=(2,))
 
         args, kwargs = self.get_subscriber_params(queue, middlewares=(3,))
 
@@ -447,8 +447,15 @@ class RouterTestcase(
 
         sub = next(iter(pub_broker._subscribers))
         publisher = next(iter(pub_broker._publishers))
-        assert len((*sub._broker_middlewares, *sub.calls[0].item_middlewares)) == 5
-        assert len((*publisher._broker_middlewares, *publisher._middlewares)) == 4
+
+        subscriber_middlewares = (
+            *sub._broker_middlewares,
+            *sub.calls[0].item_middlewares,
+        )
+        assert subscriber_middlewares == (1, 2, 3)
+
+        publisher_middlewares = (*publisher._broker_middlewares, *publisher.middlewares)
+        assert publisher_middlewares == (1, 2, 3)
 
     async def test_router_include_with_middlewares(
         self,
@@ -465,15 +472,17 @@ class RouterTestcase(
         @router2.publisher(queue, middlewares=(3,))
         def subscriber() -> None: ...
 
-        router.include_router(router2, middlewares=(BaseMiddleware,))
-        pub_broker.include_router(router, middlewares=(BaseMiddleware,))
+        router.include_router(router2, middlewares=(2,))
+        pub_broker.include_router(router, middlewares=(1,))
 
         sub = next(iter(pub_broker._subscribers))
         publisher = next(iter(pub_broker._publishers))
 
         sub_middlewares = (*sub._broker_middlewares, *sub.calls[0].item_middlewares)
-        assert len(sub_middlewares) == 5, sub_middlewares
-        assert len((*publisher._broker_middlewares, *publisher._middlewares)) == 4
+        assert sub_middlewares == (1, 2, 3), sub_middlewares
+
+        publisher_middlewares = (*publisher._broker_middlewares, *publisher.middlewares)
+        assert publisher_middlewares == (1, 2, 3)
 
     async def test_router_parser(
         self,
