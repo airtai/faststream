@@ -316,6 +316,10 @@ search:
                         - [SpecificationBatchPublisher](api/faststream/confluent/publisher/specified/SpecificationBatchPublisher.md)
                         - [SpecificationDefaultPublisher](api/faststream/confluent/publisher/specified/SpecificationDefaultPublisher.md)
                         - [SpecificationPublisher](api/faststream/confluent/publisher/specified/SpecificationPublisher.md)
+                    - state
+                        - [EmptyProducerState](api/faststream/confluent/publisher/state/EmptyProducerState.md)
+                        - [ProducerState](api/faststream/confluent/publisher/state/ProducerState.md)
+                        - [RealProducer](api/faststream/confluent/publisher/state/RealProducer.md)
                     - usecase
                         - [BatchPublisher](api/faststream/confluent/publisher/usecase/BatchPublisher.md)
                         - [DefaultPublisher](api/faststream/confluent/publisher/usecase/DefaultPublisher.md)
@@ -426,6 +430,10 @@ search:
                         - [SpecificationBatchPublisher](api/faststream/kafka/publisher/specified/SpecificationBatchPublisher.md)
                         - [SpecificationDefaultPublisher](api/faststream/kafka/publisher/specified/SpecificationDefaultPublisher.md)
                         - [SpecificationPublisher](api/faststream/kafka/publisher/specified/SpecificationPublisher.md)
+                    - state
+                        - [EmptyProducerState](api/faststream/kafka/publisher/state/EmptyProducerState.md)
+                        - [ProducerState](api/faststream/kafka/publisher/state/ProducerState.md)
+                        - [RealProducer](api/faststream/kafka/publisher/state/RealProducer.md)
                     - usecase
                         - [BatchPublisher](api/faststream/kafka/publisher/usecase/BatchPublisher.md)
                         - [DefaultPublisher](api/faststream/kafka/publisher/usecase/DefaultPublisher.md)
@@ -716,6 +724,10 @@ search:
                 - helpers
                     - declarer
                         - [RabbitDeclarer](api/faststream/rabbit/helpers/declarer/RabbitDeclarer.md)
+                    - state
+                        - [ConnectedState](api/faststream/rabbit/helpers/state/ConnectedState.md)
+                        - [ConnectionState](api/faststream/rabbit/helpers/state/ConnectionState.md)
+                        - [EmptyConnectionState](api/faststream/rabbit/helpers/state/EmptyConnectionState.md)
                 - message
                     - [RabbitMessage](api/faststream/rabbit/message/RabbitMessage.md)
                 - opentelemetry
@@ -742,6 +754,9 @@ search:
                         - [PublishOptions](api/faststream/rabbit/publisher/options/PublishOptions.md)
                     - producer
                         - [AioPikaFastProducer](api/faststream/rabbit/publisher/producer/AioPikaFastProducer.md)
+                        - [LockState](api/faststream/rabbit/publisher/producer/LockState.md)
+                        - [LockUnset](api/faststream/rabbit/publisher/producer/LockUnset.md)
+                        - [RealLock](api/faststream/rabbit/publisher/producer/RealLock.md)
                     - specified
                         - [SpecificationPublisher](api/faststream/rabbit/publisher/specified/SpecificationPublisher.md)
                     - usecase
@@ -809,6 +824,11 @@ search:
                     - [RedisRouter](api/faststream/redis/fastapi/RedisRouter.md)
                     - fastapi
                         - [RedisRouter](api/faststream/redis/fastapi/fastapi/RedisRouter.md)
+                - helpers
+                    - state
+                        - [ConnectedState](api/faststream/redis/helpers/state/ConnectedState.md)
+                        - [ConnectionState](api/faststream/redis/helpers/state/ConnectionState.md)
+                        - [EmptyConnectionState](api/faststream/redis/helpers/state/EmptyConnectionState.md)
                 - message
                     - [BatchListMessage](api/faststream/redis/message/BatchListMessage.md)
                     - [BatchStreamMessage](api/faststream/redis/message/BatchStreamMessage.md)
@@ -1156,7 +1176,7 @@ search:
                     - info
                         - [BaseInfo](api/faststream/specification/base/info/BaseInfo.md)
                     - proto
-                        - [EndpointProto](api/faststream/specification/base/proto/EndpointProto.md)
+                        - [SpecificationEndpoint](api/faststream/specification/base/proto/SpecificationEndpoint.md)
                     - schema
                         - [BaseSchema](api/faststream/specification/base/schema/BaseSchema.md)
                     - specification
