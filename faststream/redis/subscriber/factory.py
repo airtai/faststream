@@ -38,7 +38,7 @@ def create_subscriber(
     list: Union["ListSub", str, None],
     stream: Union["StreamSub", str, None],
     # Subscriber args
-    ack_policy: "AckPolicy" = EMPTY,
+    ack_policy: "AckPolicy",
     no_reply: bool = False,
     broker_dependencies: Iterable["Dependant"] = (),
     broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"] = (),
@@ -54,13 +54,12 @@ def create_subscriber(
             warnings.warn(
                 "You can't use acknowledgement policy with core subscriber",
                 RuntimeWarning,
-                stacklevel=2,
+                stacklevel=3,
             )
 
         return SpecificationChannelSubscriber(
             channel=channel_sub,
             # basic args
-            ack_policy=ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -104,14 +103,13 @@ def create_subscriber(
             warnings.warn(
                 "You can't use acknowledgement policy with core subscriber",
                 RuntimeWarning,
-                stacklevel=2,
+                stacklevel=3,
             )
 
         if list_sub.batch:
             return SpecificationListBatchSubscriber(
                 list=list_sub,
                 # basic args
-                ack_policy=ack_policy,
                 no_reply=no_reply,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
@@ -123,7 +121,6 @@ def create_subscriber(
         return SpecificationListSubscriber(
             list=list_sub,
             # basic args
-            ack_policy=ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,

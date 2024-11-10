@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
+from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.factory import create_publisher
@@ -69,7 +70,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(

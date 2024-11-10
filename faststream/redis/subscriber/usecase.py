@@ -19,7 +19,6 @@ from redis.asyncio.client import (
 from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
-from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.middlewares import AckPolicy
@@ -73,7 +72,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
-        ack_policy: "AckPolicy" = EMPTY,
+        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -330,7 +329,7 @@ class _ListHandlerMixin(LogicSubscriber):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
-        ack_policy: "AckPolicy" = EMPTY,
+        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -535,7 +534,7 @@ class _StreamHandlerMixin(LogicSubscriber):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
-        ack_policy: "AckPolicy" = EMPTY,
+        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -725,7 +724,7 @@ class StreamSubscriber(_StreamHandlerMixin):
         *,
         stream: StreamSub,
         # Subscriber args
-        ack_policy: "AckPolicy" = EMPTY,
+        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
@@ -792,7 +791,7 @@ class StreamBatchSubscriber(_StreamHandlerMixin):
         *,
         stream: StreamSub,
         # Subscriber args
-        ack_policy: "AckPolicy" = EMPTY,
+        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],

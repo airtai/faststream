@@ -39,7 +39,7 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy" = EMPTY,
+    ack_policy: "AckPolicy",
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
@@ -64,7 +64,7 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy" = EMPTY,
+    ack_policy: "AckPolicy",
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
@@ -89,7 +89,7 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy" = EMPTY,
+    ack_policy: "AckPolicy",
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -118,7 +118,7 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy" = EMPTY,
+    ack_policy: "AckPolicy",
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -136,7 +136,7 @@ def create_subscriber(
         warnings.warn(
             "You can't use acknowledgement policy with core subscriber",
             RuntimeWarning,
-            stacklevel=2,
+            stacklevel=3,
         )
 
     if is_manual and not group_id:

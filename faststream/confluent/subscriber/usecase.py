@@ -12,7 +12,6 @@ import anyio
 from confluent_kafka import KafkaException, Message
 from typing_extensions import override
 
-from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
@@ -60,7 +59,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
-        ack_policy: "AckPolicy" = EMPTY,
+        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
@@ -255,7 +254,7 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
-        ack_policy: "AckPolicy" = EMPTY,
+        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Message]"],
@@ -318,7 +317,7 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
         connection_data: "AnyDict",
         is_manual: bool,
         # Subscriber args
-        ack_policy: "AckPolicy" = EMPTY,
+        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[tuple[Message, ...]]"],

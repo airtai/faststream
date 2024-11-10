@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
+from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
 from faststream.rabbit.publisher.factory import create_publisher
 from faststream.rabbit.publisher.specified import SpecificationPublisher
@@ -61,7 +62,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         # broker arguments
         dependencies: Annotated[
             Iterable["Dependant"],

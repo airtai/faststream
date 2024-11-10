@@ -36,7 +36,7 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy" = EMPTY,
+    ack_policy: "AckPolicy",
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
@@ -59,7 +59,7 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy" = EMPTY,
+    ack_policy: "AckPolicy",
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
@@ -82,7 +82,7 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy" = EMPTY,
+    ack_policy: "AckPolicy",
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -109,7 +109,7 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    ack_policy: "AckPolicy" = EMPTY,
+    ack_policy: "AckPolicy",
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -127,7 +127,7 @@ def create_subscriber(
         warnings.warn(
             "You can't use acknowledgement policy with core subscriber",
             RuntimeWarning,
-            stacklevel=2,
+            stacklevel=3,
         )
 
     if batch:
