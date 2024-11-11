@@ -58,6 +58,12 @@ search:
   <a href="https://discord.gg/qFm6aSqq59" target="_blank">
       <img alt="Discord" src="https://img.shields.io/discord/1085457301214855171?logo=discord">
   </a>
+
+  <br/>
+
+  <a href="https://gurubase.io/g/faststream" target="_blank">
+    <img alt="Gurubase" src="https://img.shields.io/badge/Gurubase-Ask%20FastStream%20Guru-006BFF"/>
+  </a>
 </p>
 
 ---
