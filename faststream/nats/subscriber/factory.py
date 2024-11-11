@@ -394,56 +394,56 @@ def _validate_input_for_misconfigure(
         # Core/Obj/Kv Subscriber
         if durable:
             warnings.warn(
-                message="The `durable` option can be used only with JetStream (Pull/Push) Subscription",
+                message="The `durable` option can be used only with JetStream (Pull/Push) Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if config is not None:
             warnings.warn(
-                message="The `config` option can be used only with JetStream (Pull/Push) Subscription",
+                message="The `config` option can be used only with JetStream (Pull/Push) Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if ordered_consumer:
             warnings.warn(
-                message="The `ordered_consumer` option can be used only with JetStream (Pull/Push) Subscription",
+                message="The `ordered_consumer` option can be used only with JetStream (Pull/Push) Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if idle_heartbeat is not None:
             warnings.warn(
-                message="The `idle_heartbeat` option can be used only with JetStream (Pull/Push) Subscription",
+                message="The `idle_heartbeat` option can be used only with JetStream (Pull/Push) Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if flow_control:
             warnings.warn(
-                message="The `flow_control` option can be used only with JetStream Push Subscription",
+                message="The `flow_control` option can be used only with JetStream Push Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if deliver_policy:
             warnings.warn(
-                message="The `deliver_policy` option can be used only with JetStream (Pull/Push) Subscription",
+                message="The `deliver_policy` option can be used only with JetStream (Pull/Push) Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if headers_only:
             warnings.warn(
-                message="The `headers_only` option can be used only with JetStream (Pull/Push) Subscription",
+                message="The `headers_only` option can be used only with JetStream (Pull/Push) Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if ack_first:
             warnings.warn(
-                message="The `ack_first` option can be used only with JetStream Push Subscription",
+                message="The `ack_first` option can be used only with JetStream Push Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
