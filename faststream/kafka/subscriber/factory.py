@@ -135,7 +135,7 @@ def create_subscriber(
 ) -> Union[
     "AsyncAPIDefaultSubscriber",
     "AsyncAPIBatchSubscriber",
-    "AsyncAPIConcurrentDefaultSubscriber"
+    "AsyncAPIConcurrentDefaultSubscriber",
 ]:
     if is_manual and not group_id:
         raise SetupError("You must use `group_id` with manual commit mode.")

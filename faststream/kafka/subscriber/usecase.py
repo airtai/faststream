@@ -473,10 +473,8 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             group_id=self.group_id,
         )
 
-class ConcurrentDefaultSubscriber(
-    ConcurrentMixin,
-    DefaultSubscriber["ConsumerRecord"]
-):
+
+class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber["ConsumerRecord"]):
     def __init__(
         self,
         *topics: str,
