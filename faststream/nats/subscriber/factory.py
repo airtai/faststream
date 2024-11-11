@@ -339,23 +339,23 @@ def _validate_input_for_misconfigure(
     stream: Optional["JStream"],
 ) -> None:
     if not subject and not config:
-        raise SetupError("You must provide either `subject` or `config` option.")
+        raise SetupError("You must provide either the `subject` or `config` option.")
 
     if stream and kv_watch:
-        raise SetupError("You can't use `stream` and `kv_watch` options both.")
+        raise SetupError("You can't use both the `stream` and `kv_watch` options simultaneously.")
 
     if stream and obj_watch:
-        raise SetupError("You can't use `stream` and `obj_watch` options both.")
+        raise SetupError("You can't use both the `stream` and `obj_watch` options simultaneously.")
 
     if kv_watch and obj_watch:
-        raise SetupError("You can't use `kv_watch` and `obj_watch` options both.")
+        raise SetupError("You can't use both the `kv_watch` and `obj_watch` options simultaneously.")
 
     if pull_sub and not stream:
-        raise SetupError("Pull subscriber can be used only with a `stream` option.")
+        raise SetupError("The pull subscriber can only be used with the `stream` option.")
 
     if max_msgs > 0 and any((stream, kv_watch, obj_watch)):
         warnings.warn(
-            "`max_msgs` option can be used with NATS Core Subscriber - only.",
+            "The `max_msgs` option can be used only with a NATS Core Subscriber.",
             RuntimeWarning,
             stacklevel=4,
         )
@@ -365,28 +365,28 @@ def _validate_input_for_misconfigure(
             # Obj/Kv Subscriber
             if pending_msgs_limit is not None:
                 warnings.warn(
-                    message="`pending_msgs_limit` option can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                    message="The `pending_msgs_limit` option can be used only with JetStream (Pull/Push) or Core Subscription.",
                     category=RuntimeWarning,
                     stacklevel=4,
                 )
 
             if pending_bytes_limit is not None:
                 warnings.warn(
-                    message="`pending_bytes_limit` option can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                    message="The `pending_bytes_limit` option can be used only with JetStream (Pull/Push) or Core Subscription.",
                     category=RuntimeWarning,
                     stacklevel=4,
                 )
 
             if queue:
                 warnings.warn(
-                    message="`queue` option can be used with JetStream Push or Core Subscription - only.",
+                    message="The `queue` option can be used only with JetStream Push or Core Subscription.",
                     category=RuntimeWarning,
                     stacklevel=4,
                 )
 
             if max_workers > 1:
                 warnings.warn(
-                    message="`max_workers` option can be used with JetStream (Pull/Push) or Core Subscription - only.",
+                    message="The `max_workers` option can be used only with JetStream (Pull/Push) or Core Subscription.",
                     category=RuntimeWarning,
                     stacklevel=4,
                 )
@@ -394,56 +394,56 @@ def _validate_input_for_misconfigure(
         # Core/Obj/Kv Subscriber
         if durable:
             warnings.warn(
-                message="`durable` option can be used with JetStream (Pull/Push) Subscription - only.",
+                message="The `durable` option can be used only with JetStream (Pull/Push) Subscription",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if config is not None:
             warnings.warn(
-                message="`config` option can be used with JetStream (Pull/Push) Subscription - only.",
+                message="The `config` option can be used only with JetStream (Pull/Push) Subscription",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if ordered_consumer:
             warnings.warn(
-                message="`ordered_consumer` option can be used with JetStream (Pull/Push) Subscription - only.",
+                message="The `ordered_consumer` option can be used only with JetStream (Pull/Push) Subscription",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if idle_heartbeat is not None:
             warnings.warn(
-                message="`idle_heartbeat` option can be used with JetStream (Pull/Push) Subscription - only.",
+                message="The `idle_heartbeat` option can be used only with JetStream (Pull/Push) Subscription",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if flow_control:
             warnings.warn(
-                message="`flow_control` option can be used with JetStream Push Subscription - only.",
+                message="The `flow_control` option can be used only with JetStream Push Subscription",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if deliver_policy:
             warnings.warn(
-                message="`deliver_policy` option can be used with JetStream (Pull/Push) Subscription - only.",
+                message="The `deliver_policy` option can be used only with JetStream (Pull/Push) Subscription",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if headers_only:
             warnings.warn(
-                message="`headers_only` option be used with JetStream (Pull/Push) Subscription - only.",
+                message="The `headers_only` option can be used only with JetStream (Pull/Push) Subscription",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
 
         if ack_first:
             warnings.warn(
-                message="`ack_first` can be used with JetStream Push Subscription - only.",
+                message="The `ack_first` option can be used only with JetStream Push Subscription",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
@@ -453,28 +453,28 @@ def _validate_input_for_misconfigure(
         if pull_sub:
             if queue:
                 warnings.warn(
-                    message="`queue` option has no effect with JetStream Pull Subscription. Probably, you wanted to use `durable` instead.",
+                    message="The `queue` option has no effect with JetStream Pull Subscription. You probably wanted to use the `durable` option instead.",
                     category=RuntimeWarning,
                     stacklevel=4,
                 )
 
             if ordered_consumer:
                 warnings.warn(
-                    "`ordered_consumer` option has no effect with JetStream Pull Subscription. It can be used with JetStream Push Subscription - only.",
+                    "The `ordered_consumer` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
                     RuntimeWarning,
                     stacklevel=4,
                 )
 
             if ack_first:
                 warnings.warn(
-                    message="`ack_first` option has no effect with JetStream Pull Subscription. It can be used with JetStream Push Subscription - only.",
+                    message="The `ack_first` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
                     category=RuntimeWarning,
                     stacklevel=4,
                 )
 
             if flow_control:
                 warnings.warn(
-                    message="`flow_control` option has no effect with JetStream Pull Subscription. It can be used with JetStream Push Subscription - only.",
+                    message="The `flow_control` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
                     category=RuntimeWarning,
                     stacklevel=4,
                 )
@@ -483,7 +483,7 @@ def _validate_input_for_misconfigure(
             # JS PushSub
             if durable is not None:
                 warnings.warn(
-                    message="JetStream Push consumer with durable option can't be scaled horizontally by multiple instances. Probably, you are looking for `queue` option. Also, we strongly recommend to use Jetstream PullSubsriber with durable option as a default.",
+                    message="The JetStream Push consumer with the `durable` option can't be scaled horizontally across multiple instances. You probably wanted to use the `queue` option instead. Also, we strongly recommend using the Jetstream PullSubsriber with the `durable` option as the default.",
                     category=RuntimeWarning,
                     stacklevel=4,
                 )
