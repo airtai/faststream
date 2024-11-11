@@ -44,7 +44,7 @@ search:
     - [CLI](getting-started/cli/index.md)
     - [ASGI](getting-started/asgi.md)
     - [Observability](getting-started/observability/index.md)
-        - [Healthcheks](getting-started/observability/probes.md)
+        - [Healthcheks](getting-started/observability/healthchecks.md)
         - [Prometheus](getting-started/observability/prometheus.md)
         - [OpenTelemetry](getting-started/observability/opentelemetry/index.md)
             - [Tracing](getting-started/observability/opentelemetry/tracing.md)
