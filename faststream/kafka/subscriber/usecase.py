@@ -499,4 +499,67 @@ class ConcurrentDefaultSubscriber(
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        pass
+        if pattern:
+            reg, pattern = compile_path(
+                pattern,
+                replace_symbol=".*",
+                patch_regex=lambda x: x.replace(r"\*", ".*"),
+            )
+
+        else:
+            reg = None
+
+        parser = AioKafkaParser(
+            msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
+            regex=reg,
+        )
+
+        super().__init__(
+            *topics,
+            max_workers=max_workers,
+            group_id=group_id,
+            listener=listener,
+            pattern=pattern,
+            connection_args=connection_args,
+            partitions=partitions,
+            # subscriber args
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
+            # Propagated args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            # AsyncAPI args
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+    async def _consume(self) -> None:
+        assert self.consumer, "You should start subscriber at first."  # nosec B101
+
+        connected = True
+
+        self.start_consume_task()
+
+        while self.running:
+            try:
+                msg = await self.get_msg()
+
+            # pragma: no cover
+            except KafkaError:  # noqa: PERF203
+                if connected:
+                    connected = False
+                await anyio.sleep(5)
+
+            except ConsumerStoppedError:
+                return
+
+            else:
+                if not connected:  # pragma: no cover
+                    connected = True
+
+                if msg:
+                    await self.consume(msg)
