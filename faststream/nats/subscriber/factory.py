@@ -342,16 +342,24 @@ def _validate_input_for_misconfigure(
         raise SetupError("You must provide either the `subject` or `config` option.")
 
     if stream and kv_watch:
-        raise SetupError("You can't use both the `stream` and `kv_watch` options simultaneously.")
+        raise SetupError(
+            "You can't use both the `stream` and `kv_watch` options simultaneously."
+        )
 
     if stream and obj_watch:
-        raise SetupError("You can't use both the `stream` and `obj_watch` options simultaneously.")
+        raise SetupError(
+            "You can't use both the `stream` and `obj_watch` options simultaneously."
+        )
 
     if kv_watch and obj_watch:
-        raise SetupError("You can't use both the `kv_watch` and `obj_watch` options simultaneously.")
+        raise SetupError(
+            "You can't use both the `kv_watch` and `obj_watch` options simultaneously."
+        )
 
     if pull_sub and not stream:
-        raise SetupError("The pull subscriber can only be used with the `stream` option.")
+        raise SetupError(
+            "The pull subscriber can only be used with the `stream` option."
+        )
 
     if max_msgs > 0 and any((stream, kv_watch, obj_watch)):
         warnings.warn(
