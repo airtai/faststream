@@ -525,11 +525,16 @@ class KafkaRoute(SubscriberRoute):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> None:
         super().__init__(
             call,
             *topics,
             publishers=publishers,
+            max_workers=max_workers,
             group_id=group_id,
             key_deserializer=key_deserializer,
             value_deserializer=value_deserializer,

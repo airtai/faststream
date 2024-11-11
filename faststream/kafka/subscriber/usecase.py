@@ -5,6 +5,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Coroutine,
     Dict,
     Iterable,
     List,
@@ -20,6 +21,7 @@ from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
+from faststream.broker.subscriber.mixins import ConcurrentMixin
 from faststream.broker.types import (
     AsyncCallable,
     BrokerMiddleware,
@@ -471,3 +473,31 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             topic=topic,
             group_id=self.group_id,
         )
+
+class ConcurrentDefaultSubscriber(
+    ConcurrentMixin,
+    DefaultSubscriber["ConsumerRecord"]
+):
+    def __init__(
+        self,
+        *topics: str,
+        max_workers: int,
+        # Kafka information
+        group_id: Optional[str],
+        listener: Optional["ConsumerRebalanceListener"],
+        pattern: Optional[str],
+        connection_args: "AnyDict",
+        partitions: Iterable["TopicPartition"],
+        is_manual: bool,
+        # Subscriber args
+        no_ack: bool,
+        no_reply: bool,
+        retry: bool,
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        pass

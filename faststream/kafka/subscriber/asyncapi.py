@@ -18,6 +18,7 @@ from faststream.kafka.subscriber.usecase import (
     BatchSubscriber,
     DefaultSubscriber,
     LogicSubscriber,
+    ConcurrentDefaultSubscriber
 )
 
 if TYPE_CHECKING:
@@ -67,5 +68,12 @@ class AsyncAPIDefaultSubscriber(
 class AsyncAPIBatchSubscriber(
     BatchSubscriber,
     AsyncAPISubscriber[Tuple["ConsumerRecord", ...]],
+):
+    pass
+
+
+class AsyncAPIConcurrentDefaultSubscriber(
+    ConcurrentDefaultSubscriber,
+    AsyncAPISubscriber["ConsumerRecord"],
 ):
     pass
