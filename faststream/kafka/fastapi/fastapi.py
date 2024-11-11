@@ -60,8 +60,8 @@ if TYPE_CHECKING:
     )
     from faststream.kafka.subscriber.asyncapi import (
         AsyncAPIBatchSubscriber,
+        AsyncAPIConcurrentDefaultSubscriber,
         AsyncAPIDefaultSubscriber,
-        AsyncAPIConcurrentDefaultSubscriber
     )
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, LoggerProto

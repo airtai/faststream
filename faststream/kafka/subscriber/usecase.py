@@ -5,7 +5,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Coroutine,
     Dict,
     Iterable,
     List,
@@ -20,8 +19,8 @@ from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.subscriber.mixins import ConcurrentMixin
+from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import (
     AsyncCallable,
     BrokerMiddleware,

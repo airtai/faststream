@@ -16,9 +16,9 @@ from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import MsgType
 from faststream.kafka.subscriber.usecase import (
     BatchSubscriber,
+    ConcurrentDefaultSubscriber,
     DefaultSubscriber,
     LogicSubscriber,
-    ConcurrentDefaultSubscriber
 )
 
 if TYPE_CHECKING:

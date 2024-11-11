@@ -11,8 +11,8 @@ from typing import (
 from faststream.exceptions import SetupError
 from faststream.kafka.subscriber.asyncapi import (
     AsyncAPIBatchSubscriber,
+    AsyncAPIConcurrentDefaultSubscriber,
     AsyncAPIDefaultSubscriber,
-    AsyncAPIConcurrentDefaultSubscriber
 )
 
 if TYPE_CHECKING:

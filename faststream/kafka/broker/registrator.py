@@ -41,8 +41,8 @@ if TYPE_CHECKING:
     )
     from faststream.kafka.subscriber.asyncapi import (
         AsyncAPIBatchSubscriber,
+        AsyncAPIConcurrentDefaultSubscriber,
         AsyncAPIDefaultSubscriber,
-        AsyncAPIConcurrentDefaultSubscriber
     )
 
 
