@@ -1,7 +1,8 @@
-pip install uv
+# Update pip
+pip install --upgrade pip
 
-uv venv .venv
+# Install dev packages
+pip install -e ".[dev]"
 
-uv pip install -e ".[dev]"
-
-source .venv/bin/activate
+# Install pre-commit hooks if not installed already
+pre-commit install

@@ -30,7 +30,7 @@ def test_publish_command_with_redis_options(runner):
     mock_app = get_mock_app(RedisBroker, RedisFastProducer)
 
     with patch(
-        "faststream.cli.main.import_from_string",
+        "faststream.cli.utils.imports._import_obj_or_factory",
         return_value=(None, mock_app),
     ):
         result = runner.invoke(
@@ -72,7 +72,10 @@ def test_publish_command_with_confluent_options(runner):
 
     mock_app = get_mock_app(ConfluentBroker, AsyncConfluentFastProducer)
 
-    with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
+    with patch(
+        "faststream.cli.utils.imports._import_obj_or_factory",
+        return_value=(None, mock_app),
+    ):
         result = runner.invoke(
             faststream_app,
             [
@@ -102,7 +105,10 @@ def test_publish_command_with_kafka_options(runner):
 
     mock_app = get_mock_app(KafkaBroker, AioKafkaFastProducer)
 
-    with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
+    with patch(
+        "faststream.cli.utils.imports._import_obj_or_factory",
+        return_value=(None, mock_app),
+    ):
         result = runner.invoke(
             faststream_app,
             [
@@ -132,7 +138,10 @@ def test_publish_command_with_nats_options(runner):
 
     mock_app = get_mock_app(NatsBroker, NatsFastProducer)
 
-    with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
+    with patch(
+        "faststream.cli.utils.imports._import_obj_or_factory",
+        return_value=(None, mock_app),
+    ):
         result = runner.invoke(
             faststream_app,
             [
@@ -166,7 +175,10 @@ def test_publish_command_with_rabbit_options(runner):
 
     mock_app = get_mock_app(RabbitBroker, AioPikaFastProducer)
 
-    with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
+    with patch(
+        "faststream.cli.utils.imports._import_obj_or_factory",
+        return_value=(None, mock_app),
+    ):
         result = runner.invoke(
             faststream_app,
             [

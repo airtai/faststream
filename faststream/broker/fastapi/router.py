@@ -1,4 +1,5 @@
 import json
+import warnings
 from abc import abstractmethod
 from contextlib import asynccontextmanager
 from enum import Enum
@@ -165,6 +166,8 @@ class StreamRouter(
         self.contact = None
 
         self.schema = None
+        # Flag to prevent double lifespan start
+        self._lifespan_started = False
 
         super().__init__(
             prefix=prefix,
@@ -316,7 +319,15 @@ class StreamRouter(
                     context = dict(maybe_context)
 
                 context.update({"broker": self.broker})
-                await self.broker.start()
+
+                if not self._lifespan_started:
+                    await self.broker.start()
+                    self._lifespan_started = True
+                else:
+                    warnings.warn(
+                        "Specifying 'lifespan_context' manually is no longer necessary with FastAPI >= 0.112.2.",
+                        stacklevel=2,
+                    )
 
                 for h in self._after_startup_hooks:
                     h_context = await h(app)
