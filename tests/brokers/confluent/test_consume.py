@@ -50,9 +50,10 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_batch_headers(
         self,
         mock,
-        event: asyncio.Event,
         queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)
@@ -88,8 +89,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_ack(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
@@ -131,8 +133,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_ack_manual(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
@@ -170,8 +173,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_ack_raise(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
@@ -209,8 +213,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_nack(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
@@ -248,8 +253,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_no_ack(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
@@ -289,8 +295,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_with_no_auto_commit(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(

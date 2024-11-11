@@ -100,9 +100,10 @@ class TestPublish(BrokerPublishTestcase):
     async def test_response(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue)

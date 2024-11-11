@@ -20,9 +20,10 @@ class TestPublish(BrokerPublishTestcase):
     async def test_list_publisher(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         @pub_broker.subscriber(list=queue)
@@ -79,9 +80,10 @@ class TestPublish(BrokerPublishTestcase):
     async def test_batch_list_publisher(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         batch_list = ListSub(queue + "resp", batch=True)
@@ -113,9 +115,10 @@ class TestPublish(BrokerPublishTestcase):
     async def test_publisher_with_maxlen(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         stream = StreamSub(queue + "resp", maxlen=1)
@@ -150,9 +153,10 @@ class TestPublish(BrokerPublishTestcase):
     async def test_response(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(list=queue)
@@ -188,7 +192,6 @@ class TestPublish(BrokerPublishTestcase):
     async def test_response_for_rpc(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 

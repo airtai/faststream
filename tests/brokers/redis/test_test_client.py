@@ -23,8 +23,9 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_with_real_testclient(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         broker = self.get_broker()
 
         @broker.subscriber(queue)

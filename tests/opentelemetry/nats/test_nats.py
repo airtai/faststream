@@ -32,7 +32,6 @@ class TestTelemetry(LocalTelemetryTestcase):
 
     async def test_batch(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         stream: JStream,
@@ -41,6 +40,8 @@ class TestTelemetry(LocalTelemetryTestcase):
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider,
             tracer_provider=tracer_provider,

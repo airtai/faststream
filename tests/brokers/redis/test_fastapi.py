@@ -18,9 +18,10 @@ class TestRouter(FastAPITestcase):
     async def test_path(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber("in.{name}")
@@ -57,8 +58,9 @@ class TestRouter(FastAPITestcase):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber(list=ListSub(queue, batch=True, max_records=1))
@@ -82,10 +84,11 @@ class TestRouter(FastAPITestcase):
     @pytest.mark.slow()
     async def test_consume_stream(
         self,
-        event: asyncio.Event,
         mock: Mock,
         queue,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber(stream=StreamSub(queue, polling_interval=10))
@@ -110,10 +113,11 @@ class TestRouter(FastAPITestcase):
     @pytest.mark.slow()
     async def test_consume_stream_batch(
         self,
-        event: asyncio.Event,
         mock: Mock,
         queue,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber(stream=StreamSub(queue, polling_interval=10, batch=True))
@@ -147,8 +151,9 @@ class TestRouterLocal(FastAPILocalTestcase):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber(list=ListSub(queue, batch=True, max_records=1))
@@ -172,8 +177,9 @@ class TestRouterLocal(FastAPILocalTestcase):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber(stream=StreamSub(queue, batch=True))

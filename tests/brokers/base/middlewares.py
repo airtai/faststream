@@ -16,10 +16,11 @@ from .basic import BaseTestcaseConfig
 class LocalMiddlewareTestcase(BaseTestcaseConfig):
     async def test_subscriber_middleware(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         async def mid(call_next, msg):
             mock.start(await msg.decode())
             result = await call_next(msg)
@@ -54,10 +55,11 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
 
     async def test_publisher_middleware(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         async def mid(call_next, msg, **kwargs):
             mock.enter()
             result = await call_next(msg, **kwargs)
@@ -194,7 +196,9 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
         mock.end.assert_called_once()
         assert mock.call_count == 2
 
-    async def test_error_traceback(self, queue: str, mock: Mock, event) -> None:
+    async def test_error_traceback(self, queue: str, mock: Mock) -> None:
+        event = asyncio.Event()
+
         async def mid(call_next, msg):
             try:
                 result = await call_next(msg)
@@ -232,10 +236,11 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
 class MiddlewareTestcase(LocalMiddlewareTestcase):
     async def test_global_middleware(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         class mid(BaseMiddleware):  # noqa: N801
             async def on_receive(self):
                 mock.start(self.msg)
@@ -272,10 +277,11 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
 
     async def test_add_global_middleware(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         class mid(BaseMiddleware):  # noqa: N801
             async def on_receive(self):
                 mock.start(self.msg)
@@ -328,8 +334,9 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
         self,
         queue: str,
         mock: Mock,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         class Mid(BaseMiddleware):
             async def on_publish(self, msg: PublishCommand) -> PublishCommand:
                 msg.body *= 2
@@ -366,10 +373,11 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
 
     async def test_global_publisher_middleware(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         class Mid(BaseMiddleware):
             async def on_publish(self, msg: PublishCommand) -> PublishCommand:
                 msg.body *= 2
@@ -413,10 +421,11 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
 class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
     async def test_exception_middleware_default_msg(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ValueError, publish=True)
@@ -455,10 +464,11 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
     async def test_exception_middleware_skip_msg(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ValueError, publish=True)
@@ -495,10 +505,11 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
     async def test_exception_middleware_do_not_catch_skip_msg(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         mid = ExceptionMiddleware()
 
         @mid.add_handler(Exception)
@@ -529,10 +540,11 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
     async def test_exception_middleware_reraise(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ValueError, publish=True)
@@ -569,10 +581,11 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
     async def test_exception_middleware_different_handler(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         mid = ExceptionMiddleware()
 
         @mid.add_handler(ZeroDivisionError, publish=True)
@@ -649,10 +662,11 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
 
     async def test_exception_middleware_decoder_error(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         async def decoder(
             msg,
             original_decoder,

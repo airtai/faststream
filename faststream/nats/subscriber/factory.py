@@ -95,6 +95,7 @@ def create_subscriber(
         deliver_policy=deliver_policy,
         headers_only=headers_only,
         pull_sub=pull_sub,
+        ack_policy=ack_policy,
         kv_watch=kv_watch,
         obj_watch=obj_watch,
         ack_first=ack_first,
@@ -308,7 +309,7 @@ def create_subscriber(
     )
 
 
-def _validate_input_for_misconfigure(
+def _validate_input_for_misconfigure(  # noqa: PLR0915
     subject: str,
     queue: str,  # default ""
     pending_msgs_limit: Optional[int],
@@ -324,33 +325,32 @@ def _validate_input_for_misconfigure(
     pull_sub: Optional["PullSub"],
     kv_watch: Optional["KvWatch"],
     obj_watch: Optional["ObjWatch"],
+    ack_policy: "AckPolicy",  # default EMPTY
     ack_first: bool,  # default False
     max_workers: int,  # default 1
     stream: Optional["JStream"],
 ) -> None:
     if not subject and not config:
-        raise SetupError("You must provide either the `subject` or `config` option.")
+        msg = "You must provide either the `subject` or `config` option."
+        raise SetupError(msg)
 
     if stream and kv_watch:
-        raise SetupError(
-            "You can't use both the `stream` and `kv_watch` options simultaneously."
-        )
+        msg = "You can't use both the `stream` and `kv_watch` options simultaneously."
+        raise SetupError(msg)
 
     if stream and obj_watch:
-        raise SetupError(
-            "You can't use both the `stream` and `obj_watch` options simultaneously."
-        )
+        msg = "You can't use both the `stream` and `obj_watch` options simultaneously."
+        raise SetupError(msg)
 
     if kv_watch and obj_watch:
-        raise SetupError(
+        msg = (
             "You can't use both the `kv_watch` and `obj_watch` options simultaneously."
         )
+        raise SetupError(msg)
 
     if pull_sub and not stream:
-        raise SetupError(
-            "The pull subscriber can only be used with the `stream` option."
-        )
-    
+        msg = "The pull subscriber can only be used with the `stream` option."
+        raise SetupError(msg)
 
     if ack_policy is not EMPTY:
         if stream is None:
@@ -469,42 +469,40 @@ def _validate_input_for_misconfigure(
                 stacklevel=4,
             )
 
-    else:
-        # JetStream Subscribers
-        if pull_sub:
-            if queue:
-                warnings.warn(
-                    message="The `queue` option has no effect with JetStream Pull Subscription. You probably wanted to use the `durable` option instead.",
-                    category=RuntimeWarning,
-                    stacklevel=4,
-                )
+    # JetStream Subscribers
+    elif pull_sub:
+        if queue:
+            warnings.warn(
+                message="The `queue` option has no effect with JetStream Pull Subscription. You probably wanted to use the `durable` option instead.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
 
-            if ordered_consumer:
-                warnings.warn(
-                    "The `ordered_consumer` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
-                    RuntimeWarning,
-                    stacklevel=4,
-                )
+        if ordered_consumer:
+            warnings.warn(
+                "The `ordered_consumer` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
+                RuntimeWarning,
+                stacklevel=4,
+            )
 
-            if ack_first:
-                warnings.warn(
-                    message="The `ack_first` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
-                    category=RuntimeWarning,
-                    stacklevel=4,
-                )
+        if ack_first:
+            warnings.warn(
+                message="The `ack_first` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
 
-            if flow_control:
-                warnings.warn(
-                    message="The `flow_control` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
-                    category=RuntimeWarning,
-                    stacklevel=4,
-                )
+        if flow_control:
+            warnings.warn(
+                message="The `flow_control` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
+                category=RuntimeWarning,
+                stacklevel=4,
+            )
 
-        else:
-            # JS PushSub
-            if durable is not None:
-                warnings.warn(
-                    message="The JetStream Push consumer with the `durable` option can't be scaled horizontally across multiple instances. You probably wanted to use the `queue` option instead. Also, we strongly recommend using the Jetstream PullSubsriber with the `durable` option as the default.",
-                    category=RuntimeWarning,
-                    stacklevel=4,
-                )
+    # JS PushSub
+    elif durable is not None:
+        warnings.warn(
+            message="The JetStream Push consumer with the `durable` option can't be scaled horizontally across multiple instances. You probably wanted to use the `queue` option instead. Also, we strongly recommend using the Jetstream PullSubsriber with the `durable` option as the default.",
+            category=RuntimeWarning,
+            stacklevel=4,
+        )

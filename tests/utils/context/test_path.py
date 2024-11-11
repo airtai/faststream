@@ -70,9 +70,10 @@ async def test_nats_path() -> None:
 @require_nats
 async def test_nats_kv_path(
     queue: str,
-    event: asyncio.Event,
     mock: Mock,
 ) -> None:
+    event = asyncio.Event()
+
     from faststream.nats import NatsBroker
 
     broker = NatsBroker()
