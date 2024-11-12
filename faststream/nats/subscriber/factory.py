@@ -353,13 +353,6 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
         raise SetupError(msg)
 
     if ack_policy is not EMPTY:
-        if stream is None:
-            warnings.warn(
-                "You can't use acknowledgement policy with core subscriber. Use JetStream instead.",
-                RuntimeWarning,
-                stacklevel=3,
-            )
-
         if obj_watch is not None:
             warnings.warn(
                 "You can't use acknowledgement policy with ObjectStorage watch subscriber.",
@@ -367,9 +360,16 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
                 stacklevel=3,
             )
 
-        if kv_watch is not None:
+        elif kv_watch is not None:
             warnings.warn(
                 "You can't use acknowledgement policy with KeyValue watch subscriber.",
+                RuntimeWarning,
+                stacklevel=3,
+            )
+
+        elif stream is None:
+            warnings.warn(
+                "You can't use acknowledgement policy with core subscriber. Use JetStream instead.",
                 RuntimeWarning,
                 stacklevel=3,
             )

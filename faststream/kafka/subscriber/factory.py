@@ -134,12 +134,10 @@ def create_subscriber(
 ]:
     if ack_policy is not EMPTY and not is_manual:
         warnings.warn(
-            "You can't use acknowledgement policy with core subscriber",
+            "You can't use acknowledgement policy with `is_manual=False` subscriber",
             RuntimeWarning,
             stacklevel=3,
         )
-    elif ack_policy is EMPTY and is_manual:
-        ack_policy = AckPolicy.REJECT_ON_ERROR
 
     if is_manual and not group_id:
         msg = "You must use `group_id` with manual commit mode."
@@ -159,6 +157,9 @@ def create_subscriber(
     if partitions and pattern:
         msg = "You can't provide both `partitions` and `pattern`."
         raise SetupError(msg)
+
+    if ack_policy is EMPTY:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
 
     if batch:
         return SpecificationBatchSubscriber(

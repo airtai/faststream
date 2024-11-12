@@ -47,16 +47,17 @@ def create_subscriber(
     description_: Optional[str] = None,
     include_in_schema: bool = True,
 ) -> SubsciberType:
-    validate_options(channel=channel, list=list, stream=stream)
+    _validate_input_for_misconfigure(
+        channel=channel,
+        list=list,
+        stream=stream,
+        ack_policy=ack_policy,
+    )
+
+    if ack_policy is EMPTY:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
 
     if (channel_sub := PubSub.validate(channel)) is not None:
-        if ack_policy is not EMPTY:
-            warnings.warn(
-                "You can't use acknowledgement policy with core subscriber",
-                RuntimeWarning,
-                stacklevel=3,
-            )
-
         return SpecificationChannelSubscriber(
             channel=channel_sub,
             # basic args
@@ -70,15 +71,6 @@ def create_subscriber(
         )
 
     if (stream_sub := StreamSub.validate(stream)) is not None:
-        if ack_policy is not EMPTY:
-            warnings.warn(
-                "You can't use acknowledgement policy with core subscriber",
-                RuntimeWarning,
-                stacklevel=3,
-            )
-        else:
-            ack_policy = AckPolicy.REJECT_ON_ERROR
-
         if stream_sub.batch:
             return SpecificationStreamBatchSubscriber(
                 stream=stream_sub,
@@ -92,6 +84,7 @@ def create_subscriber(
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
+
         return SpecificationStreamSubscriber(
             stream=stream_sub,
             # basic args
@@ -106,13 +99,6 @@ def create_subscriber(
         )
 
     if (list_sub := ListSub.validate(list)) is not None:
-        if ack_policy is not EMPTY:
-            warnings.warn(
-                "You can't use acknowledgement policy with core subscriber",
-                RuntimeWarning,
-                stacklevel=3,
-            )
-
         if list_sub.batch:
             return SpecificationListBatchSubscriber(
                 list=list_sub,
@@ -125,6 +111,7 @@ def create_subscriber(
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
+
         return SpecificationListSubscriber(
             list=list_sub,
             # basic args
@@ -138,3 +125,28 @@ def create_subscriber(
         )
 
     raise SetupError(INCORRECT_SETUP_MSG)
+
+
+def _validate_input_for_misconfigure(
+    *,
+    channel: Union["PubSub", str, None],
+    list: Union["ListSub", str, None],
+    stream: Union["StreamSub", str, None],
+    ack_policy: AckPolicy,
+) -> None:
+    validate_options(channel=channel, list=list, stream=stream)
+
+    if ack_policy is not EMPTY:
+        if channel:
+            warnings.warn(
+                "You can't use acknowledgement policy with PubSub subscriber.",
+                RuntimeWarning,
+                stacklevel=3,
+            )
+
+        if list:
+            warnings.warn(
+                "You can't use acknowledgement policy with List subscriber.",
+                RuntimeWarning,
+                stacklevel=3,
+            )

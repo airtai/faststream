@@ -125,11 +125,12 @@ def create_subscriber(
 ]:
     if ack_policy is not EMPTY and not is_manual:
         warnings.warn(
-            "You can't use acknowledgement policy with core subscriber",
+            "You can't use acknowledgement policy with `is_manual=False` subscriber",
             RuntimeWarning,
             stacklevel=3,
         )
-    elif ack_policy is EMPTY and is_manual:
+
+    if ack_policy is EMPTY:
         ack_policy = AckPolicy.REJECT_ON_ERROR
 
     if batch:

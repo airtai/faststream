@@ -1,4 +1,3 @@
-import warnings
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Optional
 
@@ -30,13 +29,7 @@ def create_subscriber(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> SpecificationSubscriber:
-    if ack_policy is not EMPTY:
-        warnings.warn(
-            "You can't use acknowledgement policy with core subscriber",
-            RuntimeWarning,
-            stacklevel=3,
-        )
-    else:
+    if ack_policy is EMPTY:
         ack_policy = AckPolicy.REJECT_ON_ERROR
 
     return SpecificationSubscriber(
