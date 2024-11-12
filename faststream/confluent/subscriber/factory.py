@@ -129,6 +129,8 @@ def create_subscriber(
             RuntimeWarning,
             stacklevel=3,
         )
+    elif ack_policy is EMPTY and is_manual:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
 
     if batch:
         return SpecificationBatchSubscriber(
@@ -139,9 +141,7 @@ def create_subscriber(
             group_id=group_id,
             connection_data=connection_data,
             is_manual=is_manual,
-            ack_policy=AckPolicy.REJECT_ON_ERROR
-            if ack_policy is EMPTY and is_manual
-            else ack_policy,
+            ack_policy=ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -156,9 +156,7 @@ def create_subscriber(
         group_id=group_id,
         connection_data=connection_data,
         is_manual=is_manual,
-        ack_policy=AckPolicy.REJECT_ON_ERROR
-        if ack_policy is EMPTY and is_manual
-        else ack_policy,
+        ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,

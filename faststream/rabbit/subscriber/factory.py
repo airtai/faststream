@@ -36,12 +36,14 @@ def create_subscriber(
             RuntimeWarning,
             stacklevel=3,
         )
+    else:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
 
     return SpecificationSubscriber(
         queue=queue,
         exchange=exchange,
         consume_args=consume_args,
-        ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY else ack_policy,
+        ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,
