@@ -76,6 +76,10 @@ class TestNatsBroker(TestBroker[NatsBroker]):
         broker._connection_state = ConnectedState(AsyncMock(), AsyncMock())
         return AsyncMock()
 
+    def _fake_start(self, broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
+        broker._connection_state = ConnectedState(AsyncMock(), AsyncMock())
+        return super()._fake_start(broker, *args, **kwargs)
+
 
 class FakeProducer(NatsFastProducer):
     def __init__(self, broker: NatsBroker) -> None:

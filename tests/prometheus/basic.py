@@ -58,11 +58,12 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
     )
     async def test_metrics(
         self,
-        event: asyncio.Event,
         queue: str,
         status: AckStatus,
         exception_class: Optional[type[Exception]],
     ):
+        event = asyncio.Event()
+
         middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
@@ -210,8 +211,9 @@ class LocalRPCPrometheusTestcase:
     async def test_rpc_request(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock

@@ -25,8 +25,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -53,8 +54,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         router.prefix = "test_"
@@ -83,8 +85,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -111,8 +114,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -146,8 +150,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         router.prefix = "test_"
@@ -183,8 +188,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         router.prefix = "test_"
@@ -219,10 +225,11 @@ class RouterTestcase(
 
     async def test_delayed_handlers(
         self,
-        event: asyncio.Event,
         router: BrokerRouter,
         queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         def response(m) -> None:
@@ -251,11 +258,12 @@ class RouterTestcase(
 
     async def test_delayed_publishers(
         self,
-        event: asyncio.Event,
         router: BrokerRouter,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         def response(m):
@@ -303,9 +311,10 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         core_router = type(router)(prefix="test1_")
@@ -340,8 +349,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         core_router = type(router)(prefix="test1_")
@@ -488,9 +498,10 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         async def parser(msg, original):
@@ -532,9 +543,10 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         async def global_parser(msg, original):  # pragma: no cover
@@ -588,8 +600,9 @@ class RouterLocalTestcase(RouterTestcase):
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         pub = router.publisher(queue + "resp")
@@ -621,8 +634,9 @@ class RouterLocalTestcase(RouterTestcase):
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)

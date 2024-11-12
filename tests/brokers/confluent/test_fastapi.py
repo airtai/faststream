@@ -21,8 +21,9 @@ class TestConfluentRouter(ConfluentTestcaseConfig, FastAPITestcase):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)
@@ -57,8 +58,9 @@ class TestRouterLocal(ConfluentTestcaseConfig, FastAPILocalTestcase):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)

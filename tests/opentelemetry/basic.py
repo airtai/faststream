@@ -168,12 +168,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_subscriber_create_publish_process_span(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,))
 
@@ -207,12 +208,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_chain_subscriber_publisher(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,))
 
@@ -267,12 +269,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_no_trace_context_create_process_span(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,))
 
@@ -306,12 +309,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_metrics(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         meter_provider: MeterProvider,
         metric_reader: InMemoryMetricReader,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(meter_provider=meter_provider)
         broker = self.get_broker(middlewares=(mid,))
 
@@ -342,12 +346,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_error_metrics(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         meter_provider: MeterProvider,
         metric_reader: InMemoryMetricReader,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(meter_provider=meter_provider)
         broker = self.get_broker(middlewares=(mid,))
         expected_value_type = "ValueError"
@@ -382,12 +387,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_span_in_context(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
 
@@ -415,10 +421,11 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_get_baggage(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class()
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_baggage = {"foo": "bar"}
@@ -456,10 +463,11 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_clear_baggage(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class()
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
 
@@ -505,10 +513,11 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_modify_baggage(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class()
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_baggage = {"baz": "bar", "bar": "baz"}
@@ -556,9 +565,10 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_get_baggage_from_headers(
         self,
-        event: asyncio.Event,
         queue: str,
     ):
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class()
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
 

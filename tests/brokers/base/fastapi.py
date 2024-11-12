@@ -24,9 +24,9 @@ class FastAPITestcase(BaseTestcaseConfig):
     router_class: type[StreamRouter[BrokerUsecase]]
     broker_router_class: type[BrokerRouter[Any]]
 
-    async def test_base_real(
-        self, mock: Mock, queue: str, event: asyncio.Event
-    ) -> None:
+    async def test_base_real(self, mock: Mock, queue: str) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -50,8 +50,12 @@ class FastAPITestcase(BaseTestcaseConfig):
         mock.assert_called_with("hi")
 
     async def test_background(
-        self, mock: Mock, queue: str, event: asyncio.Event
+        self,
+        mock: Mock,
+        queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         def task(msg):
@@ -77,7 +81,9 @@ class FastAPITestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_with("hi")
 
-    async def test_context(self, mock: Mock, queue: str, event: asyncio.Event) -> None:
+    async def test_context(self, mock: Mock, queue: str) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
         context = router.context
 
@@ -108,7 +114,9 @@ class FastAPITestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_with(True)
 
-    async def test_initial_context(self, queue: str, event: asyncio.Event) -> None:
+    async def test_initial_context(self, queue: str) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
         context = router.context
 
@@ -136,9 +144,8 @@ class FastAPITestcase(BaseTestcaseConfig):
         assert context.get(queue) == {1, 2}
         context.reset_global(queue)
 
-    async def test_double_real(
-        self, mock: Mock, queue: str, event: asyncio.Event
-    ) -> None:
+    async def test_double_real(self, mock: Mock, queue: str) -> None:
+        event = asyncio.Event()
         event2 = asyncio.Event()
         router = self.router_class()
 
@@ -176,8 +183,9 @@ class FastAPITestcase(BaseTestcaseConfig):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue)

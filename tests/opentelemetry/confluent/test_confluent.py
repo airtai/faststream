@@ -64,7 +64,6 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
 
     async def test_batch(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         meter_provider: MeterProvider,
@@ -72,6 +71,8 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider,
             tracer_provider=tracer_provider,
@@ -198,7 +199,6 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
 
     async def test_single_publish_with_batch_consume(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         meter_provider: MeterProvider,
@@ -206,6 +206,8 @@ class TestTelemetry(ConfluentTestcaseConfig, LocalTelemetryTestcase):
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(
             meter_provider=meter_provider,
             tracer_provider=tracer_provider,

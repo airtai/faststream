@@ -22,9 +22,10 @@ class TestPrometheus(LocalPrometheusTestcase):
 
     async def test_metrics_batch(
         self,
-        event: asyncio.Event,
         queue: str,
     ):
+        event = asyncio.Event()
+
         middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock

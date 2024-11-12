@@ -23,8 +23,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(queue=queue, exchange=exchange)
@@ -50,8 +51,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
@@ -88,8 +90,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange)
@@ -122,8 +125,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange)
@@ -156,8 +160,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange)
@@ -192,8 +197,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange)
@@ -227,8 +233,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange)
@@ -263,8 +270,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange)
@@ -298,8 +306,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue=queue, exchange=exchange)
@@ -333,8 +342,9 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_skip_message(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue)
@@ -382,8 +392,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(

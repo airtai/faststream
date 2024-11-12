@@ -12,8 +12,9 @@ class LocalCustomParserTestcase(BaseTestcaseConfig):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         broker = self.get_broker()
 
         async def custom_parser(msg, original):
@@ -45,8 +46,9 @@ class LocalCustomParserTestcase(BaseTestcaseConfig):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         broker = self.get_broker()
 
         def custom_decoder(msg):
@@ -77,8 +79,9 @@ class LocalCustomParserTestcase(BaseTestcaseConfig):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         def custom_decoder(msg):
             mock(msg.body)
             return msg
@@ -107,10 +110,11 @@ class LocalCustomParserTestcase(BaseTestcaseConfig):
 
     async def test_local_parser_no_share_between_subscribers(
         self,
-        event: asyncio.Event,
         mock: Mock,
         queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         event2 = asyncio.Event()
         broker = self.get_broker()
 
@@ -151,8 +155,9 @@ class LocalCustomParserTestcase(BaseTestcaseConfig):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -196,8 +201,9 @@ class CustomParserTestcase(LocalCustomParserTestcase):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         async def custom_parser(msg, original):
             msg = await original(msg)
             mock(msg.body)
