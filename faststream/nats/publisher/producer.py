@@ -56,10 +56,6 @@ class NatsFastProducer(ProducerProto):
         self,
         cmd: "NatsPublishCommand",
     ) -> None:
-        from loguru import logger
-
-        logger.debug(cmd)
-
         payload, content_type = encode_message(cmd.body)
 
         headers_to_send = {
