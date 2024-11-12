@@ -186,19 +186,20 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         @consume_broker.subscriber(queue, ack_policy=AckPolicy.DO_NOTHING)
         async def handler(msg: NatsMessage) -> None:
-            if not msg.raw_message._ackd:
-                event.set()
+            event.set()
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
-            await asyncio.wait(
-                (
-                    asyncio.create_task(br.publish("hello", queue)),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=3,
-            )
+            with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(br.publish("hello", queue)),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=3,
+                )
+                assert not m.mock.called
 
         assert event.is_set()
 

@@ -1,5 +1,6 @@
 from typing import Optional
 
+from loguru import logger
 from nats.aio.msg import Msg
 from nats.js.api import ObjectInfo
 from nats.js.kv import KeyValue
@@ -13,6 +14,7 @@ class NatsMessage(StreamMessage[Msg]):
     async def ack(self) -> None:
         # Check `self.raw_message._ackd` instead of `self.committed`
         # to be compatible with `self.raw_message.ack()`
+        logger.debug(self.raw_message._ackd)
         if not self.raw_message._ackd:
             await self.raw_message.ack()
         await super().ack()

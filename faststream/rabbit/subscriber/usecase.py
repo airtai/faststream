@@ -1,3 +1,5 @@
+import asyncio
+import contextlib
 from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
@@ -177,7 +179,10 @@ class LogicSubscriber(
         sleep_interval = timeout / 10
 
         raw_message: Optional[IncomingMessage] = None
-        with anyio.move_on_after(timeout):
+        with (
+            contextlib.suppress(asyncio.exceptions.CancelledError),
+            anyio.move_on_after(timeout),
+        ):
             while (  # noqa: ASYNC110
                 raw_message := await self._queue_obj.get(
                     fail=False,

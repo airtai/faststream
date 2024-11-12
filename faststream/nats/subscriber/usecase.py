@@ -303,7 +303,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        parser_ = NatsParser(pattern=subject, ack_policy=AckPolicy.DO_NOTHING)
+        parser_ = NatsParser(pattern=subject)
 
         self.queue = queue
 
@@ -419,7 +419,6 @@ class ConcurrentCoreSubscriber(
             queue=queue,
             extra_options=extra_options,
             # Propagated args
-            ack_policy=AckPolicy.DO_NOTHING,
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,

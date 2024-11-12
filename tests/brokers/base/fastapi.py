@@ -147,6 +147,7 @@ class FastAPITestcase(BaseTestcaseConfig):
     async def test_double_real(self, mock: Mock, queue: str) -> None:
         event = asyncio.Event()
         event2 = asyncio.Event()
+
         router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue)

@@ -5,7 +5,6 @@ import anyio
 import nats
 from typing_extensions import override
 
-from faststream import AckPolicy
 from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream.exceptions import FeatureNotSupportedException
@@ -40,7 +39,7 @@ class NatsFastProducer(ProducerProto):
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
-        default = NatsParser(pattern="", ack_policy=AckPolicy.REJECT_ON_ERROR)
+        default = NatsParser(pattern="")
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 
@@ -57,6 +56,10 @@ class NatsFastProducer(ProducerProto):
         self,
         cmd: "NatsPublishCommand",
     ) -> None:
+        from loguru import logger
+
+        logger.debug(cmd)
+
         payload, content_type = encode_message(cmd.body)
 
         headers_to_send = {
@@ -111,7 +114,7 @@ class NatsJSFastProducer(ProducerProto):
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
-        default = NatsParser(pattern="", ack_policy=AckPolicy.REJECT_ON_ERROR)
+        default = NatsParser(pattern="")  # core parser to serializer responses
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 

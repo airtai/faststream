@@ -91,3 +91,16 @@ class NatsPublishCommand(PublishCommand):
             reply_to=cmd.reply_to,
             _publish_type=cmd.publish_type,
         )
+
+    def __repr__(self) -> str:
+        body = [f"body='{self.body}'", f"subject='{self.destination}'"]
+        if self.stream:
+            body.append(f"stream={self.stream}")
+        if self.reply_to:
+            body.append(f"reply_to='{self.reply_to}'")
+        body.extend((
+            f"headers={self.headers}",
+            f"correlation_id='{self.correlation_id}'",
+            f"publish_type={self.publish_type}",
+        ))
+        return f"{self.__class__.__name__}({', '.join(body)})"
