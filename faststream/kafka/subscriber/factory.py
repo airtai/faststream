@@ -138,6 +138,8 @@ def create_subscriber(
             RuntimeWarning,
             stacklevel=3,
         )
+    elif ack_policy is EMPTY and is_manual:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
 
     if is_manual and not group_id:
         msg = "You must use `group_id` with manual commit mode."
@@ -169,9 +171,7 @@ def create_subscriber(
             connection_args=connection_args,
             partitions=partitions,
             is_manual=is_manual,
-            ack_policy=AckPolicy.REJECT_ON_ERROR
-            if ack_policy is EMPTY and is_manual
-            else ack_policy,
+            ack_policy=ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
@@ -188,9 +188,7 @@ def create_subscriber(
         connection_args=connection_args,
         partitions=partitions,
         is_manual=is_manual,
-        ack_policy=AckPolicy.REJECT_ON_ERROR
-        if ack_policy is EMPTY and is_manual
-        else ack_policy,
+        ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,

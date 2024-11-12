@@ -70,13 +70,20 @@ def create_subscriber(
         )
 
     if (stream_sub := StreamSub.validate(stream)) is not None:
+        if ack_policy is not EMPTY:
+            warnings.warn(
+                "You can't use acknowledgement policy with core subscriber",
+                RuntimeWarning,
+                stacklevel=3,
+            )
+        else:
+            ack_policy = AckPolicy.REJECT_ON_ERROR
+
         if stream_sub.batch:
             return SpecificationStreamBatchSubscriber(
                 stream=stream_sub,
                 # basic args
-                ack_policy=AckPolicy.REJECT_ON_ERROR
-                if ack_policy is EMPTY
-                else ack_policy,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
@@ -88,7 +95,7 @@ def create_subscriber(
         return SpecificationStreamSubscriber(
             stream=stream_sub,
             # basic args
-            ack_policy=AckPolicy.REJECT_ON_ERROR if ack_policy is EMPTY else ack_policy,
+            ack_policy=ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
