@@ -41,6 +41,7 @@ Readiness probe checks connection to Redis, RabbitMQ and Postgres. Liveness prob
 
 ```python
 import asyncio
+import uvicorn
 import logging
 from typing import Callable, Awaitable
 
@@ -60,7 +61,6 @@ def readiness(
     broker: RabbitBroker,
     redis_connection: redis.Redis,
     postgres_connection: asyncpg.Pool,
-    logger: logging.Logger
 ) -> Callable[[dict], Awaitable[AsgiResponse]]:
     healthy_response = AsgiResponse(b'', 204)
     unhealthy_response = AsgiResponse(b'', 500)
@@ -69,20 +69,20 @@ def readiness(
     async def func(scope: dict) -> AsgiResponse:
         try:
             await redis_connection.ping()
-        except redis.ConnectionError:
-            logger.error('Redis not ready')
+        except (redis.ConnectionError, Exception):
+            logging.exception('Redis not ready')
             return unhealthy_response
 
         try:
             await broker.ping(timeout=5)
         except Exception:
-            logger.error('RabbitMQ not ready')
+            logging.exception('RabbitMQ not ready')
             return unhealthy_response
 
         try:
             await postgres_connection.fetchval('SELECT 1')
-        except asyncpg.exceptions.PostgresConnectionError:
-            logger.error('Postgres not ready')
+        except (asyncpg.exceptions.PostgresConnectionError, Exception):
+            logging.exception('Postgres not ready')
             return unhealthy_response
 
         return healthy_response
@@ -91,22 +91,23 @@ def readiness(
 
 
 async def main() -> None:
-    logger = logging.getLogger(__name__)
-
     redis_connection = redis.Redis(host="redis", port=6379)
     postgres_connection = await asyncpg.create_pool("postgresql://user:password@postgres/postgres")
     broker = RabbitBroker("amqp://guest:guest@rabbitmq:5672/")
     app = FastStream(broker)
     asgi_routes = [
         ('/internal/alive', liveness),
-        ('/internal/ready', readiness(broker, redis_connection, postgres_connection, logger)),
+        ('/internal/ready', readiness(broker, redis_connection, postgres_connection)),
     ]
 
-    await app.as_asgi(asgi_routes).run(run_extra_options={'host': '0.0.0.0', 'port': 8000})
+    uvicorn_config = uvicorn.Config(app.as_asgi(asgi_routes), host="0.0.0.0", port=8000)
+    server = uvicorn.Server(uvicorn_config)
+    await server.serve()
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 ```
 
 Simple Dockerfile for our app:
@@ -117,7 +118,7 @@ FROM python:3.12-slim
 RUN apt-get update && apt-get install -y curl
 
 WORKDIR /app
-RUN pip install faststream[rabbit]==0.5.28 uvicorn==0.32.0 redis==5.2.0 asyncpg==0.30.0
+RUN pip install faststream[rabbit] uvicorn redis asyncpg
 COPY main.py /app
 ```
 
@@ -174,7 +175,7 @@ services:
         condition: service_healthy
 ```
 
-But if you use k8s you can use the full power of this feature. 
+But if you use k8s you can use the full power of this feature because you can use live and ready probes together.
 This is an example of deployment with liveness and readiness probes:
 
 ```yaml
