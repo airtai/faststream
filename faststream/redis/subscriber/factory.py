@@ -141,12 +141,12 @@ def _validate_input_for_misconfigure(
             warnings.warn(
                 "You can't use acknowledgement policy with PubSub subscriber.",
                 RuntimeWarning,
-                stacklevel=3,
+                stacklevel=4,
             )
 
         if list:
             warnings.warn(
                 "You can't use acknowledgement policy with List subscriber.",
                 RuntimeWarning,
-                stacklevel=3,
+                stacklevel=4,
             )

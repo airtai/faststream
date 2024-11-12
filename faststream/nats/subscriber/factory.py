@@ -357,21 +357,21 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
             warnings.warn(
                 "You can't use acknowledgement policy with ObjectStorage watch subscriber.",
                 RuntimeWarning,
-                stacklevel=3,
+                stacklevel=4,
             )
 
         elif kv_watch is not None:
             warnings.warn(
                 "You can't use acknowledgement policy with KeyValue watch subscriber.",
                 RuntimeWarning,
-                stacklevel=3,
+                stacklevel=4,
             )
 
         elif stream is None:
             warnings.warn(
                 "You can't use acknowledgement policy with core subscriber. Use JetStream instead.",
                 RuntimeWarning,
-                stacklevel=3,
+                stacklevel=4,
             )
 
     if max_msgs > 0 and any((stream, kv_watch, obj_watch)):
