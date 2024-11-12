@@ -295,7 +295,6 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         queue: str,
         extra_options: Optional["AnyDict"],
         # Subscriber args
-        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
@@ -304,7 +303,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        parser_ = NatsParser(pattern=subject, ack_policy=ack_policy)
+        parser_ = NatsParser(pattern=subject)
 
         self.queue = queue
 
@@ -316,7 +315,7 @@ class CoreSubscriber(_DefaultSubscriber["Msg"]):
             default_parser=parser_.parse_message,
             default_decoder=parser_.decode_message,
             # Propagated args
-            ack_policy=ack_policy,
+            ack_policy=AckPolicy.DO_NOTHING,
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
@@ -404,7 +403,6 @@ class ConcurrentCoreSubscriber(
         queue: str,
         extra_options: Optional["AnyDict"],
         # Subscriber args
-        ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
@@ -421,7 +419,6 @@ class ConcurrentCoreSubscriber(
             queue=queue,
             extra_options=extra_options,
             # Propagated args
-            ack_policy=ack_policy,
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,

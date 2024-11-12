@@ -5,6 +5,7 @@ from nats.js import api
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
+from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
 from faststream.nats.helpers import StreamBuilder
 from faststream.nats.publisher.factory import create_publisher
@@ -164,7 +165,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(

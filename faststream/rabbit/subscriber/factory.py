@@ -1,6 +1,8 @@
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Optional
 
+from faststream._internal.constants import EMPTY
+from faststream.middlewares import AckPolicy
 from faststream.rabbit.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
@@ -9,7 +11,6 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
-    from faststream.middlewares import AckPolicy
     from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
 
 
@@ -28,6 +29,9 @@ def create_subscriber(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> SpecificationSubscriber:
+    if ack_policy is EMPTY:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
+
     return SpecificationSubscriber(
         queue=queue,
         exchange=exchange,

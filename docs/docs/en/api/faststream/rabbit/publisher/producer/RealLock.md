@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.redis.subscriber.specified.AsyncAPIStreamBatchSubscriber
+::: faststream.rabbit.publisher.producer.RealLock

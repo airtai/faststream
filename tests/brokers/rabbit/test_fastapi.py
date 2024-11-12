@@ -18,9 +18,10 @@ class TestRouter(FastAPITestcase):
     async def test_path(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber(

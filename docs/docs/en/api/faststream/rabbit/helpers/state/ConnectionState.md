@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.nats.subscriber.specified.SpecificationStreamSubscriber
+::: faststream.rabbit.helpers.state.ConnectionState

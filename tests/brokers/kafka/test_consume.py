@@ -22,8 +22,9 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_by_pattern(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(queue)
@@ -79,9 +80,10 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_batch_headers(
         self,
         mock,
-        event: asyncio.Event,
         queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, batch=True)
@@ -115,8 +117,9 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
@@ -151,8 +154,9 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_manual_partition_consume(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         tp1 = TopicPartition(queue, partition=0)
@@ -179,8 +183,9 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_manual(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
@@ -217,8 +222,9 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_raise(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
@@ -255,8 +261,9 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_nack(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
@@ -293,8 +300,9 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_no_ack(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(

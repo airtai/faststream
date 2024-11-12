@@ -104,7 +104,6 @@ def run(
         False,
         "-f",
         "--factory",
-        is_flag=True,
         help="Treat APP as an application factory.",
     ),
 ) -> None:
@@ -240,13 +239,11 @@ def publish(
     ),
     rpc: bool = typer.Option(
         False,
-        is_flag=True,
         help="Enable RPC mode and system output.",
     ),
     is_factory: bool = typer.Option(
         False,
         "--factory",
-        is_flag=True,
         help="Treat APP as an application factory.",
     ),
 ) -> None:

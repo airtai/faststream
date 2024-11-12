@@ -948,7 +948,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1434,7 +1434,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1920,7 +1920,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -2409,7 +2409,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(

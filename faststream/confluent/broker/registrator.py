@@ -13,6 +13,7 @@ from typing import (
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
+from faststream._internal.constants import EMPTY
 from faststream.confluent.publisher.factory import create_publisher
 from faststream.confluent.subscriber.factory import create_subscriber
 from faststream.exceptions import SetupError
@@ -298,7 +299,7 @@ class KafkaRegistrator(
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -565,7 +566,7 @@ class KafkaRegistrator(
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -832,7 +833,7 @@ class KafkaRegistrator(
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1102,7 +1103,7 @@ class KafkaRegistrator(
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(

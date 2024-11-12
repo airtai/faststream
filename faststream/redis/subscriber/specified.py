@@ -2,10 +2,10 @@ from faststream.redis.schemas import ListSub, StreamSub
 from faststream.redis.schemas.proto import RedisSpecificationProtocol
 from faststream.redis.subscriber.usecase import (
     BatchListSubscriber,
-    BatchStreamSubscriber,
     ChannelSubscriber,
     ListSubscriber,
     LogicSubscriber,
+    StreamBatchSubscriber,
     StreamSubscriber,
 )
 from faststream.specification.asyncapi.utils import resolve_payloads
@@ -40,7 +40,7 @@ class SpecificationSubscriber(LogicSubscriber, RedisSpecificationProtocol):
         }
 
 
-class AsyncAPIChannelSubscriber(ChannelSubscriber, SpecificationSubscriber):
+class SpecificationChannelSubscriber(ChannelSubscriber, SpecificationSubscriber):
     def get_name(self) -> str:
         return f"{self.channel.name}:{self.call_name}"
 
@@ -68,11 +68,11 @@ class _StreamSubscriberMixin(SpecificationSubscriber):
         )
 
 
-class AsyncAPIStreamSubscriber(StreamSubscriber, _StreamSubscriberMixin):
+class SpecificationStreamSubscriber(StreamSubscriber, _StreamSubscriberMixin):
     pass
 
 
-class AsyncAPIStreamBatchSubscriber(BatchStreamSubscriber, _StreamSubscriberMixin):
+class SpecificationStreamBatchSubscriber(StreamBatchSubscriber, _StreamSubscriberMixin):
     pass
 
 
@@ -90,9 +90,9 @@ class _ListSubscriberMixin(SpecificationSubscriber):
         )
 
 
-class AsyncAPIListSubscriber(ListSubscriber, _ListSubscriberMixin):
+class SpecificationListSubscriber(ListSubscriber, _ListSubscriberMixin):
     pass
 
 
-class AsyncAPIListBatchSubscriber(BatchListSubscriber, _ListSubscriberMixin):
+class SpecificationListBatchSubscriber(BatchListSubscriber, _ListSubscriberMixin):
     pass

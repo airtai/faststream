@@ -47,22 +47,27 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                 id="acked status with reject message exception",
             ),
             pytest.param(
-                AckStatus.ACKED, Exception, id="acked status with not handler exception"
+                AckStatus.ACKED,
+                Exception,
+                id="acked status with not handler exception",
             ),
             pytest.param(AckStatus.ACKED, None, id="acked status without exception"),
             pytest.param(AckStatus.NACKED, None, id="nacked status without exception"),
             pytest.param(
-                AckStatus.REJECTED, None, id="rejected status without exception"
+                AckStatus.REJECTED,
+                None,
+                id="rejected status without exception",
             ),
         ),
     )
     async def test_metrics(
         self,
-        event: asyncio.Event,
         queue: str,
         status: AckStatus,
         exception_class: Optional[type[Exception]],
     ):
+        event = asyncio.Event()
+
         middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
@@ -210,8 +215,9 @@ class LocalRPCPrometheusTestcase:
     async def test_rpc_request(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock

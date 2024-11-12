@@ -1,3 +1,4 @@
+import warnings
 from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
@@ -7,11 +8,13 @@ from typing import (
     overload,
 )
 
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
 from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationDefaultSubscriber,
 )
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord, TopicPartition
@@ -20,7 +23,6 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
-    from faststream.middlewares import AckPolicy
 
 
 @overload
@@ -130,6 +132,13 @@ def create_subscriber(
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
 ]:
+    if ack_policy is not EMPTY and not is_manual:
+        warnings.warn(
+            "You can't use acknowledgement policy with `is_manual=False` subscriber",
+            RuntimeWarning,
+            stacklevel=3,
+        )
+
     if is_manual and not group_id:
         msg = "You must use `group_id` with manual commit mode."
         raise SetupError(msg)
@@ -148,6 +157,9 @@ def create_subscriber(
     if partitions and pattern:
         msg = "You can't provide both `partitions` and `pattern`."
         raise SetupError(msg)
+
+    if ack_policy is EMPTY:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
 
     if batch:
         return SpecificationBatchSubscriber(

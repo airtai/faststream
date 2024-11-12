@@ -680,7 +680,7 @@ class NatsRouter(StreamRouter["Msg"]):
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(

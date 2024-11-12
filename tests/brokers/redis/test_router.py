@@ -118,9 +118,10 @@ class TestRouterLocal(RouterLocalTestcase):
 
     async def test_delayed_channel_handlers(
         self,
-        event: asyncio.Event,
         queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         def response(m) -> None:
@@ -145,9 +146,10 @@ class TestRouterLocal(RouterLocalTestcase):
 
     async def test_delayed_list_handlers(
         self,
-        event: asyncio.Event,
         queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         def response(m) -> None:
@@ -172,9 +174,10 @@ class TestRouterLocal(RouterLocalTestcase):
 
     async def test_delayed_stream_handlers(
         self,
-        event: asyncio.Event,
         queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         def response(m) -> None:

@@ -18,8 +18,9 @@ class TestKafkaRouter(FastAPITestcase):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber(queue, batch=True)
@@ -52,8 +53,9 @@ class TestRouterLocal(FastAPILocalTestcase):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber(queue, batch=True)

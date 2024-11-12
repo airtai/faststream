@@ -8,6 +8,7 @@ from faststream._internal.broker.router import (
     BrokerRouter,
     SubscriberRoute,
 )
+from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.message import BaseMessage
@@ -151,7 +152,7 @@ class RedisRoute(SubscriberRoute):
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(

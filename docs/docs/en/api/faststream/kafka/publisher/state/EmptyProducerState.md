@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.redis.subscriber.usecase.BatchStreamSubscriber
+::: faststream.kafka.publisher.state.EmptyProducerState

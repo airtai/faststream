@@ -16,6 +16,7 @@ from faststream._internal.broker.router import (
     BrokerRouter,
     SubscriberRoute,
 )
+from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
 from faststream.nats.broker.registrator import NatsRegistrator
 
@@ -254,7 +255,7 @@ class NatsRoute(SubscriberRoute):
         ack_policy: Annotated[
             AckPolicy,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
-        ] = AckPolicy.REJECT_ON_ERROR,
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(

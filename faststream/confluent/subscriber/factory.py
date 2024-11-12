@@ -1,3 +1,4 @@
+import warnings
 from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
@@ -7,10 +8,12 @@ from typing import (
     overload,
 )
 
+from faststream._internal.constants import EMPTY
 from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationDefaultSubscriber,
 )
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
@@ -19,7 +22,6 @@ if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
     from faststream.confluent.schemas import TopicPartition
-    from faststream.middlewares import AckPolicy
 
 
 @overload
@@ -121,6 +123,16 @@ def create_subscriber(
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
 ]:
+    if ack_policy is not EMPTY and not is_manual:
+        warnings.warn(
+            "You can't use acknowledgement policy with `is_manual=False` subscriber",
+            RuntimeWarning,
+            stacklevel=3,
+        )
+
+    if ack_policy is EMPTY:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
+
     if batch:
         return SpecificationBatchSubscriber(
             *topics,

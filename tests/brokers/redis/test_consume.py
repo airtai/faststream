@@ -18,10 +18,11 @@ class TestConsume(BrokerRealConsumeTestcase):
 
     async def test_consume_native(
         self,
-        event: asyncio.Event,
         mock: MagicMock,
         queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(queue)
@@ -44,9 +45,10 @@ class TestConsume(BrokerRealConsumeTestcase):
 
     async def test_pattern_with_path(
         self,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber("test.{name}")
@@ -69,9 +71,10 @@ class TestConsume(BrokerRealConsumeTestcase):
 
     async def test_pattern_without_path(
         self,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(PubSub("test.*", pattern=True))
@@ -104,10 +107,11 @@ class TestConsumeList:
 
     async def test_consume_list(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(list=queue)
@@ -130,10 +134,11 @@ class TestConsumeList:
 
     async def test_consume_list_native(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(list=queue)
@@ -158,9 +163,10 @@ class TestConsumeList:
     async def test_consume_list_batch_with_one(
         self,
         queue: str,
-        event: asyncio.Event,
         mock,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
@@ -187,9 +193,10 @@ class TestConsumeList:
     async def test_consume_list_batch_headers(
         self,
         queue: str,
-        event: asyncio.Event,
         mock,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(
@@ -314,7 +321,6 @@ class TestConsumeList:
     async def test_get_one(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
         broker = self.get_broker(apply_types=True)
         subscriber = broker.subscriber(list=queue)
@@ -369,10 +375,11 @@ class TestConsumeStream:
     @pytest.mark.slow()
     async def test_consume_stream(
         self,
-        event: asyncio.Event,
         mock: MagicMock,
         queue,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(stream=StreamSub(queue, polling_interval=10))
@@ -396,10 +403,11 @@ class TestConsumeStream:
     @pytest.mark.slow()
     async def test_consume_stream_native(
         self,
-        event: asyncio.Event,
         mock: MagicMock,
         queue,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(stream=StreamSub(queue, polling_interval=10))
@@ -425,10 +433,11 @@ class TestConsumeStream:
     @pytest.mark.slow()
     async def test_consume_stream_batch(
         self,
-        event: asyncio.Event,
         mock: MagicMock,
         queue,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
@@ -455,9 +464,10 @@ class TestConsumeStream:
     async def test_consume_stream_batch_headers(
         self,
         queue: str,
-        event: asyncio.Event,
         mock,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(
@@ -525,10 +535,11 @@ class TestConsumeStream:
     @pytest.mark.slow()
     async def test_consume_stream_batch_native(
         self,
-        event: asyncio.Event,
         mock: MagicMock,
         queue,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
@@ -582,8 +593,9 @@ class TestConsumeStream:
     async def test_consume_nack(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(
@@ -612,8 +624,9 @@ class TestConsumeStream:
     async def test_consume_ack(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(
