@@ -90,8 +90,9 @@ class ABCBroker(Generic[MsgType]):
         """Setup the Publisher to prepare it to starting."""
         publisher._setup(**kwargs, state=self._state)
 
-    def _setup(self, state: "Pointer[BrokerState]") -> None:
-        self._state.set(state)
+    def _setup(self, state: Optional["BrokerState"]) -> None:
+        if state is not None:
+            self._state.set(state)
 
     def include_router(
         self,
@@ -103,7 +104,7 @@ class ABCBroker(Generic[MsgType]):
         include_in_schema: Optional[bool] = None,
     ) -> None:
         """Includes a router in the current object."""
-        router._setup(self._state)
+        router._setup(self._state.get())
 
         for h in router._subscribers:
             h.add_prefix(f"{self.prefix}{prefix}")

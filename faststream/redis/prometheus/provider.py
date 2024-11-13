@@ -1,5 +1,4 @@
-from collections.abc import Sized
-from typing import TYPE_CHECKING, Optional, Union, cast
+from typing import TYPE_CHECKING, Optional, Union
 
 from faststream.prometheus import (
     ConsumeAttrs,
@@ -45,7 +44,7 @@ class BatchRedisMetricsSettingsProvider(BaseRedisMetricsSettingsProvider):
         return {
             "destination_name": _get_destination(msg.raw_message),
             "message_size": len(msg.body),
-            "messages_count": len(cast(Sized, msg._decoded_body)),
+            "messages_count": len(msg.raw_message["data"]),
         }
 
 

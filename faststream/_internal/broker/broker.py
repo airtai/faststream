@@ -22,6 +22,7 @@ from faststream._internal.state import (
     SetupAble,
 )
 from faststream._internal.state.broker import (
+    BrokerState,
     InitialBrokerState,
 )
 from faststream._internal.state.producer import ProducerUnset
@@ -240,7 +241,7 @@ class BrokerUsecase(
         """Connect to a resource."""
         raise NotImplementedError
 
-    def _setup(self, di_state: Optional[DIState] = None) -> None:
+    def _setup(self, state: Optional["BrokerState"] = None) -> None:
         """Prepare all Broker entities to startup.
 
         Method should be idempotent due could be called twice
@@ -249,7 +250,9 @@ class BrokerUsecase(
         current_di_state = broker_state.di_state
         broker_serializer = current_di_state.serializer
 
-        if di_state is not None:
+        if state is not None:
+            di_state = state.di_state
+
             if broker_serializer is EMPTY:
                 broker_serializer = di_state.serializer
 

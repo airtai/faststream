@@ -17,6 +17,7 @@ from faststream._internal.constants import EMPTY
 from faststream._internal.context import ContextRepo
 from faststream._internal.log import logger
 from faststream._internal.state import DIState
+from faststream._internal.state.broker import OuterBrokerState
 from faststream._internal.utils import apply_types
 from faststream._internal.utils.functions import (
     drop_response_type,
@@ -112,7 +113,7 @@ class StartAbleApplication:
         self._setup()
 
     def _setup(self) -> None:
-        self.broker._setup(di_state=self._state)
+        self.broker._setup(OuterBrokerState(di_state=self._state))
 
     async def _start_broker(self) -> None:
         await self.broker.start()

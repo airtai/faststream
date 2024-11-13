@@ -63,10 +63,7 @@ class ConcurrentMixin(TasksMixin):
             async for msg in self.receive_stream:
                 tg.start_soon(self._consume_msg, msg)
 
-    async def _consume_msg(
-        self,
-        msg: "Msg",
-    ) -> None:
+    async def _consume_msg(self, msg: "Msg") -> None:
         """Proxy method to call `self.consume` with semaphore block."""
         async with self.limiter:
             await self.consume(msg)

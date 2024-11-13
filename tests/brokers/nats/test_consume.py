@@ -178,13 +178,12 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_core_consume_no_ack(
         self,
         queue: str,
-        stream: JStream,
     ) -> None:
         event = asyncio.Event()
 
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, ack_policy=AckPolicy.DO_NOTHING)
+        @consume_broker.subscriber(queue)
         async def handler(msg: NatsMessage) -> None:
             event.set()
 
@@ -293,12 +292,15 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_no_ack(
         self,
         queue: str,
+        stream: str,
     ) -> None:
         event = asyncio.Event()
 
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, ack_policy=AckPolicy.DO_NOTHING)
+        @consume_broker.subscriber(
+            queue, stream=stream, ack_policy=AckPolicy.DO_NOTHING
+        )
         async def handler(msg: NatsMessage) -> None:
             event.set()
 

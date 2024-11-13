@@ -2,7 +2,7 @@ from typing import Any
 
 from typing_extensions import override
 
-from faststream.nats.subscriber.usecase import (
+from faststream.nats.subscriber.usecases import (
     BatchPullStreamSubscriber,
     ConcurrentCoreSubscriber,
     ConcurrentPullStreamSubscriber,

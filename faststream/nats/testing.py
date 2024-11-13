@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
     from faststream.nats.publisher.specified import SpecificationPublisher
     from faststream.nats.response import NatsPublishCommand
-    from faststream.nats.subscriber.usecase import LogicSubscriber
+    from faststream.nats.subscriber.usecases.basic import LogicSubscriber
 
 __all__ = ("TestNatsBroker",)
 

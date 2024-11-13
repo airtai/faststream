@@ -8,7 +8,9 @@ from faststream._internal.context import Context
 from faststream.annotations import ContextRepo, Logger
 from faststream.nats.broker import NatsBroker as _Broker
 from faststream.nats.message import NatsMessage as _Message
-from faststream.nats.subscriber.usecase import OBJECT_STORAGE_CONTEXT_KEY
+from faststream.nats.subscriber.usecases.object_storage_subscriber import (
+    OBJECT_STORAGE_CONTEXT_KEY,
+)
 
 __all__ = (
     "Client",

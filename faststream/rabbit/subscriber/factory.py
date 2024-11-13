@@ -29,6 +29,8 @@ def create_subscriber(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> SpecificationSubscriber:
+    _validate_input_for_misconfigure()
+
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.REJECT_ON_ERROR
 
@@ -44,3 +46,7 @@ def create_subscriber(
         description_=description_,
         include_in_schema=include_in_schema,
     )
+
+
+def _validate_input_for_misconfigure() -> None:
+    """Nothing to check yet."""

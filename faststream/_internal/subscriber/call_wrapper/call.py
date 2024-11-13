@@ -85,7 +85,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         """Calls the object as a function."""
         return self._original_call(*args, **kwargs)
 
-    def call_wrapped(
+    async def call_wrapped(
         self,
         message: "StreamMessage[MsgType]",
     ) -> Awaitable[Any]:
@@ -93,8 +93,8 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         assert self._wrapped_call, "You should use `set_wrapped` first"  # nosec B101
         if self.is_test:
             assert self.mock  # nosec B101
-            self.mock(message._decoded_body)
-        return self._wrapped_call(message)
+            self.mock(await message.decode())
+        return await self._wrapped_call(message)
 
     async def wait_call(self, timeout: Optional[float] = None) -> None:
         """Waits for a call with an optional timeout."""

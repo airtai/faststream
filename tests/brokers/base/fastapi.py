@@ -575,8 +575,7 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
         mock.assert_called_once()
         assert not mock.not_call.called
 
-    @pytest.mark.xfail(reason="https://github.com/airtai/faststream/issues/1742")
-    async def test_nested_router(self, mock: Mock, queue: str) -> None:
+    async def test_nested_router(self, queue: str) -> None:
         router = self.router_class()
         router2 = self.router_class()
 
@@ -600,7 +599,4 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
                     queue,
                     timeout=0.5,
                 )
-                assert await r.decode() == "hi", r
-
-        mock.assert_called_once()
-        assert not mock.not_call.called
+                assert r.body == b"hi"

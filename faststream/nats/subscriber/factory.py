@@ -349,7 +349,7 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
         raise SetupError(msg)
 
     if pull_sub and not stream:
-        msg = "The pull subscriber can only be used with the `stream` option."
+        msg = "JetStream Pull Subscriber can only be used with the `stream` option."
         raise SetupError(msg)
 
     if ack_policy is not EMPTY:

@@ -73,7 +73,7 @@ async def process_msg(
 
         parsed_msg = await parser(msg)
         parsed_msg._source_type = source_type
-        parsed_msg._decoded_body = await decoder(parsed_msg)
+        parsed_msg.set_decoder(decoder)
         return await return_msg(parsed_msg)
 
     msg = "unreachable"

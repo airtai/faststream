@@ -3,6 +3,13 @@ from types import SimpleNamespace
 import pytest
 
 from faststream.prometheus import MetricsSettingsProvider
+from faststream.redis.message import (
+    BatchListMessage,
+    BatchStreamMessage,
+    DefaultListMessage,
+    DefaultStreamMessage,
+    PubSubMessage,
+)
 from faststream.redis.prometheus.provider import (
     BatchRedisMetricsSettingsProvider,
     RedisMetricsSettingsProvider,
@@ -47,8 +54,8 @@ class TestRedisMetricsSettingsProvider(LocalBaseRedisMetricsSettingsProviderTest
             "message_size": len(body),
             "messages_count": 1,
         }
-        raw_message = {}
 
+        raw_message = {"data": body}
         if destination:
             raw_message[destination] = queue
 
@@ -79,18 +86,21 @@ class TestBatchRedisMetricsSettingsProvider(
     def test_get_consume_attrs_from_message(self, queue: str, destination: str) -> None:
         decoded_body = ["Hi ", "again, ", "FastStream!"]
         body = str(decoded_body).encode()
+
         expected_attrs = {
             "destination_name": queue if destination else "",
             "message_size": len(body),
             "messages_count": len(decoded_body),
         }
-        raw_message = {}
+
+        raw_message = {"data": decoded_body}
 
         if destination:
             raw_message[destination] = queue
 
         message = SimpleNamespace(
-            body=body, _decoded_body=decoded_body, raw_message=raw_message
+            body=body,
+            raw_message=raw_message,
         )
 
         provider = self.get_provider()
@@ -103,19 +113,44 @@ class TestBatchRedisMetricsSettingsProvider(
     ("msg", "expected_provider"),
     (
         pytest.param(
-            {"type": "blist"},
+            PubSubMessage(
+                type="message",
+                channel="test-channel",
+                data=b"",
+                pattern=None,
+            ),
+            RedisMetricsSettingsProvider(),
+            id="PubSub message",
+        ),
+        pytest.param(
+            DefaultListMessage(type="list", channel="test-list", data=b""),
+            RedisMetricsSettingsProvider(),
+            id="Single List message",
+        ),
+        pytest.param(
+            BatchListMessage(type="blist", channel="test-list", data=[b"", b""]),
             BatchRedisMetricsSettingsProvider(),
-            id="batch message",
+            id="Batch List message",
         ),
         pytest.param(
-            {"type": "not_blist"},
+            DefaultStreamMessage(
+                type="stream",
+                channel="test-stream",
+                data=b"",
+                message_ids=[],
+            ),
             RedisMetricsSettingsProvider(),
-            id="single message",
+            id="Single Stream message",
         ),
         pytest.param(
-            None,
-            RedisMetricsSettingsProvider(),
-            id="None message",
+            BatchStreamMessage(
+                type="bstream",
+                channel="test-stream",
+                data=[{b"": b""}, {b"": b""}],
+                message_ids=[],
+            ),
+            BatchRedisMetricsSettingsProvider(),
+            id="Batch Stream message",
         ),
     ),
 )

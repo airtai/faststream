@@ -136,9 +136,8 @@ class HandlerItem(SetupAble, Generic[MsgType]):
             cache.get(parser) or await parser(msg),
         )
 
-        message._decoded_body = cache[decoder] = cache.get(decoder) or await decoder(
-            message,
-        )
+        # NOTE: final decoder will be set for success filter
+        message.set_decoder(decoder)
 
         if await self.filter(message):
             return message

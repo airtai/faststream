@@ -1,4 +1,3 @@
-from collections.abc import Sized
 from typing import TYPE_CHECKING, cast
 
 from opentelemetry.semconv.trace import SpanAttributes
@@ -32,7 +31,7 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
 
         if cast(str, msg.raw_message.get("type", "")).startswith("b"):
             attrs[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = len(
-                cast(Sized, msg._decoded_body),
+                msg.raw_message["data"]
             )
 
         return attrs

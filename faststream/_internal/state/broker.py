@@ -26,14 +26,10 @@ class BrokerState(Protocol):
     def __bool__(self) -> bool: ...
 
 
-class EmptyBrokerState(BrokerState):
+class _EmptyBrokerState(BrokerState):
     def __init__(self, error_msg: str) -> None:
         self.error_msg = error_msg
         self.producer = ProducerUnset()
-
-    @property
-    def di_state(self) -> "DIState":
-        raise IncorrectState(self.error_msg)
 
     @property
     def logger_state(self) -> "DIState":
@@ -51,6 +47,20 @@ class EmptyBrokerState(BrokerState):
 
     def __bool__(self) -> bool:
         return False
+
+
+class EmptyBrokerState(_EmptyBrokerState):
+    @property
+    def di_state(self) -> "DIState":
+        raise IncorrectState(self.error_msg)
+
+
+class OuterBrokerState(_EmptyBrokerState):
+    def __init__(self, *, di_state: "DIState") -> None:
+        self.di_state = di_state
+
+    def __bool__(self) -> bool:
+        return True
 
 
 class InitialBrokerState(BrokerState):

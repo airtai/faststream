@@ -32,14 +32,11 @@ SyncCallable: TypeAlias = Callable[
     [Any],
     Any,
 ]
-AsyncCallable: TypeAlias = Callable[
-    [Any],
-    Awaitable[Any],
-]
+AsyncCallable: TypeAlias = AsyncFuncAny
 AsyncCustomCallable: TypeAlias = Union[
-    AsyncCallable,
+    AsyncFuncAny,
     Callable[
-        [Any, AsyncCallable],
+        [Any, AsyncFuncAny],
         Awaitable[Any],
     ],
 ]

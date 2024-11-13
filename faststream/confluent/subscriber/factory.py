@@ -123,12 +123,7 @@ def create_subscriber(
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
 ]:
-    if ack_policy is not EMPTY and not is_manual:
-        warnings.warn(
-            "You can't use acknowledgement policy with `is_manual=False` subscriber",
-            RuntimeWarning,
-            stacklevel=3,
-        )
+    _validate_input_for_misconfigure(ack_policy=ack_policy, is_manual=is_manual)
 
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.REJECT_ON_ERROR
@@ -165,3 +160,16 @@ def create_subscriber(
         description_=description_,
         include_in_schema=include_in_schema,
     )
+
+
+def _validate_input_for_misconfigure(
+    *,
+    ack_policy: "AckPolicy",
+    is_manual: bool,
+) -> None:
+    if ack_policy is not EMPTY and not is_manual:
+        warnings.warn(
+            "You can't use acknowledgement policy with `is_manual=False` subscriber",
+            RuntimeWarning,
+            stacklevel=4,
+        )
