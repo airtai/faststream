@@ -19,7 +19,7 @@ class NatsMessage(StreamMessage[Msg]):
 
     def ack_sync(self) -> None:
         if not self.raw_message._ackd:
-            self.raw_message.ack()
+            self.raw_message.ack_sync()
         super().ack()
 
     async def nack(

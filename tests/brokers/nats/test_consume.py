@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 from nats.aio.msg import Msg
@@ -211,6 +211,34 @@ class TestConsume(BrokerRealConsumeTestcase):
                     timeout=3,
                 )
                 m.mock.assert_called_once()
+
+        assert event.is_set()
+
+    async def test_consume_ack_sync_manual(
+        self,
+        queue: str,
+        event: asyncio.Event,
+        stream: JStream,
+    ):
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(queue, stream=stream)
+        async def handler(msg: NatsMessage):
+            msg.ack_sync()
+            event.set()
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            with patch.object(Msg, "ack_sync", new_callable=MagicMock) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(br.publish("hello", queue)),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=3,
+                )
+                m.assert_called_once()
 
         assert event.is_set()
 
