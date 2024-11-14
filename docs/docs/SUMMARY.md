@@ -653,6 +653,36 @@ search:
                         - [ObjStoreWatchSubscriber](api/faststream/nats/subscriber/usecase/ObjStoreWatchSubscriber.md)
                         - [PullStreamSubscriber](api/faststream/nats/subscriber/usecase/PullStreamSubscriber.md)
                         - [PushStreamSubscription](api/faststream/nats/subscriber/usecase/PushStreamSubscription.md)
+                    - usecases
+                        - [BatchPullStreamSubscriber](api/faststream/nats/subscriber/usecases/BatchPullStreamSubscriber.md)
+                        - [ConcurrentCoreSubscriber](api/faststream/nats/subscriber/usecases/ConcurrentCoreSubscriber.md)
+                        - [ConcurrentPullStreamSubscriber](api/faststream/nats/subscriber/usecases/ConcurrentPullStreamSubscriber.md)
+                        - [ConcurrentPushStreamSubscriber](api/faststream/nats/subscriber/usecases/ConcurrentPushStreamSubscriber.md)
+                        - [CoreSubscriber](api/faststream/nats/subscriber/usecases/CoreSubscriber.md)
+                        - [KeyValueWatchSubscriber](api/faststream/nats/subscriber/usecases/KeyValueWatchSubscriber.md)
+                        - [LogicSubscriber](api/faststream/nats/subscriber/usecases/LogicSubscriber.md)
+                        - [ObjStoreWatchSubscriber](api/faststream/nats/subscriber/usecases/ObjStoreWatchSubscriber.md)
+                        - [PullStreamSubscriber](api/faststream/nats/subscriber/usecases/PullStreamSubscriber.md)
+                        - [PushStreamSubscription](api/faststream/nats/subscriber/usecases/PushStreamSubscription.md)
+                        - basic
+                            - [DefaultSubscriber](api/faststream/nats/subscriber/usecases/basic/DefaultSubscriber.md)
+                            - [LogicSubscriber](api/faststream/nats/subscriber/usecases/basic/LogicSubscriber.md)
+                        - core_subscriber
+                            - [ConcurrentCoreSubscriber](api/faststream/nats/subscriber/usecases/core_subscriber/ConcurrentCoreSubscriber.md)
+                            - [CoreSubscriber](api/faststream/nats/subscriber/usecases/core_subscriber/CoreSubscriber.md)
+                        - key_value_subscriber
+                            - [KeyValueWatchSubscriber](api/faststream/nats/subscriber/usecases/key_value_subscriber/KeyValueWatchSubscriber.md)
+                        - object_storage_subscriber
+                            - [ObjStoreWatchSubscriber](api/faststream/nats/subscriber/usecases/object_storage_subscriber/ObjStoreWatchSubscriber.md)
+                        - stream_basic
+                            - [StreamSubscriber](api/faststream/nats/subscriber/usecases/stream_basic/StreamSubscriber.md)
+                        - stream_pull_subscriber
+                            - [BatchPullStreamSubscriber](api/faststream/nats/subscriber/usecases/stream_pull_subscriber/BatchPullStreamSubscriber.md)
+                            - [ConcurrentPullStreamSubscriber](api/faststream/nats/subscriber/usecases/stream_pull_subscriber/ConcurrentPullStreamSubscriber.md)
+                            - [PullStreamSubscriber](api/faststream/nats/subscriber/usecases/stream_pull_subscriber/PullStreamSubscriber.md)
+                        - stream_push_subscriber
+                            - [ConcurrentPushStreamSubscriber](api/faststream/nats/subscriber/usecases/stream_push_subscriber/ConcurrentPushStreamSubscriber.md)
+                            - [PushStreamSubscription](api/faststream/nats/subscriber/usecases/stream_push_subscriber/PushStreamSubscription.md)
                 - testing
                     - [FakeProducer](api/faststream/nats/testing/FakeProducer.md)
                     - [PatchedMessage](api/faststream/nats/testing/PatchedMessage.md)
@@ -834,14 +864,12 @@ search:
                     - [BatchStreamMessage](api/faststream/redis/message/BatchStreamMessage.md)
                     - [DefaultListMessage](api/faststream/redis/message/DefaultListMessage.md)
                     - [DefaultStreamMessage](api/faststream/redis/message/DefaultStreamMessage.md)
-                    - [ListMessage](api/faststream/redis/message/ListMessage.md)
                     - [PubSubMessage](api/faststream/redis/message/PubSubMessage.md)
                     - [RedisBatchListMessage](api/faststream/redis/message/RedisBatchListMessage.md)
                     - [RedisBatchStreamMessage](api/faststream/redis/message/RedisBatchStreamMessage.md)
                     - [RedisListMessage](api/faststream/redis/message/RedisListMessage.md)
                     - [RedisMessage](api/faststream/redis/message/RedisMessage.md)
                     - [RedisStreamMessage](api/faststream/redis/message/RedisStreamMessage.md)
-                    - [StreamMessage](api/faststream/redis/message/StreamMessage.md)
                     - [UnifyRedisDict](api/faststream/redis/message/UnifyRedisDict.md)
                     - [UnifyRedisMessage](api/faststream/redis/message/UnifyRedisMessage.md)
                 - opentelemetry
