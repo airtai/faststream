@@ -28,12 +28,12 @@ else:
     FASTAPI_v102_3 = (
         _FASTAPI_MAJOR > 0
         or _FASTAPI_MINOR > 112
-        or (_FASTAPI_MINOR == 112 and patch > 2)
+        or (_FASTAPI_MINOR == 112 and _FASTAPI_PATCH > 2)
     )
     FASTAPI_v102_4 = (
         _FASTAPI_MAJOR > 0
         or _FASTAPI_MINOR > 112
-        or (_FASTAPI_MINOR == 112 and patch > 3)
+        or (_FASTAPI_MINOR == 112 and _FASTAPI_PATCH > 3)
     )
 
 __all__ = (
