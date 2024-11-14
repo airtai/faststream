@@ -1,9 +1,10 @@
 import asyncio
-from typing import Any, NoReturn
+from typing import Any
 from unittest.mock import patch
 
 import pytest
 
+from faststream import AckPolicy
 from faststream.confluent import KafkaBroker
 from faststream.confluent.annotations import KafkaMessage
 from faststream.confluent.client import AsyncConfluentConsumer
@@ -49,9 +50,10 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_batch_headers(
         self,
         mock,
-        event: asyncio.Event,
         queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue, batch=True)
@@ -87,8 +89,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_ack(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
@@ -130,8 +133,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_ack_manual(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
@@ -169,8 +173,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_ack_raise(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
@@ -180,7 +185,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         )
 
         @consume_broker.subscriber(*args, **kwargs)
-        async def handler(msg: KafkaMessage) -> NoReturn:
+        async def handler(msg: KafkaMessage):
             event.set()
             raise AckMessage
 
@@ -208,8 +213,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_nack(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(
@@ -247,11 +253,14 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_no_ack(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        args, kwargs = self.get_subscriber_params(queue, group_id="test", no_ack=True)
+        args, kwargs = self.get_subscriber_params(
+            queue, group_id="test", ack_policy=AckPolicy.DO_NOTHING
+        )
 
         @consume_broker.subscriber(*args, **kwargs)
         async def handler(msg: KafkaMessage) -> None:
@@ -286,8 +295,9 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_with_no_auto_commit(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(

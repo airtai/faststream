@@ -7,10 +7,11 @@ from typing import (
     Optional,
 )
 
+from faststream._internal.state import BrokerState, Pointer
 from faststream._internal.types import BrokerMiddleware, CustomCallable, MsgType
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.publisher.proto import PublisherProto
     from faststream._internal.subscriber.proto import SubscriberProto
@@ -24,11 +25,12 @@ class ABCBroker(Generic[MsgType]):
         self,
         *,
         prefix: str,
-        dependencies: Iterable["Depends"],
+        dependencies: Iterable["Dependant"],
         middlewares: Iterable["BrokerMiddleware[MsgType]"],
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
         include_in_schema: Optional[bool],
+        state: "BrokerState",
     ) -> None:
         self.prefix = prefix
         self.include_in_schema = include_in_schema
@@ -37,16 +39,18 @@ class ABCBroker(Generic[MsgType]):
         self._publishers = []
 
         self._dependencies = dependencies
-        self._middlewares = middlewares
+        self.middlewares = middlewares
         self._parser = parser
         self._decoder = decoder
+
+        self._state = Pointer(state)
 
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         """Append BrokerMiddleware to the end of middlewares list.
 
         Current middleware will be used as a most inner of already existed ones.
         """
-        self._middlewares = (*self._middlewares, middleware)
+        self.middlewares = (*self.middlewares, middleware)
 
         for sub in self._subscribers:
             sub.add_middleware(middleware)
@@ -58,30 +62,50 @@ class ABCBroker(Generic[MsgType]):
     def subscriber(
         self,
         subscriber: "SubscriberProto[MsgType]",
+        is_running: bool = False,
     ) -> "SubscriberProto[MsgType]":
         subscriber.add_prefix(self.prefix)
-        self._subscribers.append(subscriber)
+        if not is_running:
+            self._subscribers.append(subscriber)
         return subscriber
 
     @abstractmethod
     def publisher(
         self,
         publisher: "PublisherProto[MsgType]",
+        is_running: bool = False,
     ) -> "PublisherProto[MsgType]":
         publisher.add_prefix(self.prefix)
-        self._publishers.append(publisher)
+
+        if not is_running:
+            self._publishers.append(publisher)
+
         return publisher
+
+    def setup_publisher(
+        self,
+        publisher: "PublisherProto[MsgType]",
+        **kwargs: Any,
+    ) -> None:
+        """Setup the Publisher to prepare it to starting."""
+        publisher._setup(**kwargs, state=self._state)
+
+    def _setup(self, state: Optional["BrokerState"]) -> None:
+        if state is not None:
+            self._state.set(state)
 
     def include_router(
         self,
         router: "ABCBroker[Any]",
         *,
         prefix: str = "",
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
         middlewares: Iterable["BrokerMiddleware[MsgType]"] = (),
         include_in_schema: Optional[bool] = None,
     ) -> None:
         """Includes a router in the current object."""
+        router._setup(self._state.get())
+
         for h in router._subscribers:
             h.add_prefix(f"{self.prefix}{prefix}")
 
@@ -91,7 +115,7 @@ class ABCBroker(Generic[MsgType]):
                 h.include_in_schema = include_in_schema
 
             h._broker_middlewares = (
-                *self._middlewares,
+                *self.middlewares,
                 *middlewares,
                 *h._broker_middlewares,
             )
@@ -111,7 +135,7 @@ class ABCBroker(Generic[MsgType]):
                 p.include_in_schema = include_in_schema
 
             p._broker_middlewares = (
-                *self._middlewares,
+                *self.middlewares,
                 *middlewares,
                 *p._broker_middlewares,
             )
@@ -126,6 +150,8 @@ class ABCBroker(Generic[MsgType]):
             self.include_router(r)
 
     def _solve_include_in_schema(self, include_in_schema: bool) -> bool:
-        if self.include_in_schema is None or self.include_in_schema:
-            return include_in_schema
-        return self.include_in_schema
+        # should be `is False` to pass `None` case
+        if self.include_in_schema is False:
+            return False
+
+        return include_in_schema

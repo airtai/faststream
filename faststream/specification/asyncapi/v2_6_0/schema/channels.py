@@ -4,9 +4,10 @@ from pydantic import BaseModel
 from typing_extensions import Self
 
 from faststream._internal._compat import PYDANTIC_V2
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import ChannelBinding
-from faststream.specification.asyncapi.v2_6_0.schema.operations import Operation
 from faststream.specification.schema import PublisherSpec, SubscriberSpec
+
+from .bindings import ChannelBinding
+from .operations import Operation
 
 
 class Channel(BaseModel):

@@ -16,10 +16,12 @@ from faststream._internal.broker.router import (
     BrokerRouter,
     SubscriberRoute,
 )
+from faststream._internal.constants import EMPTY
+from faststream.middlewares import AckPolicy
 from faststream.nats.broker.registrator import NatsRegistrator
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
     from nats.aio.msg import Msg
 
     from faststream._internal.basic_types import SendableMessage
@@ -185,9 +187,9 @@ class NatsRoute(SubscriberRoute):
             Doc("Enable Heartbeats for a consumer to detect failures."),
         ] = None,
         flow_control: Annotated[
-            bool,
+            Optional[bool],
             Doc("Enable Flow Control for a consumer."),
-        ] = False,
+        ] = None,
         deliver_policy: Annotated[
             Optional["api.DeliverPolicy"],
             Doc("Deliver Policy to be used for subscription."),
@@ -231,8 +233,8 @@ class NatsRoute(SubscriberRoute):
         ] = None,
         # broker arguments
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -250,14 +252,10 @@ class NatsRoute(SubscriberRoute):
             int,
             Doc("Number of workers to process messages concurrently."),
         ] = 1,
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -307,8 +305,7 @@ class NatsRoute(SubscriberRoute):
             parser=parser,
             decoder=decoder,
             middlewares=middlewares,
-            retry=retry,
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
             title=title,
             description=description,
@@ -334,9 +331,9 @@ class NatsRouter(
         ] = (),
         *,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc(
-                "Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers.",
+                "Dependencies list (`[Dependant(),]`) to apply to all routers' publishers/subscribers.",
             ),
         ] = (),
         middlewares: Annotated[

@@ -25,11 +25,11 @@ from typing_extensions import Doc, deprecated, override
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.constants import EMPTY
 from faststream._internal.fastapi.router import StreamRouter
+from faststream.middlewares import AckPolicy
 from faststream.redis.broker.broker import RedisBroker as RB
 from faststream.redis.message import UnifyRedisDict
-from faststream.redis.publisher.publisher import SpecificationPublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.redis.subscriber.subscriber import SpecificationSubscriber
+from faststream.redis.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -48,8 +48,9 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.redis.message import UnifyRedisMessage
+    from faststream.redis.publisher.specified import SpecificationPublisher
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 
 class RedisRouter(StreamRouter[UnifyRedisDict]):
@@ -461,14 +462,10 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Iterable["SubscriberMiddleware[UnifyRedisMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -625,8 +622,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 parser=parser,
                 decoder=decoder,
                 middlewares=middlewares,
-                retry=retry,
-                no_ack=no_ack,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
                 title=title,
                 description=description,
@@ -692,7 +688,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> SpecificationPublisher:
+    ) -> "SpecificationPublisher":
         return self.broker.publisher(
             channel,
             list=list,

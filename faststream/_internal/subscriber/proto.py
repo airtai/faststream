@@ -1,24 +1,22 @@
 from abc import abstractmethod
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from typing_extensions import Self, override
 
 from faststream._internal.proto import Endpoint
 from faststream._internal.subscriber.call_wrapper.proto import WrapperProto
 from faststream._internal.types import MsgType
-from faststream.specification.proto.endpoint import EndpointSpecification
-from faststream.specification.schema.subscriber import SubscriberSpec
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import (
         BasePublisherProto,
         ProducerProto,
     )
-    from faststream._internal.subscriber.call_item import HandlerItem
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -28,16 +26,17 @@ if TYPE_CHECKING:
     from faststream.message import StreamMessage
     from faststream.response import Response
 
+    from .call_item import HandlerItem
+
 
 class SubscriberProto(
-    EndpointSpecification[SubscriberSpec],
     Endpoint,
     WrapperProto[MsgType],
 ):
     calls: list["HandlerItem[MsgType]"]
     running: bool
 
-    _broker_dependencies: Iterable["Depends"]
+    _broker_dependencies: Iterable["Dependant"]
     _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
     _producer: Optional["ProducerProto"]
 
@@ -56,17 +55,12 @@ class SubscriberProto(
     def _setup(  # type: ignore[override]
         self,
         *,
-        logger: Optional["LoggerProto"],
-        graceful_timeout: Optional[float],
+        extra_context: "AnyDict",
+        # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
-        producer: Optional["ProducerProto"],
-        extra_context: "AnyDict",
-        # FastDepends options
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
-        _call_decorators: Iterable["Decorator"],
+        # dependant args
+        state: "Pointer[BrokerState]",
     ) -> None: ...
 
     @abstractmethod
@@ -106,5 +100,5 @@ class SubscriberProto(
         parser_: "CustomCallable",
         decoder_: "CustomCallable",
         middlewares_: Iterable["SubscriberMiddleware[Any]"],
-        dependencies_: Iterable["Depends"],
+        dependencies_: Iterable["Dependant"],
     ) -> Self: ...

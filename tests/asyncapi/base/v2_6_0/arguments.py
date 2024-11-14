@@ -66,7 +66,7 @@ class FastAPICompatible:
         assert key == "custom_name"
         assert schema["channels"][key]["description"] == "Test description.", schema[
             "channels"
-        ][key]["description"]
+        ][key]
 
     def test_empty(self) -> None:
         broker = self.broker_class()

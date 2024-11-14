@@ -5,14 +5,17 @@ from nats.js import api
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
+from faststream._internal.constants import EMPTY
+from faststream.middlewares import AckPolicy
 from faststream.nats.helpers import StreamBuilder
-from faststream.nats.publisher.publisher import SpecificationPublisher
+from faststream.nats.publisher.factory import create_publisher
+from faststream.nats.publisher.specified import SpecificationPublisher
 from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
 from faststream.nats.subscriber.factory import create_subscriber
-from faststream.nats.subscriber.subscriber import SpecificationSubscriber
+from faststream.nats.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
     from nats.aio.msg import Msg
 
     from faststream._internal.types import (
@@ -94,9 +97,9 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Doc("Enable Heartbeats for a consumer to detect failures."),
         ] = None,
         flow_control: Annotated[
-            bool,
+            Optional[bool],
             Doc("Enable Flow Control for a consumer."),
-        ] = False,
+        ] = None,
         deliver_policy: Annotated[
             Optional["api.DeliverPolicy"],
             Doc("Deliver Policy to be used for subscription."),
@@ -140,8 +143,8 @@ class NatsRegistrator(ABCBroker["Msg"]):
         ] = None,
         # broker arguments
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -159,14 +162,10 @@ class NatsRegistrator(ABCBroker["Msg"]):
             int,
             Doc("Number of workers to process messages concurrently."),
         ] = 1,
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -221,10 +220,9 @@ class NatsRegistrator(ABCBroker["Msg"]):
                     inbox_prefix=inbox_prefix,
                     ack_first=ack_first,
                     # subscriber args
-                    no_ack=no_ack,
+                    ack_policy=ack_policy,
                     no_reply=no_reply,
-                    retry=retry,
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     broker_dependencies=self._dependencies,
                     # AsyncAPI
                     title_=title,
@@ -314,7 +312,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         publisher = cast(
             SpecificationPublisher,
             super().publisher(
-                publisher=SpecificationPublisher.create(
+                publisher=create_publisher(
                     subject=subject,
                     headers=headers,
                     # Core
@@ -323,7 +321,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
                     timeout=timeout,
                     stream=stream,
                     # Specific
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     middlewares=middlewares,
                     # AsyncAPI
                     title_=title,
@@ -345,7 +343,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         router: "NatsRegistrator",
         *,
         prefix: str = "",
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
         middlewares: Iterable["BrokerMiddleware[Msg]"] = (),
         include_in_schema: Optional[bool] = None,
     ) -> None:

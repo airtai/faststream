@@ -1,4 +1,4 @@
-from collections.abc import Generator, Mapping
+from collections.abc import Generator, Iterator, Mapping
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Optional, Union
 from unittest import mock
@@ -18,7 +18,6 @@ from faststream.message import gen_cor_id
 from faststream.rabbit.broker.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
-from faststream.rabbit.publisher.publisher import SpecificationPublisher
 from faststream.rabbit.schemas import (
     ExchangeType,
     RabbitExchange,
@@ -26,8 +25,10 @@ from faststream.rabbit.schemas import (
 )
 
 if TYPE_CHECKING:
-    from aio_pika.abc import DateType, HeadersType, TimeoutType
+    from aio_pika.abc import DateType, HeadersType
 
+    from faststream.rabbit.publisher.specified import SpecificationPublisher
+    from faststream.rabbit.response import RabbitPublishCommand
     from faststream.rabbit.subscriber.usecase import LogicSubscriber
     from faststream.rabbit.types import AioPikaSendableMessage
 
@@ -39,7 +40,7 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
     """A class to test RabbitMQ brokers."""
 
     @contextmanager
-    def _patch_broker(self, broker: RabbitBroker) -> Generator[None, None, None]:
+    def _patch_broker(self, broker: "RabbitBroker") -> Generator[None, None, None]:
         with (
             mock.patch.object(
                 broker,
@@ -55,14 +56,21 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
         ):
             yield
 
+    @contextmanager
+    def _patch_producer(self, broker: RabbitBroker) -> Iterator[None]:
+        old_producer = broker._state.get().producer
+        broker._state.patch_value(producer=FakeProducer(broker))
+        yield
+        broker._state.patch_value(producer=old_producer)
+
     @staticmethod
-    async def _fake_connect(broker: RabbitBroker, *args: Any, **kwargs: Any) -> None:
-        broker._producer = FakeProducer(broker)
+    async def _fake_connect(broker: "RabbitBroker", *args: Any, **kwargs: Any) -> None:
+        pass
 
     @staticmethod
     def create_publisher_fake_subscriber(
-        broker: RabbitBroker,
-        publisher: SpecificationPublisher,
+        broker: "RabbitBroker",
+        publisher: "SpecificationPublisher",
     ) -> tuple["LogicSubscriber", bool]:
         sub: Optional[LogicSubscriber] = None
         for handler in broker._subscribers:
@@ -131,6 +139,7 @@ def build_message(
 
     routing = routing_key or que.routing
 
+    correlation_id = correlation_id or gen_cor_id()
     msg = AioPikaParser.encode_message(
         message=message,
         persist=persist,
@@ -141,7 +150,7 @@ def build_message(
         priority=priority,
         correlation_id=correlation_id,
         expiration=expiration,
-        message_id=message_id or gen_cor_id(),
+        message_id=message_id or correlation_id,
         timestamp=timestamp,
         message_type=message_type,
         user_id=user_id,
@@ -194,47 +203,17 @@ class FakeProducer(AioPikaFastProducer):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "AioPikaSendableMessage",
-        exchange: Union["RabbitExchange", str, None] = None,
-        *,
-        correlation_id: str = "",
-        routing_key: str = "",
-        mandatory: bool = True,
-        immediate: bool = False,
-        timeout: "TimeoutType" = None,
-        persist: bool = False,
-        reply_to: Optional[str] = None,
-        headers: Optional["HeadersType"] = None,
-        content_type: Optional[str] = None,
-        content_encoding: Optional[str] = None,
-        priority: Optional[int] = None,
-        expiration: Optional["DateType"] = None,
-        message_id: Optional[str] = None,
-        timestamp: Optional["DateType"] = None,
-        message_type: Optional[str] = None,
-        user_id: Optional[str] = None,
-        app_id: Optional[str] = None,
+        cmd: "RabbitPublishCommand",
     ) -> None:
         """Publish a message to a RabbitMQ queue or exchange."""
-        exch = RabbitExchange.validate(exchange)
-
         incoming = build_message(
-            message=message,
-            exchange=exch,
-            routing_key=routing_key,
-            reply_to=reply_to,
-            app_id=app_id,
-            user_id=user_id,
-            message_type=message_type,
-            headers=headers,
-            persist=persist,
-            message_id=message_id,
-            priority=priority,
-            content_encoding=content_encoding,
-            content_type=content_type,
-            correlation_id=correlation_id,
-            expiration=expiration,
-            timestamp=timestamp,
+            message=cmd.body,
+            exchange=cmd.exchange,
+            routing_key=cmd.destination,
+            correlation_id=cmd.correlation_id,
+            headers=cmd.headers,
+            reply_to=cmd.reply_to,
+            **cmd.message_options,
         )
 
         for handler in self.broker._subscribers:  # pragma: no branch
@@ -242,52 +221,23 @@ class FakeProducer(AioPikaFastProducer):
                 handler,
                 incoming.routing_key,
                 incoming.headers,
-                exch,
+                cmd.exchange,
             ):
                 await self._execute_handler(incoming, handler)
 
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "AioPikaSendableMessage" = "",
-        exchange: Union["RabbitExchange", str, None] = None,
-        *,
-        correlation_id: str = "",
-        routing_key: str = "",
-        mandatory: bool = True,
-        immediate: bool = False,
-        timeout: Optional[float] = None,
-        persist: bool = False,
-        headers: Optional["HeadersType"] = None,
-        content_type: Optional[str] = None,
-        content_encoding: Optional[str] = None,
-        priority: Optional[int] = None,
-        expiration: Optional["DateType"] = None,
-        message_id: Optional[str] = None,
-        timestamp: Optional["DateType"] = None,
-        message_type: Optional[str] = None,
-        user_id: Optional[str] = None,
-        app_id: Optional[str] = None,
+        cmd: "RabbitPublishCommand",
     ) -> "PatchedMessage":
         """Publish a message to a RabbitMQ queue or exchange."""
-        exch = RabbitExchange.validate(exchange)
-
         incoming = build_message(
-            message=message,
-            exchange=exch,
-            routing_key=routing_key,
-            app_id=app_id,
-            user_id=user_id,
-            message_type=message_type,
-            headers=headers,
-            persist=persist,
-            message_id=message_id,
-            priority=priority,
-            content_encoding=content_encoding,
-            content_type=content_type,
-            correlation_id=correlation_id,
-            expiration=expiration,
-            timestamp=timestamp,
+            message=cmd.body,
+            exchange=cmd.exchange,
+            routing_key=cmd.destination,
+            correlation_id=cmd.correlation_id,
+            headers=cmd.headers,
+            **cmd.message_options,
         )
 
         for handler in self.broker._subscribers:  # pragma: no branch
@@ -295,9 +245,9 @@ class FakeProducer(AioPikaFastProducer):
                 handler,
                 incoming.routing_key,
                 incoming.headers,
-                exch,
+                cmd.exchange,
             ):
-                with anyio.fail_after(timeout):
+                with anyio.fail_after(cmd.timeout):
                     return await self._execute_handler(incoming, handler)
 
         raise SubscriberNotFound

@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, cast
 
+from .state import ConnectedState, ConnectionState, EmptyConnectionState
+
 if TYPE_CHECKING:
     import aio_pika
 
@@ -9,12 +11,22 @@ if TYPE_CHECKING:
 class RabbitDeclarer:
     """An utility class to declare RabbitMQ queues and exchanges."""
 
-    __channel: "aio_pika.RobustChannel"
-    __queues: dict["RabbitQueue", "aio_pika.RobustQueue"]
-    __exchanges: dict["RabbitExchange", "aio_pika.RobustExchange"]
+    def __init__(self) -> None:
+        self.__queues: dict[RabbitQueue, aio_pika.RobustQueue] = {}
+        self.__exchanges: dict[RabbitExchange, aio_pika.RobustExchange] = {}
 
-    def __init__(self, channel: "aio_pika.RobustChannel") -> None:
-        self.__channel = channel
+        self.__connection: ConnectionState = EmptyConnectionState()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(<{self.__connection.__class__.__name__}>, queues={list(self.__queues.keys())}, exchanges={list(self.__exchanges.keys())})"
+
+    def connect(
+        self, connection: "aio_pika.RobustConnection", channel: "aio_pika.RobustChannel"
+    ) -> None:
+        self.__connection = ConnectedState(connection=connection, channel=channel)
+
+    def disconnect(self) -> None:
+        self.__connection = EmptyConnectionState()
         self.__queues = {}
         self.__exchanges = {}
 
@@ -27,7 +39,7 @@ class RabbitDeclarer:
         if (q := self.__queues.get(queue)) is None:
             self.__queues[queue] = q = cast(
                 "aio_pika.RobustQueue",
-                await self.__channel.declare_queue(
+                await self.__connection.channel.declare_queue(
                     name=queue.name,
                     durable=queue.durable,
                     exclusive=queue.exclusive,
@@ -48,12 +60,12 @@ class RabbitDeclarer:
     ) -> "aio_pika.RobustExchange":
         """Declare an exchange, parent exchanges and bind them each other."""
         if not exchange.name:
-            return self.__channel.default_exchange
+            return self.__connection.channel.default_exchange
 
         if (exch := self.__exchanges.get(exchange)) is None:
             self.__exchanges[exchange] = exch = cast(
                 "aio_pika.RobustExchange",
-                await self.__channel.declare_exchange(
+                await self.__connection.channel.declare_exchange(
                     name=exchange.name,
                     type=exchange.type.value,
                     durable=exchange.durable,

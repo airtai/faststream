@@ -1,3 +1,4 @@
 from .broker import ServerSpecification
+from .endpoint import EndpointSpecification
 
-__all__ = ("ServerSpecification",)
+__all__ = ("EndpointSpecification", "ServerSpecification")

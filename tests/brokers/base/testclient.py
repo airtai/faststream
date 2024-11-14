@@ -1,6 +1,5 @@
 import asyncio
 from abc import abstractmethod
-from typing import NoReturn
 from unittest.mock import Mock
 
 import anyio
@@ -117,8 +116,27 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         args, kwargs = self.get_subscriber_params(queue)
 
         @test_broker.subscriber(*args, **kwargs)
-        async def m(msg) -> NoReturn:  # pragma: no cover
+        async def m(msg):  # pragma: no cover
             raise ValueError
+
+        async with self.patch_broker(test_broker) as br:
+            await br.start()
+
+            with pytest.raises(ValueError):  # noqa: PT011
+                await br.publish("hello", queue)
+
+    @pytest.mark.asyncio()
+    async def test_parser_exception_raises(self, queue: str) -> None:
+        test_broker = self.get_broker()
+
+        def parser(msg):
+            raise ValueError
+
+        args, kwargs = self.get_subscriber_params(queue, parser=parser)
+
+        @test_broker.subscriber(*args, **kwargs)
+        async def m(msg):  # pragma: no cover
+            pass
 
         async with self.patch_broker(test_broker) as br:
             await br.start()
@@ -130,6 +148,8 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         test_broker = self.get_broker()
         await test_broker.start()
 
+        old_producer = test_broker._producer
+
         async with self.patch_broker(test_broker) as br:
             assert isinstance(br.start, Mock)
             assert isinstance(br._connect, Mock)
@@ -140,7 +160,7 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         assert not isinstance(br._connect, Mock)
         assert not isinstance(br.close, Mock)
         assert br._connection is not None
-        assert not isinstance(br._producer, fake_producer_cls)
+        assert br._producer == old_producer
 
     async def test_broker_with_real_doesnt_get_patched(self) -> None:
         test_broker = self.get_broker()

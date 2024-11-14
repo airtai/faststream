@@ -66,6 +66,7 @@ def run(
         "--workers",
         show_default=False,
         help="Run [workers] applications with process spawning.",
+        envvar="FASTSTREAM_WORKERS",
     ),
     log_level: LogLevels = typer.Option(
         LogLevels.notset,
@@ -73,6 +74,7 @@ def run(
         "--log-level",
         case_sensitive=False,
         help="Set selected level for FastStream and brokers logger objects.",
+        envvar="FASTSTREAM_LOG_LEVEL",
     ),
     reload: bool = typer.Option(
         False,
@@ -96,12 +98,12 @@ def run(
             "Look for APP in the specified directory, by adding this to the PYTHONPATH."
             " Defaults to the current working directory."
         ),
+        envvar="FASTSTREAM_APP_DIR",
     ),
     is_factory: bool = typer.Option(
         False,
         "-f",
         "--factory",
-        is_flag=True,
         help="Treat APP as an application factory.",
     ),
 ) -> None:
@@ -162,7 +164,11 @@ def run(
             _run(*args)
 
     else:
-        _run(*args)
+        _run_imported_app(
+            app_obj,
+            extra_options=extra,
+            log_level=casted_log_level,
+        )
 
 
 def _run(
@@ -171,11 +177,24 @@ def _run(
     extra_options: dict[str, "SettingField"],
     is_factory: bool,
     log_level: int = logging.NOTSET,
-    app_level: int = logging.INFO,
+    app_level: int = logging.INFO,  # option for reloader only
 ) -> None:
     """Runs the specified application."""
     _, app_obj = import_from_string(app, is_factory=is_factory)
+    _run_imported_app(
+        app_obj,
+        extra_options=extra_options,
+        log_level=log_level,
+        app_level=app_level,
+    )
 
+
+def _run_imported_app(
+    app_obj: "Application",
+    extra_options: dict[str, "SettingField"],
+    log_level: int = logging.NOTSET,
+    app_level: int = logging.INFO,  # option for reloader only
+) -> None:
     if not isinstance(app_obj, Application):
         msg = f'Imported object "{app_obj}" must be "Application" type.'
         raise typer.BadParameter(
@@ -220,13 +239,11 @@ def publish(
     ),
     rpc: bool = typer.Option(
         False,
-        is_flag=True,
         help="Enable RPC mode and system output.",
     ),
     is_factory: bool = typer.Option(
         False,
         "--factory",
-        is_flag=True,
         help="Treat APP as an application factory.",
     ),
 ) -> None:
@@ -245,7 +262,7 @@ def publish(
     try:
         _, app_obj = import_from_string(app, is_factory=is_factory)
 
-        assert isinstance(app_obj, FastStream), app_obj
+        assert isinstance(app_obj, FastStream), app_obj  # nosec B101
 
         if not app_obj.broker:
             msg = "Broker instance not found in the app."

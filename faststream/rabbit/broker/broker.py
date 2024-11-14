@@ -18,10 +18,11 @@ from typing_extensions import Doc, override
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
-from faststream.exceptions import NOT_CONNECTED_YET
+from faststream._internal.publisher.proto import PublisherProto
 from faststream.message import gen_cor_id
 from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
+from faststream.rabbit.response import RabbitPublishCommand
 from faststream.rabbit.schemas import (
     RABBIT_REPLY,
     RabbitExchange,
@@ -29,6 +30,7 @@ from faststream.rabbit.schemas import (
 )
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.utils import build_url
+from faststream.response.publish_type import PublishType
 
 from .logging import make_rabbit_logger_state
 from .registrator import RabbitRegistrator
@@ -44,7 +46,8 @@ if TYPE_CHECKING:
         RobustQueue,
     )
     from aio_pika.abc import DateType, HeadersType, SSLOptions, TimeoutType
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
+    from fast_depends.library.serializer import SerializerProto
     from pamqp.common import FieldTable
     from yarl import URL
 
@@ -56,7 +59,7 @@ if TYPE_CHECKING:
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 
 class RabbitBroker(
@@ -66,9 +69,10 @@ class RabbitBroker(
     """A class to represent a RabbitMQ broker."""
 
     url: str
-    _producer: Optional["AioPikaFastProducer"]
 
-    declarer: Optional[RabbitDeclarer]
+    _producer: "AioPikaFastProducer"
+    declarer: RabbitDeclarer
+
     _channel: Optional["RobustChannel"]
 
     def __init__(
@@ -161,7 +165,7 @@ class RabbitBroker(
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
@@ -213,10 +217,7 @@ class RabbitBroker(
             bool,
             Doc("Whether to use FastDepends or not."),
         ] = True,
-        validate: Annotated[
-            bool,
-            Doc("Whether to cast types using Pydantic validation."),
-        ] = True,
+        serializer: Optional["SerializerProto"] = EMPTY,
         _get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
@@ -280,7 +281,7 @@ class RabbitBroker(
             ),
             # FastDepends args
             apply_types=apply_types,
-            validate=validate,
+            serializer=serializer,
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
         )
@@ -290,7 +291,15 @@ class RabbitBroker(
         self.app_id = app_id
 
         self._channel = None
-        self.declarer = None
+
+        declarer = self.declarer = RabbitDeclarer()
+        self._state.patch_value(
+            producer=AioPikaFastProducer(
+                declarer=declarer,
+                decoder=self._decoder,
+                parser=self._parser,
+            )
+        )
 
     @property
     def _subscriber_setup_extra(self) -> "AnyDict":
@@ -301,13 +310,21 @@ class RabbitBroker(
             "declarer": self.declarer,
         }
 
-    @property
-    def _publisher_setup_extra(self) -> "AnyDict":
-        return {
-            **super()._publisher_setup_extra,
-            "app_id": self.app_id,
-            "virtual_host": self.virtual_host,
-        }
+    def setup_publisher(
+        self,
+        publisher: PublisherProto[IncomingMessage],
+        **kwargs: Any,
+    ) -> None:
+        return super().setup_publisher(
+            publisher,
+            **(
+                {
+                    "app_id": self.app_id,
+                    "virtual_host": self.virtual_host,
+                }
+                | kwargs
+            ),
+        )
 
     @override
     async def connect(  # type: ignore[override]
@@ -461,17 +478,13 @@ class RabbitBroker(
                 ),
             )
 
-            declarer = self.declarer = RabbitDeclarer(channel)
-            await declarer.declare_queue(RABBIT_REPLY)
-
-            self._producer = AioPikaFastProducer(
-                declarer=declarer,
-                decoder=self._decoder,
-                parser=self._parser,
-            )
-
             if self._max_consumers:
                 await channel.set_qos(prefetch_count=int(self._max_consumers))
+
+            self.declarer.connect(connection=connection, channel=channel)
+            await self.declarer.declare_queue(RABBIT_REPLY)
+
+            self._producer.connect()
 
         return connection
 
@@ -493,24 +506,23 @@ class RabbitBroker(
             await self._connection.close()
             self._connection = None
 
-        self.declarer = None
-        self._producer = None
+        self.declarer.disconnect()
+        self._producer.disconnect()
 
     async def start(self) -> None:
         """Connect broker to RabbitMQ and startup all subscribers."""
         await self.connect()
         self._setup()
 
-        if self._max_consumers:
-            self._state.logger_state.log(f"Set max consumers to {self._max_consumers}")
-
-        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
-
         for publisher in self._publishers:
             if publisher.exchange is not None:
                 await self.declare_exchange(publisher.exchange)
 
         await super().start()
+
+        logger_state = self._state.get().logger_state
+        if self._max_consumers:
+            logger_state.log(f"Set max consumers to {self._max_consumers}")
 
     @override
     async def publish(  # type: ignore[override]
@@ -619,31 +631,30 @@ class RabbitBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        routing = routing_key or RabbitQueue.validate(queue).routing
-        correlation_id = correlation_id or gen_cor_id()
-
-        return await super().publish(
+        cmd = RabbitPublishCommand(
             message,
-            producer=self._producer,
-            routing_key=routing,
+            routing_key=routing_key or RabbitQueue.validate(queue).routing,
+            exchange=RabbitExchange.validate(exchange),
+            correlation_id=correlation_id or gen_cor_id(),
             app_id=self.app_id,
-            exchange=exchange,
             mandatory=mandatory,
             immediate=immediate,
             persist=persist,
             reply_to=reply_to,
             headers=headers,
-            correlation_id=correlation_id,
             content_type=content_type,
             content_encoding=content_encoding,
             expiration=expiration,
             message_id=message_id,
-            timestamp=timestamp,
             message_type=message_type,
+            timestamp=timestamp,
             user_id=user_id,
             timeout=timeout,
             priority=priority,
+            _publish_type=PublishType.PUBLISH,
         )
+
+        return await super()._basic_publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -739,16 +750,12 @@ class RabbitBroker(
             Doc("The message priority (0 by default)."),
         ] = None,
     ) -> "RabbitMessage":
-        routing = routing_key or RabbitQueue.validate(queue).routing
-        correlation_id = correlation_id or gen_cor_id()
-
-        msg: RabbitMessage = await super().request(
+        cmd = RabbitPublishCommand(
             message,
-            producer=self._producer,
-            correlation_id=correlation_id,
-            routing_key=routing,
+            routing_key=routing_key or RabbitQueue.validate(queue).routing,
+            exchange=RabbitExchange.validate(exchange),
+            correlation_id=correlation_id or gen_cor_id(),
             app_id=self.app_id,
-            exchange=exchange,
             mandatory=mandatory,
             immediate=immediate,
             persist=persist,
@@ -757,12 +764,15 @@ class RabbitBroker(
             content_encoding=content_encoding,
             expiration=expiration,
             message_id=message_id,
-            timestamp=timestamp,
             message_type=message_type,
+            timestamp=timestamp,
             user_id=user_id,
             timeout=timeout,
             priority=priority,
+            _publish_type=PublishType.REQUEST,
         )
+
+        msg: RabbitMessage = await super()._basic_request(cmd, producer=self._producer)
         return msg
 
     async def declare_queue(
@@ -773,7 +783,6 @@ class RabbitBroker(
         ],
     ) -> "RobustQueue":
         """Declares queue object in **RabbitMQ**."""
-        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_queue(queue)
 
     async def declare_exchange(
@@ -784,7 +793,6 @@ class RabbitBroker(
         ],
     ) -> "RobustExchange":
         """Declares exchange object in **RabbitMQ**."""
-        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_exchange(exchange)
 
     @override

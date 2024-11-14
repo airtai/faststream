@@ -62,8 +62,7 @@ class Baggage:
     def from_msg(cls, msg: "StreamMessage[Any]") -> Self:
         """Create a Baggage instance from a StreamMessage."""
         if len(msg.batch_headers) <= 1:
-            payload = baggage.get_all(_BAGGAGE_PROPAGATOR.extract(msg.headers))
-            return cls(cast("AnyDict", payload))
+            return cls.from_headers(msg.headers)
 
         cumulative_baggage: AnyDict = {}
         batch_baggage: list[AnyDict] = []
@@ -74,6 +73,12 @@ class Baggage:
             batch_baggage.append(cast("AnyDict", payload))
 
         return cls(cumulative_baggage, batch_baggage)
+
+    @classmethod
+    def from_headers(cls, headers: "AnyDict") -> Self:
+        """Create a Baggage instance from headers."""
+        payload = baggage.get_all(_BAGGAGE_PROPAGATOR.extract(headers))
+        return cls(cast("AnyDict", payload))
 
     def __repr__(self) -> str:
         return self._baggage.__repr__()

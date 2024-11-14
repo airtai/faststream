@@ -8,7 +8,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, Header
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
-from faststream import Response, context
+from faststream import Response
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.broker.router import BrokerRouter
 from faststream._internal.fastapi.context import Context
@@ -24,9 +24,9 @@ class FastAPITestcase(BaseTestcaseConfig):
     router_class: type[StreamRouter[BrokerUsecase]]
     broker_router_class: type[BrokerRouter[Any]]
 
-    async def test_base_real(
-        self, mock: Mock, queue: str, event: asyncio.Event
-    ) -> None:
+    async def test_base_real(self, mock: Mock, queue: str) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -50,8 +50,12 @@ class FastAPITestcase(BaseTestcaseConfig):
         mock.assert_called_with("hi")
 
     async def test_background(
-        self, mock: Mock, queue: str, event: asyncio.Event
+        self,
+        mock: Mock,
+        queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         def task(msg):
@@ -77,8 +81,11 @@ class FastAPITestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_with("hi")
 
-    async def test_context(self, mock: Mock, queue: str, event: asyncio.Event) -> None:
+    async def test_context(self, mock: Mock, queue: str) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
+        context = router.context
 
         context_key = "message.headers"
 
@@ -86,14 +93,19 @@ class FastAPITestcase(BaseTestcaseConfig):
 
         @router.subscriber(*args, **kwargs)
         async def hello(msg=Context(context_key)):
-            event.set()
-            return mock(msg == context.resolve(context_key))
+            try:
+                mock(msg == context.resolve(context_key) and msg["1"] == "1")
+            finally:
+                event.set()
 
+        router._setup()
         async with router.broker:
             await router.broker.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(router.broker.publish("", queue)),
+                    asyncio.create_task(
+                        router.broker.publish("", queue, headers={"1": "1"})
+                    ),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=self.timeout,
@@ -102,8 +114,11 @@ class FastAPITestcase(BaseTestcaseConfig):
         assert event.is_set()
         mock.assert_called_with(True)
 
-    async def test_initial_context(self, queue: str, event: asyncio.Event) -> None:
+    async def test_initial_context(self, queue: str) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
+        context = router.context
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -113,6 +128,7 @@ class FastAPITestcase(BaseTestcaseConfig):
             if len(data) == 2:
                 event.set()
 
+        router._setup()
         async with router.broker:
             await router.broker.start()
             await asyncio.wait(
@@ -128,10 +144,10 @@ class FastAPITestcase(BaseTestcaseConfig):
         assert context.get(queue) == {1, 2}
         context.reset_global(queue)
 
-    async def test_double_real(
-        self, mock: Mock, queue: str, event: asyncio.Event
-    ) -> None:
+    async def test_double_real(self, mock: Mock, queue: str) -> None:
+        event = asyncio.Event()
         event2 = asyncio.Event()
+
         router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -168,8 +184,9 @@ class FastAPITestcase(BaseTestcaseConfig):
         self,
         mock: Mock,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -526,7 +543,6 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
 
     async def test_dependency_overrides(self, mock: Mock, queue: str) -> None:
         router = self.router_class()
-        router2 = self.router_class()
 
         def dep1() -> None:
             mock.not_call()
@@ -539,11 +555,10 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        @router2.subscriber(*args, **kwargs)
+        @router.subscriber(*args, **kwargs)
         async def hello_router2(dep: None = Depends(dep1)) -> str:
             return "hi"
 
-        router.include_router(router2)
         app.include_router(router)
 
         async with self.patch_broker(router.broker) as br:
@@ -559,3 +574,29 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
 
         mock.assert_called_once()
         assert not mock.not_call.called
+
+    async def test_nested_router(self, queue: str) -> None:
+        router = self.router_class()
+        router2 = self.router_class()
+
+        app = FastAPI()
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router2.subscriber(*args, **kwargs)
+        async def hello_router2() -> str:
+            return "hi"
+
+        router.include_router(router2)
+        app.include_router(router)
+
+        async with self.patch_broker(router.broker) as br:
+            with TestClient(app) as client:
+                assert client.app_state["broker"] is br
+
+                r = await br.request(
+                    "hi",
+                    queue,
+                    timeout=0.5,
+                )
+                assert r.body == b"hi"

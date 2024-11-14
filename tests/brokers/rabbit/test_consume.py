@@ -1,10 +1,11 @@
 import asyncio
-from typing import Any, NoReturn
+from typing import Any
 from unittest.mock import patch
 
 import pytest
 from aio_pika import IncomingMessage, Message
 
+from faststream import AckPolicy
 from faststream.exceptions import AckMessage, NackMessage, RejectMessage, SkipMessage
 from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
 from faststream.rabbit.annotations import RabbitMessage
@@ -22,11 +23,12 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
-        @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
+        @consume_broker.subscriber(queue=queue, exchange=exchange)
         def h(m) -> None:
             event.set()
 
@@ -49,14 +51,14 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(
             queue=RabbitQueue(name=queue, passive=True),
             exchange=RabbitExchange(name=exchange.name, passive=True),
-            retry=True,
         )
         def h(m) -> None:
             event.set()
@@ -88,11 +90,12 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
+        @consume_broker.subscriber(queue=queue, exchange=exchange)
         async def handler(msg: RabbitMessage) -> None:
             event.set()
 
@@ -122,11 +125,12 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
+        @consume_broker.subscriber(queue=queue, exchange=exchange)
         async def handler(msg: RabbitMessage) -> None:
             await msg.ack()
             event.set()
@@ -156,11 +160,12 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
+        @consume_broker.subscriber(queue=queue, exchange=exchange)
         async def handler(msg: RabbitMessage) -> None:
             try:
                 raise AckMessage
@@ -192,12 +197,13 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage) -> NoReturn:
+        @consume_broker.subscriber(queue=queue, exchange=exchange)
+        async def handler(msg: RabbitMessage):
             await msg.nack()
             event.set()
             raise ValueError
@@ -227,11 +233,12 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
+        @consume_broker.subscriber(queue=queue, exchange=exchange)
         async def handler(msg: RabbitMessage) -> None:
             try:
                 raise NackMessage
@@ -263,12 +270,13 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
-        async def handler(msg: RabbitMessage) -> NoReturn:
+        @consume_broker.subscriber(queue=queue, exchange=exchange)
+        async def handler(msg: RabbitMessage):
             await msg.reject()
             event.set()
             raise ValueError
@@ -298,11 +306,12 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue=queue, exchange=exchange, retry=1)
+        @consume_broker.subscriber(queue=queue, exchange=exchange)
         async def handler(msg: RabbitMessage) -> None:
             try:
                 raise RejectMessage
@@ -333,8 +342,9 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_skip_message(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue)
@@ -382,11 +392,14 @@ class TestConsume(BrokerRealConsumeTestcase):
         self,
         queue: str,
         exchange: RabbitExchange,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, exchange=exchange, retry=1, no_ack=True)
+        @consume_broker.subscriber(
+            queue, exchange=exchange, ack_policy=AckPolicy.DO_NOTHING
+        )
         async def handler(msg: RabbitMessage) -> None:
             event.set()
 

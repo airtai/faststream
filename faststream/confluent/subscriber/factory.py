@@ -1,3 +1,4 @@
+import warnings
 from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
@@ -7,14 +8,16 @@ from typing import (
     overload,
 )
 
-from faststream.confluent.subscriber.subscriber import (
+from faststream._internal.constants import EMPTY
+from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationDefaultSubscriber,
 )
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
@@ -33,10 +36,9 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
     # Specification args
     title_: Optional[str],
@@ -57,10 +59,9 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
     # Specification args
     title_: Optional[str],
@@ -81,10 +82,9 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConfluentMsg, tuple[ConfluentMsg, ...]]]"
     ],
@@ -109,10 +109,9 @@ def create_subscriber(
     connection_data: "AnyDict",
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConfluentMsg, tuple[ConfluentMsg, ...]]]"
     ],
@@ -124,6 +123,11 @@ def create_subscriber(
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
 ]:
+    _validate_input_for_misconfigure(ack_policy=ack_policy, is_manual=is_manual)
+
+    if ack_policy is EMPTY:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
+
     if batch:
         return SpecificationBatchSubscriber(
             *topics,
@@ -133,9 +137,8 @@ def create_subscriber(
             group_id=group_id,
             connection_data=connection_data,
             is_manual=is_manual,
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             title_=title_,
@@ -149,12 +152,24 @@ def create_subscriber(
         group_id=group_id,
         connection_data=connection_data,
         is_manual=is_manual,
-        no_ack=no_ack,
+        ack_policy=ack_policy,
         no_reply=no_reply,
-        retry=retry,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
     )
+
+
+def _validate_input_for_misconfigure(
+    *,
+    ack_policy: "AckPolicy",
+    is_manual: bool,
+) -> None:
+    if ack_policy is not EMPTY and not is_manual:
+        warnings.warn(
+            "You can't use acknowledgement policy with `is_manual=False` subscriber",
+            RuntimeWarning,
+            stacklevel=4,
+        )

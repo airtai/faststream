@@ -1,113 +1,84 @@
-from collections.abc import Iterable
-from inspect import unwrap
+from collections.abc import Awaitable, Iterable
+from functools import partial
+from itertools import chain
 from typing import (
     TYPE_CHECKING,
-    Annotated,
     Any,
     Callable,
     Optional,
+    Union,
 )
 from unittest.mock import MagicMock
 
-from fast_depends._compat import create_model, get_config_base
-from fast_depends.core import CallModel, build_call_model
-from typing_extensions import Doc, override
+from typing_extensions import override
 
 from faststream._internal.publisher.proto import PublisherProto
-from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
+from faststream._internal.state import BrokerState, EmptyBrokerState, Pointer
+from faststream._internal.state.producer import ProducerUnset
+from faststream._internal.subscriber.call_wrapper.call import (
+    HandlerCallWrapper,
+    ensure_call_wrapper,
+)
+from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import (
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.specification.asyncapi.message import get_response_schema
-from faststream.specification.asyncapi.utils import to_camelcase
+from faststream.message.source_type import SourceType
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import ProducerProto
     from faststream._internal.types import (
         BrokerMiddleware,
         PublisherMiddleware,
     )
+    from faststream.response.response import PublishCommand
 
 
-class PublisherUsecase(
-    PublisherProto[MsgType],
-):
+class PublisherUsecase(PublisherProto[MsgType]):
     """A base class for publishers in an asynchronous API."""
-
-    mock: Optional[MagicMock]
-    calls: list[Callable[..., Any]]
 
     def __init__(
         self,
         *,
-        broker_middlewares: Annotated[
-            Iterable["BrokerMiddleware[MsgType]"],
-            Doc("Top-level middlewares to use in direct `.publish` call."),
-        ],
-        middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Publisher middlewares."),
-        ],
-        # AsyncAPI args
-        schema_: Annotated[
-            Optional[Any],
-            Doc(
-                "AsyncAPI publishing message type"
-                "Should be any python-native object annotation or `pydantic.BaseModel`.",
-            ),
-        ],
-        title_: Annotated[
-            Optional[str],
-            Doc("AsyncAPI object title."),
-        ],
-        description_: Annotated[
-            Optional[str],
-            Doc("AsyncAPI object description."),
-        ],
-        include_in_schema: Annotated[
-            bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
-        ],
+        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
-        self.calls = []
-        self._middlewares = middlewares
+        self.middlewares = middlewares
         self._broker_middlewares = broker_middlewares
-        self._producer = None
+
+        self.__producer: Optional[ProducerProto] = ProducerUnset()
 
         self._fake_handler = False
-        self.mock = None
+        self.mock: Optional[MagicMock] = None
 
-        # AsyncAPI
-        self.title_ = title_
-        self.description_ = description_
-        self.include_in_schema = include_in_schema
-        self.schema_ = schema_
+        self._state: Pointer[BrokerState] = Pointer(
+            EmptyBrokerState("You should include publisher to any broker.")
+        )
 
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         self._broker_middlewares = (*self._broker_middlewares, middleware)
+
+    @property
+    def _producer(self) -> "ProducerProto":
+        return self.__producer or self._state.get().producer
 
     @override
     def _setup(  # type: ignore[override]
         self,
         *,
-        producer: Optional["ProducerProto"],
+        state: "Pointer[BrokerState]",
+        producer: Optional["ProducerProto"] = None,
     ) -> None:
-        self._producer = producer
+        self._state = state
+        self.__producer = producer
 
     def set_test(
         self,
         *,
-        mock: Annotated[
-            MagicMock,
-            Doc("Mock object to check in tests."),
-        ],
-        with_fake: Annotated[
-            bool,
-            Doc("Whetevet publisher's fake subscriber created or not."),
-        ],
+        mock: MagicMock,
+        with_fake: bool,
     ) -> None:
         """Turn publisher to testing mode."""
         self.mock = mock
@@ -120,50 +91,89 @@ class PublisherUsecase(
 
     def __call__(
         self,
-        func: Callable[P_HandlerParams, T_HandlerReturn],
+        func: Union[
+            Callable[P_HandlerParams, T_HandlerReturn],
+            HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
+        ],
     ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
         """Decorate user's function by current publisher."""
-        handler_call = HandlerCallWrapper[
-            MsgType,
-            P_HandlerParams,
-            T_HandlerReturn,
-        ](func)
-        handler_call._publishers.append(self)
-        self.calls.append(handler_call._original_call)
-        return handler_call
+        handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn] = (
+            ensure_call_wrapper(func)
+        )
+        handler._publishers.append(self)
+        return handler
 
-    def get_payloads(self) -> list[tuple["AnyDict", str]]:
-        payloads: list[tuple[AnyDict, str]] = []
+    async def _basic_publish(
+        self,
+        cmd: "PublishCommand",
+        *,
+        _extra_middlewares: Iterable["PublisherMiddleware"],
+    ) -> Any:
+        pub: Callable[..., Awaitable[Any]] = self._producer.publish
 
-        if self.schema_:
-            params = {"response__": (self.schema_, ...)}
+        context = self._state.get().di_state.context
 
-            call_model: CallModel[Any, Any] = CallModel(
-                call=lambda: None,
-                model=create_model("Fake"),
-                response_model=create_model(  # type: ignore[call-overload]
-                    "",
-                    __config__=get_config_base(),
-                    **params,
-                ),
-                params=params,
-            )
-
-            body = get_response_schema(
-                call_model,
-                prefix=f"{self.name}:Message",
-            )
-            if body:  # pragma: no branch
-                payloads.append((body, ""))
-
-        else:
-            for call in self.calls:
-                call_model = build_call_model(call)
-                body = get_response_schema(
-                    call_model,
-                    prefix=f"{self.name}:Message",
+        for pub_m in chain(
+            (
+                _extra_middlewares
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
                 )
-                if body:
-                    payloads.append((body, to_camelcase(unwrap(call).__name__)))
+            ),
+            self.middlewares,
+        ):
+            pub = partial(pub_m, pub)
 
-        return payloads
+        await pub(cmd)
+
+    async def _basic_request(
+        self,
+        cmd: "PublishCommand",
+    ) -> Optional[Any]:
+        request = self._producer.request
+
+        context = self._state.get().di_state.context
+
+        for pub_m in chain(
+            (m(None, context=context).publish_scope for m in self._broker_middlewares),
+            self.middlewares,
+        ):
+            request = partial(pub_m, request)
+
+        published_msg = await request(cmd)
+
+        response_msg: Any = await process_msg(
+            msg=published_msg,
+            middlewares=(
+                m(published_msg, context=context) for m in self._broker_middlewares
+            ),
+            parser=self._producer._parser,
+            decoder=self._producer._decoder,
+            source_type=SourceType.RESPONSE,
+        )
+        return response_msg
+
+    async def _basic_publish_batch(
+        self,
+        cmd: "PublishCommand",
+        *,
+        _extra_middlewares: Iterable["PublisherMiddleware"],
+    ) -> Optional[Any]:
+        pub = self._producer.publish_batch
+
+        context = self._state.get().di_state.context
+
+        for pub_m in chain(
+            (
+                _extra_middlewares
+                or (
+                    m(None, context=context).publish_scope
+                    for m in self._broker_middlewares
+                )
+            ),
+            self.middlewares,
+        ):
+            pub = partial(pub_m, pub)
+
+        await pub(cmd)

@@ -54,9 +54,8 @@ class NatsBaseParser:
 class NatsParser(NatsBaseParser):
     """A class to parse NATS core messages."""
 
-    def __init__(self, *, pattern: str, no_ack: bool) -> None:
+    def __init__(self, *, pattern: str) -> None:
         super().__init__(pattern=pattern)
-        self.no_ack = no_ack
 
     async def parse_message(
         self,
@@ -69,8 +68,7 @@ class NatsParser(NatsBaseParser):
 
         headers = message.header or {}
 
-        if not self.no_ack:
-            message._ackd = True  # prevent message from acking
+        message._ackd = True  # prevent Core message from acknowledgement
 
         return NatsMessage(
             raw_message=message,

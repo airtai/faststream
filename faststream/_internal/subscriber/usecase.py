@@ -7,20 +7,20 @@ from typing import (
     Any,
     Callable,
     Optional,
-    Union,
     overload,
 )
 
 from typing_extensions import Self, override
 
-from faststream._internal.context.repository import context
 from faststream._internal.subscriber.call_item import HandlerItem
-from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
+from faststream._internal.subscriber.call_wrapper.call import (
+    HandlerCallWrapper,
+    ensure_call_wrapper,
+)
 from faststream._internal.subscriber.proto import SubscriberProto
 from faststream._internal.subscriber.utils import (
     MultiLock,
     default_filter,
-    get_watcher_context,
     resolve_custom_func,
 )
 from faststream._internal.types import (
@@ -30,19 +30,19 @@ from faststream._internal.types import (
 )
 from faststream._internal.utils.functions import sync_fake_context, to_async
 from faststream.exceptions import SetupError, StopConsume, SubscriberNotFound
+from faststream.middlewares import AckPolicy, AcknowledgementMiddleware
+from faststream.middlewares.logging import CriticalLogMiddleware
 from faststream.response import ensure_response
-from faststream.specification.asyncapi.message import parse_handler_params
-from faststream.specification.asyncapi.utils import to_camelcase
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.basic_types import AnyDict, Decorator
+    from faststream._internal.context.repository import ContextRepo
     from faststream._internal.publisher.proto import (
         BasePublisherProto,
-        ProducerProto,
     )
-    from faststream._internal.setup import SetupState
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -69,7 +69,7 @@ class _CallOptions:
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
         middlewares: Iterable["SubscriberMiddleware[Any]"],
-        dependencies: Iterable["Depends"],
+        dependencies: Iterable["Dependant"],
     ) -> None:
         self.parser = parser
         self.decoder = decoder
@@ -85,24 +85,19 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     extra_context: "AnyDict"
     graceful_timeout: Optional[float]
 
-    _broker_dependencies: Iterable["Depends"]
+    _broker_dependencies: Iterable["Dependant"]
     _call_options: Optional["_CallOptions"]
     _call_decorators: Iterable["Decorator"]
 
     def __init__(
         self,
         *,
-        no_ack: bool,
         no_reply: bool,
-        retry: Union[bool, int],
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
-        # AsyncAPI information
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
+        ack_policy: AckPolicy,
     ) -> None:
         """Initialize a new instance of the class."""
         self.calls = []
@@ -110,12 +105,11 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._parser = default_parser
         self._decoder = default_decoder
         self._no_reply = no_reply
-        # Watcher args
-        self._no_ack = no_ack
-        self._retry = retry
+        self.ack_policy = ack_policy
 
         self._call_options = None
         self._call_decorators = ()
+
         self.running = False
         self.lock = sync_fake_context()
 
@@ -124,15 +118,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._broker_middlewares = broker_middlewares
 
         # register in setup later
-        self._producer = None
-        self.graceful_timeout = None
         self.extra_context = {}
         self.extra_watcher_options = {}
-
-        # AsyncAPI
-        self.title_ = title_
-        self.description_ = description_
-        self.include_in_schema = include_in_schema
 
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         self._broker_middlewares = (*self._broker_middlewares, middleware)
@@ -141,23 +128,17 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     def _setup(  # type: ignore[override]
         self,
         *,
-        logger: Optional["LoggerProto"],
-        producer: Optional["ProducerProto"],
-        graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "SetupState",
+        state: "Pointer[BrokerState]",
     ) -> None:
-        self.lock = MultiLock()
+        # TODO: add EmptyBrokerState to init
+        self._state = state
 
-        self._producer = producer
-        self.graceful_timeout = graceful_timeout
         self.extra_context = extra_context
-
-        self.watcher = get_watcher_context(logger, self._no_ack, self._retry)
 
         for call in self.calls:
             if parser := call.item_parser or broker_parser:
@@ -176,14 +157,9 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             call._setup(
                 parser=async_parser,
                 decoder=async_decoder,
-                apply_types=state.depends_params.apply_types,
-                is_validate=state.depends_params.is_validate,
-                _get_dependant=state.depends_params.get_dependent,
-                _call_decorators=(
-                    *self._call_decorators,
-                    *state.depends_params.call_decorators,
-                ),
+                state=state,
                 broker_dependencies=self._broker_dependencies,
+                _call_decorators=self._call_decorators,
             )
 
             call.handler.refresh(with_mock=False)
@@ -191,6 +167,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     @abstractmethod
     async def start(self) -> None:
         """Start the handler."""
+        self.lock = MultiLock()
+
         self.running = True
 
     @abstractmethod
@@ -201,7 +179,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         """
         self.running = False
         if isinstance(self.lock, MultiLock):
-            await self.lock.wait_release(self.graceful_timeout)
+            await self.lock.wait_release(self._state.get().graceful_timeout)
 
     def add_call(
         self,
@@ -209,7 +187,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         parser_: Optional["CustomCallable"],
         decoder_: Optional["CustomCallable"],
         middlewares_: Iterable["SubscriberMiddleware[Any]"],
-        dependencies_: Iterable["Depends"],
+        dependencies_: Iterable["Dependant"],
     ) -> Self:
         self._call_options = _CallOptions(
             parser=parser_,
@@ -228,7 +206,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
@@ -243,7 +221,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
 
     def __call__(
@@ -254,7 +232,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Iterable["Dependant"] = (),
     ) -> Any:
         if (options := self._call_options) is None:
             msg = (
@@ -271,8 +249,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         def real_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
         ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-            handler = HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn](
-                func,
+            handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn] = (
+                ensure_call_wrapper(func)
             )
             self.calls.append(
                 HandlerItem[MsgType](
@@ -308,7 +286,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             # Stop handler at `exit()` call
             await self.close()
 
-            if app := context.get("app"):
+            if app := self._state.get().di_state.context.get("app"):
                 app.exit()
 
         except Exception:  # nosec B110
@@ -317,19 +295,22 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
 
     async def process_message(self, msg: MsgType) -> "Response":
         """Execute all message processing stages."""
+        broker_state = self._state.get()
+        context: ContextRepo = broker_state.di_state.context
+        logger_state = broker_state.logger_state
+
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
 
             # Enter context before middlewares
+            stack.enter_context(context.scope("logger", logger_state.logger.logger))
             for k, v in self.extra_context.items():
                 stack.enter_context(context.scope(k, v))
 
-            stack.enter_context(context.scope("handler_", self))
-
             # enter all middlewares
             middlewares: list[BaseMiddleware] = []
-            for base_m in self._broker_middlewares:
-                middleware = base_m(msg)
+            for base_m in self.__build__middlewares_stack():
+                middleware = base_m(msg, context=context)
                 middlewares.append(middleware)
                 await middleware.__aenter__()
 
@@ -343,15 +324,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
                     break
 
                 if message is not None:
-                    # Acknowledgement scope
-                    # TODO: move it to scope enter at `retry` option deprecation
-                    await stack.enter_async_context(
-                        self.watcher(
-                            message,
-                            **self.extra_watcher_options,
-                        ),
-                    )
-
                     stack.enter_context(
                         context.scope("log_context", self.get_log_context(message)),
                     )
@@ -376,10 +348,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
                         self.__get_response_publisher(message),
                         h.handler._publishers,
                     ):
-                        await p.publish(
-                            result_msg.body,
-                            **result_msg.as_publish_kwargs(),
-                            # publisher middlewares
+                        await p._publish(
+                            result_msg.as_publish_command(),
                             _extra_middlewares=(m.publish_scope for m in middlewares),
                         )
 
@@ -391,6 +361,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             for m in middlewares:
                 stack.push_async_exit(m.__aexit__)
 
+            # Reraise it to catch in tests
             if parsing_error:
                 raise parsing_error
 
@@ -399,6 +370,28 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
 
         # An error was raised and processed by some middleware
         return ensure_response(None)
+
+    def __build__middlewares_stack(self) -> tuple["BaseMiddleware", ...]:
+        logger_state = self._state.get().logger_state
+
+        if self.ack_policy is AckPolicy.DO_NOTHING:
+            broker_middlewares = (
+                CriticalLogMiddleware(logger_state),
+                *self._broker_middlewares,
+            )
+
+        else:
+            broker_middlewares = (
+                AcknowledgementMiddleware(
+                    logger=logger_state,
+                    ack_policy=self.ack_policy,
+                    extra_options=self.extra_watcher_options,
+                ),
+                CriticalLogMiddleware(logger_state),
+                *self._broker_middlewares,
+            )
+
+        return broker_middlewares
 
     def __get_response_publisher(
         self,
@@ -417,48 +410,3 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         return {
             "message_id": getattr(message, "message_id", ""),
         }
-
-    # AsyncAPI methods
-
-    @property
-    def call_name(self) -> str:
-        """Returns the name of the handler call."""
-        if not self.calls:
-            return "Subscriber"
-
-        return to_camelcase(self.calls[0].call_name)
-
-    def get_default_description(self) -> Optional[str]:
-        """Returns the description of the handler."""
-        if not self.calls:  # pragma: no cover
-            return None
-
-        return self.calls[0].description
-
-    def get_payloads(self) -> list[tuple["AnyDict", str]]:
-        """Get the payloads of the handler."""
-        payloads: list[tuple[AnyDict, str]] = []
-
-        for h in self.calls:
-            if h.dependant is None:
-                msg = "You should setup `Handler` at first."
-                raise SetupError(msg)
-
-            body = parse_handler_params(
-                h.dependant,
-                prefix=f"{self.title_ or self.call_name}:Message",
-            )
-
-            payloads.append((body, to_camelcase(h.call_name)))
-
-        if not self.calls:
-            payloads.append(
-                (
-                    {
-                        "title": f"{self.title_ or self.call_name}:Message:Payload",
-                    },
-                    to_camelcase(self.call_name),
-                ),
-            )
-
-        return payloads

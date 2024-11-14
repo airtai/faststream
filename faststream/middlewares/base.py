@@ -1,19 +1,29 @@
-from typing import TYPE_CHECKING, Any, Optional
+from collections.abc import Awaitable
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from typing_extensions import Self
 
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from faststream._internal.basic_types import AsyncFunc, AsyncFuncAny
+    from faststream._internal.basic_types import AsyncFuncAny
+    from faststream._internal.context.repository import ContextRepo
     from faststream.message import StreamMessage
+    from faststream.response.response import PublishCommand
 
 
 class BaseMiddleware:
     """A base middleware class."""
 
-    def __init__(self, msg: Optional[Any] = None) -> None:
+    def __init__(
+        self,
+        msg: Optional[Any],
+        /,
+        *,
+        context: "ContextRepo",
+    ) -> None:
         self.msg = msg
+        self.context = context
 
     async def on_receive(self) -> None:
         """Hook to call on message receive."""
@@ -73,10 +83,8 @@ class BaseMiddleware:
 
     async def on_publish(
         self,
-        msg: Any,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Any:
+        msg: "PublishCommand",
+    ) -> "PublishCommand":
         """Asynchronously handle a publish event."""
         return msg
 
@@ -90,19 +98,13 @@ class BaseMiddleware:
 
     async def publish_scope(
         self,
-        call_next: "AsyncFunc",
-        msg: Any,
-        *args: Any,
-        **kwargs: Any,
+        call_next: Callable[["PublishCommand"], Awaitable[Any]],
+        cmd: "PublishCommand",
     ) -> Any:
         """Publish a message and return an async iterator."""
         err: Optional[Exception] = None
         try:
-            result = await call_next(
-                await self.on_publish(msg, *args, **kwargs),
-                *args,
-                **kwargs,
-            )
+            result = await call_next(await self.on_publish(cmd))
 
         except Exception as e:
             err = e

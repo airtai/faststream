@@ -1,4 +1,5 @@
-from collections.abc import Generator, Iterable
+from collections.abc import Generator, Iterable, Iterator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import (
     TYPE_CHECKING,
@@ -16,17 +17,18 @@ from faststream._internal.testing.broker import TestBroker
 from faststream.confluent.broker import KafkaBroker
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
-from faststream.confluent.publisher.publisher import SpecificationBatchPublisher
+from faststream.confluent.publisher.specified import SpecificationBatchPublisher
 from faststream.confluent.schemas import TopicPartition
-from faststream.confluent.subscriber.subscriber import SpecificationBatchSubscriber
+from faststream.confluent.subscriber.usecase import BatchSubscriber
 from faststream.exceptions import SubscriberNotFound
 from faststream.message import encode_message, gen_cor_id
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
-    from faststream._internal.setup.logger import LoggerState
-    from faststream.confluent.publisher.publisher import SpecificationPublisher
+    from faststream.confluent.publisher.specified import SpecificationPublisher
+    from faststream.confluent.response import KafkaPublishCommand
     from faststream.confluent.subscriber.usecase import LogicSubscriber
+
 
 __all__ = ("TestKafkaBroker",)
 
@@ -34,13 +36,19 @@ __all__ = ("TestKafkaBroker",)
 class TestKafkaBroker(TestBroker[KafkaBroker]):
     """A class to test Kafka brokers."""
 
+    @contextmanager
+    def _patch_producer(self, broker: KafkaBroker) -> Iterator[None]:
+        old_producer = broker._state.get().producer
+        broker._state.patch_value(producer=FakeProducer(broker))
+        yield
+        broker._state.patch_value(producer=old_producer)
+
     @staticmethod
     async def _fake_connect(  # type: ignore[override]
         broker: KafkaBroker,
         *args: Any,
         **kwargs: Any,
     ) -> Callable[..., AsyncMock]:
-        broker._producer = FakeProducer(broker)
         return _fake_connection
 
     @staticmethod
@@ -93,126 +101,103 @@ class FakeProducer(AsyncConfluentFastProducer):
     def __init__(self, broker: KafkaBroker) -> None:
         self.broker = broker
 
-        default = AsyncConfluentParser
+        default = AsyncConfluentParser()
 
         self._parser = resolve_custom_func(broker._parser, default.parse_message)
         self._decoder = resolve_custom_func(broker._decoder, default.decode_message)
 
-    def _setup(self, logger_stater: "LoggerState") -> None:
-        pass
+    def __bool__(self) -> bool:
+        return True
+
+    async def ping(self, timeout: float) -> None:
+        return True
 
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        topic: str,
-        key: Optional[bytes] = None,
-        partition: Optional[int] = None,
-        timestamp_ms: Optional[int] = None,
-        headers: Optional[dict[str, str]] = None,
-        correlation_id: Optional[str] = None,
-        *,
-        no_confirm: bool = False,
-        reply_to: str = "",
+        cmd: "KafkaPublishCommand",
     ) -> None:
         """Publish a message to the Kafka broker."""
         incoming = build_message(
-            message=message,
-            topic=topic,
-            key=key,
-            partition=partition,
-            timestamp_ms=timestamp_ms,
-            headers=headers,
-            correlation_id=correlation_id or gen_cor_id(),
-            reply_to=reply_to,
+            message=cmd.body,
+            topic=cmd.destination,
+            key=cmd.key,
+            partition=cmd.partition,
+            timestamp_ms=cmd.timestamp_ms,
+            headers=cmd.headers,
+            correlation_id=cmd.correlation_id,
+            reply_to=cmd.reply_to,
         )
 
         for handler in _find_handler(
             self.broker._subscribers,
-            topic,
-            partition,
+            cmd.destination,
+            cmd.partition,
         ):
             msg_to_send = (
-                [incoming]
-                if isinstance(handler, SpecificationBatchSubscriber)
-                else incoming
+                [incoming] if isinstance(handler, BatchSubscriber) else incoming
             )
 
-            await self._execute_handler(msg_to_send, topic, handler)
+            await self._execute_handler(msg_to_send, cmd.destination, handler)
 
     async def publish_batch(
         self,
-        *msgs: "SendableMessage",
-        topic: str,
-        partition: Optional[int] = None,
-        timestamp_ms: Optional[int] = None,
-        headers: Optional[dict[str, str]] = None,
-        reply_to: str = "",
-        correlation_id: Optional[str] = None,
-        no_confirm: bool = False,
+        cmd: "KafkaPublishCommand",
     ) -> None:
         """Publish a batch of messages to the Kafka broker."""
         for handler in _find_handler(
             self.broker._subscribers,
-            topic,
-            partition,
+            cmd.destination,
+            cmd.partition,
         ):
             messages = (
                 build_message(
                     message=message,
-                    topic=topic,
-                    partition=partition,
-                    timestamp_ms=timestamp_ms,
-                    headers=headers,
-                    correlation_id=correlation_id or gen_cor_id(),
-                    reply_to=reply_to,
+                    topic=cmd.destination,
+                    partition=cmd.partition,
+                    timestamp_ms=cmd.timestamp_ms,
+                    headers=cmd.headers,
+                    correlation_id=cmd.correlation_id,
+                    reply_to=cmd.reply_to,
                 )
-                for message in msgs
+                for message in cmd.batch_bodies
             )
 
-            if isinstance(handler, SpecificationBatchSubscriber):
-                await self._execute_handler(list(messages), topic, handler)
+            if isinstance(handler, BatchSubscriber):
+                await self._execute_handler(list(messages), cmd.destination, handler)
 
             else:
                 for m in messages:
-                    await self._execute_handler(m, topic, handler)
+                    await self._execute_handler(m, cmd.destination, handler)
 
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        topic: str,
-        key: Optional[bytes] = None,
-        partition: Optional[int] = None,
-        timestamp_ms: Optional[int] = None,
-        headers: Optional[dict[str, str]] = None,
-        correlation_id: Optional[str] = None,
-        *,
-        timeout: Optional[float] = 0.5,
+        cmd: "KafkaPublishCommand",
     ) -> "MockConfluentMessage":
         incoming = build_message(
-            message=message,
-            topic=topic,
-            key=key,
-            partition=partition,
-            timestamp_ms=timestamp_ms,
-            headers=headers,
-            correlation_id=correlation_id or gen_cor_id(),
+            message=cmd.body,
+            topic=cmd.destination,
+            key=cmd.key,
+            partition=cmd.partition,
+            timestamp_ms=cmd.timestamp_ms,
+            headers=cmd.headers,
+            correlation_id=cmd.correlation_id,
         )
 
         for handler in _find_handler(
             self.broker._subscribers,
-            topic,
-            partition,
+            cmd.destination,
+            cmd.partition,
         ):
             msg_to_send = (
-                [incoming]
-                if isinstance(handler, SpecificationBatchSubscriber)
-                else incoming
+                [incoming] if isinstance(handler, BatchSubscriber) else incoming
             )
 
-            with anyio.fail_after(timeout):
-                return await self._execute_handler(msg_to_send, topic, handler)
+            with anyio.fail_after(cmd.timeout):
+                return await self._execute_handler(
+                    msg_to_send, cmd.destination, handler
+                )
 
         raise SubscriberNotFound
 
@@ -286,7 +271,7 @@ def build_message(
     message: "SendableMessage",
     topic: str,
     *,
-    correlation_id: str,
+    correlation_id: Optional[str] = None,
     partition: Optional[int] = None,
     timestamp_ms: Optional[int] = None,
     key: Optional[bytes] = None,
@@ -298,7 +283,7 @@ def build_message(
     k = key or b""
     headers = {
         "content-type": content_type or "",
-        "correlation_id": correlation_id,
+        "correlation_id": correlation_id or gen_cor_id(),
         "reply_to": reply_to,
         **(headers or {}),
     }

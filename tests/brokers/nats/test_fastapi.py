@@ -17,9 +17,10 @@ class TestRouter(FastAPITestcase):
     async def test_path(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber(queue + ".{name}")
@@ -46,9 +47,10 @@ class TestRouter(FastAPITestcase):
         self,
         queue: str,
         stream: JStream,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber(
@@ -85,9 +87,10 @@ class TestRouterLocal(FastAPILocalTestcase):
         self,
         queue: str,
         stream: JStream,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         router = self.router_class()
 
         @router.subscriber(

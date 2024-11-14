@@ -9,10 +9,16 @@ from .schema import ApplicationSchema
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, AnyHttpUrl
     from faststream._internal.broker.broker import BrokerUsecase
-    from faststream.specification.schema.contact import Contact, ContactDict
-    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-    from faststream.specification.schema.license import License, LicenseDict
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema import (
+        Contact,
+        ContactDict,
+        ExternalDocs,
+        ExternalDocsDict,
+        License,
+        LicenseDict,
+        Tag,
+        TagDict,
+    )
 
 
 class AsyncAPI2(Specification):

@@ -61,20 +61,20 @@ class RedisMessage(BrokerStreamMessage[PubSubMessage]):
     pass
 
 
-class ListMessage(TypedDict):
+class _ListMessage(TypedDict):
     """A class to represent an Abstract List message."""
 
     channel: str
 
 
-class DefaultListMessage(ListMessage):
+class DefaultListMessage(_ListMessage):
     """A class to represent a single List message."""
 
     type: Literal["list"]
     data: bytes
 
 
-class BatchListMessage(ListMessage):
+class BatchListMessage(_ListMessage):
     """A class to represent a List messages batch."""
 
     type: Literal["blist"]
@@ -95,22 +95,22 @@ DATA_KEY = "__data__"
 bDATA_KEY = DATA_KEY.encode()  # noqa: N816
 
 
-class StreamMessage(TypedDict):
+class _StreamMessage(TypedDict):
     channel: str
     message_ids: list[bytes]
 
 
-class DefaultStreamMessage(StreamMessage):
+class DefaultStreamMessage(_StreamMessage):
     type: Literal["stream"]
     data: dict[bytes, bytes]
 
 
-class BatchStreamMessage(StreamMessage):
+class BatchStreamMessage(_StreamMessage):
     type: Literal["bstream"]
     data: list[dict[bytes, bytes]]
 
 
-_StreamMsgType = TypeVar("_StreamMsgType", bound=StreamMessage)
+_StreamMsgType = TypeVar("_StreamMsgType", bound=_StreamMessage)
 
 
 class _RedisStreamMessageMixin(BrokerStreamMessage[_StreamMsgType]):
@@ -124,7 +124,7 @@ class _RedisStreamMessageMixin(BrokerStreamMessage[_StreamMsgType]):
             ids = self.raw_message["message_ids"]
             channel = self.raw_message["channel"]
             await redis.xack(channel, group, *ids)  # type: ignore[no-untyped-call]
-            await super().ack()
+        await super().ack()
 
     @override
     async def nack(

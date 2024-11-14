@@ -9,7 +9,7 @@ from faststream.asgi import AsgiFastStream
 
 
 def test_run_as_asgi(runner: CliRunner) -> None:
-    app = AsgiFastStream()
+    app = AsgiFastStream(AsyncMock())
     app.run = AsyncMock()
 
     with patch(
@@ -36,7 +36,7 @@ def test_run_as_asgi(runner: CliRunner) -> None:
 
 @pytest.mark.parametrize("workers", (pytest.param(1), pytest.param(2), pytest.param(5)))
 def test_run_as_asgi_with_workers(runner: CliRunner, workers: int) -> None:
-    app = AsgiFastStream()
+    app = AsgiFastStream(AsyncMock())
     app.run = AsyncMock()
 
     with patch(
@@ -66,7 +66,7 @@ def test_run_as_asgi_with_workers(runner: CliRunner, workers: int) -> None:
 
 
 def test_run_as_asgi_callable(runner: CliRunner) -> None:
-    app = AsgiFastStream()
+    app = AsgiFastStream(AsyncMock())
     app.run = AsyncMock()
 
     app_factory = Mock(return_value=app)

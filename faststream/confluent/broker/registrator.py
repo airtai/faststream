@@ -13,13 +13,15 @@ from typing import (
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
-from faststream.confluent.publisher.publisher import SpecificationPublisher
+from faststream._internal.constants import EMPTY
+from faststream.confluent.publisher.factory import create_publisher
 from faststream.confluent.subscriber.factory import create_subscriber
 from faststream.exceptions import SetupError
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from confluent_kafka import Message
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.types import (
         CustomCallable,
@@ -27,12 +29,12 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.confluent.message import KafkaMessage
-    from faststream.confluent.publisher.publisher import (
+    from faststream.confluent.publisher.specified import (
         SpecificationBatchPublisher,
         SpecificationDefaultPublisher,
     )
     from faststream.confluent.schemas import TopicPartition
-    from faststream.confluent.subscriber.subscriber import (
+    from faststream.confluent.subscriber.specified import (
         SpecificationBatchSubscriber,
         SpecificationDefaultSubscriber,
     )
@@ -279,8 +281,8 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -294,14 +296,10 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -550,8 +548,8 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -565,14 +563,10 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -821,8 +815,8 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -836,14 +830,10 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1095,8 +1085,8 @@ class KafkaRegistrator(
         ] = None,
         # broker args
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -1110,14 +1100,10 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1174,10 +1160,9 @@ class KafkaRegistrator(
                 },
                 is_manual=not auto_commit,
                 # subscriber args
-                no_ack=no_ack,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
-                retry=retry,
-                broker_middlewares=self._middlewares,
+                broker_middlewares=self.middlewares,
                 broker_dependencies=self._dependencies,
                 # Specification
                 title_=title,
@@ -1508,7 +1493,7 @@ class KafkaRegistrator(
 
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
-        publisher = SpecificationPublisher.create(
+        publisher = create_publisher(
             # batch flag
             batch=batch,
             # default args
@@ -1519,7 +1504,7 @@ class KafkaRegistrator(
             headers=headers,
             reply_to=reply_to,
             # publisher-specific
-            broker_middlewares=self._middlewares,
+            broker_middlewares=self.middlewares,
             middlewares=middlewares,
             # Specification
             title_=title,
@@ -1530,4 +1515,5 @@ class KafkaRegistrator(
 
         if batch:
             return cast("SpecificationBatchPublisher", super().publisher(publisher))
+
         return cast("SpecificationDefaultPublisher", super().publisher(publisher))

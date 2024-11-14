@@ -1,4 +1,5 @@
-from collections.abc import Generator, Iterable
+from collections.abc import Generator, Iterable, Iterator
+from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -16,14 +17,16 @@ from faststream._internal.testing.broker import TestBroker
 from faststream.exceptions import SubscriberNotFound
 from faststream.message import encode_message, gen_cor_id
 from faststream.nats.broker import NatsBroker
+from faststream.nats.broker.state import ConnectedState
 from faststream.nats.parser import NatsParser
 from faststream.nats.publisher.producer import NatsFastProducer
 from faststream.nats.schemas.js_stream import is_subject_match_wildcard
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SendableMessage
-    from faststream.nats.publisher.publisher import SpecificationPublisher
-    from faststream.nats.subscriber.usecase import LogicSubscriber
+    from faststream.nats.publisher.specified import SpecificationPublisher
+    from faststream.nats.response import NatsPublishCommand
+    from faststream.nats.subscriber.usecases.basic import LogicSubscriber
 
 __all__ = ("TestNatsBroker",)
 
@@ -51,51 +54,58 @@ class TestNatsBroker(TestBroker[NatsBroker]):
 
         return sub, is_real
 
-    @staticmethod
-    async def _fake_connect(  # type: ignore[override]
+    @contextmanager
+    def _patch_producer(self, broker: NatsBroker) -> Iterator[None]:
+        old_js_producer, old_producer = broker._js_producer, broker._producer
+        fake_producer = broker._js_producer = FakeProducer(broker)
+
+        broker._state.patch_value(producer=fake_producer)
+        try:
+            yield
+        finally:
+            broker._js_producer = old_js_producer
+            broker._state.patch_value(producer=old_producer)
+
+    async def _fake_connect(
+        self,
         broker: NatsBroker,
         *args: Any,
         **kwargs: Any,
     ) -> AsyncMock:
-        broker.stream = AsyncMock()
-        broker._js_producer = broker._producer = FakeProducer(  # type: ignore[assignment]
-            broker,
-        )
+        if not broker._connection_state:
+            broker._connection_state = ConnectedState(AsyncMock(), AsyncMock())
         return AsyncMock()
+
+    def _fake_start(self, broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
+        if not broker._connection_state:
+            broker._connection_state = ConnectedState(AsyncMock(), AsyncMock())
+        return super()._fake_start(broker, *args, **kwargs)
 
 
 class FakeProducer(NatsFastProducer):
     def __init__(self, broker: NatsBroker) -> None:
         self.broker = broker
 
-        default = NatsParser(pattern="", no_ack=False)
+        default = NatsParser(pattern="")
         self._parser = resolve_custom_func(broker._parser, default.parse_message)
         self._decoder = resolve_custom_func(broker._decoder, default.decode_message)
 
     @override
     async def publish(  # type: ignore[override]
-        self,
-        message: "SendableMessage",
-        subject: str,
-        reply_to: str = "",
-        headers: Optional[dict[str, str]] = None,
-        correlation_id: Optional[str] = None,
-        # NatsJSFastProducer compatibility
-        timeout: Optional[float] = None,
-        stream: Optional[str] = None,
+        self, cmd: "NatsPublishCommand"
     ) -> None:
         incoming = build_message(
-            message=message,
-            subject=subject,
-            headers=headers,
-            correlation_id=correlation_id,
-            reply_to=reply_to,
+            message=cmd.body,
+            subject=cmd.destination,
+            headers=cmd.headers,
+            correlation_id=cmd.correlation_id,
+            reply_to=cmd.reply_to,
         )
 
         for handler in _find_handler(
             self.broker._subscribers,
-            subject,
-            stream,
+            cmd.destination,
+            cmd.stream,
         ):
             msg: Union[list[PatchedMessage], PatchedMessage]
 
@@ -104,31 +114,24 @@ class FakeProducer(NatsFastProducer):
             else:
                 msg = incoming
 
-            await self._execute_handler(msg, subject, handler)
+            await self._execute_handler(msg, cmd.destination, handler)
 
     @override
     async def request(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        subject: str,
-        *,
-        correlation_id: Optional[str] = None,
-        headers: Optional[dict[str, str]] = None,
-        timeout: float = 0.5,
-        # NatsJSFastProducer compatibility
-        stream: Optional[str] = None,
+        cmd: "NatsPublishCommand",
     ) -> "PatchedMessage":
         incoming = build_message(
-            message=message,
-            subject=subject,
-            headers=headers,
-            correlation_id=correlation_id,
+            message=cmd.body,
+            subject=cmd.destination,
+            headers=cmd.headers,
+            correlation_id=cmd.correlation_id,
         )
 
         for handler in _find_handler(
             self.broker._subscribers,
-            subject,
-            stream,
+            cmd.destination,
+            cmd.stream,
         ):
             msg: Union[list[PatchedMessage], PatchedMessage]
 
@@ -137,8 +140,8 @@ class FakeProducer(NatsFastProducer):
             else:
                 msg = incoming
 
-            with anyio.fail_after(timeout):
-                return await self._execute_handler(msg, subject, handler)
+            with anyio.fail_after(cmd.timeout):
+                return await self._execute_handler(msg, cmd.destination, handler)
 
         raise SubscriberNotFound
 

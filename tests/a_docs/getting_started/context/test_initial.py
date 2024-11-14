@@ -1,6 +1,5 @@
 import pytest
 
-from faststream import context
 from tests.marks import (
     python39,
     require_aiokafka,
@@ -22,8 +21,8 @@ async def test_kafka() -> None:
         await br.publish("", "test-topic")
         await br.publish("", "test-topic")
 
-    assert context.get("collector") == ["", ""]
-    context.clear()
+    assert broker.context.get("collector") == ["", ""]
+    broker.context.clear()
 
 
 @pytest.mark.asyncio()
@@ -37,8 +36,8 @@ async def test_confluent() -> None:
         await br.publish("", "test-topic")
         await br.publish("", "test-topic")
 
-    assert context.get("collector") == ["", ""]
-    context.clear()
+    assert broker.context.get("collector") == ["", ""]
+    broker.context.clear()
 
 
 @pytest.mark.asyncio()
@@ -52,8 +51,8 @@ async def test_rabbit() -> None:
         await br.publish("", "test-queue")
         await br.publish("", "test-queue")
 
-    assert context.get("collector") == ["", ""]
-    context.clear()
+    assert broker.context.get("collector") == ["", ""]
+    broker.context.clear()
 
 
 @pytest.mark.asyncio()
@@ -67,8 +66,8 @@ async def test_nats() -> None:
         await br.publish("", "test-subject")
         await br.publish("", "test-subject")
 
-    assert context.get("collector") == ["", ""]
-    context.clear()
+    assert broker.context.get("collector") == ["", ""]
+    broker.context.clear()
 
 
 @pytest.mark.asyncio()
@@ -82,5 +81,5 @@ async def test_redis() -> None:
         await br.publish("", "test-channel")
         await br.publish("", "test-channel")
 
-    assert context.get("collector") == ["", ""]
-    context.clear()
+    assert broker.context.get("collector") == ["", ""]
+    broker.context.clear()

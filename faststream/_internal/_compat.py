@@ -1,5 +1,4 @@
 import json
-import os
 import sys
 import warnings
 from collections.abc import Iterable, Mapping
@@ -13,13 +12,12 @@ from typing import (
     Union,
 )
 
-from fast_depends._compat import (  # type: ignore[attr-defined]
-    PYDANTIC_V2,
-    PYDANTIC_VERSION,
-)
 from pydantic import BaseModel
+from pydantic.version import VERSION as PYDANTIC_VERSION
 
 from faststream._internal.basic_types import AnyDict
+
+PYDANTIC_V2 = PYDANTIC_VERSION.startswith("2.")
 
 IS_WINDOWS = (
     sys.platform == "win32" or sys.platform == "cygwin" or sys.platform == "msys"
@@ -27,10 +25,6 @@ IS_WINDOWS = (
 
 
 ModelVar = TypeVar("ModelVar", bound=BaseModel)
-
-
-def is_test_env() -> bool:
-    return bool(os.getenv("PYTEST_CURRENT_TEST"))
 
 
 json_dumps: Callable[..., bytes]
@@ -92,9 +86,14 @@ if PYDANTIC_V2:
             with_info_plain_validator_function,
         )
     else:
-        from pydantic._internal._annotated_handlers import (  # type: ignore[no-redef]
-            GetJsonSchemaHandler,
-        )
+        if PYDANTIC_VERSION >= "2.10":
+            from pydantic.annotated_handlers import (
+                GetJsonSchemaHandler,
+            )
+        else:
+            from pydantic._internal._annotated_handlers import (  # type: ignore[no-redef]
+                GetJsonSchemaHandler,
+            )
         from pydantic_core.core_schema import (
             general_plain_validator_function as with_info_plain_validator_function,
         )
@@ -176,7 +175,7 @@ else:
         return {}
 
 
-anyio_major, *_ = map(int, get_version("anyio").split("."))
+anyio_major = int(get_version("anyio").split(".")[0])
 ANYIO_V3 = anyio_major == 3
 
 

@@ -113,14 +113,6 @@ class ChannelBinding(BaseModel):
     queue: Optional[Queue] = None
     exchange: Optional[Exchange] = None
 
-    @overload
-    @classmethod
-    def from_sub(cls, binding: None) -> None: ...
-
-    @overload
-    @classmethod
-    def from_sub(cls, binding: amqp.ChannelBinding) -> Self: ...
-
     @classmethod
     def from_sub(cls, binding: Optional[amqp.ChannelBinding]) -> Optional[Self]:
         if binding is None:
@@ -135,14 +127,6 @@ class ChannelBinding(BaseModel):
                 "exchange": Exchange.from_spec(binding.exchange, binding.virtual_host),
             },
         )
-
-    @overload
-    @classmethod
-    def from_pub(cls, binding: None) -> None: ...
-
-    @overload
-    @classmethod
-    def from_pub(cls, binding: amqp.ChannelBinding) -> Self: ...
 
     @classmethod
     def from_pub(cls, binding: Optional[amqp.ChannelBinding]) -> Optional[Self]:

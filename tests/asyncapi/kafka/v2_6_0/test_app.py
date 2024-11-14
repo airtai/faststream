@@ -1,9 +1,6 @@
 from faststream.kafka import KafkaBroker
+from faststream.specification import Contact, ExternalDocs, License, Tag
 from faststream.specification.asyncapi import AsyncAPI
-from faststream.specification.schema.contact import Contact
-from faststream.specification.schema.docs import ExternalDocs
-from faststream.specification.schema.license import License
-from faststream.specification.schema.tag import Tag
 
 
 def test_base() -> None:

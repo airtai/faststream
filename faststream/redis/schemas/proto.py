@@ -2,14 +2,14 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Union
 
 from faststream.exceptions import SetupError
-from faststream.specification.proto.endpoint import EndpointProto
+from faststream.specification.proto.endpoint import EndpointSpecification
 
 if TYPE_CHECKING:
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
     from faststream.specification.schema.bindings import redis
 
 
-class RedisAsyncAPIProtocol(EndpointProto):
+class RedisSpecificationProtocol(EndpointSpecification):
     @property
     @abstractmethod
     def channel_binding(self) -> "redis.ChannelBinding": ...
@@ -23,7 +23,7 @@ def validate_options(
     channel: Union["PubSub", str, None],
     list: Union["ListSub", str, None],
     stream: Union["StreamSub", str, None],
-) -> None:
+) -> str:
     if all((channel, list)):
         msg = "You can't use `PubSub` and `ListSub` both"
         raise SetupError(msg)
@@ -33,3 +33,4 @@ def validate_options(
     if all((list, stream)):
         msg = "You can't use `ListSub` and `StreamSub` both"
         raise SetupError(msg)
+    return channel or list or stream

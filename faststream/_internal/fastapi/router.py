@@ -1,4 +1,5 @@
 import json
+import warnings
 from abc import abstractmethod
 from collections.abc import AsyncIterator, Awaitable, Iterable, Mapping, Sequence
 from contextlib import asynccontextmanager
@@ -25,12 +26,10 @@ from starlette.routing import BaseRoute, _DefaultLifespan
 
 from faststream._internal.application import StartAbleApplication
 from faststream._internal.broker.router import BrokerRouter
-from faststream._internal.context.repository import context
 from faststream._internal.fastapi.get_dependant import get_fastapi_dependant
 from faststream._internal.fastapi.route import (
     wrap_callable_to_fastapi_compatible,
 )
-from faststream._internal.setup import EmptyState
 from faststream._internal.types import (
     MsgType,
     P_HandlerParams,
@@ -69,7 +68,7 @@ class _BackgroundMiddleware(BaseMiddleware):
         if not exc_type and (
             background := cast(
                 Optional[BackgroundTasks],
-                getattr(context.get_local("message"), "background", None),
+                getattr(self.context.get_local("message"), "background", None),
             )
         ):
             await background()
@@ -130,7 +129,7 @@ class StreamRouter(
             self.broker_class
         ), "You should specify `broker_class` at your implementation"
 
-        self.broker = self.broker_class(
+        broker = self.broker_class(
             *connection_args,
             middlewares=(
                 *middlewares,
@@ -141,6 +140,11 @@ class StreamRouter(
             tags=specification_tags,
             apply_types=False,
             **connection_kwars,
+        )
+
+        self._init_setupable_(
+            broker,
+            provider=None,
         )
 
         self.setup_state = setup_state
@@ -159,8 +163,6 @@ class StreamRouter(
         self.contact = None
 
         self.schema = None
-
-        self._state = EmptyState()
 
         super().__init__(
             prefix=prefix,
@@ -193,6 +195,8 @@ class StreamRouter(
 
         self._after_startup_hooks = []
         self._on_shutdown_hooks = []
+
+        self._lifespan_started = False
 
     def _get_dependencies_overides_provider(self) -> Optional[Any]:
         """Dependency provider WeakRef resolver."""
@@ -231,6 +235,7 @@ class StreamRouter(
                 response_model_exclude_defaults=response_model_exclude_defaults,
                 response_model_exclude_none=response_model_exclude_none,
                 provider_factory=self._get_dependencies_overides_provider,
+                state=self._state,
             )
 
         return wrapper
@@ -314,22 +319,24 @@ class StreamRouter(
                 self.weak_dependencies_provider.add(app)
 
             async with lifespan_context(app) as maybe_context:
-                if maybe_context is None:
-                    context: AnyDict = {}
-                else:
-                    context = dict(maybe_context)
+                lifespan_extra = {"broker": self.broker, **(maybe_context or {})}
 
-                context.update({"broker": self.broker})
-                await self._start_broker()
+                if not self._lifespan_started:
+                    await self._start_broker()
+                    self._lifespan_started = True
+                else:
+                    warnings.warn(
+                        "Specifying 'lifespan_context' manually is no longer necessary with FastAPI >= 0.112.2.",
+                        category=RuntimeWarning,
+                        stacklevel=2,
+                    )
 
                 for h in self._after_startup_hooks:
-                    h_context = await h(app)
-                    if h_context:  # pragma: no branch
-                        context.update(h_context)
+                    lifespan_extra.update(await h(app) or {})
 
                 try:
                     if self.setup_state:
-                        yield context
+                        yield lifespan_extra
                     else:
                         # NOTE: old asgi compatibility
                         yield None

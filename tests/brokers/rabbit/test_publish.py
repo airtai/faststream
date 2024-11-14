@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import Mock, patch
 
 import pytest
@@ -9,6 +9,9 @@ from faststream.rabbit import RabbitBroker, RabbitResponse
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
+
+if TYPE_CHECKING:
+    from faststream.rabbit.response import RabbitPublishCommand
 
 
 @pytest.mark.rabbit()
@@ -20,9 +23,10 @@ class TestPublish(BrokerPublishTestcase):
     async def test_reply_config(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         reply_queue = queue + "reply"
@@ -54,8 +58,9 @@ class TestPublish(BrokerPublishTestcase):
                     timeout=3,
                 )
 
-                assert m.mock.call_args.kwargs.get("persist")
-                assert m.mock.call_args.kwargs.get("immediate") is False
+                cmd: RabbitPublishCommand = m.mock.call_args[0][1]
+                assert cmd.message_options["persist"]
+                assert not cmd.publish_options["immediate"]
 
         assert event.is_set()
         mock.assert_called_with("Hello!")
@@ -64,18 +69,16 @@ class TestPublish(BrokerPublishTestcase):
     async def test_response(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker(apply_types=True)
 
         @pub_broker.subscriber(queue)
         @pub_broker.publisher(queue + "1")
         async def handle():
-            return RabbitResponse(
-                1,
-                persist=True,
-            )
+            return RabbitResponse(1, persist=True)
 
         @pub_broker.subscriber(queue + "1")
         async def handle_next(msg=Context("message")) -> None:
@@ -100,7 +103,8 @@ class TestPublish(BrokerPublishTestcase):
 
                 assert event.is_set()
 
-                assert m.mock.call_args.kwargs.get("persist")
+                cmd: RabbitPublishCommand = m.mock.call_args[0][1]
+                assert cmd.message_options["persist"]
 
         mock.assert_called_once_with(body=b"1")
 
@@ -108,7 +112,6 @@ class TestPublish(BrokerPublishTestcase):
     async def test_response_for_rpc(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
         pub_broker = self.get_broker(apply_types=True)
 

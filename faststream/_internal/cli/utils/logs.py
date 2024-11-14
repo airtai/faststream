@@ -1,11 +1,10 @@
 import logging
 from collections import defaultdict
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import LoggerProto
-    from faststream.app import FastStream
+    from faststream._internal.application import Application
 
 
 class LogLevels(str, Enum):
@@ -64,14 +63,9 @@ def get_log_level(level: Union[LogLevels, str, int]) -> int:
     return None
 
 
-def set_log_level(level: int, app: "FastStream") -> None:
+def set_log_level(level: int, app: "Application") -> None:
     """Sets the log level for an application."""
     if app.logger and getattr(app.logger, "setLevel", None):
         app.logger.setLevel(level)  # type: ignore[attr-defined]
 
-    if app.broker:
-        broker_logger: Optional[LoggerProto] = (
-            app.broker._state.logger_state.logger.logger
-        )
-        if broker_logger is not None and getattr(broker_logger, "setLevel", None):
-            broker_logger.setLevel(level)  # type: ignore[attr-defined]
+    app.broker._state.get().logger_state.set_level(level)

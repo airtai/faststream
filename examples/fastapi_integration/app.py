@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from faststream.rabbit.fastapi import Logger, RabbitRouter
 
 router = RabbitRouter("amqp://guest:guest@localhost:5672/")
-app = FastAPI(lifespan=router.lifespan_context)
+app = FastAPI()
 
 publisher = router.publisher("response-q")
 

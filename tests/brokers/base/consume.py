@@ -1,5 +1,4 @@
 import asyncio
-from typing import NoReturn
 from unittest.mock import MagicMock
 
 import anyio
@@ -17,8 +16,8 @@ class BrokerConsumeTestcase(BaseTestcaseConfig):
     async def test_consume(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
         consume_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -201,12 +200,13 @@ class BrokerConsumeTestcase(BaseTestcaseConfig):
     async def test_consume_validate_false(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(
             apply_types=True,
-            validate=False,
+            serializer=None,
         )
 
         class Foo(BaseModel):
@@ -241,8 +241,9 @@ class BrokerConsumeTestcase(BaseTestcaseConfig):
     async def test_dynamic_sub(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         async def subscriber(m) -> None:
@@ -335,15 +336,16 @@ class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
     async def test_stop_consume_exc(
         self,
         queue: str,
-        event: asyncio.Event,
         mock: MagicMock,
     ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
 
         @consume_broker.subscriber(*args, **kwargs)
-        def subscriber(m) -> NoReturn:
+        def subscriber(m):
             mock()
             event.set()
             raise StopConsume

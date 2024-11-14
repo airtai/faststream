@@ -23,7 +23,6 @@ class ChannelBinding(BaseModel):
         sqs : SQS channel binding (optional)
         nats : NATS channel binding (optional)
         redis : Redis channel binding (optional)
-
     """
 
     amqp: Optional[amqp_bindings.ChannelBinding] = None
@@ -53,16 +52,29 @@ class ChannelBinding(BaseModel):
         if binding is None:
             return None
 
-        if binding.amqp:
-            return cls(amqp=amqp_bindings.ChannelBinding.from_sub(binding.amqp))
-        if binding.kafka:
-            return cls(kafka=kafka_bindings.ChannelBinding.from_sub(binding.kafka))
-        if binding.nats:
-            return cls(nats=nats_bindings.ChannelBinding.from_sub(binding.nats))
-        if binding.redis:
-            return cls(redis=redis_bindings.ChannelBinding.from_sub(binding.redis))
-        if binding.sqs:
-            return cls(sqs=sqs_bindings.ChannelBinding.from_sub(binding.sqs))
+        if binding.amqp and (
+            amqp := amqp_bindings.ChannelBinding.from_sub(binding.amqp)
+        ):
+            return cls(amqp=amqp)
+
+        if binding.kafka and (
+            kafka := kafka_bindings.ChannelBinding.from_sub(binding.kafka)
+        ):
+            return cls(kafka=kafka)
+
+        if binding.nats and (
+            nats := nats_bindings.ChannelBinding.from_sub(binding.nats)
+        ):
+            return cls(nats=nats)
+
+        if binding.redis and (
+            redis := redis_bindings.ChannelBinding.from_sub(binding.redis)
+        ):
+            return cls(redis=redis)
+
+        if binding.sqs and (sqs := sqs_bindings.ChannelBinding.from_sub(binding.sqs)):
+            return cls(sqs=sqs)
+
         return None
 
     @overload
@@ -78,14 +90,27 @@ class ChannelBinding(BaseModel):
         if binding is None:
             return None
 
-        if binding.amqp:
-            return cls(amqp=amqp_bindings.ChannelBinding.from_pub(binding.amqp))
-        if binding.kafka:
-            return cls(kafka=kafka_bindings.ChannelBinding.from_pub(binding.kafka))
-        if binding.nats:
-            return cls(nats=nats_bindings.ChannelBinding.from_pub(binding.nats))
-        if binding.redis:
-            return cls(redis=redis_bindings.ChannelBinding.from_pub(binding.redis))
-        if binding.sqs:
-            return cls(sqs=sqs_bindings.ChannelBinding.from_pub(binding.sqs))
+        if binding.amqp and (
+            amqp := amqp_bindings.ChannelBinding.from_pub(binding.amqp)
+        ):
+            return cls(amqp=amqp)
+
+        if binding.kafka and (
+            kafka := kafka_bindings.ChannelBinding.from_pub(binding.kafka)
+        ):
+            return cls(kafka=kafka)
+
+        if binding.nats and (
+            nats := nats_bindings.ChannelBinding.from_pub(binding.nats)
+        ):
+            return cls(nats=nats)
+
+        if binding.redis and (
+            redis := redis_bindings.ChannelBinding.from_pub(binding.redis)
+        ):
+            return cls(redis=redis)
+
+        if binding.sqs and (sqs := sqs_bindings.ChannelBinding.from_pub(binding.sqs)):
+            return cls(sqs=sqs)
+
         return None

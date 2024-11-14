@@ -5,7 +5,6 @@ from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Generic,
     Optional,
     cast,
@@ -13,14 +12,15 @@ from typing import (
 
 from typing_extensions import override
 
-from faststream._internal.setup import SetupAble
+from faststream._internal.state import SetupAble
 from faststream._internal.types import MsgType
 from faststream.exceptions import IgnoredException, SetupError
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AsyncFuncAny, Decorator
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
     from faststream._internal.types import (
         AsyncCallable,
@@ -54,7 +54,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         item_parser: Optional["CustomCallable"],
         item_decoder: Optional["CustomCallable"],
         item_middlewares: Iterable["SubscriberMiddleware[StreamMessage[MsgType]]"],
-        dependencies: Iterable["Depends"],
+        dependencies: Iterable["Dependant"],
     ) -> None:
         self.handler = handler
         self.filter = filter
@@ -75,30 +75,28 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         *,
         parser: "AsyncCallable",
         decoder: "AsyncCallable",
-        broker_dependencies: Iterable["Depends"],
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
+        state: "Pointer[BrokerState]",
+        broker_dependencies: Iterable["Dependant"],
         _call_decorators: Iterable["Decorator"],
     ) -> None:
         if self.dependant is None:
+            di_state = state.get().di_state
+
             self.item_parser = parser
             self.item_decoder = decoder
 
             dependencies = (*broker_dependencies, *self.dependencies)
 
             dependant = self.handler.set_wrapped(
-                apply_types=apply_types,
-                is_validate=is_validate,
                 dependencies=dependencies,
-                _get_dependant=_get_dependant,
-                _call_decorators=_call_decorators,
+                _call_decorators=(*_call_decorators, *di_state.call_decorators),
+                state=di_state,
             )
 
-            if _get_dependant is None:
+            if di_state.get_dependent is None:
                 self.dependant = dependant
             else:
-                self.dependant = _get_dependant(
+                self.dependant = di_state.get_dependent(
                     self.handler._original_call,
                     dependencies,
                 )
@@ -138,9 +136,8 @@ class HandlerItem(SetupAble, Generic[MsgType]):
             cache.get(parser) or await parser(msg),
         )
 
-        message._decoded_body = cache[decoder] = cache.get(decoder) or await decoder(
-            message,
-        )
+        # NOTE: final decoder will be set for success filter
+        message.set_decoder(decoder)
 
         if await self.filter(message):
             return message

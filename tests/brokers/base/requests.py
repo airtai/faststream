@@ -1,4 +1,4 @@
-from typing import NoReturn
+import asyncio
 
 import anyio
 import pytest
@@ -7,10 +7,10 @@ from .basic import BaseTestcaseConfig
 
 
 class RequestsTestcase(BaseTestcaseConfig):
-    def get_middleware(self, **kwargs) -> NoReturn:
+    def get_middleware(self, **kwargs):
         raise NotImplementedError
 
-    def get_router(self, **kwargs) -> NoReturn:
+    def get_router(self, **kwargs):
         raise NotImplementedError
 
     async def test_request_timeout(self, queue: str) -> None:
@@ -26,7 +26,7 @@ class RequestsTestcase(BaseTestcaseConfig):
         async with self.patch_broker(broker):
             await broker.start()
 
-            with pytest.raises(TimeoutError):
+            with pytest.raises((TimeoutError, asyncio.TimeoutError)):
                 await broker.request(
                     None,
                     queue,

@@ -1,11 +1,10 @@
 """A Python framework for building services interacting with Apache Kafka, RabbitMQ, NATS and Redis."""
 
-from faststream._internal.context import context
 from faststream._internal.testing.app import TestApp
 from faststream._internal.utils import apply_types
 from faststream.annotations import ContextRepo, Logger
 from faststream.app import FastStream
-from faststream.middlewares import BaseMiddleware, ExceptionMiddleware
+from faststream.middlewares import AckPolicy, BaseMiddleware, ExceptionMiddleware
 from faststream.params import (
     Context,
     Depends,
@@ -17,6 +16,7 @@ from faststream.response import Response
 
 __all__ = (
     # middlewares
+    "AckPolicy",
     "BaseMiddleware",
     # params
     "Context",
@@ -35,6 +35,4 @@ __all__ = (
     "TestApp",
     # utils
     "apply_types",
-    # context
-    "context",
 )

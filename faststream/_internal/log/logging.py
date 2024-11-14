@@ -2,9 +2,13 @@ import logging
 import sys
 from collections.abc import Mapping
 from logging import LogRecord
+from typing import TYPE_CHECKING
 
-from faststream._internal.context.repository import context
 from faststream._internal.log.formatter import ColourizedFormatter
+
+if TYPE_CHECKING:
+    from faststream._internal.context.repository import ContextRepo
+
 
 logger = logging.getLogger("faststream")
 logger.setLevel(logging.INFO)
@@ -24,15 +28,17 @@ class ExtendedFilter(logging.Filter):
         self,
         default_context: Mapping[str, str],
         message_id_ln: int,
+        context: "ContextRepo",
         name: str = "",
     ) -> None:
         self.default_context = default_context
         self.message_id_ln = message_id_ln
+        self.context = context
         super().__init__(name)
 
     def filter(self, record: LogRecord) -> bool:
         if is_suitable := super().filter(record):
-            log_context: Mapping[str, str] = context.get_local(
+            log_context: Mapping[str, str] = self.context.get_local(
                 "log_context",
                 self.default_context,
             )
@@ -51,11 +57,13 @@ def get_broker_logger(
     default_context: Mapping[str, str],
     message_id_ln: int,
     fmt: str,
+    context: "ContextRepo",
+    log_level: int,
 ) -> logging.Logger:
     logger = logging.getLogger(f"faststream.access.{name}")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(log_level)
     logger.propagate = False
-    logger.addFilter(ExtendedFilter(default_context, message_id_ln))
+    logger.addFilter(ExtendedFilter(default_context, message_id_ln, context=context))
     handler = logging.StreamHandler(stream=sys.stdout)
     handler.setFormatter(
         ColourizedFormatter(

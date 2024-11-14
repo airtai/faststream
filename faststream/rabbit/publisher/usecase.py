@@ -1,102 +1,41 @@
-from collections.abc import Awaitable, Iterable
+from collections.abc import Iterable
 from copy import deepcopy
-from functools import partial
-from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Annotated,
-    Any,
-    Callable,
     Optional,
     Union,
 )
 
 from aio_pika import IncomingMessage
-from typing_extensions import Doc, TypedDict, Unpack, override
+from typing_extensions import Doc, Unpack, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream._internal.subscriber.utils import process_msg
-from faststream.exceptions import NOT_CONNECTED_YET
+from faststream._internal.utils.data import filter_by_dict
 from faststream.message import gen_cor_id
-from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
+from faststream.rabbit.response import RabbitPublishCommand
+from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
+from faststream.response.publish_type import PublishType
+
+from .options import MessageOptions, PublishOptions
 
 if TYPE_CHECKING:
     import aiormq
-    from aio_pika.abc import DateType, HeadersType, TimeoutType
 
-    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.state import BrokerState
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
-    from faststream.rabbit.schemas.exchange import RabbitExchange
     from faststream.rabbit.types import AioPikaSendableMessage
+    from faststream.response.response import PublishCommand
 
 
 # should be public to use in imports
-class RequestPublishKwargs(TypedDict, total=False):
+class RequestPublishKwargs(MessageOptions, PublishOptions, total=False):
     """Typed dict to annotate RabbitMQ requesters."""
 
-    headers: Annotated[
-        Optional["HeadersType"],
-        Doc(
-            "Message headers to store metainformation. "
-            "Can be overridden by `publish.headers` if specified.",
-        ),
-    ]
-    mandatory: Annotated[
-        Optional[bool],
-        Doc(
-            "Client waits for confirmation that the message is placed to some queue. "
-            "RabbitMQ returns message to client if there is no suitable queue.",
-        ),
-    ]
-    immediate: Annotated[
-        Optional[bool],
-        Doc(
-            "Client expects that there is consumer ready to take the message to work. "
-            "RabbitMQ returns message to client if there is no suitable consumer.",
-        ),
-    ]
-    timeout: Annotated[
-        "TimeoutType",
-        Doc("Send confirmation time from RabbitMQ."),
-    ]
-    persist: Annotated[
-        Optional[bool],
-        Doc("Restore the message on RabbitMQ reboot."),
-    ]
 
-    priority: Annotated[
-        Optional[int],
-        Doc("The message priority (0 by default)."),
-    ]
-    message_type: Annotated[
-        Optional[str],
-        Doc("Application-specific message type, e.g. **orders.created**."),
-    ]
-    content_type: Annotated[
-        Optional[str],
-        Doc(
-            "Message **content-type** header. "
-            "Used by application, not core RabbitMQ. "
-            "Will be set automatically if not specified.",
-        ),
-    ]
-    user_id: Annotated[
-        Optional[str],
-        Doc("Publisher connection User ID, validated if set."),
-    ]
-    expiration: Annotated[
-        Optional["DateType"],
-        Doc("Message expiration (lifetime) in seconds (or datetime or timedelta)."),
-    ]
-    content_encoding: Annotated[
-        Optional[str],
-        Doc("Message body content encoding, e.g. **gzip**."),
-    ]
-
-
-class PublishKwargs(RequestPublishKwargs, total=False):
+class PublishKwargs(MessageOptions, PublishOptions, total=False):
     """Typed dict to annotate RabbitMQ publishers."""
 
     reply_to: Annotated[
@@ -107,10 +46,7 @@ class PublishKwargs(RequestPublishKwargs, total=False):
     ]
 
 
-class LogicPublisher(
-    PublisherUsecase[IncomingMessage],
-    BaseRMQInformation,
-):
+class LogicPublisher(PublisherUsecase[IncomingMessage]):
     """A class to represent a RabbitMQ publisher."""
 
     app_id: Optional[str]
@@ -123,51 +59,44 @@ class LogicPublisher(
         routing_key: str,
         queue: "RabbitQueue",
         exchange: "RabbitExchange",
+        # PublishCommand options
         message_kwargs: "PublishKwargs",
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
+        self.queue = queue
+        self.routing_key = routing_key
+
+        self.exchange = exchange
+
         super().__init__(
             broker_middlewares=broker_middlewares,
             middlewares=middlewares,
-            # AsyncAPI args
-            schema_=schema_,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
-        self.routing_key = routing_key
+        request_options = dict(message_kwargs)
+        self.headers = request_options.pop("headers") or {}
+        self.reply_to = request_options.pop("reply_to", "")
+        self.timeout = request_options.pop("timeout", None)
 
-        request_kwargs = dict(message_kwargs)
-        self.reply_to = request_kwargs.pop("reply_to", None)
-        self.message_kwargs = request_kwargs
+        message_options, _ = filter_by_dict(MessageOptions, request_options)
+        self.message_options = message_options
 
-        # BaseRMQInformation
-        self.queue = queue
-        self.exchange = exchange
+        publish_options, _ = filter_by_dict(PublishOptions, request_options)
+        self.publish_options = publish_options
 
-        # Setup it later
         self.app_id = None
-        self.virtual_host = ""
 
     @override
     def _setup(  # type: ignore[override]
         self,
         *,
-        producer: Optional["AioPikaFastProducer"],
-        app_id: Optional[str],
-        virtual_host: str,
+        state: "BrokerState",
     ) -> None:
-        self.app_id = app_id
-        self.virtual_host = virtual_host
-        super()._setup(producer=producer)
+        # AppId was set in `faststream.rabbit.schemas.proto.BaseRMQInformation`
+        self.message_options["app_id"] = self.app_id
+        super()._setup(state=state)
 
     @property
     def routing(self) -> str:
@@ -202,53 +131,52 @@ class LogicPublisher(
                 "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
-        message_id: Annotated[
-            Optional[str],
-            Doc("Arbitrary message id. Generated automatically if not presented."),
-        ] = None,
-        timestamp: Annotated[
-            Optional["DateType"],
-            Doc("Message publish timestamp. Generated automatically if not presented."),
-        ] = None,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
         **publish_kwargs: "Unpack[PublishKwargs]",
     ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        if not routing_key:
+            if q := RabbitQueue.validate(queue):
+                routing_key = q.routing
+            else:
+                routing_key = self.routing
 
-        kwargs: AnyDict = {
-            "routing_key": routing_key
-            or self.routing_key
-            or RabbitQueue.validate(queue or self.queue).routing,
-            "exchange": exchange or self.exchange.name,
-            "app_id": self.app_id,
-            "correlation_id": correlation_id or gen_cor_id(),
-            "message_id": message_id,
-            "timestamp": timestamp,
-            # specific args
-            "reply_to": self.reply_to,
-            **self.message_kwargs,
-            **publish_kwargs,
-        }
+        headers = self.headers | publish_kwargs.pop("headers", {})
+        cmd = RabbitPublishCommand(
+            message,
+            routing_key=routing_key,
+            exchange=RabbitExchange.validate(exchange or self.exchange),
+            correlation_id=correlation_id or gen_cor_id(),
+            headers=headers,
+            _publish_type=PublishType.PUBLISH,
+            **(self.publish_options | self.message_options | publish_kwargs),
+        )
 
-        call: Callable[
-            ...,
-            Awaitable[Optional[aiormq.abc.ConfirmationFrameType]],
-        ] = self._producer.publish
+        frame: Optional[aiormq.abc.ConfirmationFrameType] = await self._basic_publish(
+            cmd,
+            _extra_middlewares=(),
+        )
+        return frame
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+    @override
+    async def _publish(
+        self,
+        cmd: Union["RabbitPublishCommand", "PublishCommand"],
+        *,
+        _extra_middlewares: Iterable["PublisherMiddleware"],
+    ) -> None:
+        """This method should be called in subscriber flow only."""
+        cmd = RabbitPublishCommand.from_cmd(cmd)
 
-        return await call(message, **kwargs)
+        cmd.destination = self.routing
+        cmd.reply_to = cmd.reply_to or self.reply_to
+        cmd.add_headers(self.headers, override=False)
+
+        cmd.timeout = cmd.timeout or self.timeout
+
+        cmd.message_options = {**self.message_options, **cmd.message_options}
+        cmd.publish_options = {**self.publish_options, **cmd.publish_options}
+
+        await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(
@@ -278,59 +206,27 @@ class LogicPublisher(
                 "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
-        message_id: Annotated[
-            Optional[str],
-            Doc("Arbitrary message id. Generated automatically if not presented."),
-        ] = None,
-        timestamp: Annotated[
-            Optional["DateType"],
-            Doc("Message publish timestamp. Generated automatically if not presented."),
-        ] = None,
         # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
         **publish_kwargs: "Unpack[RequestPublishKwargs]",
     ) -> "RabbitMessage":
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        if not routing_key:
+            if q := RabbitQueue.validate(queue):
+                routing_key = q.routing
+            else:
+                routing_key = self.routing
 
-        kwargs: AnyDict = {
-            "routing_key": routing_key
-            or self.routing_key
-            or RabbitQueue.validate(queue or self.queue).routing,
-            "exchange": exchange or self.exchange.name,
-            "app_id": self.app_id,
-            "correlation_id": correlation_id or gen_cor_id(),
-            "message_id": message_id,
-            "timestamp": timestamp,
-            # specific args
-            **self.message_kwargs,
-            **publish_kwargs,
-        }
-
-        request: Callable[..., Awaitable[Any]] = self._producer.request
-
-        for pub_m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            request = partial(pub_m, request)
-
-        published_msg = await request(
+        headers = self.headers | publish_kwargs.pop("headers", {})
+        cmd = RabbitPublishCommand(
             message,
-            **kwargs,
+            routing_key=routing_key,
+            exchange=RabbitExchange.validate(exchange or self.exchange),
+            correlation_id=correlation_id or gen_cor_id(),
+            headers=headers,
+            _publish_type=PublishType.PUBLISH,
+            **(self.publish_options | self.message_options | publish_kwargs),
         )
 
-        msg: RabbitMessage = await process_msg(
-            msg=published_msg,
-            middlewares=self._broker_middlewares,
-            parser=self._producer._parser,
-            decoder=self._producer._decoder,
-        )
+        msg: RabbitMessage = await self._basic_request(cmd)
         return msg
 
     def add_prefix(self, prefix: str) -> None:

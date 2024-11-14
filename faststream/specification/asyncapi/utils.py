@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
@@ -49,3 +49,36 @@ def resolve_payloads(
 
 def clear_key(key: str) -> str:
     return key.replace("/", ".")
+
+
+def move_pydantic_refs(
+    original: Any,
+    key: str,
+) -> Any:
+    """Remove pydantic references and replacem them by real schemas."""
+    if not isinstance(original, dict):
+        return original
+
+    data = original.copy()
+
+    for k in data:
+        item = data[k]
+
+        if isinstance(item, str):
+            if key in item:
+                data[k] = data[k].replace(key, "components/schemas")
+
+        elif isinstance(item, dict):
+            data[k] = move_pydantic_refs(data[k], key)
+
+        elif isinstance(item, list):
+            for i in range(len(data[k])):
+                data[k][i] = move_pydantic_refs(item[i], key)
+
+    if (
+        isinstance(desciminator := data.get("discriminator"), dict)
+        and "propertyName" in desciminator
+    ):
+        data["discriminator"] = desciminator["propertyName"]
+
+    return data

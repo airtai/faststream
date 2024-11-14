@@ -1,29 +1,31 @@
+import asyncio
+import contextlib
 from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
     Optional,
-    Union,
 )
 
 import anyio
 from typing_extensions import override
 
-from faststream._internal.publisher.fake import FakePublisher
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
 from faststream.rabbit.parser import AioPikaParser
-from faststream.rabbit.schemas import BaseRMQInformation
+from faststream.rabbit.publisher.fake import RabbitFakePublisher
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, LoggerProto
-    from faststream._internal.setup import SetupState
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.publisher.proto import BasePublisherProto
+    from faststream._internal.state import BrokerState
     from faststream._internal.types import BrokerMiddleware, CustomCallable
     from faststream.message import StreamMessage
+    from faststream.middlewares import AckPolicy
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -33,10 +35,7 @@ if TYPE_CHECKING:
     )
 
 
-class LogicSubscriber(
-    SubscriberUsecase["IncomingMessage"],
-    BaseRMQInformation,
-):
+class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
     """A class to handle logic for RabbitMQ message consumption."""
 
     app_id: Optional[str]
@@ -50,34 +49,25 @@ class LogicSubscriber(
         self,
         *,
         queue: "RabbitQueue",
-        exchange: "RabbitExchange",
         consume_args: Optional["AnyDict"],
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: Union[bool, int],
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
+        self.queue = queue
+
         parser = AioPikaParser(pattern=queue.path_regex)
 
         super().__init__(
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.consume_args = consume_args or {}
@@ -85,40 +75,25 @@ class LogicSubscriber(
         self._consumer_tag = None
         self._queue_obj = None
 
-        # BaseRMQInformation
-        self.queue = queue
-        self.exchange = exchange
         # Setup it later
-        self.app_id = None
-        self.virtual_host = ""
         self.declarer = None
 
     @override
     def _setup(  # type: ignore[override]
         self,
         *,
-        app_id: Optional[str],
-        virtual_host: str,
         declarer: "RabbitDeclarer",
         # basic args
-        logger: Optional["LoggerProto"],
-        producer: Optional["AioPikaFastProducer"],
-        graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "SetupState",
+        state: "BrokerState",
     ) -> None:
-        self.app_id = app_id
-        self.virtual_host = virtual_host
         self.declarer = declarer
 
         super()._setup(
-            logger=logger,
-            producer=producer,
-            graceful_timeout=graceful_timeout,
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
@@ -184,7 +159,10 @@ class LogicSubscriber(
         sleep_interval = timeout / 10
 
         raw_message: Optional[IncomingMessage] = None
-        with anyio.move_on_after(timeout):
+        with (
+            contextlib.suppress(asyncio.exceptions.CancelledError),
+            anyio.move_on_after(timeout),
+        ):
             while (  # noqa: ASYNC110
                 raw_message := await self._queue_obj.get(
                     fail=False,
@@ -194,9 +172,13 @@ class LogicSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
+        context = self._state.get().di_state.context
+
         msg: Optional[RabbitMessage] = await process_msg(  # type: ignore[assignment]
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=context) for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -205,17 +187,12 @@ class LogicSubscriber(
     def _make_response_publisher(
         self,
         message: "StreamMessage[Any]",
-    ) -> Sequence["FakePublisher"]:
-        if self._producer is None:
-            return ()
-
+    ) -> Sequence["BasePublisherProto"]:
         return (
-            FakePublisher(
-                self._producer.publish,
-                publish_kwargs={
-                    "routing_key": message.reply_to,
-                    "app_id": self.app_id,
-                },
+            RabbitFakePublisher(
+                self._state.get().producer,
+                routing_key=message.reply_to,
+                app_id=self.app_id,
             ),
         )
 

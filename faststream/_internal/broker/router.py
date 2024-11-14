@@ -6,6 +6,7 @@ from typing import (
     Optional,
 )
 
+from faststream._internal.state.broker import EmptyBrokerState
 from faststream._internal.types import (
     BrokerMiddleware,
     CustomCallable,
@@ -15,13 +16,15 @@ from faststream._internal.types import (
 from .abc_broker import ABCBroker
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
 
 
 class ArgsContainer:
     """Class to store any arguments."""
+
+    __slots__ = ("args", "kwargs")
 
     args: Iterable[Any]
     kwargs: "AnyDict"
@@ -37,6 +40,8 @@ class ArgsContainer:
 
 class SubscriberRoute(ArgsContainer):
     """A generic class to represent a broker route."""
+
+    __slots__ = ("args", "call", "kwargs", "publishers")
 
     call: Callable[..., Any]
     publishers: Iterable[Any]
@@ -64,7 +69,7 @@ class BrokerRouter(ABCBroker[MsgType]):
         handlers: Iterable[SubscriberRoute],
         # base options
         prefix: str,
-        dependencies: Iterable["Depends"],
+        dependencies: Iterable["Dependant"],
         middlewares: Iterable["BrokerMiddleware[MsgType]"],
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
@@ -77,6 +82,7 @@ class BrokerRouter(ABCBroker[MsgType]):
             parser=parser,
             decoder=decoder,
             include_in_schema=include_in_schema,
+            state=EmptyBrokerState("You should include router to any broker."),
         )
 
         for h in handlers:

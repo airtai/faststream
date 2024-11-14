@@ -1,31 +1,34 @@
+import warnings
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Optional, Union
 
 from typing_extensions import TypeAlias
 
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
+from faststream.middlewares import AckPolicy
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
-from faststream.redis.subscriber.subscriber import (
-    AsyncAPIChannelSubscriber,
-    AsyncAPIListBatchSubscriber,
-    AsyncAPIListSubscriber,
-    AsyncAPIStreamBatchSubscriber,
-    AsyncAPIStreamSubscriber,
+from faststream.redis.subscriber.specified import (
+    SpecificationChannelSubscriber,
+    SpecificationListBatchSubscriber,
+    SpecificationListSubscriber,
+    SpecificationStreamBatchSubscriber,
+    SpecificationStreamSubscriber,
 )
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.types import BrokerMiddleware
     from faststream.redis.message import UnifyRedisDict
 
 SubsciberType: TypeAlias = Union[
-    "AsyncAPIChannelSubscriber",
-    "AsyncAPIStreamBatchSubscriber",
-    "AsyncAPIStreamSubscriber",
-    "AsyncAPIListBatchSubscriber",
-    "AsyncAPIListSubscriber",
+    "SpecificationChannelSubscriber",
+    "SpecificationStreamBatchSubscriber",
+    "SpecificationStreamSubscriber",
+    "SpecificationListBatchSubscriber",
+    "SpecificationListSubscriber",
 ]
 
 
@@ -35,25 +38,30 @@ def create_subscriber(
     list: Union["ListSub", str, None],
     stream: Union["StreamSub", str, None],
     # Subscriber args
-    no_ack: bool = False,
+    ack_policy: "AckPolicy",
     no_reply: bool = False,
-    retry: bool = False,
-    broker_dependencies: Iterable["Depends"] = (),
+    broker_dependencies: Iterable["Dependant"] = (),
     broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"] = (),
     # AsyncAPI args
     title_: Optional[str] = None,
     description_: Optional[str] = None,
     include_in_schema: bool = True,
 ) -> SubsciberType:
-    validate_options(channel=channel, list=list, stream=stream)
+    _validate_input_for_misconfigure(
+        channel=channel,
+        list=list,
+        stream=stream,
+        ack_policy=ack_policy,
+    )
+
+    if ack_policy is EMPTY:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
 
     if (channel_sub := PubSub.validate(channel)) is not None:
-        return AsyncAPIChannelSubscriber(
+        return SpecificationChannelSubscriber(
             channel=channel_sub,
             # basic args
-            no_ack=no_ack,
             no_reply=no_reply,
-            retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             # AsyncAPI args
@@ -64,12 +72,11 @@ def create_subscriber(
 
     if (stream_sub := StreamSub.validate(stream)) is not None:
         if stream_sub.batch:
-            return AsyncAPIStreamBatchSubscriber(
+            return SpecificationStreamBatchSubscriber(
                 stream=stream_sub,
                 # basic args
-                no_ack=no_ack,
+                ack_policy=ack_policy,
                 no_reply=no_reply,
-                retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
                 # AsyncAPI args
@@ -77,12 +84,12 @@ def create_subscriber(
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
-        return AsyncAPIStreamSubscriber(
+
+        return SpecificationStreamSubscriber(
             stream=stream_sub,
             # basic args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             # AsyncAPI args
@@ -93,12 +100,10 @@ def create_subscriber(
 
     if (list_sub := ListSub.validate(list)) is not None:
         if list_sub.batch:
-            return AsyncAPIListBatchSubscriber(
+            return SpecificationListBatchSubscriber(
                 list=list_sub,
                 # basic args
-                no_ack=no_ack,
                 no_reply=no_reply,
-                retry=retry,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
                 # AsyncAPI args
@@ -106,12 +111,11 @@ def create_subscriber(
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
-        return AsyncAPIListSubscriber(
+
+        return SpecificationListSubscriber(
             list=list_sub,
             # basic args
-            no_ack=no_ack,
             no_reply=no_reply,
-            retry=retry,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             # AsyncAPI args
@@ -121,3 +125,28 @@ def create_subscriber(
         )
 
     raise SetupError(INCORRECT_SETUP_MSG)
+
+
+def _validate_input_for_misconfigure(
+    *,
+    channel: Union["PubSub", str, None],
+    list: Union["ListSub", str, None],
+    stream: Union["StreamSub", str, None],
+    ack_policy: AckPolicy,
+) -> None:
+    validate_options(channel=channel, list=list, stream=stream)
+
+    if ack_policy is not EMPTY:
+        if channel:
+            warnings.warn(
+                "You can't use acknowledgement policy with PubSub subscriber.",
+                RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if list:
+            warnings.warn(
+                "You can't use acknowledgement policy with List subscriber.",
+                RuntimeWarning,
+                stacklevel=4,
+            )

@@ -1,35 +1,34 @@
-from collections.abc import Awaitable, Iterable
-from functools import partial
-from itertools import chain
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
-    Annotated,
     Any,
-    Callable,
     Optional,
     Union,
 )
 
 from nats.aio.msg import Msg
-from typing_extensions import Doc, override
+from typing_extensions import Literal, overload, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream._internal.subscriber.utils import process_msg
-from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
+from faststream.nats.response import NatsPublishCommand
+from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, SendableMessage
+    from nats.js import api
+
+    from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
     from faststream.nats.schemas import JStream
+    from faststream.response.response import PublishCommand
 
 
 class LogicPublisher(PublisherUsecase[Msg]):
     """A class to represent a NATS publisher."""
 
-    _producer: Union["NatsFastProducer", "NatsJSFastProducer", None]
+    _producer: Union["NatsFastProducer", "NatsJSFastProducer"]
 
     def __init__(
         self,
@@ -62,137 +61,150 @@ class LogicPublisher(PublisherUsecase[Msg]):
         self.subject = subject
         self.stream = stream
         self.timeout = timeout
-        self.headers = headers
+        self.headers = headers or {}
         self.reply_to = reply_to
+
+    @overload
+    async def publish(
+        self,
+        message: "SendableMessage",
+        subject: str = "",
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        stream: Literal[None] = None,
+        timeout: Optional[float] = None,
+    ) -> None: ...
+
+    @overload
+    async def publish(
+        self,
+        message: "SendableMessage",
+        subject: str = "",
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        stream: Optional[str] = None,
+        timeout: Optional[float] = None,
+    ) -> "api.PubAck": ...
 
     @override
     async def publish(
         self,
         message: "SendableMessage",
         subject: str = "",
-        *,
         headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
-        # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-    ) -> None:
+    ) -> Optional["api.PubAck"]:
         """Publish message directly.
 
         Args:
-            message (SendableMessage): Message body to send.
+            message:
+                Message body to send.
                 Can be any encodable object (native python types or `pydantic.BaseModel`).
-            subject (str): NATS subject to send message (default is `''`).
-            headers (:obj:`dict` of :obj:`str`: :obj:`str`, optional): Message headers to store metainformation (default is `None`).
+            subject:
+                NATS subject to send message.
+            headers:
+                Message headers to store metainformation.
                 **content-type** and **correlation_id** will be set automatically by framework anyway.
-
-            reply_to (str): NATS subject name to send response (default is `None`).
-            correlation_id (str, optional): Manual message **correlation_id** setter (default is `None`).
+            reply_to:
+                NATS subject name to send response.
+            correlation_id:
+                Manual message **correlation_id** setter.
                 **correlation_id** is a useful option to trace messages.
+            stream:
+                This option validates that the target subject is in presented stream.
+                Can be omitted without any effect if you doesn't want PubAck frame.
+            timeout:
+                Timeout to send message to NATS.
 
-            stream (str, optional): This option validates that the target subject is in presented stream (default is `None`).
-                Can be omitted without any effect.
-            timeout (float, optional): Timeout to send message to NATS in seconds (default is `None`).
-
-            _extra_middlewares (:obj:`Iterable` of :obj:`PublisherMiddleware`): Extra middlewares to wrap publishing process (default is `()`).
+        Returns:
+            `None` if you publishes a regular message.
+            `nats.js.api.PubAck` if you publishes a message to stream.
         """
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        cmd = NatsPublishCommand(
+            message,
+            subject=subject or self.subject,
+            headers=self.headers | (headers or {}),
+            reply_to=reply_to or self.reply_to,
+            correlation_id=correlation_id or gen_cor_id(),
+            stream=stream or getattr(self.stream, "name", None),
+            timeout=timeout or self.timeout,
+            _publish_type=PublishType.PUBLISH,
+        )
+        return await self._basic_publish(cmd, _extra_middlewares=())
 
-        kwargs: AnyDict = {
-            "subject": subject or self.subject,
-            "headers": headers or self.headers,
-            "reply_to": reply_to or self.reply_to,
-            "correlation_id": correlation_id or gen_cor_id(),
-        }
+    @override
+    async def _publish(
+        self,
+        cmd: Union["PublishCommand", "NatsPublishCommand"],
+        *,
+        _extra_middlewares: Iterable["PublisherMiddleware"],
+    ) -> None:
+        """This method should be called in subscriber flow only."""
+        cmd = NatsPublishCommand.from_cmd(cmd)
 
-        if stream := stream or getattr(self.stream, "name", None):
-            kwargs.update({"stream": stream, "timeout": timeout or self.timeout})
+        cmd.destination = self.subject
+        cmd.add_headers(self.headers, override=False)
+        cmd.reply_to = cmd.reply_to or self.reply_to
 
-        call: Callable[..., Awaitable[Any]] = self._producer.publish
+        if self.stream:
+            cmd.stream = self.stream.name
+            cmd.timeout = self.timeout
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
-
-        await call(message, **kwargs)
+        return await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(
         self,
-        message: Annotated[
-            "SendableMessage",
-            Doc(
-                "Message body to send. "
-                "Can be any encodable object (native python types or `pydantic.BaseModel`).",
-            ),
-        ],
-        subject: Annotated[
-            str,
-            Doc("NATS subject to send message."),
-        ] = "",
-        *,
-        headers: Annotated[
-            Optional[dict[str, str]],
-            Doc(
-                "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be set automatically by framework anyway.",
-            ),
-        ] = None,
-        correlation_id: Annotated[
-            Optional[str],
-            Doc(
-                "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages.",
-            ),
-        ] = None,
-        timeout: Annotated[
-            float,
-            Doc("Timeout to send message to NATS."),
-        ] = 0.5,
-        # publisher specific
-        _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
+        message: "SendableMessage",
+        subject: str = "",
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        timeout: float = 0.5,
     ) -> "NatsMessage":
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        """Make a synchronous request to outer subscriber.
 
-        kwargs: AnyDict = {
-            "subject": subject or self.subject,
-            "headers": headers or self.headers,
-            "timeout": timeout or self.timeout,
-            "correlation_id": correlation_id or gen_cor_id(),
-        }
+        If out subscriber listens subject by stream, you should setup the same **stream** explicitly.
+        Another way you will reseave confirmation frame as a response.
 
-        request: Callable[..., Awaitable[Any]] = self._producer.request
+        Note:
+            To setup **stream** option, please use `__init__` method.
 
-        for pub_m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            request = partial(pub_m, request)
+        Args:
+            message:
+                Message body to send.
+                Can be any encodable object (native python types or `pydantic.BaseModel`).
+            subject:
+                NATS subject to send message.
+            headers:
+                Message headers to store metainformation.
+                **content-type** and **correlation_id** will be set automatically by framework anyway.
+            reply_to:
+                NATS subject name to send response.
+            correlation_id:
+                Manual message **correlation_id** setter.
+                **correlation_id** is a useful option to trace messages.
+            timeout:
+                Timeout to send message to NATS.
 
-        published_msg = await request(
-            message,
-            **kwargs,
+        Returns:
+            `faststream.nats.message.NatsMessage` object as an outer subscriber response.
+        """
+        cmd = NatsPublishCommand(
+            message=message,
+            subject=subject or self.subject,
+            headers=self.headers | (headers or {}),
+            timeout=timeout or self.timeout,
+            correlation_id=correlation_id or gen_cor_id(),
+            stream=getattr(self.stream, "name", None),
+            _publish_type=PublishType.REQUEST,
         )
 
-        msg: NatsMessage = await process_msg(
-            msg=published_msg,
-            middlewares=self._broker_middlewares,
-            parser=self._producer._parser,
-            decoder=self._producer._decoder,
-        )
+        msg: NatsMessage = await self._basic_request(cmd)
         return msg
 
     def add_prefix(self, prefix: str) -> None:

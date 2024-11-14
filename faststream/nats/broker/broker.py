@@ -1,5 +1,4 @@
 import logging
-import warnings
 from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
@@ -27,7 +26,7 @@ from nats.aio.client import (
 from nats.aio.msg import Msg
 from nats.errors import Error
 from nats.js.errors import BadRequestError
-from typing_extensions import Doc, override
+from typing_extensions import Doc, Literal, overload, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
@@ -35,17 +34,20 @@ from faststream._internal.constants import EMPTY
 from faststream.message import gen_cor_id
 from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.response import NatsPublishCommand
 from faststream.nats.security import parse_security
-from faststream.nats.subscriber.subscriber import SpecificationSubscriber
+from faststream.nats.subscriber.specified import SpecificationSubscriber
+from faststream.response.publish_type import PublishType
 
 from .logging import make_nats_logger_state
 from .registrator import NatsRegistrator
+from .state import BrokerState, ConnectedState, EmptyBrokerState
 
 if TYPE_CHECKING:
-    import ssl
     from types import TracebackType
 
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
+    from fast_depends.library.serializer import SerializerProto
     from nats.aio.client import (
         Callback,
         Credentials,
@@ -53,8 +55,7 @@ if TYPE_CHECKING:
         JWTCallback,
         SignatureCallback,
     )
-    from nats.js.api import Placement, RePublish, StorageType
-    from nats.js.client import JetStreamContext
+    from nats.js.api import Placement, PubAck, RePublish, StorageType
     from nats.js.kv import KeyValue
     from nats.js.object_store import ObjectStore
     from typing_extensions import TypedDict, Unpack
@@ -65,15 +66,14 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
-    from faststream._internal.publisher.proto import ProducerProto
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
     )
     from faststream.nats.message import NatsMessage
-    from faststream.nats.publisher.publisher import SpecificationPublisher
+    from faststream.nats.publisher.specified import SpecificationPublisher
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
     class NatsInitKwargs(TypedDict, total=False):
         """NatsBroker.connect() method type hints."""
@@ -151,21 +151,9 @@ if TYPE_CHECKING:
             bool,
             Doc("Boolean indicating should commands be echoed."),
         ]
-        tls: Annotated[
-            Optional["ssl.SSLContext"],
-            Doc("Some SSL context to make NATS connections secure."),
-        ]
         tls_hostname: Annotated[
             Optional[str],
             Doc("Hostname for TLS."),
-        ]
-        user: Annotated[
-            Optional[str],
-            Doc("Username for NATS auth."),
-        ]
-        password: Annotated[
-            Optional[str],
-            Doc("Username password for NATS auth."),
         ]
         token: Annotated[
             Optional[str],
@@ -196,6 +184,10 @@ if TYPE_CHECKING:
         ]
         nkeys_seed: Annotated[
             Optional[str],
+            Doc("Path-like object containing nkeys seed that will be used."),
+        ]
+        nkeys_seed_str: Annotated[
+            Optional[str],
             Doc("Nkeys seed to be used."),
         ]
         inbox_prefix: Annotated[
@@ -221,12 +213,11 @@ class NatsBroker(
     """A class to represent a NATS broker."""
 
     url: list[str]
-    stream: Optional["JetStreamContext"]
 
-    _producer: Optional["NatsFastProducer"]
-    _js_producer: Optional["NatsJSFastProducer"]
-    _kv_declarer: Optional["KVBucketDeclarer"]
-    _os_declarer: Optional["OSBucketDeclarer"]
+    _producer: "NatsFastProducer"
+    _js_producer: "NatsJSFastProducer"
+    _kv_declarer: "KVBucketDeclarer"
+    _os_declarer: "OSBucketDeclarer"
 
     def __init__(
         self,
@@ -308,21 +299,9 @@ class NatsBroker(
             bool,
             Doc("Boolean indicating should commands be echoed."),
         ] = False,
-        tls: Annotated[
-            Optional["ssl.SSLContext"],
-            Doc("Some SSL context to make NATS connections secure."),
-        ] = None,
         tls_hostname: Annotated[
             Optional[str],
             Doc("Hostname for TLS."),
-        ] = None,
-        user: Annotated[
-            Optional[str],
-            Doc("Username for NATS auth."),
-        ] = None,
-        password: Annotated[
-            Optional[str],
-            Doc("Username password for NATS auth."),
         ] = None,
         token: Annotated[
             Optional[str],
@@ -353,7 +332,11 @@ class NatsBroker(
         ] = None,
         nkeys_seed: Annotated[
             Optional[str],
-            Doc("Nkeys seed to be used."),
+            Doc("Path-like object containing nkeys seed that will be used."),
+        ] = None,
+        nkeys_seed_str: Annotated[
+            Optional[str],
+            Doc("Raw nkeys seed to be used."),
         ] = None,
         inbox_prefix: Annotated[
             Union[str, bytes],
@@ -385,7 +368,7 @@ class NatsBroker(
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
@@ -437,10 +420,7 @@ class NatsBroker(
             bool,
             Doc("Whether to use FastDepends or not."),
         ] = True,
-        validate: Annotated[
-            bool,
-            Doc("Whether to cast types using Pydantic validation."),
-        ] = True,
+        serializer: Optional["SerializerProto"] = EMPTY,
         _get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
@@ -451,32 +431,7 @@ class NatsBroker(
         ] = (),
     ) -> None:
         """Initialize the NatsBroker object."""
-        if tls:  # pragma: no cover
-            warnings.warn(
-                (
-                    "\nNATS `tls` option was deprecated and will be removed in 0.6.0"
-                    "\nPlease, use `security` with `BaseSecurity` or `SASLPlaintext` instead"
-                ),
-                DeprecationWarning,
-                stacklevel=2,
-            )
-
-        if user or password:
-            warnings.warn(
-                (
-                    "\nNATS `user` and `password` options were deprecated and will be removed in 0.6.0"
-                    "\nPlease, use `security` with `SASLPlaintext` instead"
-                ),
-                DeprecationWarning,
-                stacklevel=2,
-            )
-
-        secure_kwargs = {
-            "tls": tls,
-            "user": user,
-            "password": password,
-            **parse_security(security),
-        }
+        secure_kwargs = parse_security(security)
 
         servers = [servers] if isinstance(servers, str) else list(servers)
 
@@ -512,6 +467,7 @@ class NatsBroker(
             token=token,
             user_credentials=user_credentials,
             nkeys_seed=nkeys_seed,
+            nkeys_seed_str=nkeys_seed_str,
             **secure_kwargs,
             # callbacks
             error_cb=self._log_connection_broken(error_cb),
@@ -543,32 +499,44 @@ class NatsBroker(
             ),
             # FastDepends args
             apply_types=apply_types,
-            validate=validate,
+            serializer=serializer,
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
         )
 
-        self.__is_connected = False
-        self._producer = None
+        self._state.patch_value(
+            producer=NatsFastProducer(
+                parser=self._parser,
+                decoder=self._decoder,
+            )
+        )
 
-        # JS options
-        self.stream = None
-        self._js_producer = None
-        self._kv_declarer = None
-        self._os_declarer = None
+        self._js_producer = NatsJSFastProducer(
+            decoder=self._decoder,
+            parser=self._parser,
+        )
+
+        self._kv_declarer = KVBucketDeclarer()
+        self._os_declarer = OSBucketDeclarer()
+
+        self._connection_state: BrokerState = EmptyBrokerState()
 
     @override
     async def connect(  # type: ignore[override]
         self,
-        servers: Annotated[
-            Union[str, Iterable[str]],
-            Doc("NATS cluster addresses to connect."),
-        ] = EMPTY,
+        servers: Union[str, Iterable[str]] = EMPTY,
         **kwargs: "Unpack[NatsInitKwargs]",
     ) -> "Client":
         """Connect broker object to NATS cluster.
 
         To startup subscribers too you should use `broker.start()` after/instead this method.
+
+        Args:
+            servers: NATS cluster addresses to connect.
+            **kwargs: all other options from connection signature.
+
+        Returns:
+            `nats.aio.Client` connected object.
         """
         if servers is not EMPTY:
             connect_kwargs: AnyDict = {
@@ -581,25 +549,17 @@ class NatsBroker(
         return await super().connect(**connect_kwargs)
 
     async def _connect(self, **kwargs: Any) -> "Client":
-        self.__is_connected = True
         connection = await nats.connect(**kwargs)
 
-        self._producer = NatsFastProducer(
-            connection=connection,
-            decoder=self._decoder,
-            parser=self._parser,
-        )
+        stream = connection.jetstream()
 
-        stream = self.stream = connection.jetstream()
+        self._producer.connect(connection)
+        self._js_producer.connect(stream)
 
-        self._js_producer = NatsJSFastProducer(
-            connection=stream,
-            decoder=self._decoder,
-            parser=self._parser,
-        )
+        self._kv_declarer.connect(stream)
+        self._os_declarer.connect(stream)
 
-        self._kv_declarer = KVBucketDeclarer(stream)
-        self._os_declarer = OSBucketDeclarer(stream)
+        self._connection_state = ConnectedState(connection, stream)
 
         return connection
 
@@ -615,24 +575,26 @@ class NatsBroker(
             await self._connection.drain()
             self._connection = None
 
-        self.stream = None
-        self._producer = None
-        self._js_producer = None
-        self.__is_connected = False
+        self._producer.disconnect()
+        self._js_producer.disconnect()
+        self._kv_declarer.disconnect()
+        self._os_declarer.disconnect()
+
+        self._connection_state = EmptyBrokerState()
 
     async def start(self) -> None:
         """Connect broker to NATS cluster and startup all subscribers."""
         await self.connect()
         self._setup()
 
-        assert self.stream, "Broker should be started already"  # nosec B101
+        stream_context = self._connection_state.stream
 
         for stream in filter(
             lambda x: x.declare,
             self._stream_builder.objects.values(),
         ):
             try:
-                await self.stream.add_stream(
+                await stream_context.add_stream(
                     config=stream.config,
                     subjects=stream.subjects,
                 )
@@ -645,22 +607,23 @@ class NatsBroker(
                     stream=stream.name,
                 )
 
+                logger_state = self._state.get().logger_state
+
                 if (
                     e.description
                     == "stream name already in use with a different configuration"
                 ):
-                    old_config = (await self.stream.stream_info(stream.name)).config
+                    old_config = (await stream_context.stream_info(stream.name)).config
 
-                    self._state.logger_state.log(str(e), logging.WARNING, log_context)
-                    await self.stream.update_stream(
-                        config=stream.config,
-                        subjects=tuple(
-                            set(old_config.subjects or ()).union(stream.subjects),
-                        ),
-                    )
+                    logger_state.log(str(e), logging.WARNING, log_context)
+
+                    for subject in old_config.subjects or ():
+                        stream.add_subject(subject)
+
+                    await stream_context.update_stream(config=stream.config)
 
                 else:  # pragma: no cover
-                    self._state.logger_state.log(
+                    logger_state.log(
                         str(e),
                         logging.ERROR,
                         log_context,
@@ -673,142 +636,138 @@ class NatsBroker(
 
         await super().start()
 
-    @override
-    async def publish(  # type: ignore[override]
+    @overload
+    async def publish(
         self,
-        message: Annotated[
-            "SendableMessage",
-            Doc(
-                "Message body to send. "
-                "Can be any encodable object (native python types or `pydantic.BaseModel`).",
-            ),
-        ],
-        subject: Annotated[
-            str,
-            Doc("NATS subject to send message."),
-        ],
-        headers: Annotated[
-            Optional[dict[str, str]],
-            Doc(
-                "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be set automatically by framework anyway.",
-            ),
-        ] = None,
-        reply_to: Annotated[
-            str,
-            Doc("NATS subject name to send response."),
-        ] = "",
-        correlation_id: Annotated[
-            Optional[str],
-            Doc(
-                "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages.",
-            ),
-        ] = None,
-        stream: Annotated[
-            Optional[str],
-            Doc(
-                "This option validates that the target subject is in presented stream. "
-                "Can be omitted without any effect.",
-            ),
-        ] = None,
-        timeout: Annotated[
-            Optional[float],
-            Doc("Timeout to send message to NATS."),
-        ] = None,
-    ) -> None:
+        message: "SendableMessage",
+        subject: str,
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        stream: Literal[None] = None,
+        timeout: Optional[float] = None,
+    ) -> None: ...
+
+    @overload
+    async def publish(
+        self,
+        message: "SendableMessage",
+        subject: str,
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        stream: Optional[str] = None,
+        timeout: Optional[float] = None,
+    ) -> "PubAck": ...
+
+    @override
+    async def publish(
+        self,
+        message: "SendableMessage",
+        subject: str,
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        stream: Optional[str] = None,
+        timeout: Optional[float] = None,
+    ) -> Optional["PubAck"]:
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
         applications or to publish messages from time to time.
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
+
+        Args:
+            message:
+                Message body to send.
+                Can be any encodable object (native python types or `pydantic.BaseModel`).
+            subject:
+                NATS subject to send message.
+            headers:
+                Message headers to store metainformation.
+                **content-type** and **correlation_id** will be set automatically by framework anyway.
+            reply_to:
+                NATS subject name to send response.
+            correlation_id:
+                Manual message **correlation_id** setter.
+                **correlation_id** is a useful option to trace messages.
+            stream:
+                This option validates that the target subject is in presented stream.
+                Can be omitted without any effect if you doesn't want PubAck frame.
+            timeout:
+                Timeout to send message to NATS.
+
+        Returns:
+            `None` if you publishes a regular message.
+            `nats.js.api.PubAck` if you publishes a message to stream.
         """
-        publish_kwargs: AnyDict = {
-            "subject": subject,
-            "headers": headers,
-            "reply_to": reply_to,
-        }
-
-        producer: Optional[ProducerProto]
-        if stream is None:
-            producer = self._producer
-        else:
-            producer = self._js_producer
-            publish_kwargs.update(
-                {
-                    "stream": stream,
-                    "timeout": timeout,
-                },
-            )
-
-        await super().publish(
-            message,
-            producer=producer,
+        cmd = NatsPublishCommand(
+            message=message,
             correlation_id=correlation_id or gen_cor_id(),
-            **publish_kwargs,
+            subject=subject,
+            headers=headers,
+            reply_to=reply_to,
+            stream=stream,
+            timeout=timeout,
+            _publish_type=PublishType.PUBLISH,
         )
+
+        producer = self._js_producer if stream is not None else self._producer
+
+        return await super()._basic_publish(cmd, producer=producer)
 
     @override
     async def request(  # type: ignore[override]
         self,
-        message: Annotated[
-            "SendableMessage",
-            Doc(
-                "Message body to send. "
-                "Can be any encodable object (native python types or `pydantic.BaseModel`).",
-            ),
-        ],
-        subject: Annotated[
-            str,
-            Doc("NATS subject to send message."),
-        ],
-        headers: Annotated[
-            Optional[dict[str, str]],
-            Doc(
-                "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be set automatically by framework anyway.",
-            ),
-        ] = None,
-        correlation_id: Annotated[
-            Optional[str],
-            Doc(
-                "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages.",
-            ),
-        ] = None,
-        stream: Annotated[
-            Optional[str],
-            Doc(
-                "This option validates that the target subject is in presented stream. "
-                "Can be omitted without any effect.",
-            ),
-        ] = None,
-        timeout: Annotated[
-            float,
-            Doc("Timeout to send message to NATS."),
-        ] = 0.5,
+        message: "SendableMessage",
+        subject: str,
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        stream: Optional[str] = None,
+        timeout: float = 0.5,
     ) -> "NatsMessage":
-        publish_kwargs = {
-            "subject": subject,
-            "headers": headers,
-            "timeout": timeout,
-        }
+        """Make a synchronous request to outer subscriber.
 
-        producer: Optional[ProducerProto]
-        if stream is None:
-            producer = self._producer
+        If out subscriber listens subject by stream, you should setup the same **stream** explicitly.
+        Another way you will reseave confirmation frame as a response.
 
-        else:
-            producer = self._js_producer
-            publish_kwargs.update({"stream": stream})
+        Args:
+            message:
+                Message body to send.
+                Can be any encodable object (native python types or `pydantic.BaseModel`).
+            subject:
+                NATS subject to send message.
+            headers:
+                Message headers to store metainformation.
+                **content-type** and **correlation_id** will be set automatically by framework anyway.
+            reply_to:
+                NATS subject name to send response.
+            correlation_id:
+                Manual message **correlation_id** setter.
+                **correlation_id** is a useful option to trace messages.
+            stream:
+                This option validates that the target subject is in presented stream.
+                Can be omitted without any effect if you doesn't want PubAck frame.
+            timeout:
+                Timeout to send message to NATS.
 
-        msg: NatsMessage = await super().request(
-            message,
-            producer=producer,
+        Returns:
+            `faststream.nats.message.NatsMessage` object as an outer subscriber response.
+        """
+        cmd = NatsPublishCommand(
+            message=message,
             correlation_id=correlation_id or gen_cor_id(),
-            **publish_kwargs,
+            subject=subject,
+            headers=headers,
+            timeout=timeout,
+            stream=stream,
+            _publish_type=PublishType.REQUEST,
         )
+
+        producer = self._js_producer if stream is not None else self._producer
+
+        msg: NatsMessage = await super()._basic_request(cmd, producer=producer)
         return msg
 
     @override
@@ -816,29 +775,11 @@ class NatsBroker(
         self,
         subscriber: "SpecificationSubscriber",
     ) -> None:
-        connection: Union[
-            Client,
-            JetStreamContext,
-            KVBucketDeclarer,
-            OSBucketDeclarer,
-            None,
-        ] = None
-
-        if getattr(subscriber, "kv_watch", None):
-            connection = self._kv_declarer
-
-        elif getattr(subscriber, "obj_watch", None):
-            connection = self._os_declarer
-
-        elif getattr(subscriber, "stream", None):
-            connection = self.stream
-
-        else:
-            connection = self._connection
-
         return super().setup_subscriber(
             subscriber,
-            connection=connection,
+            connection_state=self._connection_state,
+            kv_declarer=self._kv_declarer,
+            os_declarer=self._os_declarer,
         )
 
     @override
@@ -846,14 +787,7 @@ class NatsBroker(
         self,
         publisher: "SpecificationPublisher",
     ) -> None:
-        producer: Optional[ProducerProto] = None
-
-        if publisher.stream is not None:
-            if self._js_producer is not None:
-                producer = self._js_producer
-
-        elif self._producer is not None:
-            producer = self._producer
+        producer = self._js_producer if publisher.stream is not None else self._producer
 
         super().setup_publisher(publisher, producer=producer)
 
@@ -874,8 +808,6 @@ class NatsBroker(
         # custom
         declare: bool = True,
     ) -> "KeyValue":
-        assert self._kv_declarer, "Broker should be connected already."  # nosec B101
-
         return await self._kv_declarer.create_key_value(
             bucket=bucket,
             description=description,
@@ -904,8 +836,6 @@ class NatsBroker(
         # custom
         declare: bool = True,
     ) -> "ObjectStore":
-        assert self._os_declarer, "Broker should be connected already."  # nosec B101
-
         return await self._os_declarer.create_object_store(
             bucket=bucket,
             description=description,
@@ -927,14 +857,14 @@ class NatsBroker(
             if error_cb is not None:
                 await error_cb(err)
 
-            if isinstance(err, Error) and self.__is_connected:
-                self._state.logger_state.log(
+            if isinstance(err, Error) and self._connection_state:
+                self._state.get().logger_state.log(
                     f"Connection broken with {err!r}",
                     logging.WARNING,
                     c,
                     exc_info=err,
                 )
-                self.__is_connected = False
+                self._connection_state = self._connection_state.brake()
 
         return wrapper
 
@@ -948,9 +878,11 @@ class NatsBroker(
             if cb is not None:
                 await cb()
 
-            if not self.__is_connected:
-                self._state.logger_state.log("Connection established", logging.INFO, c)
-                self.__is_connected = True
+            if not self._connection_state:
+                self._state.get().logger_state.log(
+                    "Connection established", logging.INFO, c
+                )
+                self._connection_state = self._connection_state.reconnect()
 
         return wrapper
 

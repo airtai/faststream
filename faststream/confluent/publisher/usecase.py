@@ -1,35 +1,34 @@
-from collections.abc import Awaitable, Iterable
-from functools import partial
-from itertools import chain
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Optional,
     Union,
-    cast,
 )
 
 from confluent_kafka import Message
 from typing_extensions import override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
-from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
-from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.confluent.response import KafkaPublishCommand
 from faststream.message import gen_cor_id
+from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
+    import asyncio
+
+    from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.confluent.message import KafkaMessage
     from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
+    from faststream.response.response import PublishCommand
 
 
 class LogicPublisher(PublisherUsecase[MsgType]):
     """A class to publish messages to a Kafka topic."""
 
-    _producer: Optional["AsyncConfluentFastProducer"]
+    _producer: "AsyncConfluentFastProducer"
 
     def __init__(
         self,
@@ -60,9 +59,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         self.topic = topic
         self.partition = partition
         self.reply_to = reply_to
-        self.headers = headers
-
-        self._producer = None
+        self.headers = headers or {}
 
     def add_prefix(self, prefix: str) -> None:
         self.topic = f"{prefix}{self.topic}"
@@ -79,41 +76,20 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         timeout: float = 0.5,
-        # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> "KafkaMessage":
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        kwargs: AnyDict = {
-            "key": key,
-            # basic args
-            "timeout": timeout,
-            "timestamp_ms": timestamp_ms,
-            "topic": topic or self.topic,
-            "partition": partition or self.partition,
-            "headers": headers or self.headers,
-            "correlation_id": correlation_id or gen_cor_id(),
-        }
-
-        request: Callable[..., Awaitable[Any]] = self._producer.request
-
-        for pub_m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            request = partial(pub_m, request)
-
-        published_msg = await request(message, **kwargs)
-
-        msg: KafkaMessage = await process_msg(
-            msg=published_msg,
-            middlewares=self._broker_middlewares,
-            parser=self._producer._parser,
-            decoder=self._producer._decoder,
+        cmd = KafkaPublishCommand(
+            message,
+            topic=topic or self.topic,
+            key=key,
+            partition=partition or self.partition,
+            headers=self.headers | (headers or {}),
+            correlation_id=correlation_id or gen_cor_id(),
+            timestamp_ms=timestamp_ms,
+            timeout=timeout,
+            _publish_type=PublishType.REQUEST,
         )
+
+        msg: KafkaMessage = await self._basic_request(cmd)
         return msg
 
 
@@ -121,7 +97,7 @@ class DefaultPublisher(LogicPublisher[Message]):
     def __init__(
         self,
         *,
-        key: Optional[bytes],
+        key: Union[bytes, str, None],
         topic: str,
         partition: Optional[int],
         headers: Optional[dict[str, str]],
@@ -165,35 +141,39 @@ class DefaultPublisher(LogicPublisher[Message]):
         correlation_id: Optional[str] = None,
         reply_to: str = "",
         no_confirm: bool = False,
-        # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+    ) -> "asyncio.Future":
+        cmd = KafkaPublishCommand(
+            message,
+            topic=topic or self.topic,
+            key=key or self.key,
+            partition=partition or self.partition,
+            reply_to=reply_to or self.reply_to,
+            headers=self.headers | (headers or {}),
+            correlation_id=correlation_id or gen_cor_id(),
+            timestamp_ms=timestamp_ms,
+            no_confirm=no_confirm,
+            _publish_type=PublishType.PUBLISH,
+        )
+        return await self._basic_publish(cmd, _extra_middlewares=())
+
+    @override
+    async def _publish(
+        self,
+        cmd: Union["PublishCommand", "KafkaPublishCommand"],
+        *,
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        """This method should be called in subscriber flow only."""
+        cmd = KafkaPublishCommand.from_cmd(cmd)
 
-        kwargs: AnyDict = {
-            "key": key or self.key,
-            # basic args
-            "no_confirm": no_confirm,
-            "topic": topic or self.topic,
-            "partition": partition or self.partition,
-            "timestamp_ms": timestamp_ms,
-            "headers": headers or self.headers,
-            "reply_to": reply_to or self.reply_to,
-            "correlation_id": correlation_id or gen_cor_id(),
-        }
+        cmd.destination = self.topic
+        cmd.add_headers(self.headers, override=False)
+        cmd.reply_to = cmd.reply_to or self.reply_to
 
-        call: Callable[..., Awaitable[None]] = self._producer.publish
+        cmd.partition = cmd.partition or self.partition
+        cmd.key = cmd.key or self.key
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
-
-        return await call(message, **kwargs)
+        await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(
@@ -207,11 +187,9 @@ class DefaultPublisher(LogicPublisher[Message]):
         headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         timeout: float = 0.5,
-        # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> "KafkaMessage":
         return await super().request(
-            message=message,
+            message,
             topic=topic,
             key=key or self.key,
             partition=partition,
@@ -219,7 +197,6 @@ class DefaultPublisher(LogicPublisher[Message]):
             headers=headers,
             correlation_id=correlation_id,
             timeout=timeout,
-            _extra_middlewares=_extra_middlewares,
         )
 
 
@@ -227,8 +204,7 @@ class BatchPublisher(LogicPublisher[tuple[Message, ...]]):
     @override
     async def publish(
         self,
-        message: Union["SendableMessage", Iterable["SendableMessage"]],
-        *extra_messages: "SendableMessage",
+        *messages: "SendableMessage",
         topic: str = "",
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
@@ -236,36 +212,36 @@ class BatchPublisher(LogicPublisher[tuple[Message, ...]]):
         correlation_id: Optional[str] = None,
         reply_to: str = "",
         no_confirm: bool = False,
-        # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        cmd = KafkaPublishCommand(
+            *messages,
+            key=None,
+            topic=topic or self.topic,
+            partition=partition or self.partition,
+            reply_to=reply_to or self.reply_to,
+            headers=self.headers | (headers or {}),
+            correlation_id=correlation_id or gen_cor_id(),
+            timestamp_ms=timestamp_ms,
+            no_confirm=no_confirm,
+            _publish_type=PublishType.PUBLISH,
+        )
 
-        msgs: Iterable[SendableMessage]
-        if extra_messages:
-            msgs = (cast("SendableMessage", message), *extra_messages)
-        else:
-            msgs = cast(Iterable["SendableMessage"], message)
+        return await self._basic_publish_batch(cmd, _extra_middlewares=())
 
-        kwargs: AnyDict = {
-            "topic": topic or self.topic,
-            "no_confirm": no_confirm,
-            "partition": partition or self.partition,
-            "timestamp_ms": timestamp_ms,
-            "headers": headers or self.headers,
-            "reply_to": reply_to or self.reply_to,
-            "correlation_id": correlation_id or gen_cor_id(),
-        }
+    @override
+    async def _publish(
+        self,
+        cmd: Union["PublishCommand", "KafkaPublishCommand"],
+        *,
+        _extra_middlewares: Iterable["PublisherMiddleware"],
+    ) -> None:
+        """This method should be called in subscriber flow only."""
+        cmd = KafkaPublishCommand.from_cmd(cmd, batch=True)
 
-        call: AsyncFunc = self._producer.publish_batch
+        cmd.destination = self.topic
+        cmd.add_headers(self.headers, override=False)
+        cmd.reply_to = cmd.reply_to or self.reply_to
 
-        for m in chain(
-            (
-                _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
-            ),
-            self._middlewares,
-        ):
-            call = partial(m, call)
+        cmd.partition = cmd.partition or self.partition
 
-        await call(*msgs, **kwargs)
+        await self._basic_publish_batch(cmd, _extra_middlewares=_extra_middlewares)

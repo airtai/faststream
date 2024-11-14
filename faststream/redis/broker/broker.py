@@ -1,6 +1,5 @@
 import logging
 from collections.abc import Iterable, Mapping
-from functools import partial
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -27,11 +26,12 @@ from typing_extensions import Doc, TypeAlias, override
 from faststream.__about__ import __version__
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.constants import EMPTY
-from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.producer import RedisFastProducer
+from faststream.redis.response import RedisPublishCommand
 from faststream.redis.security import parse_security
+from faststream.response.publish_type import PublishType
 
 from .logging import make_redis_logger_state
 from .registrator import RedisRegistrator
@@ -39,13 +39,13 @@ from .registrator import RedisRegistrator
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
+    from fast_depends.library.serializer import SerializerProto
     from redis.asyncio.connection import BaseParser
     from typing_extensions import TypedDict, Unpack
 
     from faststream._internal.basic_types import (
         AnyDict,
-        AsyncFunc,
         Decorator,
         LoggerProto,
         SendableMessage,
@@ -56,7 +56,7 @@ if TYPE_CHECKING:
     )
     from faststream.redis.message import BaseMessage, RedisMessage
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
     class RedisInitKwargs(TypedDict, total=False):
         host: Optional[str]
@@ -90,7 +90,7 @@ class RedisBroker(
     """Redis broker."""
 
     url: str
-    _producer: Optional[RedisFastProducer]
+    _producer: "RedisFastProducer"
 
     def __init__(
         self,
@@ -131,7 +131,7 @@ class RedisBroker(
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
@@ -183,10 +183,7 @@ class RedisBroker(
             bool,
             Doc("Whether to use FastDepends or not."),
         ] = True,
-        validate: Annotated[
-            bool,
-            Doc("Whether to cast types using Pydantic validation."),
-        ] = True,
+        serializer: Optional["SerializerProto"] = EMPTY,
         _get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
@@ -196,8 +193,6 @@ class RedisBroker(
             Doc("Any custom decorator to apply to wrapped functions."),
         ] = (),
     ) -> None:
-        self._producer = None
-
         if specification_url is None:
             specification_url = url
 
@@ -248,9 +243,16 @@ class RedisBroker(
             ),
             # FastDepends args
             apply_types=apply_types,
-            validate=validate,
+            serializer=serializer,
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
+        )
+
+        self._state.patch_value(
+            producer=RedisFastProducer(
+                parser=self._parser,
+                decoder=self._decoder,
+            )
         )
 
     @override
@@ -331,11 +333,7 @@ class RedisBroker(
         )
 
         client: Redis[bytes] = Redis.from_pool(pool)  # type: ignore[attr-defined]
-        self._producer = RedisFastProducer(
-            connection=client,
-            parser=self._parser,
-            decoder=self._decoder,
-        )
+        self._producer.connect(client)
         return client
 
     async def close(
@@ -345,6 +343,8 @@ class RedisBroker(
         exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         await super().close(exc_type, exc_val, exc_tb)
+
+        self._producer.disconnect()
 
         if self._connection is not None:
             await self._connection.aclose()  # type: ignore[attr-defined]
@@ -404,7 +404,7 @@ class RedisBroker(
                 "Remove eldest message if maxlen exceeded.",
             ),
         ] = None,
-    ) -> None:
+    ) -> int:
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
@@ -412,9 +412,8 @@ class RedisBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        await super().publish(
+        cmd = RedisPublishCommand(
             message,
-            producer=self._producer,
             correlation_id=correlation_id or gen_cor_id(),
             channel=channel,
             list=list,
@@ -422,7 +421,9 @@ class RedisBroker(
             maxlen=maxlen,
             reply_to=reply_to,
             headers=headers,
+            _publish_type=PublishType.PUBLISH,
         )
+        return await super()._basic_publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -437,9 +438,8 @@ class RedisBroker(
         headers: Optional["AnyDict"] = None,
         timeout: Optional[float] = 30.0,
     ) -> "RedisMessage":
-        msg: RedisMessage = await super().request(
+        cmd = RedisPublishCommand(
             message,
-            producer=self._producer,
             correlation_id=correlation_id or gen_cor_id(),
             channel=channel,
             list=list,
@@ -447,12 +447,14 @@ class RedisBroker(
             maxlen=maxlen,
             headers=headers,
             timeout=timeout,
+            _publish_type=PublishType.REQUEST,
         )
+        msg: RedisMessage = await super()._basic_request(cmd, producer=self._producer)
         return msg
 
     async def publish_batch(
         self,
-        *msgs: Annotated[
+        *messages: Annotated[
             "SendableMessage",
             Doc("Messages bodies to send."),
         ],
@@ -467,22 +469,26 @@ class RedisBroker(
                 "**correlation_id** is a useful option to trace messages.",
             ),
         ] = None,
-    ) -> None:
+        reply_to: Annotated[
+            str,
+            Doc("Reply message destination PubSub object name."),
+        ] = "",
+        headers: Annotated[
+            Optional["AnyDict"],
+            Doc("Message headers to store metainformation."),
+        ] = None,
+    ) -> int:
         """Publish multiple messages to Redis List by one request."""
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-
-        correlation_id = correlation_id or gen_cor_id()
-
-        call: AsyncFunc = self._producer.publish_batch
-
-        for m in self._middlewares:
-            call = partial(m(None).publish_scope, call)
-
-        await call(
-            *msgs,
+        cmd = RedisPublishCommand(
+            *messages,
             list=list,
-            correlation_id=correlation_id,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.PUBLISH,
         )
+
+        return await self._basic_publish_batch(cmd, producer=self._producer)
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:

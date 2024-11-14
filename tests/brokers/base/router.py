@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream import BaseMiddleware, Depends
+from faststream import Depends
 from faststream._internal.broker.router import (
     ArgsContainer,
     BrokerRouter,
@@ -25,8 +25,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -53,8 +54,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         router.prefix = "test_"
@@ -83,8 +85,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -111,8 +114,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -146,8 +150,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         router.prefix = "test_"
@@ -183,8 +188,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         router.prefix = "test_"
@@ -219,10 +225,11 @@ class RouterTestcase(
 
     async def test_delayed_handlers(
         self,
-        event: asyncio.Event,
         router: BrokerRouter,
         queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         def response(m) -> None:
@@ -251,11 +258,12 @@ class RouterTestcase(
 
     async def test_delayed_publishers(
         self,
-        event: asyncio.Event,
         router: BrokerRouter,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         def response(m):
@@ -303,9 +311,10 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         core_router = type(router)(prefix="test1_")
@@ -340,8 +349,9 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         core_router = type(router)(prefix="test1_")
@@ -433,8 +443,8 @@ class RouterTestcase(
     ) -> None:
         pub_broker = self.get_broker()
 
-        router = type(router)(middlewares=(BaseMiddleware,))
-        router2 = type(router)(middlewares=(BaseMiddleware,))
+        router = type(router)(middlewares=(1,))
+        router2 = type(router)(middlewares=(2,))
 
         args, kwargs = self.get_subscriber_params(queue, middlewares=(3,))
 
@@ -448,8 +458,14 @@ class RouterTestcase(
         sub = next(iter(pub_broker._subscribers))
         publisher = next(iter(pub_broker._publishers))
 
-        assert len((*sub._broker_middlewares, *sub.calls[0].item_middlewares)) == 3
-        assert len((*publisher._broker_middlewares, *publisher._middlewares)) == 3
+        subscriber_middlewares = (
+            *sub._broker_middlewares,
+            *sub.calls[0].item_middlewares,
+        )
+        assert subscriber_middlewares == (1, 2, 3)
+
+        publisher_middlewares = (*publisher._broker_middlewares, *publisher.middlewares)
+        assert publisher_middlewares == (1, 2, 3)
 
     async def test_router_include_with_middlewares(
         self,
@@ -466,23 +482,26 @@ class RouterTestcase(
         @router2.publisher(queue, middlewares=(3,))
         def subscriber() -> None: ...
 
-        router.include_router(router2, middlewares=(BaseMiddleware,))
-        pub_broker.include_router(router, middlewares=(BaseMiddleware,))
+        router.include_router(router2, middlewares=(2,))
+        pub_broker.include_router(router, middlewares=(1,))
 
         sub = next(iter(pub_broker._subscribers))
         publisher = next(iter(pub_broker._publishers))
 
         sub_middlewares = (*sub._broker_middlewares, *sub.calls[0].item_middlewares)
-        assert len(sub_middlewares) == 3, sub_middlewares
-        assert len((*publisher._broker_middlewares, *publisher._middlewares)) == 3
+        assert sub_middlewares == (1, 2, 3), sub_middlewares
+
+        publisher_middlewares = (*publisher._broker_middlewares, *publisher.middlewares)
+        assert publisher_middlewares == (1, 2, 3)
 
     async def test_router_parser(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         async def parser(msg, original):
@@ -524,9 +543,10 @@ class RouterTestcase(
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         async def global_parser(msg, original):  # pragma: no cover
@@ -580,8 +600,9 @@ class RouterLocalTestcase(RouterTestcase):
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         pub = router.publisher(queue + "resp")
@@ -613,8 +634,9 @@ class RouterLocalTestcase(RouterTestcase):
         self,
         router: BrokerRouter,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         args, kwargs = self.get_subscriber_params(queue)

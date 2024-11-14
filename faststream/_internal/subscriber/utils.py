@@ -1,7 +1,7 @@
 import asyncio
 import inspect
 from collections.abc import Awaitable, Iterable
-from contextlib import AbstractAsyncContextManager, AsyncExitStack, suppress
+from contextlib import AsyncExitStack, suppress
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -15,49 +15,48 @@ from typing import (
 import anyio
 from typing_extensions import Literal, Self, overload
 
-from faststream._internal.subscriber.acknowledgement_watcher import (
-    WatcherContext,
-    get_watcher,
-)
 from faststream._internal.types import MsgType
-from faststream._internal.utils.functions import fake_context, return_input, to_async
+from faststream._internal.utils.functions import return_input, to_async
+from faststream.message.source_type import SourceType
 
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from faststream._internal.basic_types import LoggerProto
     from faststream._internal.types import (
         AsyncCallable,
-        BrokerMiddleware,
         CustomCallable,
         SyncCallable,
     )
     from faststream.message import StreamMessage
+    from faststream.middlewares import BaseMiddleware
 
 
 @overload
 async def process_msg(
     msg: Literal[None],
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    middlewares: Iterable["BaseMiddleware"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
+    source_type: SourceType = SourceType.CONSUME,
 ) -> None: ...
 
 
 @overload
 async def process_msg(
     msg: MsgType,
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    middlewares: Iterable["BaseMiddleware"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
+    source_type: SourceType = SourceType.CONSUME,
 ) -> "StreamMessage[MsgType]": ...
 
 
 async def process_msg(
     msg: Optional[MsgType],
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    middlewares: Iterable["BaseMiddleware"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
+    source_type: SourceType = SourceType.CONSUME,
 ) -> Optional["StreamMessage[MsgType]"]:
     if msg is None:
         return None
@@ -69,12 +68,12 @@ async def process_msg(
         ] = return_input
 
         for m in middlewares:
-            mid = m(msg)
-            await stack.enter_async_context(mid)
-            return_msg = partial(mid.consume_scope, return_msg)
+            await stack.enter_async_context(m)
+            return_msg = partial(m.consume_scope, return_msg)
 
         parsed_msg = await parser(msg)
-        parsed_msg._decoded_body = await decoder(parsed_msg)
+        parsed_msg._source_type = source_type
+        parsed_msg.set_decoder(decoder)
         return await return_msg(parsed_msg)
 
     msg = "unreachable"
@@ -84,24 +83,6 @@ async def process_msg(
 async def default_filter(msg: "StreamMessage[Any]") -> bool:
     """A function to filter stream messages."""
     return not msg.processed
-
-
-def get_watcher_context(
-    logger: Optional["LoggerProto"],
-    no_ack: bool,
-    retry: Union[bool, int],
-    **extra_options: Any,
-) -> Callable[..., "AbstractAsyncContextManager[None]"]:
-    """Create Acknowledgement scope."""
-    if no_ack:
-        return fake_context
-
-    return partial(
-        WatcherContext,
-        watcher=get_watcher(logger, retry),
-        logger=logger,
-        **extra_options,
-    )
 
 
 class MultiLock:

@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING, Optional
 
 from nats.js.api import ObjectStoreConfig
 
+from .state import ConnectedState, ConnectionState, EmptyConnectionState
+
 if TYPE_CHECKING:
     from nats.js import JetStreamContext
     from nats.js.api import Placement, StorageType
@@ -11,9 +13,16 @@ if TYPE_CHECKING:
 class OSBucketDeclarer:
     buckets: dict[str, "ObjectStore"]
 
-    def __init__(self, connection: "JetStreamContext") -> None:
-        self._connection = connection
+    def __init__(self) -> None:
         self.buckets = {}
+
+        self.__state: ConnectionState[JetStreamContext] = EmptyConnectionState()
+
+    def connect(self, connection: "JetStreamContext") -> None:
+        self.__state = ConnectedState(connection)
+
+    def disconnect(self) -> None:
+        self.__state = EmptyConnectionState()
 
     async def create_object_store(
         self,
@@ -30,7 +39,7 @@ class OSBucketDeclarer:
     ) -> "ObjectStore":
         if (object_store := self.buckets.get(bucket)) is None:
             if declare:
-                object_store = await self._connection.create_object_store(
+                object_store = await self.__state.connection.create_object_store(
                     bucket=bucket,
                     config=ObjectStoreConfig(
                         bucket=bucket,
@@ -43,7 +52,7 @@ class OSBucketDeclarer:
                     ),
                 )
             else:
-                object_store = await self._connection.object_store(bucket)
+                object_store = await self.__state.connection.object_store(bucket)
 
             self.buckets[bucket] = object_store
 

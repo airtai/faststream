@@ -128,10 +128,11 @@ class TestRouter(RouterTestcase):
 
     async def test_delayed_handlers_with_queue(
         self,
-        event,
         router: NatsRouter,
         queue: str,
     ) -> None:
+        event = asyncio.Event()
+
         pub_broker = self.get_broker()
 
         def response(m) -> None:

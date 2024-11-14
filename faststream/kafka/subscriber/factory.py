@@ -1,3 +1,4 @@
+import warnings
 from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
@@ -7,16 +8,18 @@ from typing import (
     overload,
 )
 
+from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
-from faststream.kafka.subscriber.subscriber import (
+from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationDefaultSubscriber,
 )
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord, TopicPartition
     from aiokafka.abc import ConsumerRebalanceListener
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
@@ -36,10 +39,9 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
     # Specification args
     title_: Optional[str],
@@ -62,10 +64,9 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
     # Specification args
     title_: Optional[str],
@@ -88,10 +89,9 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
     ],
@@ -118,10 +118,9 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
-    no_ack: bool,
+    ack_policy: "AckPolicy",
     no_reply: bool,
-    retry: bool,
-    broker_dependencies: Iterable["Depends"],
+    broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
         "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
     ],
@@ -133,6 +132,71 @@ def create_subscriber(
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
 ]:
+    _validate_input_for_misconfigure(
+        *topics,
+        pattern=pattern,
+        partitions=partitions,
+        ack_policy=ack_policy,
+        is_manual=is_manual,
+        group_id=group_id,
+    )
+
+    if ack_policy is EMPTY:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
+
+    if batch:
+        return SpecificationBatchSubscriber(
+            *topics,
+            batch_timeout_ms=batch_timeout_ms,
+            max_records=max_records,
+            group_id=group_id,
+            listener=listener,
+            pattern=pattern,
+            connection_args=connection_args,
+            partitions=partitions,
+            is_manual=is_manual,
+            ack_policy=ack_policy,
+            no_reply=no_reply,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+    return SpecificationDefaultSubscriber(
+        *topics,
+        group_id=group_id,
+        listener=listener,
+        pattern=pattern,
+        connection_args=connection_args,
+        partitions=partitions,
+        is_manual=is_manual,
+        ack_policy=ack_policy,
+        no_reply=no_reply,
+        broker_dependencies=broker_dependencies,
+        broker_middlewares=broker_middlewares,
+        title_=title_,
+        description_=description_,
+        include_in_schema=include_in_schema,
+    )
+
+
+def _validate_input_for_misconfigure(
+    *topics: str,
+    partitions: Iterable["TopicPartition"],
+    pattern: Optional[str],
+    ack_policy: "AckPolicy",
+    is_manual: bool,
+    group_id: Optional[str],
+) -> None:
+    if ack_policy is not EMPTY and not is_manual:
+        warnings.warn(
+            "You can't use acknowledgement policy with `is_manual=False` subscriber",
+            RuntimeWarning,
+            stacklevel=4,
+        )
+
     if is_manual and not group_id:
         msg = "You must use `group_id` with manual commit mode."
         raise SetupError(msg)
@@ -151,42 +215,3 @@ def create_subscriber(
     if partitions and pattern:
         msg = "You can't provide both `partitions` and `pattern`."
         raise SetupError(msg)
-
-    if batch:
-        return SpecificationBatchSubscriber(
-            *topics,
-            batch_timeout_ms=batch_timeout_ms,
-            max_records=max_records,
-            group_id=group_id,
-            listener=listener,
-            pattern=pattern,
-            connection_args=connection_args,
-            partitions=partitions,
-            is_manual=is_manual,
-            no_ack=no_ack,
-            no_reply=no_reply,
-            retry=retry,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
-
-    return SpecificationDefaultSubscriber(
-        *topics,
-        group_id=group_id,
-        listener=listener,
-        pattern=pattern,
-        connection_args=connection_args,
-        partitions=partitions,
-        is_manual=is_manual,
-        no_ack=no_ack,
-        no_reply=no_reply,
-        retry=retry,
-        broker_dependencies=broker_dependencies,
-        broker_middlewares=broker_middlewares,
-        title_=title_,
-        description_=description_,
-        include_in_schema=include_in_schema,
-    )

@@ -27,7 +27,7 @@ Just import a **StreamRouter** you need and declare the message handler in the s
 {! includes/getting_started/integrations/fastapi/1.md !}
 
 !!! warning
-    If you are using **fastapi < 0.102.2** version, you should setup lifespan manually `#!python FastAPI(lifespan=router.lifespan_context)`
+    If you are using **fastapi < 0.112.2** version, you should setup lifespan manually `#!python FastAPI(lifespan=router.lifespan_context)`
 
 When processing a message from a broker, the entire message body is placed simultaneously in both the `body` and `path` request parameters. You can access them in any way convenient for you. The message header is placed in `headers`.
 

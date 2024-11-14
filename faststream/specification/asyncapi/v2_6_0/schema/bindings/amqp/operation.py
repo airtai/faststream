@@ -3,7 +3,7 @@
 References: https://github.com/asyncapi/bindings/tree/master/amqp
 """
 
-from typing import Optional, overload
+from typing import Optional
 
 from pydantic import BaseModel, PositiveInt
 from typing_extensions import Self
@@ -21,54 +21,39 @@ class OperationBinding(BaseModel):
         bindingVersion : string representing the binding version
     """
 
-    cc: Optional[str] = None
-    ack: bool = True
-    replyTo: Optional[str] = None
-    deliveryMode: Optional[int] = None
-    mandatory: Optional[bool] = None
-    priority: Optional[PositiveInt] = None
+    cc: Optional[str]
+    ack: bool
+    replyTo: Optional[str]
+    deliveryMode: Optional[int]
+    mandatory: Optional[bool]
+    priority: Optional[PositiveInt]
+
     bindingVersion: str = "0.2.0"
-
-    @overload
-    @classmethod
-    def from_sub(cls, binding: None) -> None: ...
-
-    @overload
-    @classmethod
-    def from_sub(cls, binding: amqp.OperationBinding) -> Self: ...
 
     @classmethod
     def from_sub(cls, binding: Optional[amqp.OperationBinding]) -> Optional[Self]:
-        if binding is None:
+        if not binding:
             return None
 
         return cls(
-            cc=binding.cc,
+            cc=binding.routing_key if binding.exchange.is_respect_routing_key else None,
             ack=binding.ack,
             replyTo=binding.reply_to,
-            deliveryMode=binding.delivery_mode,
+            deliveryMode=None if binding.persist is None else int(binding.persist) + 1,
             mandatory=binding.mandatory,
             priority=binding.priority,
         )
 
-    @overload
-    @classmethod
-    def from_pub(cls, binding: None) -> None: ...
-
-    @overload
-    @classmethod
-    def from_pub(cls, binding: amqp.OperationBinding) -> Self: ...
-
     @classmethod
     def from_pub(cls, binding: Optional[amqp.OperationBinding]) -> Optional[Self]:
-        if binding is None:
+        if not binding:
             return None
 
         return cls(
-            cc=binding.cc,
+            cc=binding.routing_key if binding.exchange.is_respect_routing_key else None,
             ack=binding.ack,
             replyTo=binding.reply_to,
-            deliveryMode=binding.delivery_mode,
+            deliveryMode=None if binding.persist is None else int(binding.persist) + 1,
             mandatory=binding.mandatory,
             priority=binding.priority,
         )

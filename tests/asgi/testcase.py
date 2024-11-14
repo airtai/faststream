@@ -1,4 +1,5 @@
 from typing import Any
+from unittest.mock import AsyncMock
 
 import pytest
 from starlette.testclient import TestClient
@@ -22,14 +23,14 @@ class AsgiTestcase:
         raise NotImplementedError
 
     def test_not_found(self) -> None:
-        app = AsgiFastStream()
+        app = AsgiFastStream(AsyncMock())
 
         with TestClient(app) as client:
             response = client.get("/")
             assert response.status_code == 404
 
     def test_ws_not_found(self) -> None:
-        app = AsgiFastStream()
+        app = AsgiFastStream(AsyncMock())
 
         with TestClient(app) as client:  # noqa: SIM117
             with pytest.raises(WebSocketDisconnect):
@@ -40,6 +41,7 @@ class AsgiTestcase:
         broker = self.get_broker()
 
         app = AsgiFastStream(
+            AsyncMock(),
             asgi_routes=[
                 ("/health", make_ping_asgi(broker, timeout=5.0)),
             ],
@@ -47,7 +49,7 @@ class AsgiTestcase:
 
         with TestClient(app) as client:
             response = client.get("/health")
-            assert response.status_code == 500
+            assert response.status_code == 500, response.status_code
 
     @pytest.mark.asyncio()
     async def test_asgi_ping_healthy(self) -> None:
@@ -68,7 +70,8 @@ class AsgiTestcase:
         broker = self.get_broker()
 
         app = AsgiFastStream(
-            broker, asgi_routes=[("/docs", make_asyncapi_asgi(AsyncAPI(broker)))]
+            broker,
+            asgi_routes=[("/docs", make_asyncapi_asgi(AsyncAPI(broker)))],
         )
 
         async with self.get_test_broker(broker):
@@ -82,7 +85,7 @@ class AsgiTestcase:
         async def some_handler(scope) -> AsgiResponse:
             return AsgiResponse(body=b"test", status_code=200)
 
-        app = AsgiFastStream(asgi_routes=[("/test", some_handler)])
+        app = AsgiFastStream(AsyncMock(), asgi_routes=[("/test", some_handler)])
 
         with TestClient(app) as client:
             response = client.get("/test")

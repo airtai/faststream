@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, NoReturn
+from typing import Any
 
 import pytest
 
@@ -31,8 +31,9 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_with_real_testclient(
         self,
         queue: str,
-        event: asyncio.Event,
     ) -> None:
+        event = asyncio.Event()
+
         broker = self.get_broker()
 
         @broker.subscriber(queue)
@@ -207,19 +208,19 @@ class TestTestclient(BrokerTestclientTestcase):
         consume2 = asyncio.Event()
         consume3 = asyncio.Event()
 
-        @broker.subscriber(queue=queue, exchange=exchange, retry=1)
+        @broker.subscriber(queue=queue, exchange=exchange)
         async def handler(msg: RabbitMessage) -> None:
             await msg.raw_message.ack()
             consume.set()
 
-        @broker.subscriber(queue=queue + "1", exchange=exchange, retry=1)
-        async def handler2(msg: RabbitMessage) -> NoReturn:
+        @broker.subscriber(queue=queue + "1", exchange=exchange)
+        async def handler2(msg: RabbitMessage):
             await msg.raw_message.nack()
             consume2.set()
             raise ValueError
 
-        @broker.subscriber(queue=queue + "2", exchange=exchange, retry=1)
-        async def handler3(msg: RabbitMessage) -> NoReturn:
+        @broker.subscriber(queue=queue + "2", exchange=exchange)
+        async def handler3(msg: RabbitMessage):
             await msg.raw_message.reject()
             consume3.set()
             raise ValueError

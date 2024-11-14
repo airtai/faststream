@@ -1,0 +1,85 @@
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Optional,
+)
+
+from faststream.exceptions import SetupError
+from faststream.specification.asyncapi.message import parse_handler_params
+from faststream.specification.asyncapi.utils import to_camelcase
+from faststream.specification.proto import EndpointSpecification
+from faststream.specification.schema import SubscriberSpec
+
+if TYPE_CHECKING:
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import (
+        MsgType,
+    )
+
+    from .call_item import HandlerItem
+
+
+class SpecificationSubscriber(
+    EndpointSpecification[SubscriberSpec],
+):
+    calls: list["HandlerItem[MsgType]"]
+
+    def __init__(
+        self,
+        *args: Any,
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+        **kwargs: Any,
+    ) -> None:
+        self.calls = []
+
+        self.title_ = title_
+        self.description_ = description_
+        self.include_in_schema = include_in_schema
+
+        # Call next base class parent init
+        super().__init__(*args, **kwargs)
+
+    @property
+    def call_name(self) -> str:
+        """Returns the name of the handler call."""
+        if not self.calls:
+            return "Subscriber"
+
+        return to_camelcase(self.calls[0].call_name)
+
+    def get_default_description(self) -> Optional[str]:
+        """Returns the description of the handler."""
+        if not self.calls:
+            return None
+
+        return self.calls[0].description
+
+    def get_payloads(self) -> list[tuple["AnyDict", str]]:
+        """Get the payloads of the handler."""
+        payloads: list[tuple[AnyDict, str]] = []
+
+        for h in self.calls:
+            if h.dependant is None:
+                msg = "You should setup `Handler` at first."
+                raise SetupError(msg)
+
+            body = parse_handler_params(
+                h.dependant,
+                prefix=f"{self.title_ or self.call_name}:Message",
+            )
+
+            payloads.append((body, to_camelcase(h.call_name)))
+
+        if not self.calls:
+            payloads.append(
+                (
+                    {
+                        "title": f"{self.title_ or self.call_name}:Message:Payload",
+                    },
+                    to_camelcase(self.call_name),
+                ),
+            )
+
+        return payloads

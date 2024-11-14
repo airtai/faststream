@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING, Optional
 
 from nats.js.api import KeyValueConfig
 
+from .state import ConnectedState, ConnectionState, EmptyConnectionState
+
 if TYPE_CHECKING:
     from nats.js import JetStreamContext
     from nats.js.api import Placement, RePublish, StorageType
@@ -11,9 +13,16 @@ if TYPE_CHECKING:
 class KVBucketDeclarer:
     buckets: dict[str, "KeyValue"]
 
-    def __init__(self, connection: "JetStreamContext") -> None:
-        self._connection = connection
+    def __init__(self) -> None:
         self.buckets = {}
+
+        self.__state: ConnectionState[JetStreamContext] = EmptyConnectionState()
+
+    def connect(self, connection: "JetStreamContext") -> None:
+        self.__state = ConnectedState(connection)
+
+    def disconnect(self) -> None:
+        self.__state = EmptyConnectionState()
 
     async def create_key_value(
         self,
@@ -34,7 +43,7 @@ class KVBucketDeclarer:
     ) -> "KeyValue":
         if (key_value := self.buckets.get(bucket)) is None:
             if declare:
-                key_value = await self._connection.create_key_value(
+                key_value = await self.__state.connection.create_key_value(
                     config=KeyValueConfig(
                         bucket=bucket,
                         description=description,
@@ -50,7 +59,7 @@ class KVBucketDeclarer:
                     ),
                 )
             else:
-                key_value = await self._connection.key_value(bucket)
+                key_value = await self.__state.connection.key_value(bucket)
 
             self.buckets[bucket] = key_value
 

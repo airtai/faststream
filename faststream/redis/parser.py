@@ -200,7 +200,7 @@ class RedisBatchListParser(SimpleParser):
             dump_json(body),
             {
                 **first_msg_headers,
-                "content-type": ContentTypes.json.value,
+                "content-type": ContentTypes.JSON.value,
             },
             batch_headers,
         )
@@ -239,7 +239,7 @@ class RedisBatchStreamParser(SimpleParser):
             dump_json(body),
             {
                 **first_msg_headers,
-                "content-type": ContentTypes.json.value,
+                "content-type": ContentTypes.JSON.value,
             },
             batch_headers,
         )

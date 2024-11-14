@@ -1,4 +1,3 @@
-from collections.abc import Sized
 from typing import TYPE_CHECKING, cast
 
 from opentelemetry.semconv.trace import SpanAttributes
@@ -9,6 +8,7 @@ from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream.message import StreamMessage
+    from faststream.redis.response import RedisPublishCommand
 
 
 class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
@@ -31,7 +31,7 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
 
         if cast(str, msg.raw_message.get("type", "")).startswith("b"):
             attrs[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = len(
-                cast(Sized, msg._decoded_body),
+                msg.raw_message["data"]
             )
 
         return attrs
@@ -42,21 +42,21 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
     ) -> str:
         return self._get_destination(msg.raw_message)
 
-    def get_publish_attrs_from_kwargs(
+    def get_publish_attrs_from_cmd(
         self,
-        kwargs: "AnyDict",
+        cmd: "RedisPublishCommand",
     ) -> "AnyDict":
         return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
-            SpanAttributes.MESSAGING_DESTINATION_NAME: self._get_destination(kwargs),
-            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: kwargs["correlation_id"],
+            SpanAttributes.MESSAGING_DESTINATION_NAME: cmd.destination,
+            SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: cmd.correlation_id,
         }
 
     def get_publish_destination_name(
         self,
-        kwargs: "AnyDict",
+        cmd: "RedisPublishCommand",
     ) -> str:
-        return self._get_destination(kwargs)
+        return cmd.destination
 
     @staticmethod
     def _get_destination(kwargs: "AnyDict") -> str:

@@ -4,19 +4,22 @@ from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
-from faststream.rabbit.publisher.publisher import SpecificationPublisher
+from faststream._internal.constants import EMPTY
+from faststream.middlewares import AckPolicy
+from faststream.rabbit.publisher.factory import create_publisher
+from faststream.rabbit.publisher.specified import SpecificationPublisher
 from faststream.rabbit.publisher.usecase import PublishKwargs
 from faststream.rabbit.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
 from faststream.rabbit.subscriber.factory import create_subscriber
-from faststream.rabbit.subscriber.subscriber import SpecificationSubscriber
+from faststream.rabbit.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage  # noqa: F401
     from aio_pika.abc import DateType, HeadersType, TimeoutType
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import (
@@ -56,10 +59,14 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Optional["AnyDict"],
             Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
         ] = None,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = EMPTY,
         # broker arguments
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -73,14 +80,6 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Iterable["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            Union[bool, int],
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
         no_reply: Annotated[
             bool,
             Doc(
@@ -112,10 +111,9 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
                     exchange=RabbitExchange.validate(exchange),
                     consume_args=consume_args,
                     # subscriber args
-                    no_ack=no_ack,
+                    ack_policy=ack_policy,
                     no_reply=no_reply,
-                    retry=retry,
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     broker_dependencies=self._dependencies,
                     # AsyncAPI
                     title_=title,
@@ -240,7 +238,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Optional[str],
             Doc("Publisher connection User ID, validated if set."),
         ] = None,
-    ) -> SpecificationPublisher:
+    ) -> "SpecificationPublisher":
         """Creates long-living and AsyncAPI-documented publisher object.
 
         You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
@@ -266,13 +264,13 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         return cast(
             SpecificationPublisher,
             super().publisher(
-                SpecificationPublisher.create(
+                create_publisher(
                     routing_key=routing_key,
                     queue=RabbitQueue.validate(queue),
                     exchange=RabbitExchange.validate(exchange),
                     message_kwargs=message_kwargs,
                     # Specific
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     middlewares=middlewares,
                     # AsyncAPI
                     title_=title,

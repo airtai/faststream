@@ -5,11 +5,12 @@ from typing_extensions import Self
 
 from faststream._internal._compat import PYDANTIC_V2
 from faststream._internal.basic_types import AnyDict
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import OperationBinding
-from faststream.specification.asyncapi.v2_6_0.schema.message import Message
-from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
-from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
 from faststream.specification.schema.operation import Operation as OperationSpec
+
+from .bindings import OperationBinding
+from .message import Message
+from .tag import Tag
+from .utils import Reference
 
 
 class Operation(BaseModel):

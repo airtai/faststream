@@ -14,7 +14,7 @@ class Mid(BaseMiddleware):
         self.msg._raw_msg *= 2
 
     async def consume_scope(self, call_next, msg):
-        msg._decoded_body *= 2
+        msg.body *= 2
         return await call_next(msg)
 
 

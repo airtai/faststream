@@ -1,14 +1,16 @@
+import logging
 from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.log.logging import get_broker_logger
-from faststream._internal.setup.logger import (
+from faststream._internal.state.logger import (
     DefaultLoggerStorage,
     make_logger_state,
 )
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.context import ContextRepo
 
 
 class RabbitParamsStorage(DefaultLoggerStorage):
@@ -21,6 +23,11 @@ class RabbitParamsStorage(DefaultLoggerStorage):
         self._max_exchange_len = 4
         self._max_queue_len = 4
 
+        self.logger_log_level = logging.INFO
+
+    def set_level(self, level: int) -> None:
+        self.logger_log_level = level
+
     def setup_log_contest(self, params: "AnyDict") -> None:
         self._max_exchange_len = max(
             self._max_exchange_len,
@@ -31,7 +38,7 @@ class RabbitParamsStorage(DefaultLoggerStorage):
             len(params.get("queue", "")),
         )
 
-    def get_logger(self) -> "LoggerProto":
+    def get_logger(self, *, context: "ContextRepo") -> "LoggerProto":
         message_id_ln = 10
 
         # TODO: generate unique logger names to not share between brokers
@@ -50,10 +57,12 @@ class RabbitParamsStorage(DefaultLoggerStorage):
                 f"%(message_id)-{message_id_ln}s "
                 "- %(message)s"
             ),
+            context=context,
+            log_level=self.logger_log_level,
         )
 
 
 make_rabbit_logger_state = partial(
     make_logger_state,
-    default_storag_cls=RabbitParamsStorage,
+    default_storage_cls=RabbitParamsStorage,
 )

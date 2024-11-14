@@ -24,9 +24,11 @@ from faststream._internal.constants import EMPTY
 from faststream._internal.utils.data import filter_by_dict
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
+from faststream.kafka.response import KafkaPublishCommand
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.kafka.security import parse_security
 from faststream.message import gen_cor_id
+from faststream.response.publish_type import PublishType
 
 from .logging import make_kafka_logger_state
 from .registrator import KafkaRegistrator
@@ -34,17 +36,17 @@ from .registrator import KafkaRegistrator
 Partition = TypeVar("Partition")
 
 if TYPE_CHECKING:
-    from asyncio import AbstractEventLoop
+    import asyncio
     from types import TracebackType
 
     from aiokafka import ConsumerRecord
     from aiokafka.abc import AbstractTokenProvider
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
+    from fast_depends.library.serializer import SerializerProto
     from typing_extensions import TypedDict, Unpack
 
     from faststream._internal.basic_types import (
         AnyDict,
-        AsyncFunc,
         Decorator,
         LoggerProto,
         SendableMessage,
@@ -53,6 +55,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         CustomCallable,
     )
+    from faststream.kafka.message import KafkaMessage
     from faststream.security import BaseSecurity
     from faststream.specification.schema.extra import Tag, TagDict
 
@@ -92,7 +95,7 @@ if TYPE_CHECKING:
             Optional[AbstractTokenProvider],
             Doc("OAuthBearer token provider instance."),
         ]
-        loop: Optional[AbstractEventLoop]
+        loop: Optional[asyncio.AbstractEventLoop]
         client_id: Annotated[
             Optional[str],
             Doc(
@@ -235,7 +238,7 @@ class KafkaBroker(
     ],
 ):
     url: list[str]
-    _producer: Optional["AioKafkaFastProducer"]
+    _producer: "AioKafkaFastProducer"
 
     def __init__(
         self,
@@ -289,7 +292,7 @@ class KafkaBroker(
             Optional["AbstractTokenProvider"],
             Doc("OAuthBearer token provider instance."),
         ] = None,
-        loop: Optional["AbstractEventLoop"] = None,
+        loop: Optional["asyncio.AbstractEventLoop"] = None,
         client_id: Annotated[
             Optional[str],
             Doc(
@@ -438,7 +441,7 @@ class KafkaBroker(
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable["Dependant"],
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
@@ -495,10 +498,7 @@ class KafkaBroker(
             bool,
             Doc("Whether to use FastDepends or not."),
         ] = True,
-        validate: Annotated[
-            bool,
-            Doc("Whether to cast types using Pydantic validation."),
-        ] = True,
+        serializer: Optional["SerializerProto"] = EMPTY,
         _get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
@@ -576,11 +576,16 @@ class KafkaBroker(
             _get_dependant=_get_dependant,
             _call_decorators=_call_decorators,
             apply_types=apply_types,
-            validate=validate,
+            serializer=serializer,
         )
 
         self.client_id = client_id
-        self._producer = None
+        self._state.patch_value(
+            producer=AioKafkaFastProducer(
+                parser=self._parser,
+                decoder=self._decoder,
+            )
+        )
 
     async def close(
         self,
@@ -590,9 +595,7 @@ class KafkaBroker(
     ) -> None:
         await super().close(exc_type, exc_val, exc_tb)
 
-        if self._producer is not None:  # pragma: no branch
-            await self._producer.stop()
-            self._producer = None
+        await self._producer.disconnect()
 
         self._connection = None
 
@@ -635,12 +638,7 @@ class KafkaBroker(
             client_id=client_id,
         )
 
-        await producer.start()
-        self._producer = AioKafkaFastProducer(
-            producer=producer,
-            parser=self._parser,
-            decoder=self._decoder,
-        )
+        await self._producer.connect(producer)
 
         connection_kwargs, _ = filter_by_dict(ConsumerConnectionParams, kwargs)
         return partial(aiokafka.AIOKafkaConsumer, **connection_kwargs)
@@ -722,9 +720,7 @@ class KafkaBroker(
             bool,
             Doc("Do not wait for Kafka publish confirmation."),
         ] = False,
-        # extra options to be compatible with test client
-        **kwargs: Any,
-    ) -> None:
+    ) -> "asyncio.Future":
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
@@ -732,21 +728,19 @@ class KafkaBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        correlation_id = correlation_id or gen_cor_id()
-
-        await super().publish(
+        cmd = KafkaPublishCommand(
             message,
-            producer=self._producer,
             topic=topic,
             key=key,
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=headers,
-            correlation_id=correlation_id,
             reply_to=reply_to,
             no_confirm=no_confirm,
-            **kwargs,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.PUBLISH,
         )
+        return await super()._basic_publish(cmd, producer=self._producer)
 
     @override
     async def request(  # type: ignore[override]
@@ -807,31 +801,32 @@ class KafkaBroker(
             float,
             Doc("Timeout to send RPC request."),
         ] = 0.5,
-    ) -> Optional[Any]:
-        correlation_id = correlation_id or gen_cor_id()
-
-        return await super().request(
+    ) -> "KafkaMessage":
+        cmd = KafkaPublishCommand(
             message,
-            producer=self._producer,
             topic=topic,
             key=key,
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=headers,
-            correlation_id=correlation_id,
             timeout=timeout,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.REQUEST,
         )
+
+        msg: KafkaMessage = await super()._basic_request(cmd, producer=self._producer)
+        return msg
 
     async def publish_batch(
         self,
-        *msgs: Annotated[
+        *messages: Annotated[
             "SendableMessage",
             Doc("Messages bodies to send."),
         ],
         topic: Annotated[
             str,
             Doc("Topic where the message will be published."),
-        ],
+        ] = "",
         partition: Annotated[
             Optional[int],
             Doc(
@@ -869,40 +864,36 @@ class KafkaBroker(
             bool,
             Doc("Do not wait for Kafka publish confirmation."),
         ] = False,
-    ) -> None:
+    ) -> "asyncio.Future":
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        correlation_id = correlation_id or gen_cor_id()
-
-        call: AsyncFunc = self._producer.publish_batch
-
-        for m in self._middlewares:
-            call = partial(m(None).publish_scope, call)
-
-        await call(
-            *msgs,
+        cmd = KafkaPublishCommand(
+            *messages,
             topic=topic,
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=headers,
             reply_to=reply_to,
-            correlation_id=correlation_id,
             no_confirm=no_confirm,
+            correlation_id=correlation_id or gen_cor_id(),
+            _publish_type=PublishType.PUBLISH,
         )
+
+        return await self._basic_publish_batch(cmd, producer=self._producer)
 
     @override
     async def ping(self, timeout: Optional[float]) -> bool:
         sleep_time = (timeout or 10) / 10
 
         with anyio.move_on_after(timeout) as cancel_scope:
-            if self._producer is None:
+            if not self._producer:
                 return False
 
             while True:
                 if cancel_scope.cancel_called:
                     return False
 
-                if not self._producer._producer._closed:
+                if not self._producer.closed:
                     return True
 
                 await anyio.sleep(sleep_time)

@@ -1,5 +1,3 @@
-from typing import NoReturn
-
 import pytest
 
 from faststream._internal.testing.ast import is_contains_context_name
@@ -75,7 +73,7 @@ def test_nested_invalid() -> None:
         assert not a.contains
 
 
-def test_not_broken() -> NoReturn:
+def test_not_broken() -> None:
     with A() as a, B():
         assert a.contains
 

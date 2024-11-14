@@ -6,6 +6,7 @@ from typing_extensions import Doc
 
 from faststream._internal.proto import NameRequired
 from faststream._internal.utils.path import compile_path
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from re import Pattern
@@ -120,13 +121,10 @@ class JStream(NameRequired):
                 "cluster may be available but for reads only.",
             ),
         ] = None,
-        no_ack: Annotated[
-            bool,
-            Doc(
-                "Should stream acknowledge writes or not. Without acks publisher can't determine, does message "
-                "received by stream or not.",
-            ),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = AckPolicy.REJECT_ON_ERROR,
         template_owner: Optional[str] = None,
         duplicate_window: Annotated[
             float,
@@ -191,9 +189,11 @@ class JStream(NameRequired):
         super().__init__(name)
 
         subjects = subjects or []
+        no_ack = ack_policy is AckPolicy.DO_NOTHING
 
         self.subjects = subjects
         self.declare = declare
+
         self.config = StreamConfig(
             name=name,
             description=description,

@@ -138,7 +138,7 @@ def gen(
 
     _, asyncapi_obj = import_from_string(asyncapi, is_factory=is_factory)
 
-    assert isinstance(asyncapi_obj, Specification)
+    assert isinstance(asyncapi_obj, Specification)  # nosec B101
 
     raw_schema = asyncapi_obj.schema
 
@@ -173,7 +173,7 @@ def _parse_and_serve(
     if ":" in docs:
         _, docs_obj = import_from_string(docs, is_factory=is_factory)
 
-        assert isinstance(docs_obj, Specification)
+        assert isinstance(docs_obj, Specification)  # nosec B101
 
         raw_schema = docs_obj
 

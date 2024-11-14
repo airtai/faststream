@@ -1,50 +1,60 @@
+from abc import abstractmethod
 from collections.abc import Iterable
 from functools import partial
-from itertools import chain
 from typing import TYPE_CHECKING, Any, Optional
 
+from faststream._internal.basic_types import SendableMessage
 from faststream._internal.publisher.proto import BasePublisherProto
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, AsyncFunc, SendableMessage
+    from faststream._internal.basic_types import AsyncFunc
+    from faststream._internal.publisher.proto import ProducerProto
     from faststream._internal.types import PublisherMiddleware
+    from faststream.response.response import PublishCommand
 
 
 class FakePublisher(BasePublisherProto):
-    """Publisher Interface implementation to use as RPC or REPLY TO publisher."""
+    """Publisher Interface implementation to use as RPC or REPLY TO answer publisher."""
 
     def __init__(
         self,
-        method: "AsyncFunc",
         *,
-        publish_kwargs: "AnyDict",
-        middlewares: Iterable["PublisherMiddleware"] = (),
+        producer: "ProducerProto",
     ) -> None:
         """Initialize an object."""
-        self.method = method
-        self.publish_kwargs = publish_kwargs
-        self.middlewares = middlewares
+        self._producer = producer
+
+    @abstractmethod
+    def patch_command(self, cmd: "PublishCommand") -> "PublishCommand":
+        raise NotImplementedError
+
+    async def _publish(
+        self,
+        cmd: "PublishCommand",
+        *,
+        _extra_middlewares: Iterable["PublisherMiddleware"],
+    ) -> Any:
+        """This method should be called in subscriber flow only."""
+        cmd = self.patch_command(cmd)
+
+        call: AsyncFunc = self._producer.publish
+        for m in _extra_middlewares:
+            call = partial(m, call)
+
+        return await call(cmd)
 
     async def publish(
         self,
-        message: "SendableMessage",
+        message: SendableMessage,
+        /,
         *,
         correlation_id: Optional[str] = None,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
-        **kwargs: Any,
-    ) -> Any:
-        """Publish a message."""
-        publish_kwargs = {
-            "correlation_id": correlation_id,
-            **self.publish_kwargs,
-            **kwargs,
-        }
-
-        call: AsyncFunc = self.method
-        for m in chain(_extra_middlewares, self.middlewares):
-            call = partial(m, call)
-
-        return await call(message, **publish_kwargs)
+    ) -> Optional[Any]:
+        msg = (
+            f"`{self.__class__.__name__}` can be used only to publish "
+            "a response for `reply-to` or `RPC` messages."
+        )
+        raise NotImplementedError(msg)
 
     async def request(
         self,
@@ -52,12 +62,9 @@ class FakePublisher(BasePublisherProto):
         /,
         *,
         correlation_id: Optional[str] = None,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Any:
         msg = (
-            "`FakePublisher` can be used only to publish "
+            f"`{self.__class__.__name__}` can be used only to publish "
             "a response for `reply-to` or `RPC` messages."
         )
-        raise NotImplementedError(
-            msg,
-        )
+        raise NotImplementedError(msg)

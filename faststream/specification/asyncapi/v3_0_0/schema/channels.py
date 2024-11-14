@@ -4,16 +4,11 @@ from pydantic import BaseModel
 from typing_extensions import Self
 
 from faststream._internal._compat import PYDANTIC_V2
-from faststream.specification import schema as spec
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import ChannelBinding
-from faststream.specification.asyncapi.v2_6_0.schema.message import (
-    Message,
-    from_spec as message_from_spec,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
-from faststream.specification.asyncapi.v3_0_0.schema.bindings.main import (
-    channel_binding_from_spec,
-)
+from faststream.specification.asyncapi.v3_0_0.schema.bindings import ChannelBinding
+from faststream.specification.asyncapi.v3_0_0.schema.message import Message
+from faststream.specification.schema import PublisherSpec, SubscriberSpec
+
+from .utils import Reference
 
 
 class Channel(BaseModel):
@@ -49,30 +44,31 @@ class Channel(BaseModel):
             extra = "allow"
 
     @classmethod
-    def from_spec(
-        cls,
-        channel: spec.channel.Channel,
-        message: spec.message.Message,
-        channel_name: str,
-        message_name: str,
-    ) -> Self:
+    def from_sub(cls, address: str, subscriber: SubscriberSpec) -> Self:
+        message = subscriber.operation.message
+        assert message.title
+
+        *left, right = message.title.split(":")
+        message.title = ":".join((*left, f"Subscribe{right}"))
+
         return cls(
-            address=channel_name,
+            description=subscriber.description,
+            address=address,
             messages={
-                message_name: message_from_spec(message),
+                "SubscribeMessage": Message.from_spec(message),
             },
-            description=channel.description,
-            servers=channel.servers,
-            bindings=channel_binding_from_spec(channel.bindings)
-            if channel.bindings
-            else None,
+            bindings=ChannelBinding.from_sub(subscriber.bindings),
+            servers=None,
         )
 
-
-def from_spec(
-    channel: spec.channel.Channel,
-    message: spec.message.Message,
-    channel_name: str,
-    message_name: str,
-) -> Channel:
-    return Channel.from_spec(channel, message, channel_name, message_name)
+    @classmethod
+    def from_pub(cls, address: str, publisher: PublisherSpec) -> Self:
+        return cls(
+            description=publisher.description,
+            address=address,
+            messages={
+                "Message": Message.from_spec(publisher.operation.message),
+            },
+            bindings=ChannelBinding.from_pub(publisher.bindings),
+            servers=None,
+        )

@@ -14,7 +14,6 @@ from aiokafka import TopicPartition
 from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import override
 
-from faststream._internal.publisher.fake import FakePublisher
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import (
@@ -26,16 +25,18 @@ from faststream._internal.types import (
 from faststream._internal.utils.path import compile_path
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
+from faststream.kafka.publisher.fake import KafkaFakePublisher
 
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer, ConsumerRecord
     from aiokafka.abc import ConsumerRebalanceListener
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, LoggerProto
-    from faststream._internal.publisher.proto import ProducerProto
-    from faststream._internal.setup import SetupState
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.publisher.proto import BasePublisherProto
+    from faststream._internal.state import BrokerState
     from faststream.message import StreamMessage
+    from faststream.middlewares import AckPolicy
 
 
 class LogicSubscriber(SubscriberUsecase[MsgType]):
@@ -50,6 +51,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
     task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
     batch: bool
+    parser: AioKafkaParser
 
     def __init__(
         self,
@@ -63,10 +65,9 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -77,9 +78,8 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             default_parser=default_parser,
             default_decoder=default_decoder,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
             # AsyncAPI args
@@ -110,23 +110,17 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         client_id: Optional[str],
         builder: Callable[..., "AIOKafkaConsumer"],
         # basic args
-        logger: Optional["LoggerProto"],
-        producer: Optional["ProducerProto"],
-        graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "SetupState",
+        state: "BrokerState",
     ) -> None:
         self.client_id = client_id
         self.builder = builder
 
         super()._setup(
-            logger=logger,
-            producer=producer,
-            graceful_timeout=graceful_timeout,
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
@@ -142,6 +136,8 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             client_id=self.client_id,
             **self.__connection_args,
         )
+
+        self.parser._setup(consumer)
 
         if self.topics or self._pattern:
             consumer.subscribe(
@@ -192,9 +188,13 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
 
         ((raw_message,),) = raw_messages.values()
 
+        context = self._state.get().di_state.context
+
         msg: StreamMessage[MsgType] = await process_msg(
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=context) for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -203,16 +203,11 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
     def _make_response_publisher(
         self,
         message: "StreamMessage[Any]",
-    ) -> Sequence[FakePublisher]:
-        if self._producer is None:
-            return ()
-
+    ) -> Sequence["BasePublisherProto"]:
         return (
-            FakePublisher(
-                self._producer.publish,
-                publish_kwargs={
-                    "topic": message.reply_to,
-                },
+            KafkaFakePublisher(
+                self._state.get().producer,
+                topic=message.reply_to,
             ),
         )
 
@@ -288,10 +283,9 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         partitions: Iterable["TopicPartition"],
         is_manual: bool,
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
         # AsyncAPI args
         title_: Optional[str],
@@ -308,7 +302,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         else:
             reg = None
 
-        parser = AioKafkaParser(
+        self.parser = AioKafkaParser(
             msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
             regex=reg,
         )
@@ -321,12 +315,11 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             connection_args=connection_args,
             partitions=partitions,
             # subscriber args
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
+            default_parser=self.parser.parse_message,
+            default_decoder=self.parser.decode_message,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
             # AsyncAPI args
@@ -369,10 +362,9 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
         partitions: Iterable["TopicPartition"],
         is_manual: bool,
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable[
             "BrokerMiddleware[Sequence[tuple[ConsumerRecord, ...]]]"
         ],
@@ -394,7 +386,7 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
         else:
             reg = None
 
-        parser = AioKafkaBatchParser(
+        self.parser = AioKafkaBatchParser(
             msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
             regex=reg,
         )
@@ -407,12 +399,11 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
             connection_args=connection_args,
             partitions=partitions,
             # subscriber args
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
+            default_parser=self.parser.parse_message,
+            default_decoder=self.parser.decode_message,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
             # AsyncAPI args

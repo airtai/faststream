@@ -11,7 +11,7 @@ async def test_base_context_alias(context: ContextRepo) -> None:
     key = 1000
     context.set_global("key", key)
 
-    @apply_types
+    @apply_types(context__=context)
     async def func(k=Context("key")):
         return k is key
 
@@ -23,7 +23,7 @@ async def test_context_cast(context: ContextRepo) -> None:
     key = 1000
     context.set_global("key", key)
 
-    @apply_types
+    @apply_types(context__=context)
     async def func(k: float = Context("key", cast=True)):
         return isinstance(k, float)
 
@@ -35,7 +35,7 @@ async def test_nested_context_alias(context: ContextRepo) -> None:
     model = SomeModel(field=SomeModel(field=1000))
     context.set_global("model", model)
 
-    @apply_types
+    @apply_types(context__=context)
     async def func(
         m=Context("model.field.field"),
         m2=Context("model.not_existed", default=None),
@@ -59,7 +59,7 @@ async def test_annotated_alias(context: ContextRepo) -> None:
     model = SomeModel(field=SomeModel(field=1000))
     context.set_global("model", model)
 
-    @apply_types
+    @apply_types(context__=context)
     async def func(m: Annotated[int, Context("model.field.field")]):
         return m is model.field.field
 

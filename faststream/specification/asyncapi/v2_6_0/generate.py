@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Optional, Union
 from faststream._internal._compat import DEF_KEY
 from faststream._internal.basic_types import AnyDict, AnyHttpUrl
 from faststream._internal.constants import ContentTypes
-from faststream.specification.asyncapi.utils import clear_key
+from faststream.specification.asyncapi.utils import clear_key, move_pydantic_refs
 from faststream.specification.asyncapi.v2_6_0.schema import (
     ApplicationInfo,
     ApplicationSchema,
@@ -13,11 +13,11 @@ from faststream.specification.asyncapi.v2_6_0.schema import (
     Contact,
     ExternalDocs,
     License,
+    Message,
     Reference,
     Server,
     Tag,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 
 if TYPE_CHECKING:
     from faststream._internal.broker.broker import BrokerUsecase
@@ -75,7 +75,7 @@ def get_app_schema(
         tags=[Tag.from_spec(tag) for tag in tags] or None,
         externalDocs=ExternalDocs.from_spec(external_docs),
         asyncapi=schema_version,
-        defaultContentType=ContentTypes.json.value,
+        defaultContentType=ContentTypes.JSON.value,
         id=identifier,
         servers=servers,
         channels=channels,
@@ -215,36 +215,3 @@ def _resolve_msg_payloads(
     message_title = clear_key(m.title)
     messages[message_title] = m
     return Reference(**{"$ref": f"#/components/messages/{message_title}"})
-
-
-def move_pydantic_refs(
-    original: Any,
-    key: str,
-) -> Any:
-    """Remove pydantic references and replacem them by real schemas."""
-    if not isinstance(original, dict):
-        return original
-
-    data = original.copy()
-
-    for k in data:
-        item = data[k]
-
-        if isinstance(item, str):
-            if key in item:
-                data[k] = data[k].replace(key, "components/schemas")
-
-        elif isinstance(item, dict):
-            data[k] = move_pydantic_refs(data[k], key)
-
-        elif isinstance(item, list):
-            for i in range(len(data[k])):
-                data[k][i] = move_pydantic_refs(item[i], key)
-
-    if (
-        isinstance(desciminator := data.get("discriminator"), dict)
-        and "propertyName" in desciminator
-    ):
-        data["discriminator"] = desciminator["propertyName"]
-
-    return data

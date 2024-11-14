@@ -4,13 +4,16 @@ from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 from typing_extensions import Doc, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
+from faststream._internal.constants import EMPTY
+from faststream.middlewares import AckPolicy
 from faststream.redis.message import UnifyRedisDict
-from faststream.redis.publisher.publisher import SpecificationPublisher
+from faststream.redis.publisher.factory import create_publisher
+from faststream.redis.publisher.specified import SpecificationPublisher
 from faststream.redis.subscriber.factory import SubsciberType, create_subscriber
-from faststream.redis.subscriber.subscriber import SpecificationSubscriber
+from faststream.redis.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import (
@@ -19,7 +22,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.redis.message import UnifyRedisMessage
-    from faststream.redis.publisher.publisher import PublisherType
+    from faststream.redis.publisher.specified import PublisherType
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 
@@ -47,8 +50,8 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         ] = None,
         # broker arguments
         dependencies: Annotated[
-            Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+            Iterable["Dependant"],
+            Doc("Dependencies list (`[Dependant(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -64,14 +67,10 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             Iterable["SubscriberMiddleware[UnifyRedisMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
-        no_ack: Annotated[
-            bool,
-            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
-        ] = False,
+        ack_policy: Annotated[
+            AckPolicy,
+            Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+        ] = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -103,10 +102,9 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
                     list=list,
                     stream=stream,
                     # subscriber args
-                    no_ack=no_ack,
+                    ack_policy=ack_policy,
                     no_reply=no_reply,
-                    retry=retry,
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     broker_dependencies=self._dependencies,
                     # AsyncAPI
                     title_=title,
@@ -174,7 +172,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> SpecificationPublisher:
+    ) -> "SpecificationPublisher":
         """Creates long-living and AsyncAPI-documented publisher object.
 
         You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
@@ -185,14 +183,14 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         return cast(
             SpecificationPublisher,
             super().publisher(
-                SpecificationPublisher.create(
+                create_publisher(
                     channel=channel,
                     list=list,
                     stream=stream,
                     headers=headers,
                     reply_to=reply_to,
                     # Specific
-                    broker_middlewares=self._middlewares,
+                    broker_middlewares=self.middlewares,
                     middlewares=middlewares,
                     # AsyncAPI
                     title_=title,

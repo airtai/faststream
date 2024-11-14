@@ -32,10 +32,10 @@ def decode_message(message: "StreamMessage[Any]") -> "DecodedMessage":
     if content_type := getattr(message, "content_type", False):
         content_type = ContentTypes(cast(str, content_type))
 
-        if content_type is ContentTypes.text:
+        if content_type is ContentTypes.TEXT:
             m = body.decode()
 
-        elif content_type is ContentTypes.json:
+        elif content_type is ContentTypes.JSON:
             m = json_loads(body)
 
     else:
@@ -65,10 +65,10 @@ def encode_message(
     if isinstance(msg, str):
         return (
             msg.encode(),
-            ContentTypes.text.value,
+            ContentTypes.TEXT.value,
         )
 
     return (
         dump_json(msg),
-        ContentTypes.json.value,
+        ContentTypes.JSON.value,
     )

@@ -4,8 +4,9 @@ from redis.asyncio.client import Redis as RedisClient
 
 from faststream._internal.fastapi.context import Context, ContextRepo, Logger
 from faststream.redis.broker.broker import RedisBroker as RB
-from faststream.redis.fastapi.fastapi import RedisRouter
 from faststream.redis.message import BaseMessage as RM  # noqa: N814
+
+from .fastapi import RedisRouter
 
 __all__ = (
     "Context",

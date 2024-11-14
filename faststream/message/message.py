@@ -9,17 +9,20 @@ from typing import (
 )
 from uuid import uuid4
 
+from .source_type import SourceType
+
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, DecodedMessage
+    from faststream._internal.types import AsyncCallable
 
 # prevent circular imports
 MsgType = TypeVar("MsgType")
 
 
 class AckStatus(str, Enum):
-    acked = "acked"
-    nacked = "nacked"
-    rejected = "rejected"
+    ACKED = "ACKED"
+    NACKED = "NACKED"
+    REJECTED = "REJECTED"
 
 
 class StreamMessage(Generic[MsgType]):
@@ -37,11 +40,13 @@ class StreamMessage(Generic[MsgType]):
         content_type: Optional[str] = None,
         correlation_id: Optional[str] = None,
         message_id: Optional[str] = None,
+        source_type: SourceType = SourceType.CONSUME,
     ) -> None:
         self.raw_message = raw_message
         self.body = body
         self.reply_to = reply_to
         self.content_type = content_type
+        self._source_type = source_type
 
         self.headers = headers or {}
         self.batch_headers = batch_headers or []
@@ -49,10 +54,20 @@ class StreamMessage(Generic[MsgType]):
         self.correlation_id = correlation_id or str(uuid4())
         self.message_id = message_id or self.correlation_id
 
-        # Setup later
-        self._decoded_body: Optional[DecodedMessage] = None
         self.committed: Optional[AckStatus] = None
         self.processed = False
+
+        # Setup later
+        self.__decoder: Optional[AsyncCallable] = None
+        self.__decoded_caches: dict[
+            Any, Any
+        ] = {}  # Cache values between filters and tests
+
+    def set_decoder(self, decoder: "AsyncCallable") -> None:
+        self.__decoder = decoder
+
+    def clear_cache(self) -> None:
+        self.__decoded_caches.clear()
 
     def __repr__(self) -> str:
         inner = ", ".join(
@@ -75,18 +90,26 @@ class StreamMessage(Generic[MsgType]):
         return f"{self.__class__.__name__}({inner})"
 
     async def decode(self) -> Optional["DecodedMessage"]:
-        """Serialize the message by lazy decoder."""
-        # TODO: make it lazy after `decoded_body` removed
-        return self._decoded_body
+        """Serialize the message by lazy decoder.
+
+        Returns a cache after first usage. To prevent such behavior, please call
+        `message.clear_cache()` after `message.body` changes.
+        """
+        assert self.__decoder, "You should call `set_decoder()` method first."  # nosec B101
+
+        if (result := self.__decoded_caches.get(self.__decoder)) is None:
+            result = self.__decoded_caches[self.__decoder] = await self.__decoder(self)
+
+        return result
 
     async def ack(self) -> None:
         if self.committed is None:
-            self.committed = AckStatus.acked
+            self.committed = AckStatus.ACKED
 
     async def nack(self) -> None:
         if self.committed is None:
-            self.committed = AckStatus.nacked
+            self.committed = AckStatus.NACKED
 
     async def reject(self) -> None:
         if self.committed is None:
-            self.committed = AckStatus.rejected
+            self.committed = AckStatus.REJECTED

@@ -1,14 +1,16 @@
+import logging
 from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.log.logging import get_broker_logger
-from faststream._internal.setup.logger import (
+from faststream._internal.state.logger import (
     DefaultLoggerStorage,
     make_logger_state,
 )
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, LoggerProto
+    from faststream._internal.context import ContextRepo
 
 
 class NatsParamsStorage(DefaultLoggerStorage):
@@ -21,6 +23,11 @@ class NatsParamsStorage(DefaultLoggerStorage):
         self._max_queue_len = 0
         self._max_stream_len = 0
         self._max_subject_len = 4
+
+        self.logger_log_level = logging.INFO
+
+    def set_level(self, level: int) -> None:
+        self.logger_log_level = level
 
     def setup_log_contest(self, params: "AnyDict") -> None:
         self._max_subject_len = max(
@@ -42,7 +49,7 @@ class NatsParamsStorage(DefaultLoggerStorage):
             ),
         )
 
-    def get_logger(self) -> Optional["LoggerProto"]:
+    def get_logger(self, *, context: "ContextRepo") -> Optional["LoggerProto"]:
         message_id_ln = 10
 
         # TODO: generate unique logger names to not share between brokers
@@ -67,10 +74,12 @@ class NatsParamsStorage(DefaultLoggerStorage):
                 f"%(message_id)-{message_id_ln}s - ",
                 "%(message)s",
             )),
+            context=context,
+            log_level=self.logger_log_level,
         )
 
 
 make_nats_logger_state = partial(
     make_logger_state,
-    default_storag_cls=NatsParamsStorage,
+    default_storage_cls=NatsParamsStorage,
 )

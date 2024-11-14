@@ -4,6 +4,8 @@ from unittest.mock import Mock
 
 import pytest
 from dirty_equals import IsFloat, IsUUID
+from opentelemetry import baggage, context
+from opentelemetry.baggage.propagation import W3CBaggagePropagator
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics._internal.point import Metric
 from opentelemetry.sdk.metrics.export import InMemoryMetricReader
@@ -166,12 +168,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_subscriber_create_publish_process_span(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,))
 
@@ -205,12 +208,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_chain_subscriber_publisher(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,))
 
@@ -265,12 +269,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_no_trace_context_create_process_span(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,))
 
@@ -286,7 +291,7 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
         async with broker:
             await broker.start()
-            broker._middlewares = ()
+            broker.middlewares = ()
             tasks = (
                 asyncio.create_task(broker.publish(msg, queue)),
                 asyncio.create_task(event.wait()),
@@ -304,12 +309,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_metrics(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         meter_provider: MeterProvider,
         metric_reader: InMemoryMetricReader,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(meter_provider=meter_provider)
         broker = self.get_broker(middlewares=(mid,))
 
@@ -340,12 +346,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_error_metrics(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         meter_provider: MeterProvider,
         metric_reader: InMemoryMetricReader,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(meter_provider=meter_provider)
         broker = self.get_broker(middlewares=(mid,))
         expected_value_type = "ValueError"
@@ -380,12 +387,13 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_span_in_context(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
         tracer_provider: TracerProvider,
         trace_exporter: InMemorySpanExporter,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class(tracer_provider=tracer_provider)
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
 
@@ -413,10 +421,11 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_get_baggage(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class()
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_baggage = {"foo": "bar"}
@@ -454,10 +463,11 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_clear_baggage(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class()
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
 
@@ -503,10 +513,11 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
     async def test_modify_baggage(
         self,
-        event: asyncio.Event,
         queue: str,
         mock: Mock,
     ) -> None:
+        event = asyncio.Event()
+
         mid = self.telemetry_middleware_class()
         broker = self.get_broker(middlewares=(mid,), apply_types=True)
         expected_baggage = {"baz": "bar", "bar": "baz"}
@@ -551,3 +562,44 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
         assert event.is_set()
         mock.assert_called_once_with(msg)
+
+    async def test_get_baggage_from_headers(
+        self,
+        queue: str,
+    ):
+        event = asyncio.Event()
+
+        mid = self.telemetry_middleware_class()
+        broker = self.get_broker(middlewares=(mid,), apply_types=True)
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        expected_baggage = {"foo": "bar", "bar": "baz"}
+
+        ctx = context.Context()
+        for key, value in expected_baggage.items():
+            ctx = baggage.set_baggage(key, value, context=ctx)
+
+        propagator = W3CBaggagePropagator()
+        headers = {}
+        propagator.inject(headers, context=ctx)
+
+        @broker.subscriber(*args, **kwargs)
+        async def handler():
+            baggage_instance = Baggage.from_headers(headers)
+            extracted_baggage = baggage_instance.get_all()
+            assert extracted_baggage == expected_baggage
+            event.set()
+
+        broker = self.patch_broker(broker)
+        msg = "start"
+
+        async with broker:
+            await broker.start()
+            tasks = (
+                asyncio.create_task(broker.publish(msg, queue, headers=headers)),
+                asyncio.create_task(event.wait()),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
+
+        assert event.is_set()

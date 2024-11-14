@@ -11,8 +11,8 @@ from typing import (
 from unittest.mock import MagicMock
 
 import anyio
+from fast_depends import inject
 from fast_depends.core import CallModel, build_call_model
-from fast_depends.use import _InjectWrapper, inject
 
 from faststream._internal.types import (
     MsgType,
@@ -23,11 +23,25 @@ from faststream._internal.utils.functions import to_async
 from faststream.exceptions import SetupError
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
+    from fast_depends.use import InjectWrapper
 
     from faststream._internal.basic_types import Decorator
     from faststream._internal.publisher.proto import PublisherProto
+    from faststream._internal.state.fast_depends import DIState
     from faststream.message import StreamMessage
+
+
+def ensure_call_wrapper(
+    call: Union[
+        "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+        Callable[P_HandlerParams, T_HandlerReturn],
+    ],
+) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
+    if isinstance(call, HandlerCallWrapper):
+        return call
+
+    return HandlerCallWrapper(call)
 
 
 class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
@@ -50,31 +64,18 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         "mock",
     )
 
-    def __new__(
-        cls,
-        call: Union[
-            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
-            Callable[P_HandlerParams, T_HandlerReturn],
-        ],
-    ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-        """Create a new instance of the class."""
-        if isinstance(call, cls):
-            return call
-        return super().__new__(cls)
-
     def __init__(
         self,
         call: Callable[P_HandlerParams, T_HandlerReturn],
     ) -> None:
         """Initialize a handler."""
-        if not isinstance(call, HandlerCallWrapper):
-            self._original_call = call
-            self._wrapped_call = None
-            self._publishers = []
+        self._original_call = call
+        self._wrapped_call = None
+        self._publishers = []
 
-            self.mock = None
-            self.future = None
-            self.is_test = False
+        self.mock = None
+        self.future = None
+        self.is_test = False
 
     def __call__(
         self,
@@ -84,7 +85,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         """Calls the object as a function."""
         return self._original_call(*args, **kwargs)
 
-    def call_wrapped(
+    async def call_wrapped(
         self,
         message: "StreamMessage[MsgType]",
     ) -> Awaitable[Any]:
@@ -92,8 +93,8 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         assert self._wrapped_call, "You should use `set_wrapped` first"  # nosec B101
         if self.is_test:
             assert self.mock  # nosec B101
-            self.mock(message._decoded_body)
-        return self._wrapped_call(message)
+            self.mock(await message.decode())
+        return await self._wrapped_call(message)
 
     async def wait_call(self, timeout: Optional[float] = None) -> None:
         """Waits for a call with an optional timeout."""
@@ -144,12 +145,10 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     def set_wrapped(
         self,
         *,
-        apply_types: bool,
-        is_validate: bool,
-        dependencies: Iterable["Depends"],
-        _get_dependant: Optional[Callable[..., Any]],
+        dependencies: Iterable["Dependant"],
         _call_decorators: Iterable["Decorator"],
-    ) -> Optional["CallModel[..., Any]"]:
+        state: "DIState",
+    ) -> Optional["CallModel"]:
         call = self._original_call
         for decor in _call_decorators:
             call = decor(call)
@@ -157,16 +156,20 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
         f: Callable[..., Awaitable[Any]] = to_async(call)
 
-        dependent: Optional[CallModel[..., Any]] = None
-        if _get_dependant is None:
+        dependent: Optional[CallModel] = None
+        if state.get_dependent is None:
             dependent = build_call_model(
                 f,
-                cast=is_validate,
-                extra_dependencies=dependencies,  # type: ignore[arg-type]
+                extra_dependencies=dependencies,
+                dependency_provider=state.provider,
+                serializer_cls=state.serializer,
             )
 
-            if apply_types:
-                wrapper: _InjectWrapper[Any, Any] = inject(func=None)
+            if state.use_fastdepends:
+                wrapper: InjectWrapper[Any, Any] = inject(
+                    func=None,
+                    context__=state.context,
+                )
                 f = wrapper(func=f, model=dependent)
 
             f = _wrap_decode_message(
