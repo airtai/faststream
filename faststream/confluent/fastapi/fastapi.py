@@ -2150,6 +2150,10 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
         "SpecificationBatchSubscriber",
         "SpecificationDefaultSubscriber",
     ]:
+        if ack_policy is AckPolicy.ACK_FIRST:
+            auto_commit = True
+            ack_policy = AckPolicy.DO_NOTHING
+
         subscriber = super().subscriber(
             *topics,
             polling_interval=polling_interval,

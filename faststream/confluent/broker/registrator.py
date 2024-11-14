@@ -1130,6 +1130,10 @@ class KafkaRegistrator(
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
     ]:
+        if ack_policy is AckPolicy.ACK_FIRST:
+            auto_commit = True
+            ack_policy = AckPolicy.DO_NOTHING
+
         if not auto_commit and not group_id:
             msg = "You should install `group_id` with manual commit mode"
             raise SetupError(msg)

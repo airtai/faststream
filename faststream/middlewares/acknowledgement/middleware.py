@@ -65,6 +65,9 @@ class _AcknowledgementMiddleware(BaseMiddleware):
         msg: "StreamMessage[Any]",
     ) -> Any:
         self.message = msg
+        if self.ack_policy is AckPolicy.ACK_FIRST:
+            await self.__ack()
+
         return await call_next(msg)
 
     async def __aexit__(
@@ -73,6 +76,9 @@ class _AcknowledgementMiddleware(BaseMiddleware):
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
+        if self.ack_policy is AckPolicy.ACK_FIRST:
+            return False
+
         if not exc_type:
             await self.__ack()
 

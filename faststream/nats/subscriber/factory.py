@@ -133,6 +133,10 @@ def create_subscriber(
 
         else:
             # JS Push Subscriber
+            if ack_policy is AckPolicy.ACK_FIRST:
+                ack_first = True
+                ack_policy = AckPolicy.DO_NOTHING
+
             extra_options.update(
                 {
                     "ordered_consumer": ordered_consumer,

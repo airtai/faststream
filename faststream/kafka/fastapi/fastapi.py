@@ -2559,6 +2559,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
         "SpecificationBatchSubscriber",
         "SpecificationDefaultSubscriber",
     ]:
+        if ack_policy is AckPolicy.ACK_FIRST:
+            auto_commit = True
+            ack_policy = AckPolicy.DO_NOTHING
+
         subscriber = super().subscriber(
             *topics,
             group_id=group_id,

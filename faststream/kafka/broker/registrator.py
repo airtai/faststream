@@ -1529,6 +1529,10 @@ class KafkaRegistrator(
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
     ]:
+        if ack_policy is AckPolicy.ACK_FIRST:
+            auto_commit = True
+            ack_policy = AckPolicy.DO_NOTHING
+
         subscriber = super().subscriber(
             create_subscriber(
                 *topics,
