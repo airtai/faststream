@@ -11,6 +11,7 @@ from faststream.exceptions import RejectMessage
 from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
+    BasePrometheusMiddleware,
 )
 from faststream.prometheus.types import ProcessingStatus
 from tests.brokers.base.basic import BaseTestcaseConfig
@@ -21,7 +22,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
     def get_broker(self, apply_types=False, **kwargs):
         raise NotImplementedError
 
-    def get_middleware(self, **kwargs):
+    def get_middleware(self, **kwargs) -> BasePrometheusMiddleware:
         raise NotImplementedError
 
     @staticmethod
@@ -202,3 +203,31 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                 status="success",
             ),
         ]
+
+    async def test_one_registry_for_some_middlewares(
+        self, event: asyncio.Event, queue: str
+    ) -> None:
+        registry = CollectorRegistry()
+
+        middleware_1 = self.get_middleware(registry=registry)
+        middleware_2 = self.get_middleware(registry=registry)
+        broker_1 = self.get_broker(apply_types=True, middlewares=(middleware_1,))
+        broker_2 = self.get_broker(apply_types=True, middlewares=(middleware_2,))
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @broker_1.subscriber(*args, **kwargs)
+        async def handler():
+            event.set()
+
+        async with broker_1, broker_2:
+            await broker_1.start()
+            await broker_2.start()
+            tasks = (
+                asyncio.create_task(broker_2.publish("hello", queue)),
+                asyncio.create_task(event.wait()),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
+
+        assert event.is_set()
+        assert middleware_1._metrics_container is middleware_2._metrics_container

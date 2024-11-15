@@ -1,5 +1,5 @@
 import time
-from typing import TYPE_CHECKING, Any, Callable, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, Optional, Sequence
 
 from faststream import BaseMiddleware
 from faststream.prometheus.consts import (
@@ -167,6 +167,8 @@ class PrometheusMiddleware(BaseMiddleware):
 
 
 class BasePrometheusMiddleware:
+    _container_by_registry: ClassVar[Dict["CollectorRegistry", MetricsContainer]] = {}
+
     __slots__ = ("_metrics_container", "_metrics_manager", "_settings_provider_factory")
 
     def __init__(
@@ -184,11 +186,17 @@ class BasePrometheusMiddleware:
             app_name = metrics_prefix
 
         self._settings_provider_factory = settings_provider_factory
-        self._metrics_container = MetricsContainer(
-            registry,
-            metrics_prefix=metrics_prefix,
-            received_messages_size_buckets=received_messages_size_buckets,
-        )
+
+        if registry in self._container_by_registry:
+            self._metrics_container = self._container_by_registry[registry]
+        else:
+            self._metrics_container = MetricsContainer(
+                registry,
+                metrics_prefix=metrics_prefix,
+                received_messages_size_buckets=received_messages_size_buckets,
+            )
+            self._container_by_registry[registry] = self._metrics_container
+
         self._metrics_manager = MetricsManager(
             self._metrics_container,
             app_name=app_name,
