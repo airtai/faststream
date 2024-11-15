@@ -12,6 +12,21 @@ hide:
 ---
 
 # Release Notes
+## 0.5.30
+
+### What's Changed
+* Introducing FastStream Guru on Gurubase.io by [@kursataktas](https://github.com/kursataktas){.external-link target="_blank"} in [#1903](https://github.com/airtai/faststream/pull/1903){.external-link target="_blank"}
+* docs: add gurubase badge to the doc by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1905](https://github.com/airtai/faststream/pull/1905){.external-link target="_blank"}
+* fix: allow users to pass `nkeys_seed_str` as argument for NATS broker. by [@Drakorgaur](https://github.com/Drakorgaur){.external-link target="_blank"} in [#1908](https://github.com/airtai/faststream/pull/1908){.external-link target="_blank"}
+* Add more warning's to nats subscription factory by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [#1907](https://github.com/airtai/faststream/pull/1907){.external-link target="_blank"}
+* fix: correct working with dependencies versions by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1918](https://github.com/airtai/faststream/pull/1918){.external-link target="_blank"}
+
+### New Contributors
+* [@kursataktas](https://github.com/kursataktas){.external-link target="_blank"} made their first contribution in [#1903](https://github.com/airtai/faststream/pull/1903){.external-link target="_blank"}
+* [@Drakorgaur](https://github.com/Drakorgaur){.external-link target="_blank"} made their first contribution in [#1908](https://github.com/airtai/faststream/pull/1908){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.29...0.5.30](https://github.com/airtai/faststream/compare/0.5.29...0.5.30){.external-link target="_blank"}
+
 ## 0.5.29
 
 ### What's Changed
