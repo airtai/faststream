@@ -4,11 +4,8 @@ import sys
 from importlib.metadata import version as get_version
 from typing import Any, Callable, Dict, Mapping, Optional, Type, TypeVar, Union
 
-from fast_depends._compat import PYDANTIC_V2 as PYDANTIC_V2
-from fast_depends._compat import (  # type: ignore[attr-defined]
-    PYDANTIC_VERSION as PYDANTIC_VERSION,
-)
 from pydantic import BaseModel as BaseModel
+from pydantic.version import VERSION as PYDANTIC_VERSION
 
 from faststream.types import AnyDict
 
@@ -57,8 +54,13 @@ else:
 
 JsonSchemaValue = Mapping[str, Any]
 
+major, minor, *_ = PYDANTIC_VERSION.split(".")
+_PYDANTCI_MAJOR, _PYDANTIC_MINOR = int(major), int(minor)
+
+PYDANTIC_V2 = _PYDANTCI_MAJOR >= 2
+
 if PYDANTIC_V2:
-    if PYDANTIC_VERSION >= "2.4.0":
+    if _PYDANTIC_MINOR >= 4:
         from pydantic.annotated_handlers import (
             GetJsonSchemaHandler as GetJsonSchemaHandler,
         )
@@ -66,14 +68,9 @@ if PYDANTIC_V2:
             with_info_plain_validator_function as with_info_plain_validator_function,
         )
     else:
-        if PYDANTIC_VERSION >= "2.10":
-            from pydantic.annotated_handlers import (
-                GetJsonSchemaHandler as GetJsonSchemaHandler,
-            )
-        else:
-            from pydantic._internal._annotated_handlers import (  # type: ignore[no-redef]
-                GetJsonSchemaHandler as GetJsonSchemaHandler,
-            )
+        from pydantic._internal._annotated_handlers import (  # type: ignore[no-redef]
+            GetJsonSchemaHandler as GetJsonSchemaHandler,
+        )
         from pydantic_core.core_schema import (
             general_plain_validator_function as with_info_plain_validator_function,
         )
@@ -155,8 +152,9 @@ else:
         return {}
 
 
-anyio_major = int(get_version("anyio").split(".")[0])
-ANYIO_V3 = anyio_major == 3
+major, *_ = get_version("anyio").split(".")
+_ANYIO_MAJOR = int(major)
+ANYIO_V3 = _ANYIO_MAJOR == 3
 
 
 if ANYIO_V3:
