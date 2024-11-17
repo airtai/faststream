@@ -535,29 +535,6 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber["ConsumerRe
             include_in_schema=include_in_schema,
         )
 
-    async def _consume(self) -> None:
-        assert self.consumer, "You should start subscriber at first."  # nosec B101
-
-        connected = True
-
+    async def _put_msg(self, msg: "KafkaMessage") -> None:
         self.start_consume_task()
-
-        while self.running:
-            try:
-                msg = await self.get_msg()
-
-            # pragma: no cover
-            except KafkaError:  # noqa: PERF203
-                if connected:
-                    connected = False
-                await anyio.sleep(5)
-
-            except ConsumerStoppedError:
-                return
-
-            else:
-                if not connected:  # pragma: no cover
-                    connected = True
-
-                if msg:
-                    await self.consume(msg)
+        return await super()._put_msg(msg)
