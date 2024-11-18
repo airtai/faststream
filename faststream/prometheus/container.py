@@ -56,6 +56,7 @@ class MetricsContainer:
             labelnames=["app_name", "broker", "handler"],
             registry=registry,
         )
+
         self.received_messages_size_bytes = cast(
             Histogram,
             self._get_registered_metric(
@@ -68,6 +69,7 @@ class MetricsContainer:
             registry=registry,
             buckets=received_messages_size_buckets or self.DEFAULT_SIZE_BUCKETS,
         )
+
         self.received_messages_in_process = cast(
             Gauge,
             self._get_registered_metric(
@@ -79,6 +81,7 @@ class MetricsContainer:
             labelnames=["app_name", "broker", "handler"],
             registry=registry,
         )
+
         self.received_processed_messages_total = cast(
             Counter,
             self._get_registered_metric(
@@ -90,6 +93,7 @@ class MetricsContainer:
             labelnames=["app_name", "broker", "handler", "status"],
             registry=registry,
         )
+
         self.received_processed_messages_duration_seconds = cast(
             Histogram,
             self._get_registered_metric(
@@ -101,6 +105,7 @@ class MetricsContainer:
             labelnames=["app_name", "broker", "handler"],
             registry=registry,
         )
+
         self.received_processed_messages_exceptions_total = cast(
             Counter,
             self._get_registered_metric(
@@ -112,6 +117,7 @@ class MetricsContainer:
             labelnames=["app_name", "broker", "handler", "exception_type"],
             registry=registry,
         )
+
         self.published_messages_total = cast(
             Counter,
             self._get_registered_metric(f"{metrics_prefix}_published_messages_total"),
@@ -121,6 +127,7 @@ class MetricsContainer:
             labelnames=["app_name", "broker", "destination", "status"],
             registry=registry,
         )
+
         self.published_messages_duration_seconds = cast(
             Histogram,
             self._get_registered_metric(
