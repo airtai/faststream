@@ -10,7 +10,7 @@ from typing import (
     overload,
 )
 
-from typing_extensions import Doc, override
+from typing_extensions import Doc, deprecated, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream._internal.constants import EMPTY
@@ -161,7 +161,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -428,7 +434,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -695,7 +707,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -965,7 +983,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -1130,7 +1154,23 @@ class KafkaRegistrator(
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
     ]:
-        if ack_policy is AckPolicy.ACK_FIRST:
+        if (
+            auto_commit is not EMPTY and auto_commit
+            and ack_policy is not EMPTY and ack_policy is not ack_policy.ACK_FIRST
+        ) or (
+            auto_commit is not EMPTY and not auto_commit
+            and ack_policy is ack_policy.ACK_FIRST
+        ):
+            msg = "You can't use conflict settings ('auto_commit' and 'ack_policy')"
+            raise SetupError(msg)
+
+        if auto_commit is not EMPTY and auto_commit and ack_policy is EMPTY:
+            ack_policy = AckPolicy.DO_NOTHING
+
+        elif auto_commit is not EMPTY and not auto_commit and ack_policy is EMPTY:
+            ack_policy = AckPolicy.REJECT_ON_ERROR
+
+        elif ack_policy is AckPolicy.ACK_FIRST:
             auto_commit = True
             ack_policy = AckPolicy.DO_NOTHING
 

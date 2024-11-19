@@ -9,7 +9,7 @@ from typing import (
     Union,
 )
 
-from typing_extensions import Doc
+from typing_extensions import Doc, deprecated
 
 from faststream._internal.broker.router import (
     ArgsContainer,
@@ -245,6 +245,12 @@ class KafkaRoute(SubscriberRoute):
                 """
             If `True` the consumer's offset will be
             periodically committed in the background.
+            """,
+            ),
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
         ] = True,

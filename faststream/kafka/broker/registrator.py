@@ -13,7 +13,7 @@ from typing import (
 
 from aiokafka import ConsumerRecord
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
-from typing_extensions import Doc, override
+from typing_extensions import Doc, deprecated, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream._internal.constants import EMPTY
@@ -165,6 +165,12 @@ class KafkaRegistrator(
                 """
             If `True` the consumer's offset will be
             periodically committed in the background.
+            """,
+            ),
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
         ] = True,
@@ -533,6 +539,12 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
         ] = True,
         auto_commit_interval_ms: Annotated[
             int,
@@ -897,6 +909,12 @@ class KafkaRegistrator(
                 """
             If `True` the consumer's offset will be
             periodically committed in the background.
+            """,
+            ),
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
         ] = True,
@@ -1266,6 +1284,12 @@ class KafkaRegistrator(
                 """
             If `True` the consumer's offset will be
             periodically committed in the background.
+            """,
+            ),
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
         ] = True,
