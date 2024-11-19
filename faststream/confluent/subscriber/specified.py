@@ -22,7 +22,7 @@ class SpecificationSubscriber(LogicSubscriber[MsgType]):
     """A class to handle logic and async API operations."""
 
     def get_name(self) -> str:
-        return f'{",".join(self.topics)}:{self.call_name}'
+        return f"{','.join(self.topics)}:{self.call_name}"
 
     def get_schema(self) -> dict[str, Channel]:
         channels = {}

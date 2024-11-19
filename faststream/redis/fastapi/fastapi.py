@@ -130,7 +130,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         ] = None,
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = EMPTY,
         log_level: Annotated[

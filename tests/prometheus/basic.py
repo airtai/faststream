@@ -12,6 +12,7 @@ from faststream.prometheus import MetricsSettingsProvider
 from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
+    BasePrometheusMiddleware,
 )
 from faststream.prometheus.types import ProcessingStatus
 from tests.brokers.base.basic import BaseTestcaseConfig
@@ -22,7 +23,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
     def get_broker(self, apply_types=False, **kwargs):
         raise NotImplementedError
 
-    def get_middleware(self, **kwargs):
+    def get_middleware(self, **kwargs) -> BasePrometheusMiddleware:
         raise NotImplementedError
 
     @staticmethod
@@ -258,3 +259,16 @@ class LocalMetricsSettingsProviderTestcase:
 
     def test_get_publish_destination_name_from_cmd(self, *args, **kwargs) -> None:
         raise NotImplementedError
+
+    async def test_one_registry_for_some_middlewares(self, queue: str) -> None:
+        registry = CollectorRegistry()
+
+        middleware_1 = self.get_middleware(registry=registry)
+        middleware_2 = self.get_middleware(registry=registry)
+        self.get_broker(middlewares=(middleware_1,))
+        self.get_broker(middlewares=(middleware_2,))
+
+        assert (
+            middleware_1._metrics_container.received_messages_total
+            is middleware_2._metrics_container.received_messages_total
+        )

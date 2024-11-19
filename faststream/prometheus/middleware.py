@@ -58,8 +58,8 @@ class PrometheusMiddleware:
         /,
         *,
         context: "ContextRepo",
-    ) -> "_PrometheusMiddleware":
-        return _PrometheusMiddleware(
+    ) -> "BasePrometheusMiddleware":
+        return BasePrometheusMiddleware(
             msg,
             metrics_manager=self._metrics_manager,
             settings_provider_factory=self._settings_provider_factory,
@@ -67,7 +67,7 @@ class PrometheusMiddleware:
         )
 
 
-class _PrometheusMiddleware(BaseMiddleware):
+class BasePrometheusMiddleware(BaseMiddleware):
     def __init__(
         self,
         msg: Optional[Any],
