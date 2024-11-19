@@ -153,12 +153,14 @@ class AsgiFastStream(Application):
         port = int(run_extra_options.pop("port", 8000))  # type: ignore[arg-type]
         workers = int(run_extra_options.pop("workers", 1))  # type: ignore[arg-type]
         host = str(run_extra_options.pop("host", "localhost"))
+        fd = int(run_extra_options.pop("fd", -1))  # type: ignore[arg-type]
         config = uvicorn.Config(
             self,
             host=host,
             port=port,
             log_level=log_level,
             workers=workers,
+            fd=fd if fd != -1 else None,
             **run_extra_options,
         )
         server = uvicorn.Server(config)
