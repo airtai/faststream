@@ -1,5 +1,7 @@
 from typing import Literal, Optional, Union
 
+from pydantic import Field
+
 from faststream.specification.asyncapi.v3_0_0.schema.channels import Channel
 from faststream.specification.asyncapi.v3_0_0.schema.components import Components
 from faststream.specification.asyncapi.v3_0_0.schema.info import ApplicationInfo
@@ -27,6 +29,6 @@ class ApplicationSchema(BaseApplicationSchema):
     id: Optional[str] = None
     defaultContentType: Optional[str] = None
     servers: Optional[dict[str, Server]] = None
-    channels: dict[str, Channel]
-    operations: dict[str, Operation]
+    channels: dict[str, Channel] = Field(default_factory=dict)
+    operations: dict[str, Operation] = Field(default_factory=dict)
     components: Optional[Components] = None

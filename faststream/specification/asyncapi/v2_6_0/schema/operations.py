@@ -26,20 +26,20 @@ class Operation(BaseModel):
         tags : tags associated with the operation
     """
 
-    operationId: Optional[str]
-    summary: Optional[str]
-    description: Optional[str]
+    operationId: Optional[str] = None
+    summary: Optional[str] = None
+    description: Optional[str] = None
 
-    bindings: Optional[OperationBinding]
+    bindings: Optional[OperationBinding] = None
 
     message: Union[Message, Reference]
 
-    security: Optional[dict[str, list[str]]]
+    security: Optional[dict[str, list[str]]] = None
 
     # TODO
     # traits
 
-    tags: Optional[list[Union[Tag, AnyDict]]]
+    tags: Optional[list[Union[Tag, AnyDict]]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

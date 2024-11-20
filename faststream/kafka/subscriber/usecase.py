@@ -69,10 +69,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -82,10 +78,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.topics = topics
@@ -287,10 +279,6 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         if pattern:
             reg, pattern = compile_path(
@@ -322,10 +310,6 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def get_msg(self) -> "ConsumerRecord":
@@ -368,10 +352,6 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
         broker_middlewares: Iterable[
             "BrokerMiddleware[Sequence[tuple[ConsumerRecord, ...]]]"
         ],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         self.batch_timeout_ms = batch_timeout_ms
         self.max_records = max_records
@@ -406,10 +386,6 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def get_msg(self) -> tuple["ConsumerRecord", ...]:

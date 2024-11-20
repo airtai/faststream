@@ -28,10 +28,10 @@ class ApplicationSchema(BaseApplicationSchema):
     info: ApplicationInfo
 
     asyncapi: Union[Literal["2.6.0"], str]
-    id: Optional[str]
-    defaultContentType: Optional[str]
-    servers: Optional[dict[str, Server]]
+    id: Optional[str] = None
+    defaultContentType: Optional[str] = None
+    servers: Optional[dict[str, Server]] = None
     channels: dict[str, Channel]
-    components: Optional[Components]
-    tags: Optional[list[Union[Tag, AnyDict]]]
-    externalDocs: Optional[Union[ExternalDocs, AnyDict]]
+    components: Optional[Components] = None
+    tags: Optional[list[Union[Tag, AnyDict]]] = None
+    externalDocs: Optional[Union[ExternalDocs, AnyDict]] = None

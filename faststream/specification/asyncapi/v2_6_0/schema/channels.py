@@ -25,11 +25,11 @@ class Channel(BaseModel):
         Config : configuration for the class (only applicable for Pydantic version 1)
     """
 
-    description: Optional[str]
-    servers: Optional[list[str]]
-    bindings: Optional[ChannelBinding]
-    subscribe: Optional[Operation]
-    publish: Optional[Operation]
+    description: Optional[str] = None
+    servers: Optional[list[str]] = None
+    bindings: Optional[ChannelBinding] = None
+    subscribe: Optional[Operation] = None
+    publish: Optional[Operation] = None
 
     # TODO:
     # parameters: Optional[Parameter] = None

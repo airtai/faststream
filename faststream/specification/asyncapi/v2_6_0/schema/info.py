@@ -23,6 +23,6 @@ class ApplicationInfo(BaseApplicationInfo):
         license : license information for the information
     """
 
-    termsOfService: Optional[AnyHttpUrl]
-    contact: Optional[Union[Contact, AnyDict]]
-    license: Optional[Union[License, AnyDict]]
+    termsOfService: Optional[AnyHttpUrl] = None
+    contact: Optional[Union[Contact, AnyDict]] = None
+    license: Optional[Union[License, AnyDict]] = None

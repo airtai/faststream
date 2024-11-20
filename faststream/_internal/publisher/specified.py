@@ -27,18 +27,15 @@ class SpecificationPublisher(EndpointSpecification[PublisherSpec]):
 
     def __init__(
         self,
-        *,
+        *args: Any,
         schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
+        **kwargs: Any,
     ) -> None:
         self.calls: list[AnyCallable] = []
 
-        self.title_ = title_
-        self.description_ = description_
-        self.include_in_schema = include_in_schema
         self.schema_ = schema_
+
+        super().__init__(*args, **kwargs)
 
     def __call__(
         self,

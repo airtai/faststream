@@ -1,15 +1,30 @@
-from abc import abstractmethod
-from typing import Any, Optional, Protocol, TypeVar
+from abc import ABC, abstractmethod
+from typing import Any, Generic, Optional, TypeVar
 
 T = TypeVar("T")
 
 
-class EndpointSpecification(Protocol[T]):
-    """A class representing an asynchronous API operation."""
+class EndpointSpecification(ABC, Generic[T]):
+    """A class representing an asynchronous API operation: Pub or Sub."""
 
     title_: Optional[str]
     description_: Optional[str]
     include_in_schema: bool
+
+    def __init__(
+        self,
+        *args: Any,
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+        **kwargs: Any,
+    ) -> None:
+        self.title_ = title_
+        self.description_ = description_
+        self.include_in_schema = include_in_schema
+
+        # Call next base class parent init
+        super().__init__(*args, **kwargs)
 
     @property
     def name(self) -> str:

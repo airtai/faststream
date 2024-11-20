@@ -69,10 +69,6 @@ class SubscriberProto(
         message: "StreamMessage[MsgType]",
     ) -> Iterable["BasePublisherProto"]: ...
 
-    @property
-    @abstractmethod
-    def call_name(self) -> str: ...
-
     @abstractmethod
     async def start(self) -> None: ...
 

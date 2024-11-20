@@ -24,12 +24,19 @@ class OperationBinding(BaseModel):
     bindingVersion: str = "custom"
 
     @classmethod
-    def from_spec(cls, binding: nats.OperationBinding) -> Self:
+    def from_sub(cls, binding: Optional[nats.OperationBinding]) -> Optional[Self]:
+        if not binding:
+            return None
+
         return cls(
-            replyTo=binding.replyTo,
-            bindingVersion=binding.bindingVersion,
+            replyTo=binding.reply_to,
         )
 
+    @classmethod
+    def from_pub(cls, binding: Optional[nats.OperationBinding]) -> Optional[Self]:
+        if not binding:
+            return None
 
-def from_spec(binding: nats.OperationBinding) -> OperationBinding:
-    return OperationBinding.from_spec(binding)
+        return cls(
+            replyTo=binding.reply_to,
+        )

@@ -27,16 +27,9 @@ class SpecificationSubscriber(
     def __init__(
         self,
         *args: Any,
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
         **kwargs: Any,
     ) -> None:
         self.calls = []
-
-        self.title_ = title_
-        self.description_ = description_
-        self.include_in_schema = include_in_schema
 
         # Call next base class parent init
         super().__init__(*args, **kwargs)

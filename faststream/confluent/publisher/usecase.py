@@ -1,7 +1,6 @@
 from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
-    Any,
     Optional,
     Union,
 )
@@ -40,20 +39,10 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             broker_middlewares=broker_middlewares,
             middlewares=middlewares,
-            # AsyncAPI args
-            schema_=schema_,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.topic = topic
@@ -105,11 +94,6 @@ class DefaultPublisher(LogicPublisher[Message]):
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[Message]"],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             topic=topic,
@@ -119,11 +103,6 @@ class DefaultPublisher(LogicPublisher[Message]):
             # publisher args
             broker_middlewares=broker_middlewares,
             middlewares=middlewares,
-            # AsyncAPI args
-            schema_=schema_,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.key = key

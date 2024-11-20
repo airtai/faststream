@@ -30,14 +30,23 @@ class ChannelBinding(BaseModel):
     # topicConfiguration
 
     @classmethod
-    def from_spec(cls, binding: kafka.ChannelBinding) -> Self:
+    def from_sub(cls, binding: Optional[kafka.ChannelBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
+
         return cls(
             topic=binding.topic,
             partitions=binding.partitions,
             replicas=binding.replicas,
-            bindingVersion=binding.bindingVersion,
         )
 
+    @classmethod
+    def from_pub(cls, binding: Optional[kafka.ChannelBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
 
-def from_spec(binding: kafka.ChannelBinding) -> ChannelBinding:
-    return ChannelBinding.from_spec(binding)
+        return cls(
+            topic=binding.topic,
+            partitions=binding.partitions,
+            replicas=binding.replicas,
+        )

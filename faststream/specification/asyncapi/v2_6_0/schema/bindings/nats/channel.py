@@ -25,13 +25,23 @@ class ChannelBinding(BaseModel):
     bindingVersion: str = "custom"
 
     @classmethod
-    def from_spec(cls, binding: nats.ChannelBinding) -> Self:
+    def from_sub(cls, binding: Optional[nats.ChannelBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
+
         return cls(
             subject=binding.subject,
             queue=binding.queue,
-            bindingVersion=binding.bindingVersion,
+            bindingVersion="custom",
         )
 
+    @classmethod
+    def from_pub(cls, binding: Optional[nats.ChannelBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
 
-def from_spec(binding: nats.ChannelBinding) -> ChannelBinding:
-    return ChannelBinding.from_spec(binding)
+        return cls(
+            subject=binding.subject,
+            queue=binding.queue,
+            bindingVersion="custom",
+        )

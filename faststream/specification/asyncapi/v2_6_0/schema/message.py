@@ -47,13 +47,13 @@ class Message(BaseModel):
         tags : list of tags associated with the message
     """
 
-    title: Optional[str]
-    name: Optional[str]
-    summary: Optional[str]
-    description: Optional[str]
-    messageId: Optional[str]
-    correlationId: Optional[CorrelationId]
-    contentType: Optional[str]
+    title: Optional[str] = None
+    name: Optional[str] = None
+    summary: Optional[str] = None
+    description: Optional[str] = None
+    messageId: Optional[str] = None
+    correlationId: Optional[CorrelationId] = None
+    contentType: Optional[str] = None
 
     payload: AnyDict
     # TODO:
@@ -63,7 +63,7 @@ class Message(BaseModel):
     # examples
     # traits
 
-    tags: Optional[list[Union[Tag, AnyDict]]]
+    tags: Optional[list[Union[Tag, AnyDict]]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

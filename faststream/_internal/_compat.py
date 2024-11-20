@@ -1,6 +1,7 @@
 import json
 import sys
 import warnings
+from collections import UserString
 from collections.abc import Iterable, Mapping
 from importlib.metadata import version as get_version
 from importlib.util import find_spec
@@ -181,13 +182,12 @@ ANYIO_V3 = anyio_major == 3
 
 if ANYIO_V3:
     from anyio import ExceptionGroup  # type: ignore[attr-defined]
-elif sys.version_info < (3, 11):
+elif sys.version_info >= (3, 11):
+    ExceptionGroup = ExceptionGroup  # noqa: PLW0127
+else:
     from exceptiongroup import (
         ExceptionGroup,
     )
-else:
-    ExceptionGroup = ExceptionGroup  # noqa: PLW0127
-
 
 try:
     import email_validator
@@ -198,7 +198,7 @@ try:
 except ImportError:  # pragma: no cover
     # NOTE: EmailStr mock was copied from the FastAPI
     # https://github.com/tiangolo/fastapi/blob/master/fastapi/openapi/models.py#24
-    class EmailStr(str):  # type: ignore[no-redef]
+    class EmailStr(UserString):  # type: ignore[no-redef]
         """EmailStr is a string that should be an email.
 
         Note: EmailStr mock was copied from the FastAPI:

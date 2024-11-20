@@ -28,14 +28,23 @@ class OperationBinding(BaseModel):
     bindingVersion: str = "0.4.0"
 
     @classmethod
-    def from_spec(cls, binding: kafka.OperationBinding) -> Self:
+    def from_sub(cls, binding: Optional[kafka.OperationBinding]) -> Optional[Self]:
+        if not binding:
+            return None
+
         return cls(
-            groupId=binding.groupId,
-            clientId=binding.clientId,
-            replyTo=binding.replyTo,
-            bindingVersion=binding.bindingVersion,
+            groupId=binding.group_id,
+            clientId=binding.client_id,
+            replyTo=binding.reply_to,
         )
 
+    @classmethod
+    def from_pub(cls, binding: Optional[kafka.OperationBinding]) -> Optional[Self]:
+        if not binding:
+            return None
 
-def from_spec(binding: kafka.OperationBinding) -> OperationBinding:
-    return OperationBinding.from_spec(binding)
+        return cls(
+            groupId=binding.group_id,
+            clientId=binding.client_id,
+            replyTo=binding.reply_to,
+        )

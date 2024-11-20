@@ -56,10 +56,6 @@ class ObjStoreWatchSubscriber(
         obj_watch: "ObjWatch",
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[list[Msg]]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = ObjParser(pattern="")
 
@@ -76,10 +72,6 @@ class ObjStoreWatchSubscriber(
             default_decoder=parser.decode_message,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            description_=description_,
-            title_=title_,
-            include_in_schema=include_in_schema,
         )
 
     @override

@@ -35,9 +35,9 @@ class Components(BaseModel):
 
     """
 
-    messages: Optional[dict[str, Message]]
-    schemas: Optional[dict[str, AnyDict]]
-    securitySchemes: Optional[dict[str, AnyDict]]
+    messages: Optional[dict[str, Message]] = None
+    schemas: Optional[dict[str, AnyDict]] = None
+    securitySchemes: Optional[dict[str, AnyDict]] = None
     # parameters
     # correlationIds
     # operationTraits

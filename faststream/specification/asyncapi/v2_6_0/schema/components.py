@@ -38,9 +38,9 @@ class Components(BaseModel):
         - messageBindings
     """
 
-    messages: Optional[dict[str, Message]]
-    schemas: Optional[dict[str, AnyDict]]
-    securitySchemes: Optional[dict[str, AnyDict]]
+    messages: Optional[dict[str, Message]] = None
+    schemas: Optional[dict[str, AnyDict]] = None
+    securitySchemes: Optional[dict[str, AnyDict]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

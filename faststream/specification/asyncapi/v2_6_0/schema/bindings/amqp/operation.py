@@ -21,12 +21,12 @@ class OperationBinding(BaseModel):
         bindingVersion : string representing the binding version
     """
 
-    cc: Optional[str]
+    cc: Optional[str] = None
     ack: bool
-    replyTo: Optional[str]
-    deliveryMode: Optional[int]
-    mandatory: Optional[bool]
-    priority: Optional[PositiveInt]
+    replyTo: Optional[str] = None
+    deliveryMode: Optional[int] = None
+    mandatory: Optional[bool] = None
+    priority: Optional[PositiveInt] = None
 
     bindingVersion: str = "0.2.0"
 

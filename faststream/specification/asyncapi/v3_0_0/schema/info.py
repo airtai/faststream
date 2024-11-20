@@ -28,8 +28,8 @@ class ApplicationInfo(BaseApplicationInfo):
         externalDocs : optional external documentation
     """
 
-    termsOfService: Optional[AnyHttpUrl]
-    contact: Optional[Union[Contact, AnyDict]]
-    license: Optional[Union[License, AnyDict]]
-    tags: Optional[list[Union["Tag", "AnyDict"]]]
-    externalDocs: Optional[Union["ExternalDocs", "AnyDict"]]
+    termsOfService: Optional[AnyHttpUrl] = None
+    contact: Optional[Union[Contact, AnyDict]] = None
+    license: Optional[Union[License, AnyDict]] = None
+    tags: Optional[list[Union["Tag", "AnyDict"]]] = None
+    externalDocs: Optional[Union["ExternalDocs", "AnyDict"]] = None

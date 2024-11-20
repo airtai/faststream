@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing_extensions import Self
 
 from faststream._internal._compat import PYDANTIC_V2
@@ -33,20 +33,21 @@ class Operation(BaseModel):
     """
 
     action: Action
-    summary: Optional[str]
-    description: Optional[str]
-
-    bindings: Optional[OperationBinding]
-
-    messages: list[Reference]
     channel: Union[Channel, Reference]
 
-    security: Optional[dict[str, list[str]]]
+    summary: Optional[str] = None
+    description: Optional[str] = None
+
+    bindings: Optional[OperationBinding] = None
+
+    messages: list[Reference] = Field(default_factory=list)
+
+    security: Optional[dict[str, list[str]]] = None
 
     # TODO
     # traits
 
-    tags: Optional[list[Union[Tag, AnyDict]]]
+    tags: Optional[list[Union[Tag, AnyDict]]] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

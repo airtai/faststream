@@ -51,16 +51,12 @@ class SpecificationPublisher(
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        SpecificationPublisherMixin.__init__(
-            self,
+        super().__init__(
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
             schema_=schema_,
-        )
-
-        RMQSpecificationMixin.__init__(
-            self,
+            # propagate to RMQSpecificationMixin
             queue=queue,
             exchange=exchange,
         )

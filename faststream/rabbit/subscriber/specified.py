@@ -48,15 +48,11 @@ class SpecificationSubscriber(
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        SpecificationSubscriberMixin.__init__(
-            self,
+        super().__init__(
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
-        )
-
-        RMQSpecificationMixin.__init__(
-            self,
+            # propagate to RMQSpecificationMixin
             queue=queue,
             exchange=exchange,
         )

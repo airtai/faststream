@@ -1,5 +1,6 @@
 import json
 import sys
+import traceback
 from http.server import HTTPServer
 from pathlib import Path
 from unittest.mock import Mock
@@ -94,7 +95,7 @@ def test_serve_asyncapi_json_schema(
         m.setattr(HTTPServer, "serve_forever", mock)
         r = runner.invoke(cli, SERVE_CMD + [str(schema_path)])  # noqa: RUF005
 
-    assert r.exit_code == 0, r.exc_info
+    assert r.exit_code == 0, traceback.format_tb(r.exc_info[2])
     mock.assert_called_once()
 
     schema_path.unlink()
@@ -115,7 +116,7 @@ def test_serve_asyncapi_yaml_schema(
         m.setattr(HTTPServer, "serve_forever", mock)
         r = runner.invoke(cli, SERVE_CMD + [str(schema_path)])  # noqa: RUF005
 
-    assert r.exit_code == 0, r.exc_info
+    assert r.exit_code == 0, traceback.format_tb(r.exc_info[2])
     mock.assert_called_once()
 
     schema_path.unlink()
