@@ -7,7 +7,7 @@ from prometheus_client import CollectorRegistry
 
 from faststream import Context
 from faststream.broker.message import AckStatus
-from faststream.exceptions import HandlerException, RejectMessage
+from faststream.exceptions import IgnoredException, RejectMessage
 from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
@@ -53,6 +53,11 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             pytest.param(AckStatus.nacked, None, id="nacked status without exception"),
             pytest.param(
                 AckStatus.rejected, None, id="rejected status without exception"
+            ),
+            pytest.param(
+                AckStatus.acked,
+                IgnoredException,
+                id="acked status with ignore exception",
             ),
         ],
     )
@@ -176,7 +181,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             ),
         ]
 
-        if exception_class and not issubclass(exception_class, HandlerException):
+        if exception_class and not issubclass(exception_class, IgnoredException):
             assert (
                 metrics_manager.add_received_processed_message_exception.mock_calls
                 == [
@@ -187,6 +192,8 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                     ),
                 ]
             )
+        else:
+            assert metrics_manager.add_received_processed_message_exception.mock_calls == []
 
     def assert_publish_metrics(self, metrics_manager: Any):
         settings_provider = self.settings_provider_factory(None)

@@ -2,7 +2,7 @@ import time
 from typing import TYPE_CHECKING, Any, Callable, Optional, Sequence
 
 from faststream import BaseMiddleware
-from faststream.exceptions import HandlerException
+from faststream.exceptions import IgnoredException
 from faststream.prometheus.consts import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
@@ -73,7 +73,7 @@ class PrometheusMiddleware(BaseMiddleware):
         except Exception as e:
             err = e
 
-            if not isinstance(err, HandlerException):
+            if not isinstance(err, IgnoredException):
                 self._metrics_manager.add_received_processed_message_exception(
                     exception_type=type(err).__name__,
                     broker=messaging_system,
