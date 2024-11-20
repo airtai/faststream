@@ -9,6 +9,7 @@ from typing import (
 )
 
 from faststream._internal.constants import EMPTY
+from faststream.exceptions import SetupError
 from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationDefaultSubscriber,
@@ -123,10 +124,15 @@ def create_subscriber(
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
 ]:
-    _validate_input_for_misconfigure(ack_policy=ack_policy, is_manual=is_manual)
+    _validate_input_for_misconfigure(
+        ack_policy=ack_policy, is_manual=is_manual, group_id=group_id,
+    )
 
     if ack_policy is EMPTY:
-        ack_policy = AckPolicy.REJECT_ON_ERROR
+        if not is_manual:
+            ack_policy = AckPolicy.DO_NOTHING
+        else:
+            ack_policy = AckPolicy.REJECT_ON_ERROR
 
     if batch:
         return SpecificationBatchSubscriber(
@@ -166,10 +172,22 @@ def _validate_input_for_misconfigure(
     *,
     ack_policy: "AckPolicy",
     is_manual: bool,
+    group_id: Optional[str],
 ) -> None:
-    if ack_policy is not EMPTY and not is_manual:
+    if not is_manual and ack_policy is not EMPTY and ack_policy is not AckPolicy.ACK_FIRST:
         warnings.warn(
-            "You can't use acknowledgement policy with `is_manual=False` subscriber",
+            "You can't use ack_policy other then AckPolicy.ACK_FIRST with `auto_commit=True`",
             RuntimeWarning,
             stacklevel=4,
         )
+    elif is_manual and ack_policy is not EMPTY and ack_policy is AckPolicy.ACK_FIRST:
+        warnings.warn(
+            "You can't use AckPolicy.ACK_FIRST with `auto_commit=False`",
+            RuntimeWarning,
+            stacklevel=4,
+        )
+
+    if is_manual and not group_id:
+        msg = "You must use `group_id` with manual commit mode."
+        raise SetupError(msg)
+

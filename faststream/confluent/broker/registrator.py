@@ -167,7 +167,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = EMPTY,
+        ] = True,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -440,7 +440,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = EMPTY,
+        ] = True,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -713,7 +713,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = EMPTY,
+        ] = True,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -989,7 +989,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = EMPTY,
+        ] = True,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -1154,29 +1154,6 @@ class KafkaRegistrator(
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
     ]:
-        if (
-            auto_commit is not EMPTY and auto_commit
-            and ack_policy is not EMPTY and ack_policy is not ack_policy.ACK_FIRST
-        ) or (
-            auto_commit is not EMPTY and not auto_commit
-            and ack_policy is ack_policy.ACK_FIRST
-        ):
-            msg = "You can't use conflict settings ('auto_commit' and 'ack_policy')"
-            raise SetupError(msg)
-
-        if auto_commit is not EMPTY and auto_commit and ack_policy is EMPTY:
-            ack_policy = AckPolicy.DO_NOTHING
-
-        elif auto_commit is not EMPTY and not auto_commit and ack_policy is EMPTY:
-            ack_policy = AckPolicy.REJECT_ON_ERROR
-
-        elif ack_policy is AckPolicy.ACK_FIRST:
-            auto_commit = True
-            ack_policy = AckPolicy.DO_NOTHING
-
-        if not auto_commit and not group_id:
-            msg = "You should install `group_id` with manual commit mode"
-            raise SetupError(msg)
 
         subscriber = super().subscriber(
             create_subscriber(

@@ -415,9 +415,6 @@ class KafkaRoute(SubscriberRoute):
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> None:
-        if ack_policy is AckPolicy.ACK_FIRST:
-            auto_commit = True
-            ack_policy = AckPolicy.DO_NOTHING
 
         super().__init__(
             call,
