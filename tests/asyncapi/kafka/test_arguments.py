@@ -60,7 +60,7 @@ class TestArguments(ArgumentsTestcase):
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key1 = tuple(schema["channels"].keys())[0]  # noqa: RUF015
-        key2 = tuple(schema["channels"].keys())[1]  # noqa: RUF015
+        key2 = tuple(schema["channels"].keys())[1]
 
         assert sorted((
             schema["channels"][key1]["bindings"]["kafka"]["topic"],
