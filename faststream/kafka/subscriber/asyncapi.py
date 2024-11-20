@@ -5,8 +5,6 @@ from typing import (
     Tuple,
 )
 
-from boltons.iterutils import partition
-
 from faststream.asyncapi.schema import (
     Channel,
     ChannelBinding,
