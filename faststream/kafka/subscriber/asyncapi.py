@@ -73,7 +73,7 @@ class AsyncAPIBatchSubscriber(
 
 
 class AsyncAPIConcurrentDefaultSubscriber(
-    ConcurrentDefaultSubscriber,
     AsyncAPISubscriber["ConsumerRecord"],
+    ConcurrentDefaultSubscriber,
 ):
     pass

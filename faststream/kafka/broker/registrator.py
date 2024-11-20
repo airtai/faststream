@@ -1666,7 +1666,6 @@ class KafkaRegistrator(
                     decoder_=decoder or self._decoder,
                     dependencies_=dependencies,
                     middlewares_=middlewares,
-                    max_workers=max_workers,
                 )
             else:
                 return cast("AsyncAPIDefaultSubscriber", subscriber).add_call(

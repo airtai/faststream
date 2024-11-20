@@ -474,11 +474,13 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         )
 
 
-class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber["ConsumerRecord"]):
+class ConcurrentDefaultSubscriber(
+    ConcurrentMixin,
+    DefaultSubscriber
+):
     def __init__(
         self,
         *topics: str,
-        max_workers: int,
         # Kafka information
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
@@ -487,6 +489,7 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber["ConsumerRe
         partitions: Iterable["TopicPartition"],
         is_manual: bool,
         # Subscriber args
+        max_workers: int,
         no_ack: bool,
         no_reply: bool,
         retry: bool,
@@ -497,32 +500,13 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber["ConsumerRe
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        if pattern:
-            reg, pattern = compile_path(
-                pattern,
-                replace_symbol=".*",
-                patch_regex=lambda x: x.replace(r"\*", ".*"),
-            )
-
-        else:
-            reg = None
-
-        parser = AioKafkaParser(
-            msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
-            regex=reg,
-        )
-
         super().__init__(
-            *topics,
-            max_workers=max_workers,
             group_id=group_id,
             listener=listener,
             pattern=pattern,
             connection_args=connection_args,
             partitions=partitions,
-            # subscriber args
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
+            is_manual=is_manual,
             # Propagated args
             no_ack=no_ack,
             no_reply=no_reply,
@@ -533,8 +517,32 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber["ConsumerRe
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
+            max_workers=max_workers,
         )
+        self.topics = topics
 
-    async def _put_msg(self, msg: "KafkaMessage") -> None:
+    async def _consume(self) -> None:
+        assert self.consumer, "You should start subscriber at first."  # nosec B101
+
+        connected = True
+
         self.start_consume_task()
-        return await super()._put_msg(msg)
+        while self.running:
+            try:
+                msg = await self.get_msg()
+
+            # pragma: no cover
+            except KafkaError:  # noqa: PERF203
+                if connected:
+                    connected = False
+                await anyio.sleep(5)
+
+            except ConsumerStoppedError:
+                return
+
+            else:
+                if not connected:  # pragma: no cover
+                    connected = True
+
+                if msg:
+                    await self._put_msg(msg)
