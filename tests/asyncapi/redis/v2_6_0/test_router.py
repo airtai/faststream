@@ -35,7 +35,7 @@ class TestRouter(RouterTestcase):
                         },
                     },
                     "servers": ["development"],
-                    "subscribe": {
+                    "publish": {
                         "message": {
                             "$ref": "#/components/messages/test_test:Handle:Message",
                         },

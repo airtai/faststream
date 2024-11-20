@@ -40,7 +40,7 @@ class TestRouter(RouterTestcase):
                     "bindings": {
                         "kafka": {"topic": "test_test", "bindingVersion": "0.4.0"},
                     },
-                    "subscribe": {
+                    "publish": {
                         "message": {
                             "$ref": "#/components/messages/test_test:Handle:Message",
                         },
