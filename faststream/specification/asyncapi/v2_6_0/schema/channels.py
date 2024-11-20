@@ -48,8 +48,8 @@ class Channel(BaseModel):
             description=subscriber.description,
             servers=None,
             bindings=ChannelBinding.from_sub(subscriber.bindings),
-            subscribe=Operation.from_sub(subscriber.operation),
-            publish=None,
+            subscribe=None,
+            publish=Operation.from_sub(subscriber.operation),
         )
 
     @classmethod
@@ -58,6 +58,6 @@ class Channel(BaseModel):
             description=publisher.description,
             servers=None,
             bindings=ChannelBinding.from_pub(publisher.bindings),
-            subscribe=None,
-            publish=Operation.from_pub(publisher.operation),
+            subscribe=Operation.from_pub(publisher.operation),
+            publish=None,
         )
