@@ -193,7 +193,10 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                 ]
             )
         else:
-            assert metrics_manager.add_received_processed_message_exception.mock_calls == []
+            assert (
+                metrics_manager.add_received_processed_message_exception.mock_calls
+                == []
+            )
 
     def assert_publish_metrics(self, metrics_manager: Any):
         settings_provider = self.settings_provider_factory(None)
