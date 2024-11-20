@@ -7,7 +7,7 @@ from prometheus_client import CollectorRegistry
 
 from faststream import Context
 from faststream.broker.message import AckStatus
-from faststream.exceptions import RejectMessage
+from faststream.exceptions import HandlerException, RejectMessage
 from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
@@ -176,7 +176,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             ),
         ]
 
-        if status == ProcessingStatus.error:
+        if exception_class and not issubclass(exception_class, HandlerException):
             assert (
                 metrics_manager.add_received_processed_message_exception.mock_calls
                 == [
