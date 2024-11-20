@@ -63,7 +63,7 @@ if TYPE_CHECKING:
     from faststream.nats.publisher.specified import SpecificationPublisher
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 
 class NatsRouter(StreamRouter["Msg"]):
@@ -245,9 +245,9 @@ class NatsRouter(StreamRouter["Msg"]):
             Doc("AsyncAPI server description."),
         ] = None,
         specification_tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("AsyncAPI server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],

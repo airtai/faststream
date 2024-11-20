@@ -1,34 +1,29 @@
-from . import (
-    bindings,
-    channel,
-    contact,
-    docs,
-    info,
-    license,
-    message,
-    operation,
-    security,
-    tag,
+from .extra import (
+    Contact,
+    ContactDict,
+    ExternalDocs,
+    ExternalDocsDict,
+    License,
+    LicenseDict,
+    Tag,
+    TagDict,
 )
-from .contact import Contact
-from .docs import ExternalDocs
-from .license import License
-from .tag import Tag
+from .message import Message
+from .operation import Operation
+from .publisher import PublisherSpec
+from .subscriber import SubscriberSpec
 
 __all__ = (
     "Contact",
+    "ContactDict",
     "ExternalDocs",
+    "ExternalDocsDict",
     "License",
+    "LicenseDict",
+    "Message",
+    "Operation",
+    "PublisherSpec",
+    "SubscriberSpec",
     "Tag",
-    # module aliases
-    "bindings",
-    "channel",
-    "contact",
-    "docs",
-    "info",
-    "license",
-    "message",
-    "operation",
-    "security",
-    "tag",
+    "TagDict",
 )

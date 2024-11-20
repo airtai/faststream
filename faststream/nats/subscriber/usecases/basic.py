@@ -3,7 +3,6 @@ from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
     Any,
-    Generic,
     Optional,
 )
 
@@ -46,7 +45,7 @@ if TYPE_CHECKING:
     from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 
 
-class LogicSubscriber(SubscriberUsecase[MsgType], Generic[MsgType]):
+class LogicSubscriber(SubscriberUsecase[MsgType]):
     """Basic class for all NATS Subscriber types (KeyValue, ObjectStorage, Core & JetStream)."""
 
     subscription: Optional[Unsubscriptable]
@@ -66,10 +65,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType], Generic[MsgType]):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         self.subject = subject
         self.config = config
@@ -84,10 +79,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType], Generic[MsgType]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self._fetch_sub = None
@@ -201,10 +192,6 @@ class DefaultSubscriber(LogicSubscriber[MsgType]):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             subject=subject,
@@ -218,10 +205,6 @@ class DefaultSubscriber(LogicSubscriber[MsgType]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            description_=description_,
-            title_=title_,
-            include_in_schema=include_in_schema,
         )
 
     def _make_response_publisher(

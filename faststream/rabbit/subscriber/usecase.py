@@ -15,7 +15,6 @@ from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.fake import RabbitFakePublisher
-from faststream.rabbit.schemas import BaseRMQInformation
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
@@ -36,10 +35,7 @@ if TYPE_CHECKING:
     )
 
 
-class LogicSubscriber(
-    SubscriberUsecase["IncomingMessage"],
-    BaseRMQInformation,
-):
+class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
     """A class to handle logic for RabbitMQ message consumption."""
 
     app_id: Optional[str]
@@ -53,18 +49,15 @@ class LogicSubscriber(
         self,
         *,
         queue: "RabbitQueue",
-        exchange: "RabbitExchange",
         consume_args: Optional["AnyDict"],
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
+        self.queue = queue
+
         parser = AioPikaParser(pattern=queue.path_regex)
 
         super().__init__(
@@ -75,10 +68,6 @@ class LogicSubscriber(
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.consume_args = consume_args or {}
@@ -86,20 +75,13 @@ class LogicSubscriber(
         self._consumer_tag = None
         self._queue_obj = None
 
-        # BaseRMQInformation
-        self.queue = queue
-        self.exchange = exchange
         # Setup it later
-        self.app_id = None
-        self.virtual_host = ""
         self.declarer = None
 
     @override
     def _setup(  # type: ignore[override]
         self,
         *,
-        app_id: Optional[str],
-        virtual_host: str,
         declarer: "RabbitDeclarer",
         # basic args
         extra_context: "AnyDict",
@@ -109,8 +91,6 @@ class LogicSubscriber(
         # dependant args
         state: "BrokerState",
     ) -> None:
-        self.app_id = app_id
-        self.virtual_host = virtual_host
         self.declarer = declarer
 
         super()._setup(

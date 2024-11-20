@@ -3,12 +3,12 @@
 References: https://github.com/asyncapi/bindings/tree/master/amqp
 """
 
-from typing import Literal, Optional
+from typing import Literal, Optional, overload
 
 from pydantic import BaseModel, Field
 from typing_extensions import Self
 
-from faststream.specification import schema as spec
+from faststream.specification.schema.bindings import amqp
 
 
 class Queue(BaseModel):
@@ -28,14 +28,25 @@ class Queue(BaseModel):
     autoDelete: bool
     vhost: str = "/"
 
+    @overload
     @classmethod
-    def from_spec(cls, binding: spec.bindings.amqp.Queue) -> Self:
+    def from_spec(cls, binding: None, vhost: str) -> None: ...
+
+    @overload
+    @classmethod
+    def from_spec(cls, binding: amqp.Queue, vhost: str) -> Self: ...
+
+    @classmethod
+    def from_spec(cls, binding: Optional[amqp.Queue], vhost: str) -> Optional[Self]:
+        if binding is None:
+            return None
+
         return cls(
             name=binding.name,
             durable=binding.durable,
             exclusive=binding.exclusive,
-            autoDelete=binding.autoDelete,
-            vhost=binding.vhost,
+            autoDelete=binding.auto_delete,
+            vhost=vhost,
         )
 
 
@@ -65,14 +76,25 @@ class Exchange(BaseModel):
     autoDelete: Optional[bool] = None
     vhost: str = "/"
 
+    @overload
     @classmethod
-    def from_spec(cls, binding: spec.bindings.amqp.Exchange) -> Self:
+    def from_spec(cls, binding: None, vhost: str) -> None: ...
+
+    @overload
+    @classmethod
+    def from_spec(cls, binding: amqp.Exchange, vhost: str) -> Self: ...
+
+    @classmethod
+    def from_spec(cls, binding: Optional[amqp.Exchange], vhost: str) -> Optional[Self]:
+        if binding is None:
+            return None
+
         return cls(
             name=binding.name,
             type=binding.type,
             durable=binding.durable,
-            autoDelete=binding.autoDelete,
-            vhost=binding.vhost,
+            autoDelete=binding.auto_delete,
+            vhost=vhost,
         )
 
 
@@ -92,19 +114,31 @@ class ChannelBinding(BaseModel):
     exchange: Optional[Exchange] = None
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.amqp.ChannelBinding) -> Self:
+    def from_sub(cls, binding: Optional[amqp.ChannelBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
+
         return cls(
             **{
-                "is": binding.is_,
-                "queue": Queue.from_spec(binding.queue)
-                if binding.queue is not None
+                "is": "routingKey",
+                "queue": Queue.from_spec(binding.queue, binding.virtual_host)
+                if binding.exchange.is_respect_routing_key
                 else None,
-                "exchange": Exchange.from_spec(binding.exchange)
-                if binding.exchange is not None
-                else None,
+                "exchange": Exchange.from_spec(binding.exchange, binding.virtual_host),
             },
         )
 
+    @classmethod
+    def from_pub(cls, binding: Optional[amqp.ChannelBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
 
-def from_spec(binding: spec.bindings.amqp.ChannelBinding) -> ChannelBinding:
-    return ChannelBinding.from_spec(binding)
+        return cls(
+            **{
+                "is": "routingKey",
+                "queue": Queue.from_spec(binding.queue, binding.virtual_host)
+                if binding.exchange.is_respect_routing_key and binding.queue.name
+                else None,
+                "exchange": Exchange.from_spec(binding.exchange, binding.virtual_host),
+            },
+        )

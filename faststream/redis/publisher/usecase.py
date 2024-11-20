@@ -33,20 +33,10 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             broker_middlewares=broker_middlewares,
             middlewares=middlewares,
-            # AsyncAPI args
-            schema_=schema_,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.reply_to = reply_to
@@ -67,21 +57,12 @@ class ChannelPublisher(LogicPublisher):
         # Regular publisher options
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI options
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             reply_to=reply_to,
             headers=headers,
             broker_middlewares=broker_middlewares,
             middlewares=middlewares,
-            schema_=schema_,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.channel = channel
@@ -204,21 +185,12 @@ class ListPublisher(LogicPublisher):
         # Regular publisher options
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI options
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             reply_to=reply_to,
             headers=headers,
             broker_middlewares=broker_middlewares,
             middlewares=middlewares,
-            schema_=schema_,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.list = list
@@ -399,21 +371,12 @@ class StreamPublisher(LogicPublisher):
         # Regular publisher options
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI options
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             reply_to=reply_to,
             headers=headers,
             broker_middlewares=broker_middlewares,
             middlewares=middlewares,
-            schema_=schema_,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.stream = stream

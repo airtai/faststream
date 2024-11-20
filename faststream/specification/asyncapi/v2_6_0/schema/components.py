@@ -36,7 +36,6 @@ class Components(BaseModel):
         - channelBindings
         - operationBindings
         - messageBindings
-
     """
 
     messages: Optional[dict[str, Message]] = None

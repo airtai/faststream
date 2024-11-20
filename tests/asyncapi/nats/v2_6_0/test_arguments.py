@@ -17,4 +17,4 @@ class TestArguments(ArgumentsTestcase):
 
         assert schema["channels"][key]["bindings"] == {
             "nats": {"bindingVersion": "custom", "subject": "test"},
-        }
+        }, schema["channels"][key]["bindings"]

@@ -52,10 +52,6 @@ class KeyValueWatchSubscriber(
         kv_watch: "KvWatch",
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[KeyValue.Entry]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = KvParser(pattern=subject)
         self.kv_watch = kv_watch
@@ -70,10 +66,6 @@ class KeyValueWatchSubscriber(
             default_decoder=parser.decode_message,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            description_=description_,
-            title_=title_,
-            include_in_schema=include_in_schema,
         )
 
     @override

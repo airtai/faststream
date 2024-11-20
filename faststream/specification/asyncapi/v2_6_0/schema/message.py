@@ -1,15 +1,12 @@
 from typing import Optional, Union
 
-import typing_extensions
 from pydantic import BaseModel
+from typing_extensions import Self
 
 from faststream._internal._compat import PYDANTIC_V2
 from faststream._internal.basic_types import AnyDict
-from faststream.specification import schema as spec
-from faststream.specification.asyncapi.v2_6_0.schema.tag import (
-    Tag,
-    from_spec as tag_from_spec,
-)
+from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
+from faststream.specification.schema.message import Message as SpecMessage
 
 
 class CorrelationId(BaseModel):
@@ -21,11 +18,10 @@ class CorrelationId(BaseModel):
 
     Configurations:
         extra : allows extra fields in the correlation ID model
-
     """
 
-    description: Optional[str] = None
     location: str
+    description: Optional[str] = None
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}
@@ -34,13 +30,6 @@ class CorrelationId(BaseModel):
 
         class Config:
             extra = "allow"
-
-    @classmethod
-    def from_spec(cls, cor_id: spec.message.CorrelationId) -> typing_extensions.Self:
-        return cls(
-            description=cor_id.description,
-            location=cor_id.location,
-        )
 
 
 class Message(BaseModel):
@@ -56,7 +45,6 @@ class Message(BaseModel):
         contentType : content type of the message
         payload : dictionary representing the payload of the message
         tags : list of tags associated with the message
-
     """
 
     title: Optional[str] = None
@@ -86,23 +74,18 @@ class Message(BaseModel):
             extra = "allow"
 
     @classmethod
-    def from_spec(cls, message: spec.message.Message) -> typing_extensions.Self:
+    def from_spec(cls, message: SpecMessage) -> Self:
         return cls(
             title=message.title,
-            name=message.name,
-            summary=message.summary,
-            description=message.description,
-            messageId=message.messageId,
-            correlationId=CorrelationId.from_spec(message.correlationId)
-            if message.correlationId is not None
-            else None,
-            contentType=message.contentType,
             payload=message.payload,
-            tags=[tag_from_spec(tag) for tag in message.tags]
-            if message.tags is not None
-            else None,
+            correlationId=CorrelationId(
+                description=None,
+                location="$message.header#/correlation_id",
+            ),
+            name=None,
+            summary=None,
+            description=None,
+            messageId=None,
+            contentType=None,
+            tags=None,
         )
-
-
-def from_spec(message: spec.message.Message) -> Message:
-    return Message.from_spec(message)

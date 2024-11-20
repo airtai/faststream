@@ -17,7 +17,6 @@ if TYPE_CHECKING:
         ProducerProto,
     )
     from faststream._internal.state import BrokerState, Pointer
-    from faststream._internal.subscriber.call_item import HandlerItem
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -26,6 +25,8 @@ if TYPE_CHECKING:
     )
     from faststream.message import StreamMessage
     from faststream.response import Response
+
+    from .call_item import HandlerItem
 
 
 class SubscriberProto(
@@ -67,10 +68,6 @@ class SubscriberProto(
         self,
         message: "StreamMessage[MsgType]",
     ) -> Iterable["BasePublisherProto"]: ...
-
-    @property
-    @abstractmethod
-    def call_name(self) -> str: ...
 
     @abstractmethod
     async def start(self) -> None: ...

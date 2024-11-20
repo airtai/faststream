@@ -8,7 +8,7 @@ from typing import Optional
 from pydantic import BaseModel, PositiveInt
 from typing_extensions import Self
 
-from faststream.specification import schema as spec
+from faststream.specification.schema.bindings import amqp
 
 
 class OperationBinding(BaseModel):
@@ -22,24 +22,38 @@ class OperationBinding(BaseModel):
     """
 
     cc: Optional[str] = None
-    ack: bool = True
+    ack: bool
     replyTo: Optional[str] = None
     deliveryMode: Optional[int] = None
     mandatory: Optional[bool] = None
     priority: Optional[PositiveInt] = None
+
     bindingVersion: str = "0.2.0"
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.amqp.OperationBinding) -> Self:
+    def from_sub(cls, binding: Optional[amqp.OperationBinding]) -> Optional[Self]:
+        if not binding:
+            return None
+
         return cls(
-            cc=binding.cc,
+            cc=binding.routing_key if binding.exchange.is_respect_routing_key else None,
             ack=binding.ack,
-            replyTo=binding.replyTo,
-            deliveryMode=binding.deliveryMode,
+            replyTo=binding.reply_to,
+            deliveryMode=None if binding.persist is None else int(binding.persist) + 1,
             mandatory=binding.mandatory,
             priority=binding.priority,
         )
 
+    @classmethod
+    def from_pub(cls, binding: Optional[amqp.OperationBinding]) -> Optional[Self]:
+        if not binding:
+            return None
 
-def from_spec(binding: spec.bindings.amqp.OperationBinding) -> OperationBinding:
-    return OperationBinding.from_spec(binding)
+        return cls(
+            cc=binding.routing_key if binding.exchange.is_respect_routing_key else None,
+            ack=binding.ack,
+            replyTo=binding.reply_to,
+            deliveryMode=None if binding.persist is None else int(binding.persist) + 1,
+            mandatory=binding.mandatory,
+            priority=binding.priority,
+        )

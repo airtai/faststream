@@ -56,7 +56,7 @@ if TYPE_CHECKING:
     )
     from faststream.redis.message import BaseMessage, RedisMessage
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
     class RedisInitKwargs(TypedDict, total=False):
         host: Optional[str]
@@ -162,9 +162,9 @@ class RedisBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("AsyncAPI server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],

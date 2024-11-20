@@ -36,7 +36,7 @@ from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.response import NatsPublishCommand
 from faststream.nats.security import parse_security
-from faststream.nats.subscriber.specified import SpecificationSubscriber
+from faststream.nats.subscriber.usecases.basic import LogicSubscriber
 from faststream.response.publish_type import PublishType
 
 from .logging import make_nats_logger_state
@@ -71,9 +71,9 @@ if TYPE_CHECKING:
         CustomCallable,
     )
     from faststream.nats.message import NatsMessage
-    from faststream.nats.publisher.specified import SpecificationPublisher
+    from faststream.nats.publisher.usecase import LogicPublisher
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
     class NatsInitKwargs(TypedDict, total=False):
         """NatsBroker.connect() method type hints."""
@@ -399,9 +399,9 @@ class NatsBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("AsyncAPI server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],
@@ -560,7 +560,6 @@ class NatsBroker(
         self._os_declarer.connect(stream)
 
         self._connection_state = ConnectedState(connection, stream)
-
         return connection
 
     async def close(
@@ -600,7 +599,7 @@ class NatsBroker(
                 )
 
             except BadRequestError as e:  # noqa: PERF203
-                log_context = SpecificationSubscriber.build_log_context(
+                log_context = LogicSubscriber.build_log_context(
                     message=None,
                     subject="",
                     queue="",
@@ -773,7 +772,7 @@ class NatsBroker(
     @override
     def setup_subscriber(  # type: ignore[override]
         self,
-        subscriber: "SpecificationSubscriber",
+        subscriber: "LogicSubscriber",
     ) -> None:
         return super().setup_subscriber(
             subscriber,
@@ -785,7 +784,7 @@ class NatsBroker(
     @override
     def setup_publisher(  # type: ignore[override]
         self,
-        publisher: "SpecificationPublisher",
+        publisher: "LogicPublisher",
     ) -> None:
         producer = self._js_producer if publisher.stream is not None else self._producer
 
@@ -851,7 +850,7 @@ class NatsBroker(
         self,
         error_cb: Optional["ErrorCallback"] = None,
     ) -> "ErrorCallback":
-        c = SpecificationSubscriber.build_log_context(None, "")
+        c = LogicSubscriber.build_log_context(None, "")
 
         async def wrapper(err: Exception) -> None:
             if error_cb is not None:
@@ -872,7 +871,7 @@ class NatsBroker(
         self,
         cb: Optional["Callback"] = None,
     ) -> "Callback":
-        c = SpecificationSubscriber.build_log_context(None, "")
+        c = LogicSubscriber.build_log_context(None, "")
 
         async def wrapper() -> None:
             if cb is not None:

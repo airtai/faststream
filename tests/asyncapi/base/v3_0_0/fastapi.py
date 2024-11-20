@@ -26,7 +26,6 @@ class FastAPITestCase:
         )
 
         app = FastAPI(
-            lifespan=broker.lifespan_context,
             title="CustomApp",
             version="1.1.1",
             description="Test description",
@@ -77,7 +76,7 @@ class FastAPITestCase:
         @router.subscriber("test")
         async def handler() -> None: ...
 
-        app = FastAPI(lifespan=router.lifespan_context)
+        app = FastAPI()
         app.include_router(router)
 
         async with self.broker_wrapper(router.broker):
@@ -107,7 +106,7 @@ class FastAPITestCase:
     async def test_fastapi_asyncapi_not_fount(self) -> None:
         broker = self.router_factory(include_in_schema=False)
 
-        app = FastAPI(lifespan=broker.lifespan_context)
+        app = FastAPI()
         app.include_router(broker)
 
         async with self.broker_wrapper(broker.broker):
@@ -125,7 +124,7 @@ class FastAPITestCase:
     async def test_fastapi_asyncapi_not_fount_by_url(self) -> None:
         broker = self.router_factory(schema_url=None)
 
-        app = FastAPI(lifespan=broker.lifespan_context)
+        app = FastAPI()
         app.include_router(broker)
 
         async with self.broker_wrapper(broker.broker):

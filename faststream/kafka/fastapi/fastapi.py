@@ -58,7 +58,7 @@ if TYPE_CHECKING:
         SpecificationDefaultSubscriber,
     )
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 Partition = TypeVar("Partition")
 
@@ -304,9 +304,9 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             Doc("Specification server description."),
         ] = None,
         specification_tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("Specification server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],

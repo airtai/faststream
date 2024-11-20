@@ -5,22 +5,12 @@ from typing_extensions import Self
 
 from faststream._internal._compat import PYDANTIC_V2
 from faststream._internal.basic_types import AnyDict
-from faststream.specification import schema as spec
-from faststream.specification.asyncapi.v2_6_0.schema.bindings import OperationBinding
-from faststream.specification.asyncapi.v2_6_0.schema.bindings.main import (
-    operation_binding_from_spec,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.message import (
-    Message,
-    from_spec as message_from_spec,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.tag import (
-    Tag,
-    from_spec as tag_from_spec,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.utils import (
-    Reference,
-)
+from faststream.specification.schema.operation import Operation as OperationSpec
+
+from .bindings import OperationBinding
+from .message import Message
+from .tag import Tag
+from .utils import Reference
 
 
 class Operation(BaseModel):
@@ -34,7 +24,6 @@ class Operation(BaseModel):
         message : message of the operation
         security : security details of the operation
         tags : tags associated with the operation
-
     """
 
     operationId: Optional[str] = None
@@ -61,22 +50,25 @@ class Operation(BaseModel):
             extra = "allow"
 
     @classmethod
-    def from_spec(cls, operation: spec.operation.Operation) -> Self:
+    def from_sub(cls, operation: OperationSpec) -> Self:
         return cls(
-            operationId=operation.operationId,
-            summary=operation.summary,
-            description=operation.description,
-            bindings=operation_binding_from_spec(operation.bindings)
-            if operation.bindings is not None
-            else None,
-            message=message_from_spec(operation.message)
-            if operation.message is not None
-            else None,
-            tags=[tag_from_spec(tag) for tag in operation.tags]
-            if operation.tags is not None
-            else None,
+            message=Message.from_spec(operation.message),
+            bindings=OperationBinding.from_sub(operation.bindings),
+            operationId=None,
+            summary=None,
+            description=None,
+            tags=None,
+            security=None,
         )
 
-
-def from_spec(operation: spec.operation.Operation) -> Operation:
-    return Operation.from_spec(operation)
+    @classmethod
+    def from_pub(cls, operation: OperationSpec) -> Self:
+        return cls(
+            message=Message.from_spec(operation.message),
+            bindings=OperationBinding.from_pub(operation.bindings),
+            operationId=None,
+            summary=None,
+            description=None,
+            tags=None,
+            security=None,
+        )

@@ -4,32 +4,33 @@ from typing import TYPE_CHECKING, Any, Optional, Union
 from faststream._internal._compat import DEF_KEY
 from faststream._internal.basic_types import AnyDict, AnyHttpUrl
 from faststream._internal.constants import ContentTypes
-from faststream.specification.asyncapi.utils import clear_key
+from faststream.specification.asyncapi.utils import clear_key, move_pydantic_refs
 from faststream.specification.asyncapi.v2_6_0.schema import (
+    ApplicationInfo,
+    ApplicationSchema,
     Channel,
     Components,
-    Info,
+    Contact,
+    ExternalDocs,
+    License,
+    Message,
     Reference,
-    Schema,
     Server,
     Tag,
-    channel_from_spec,
-    contact_from_spec,
-    docs_from_spec,
-    license_from_spec,
-    tag_from_spec,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.message import Message
 
 if TYPE_CHECKING:
     from faststream._internal.broker.broker import BrokerUsecase
     from faststream._internal.types import ConnectionType, MsgType
-    from faststream.specification.schema.contact import Contact, ContactDict
-    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-    from faststream.specification.schema.license import License, LicenseDict
-    from faststream.specification.schema.tag import (
-        Tag as SpecsTag,
-        TagDict as SpecsTagDict,
+    from faststream.specification.schema.extra import (
+        Contact as SpecContact,
+        ContactDict,
+        ExternalDocs as SpecDocs,
+        ExternalDocsDict,
+        License as SpecLicense,
+        LicenseDict,
+        Tag as SpecTag,
+        TagDict,
     )
 
 
@@ -41,12 +42,12 @@ def get_app_schema(
     schema_version: str,
     description: str,
     terms_of_service: Optional["AnyHttpUrl"],
-    contact: Optional[Union["Contact", "ContactDict", "AnyDict"]],
-    license: Optional[Union["License", "LicenseDict", "AnyDict"]],
+    contact: Optional[Union["SpecContact", "ContactDict", "AnyDict"]],
+    license: Optional[Union["SpecLicense", "LicenseDict", "AnyDict"]],
     identifier: Optional[str],
-    tags: Optional[Sequence[Union["SpecsTag", "SpecsTagDict", "AnyDict"]]],
-    external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]],
-) -> Schema:
+    tags: Sequence[Union["SpecTag", "TagDict", "AnyDict"]],
+    external_docs: Optional[Union["SpecDocs", "ExternalDocsDict", "AnyDict"]],
+) -> ApplicationSchema:
     """Get the application schema."""
     broker._setup()
 
@@ -62,20 +63,20 @@ def get_app_schema(
     for channel_name, ch in channels.items():
         resolve_channel_messages(ch, channel_name, payloads, messages)
 
-    return Schema(
-        info=Info(
+    return ApplicationSchema(
+        info=ApplicationInfo(
             title=title,
             version=app_version,
             description=description,
             termsOfService=terms_of_service,
-            contact=contact_from_spec(contact) if contact else None,
-            license=license_from_spec(license) if license else None,
+            contact=Contact.from_spec(contact),
+            license=License.from_spec(license),
         ),
+        tags=[Tag.from_spec(tag) for tag in tags] or None,
+        externalDocs=ExternalDocs.from_spec(external_docs),
         asyncapi=schema_version,
         defaultContentType=ContentTypes.JSON.value,
         id=identifier,
-        tags=[tag_from_spec(tag) for tag in tags] if tags else None,
-        externalDocs=docs_from_spec(external_docs) if external_docs else None,
         servers=servers,
         channels=channels,
         components=Components(
@@ -121,31 +122,22 @@ def get_broker_server(
     """Get the broker server for an application."""
     servers = {}
 
-    tags: Optional[list[Union[Tag, AnyDict]]] = None
-    if broker.tags:
-        tags = [tag_from_spec(tag) for tag in broker.tags]
-
     broker_meta: AnyDict = {
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,
-        "tags": tags or None,
+        "tags": [Tag.from_spec(tag) for tag in broker.tags] or None,
+        "security": broker.security.get_requirement() if broker.security else None,
         # TODO
         # "variables": "",
         # "bindings": "",
     }
 
-    if broker.security is not None:
-        broker_meta["security"] = broker.security.get_requirement()
-
     urls = broker.url if isinstance(broker.url, list) else [broker.url]
 
     for i, url in enumerate(urls, 1):
         server_name = "development" if len(urls) == 1 else f"Server{i}"
-        servers[server_name] = Server(
-            url=url,
-            **broker_meta,
-        )
+        servers[server_name] = Server(url=url, **broker_meta)
 
     return servers
 
@@ -157,16 +149,16 @@ def get_broker_channels(
     channels = {}
 
     for h in broker._subscribers:
-        schema = h.schema()
-        channels.update(
-            {key: channel_from_spec(channel) for key, channel in schema.items()},
-        )
+        # TODO: add duplication key warning
+        channels.update({
+            key: Channel.from_sub(channel) for key, channel in h.schema().items()
+        })
 
     for p in broker._publishers:
-        schema = p.schema()
-        channels.update(
-            {key: channel_from_spec(channel) for key, channel in schema.items()},
-        )
+        # TODO: add duplication key warning
+        channels.update({
+            key: Channel.from_pub(channel) for key, channel in p.schema().items()
+        })
 
     return channels
 
@@ -223,36 +215,3 @@ def _resolve_msg_payloads(
     message_title = clear_key(m.title)
     messages[message_title] = m
     return Reference(**{"$ref": f"#/components/messages/{message_title}"})
-
-
-def move_pydantic_refs(
-    original: Any,
-    key: str,
-) -> Any:
-    """Remove pydantic references and replacem them by real schemas."""
-    if not isinstance(original, dict):
-        return original
-
-    data = original.copy()
-
-    for k in data:
-        item = data[k]
-
-        if isinstance(item, str):
-            if key in item:
-                data[k] = data[k].replace(key, "components/schemas")
-
-        elif isinstance(item, dict):
-            data[k] = move_pydantic_refs(data[k], key)
-
-        elif isinstance(item, list):
-            for i in range(len(data[k])):
-                data[k][i] = move_pydantic_refs(item[i], key)
-
-    if (
-        isinstance(desciminator := data.get("discriminator"), dict)
-        and "propertyName" in desciminator
-    ):
-        data["discriminator"] = desciminator["propertyName"]
-
-    return data

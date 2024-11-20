@@ -27,8 +27,6 @@ from faststream._internal.types import (
 )
 from faststream.message.source_type import SourceType
 
-from .specified import BaseSpicificationPublisher
-
 if TYPE_CHECKING:
     from faststream._internal.publisher.proto import ProducerProto
     from faststream._internal.types import (
@@ -38,7 +36,7 @@ if TYPE_CHECKING:
     from faststream.response.response import PublishCommand
 
 
-class PublisherUsecase(BaseSpicificationPublisher, PublisherProto[MsgType]):
+class PublisherUsecase(PublisherProto[MsgType]):
     """A base class for publishers in an asynchronous API."""
 
     def __init__(
@@ -46,11 +44,6 @@ class PublisherUsecase(BaseSpicificationPublisher, PublisherProto[MsgType]):
         *,
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         self.middlewares = middlewares
         self._broker_middlewares = broker_middlewares
@@ -59,13 +52,6 @@ class PublisherUsecase(BaseSpicificationPublisher, PublisherProto[MsgType]):
 
         self._fake_handler = False
         self.mock: Optional[MagicMock] = None
-
-        super().__init__(
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-            schema_=schema_,
-        )
 
         self._state: Pointer[BrokerState] = Pointer(
             EmptyBrokerState("You should include publisher to any broker.")
@@ -115,7 +101,6 @@ class PublisherUsecase(BaseSpicificationPublisher, PublisherProto[MsgType]):
             ensure_call_wrapper(func)
         )
         handler._publishers.append(self)
-        super().__call__(handler)
         return handler
 
     async def _basic_publish(

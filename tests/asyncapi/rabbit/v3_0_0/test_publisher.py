@@ -141,13 +141,19 @@ class TestArguments(PublisherTestcase):
         assert schema["operations"] == {
             "_:test-ex:Publisher": {
                 "action": "send",
-                "channel": {
-                    "$ref": "#/channels/_:test-ex:Publisher",
+                "bindings": {
+                    "amqp": {
+                        "ack": True,
+                        "bindingVersion": "0.3.0",
+                        "deliveryMode": 1,
+                        "mandatory": True,
+                    }
                 },
+                "channel": {"$ref": "#/channels/_:test-ex:Publisher"},
                 "messages": [
-                    {"$ref": "#/channels/_:test-ex:Publisher/messages/Message"},
+                    {"$ref": "#/channels/_:test-ex:Publisher/messages/Message"}
                 ],
-            },
+            }
         }
 
     def test_reusable_exchange(self) -> None:

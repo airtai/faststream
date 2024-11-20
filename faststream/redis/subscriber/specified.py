@@ -1,37 +1,37 @@
+from faststream._internal.subscriber.specified import (
+    SpecificationSubscriber as SpecificationSubscriberMixin,
+)
 from faststream.redis.schemas import ListSub, StreamSub
 from faststream.redis.schemas.proto import RedisSpecificationProtocol
 from faststream.redis.subscriber.usecase import (
     BatchListSubscriber,
     ChannelSubscriber,
     ListSubscriber,
-    LogicSubscriber,
     StreamBatchSubscriber,
     StreamSubscriber,
 )
 from faststream.specification.asyncapi.utils import resolve_payloads
+from faststream.specification.schema import Message, Operation, SubscriberSpec
 from faststream.specification.schema.bindings import ChannelBinding, redis
-from faststream.specification.schema.channel import Channel
-from faststream.specification.schema.message import CorrelationId, Message
-from faststream.specification.schema.operation import Operation
 
 
-class SpecificationSubscriber(LogicSubscriber, RedisSpecificationProtocol):
+class SpecificationSubscriber(
+    SpecificationSubscriberMixin, RedisSpecificationProtocol[SubscriberSpec]
+):
     """A class to represent a Redis handler."""
 
-    def get_schema(self) -> dict[str, Channel]:
+    def get_schema(self) -> dict[str, SubscriberSpec]:
         payloads = self.get_payloads()
 
         return {
-            self.name: Channel(
+            self.name: SubscriberSpec(
                 description=self.description,
-                subscribe=Operation(
+                operation=Operation(
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),
-                        correlationId=CorrelationId(
-                            location="$message.header#/correlation_id",
-                        ),
                     ),
+                    bindings=None,
                 ),
                 bindings=ChannelBinding(
                     redis=self.channel_binding,
@@ -40,8 +40,8 @@ class SpecificationSubscriber(LogicSubscriber, RedisSpecificationProtocol):
         }
 
 
-class SpecificationChannelSubscriber(ChannelSubscriber, SpecificationSubscriber):
-    def get_name(self) -> str:
+class SpecificationChannelSubscriber(SpecificationSubscriber, ChannelSubscriber):
+    def get_default_name(self) -> str:
         return f"{self.channel.name}:{self.call_name}"
 
     @property
@@ -55,7 +55,7 @@ class SpecificationChannelSubscriber(ChannelSubscriber, SpecificationSubscriber)
 class _StreamSubscriberMixin(SpecificationSubscriber):
     stream_sub: StreamSub
 
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.stream_sub.name}:{self.call_name}"
 
     @property
@@ -68,18 +68,18 @@ class _StreamSubscriberMixin(SpecificationSubscriber):
         )
 
 
-class SpecificationStreamSubscriber(StreamSubscriber, _StreamSubscriberMixin):
+class SpecificationStreamSubscriber(_StreamSubscriberMixin, StreamSubscriber):
     pass
 
 
-class SpecificationStreamBatchSubscriber(StreamBatchSubscriber, _StreamSubscriberMixin):
+class SpecificationStreamBatchSubscriber(_StreamSubscriberMixin, StreamBatchSubscriber):
     pass
 
 
 class _ListSubscriberMixin(SpecificationSubscriber):
     list_sub: ListSub
 
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.list_sub.name}:{self.call_name}"
 
     @property
@@ -90,9 +90,9 @@ class _ListSubscriberMixin(SpecificationSubscriber):
         )
 
 
-class SpecificationListSubscriber(ListSubscriber, _ListSubscriberMixin):
+class SpecificationListSubscriber(_ListSubscriberMixin, ListSubscriber):
     pass
 
 
-class SpecificationListBatchSubscriber(BatchListSubscriber, _ListSubscriberMixin):
+class SpecificationListBatchSubscriber(_ListSubscriberMixin, BatchListSubscriber):
     pass

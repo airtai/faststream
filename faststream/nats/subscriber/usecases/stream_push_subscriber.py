@@ -65,10 +65,6 @@ class ConcurrentPushStreamSubscriber(
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             max_workers=max_workers,
@@ -83,10 +79,6 @@ class ConcurrentPushStreamSubscriber(
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            description_=description_,
-            title_=title_,
-            include_in_schema=include_in_schema,
         )
 
     @override

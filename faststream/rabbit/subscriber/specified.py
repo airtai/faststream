@@ -1,67 +1,107 @@
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Optional
+
+from faststream._internal.subscriber.specified import (
+    SpecificationSubscriber as SpecificationSubscriberMixin,
+)
+from faststream.rabbit.schemas.proto import BaseRMQInformation as RMQSpecificationMixin
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
-from faststream.rabbit.utils import is_routing_exchange
 from faststream.specification.asyncapi.utils import resolve_payloads
+from faststream.specification.schema import Message, Operation, SubscriberSpec
 from faststream.specification.schema.bindings import (
     ChannelBinding,
     OperationBinding,
     amqp,
 )
-from faststream.specification.schema.channel import Channel
-from faststream.specification.schema.message import CorrelationId, Message
-from faststream.specification.schema.operation import Operation
+
+if TYPE_CHECKING:
+    from aio_pika import IncomingMessage
+    from fast_depends.dependencies import Dependant
+
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import BrokerMiddleware
+    from faststream.middlewares import AckPolicy
+    from faststream.rabbit.schemas.exchange import RabbitExchange
+    from faststream.rabbit.schemas.queue import RabbitQueue
 
 
-class SpecificationSubscriber(LogicSubscriber):
+class SpecificationSubscriber(
+    SpecificationSubscriberMixin,
+    RMQSpecificationMixin,
+    LogicSubscriber,
+):
     """AsyncAPI-compatible Rabbit Subscriber class."""
 
-    def get_name(self) -> str:
+    def __init__(
+        self,
+        *,
+        queue: "RabbitQueue",
+        exchange: "RabbitExchange",
+        consume_args: Optional["AnyDict"],
+        # Subscriber args
+        ack_policy: "AckPolicy",
+        no_reply: bool,
+        broker_dependencies: Iterable["Dependant"],
+        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+            # propagate to RMQSpecificationMixin
+            queue=queue,
+            exchange=exchange,
+        )
+
+        LogicSubscriber.__init__(
+            self,
+            queue=queue,
+            consume_args=consume_args,
+            ack_policy=ack_policy,
+            no_reply=no_reply,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+        )
+
+    def get_default_name(self) -> str:
         return f"{self.queue.name}:{getattr(self.exchange, 'name', None) or '_'}:{self.call_name}"
 
-    def get_schema(self) -> dict[str, Channel]:
+    def get_schema(self) -> dict[str, SubscriberSpec]:
         payloads = self.get_payloads()
 
+        exchange_binding = amqp.Exchange.from_exchange(self.exchange)
+        queue_binding = amqp.Queue.from_queue(self.queue)
+
         return {
-            self.name: Channel(
+            self.name: SubscriberSpec(
                 description=self.description,
-                subscribe=Operation(
+                operation=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
-                            cc=self.queue.routing,
+                            routing_key=self.queue.routing,
+                            queue=queue_binding,
+                            exchange=exchange_binding,
+                            ack=True,
+                            reply_to=None,
+                            persist=None,
+                            mandatory=None,
+                            priority=None,
                         ),
-                    )
-                    if is_routing_exchange(self.exchange)
-                    else None,
+                    ),
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),
-                        correlationId=CorrelationId(
-                            location="$message.header#/correlation_id",
-                        ),
                     ),
                 ),
                 bindings=ChannelBinding(
                     amqp=amqp.ChannelBinding(
-                        is_="routingKey",
-                        queue=amqp.Queue(
-                            name=self.queue.name,
-                            durable=self.queue.durable,
-                            exclusive=self.queue.exclusive,
-                            autoDelete=self.queue.auto_delete,
-                            vhost=self.virtual_host,
-                        )
-                        if is_routing_exchange(self.exchange) and self.queue.name
-                        else None,
-                        exchange=(
-                            amqp.Exchange(type="default", vhost=self.virtual_host)
-                            if not self.exchange.name
-                            else amqp.Exchange(
-                                type=self.exchange.type.value,
-                                name=self.exchange.name,
-                                durable=self.exchange.durable,
-                                autoDelete=self.exchange.auto_delete,
-                                vhost=self.virtual_host,
-                            )
-                        ),
+                        virtual_host=self.virtual_host,
+                        queue=queue_binding,
+                        exchange=exchange_binding,
                     ),
                 ),
             ),

@@ -120,7 +120,7 @@ class PublisherTestcase:
         async def handler(msg: str) -> None:
             pass
 
-        schema = AsyncAPI(self.build_app(broker))
+        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0")
 
         assert schema.to_jsonable()["channels"] == {}, schema.to_jsonable()["channels"]
 
@@ -133,7 +133,7 @@ class PublisherTestcase:
         @broker.publisher("test")
         async def handle(msg) -> TestModel: ...
 
-        schema = AsyncAPI(self.build_app(broker)).to_jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
 

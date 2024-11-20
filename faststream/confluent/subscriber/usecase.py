@@ -63,10 +63,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -76,10 +72,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.__connection_data = connection_data
@@ -258,10 +250,6 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Message]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         self.parser = AsyncConfluentParser(is_manual=is_manual)
 
@@ -279,10 +267,6 @@ class DefaultSubscriber(LogicSubscriber[Message]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def get_msg(self) -> Optional["Message"]:
@@ -321,10 +305,6 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[tuple[Message, ...]]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         self.max_records = max_records
 
@@ -344,10 +324,6 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def get_msg(self) -> Optional[tuple["Message", ...]]:

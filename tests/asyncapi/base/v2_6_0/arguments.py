@@ -5,7 +5,6 @@ from typing import Annotated, Any, Optional, Union
 import pydantic
 from dirty_equals import IsDict, IsPartialDict, IsStr
 from fast_depends import Depends
-from fastapi import Depends as APIDepends
 from typing_extensions import Literal
 
 from faststream import Context
@@ -17,7 +16,7 @@ from tests.marks import pydantic_v2
 
 class FastAPICompatible:
     broker_class: type[BrokerUsecase]
-    dependency_builder = staticmethod(APIDepends)
+    dependency_builder = staticmethod(Depends)
 
     def build_app(self, broker: BrokerUsecase[Any, Any]) -> BrokerUsecase[Any, Any]:
         """Patch it to test FastAPI scheme generation too."""
@@ -67,7 +66,7 @@ class FastAPICompatible:
         assert key == "custom_name"
         assert schema["channels"][key]["description"] == "Test description.", schema[
             "channels"
-        ][key]["description"]
+        ][key]
 
     def test_empty(self) -> None:
         broker = self.broker_class()
@@ -424,7 +423,7 @@ class FastAPICompatible:
         @broker.subscriber("test")
         async def handle(model: TestModel) -> None: ...
 
-        schema = AsyncAPI(self.build_app(broker)).to_jsonable()
+        schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
 

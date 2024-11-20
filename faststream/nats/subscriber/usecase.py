@@ -6,7 +6,6 @@ from typing import (
     Annotated,
     Any,
     Callable,
-    Generic,
     Optional,
     cast,
 )
@@ -68,7 +67,7 @@ if TYPE_CHECKING:
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
 
 
-class LogicSubscriber(SubscriberUsecase[MsgType], Generic[MsgType]):
+class LogicSubscriber(SubscriberUsecase[MsgType]):
     """A class to represent a NATS handler."""
 
     subscription: Optional[Unsubscriptable]

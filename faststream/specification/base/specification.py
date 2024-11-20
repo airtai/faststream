@@ -1,11 +1,11 @@
 from typing import Any, Protocol, runtime_checkable
 
-from .schema import BaseSchema
+from .schema import BaseApplicationSchema
 
 
 @runtime_checkable
 class Specification(Protocol):
-    schema: BaseSchema
+    schema: BaseApplicationSchema
 
     def to_json(self) -> str:
         return self.schema.to_json()

@@ -1,64 +1,54 @@
-from typing import (
-    TYPE_CHECKING,
-)
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
-from faststream._internal.types import MsgType
-from faststream.confluent.subscriber.usecase import (
-    BatchSubscriber,
-    DefaultSubscriber,
-    LogicSubscriber,
+from faststream._internal.subscriber.specified import (
+    SpecificationSubscriber as SpecificationSubscriberMixin,
 )
+from faststream.confluent.subscriber.usecase import BatchSubscriber, DefaultSubscriber
 from faststream.specification.asyncapi.utils import resolve_payloads
+from faststream.specification.schema import Message, Operation, SubscriberSpec
 from faststream.specification.schema.bindings import ChannelBinding, kafka
-from faststream.specification.schema.channel import Channel
-from faststream.specification.schema.message import CorrelationId, Message
-from faststream.specification.schema.operation import Operation
 
 if TYPE_CHECKING:
-    from confluent_kafka import Message as ConfluentMsg
+    from faststream.confluent.schemas import TopicPartition
 
 
-class SpecificationSubscriber(LogicSubscriber[MsgType]):
+class SpecificationSubscriber(SpecificationSubscriberMixin):
     """A class to handle logic and async API operations."""
 
-    def get_name(self) -> str:
+    topics: Iterable[str]
+    partitions: Iterable["TopicPartition"]  # TODO: support partitions
+
+    def get_default_name(self) -> str:
         return f"{','.join(self.topics)}:{self.call_name}"
 
-    def get_schema(self) -> dict[str, Channel]:
+    def get_schema(self) -> dict[str, SubscriberSpec]:
         channels = {}
 
         payloads = self.get_payloads()
         for t in self.topics:
             handler_name = self.title_ or f"{t}:{self.call_name}"
 
-            channels[handler_name] = Channel(
+            channels[handler_name] = SubscriberSpec(
                 description=self.description,
-                subscribe=Operation(
+                operation=Operation(
                     message=Message(
                         title=f"{handler_name}:Message",
                         payload=resolve_payloads(payloads),
-                        correlationId=CorrelationId(
-                            location="$message.header#/correlation_id",
-                        ),
                     ),
+                    bindings=None,
                 ),
                 bindings=ChannelBinding(
-                    kafka=kafka.ChannelBinding(topic=t),
+                    kafka=kafka.ChannelBinding(topic=t, partitions=None, replicas=None),
                 ),
             )
 
         return channels
 
 
-class SpecificationDefaultSubscriber(
-    DefaultSubscriber,
-    SpecificationSubscriber["ConfluentMsg"],
-):
+class SpecificationDefaultSubscriber(SpecificationSubscriber, DefaultSubscriber):
     pass
 
 
-class SpecificationBatchSubscriber(
-    BatchSubscriber,
-    SpecificationSubscriber[tuple["ConfluentMsg", ...]],
-):
+class SpecificationBatchSubscriber(SpecificationSubscriber, BatchSubscriber):
     pass
