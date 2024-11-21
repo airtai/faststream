@@ -114,14 +114,14 @@ class PublisherUsecase(PublisherProto[MsgType]):
         context = self._state.get().di_state.context
 
         for pub_m in chain(
+            self.middlewares[::-1],
             (
                 _extra_middlewares
                 or (
                     m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
+                    for m in self._broker_middlewares[::-1]
                 )
             ),
-            self.middlewares,
         ):
             pub = partial(pub_m, pub)
 
@@ -136,8 +136,11 @@ class PublisherUsecase(PublisherProto[MsgType]):
         context = self._state.get().di_state.context
 
         for pub_m in chain(
-            (m(None, context=context).publish_scope for m in self._broker_middlewares),
-            self.middlewares,
+            self.middlewares[::-1],
+            (
+                m(None, context=context).publish_scope
+                for m in self._broker_middlewares[::-1]
+            ),
         ):
             request = partial(pub_m, request)
 
@@ -146,7 +149,8 @@ class PublisherUsecase(PublisherProto[MsgType]):
         response_msg: Any = await process_msg(
             msg=published_msg,
             middlewares=(
-                m(published_msg, context=context) for m in self._broker_middlewares
+                m(published_msg, context=context)
+                for m in self._broker_middlewares[::-1]
             ),
             parser=self._producer._parser,
             decoder=self._producer._decoder,
@@ -165,14 +169,14 @@ class PublisherUsecase(PublisherProto[MsgType]):
         context = self._state.get().di_state.context
 
         for pub_m in chain(
+            self.middlewares[::-1],
             (
                 _extra_middlewares
                 or (
                     m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
+                    for m in self._broker_middlewares[::-1]
                 )
             ),
-            self.middlewares,
         ):
             pub = partial(pub_m, pub)
 

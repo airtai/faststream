@@ -337,7 +337,9 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
                         await h.call(
                             message=message,
                             # consumer middlewares
-                            _extra_middlewares=(m.consume_scope for m in middlewares),
+                            _extra_middlewares=(
+                                m.consume_scope for m in middlewares[::-1]
+                            ),
                         ),
                     )
 
@@ -350,7 +352,9 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
                     ):
                         await p._publish(
                             result_msg.as_publish_command(),
-                            _extra_middlewares=(m.publish_scope for m in middlewares),
+                            _extra_middlewares=(
+                                m.publish_scope for m in middlewares[::-1]
+                            ),
                         )
 
                     # Return data for tests

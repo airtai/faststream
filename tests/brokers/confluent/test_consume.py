@@ -1,11 +1,9 @@
 import asyncio
-from typing import Any
 from unittest.mock import patch
 
 import pytest
 
 from faststream import AckPolicy
-from faststream.confluent import KafkaBroker
 from faststream.confluent.annotations import KafkaMessage
 from faststream.confluent.client import AsyncConfluentConsumer
 from faststream.exceptions import AckMessage
@@ -18,9 +16,6 @@ from .basic import ConfluentTestcaseConfig
 @pytest.mark.confluent()
 class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     """A class to represent a test Kafka broker."""
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
-        return KafkaBroker(apply_types=apply_types, **kwargs)
 
     @pytest.mark.asyncio()
     async def test_consume_batch(self, queue: str) -> None:

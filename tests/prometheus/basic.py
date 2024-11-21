@@ -52,8 +52,16 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                 Exception,
                 id="acked status with not handler exception",
             ),
-            pytest.param(AckStatus.ACKED, None, id="acked status without exception"),
-            pytest.param(AckStatus.NACKED, None, id="nacked status without exception"),
+            pytest.param(
+                AckStatus.ACKED,
+                None,
+                id="acked status without exception",
+            ),
+            pytest.param(
+                AckStatus.NACKED,
+                None,
+                id="nacked status without exception",
+            ),
             pytest.param(
                 AckStatus.REJECTED,
                 None,

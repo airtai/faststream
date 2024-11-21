@@ -1,30 +1,25 @@
 import asyncio
-from typing import Any
 
 import pytest
 
 from faststream import Path
 from faststream.rabbit import (
     ExchangeType,
-    RabbitBroker,
     RabbitExchange,
     RabbitPublisher,
     RabbitQueue,
     RabbitRoute,
     RabbitRouter,
-    TestRabbitBroker,
 )
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
+from .basic import RabbitMemoryTestcaseConfig, RabbitTestcaseConfig
+
 
 @pytest.mark.rabbit()
-class TestRouter(RouterTestcase):
-    broker_class = RabbitRouter
+class TestRouter(RabbitTestcaseConfig, RouterTestcase):
     route_class = RabbitRoute
     publisher_class = RabbitPublisher
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
-        return RabbitBroker(apply_types=apply_types, **kwargs)
 
     async def test_router_path(
         self,
@@ -213,13 +208,6 @@ class TestRouter(RouterTestcase):
             assert event.is_set()
 
 
-class TestRouterLocal(RouterLocalTestcase):
-    broker_class = RabbitRouter
+class TestRouterLocal(RabbitMemoryTestcaseConfig, RouterLocalTestcase):
     route_class = RabbitRoute
     publisher_class = RabbitPublisher
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
-        return RabbitBroker(apply_types=apply_types, **kwargs)
-
-    def patch_broker(self, broker: RabbitBroker, **kwargs: Any) -> RabbitBroker:
-        return TestRabbitBroker(broker, **kwargs)

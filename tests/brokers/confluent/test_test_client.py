@@ -1,28 +1,20 @@
 import asyncio
-from typing import Any
 from unittest.mock import patch
 
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.confluent import KafkaBroker, TestKafkaBroker
 from faststream.confluent.annotations import KafkaMessage
 from faststream.confluent.message import FAKE_CONSUMER
 from faststream.confluent.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 from tests.tools import spy_decorator
 
-from .basic import ConfluentTestcaseConfig
+from .basic import ConfluentMemoryTestcaseConfig
 
 
 @pytest.mark.asyncio()
-class TestTestclient(ConfluentTestcaseConfig, BrokerTestclientTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
-        return KafkaBroker(apply_types=apply_types, **kwargs)
-
-    def patch_broker(self, broker: KafkaBroker, **kwargs: Any) -> TestKafkaBroker:
-        return TestKafkaBroker(broker, **kwargs)
-
+class TestTestclient(ConfluentMemoryTestcaseConfig, BrokerTestclientTestcase):
     async def test_message_nack_seek(
         self,
         queue: str,

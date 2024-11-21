@@ -55,7 +55,7 @@ if TYPE_CHECKING:
         JWTCallback,
         SignatureCallback,
     )
-    from nats.js.api import Placement, PubAck, RePublish, StorageType
+    from nats.js.api import Placement, RePublish, StorageType
     from nats.js.kv import KeyValue
     from nats.js.object_store import ObjectStore
     from typing_extensions import TypedDict, Unpack
@@ -72,6 +72,7 @@ if TYPE_CHECKING:
     )
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.usecase import LogicPublisher
+    from faststream.nats.schemas import PubAck
     from faststream.security import BaseSecurity
     from faststream.specification.schema.extra import Tag, TagDict
 
@@ -699,7 +700,7 @@ class NatsBroker(
 
         Returns:
             `None` if you publishes a regular message.
-            `nats.js.api.PubAck` if you publishes a message to stream.
+            `faststream.nats.PubAck` if you publishes a message to stream.
         """
         cmd = NatsPublishCommand(
             message=message,
@@ -746,8 +747,7 @@ class NatsBroker(
                 Manual message **correlation_id** setter.
                 **correlation_id** is a useful option to trace messages.
             stream:
-                This option validates that the target subject is in presented stream.
-                Can be omitted without any effect if you doesn't want PubAck frame.
+                JetStream name. This option is required if your target subscriber listens for events using JetStream.
             timeout:
                 Timeout to send message to NATS.
 

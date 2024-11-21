@@ -10,7 +10,7 @@ from typing import (
 )
 
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
-from typing_extensions import Doc
+from typing_extensions import Doc, deprecated
 
 from faststream._internal.broker.router import (
     ArgsContainer,
@@ -485,10 +485,15 @@ class KafkaRoute(SubscriberRoute):
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -548,12 +553,12 @@ class KafkaRoute(SubscriberRoute):
             decoder=decoder,
             middlewares=middlewares,
             no_reply=no_reply,
+            ack_policy=ack_policy,
+            no_ack=no_ack,
             # AsyncAPI args
             title=title,
             description=description,
             include_in_schema=include_in_schema,
-            # FastDepends args
-            ack_policy=ack_policy,
         )
 
 

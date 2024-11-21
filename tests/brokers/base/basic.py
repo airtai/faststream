@@ -2,6 +2,7 @@ from abc import abstractmethod
 from typing import Any
 
 from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.broker.router import BrokerRouter
 
 
 class BaseTestcaseConfig:
@@ -31,3 +32,7 @@ class BaseTestcaseConfig:
         dict[str, Any],
     ]:
         return args, kwargs
+
+    @abstractmethod
+    def get_router(self, **kwargs: Any) -> BrokerRouter:
+        raise NotImplementedError

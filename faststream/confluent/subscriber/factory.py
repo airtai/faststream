@@ -13,6 +13,7 @@ from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationDefaultSubscriber,
 )
+from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
@@ -37,6 +38,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
@@ -60,6 +62,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
@@ -83,6 +86,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -110,6 +114,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -123,10 +128,12 @@ def create_subscriber(
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
 ]:
-    _validate_input_for_misconfigure(ack_policy=ack_policy, is_manual=is_manual)
+    _validate_input_for_misconfigure(
+        ack_policy=ack_policy, is_manual=is_manual, no_ack=no_ack
+    )
 
     if ack_policy is EMPTY:
-        ack_policy = AckPolicy.REJECT_ON_ERROR
+        ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
     if batch:
         return SpecificationBatchSubscriber(
@@ -166,7 +173,19 @@ def _validate_input_for_misconfigure(
     *,
     ack_policy: "AckPolicy",
     is_manual: bool,
+    no_ack: bool,
 ) -> None:
+    if no_ack is not EMPTY:
+        warnings.warn(
+            "`no_ack` option was deprecated in prior to `ack_policy=AckPolicy.DO_NOTHING`. Scheduled to remove in 0.7.0",
+            category=DeprecationWarning,
+            stacklevel=4,
+        )
+
+        if ack_policy is not EMPTY:
+            msg = "You can't use deprecated `no_ack` and `ack_policy` simultaneously. Please, use `ack_policy` only."
+            raise SetupError(msg)
+
     if ack_policy is not EMPTY and not is_manual:
         warnings.warn(
             "You can't use acknowledgement policy with `is_manual=False` subscriber",

@@ -14,13 +14,11 @@ from faststream.nats.response import NatsPublishCommand
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
-    from nats.js import api
-
     from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
-    from faststream.nats.schemas import JStream
+    from faststream.nats.schemas import JStream, PubAck
     from faststream.response.response import PublishCommand
 
 
@@ -75,7 +73,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
-    ) -> "api.PubAck": ...
+    ) -> "PubAck": ...
 
     @override
     async def publish(
@@ -87,7 +85,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
-    ) -> Optional["api.PubAck"]:
+    ) -> Optional["PubAck"]:
         """Publish message directly.
 
         Args:
@@ -112,7 +110,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
 
         Returns:
             `None` if you publishes a regular message.
-            `nats.js.api.PubAck` if you publishes a message to stream.
+            `faststream.nats.PubAck` if you publishes a message to stream.
         """
         cmd = NatsPublishCommand(
             message,

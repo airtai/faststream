@@ -63,6 +63,7 @@ def create_subscriber(
     stream: Optional["JStream"],
     # Subscriber args
     ack_policy: "AckPolicy",
+    no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[Any]"],
@@ -96,6 +97,7 @@ def create_subscriber(
         headers_only=headers_only,
         pull_sub=pull_sub,
         ack_policy=ack_policy,
+        no_ack=no_ack,
         kv_watch=kv_watch,
         obj_watch=obj_watch,
         ack_first=ack_first,
@@ -104,7 +106,7 @@ def create_subscriber(
     )
 
     if ack_policy is EMPTY:
-        ack_policy = AckPolicy.REJECT_ON_ERROR
+        ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
     config = config or ConsumerConfig(filter_subjects=[])
     if config.durable_name is None:
@@ -326,10 +328,22 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
     kv_watch: Optional["KvWatch"],
     obj_watch: Optional["ObjWatch"],
     ack_policy: "AckPolicy",  # default EMPTY
+    no_ack: bool,  # default EMPTY
     ack_first: bool,  # default False
     max_workers: int,  # default 1
     stream: Optional["JStream"],
 ) -> None:
+    if no_ack is not EMPTY:
+        warnings.warn(
+            "`no_ack` option was deprecated in prior to `ack_policy=AckPolicy.DO_NOTHING`. Scheduled to remove in 0.7.0",
+            category=DeprecationWarning,
+            stacklevel=4,
+        )
+
+        if ack_policy is not EMPTY:
+            msg = "You can't use deprecated `no_ack` and `ack_policy` simultaneously. Please, use `ack_policy` only."
+            raise SetupError(msg)
+
     if not subject and not config:
         msg = "You must provide either the `subject` or `config` option."
         raise SetupError(msg)

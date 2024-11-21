@@ -677,10 +677,15 @@ class NatsRouter(StreamRouter["Msg"]):
             int,
             Doc("Number of workers to process messages concurrently."),
         ] = 1,
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -853,6 +858,7 @@ class NatsRouter(StreamRouter["Msg"]):
                 middlewares=middlewares,
                 max_workers=max_workers,
                 ack_policy=ack_policy,
+                no_ack=no_ack,
                 no_reply=no_reply,
                 title=title,
                 description=description,

@@ -1,39 +1,27 @@
 import asyncio
-from typing import Any
 
 import pytest
 
 from faststream import Path
 from faststream.redis import (
-    RedisBroker,
     RedisPublisher,
     RedisRoute,
     RedisRouter,
-    TestRedisBroker,
 )
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
+from .basic import RedisMemoryTestcaseConfig, RedisTestcaseConfig
+
 
 @pytest.mark.redis()
-class TestRouter(RouterTestcase):
-    broker_class = RedisRouter
+class TestRouter(RedisTestcaseConfig, RouterTestcase):
     route_class = RedisRoute
     publisher_class = RedisPublisher
 
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
-        return RedisBroker(apply_types=apply_types, **kwargs)
 
-
-class TestRouterLocal(RouterLocalTestcase):
-    broker_class = RedisRouter
+class TestRouterLocal(RedisMemoryTestcaseConfig, RouterLocalTestcase):
     route_class = RedisRoute
     publisher_class = RedisPublisher
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
-        return RedisBroker(apply_types=apply_types, **kwargs)
-
-    def patch_broker(self, broker: RedisBroker, **kwargs: Any) -> RedisBroker:
-        return TestRedisBroker(broker, **kwargs)
 
     async def test_router_path(
         self,

@@ -1,5 +1,4 @@
 import asyncio
-from typing import Any
 
 import pytest
 
@@ -7,22 +6,16 @@ from faststream import BaseMiddleware
 from faststream.nats import (
     ConsumerConfig,
     JStream,
-    NatsBroker,
     PullSub,
-    TestNatsBroker,
 )
 from faststream.nats.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
+from .basic import NatsMemoryTestcaseConfig
+
 
 @pytest.mark.asyncio()
-class TestTestclient(BrokerTestclientTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types, **kwargs)
-
-    def patch_broker(self, broker: NatsBroker, **kwargs: Any) -> NatsBroker:
-        return TestNatsBroker(broker, **kwargs)
-
+class TestTestclient(NatsMemoryTestcaseConfig, BrokerTestclientTestcase):
     @pytest.mark.asyncio()
     async def test_stream_publish(
         self,

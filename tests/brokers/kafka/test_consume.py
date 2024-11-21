@@ -1,5 +1,4 @@
 import asyncio
-from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -7,17 +6,16 @@ from aiokafka import AIOKafkaConsumer
 
 from faststream import AckPolicy
 from faststream.exceptions import AckMessage
-from faststream.kafka import KafkaBroker, TopicPartition
+from faststream.kafka import TopicPartition
 from faststream.kafka.annotations import KafkaMessage
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
+from .basic import KafkaTestcaseConfig
+
 
 @pytest.mark.kafka()
-class TestConsume(BrokerRealConsumeTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
-        return KafkaBroker(apply_types=apply_types, **kwargs)
-
+class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
     @pytest.mark.asyncio()
     async def test_consume_by_pattern(
         self,

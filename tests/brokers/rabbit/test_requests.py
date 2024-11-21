@@ -1,10 +1,9 @@
-from typing import Any
-
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.rabbit import RabbitBroker, RabbitRouter, TestRabbitBroker
 from tests.brokers.base.requests import RequestsTestcase
+
+from .basic import RabbitMemoryTestcaseConfig, RabbitTestcaseConfig
 
 
 class Mid(BaseMiddleware):
@@ -22,19 +21,12 @@ class RabbitRequestsTestcase(RequestsTestcase):
     def get_middleware(self, **kwargs):
         return Mid
 
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
-        return RabbitBroker(apply_types=apply_types, **kwargs)
-
-    def get_router(self, **kwargs):
-        return RabbitRouter(**kwargs)
-
 
 @pytest.mark.rabbit()
-class TestRealRequests(RabbitRequestsTestcase):
+class TestRealRequests(RabbitTestcaseConfig, RabbitRequestsTestcase):
     pass
 
 
 @pytest.mark.asyncio()
-class TestRequestTestClient(RabbitRequestsTestcase):
-    def patch_broker(self, broker, **kwargs):
-        return TestRabbitBroker(broker, **kwargs)
+class TestRequestTestClient(RabbitMemoryTestcaseConfig, RabbitRequestsTestcase):
+    pass

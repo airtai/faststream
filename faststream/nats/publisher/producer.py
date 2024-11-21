@@ -19,13 +19,14 @@ from faststream.nats.parser import NatsParser
 if TYPE_CHECKING:
     from nats.aio.client import Client
     from nats.aio.msg import Msg
-    from nats.js import JetStreamContext, api
+    from nats.js import JetStreamContext
 
     from faststream._internal.types import (
         AsyncCallable,
         CustomCallable,
     )
     from faststream.nats.response import NatsPublishCommand
+    from faststream.nats.schemas import PubAck
 
 
 class NatsFastProducer(ProducerProto):
@@ -126,7 +127,7 @@ class NatsJSFastProducer(ProducerProto):
     async def publish(  # type: ignore[override]
         self,
         cmd: "NatsPublishCommand",
-    ) -> "api.PubAck":
+    ) -> "PubAck":
         payload, content_type = encode_message(cmd.body)
 
         headers_to_send = {

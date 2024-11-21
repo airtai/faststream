@@ -1,5 +1,4 @@
 import asyncio
-from typing import Any
 
 import pytest
 
@@ -7,26 +6,18 @@ from faststream import BaseMiddleware
 from faststream.exceptions import SubscriberNotFound
 from faststream.rabbit import (
     ExchangeType,
-    RabbitBroker,
     RabbitExchange,
     RabbitQueue,
-    TestRabbitBroker,
 )
 from faststream.rabbit.annotations import RabbitMessage
 from faststream.rabbit.testing import FakeProducer, apply_pattern
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
+from .basic import RabbitMemoryTestcaseConfig
+
 
 @pytest.mark.asyncio()
-class TestTestclient(BrokerTestclientTestcase):
-    test_class = TestRabbitBroker
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
-        return RabbitBroker(apply_types=apply_types, **kwargs)
-
-    def patch_broker(self, broker: RabbitBroker, **kwargs: Any) -> RabbitBroker:
-        return TestRabbitBroker(broker, **kwargs)
-
+class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
     @pytest.mark.rabbit()
     async def test_with_real_testclient(
         self,

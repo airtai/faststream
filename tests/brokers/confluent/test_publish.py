@@ -1,11 +1,10 @@
 import asyncio
-from typing import Any
 from unittest.mock import Mock
 
 import pytest
 
 from faststream import Context
-from faststream.confluent import KafkaBroker, KafkaResponse
+from faststream.confluent import KafkaResponse
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 from .basic import ConfluentTestcaseConfig
@@ -13,9 +12,6 @@ from .basic import ConfluentTestcaseConfig
 
 @pytest.mark.confluent()
 class TestPublish(ConfluentTestcaseConfig, BrokerPublishTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
-        return KafkaBroker(apply_types=apply_types, **kwargs)
-
     @pytest.mark.asyncio()
     async def test_publish_batch(self, queue: str) -> None:
         pub_broker = self.get_broker()

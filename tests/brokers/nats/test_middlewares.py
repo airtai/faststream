@@ -1,21 +1,23 @@
-from typing import Any
-
 import pytest
 
-from faststream.nats import NatsBroker
 from tests.brokers.base.middlewares import (
     ExceptionMiddlewareTestcase,
     MiddlewareTestcase,
+    MiddlewaresOrderTestcase,
 )
 
+from .basic import NatsMemoryTestcaseConfig, NatsTestcaseConfig
+
+
+class TestMiddlewaresOrder(NatsMemoryTestcaseConfig, MiddlewaresOrderTestcase):
+    pass
+
 
 @pytest.mark.nats()
-class TestMiddlewares(MiddlewareTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types, **kwargs)
+class TestMiddlewares(NatsTestcaseConfig, MiddlewareTestcase):
+    pass
 
 
 @pytest.mark.nats()
-class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types, **kwargs)
+class TestExceptionMiddlewares(NatsTestcaseConfig, ExceptionMiddlewareTestcase):
+    pass
