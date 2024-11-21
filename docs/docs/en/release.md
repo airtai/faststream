@@ -12,6 +12,44 @@ hide:
 ---
 
 # Release Notes
+## 0.5.30
+
+### What's Changed
+* Introducing FastStream Guru on Gurubase.io by [@kursataktas](https://github.com/kursataktas){.external-link target="_blank"} in [#1903](https://github.com/airtai/faststream/pull/1903){.external-link target="_blank"}
+* docs: add gurubase badge to the doc by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1905](https://github.com/airtai/faststream/pull/1905){.external-link target="_blank"}
+* fix: allow users to pass `nkeys_seed_str` as argument for NATS broker. by [@Drakorgaur](https://github.com/Drakorgaur){.external-link target="_blank"} in [#1908](https://github.com/airtai/faststream/pull/1908){.external-link target="_blank"}
+* Add more warning's to nats subscription factory by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [#1907](https://github.com/airtai/faststream/pull/1907){.external-link target="_blank"}
+* fix: correct working with dependencies versions by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1918](https://github.com/airtai/faststream/pull/1918){.external-link target="_blank"}
+
+### New Contributors
+* [@kursataktas](https://github.com/kursataktas){.external-link target="_blank"} made their first contribution in [#1903](https://github.com/airtai/faststream/pull/1903){.external-link target="_blank"}
+* [@Drakorgaur](https://github.com/Drakorgaur){.external-link target="_blank"} made their first contribution in [#1908](https://github.com/airtai/faststream/pull/1908){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.29...0.5.30](https://github.com/airtai/faststream/compare/0.5.29...0.5.30){.external-link target="_blank"}
+
+## 0.5.29
+
+### What's Changed
+
+* feat: add explicit message source enum by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1866](https://github.com/airtai/faststream/pull/1866){.external-link target="_blank"}
+* Change uv manual installation to setup-uv in CI by [@pavelepanov](https://github.com/pavelepanov){.external-link target="_blank"} in [#1871](https://github.com/airtai/faststream/pull/1871){.external-link target="_blank"}
+* refactor: make Task and Concurrent mixins broker-agnostic by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1873](https://github.com/airtai/faststream/pull/1873){.external-link target="_blank"}
+* Add support for environment variables in faststream run command by [@ulbwa](https://github.com/ulbwa){.external-link target="_blank"} in [#1876](https://github.com/airtai/faststream/pull/1876){.external-link target="_blank"}
+* fastapi example update by [@xodiumx](https://github.com/xodiumx){.external-link target="_blank"} in [#1875](https://github.com/airtai/faststream/pull/1875){.external-link target="_blank"}
+* Do not import `fake_context` if not needed by [@sobolevn](https://github.com/sobolevn){.external-link target="_blank"} in [#1877](https://github.com/airtai/faststream/pull/1877){.external-link target="_blank"}
+* build: add warning about manual lifespan_context by [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} in [#1878](https://github.com/airtai/faststream/pull/1878){.external-link target="_blank"}
+* Add trending badge by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1882](https://github.com/airtai/faststream/pull/1882){.external-link target="_blank"}
+* feat: add class method to create a baggage instance from headers by [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} in [#1885](https://github.com/airtai/faststream/pull/1885){.external-link target="_blank"}
+* ops: update docker compose commands to compose V2 in scripts by [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} in [#1889](https://github.com/airtai/faststream/pull/1889){.external-link target="_blank"}
+
+### New Contributors
+* [@pavelepanov](https://github.com/pavelepanov){.external-link target="_blank"} made their first contribution in [#1871](https://github.com/airtai/faststream/pull/1871){.external-link target="_blank"}
+* [@xodiumx](https://github.com/xodiumx){.external-link target="_blank"} made their first contribution in [#1875](https://github.com/airtai/faststream/pull/1875){.external-link target="_blank"}
+* [@sobolevn](https://github.com/sobolevn){.external-link target="_blank"} made their first contribution in [#1877](https://github.com/airtai/faststream/pull/1877){.external-link target="_blank"}
+* [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} made their first contribution in [#1878](https://github.com/airtai/faststream/pull/1878){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.28...0.5.29](https://github.com/airtai/faststream/compare/0.5.28...0.5.29){.external-link target="_blank"}
+
 ## 0.5.28
 
 ### What's Changed
