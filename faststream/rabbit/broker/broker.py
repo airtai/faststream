@@ -839,7 +839,7 @@ class RabbitBroker(
                 if cancel_scope.cancel_called:
                     return False
 
-                if not self._connection.is_closed:
+                if self._connection.connected.is_set():
                     return True
 
                 await anyio.sleep(sleep_time)
