@@ -24,6 +24,7 @@ from faststream._internal.utils.functions import (
     fake_context,
     to_async,
 )
+from faststream.exceptions import SetupError
 
 if TYPE_CHECKING:
     from fast_depends.library.serializer import SerializerProto
@@ -73,7 +74,7 @@ T_HookReturn = TypeVar("T_HookReturn")
 class StartAbleApplication:
     def __init__(
         self,
-        broker: "BrokerUsecase[Any, Any]",
+        broker: Optional["BrokerUsecase[Any, Any]"] = None,
         /,
         provider: Optional["Provider"] = None,
         serializer: Optional["SerializerProto"] = EMPTY,
@@ -86,7 +87,7 @@ class StartAbleApplication:
 
     def _init_setupable_(  # noqa: PLW3201
         self,
-        broker: "BrokerUsecase[Any, Any]",
+        broker: Optional["BrokerUsecase[Any, Any]"] = None,
         /,
         provider: Optional["Provider"] = None,
         serializer: Optional["SerializerProto"] = EMPTY,
@@ -108,21 +109,39 @@ class StartAbleApplication:
             context=self.context,
         )
 
-        self.broker = broker
+        self.brokers = [broker] if broker else []
 
         self._setup()
 
     def _setup(self) -> None:
-        self.broker._setup(OuterBrokerState(di_state=self._state))
+        if self.broker:
+            self.broker._setup(OuterBrokerState(di_state=self._state))
 
     async def _start_broker(self) -> None:
+        assert self.broker, "You should setup a broker"
         await self.broker.start()
+
+    @property
+    def broker(self) -> Optional["BrokerUsecase[Any, Any]"]:
+        return self.brokers[0] if self.brokers else None
+
+    def set_broker(self, broker: "BrokerUsecase[Any, Any]") -> None:
+        """Set already existed App object broker.
+
+        Useful then you create/init broker in `on_startup` hook.
+        """
+        if self.brokers:
+            msg = f"`{self}` already has a broker. You can't use multiple brokers until 1.0.0 release."
+            raise SetupError(msg)
+
+        self.brokers.append(broker)
+        self._setup()
 
 
 class Application(StartAbleApplication):
     def __init__(
         self,
-        broker: "BrokerUsecase[Any, Any]",
+        broker: Optional["BrokerUsecase[Any, Any]"] = None,
         /,
         logger: Optional["LoggerProto"] = logger,
         provider: Optional["Provider"] = None,

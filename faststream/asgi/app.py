@@ -78,7 +78,7 @@ class AsgiFastStream(Application):
 
     def __init__(
         self,
-        broker: "BrokerUsecase[Any, Any]",
+        broker: Optional["BrokerUsecase[Any, Any]"] = None,
         /,
         asgi_routes: Sequence[tuple[str, "ASGIApp"]] = (),
         # regular broker args
