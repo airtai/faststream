@@ -312,3 +312,40 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_not_called()
 
             assert event.is_set()
+
+    @pytest.mark.asyncio
+    async def test_concurrent_consume(
+        self,
+        queue: str,
+        mock
+    ):
+        event = asyncio.Event()
+        event2 = asyncio.Event()
+
+        consume_broker = self.get_broker()
+        sub = consume_broker.subscriber(queue, max_workers=2)
+
+        @sub
+        async def handler(msg):
+            mock()
+            if event.is_set():
+                event2.set()
+            else:
+                event.set()
+            await asyncio.sleep(1.0)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+            for i in range(5):
+                await br.publish(i, queue)
+            await asyncio.wait(
+                (
+                    asyncio.create_task(event.wait()),
+                    asyncio.create_task(event2.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        assert event2.is_set()
+        assert mock.call_count == 2, mock.call_count
