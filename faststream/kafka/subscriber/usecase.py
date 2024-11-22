@@ -1,19 +1,14 @@
-import asyncio
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from collections.abc import Iterable, Sequence
 from itertools import chain
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Optional,
-)
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import anyio
 from aiokafka import TopicPartition
 from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import override
 
+from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import (
@@ -39,7 +34,7 @@ if TYPE_CHECKING:
     from faststream.middlewares import AckPolicy
 
 
-class LogicSubscriber(SubscriberUsecase[MsgType]):
+class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
     """A class to handle logic for consuming messages from Kafka."""
 
     topics: Sequence[str]
@@ -48,7 +43,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
     builder: Optional[Callable[..., "AIOKafkaConsumer"]]
     consumer: Optional["AIOKafkaConsumer"]
 
-    task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
     batch: bool
     parser: AioKafkaParser
@@ -93,7 +87,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         self.builder = None
 
         self.consumer = None
-        self.task = None
 
     @override
     def _setup(  # type: ignore[override]
@@ -145,7 +138,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         await super().start()
 
         if self.calls:
-            self.task = asyncio.create_task(self._consume())
+            self.add_task(self._consume())
 
     async def close(self) -> None:
         await super().close()
@@ -153,11 +146,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         if self.consumer is not None:
             await self.consumer.stop()
             self.consumer = None
-
-        if self.task is not None and not self.task.done():
-            self.task.cancel()
-
-        self.task = None
 
     @override
     async def get_one(
@@ -182,7 +170,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
 
         context = self._state.get().di_state.context
 
-        msg: StreamMessage[MsgType] = await process_msg(
+        return await process_msg(
             msg=raw_message,
             middlewares=(
                 m(raw_message, context=context) for m in self._broker_middlewares
@@ -190,7 +178,6 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             parser=self._parser,
             decoder=self._decoder,
         )
-        return msg
 
     def _make_response_publisher(
         self,
@@ -229,7 +216,10 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
                     connected = True
 
                 if msg:
-                    await self.consume(msg)
+                    await self.consume_one(msg)
+
+    async def consume_one(self, msg: MsgType) -> None:
+        await self.consume(msg)
 
     @property
     def topic_names(self) -> list[str]:
@@ -330,6 +320,48 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             topic=topic,
             group_id=self.group_id,
         )
+
+
+class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber):
+    def __init__(
+        self,
+        *topics: str,
+        # Kafka information
+        group_id: Optional[str],
+        listener: Optional["ConsumerRebalanceListener"],
+        pattern: Optional[str],
+        connection_args: "AnyDict",
+        partitions: Iterable["TopicPartition"],
+        is_manual: bool,
+        # Subscriber args
+        max_workers: int,
+        ack_policy: "AckPolicy",
+        no_reply: bool,
+        broker_dependencies: Iterable["Dependant"],
+        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
+    ) -> None:
+        super().__init__(
+            *topics,
+            group_id=group_id,
+            listener=listener,
+            pattern=pattern,
+            connection_args=connection_args,
+            partitions=partitions,
+            is_manual=is_manual,
+            max_workers=max_workers,
+            # Propagated args
+            ack_policy=ack_policy,
+            no_reply=no_reply,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+        )
+
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "ConsumerRecord") -> None:
+        await self._put_msg(msg)
 
 
 class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):

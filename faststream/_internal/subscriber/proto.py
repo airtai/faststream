@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         SubscriberMiddleware,
     )
     from faststream.message import StreamMessage
@@ -92,7 +91,6 @@ class SubscriberProto(
     def add_call(
         self,
         *,
-        filter_: "Filter[Any]",
         parser_: "CustomCallable",
         decoder_: "CustomCallable",
         middlewares_: Iterable["SubscriberMiddleware[Any]"],

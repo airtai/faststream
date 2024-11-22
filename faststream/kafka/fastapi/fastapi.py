@@ -55,6 +55,7 @@ if TYPE_CHECKING:
     )
     from faststream.kafka.subscriber.specified import (
         SpecificationBatchSubscriber,
+        SpecificationConcurrentDefaultSubscriber,
         SpecificationDefaultSubscriber,
     )
     from faststream.security import BaseSecurity
@@ -2575,13 +2576,19 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
                 """,
             ),
         ] = False,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> Union[
         "SpecificationBatchSubscriber",
         "SpecificationDefaultSubscriber",
+        "SpecificationConcurrentDefaultSubscriber",
     ]:
         subscriber = super().subscriber(
             *topics,
             group_id=group_id,
+            max_workers=max_workers,
             key_deserializer=key_deserializer,
             value_deserializer=value_deserializer,
             fetch_max_wait_ms=fetch_max_wait_ms,
@@ -2630,6 +2637,8 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
 
         if batch:
             return cast("SpecificationBatchSubscriber", subscriber)
+        if max_workers > 1:
+            return cast("SpecificationConcurrentDefaultSubscriber", subscriber)
         return cast("SpecificationDefaultSubscriber", subscriber)
 
     @overload  # type: ignore[override]

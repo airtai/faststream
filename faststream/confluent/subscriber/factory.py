@@ -5,6 +5,7 @@ from typing import (
     Literal,
     Optional,
     Union,
+    cast,
     overload,
 )
 
@@ -89,8 +90,9 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
-    broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[ConfluentMsg, tuple[ConfluentMsg, ...]]]"
+    broker_middlewares: Union[
+        Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+        Iterable["BrokerMiddleware[ConfluentMsg]"],
     ],
     # Specification args
     title_: Optional[str],
@@ -117,8 +119,9 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
-    broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[ConfluentMsg, tuple[ConfluentMsg, ...]]]"
+    broker_middlewares: Union[
+        Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+        Iterable["BrokerMiddleware[ConfluentMsg]"],
     ],
     # Specification args
     title_: Optional[str],
@@ -147,11 +150,15 @@ def create_subscriber(
             ack_policy=ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
+            broker_middlewares=cast(
+                Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+                broker_middlewares,
+            ),
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
         )
+
     return SpecificationDefaultSubscriber(
         *topics,
         partitions=partitions,
@@ -162,7 +169,10 @@ def create_subscriber(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
-        broker_middlewares=broker_middlewares,
+        broker_middlewares=cast(
+            Iterable["BrokerMiddleware[ConfluentMsg]"],
+            broker_middlewares,
+        ),
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,

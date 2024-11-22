@@ -12,6 +12,7 @@ from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
 from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
+    SpecificationConcurrentDefaultSubscriber,
     SpecificationDefaultSubscriber,
 )
 from faststream.middlewares import AckPolicy
@@ -40,6 +41,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    max_workers: int,
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
@@ -66,6 +68,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    max_workers: int,
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
@@ -92,6 +95,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    max_workers: int,
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
@@ -105,6 +109,7 @@ def create_subscriber(
 ) -> Union[
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
+    "SpecificationConcurrentDefaultSubscriber",
 ]: ...
 
 
@@ -122,6 +127,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    max_workers: int,
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
@@ -135,6 +141,7 @@ def create_subscriber(
 ) -> Union[
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
+    "SpecificationConcurrentDefaultSubscriber",
 ]:
     _validate_input_for_misconfigure(
         *topics,
@@ -143,6 +150,7 @@ def create_subscriber(
         ack_policy=ack_policy,
         no_ack=no_ack,
         is_manual=is_manual,
+        max_workers=max_workers,
         group_id=group_id,
     )
 
@@ -154,6 +162,25 @@ def create_subscriber(
             *topics,
             batch_timeout_ms=batch_timeout_ms,
             max_records=max_records,
+            group_id=group_id,
+            listener=listener,
+            pattern=pattern,
+            connection_args=connection_args,
+            partitions=partitions,
+            is_manual=is_manual,
+            ack_policy=ack_policy,
+            no_reply=no_reply,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+    if max_workers > 1:
+        return SpecificationConcurrentDefaultSubscriber(
+            *topics,
+            max_workers=max_workers,
             group_id=group_id,
             listener=listener,
             pattern=pattern,
@@ -195,7 +222,12 @@ def _validate_input_for_misconfigure(
     is_manual: bool,
     no_ack: bool,
     group_id: Optional[str],
+    max_workers: int,
 ) -> None:
+    if is_manual and max_workers > 1:
+        msg = "Max workers not work with manual commit mode."
+        raise SetupError(msg)
+
     if no_ack is not EMPTY:
         warnings.warn(
             "`no_ack` option was deprecated in prior to `ack_policy=AckPolicy.DO_NOTHING`. Scheduled to remove in 0.7.0",

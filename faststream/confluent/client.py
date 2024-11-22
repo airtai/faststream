@@ -383,7 +383,7 @@ class AsyncConfluentConsumer:
     ) -> tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
         raw_messages: list[Optional[Message]] = await call_or_await(
-            self.consumer.consume,
+            self.consumer.consume,  # type: ignore[arg-type]
             num_messages=max_records or 10,
             timeout=timeout,
         )

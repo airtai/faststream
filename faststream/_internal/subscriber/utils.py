@@ -13,7 +13,7 @@ from typing import (
 )
 
 import anyio
-from typing_extensions import Literal, Self, overload
+from typing_extensions import Self
 
 from faststream._internal.types import MsgType
 from faststream._internal.utils.functions import return_input, to_async
@@ -29,26 +29,6 @@ if TYPE_CHECKING:
     )
     from faststream.message import StreamMessage
     from faststream.middlewares import BaseMiddleware
-
-
-@overload
-async def process_msg(
-    msg: Literal[None],
-    middlewares: Iterable["BaseMiddleware"],
-    parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
-    decoder: Callable[["StreamMessage[MsgType]"], "Any"],
-    source_type: SourceType = SourceType.CONSUME,
-) -> None: ...
-
-
-@overload
-async def process_msg(
-    msg: MsgType,
-    middlewares: Iterable["BaseMiddleware"],
-    parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
-    decoder: Callable[["StreamMessage[MsgType]"], "Any"],
-    source_type: SourceType = SourceType.CONSUME,
-) -> "StreamMessage[MsgType]": ...
 
 
 async def process_msg(

@@ -58,7 +58,7 @@ if TYPE_CHECKING:
 Partition = TypeVar("Partition")
 
 
-class KafkaBroker(
+class KafkaBroker(  # type: ignore[misc]
     KafkaRegistrator,
     BrokerUsecase[
         Union[

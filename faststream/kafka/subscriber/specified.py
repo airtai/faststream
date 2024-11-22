@@ -1,10 +1,15 @@
 from collections.abc import Iterable
+from itertools import chain
 from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.subscriber.specified import (
     SpecificationSubscriber as SpecificationSubscriberMixin,
 )
-from faststream.kafka.subscriber.usecase import BatchSubscriber, DefaultSubscriber
+from faststream.kafka.subscriber.usecase import (
+    BatchSubscriber,
+    ConcurrentDefaultSubscriber,
+    DefaultSubscriber,
+)
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema import Message, Operation, SubscriberSpec
 from faststream.specification.schema.bindings import ChannelBinding, kafka
@@ -28,7 +33,7 @@ class SpecificationSubscriber(SpecificationSubscriberMixin):
 
         payloads = self.get_payloads()
 
-        for t in self.topics:
+        for t in chain(self.topics, {p.topic for p in self.partitions}):
             handler_name = self.title_ or f"{t}:{self.call_name}"
 
             channels[handler_name] = SubscriberSpec(
@@ -48,9 +53,22 @@ class SpecificationSubscriber(SpecificationSubscriberMixin):
         return channels
 
 
-class SpecificationDefaultSubscriber(SpecificationSubscriber, DefaultSubscriber):
+class SpecificationDefaultSubscriber(
+    SpecificationSubscriber,
+    DefaultSubscriber,
+):
     pass
 
 
-class SpecificationBatchSubscriber(SpecificationSubscriber, BatchSubscriber):
+class SpecificationBatchSubscriber(
+    SpecificationSubscriber,
+    BatchSubscriber,
+):
+    pass
+
+
+class SpecificationConcurrentDefaultSubscriber(
+    SpecificationSubscriber,
+    ConcurrentDefaultSubscriber,
+):
     pass

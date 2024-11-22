@@ -149,7 +149,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self,
         *,
         timeout: float = 5.0,
-    ) -> "Optional[StreamMessage[Message]]":
+    ) -> "Optional[StreamMessage[MsgType]]":
         assert self.consumer, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
             not self.calls
@@ -160,7 +160,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         context = self._state.get().di_state.context
 
         return await process_msg(
-            msg=raw_message,
+            msg=raw_message,  # type: ignore[arg-type]
             middlewares=(
                 m(raw_message, context=context) for m in self._broker_middlewares
             ),

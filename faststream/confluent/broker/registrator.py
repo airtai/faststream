@@ -50,10 +50,10 @@ class KafkaRegistrator(
 ):
     """Includable to KafkaBroker router."""
 
-    _subscribers: list[
+    _subscribers: list[  # type: ignore[assignment]
         Union["SpecificationBatchSubscriber", "SpecificationDefaultSubscriber"]
     ]
-    _publishers: list[
+    _publishers: list[  # type: ignore[assignment]
         Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"]
     ]
 
@@ -1154,52 +1154,50 @@ class KafkaRegistrator(
             msg = "You should install `group_id` with manual commit mode"
             raise SetupError(msg)
 
-        subscriber = super().subscriber(
-            create_subscriber(
-                *topics,
-                polling_interval=polling_interval,
-                partitions=partitions,
-                batch=batch,
-                max_records=max_records,
-                group_id=group_id,
-                connection_data={
-                    "group_instance_id": group_instance_id,
-                    "fetch_max_wait_ms": fetch_max_wait_ms,
-                    "fetch_max_bytes": fetch_max_bytes,
-                    "fetch_min_bytes": fetch_min_bytes,
-                    "max_partition_fetch_bytes": max_partition_fetch_bytes,
-                    "auto_offset_reset": auto_offset_reset,
-                    "enable_auto_commit": auto_commit,
-                    "auto_commit_interval_ms": auto_commit_interval_ms,
-                    "check_crcs": check_crcs,
-                    "partition_assignment_strategy": partition_assignment_strategy,
-                    "max_poll_interval_ms": max_poll_interval_ms,
-                    "session_timeout_ms": session_timeout_ms,
-                    "heartbeat_interval_ms": heartbeat_interval_ms,
-                    "isolation_level": isolation_level,
-                },
-                is_manual=not auto_commit,
-                # subscriber args
-                ack_policy=ack_policy,
-                no_ack=no_ack,
-                no_reply=no_reply,
-                broker_middlewares=self.middlewares,
-                broker_dependencies=self._dependencies,
-                # Specification
-                title_=title,
-                description_=description,
-                include_in_schema=self._solve_include_in_schema(include_in_schema),
-            ),
+        subscriber = create_subscriber(
+            *topics,
+            polling_interval=polling_interval,
+            partitions=partitions,
+            batch=batch,
+            max_records=max_records,
+            group_id=group_id,
+            connection_data={
+                "group_instance_id": group_instance_id,
+                "fetch_max_wait_ms": fetch_max_wait_ms,
+                "fetch_max_bytes": fetch_max_bytes,
+                "fetch_min_bytes": fetch_min_bytes,
+                "max_partition_fetch_bytes": max_partition_fetch_bytes,
+                "auto_offset_reset": auto_offset_reset,
+                "enable_auto_commit": auto_commit,
+                "auto_commit_interval_ms": auto_commit_interval_ms,
+                "check_crcs": check_crcs,
+                "partition_assignment_strategy": partition_assignment_strategy,
+                "max_poll_interval_ms": max_poll_interval_ms,
+                "session_timeout_ms": session_timeout_ms,
+                "heartbeat_interval_ms": heartbeat_interval_ms,
+                "isolation_level": isolation_level,
+            },
+            is_manual=not auto_commit,
+            # subscriber args
+            ack_policy=ack_policy,
+            no_ack=no_ack,
+            no_reply=no_reply,
+            broker_middlewares=self.middlewares,
+            broker_dependencies=self._dependencies,
+            # Specification
+            title_=title,
+            description_=description,
+            include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
 
         if batch:
-            return cast("SpecificationBatchSubscriber", subscriber).add_call(
-                parser_=parser or self._parser,
-                decoder_=decoder or self._decoder,
-                dependencies_=dependencies,
-                middlewares_=middlewares,
-            )
-        return cast("SpecificationDefaultSubscriber", subscriber).add_call(
+            subscriber = cast("SpecificationBatchSubscriber", subscriber)
+        else:
+            subscriber = cast("SpecificationDefaultSubscriber", subscriber)
+
+        subscriber = super().subscriber(subscriber)  # type: ignore[arg-type,assignment]
+
+        return subscriber.add_call(
             parser_=parser or self._parser,
             decoder_=decoder or self._decoder,
             dependencies_=dependencies,
@@ -1535,6 +1533,8 @@ class KafkaRegistrator(
         )
 
         if batch:
-            return cast("SpecificationBatchPublisher", super().publisher(publisher))
+            publisher = cast("SpecificationBatchPublisher", publisher)
+        else:
+            publisher = cast("SpecificationDefaultPublisher", publisher)
 
-        return cast("SpecificationDefaultPublisher", super().publisher(publisher))
+        return super().publisher(publisher)

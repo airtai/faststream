@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from itertools import chain
 from typing import TYPE_CHECKING
 
 from faststream._internal.subscriber.specified import (
@@ -26,7 +27,7 @@ class SpecificationSubscriber(SpecificationSubscriberMixin):
         channels = {}
 
         payloads = self.get_payloads()
-        for t in self.topics:
+        for t in chain(self.topics, {p.topic for p in self.partitions}):
             handler_name = self.title_ or f"{t}:{self.call_name}"
 
             channels[handler_name] = SubscriberSpec(

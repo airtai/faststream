@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     )
     from faststream.kafka.subscriber.specified import (
         SpecificationBatchSubscriber,
+        SpecificationConcurrentDefaultSubscriber,
         SpecificationDefaultSubscriber,
     )
 
@@ -53,10 +54,14 @@ class KafkaRegistrator(
 ):
     """Includable to KafkaBroker router."""
 
-    _subscribers: list[
-        Union["SpecificationBatchSubscriber", "SpecificationDefaultSubscriber"],
+    subscribers: list[
+        Union[
+            "SpecificationBatchSubscriber",
+            "SpecificationDefaultSubscriber",
+            "SpecificationConcurrentDefaultSubscriber",
+        ]
     ]
-    _publishers: list[
+    publishers: list[
         Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"],
     ]
 
@@ -1514,6 +1519,10 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
         no_ack: Annotated[
             bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
@@ -1548,11 +1557,13 @@ class KafkaRegistrator(
     ) -> Union[
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
+        "SpecificationConcurrentDefaultSubscriber",
     ]:
         subscriber = super().subscriber(
             create_subscriber(
                 *topics,
                 batch=batch,
+                max_workers=max_workers,
                 batch_timeout_ms=batch_timeout_ms,
                 max_records=max_records,
                 group_id=group_id,
@@ -1595,14 +1606,13 @@ class KafkaRegistrator(
         )
 
         if batch:
-            return cast("SpecificationBatchSubscriber", subscriber).add_call(
-                parser_=parser or self._parser,
-                decoder_=decoder or self._decoder,
-                dependencies_=dependencies,
-                middlewares_=middlewares,
-            )
+            subscriber = cast("SpecificationBatchSubscriber", subscriber)
+        elif max_workers > 1:
+            subscriber = cast("SpecificationConcurrentDefaultSubscriber", subscriber)
+        else:
+            subscriber = cast("SpecificationDefaultSubscriber", subscriber)
 
-        return cast("SpecificationDefaultSubscriber", subscriber).add_call(
+        return subscriber.add_call(
             parser_=parser or self._parser,
             decoder_=decoder or self._decoder,
             dependencies_=dependencies,

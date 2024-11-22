@@ -6,7 +6,7 @@ import pytest
 from prometheus_client import CollectorRegistry
 
 from faststream import Context
-from faststream.exceptions import RejectMessage
+from faststream.exceptions import IgnoredException, RejectMessage
 from faststream.message import AckStatus
 from faststream.prometheus import MetricsSettingsProvider
 from faststream.prometheus.middleware import (
@@ -67,6 +67,11 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                 None,
                 id="rejected status without exception",
             ),
+            pytest.param(
+                AckStatus.ACKED,
+                IgnoredException,
+                id="acked status with ignore exception",
+            ),
         ),
     )
     async def test_metrics(
@@ -74,7 +79,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         queue: str,
         status: AckStatus,
         exception_class: Optional[type[Exception]],
-    ):
+    ) -> None:
         event = asyncio.Event()
 
         middleware = self.get_middleware(registry=CollectorRegistry())
@@ -126,7 +131,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         metrics_manager: Any,
         message: Any,
         exception_class: Optional[type[Exception]],
-    ):
+    ) -> None:
         settings_provider = self.settings_provider_factory(message.raw_message)
         consume_attrs = settings_provider.get_consume_attrs_from_message(message)
         assert metrics_manager.add_received_message.mock_calls == [
@@ -190,7 +195,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             ),
         ]
 
-        if status == ProcessingStatus.error:
+        if exception_class and not issubclass(exception_class, IgnoredException):
             assert (
                 metrics_manager.add_received_processed_message_exception.mock_calls
                 == [
@@ -201,8 +206,13 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                     ),
                 ]
             )
+        else:
+            assert (
+                metrics_manager.add_received_processed_message_exception.mock_calls
+                == []
+            )
 
-    def assert_publish_metrics(self, metrics_manager: Any):
+    def assert_publish_metrics(self, metrics_manager: Any) -> None:
         settings_provider = self.settings_provider_factory(None)
         assert metrics_manager.observe_published_message_duration.mock_calls == [
             call(
