@@ -40,7 +40,7 @@ class NatsFastProducer(ProducerProto):
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
-        default = NatsParser(pattern="")
+        default = NatsParser(pattern="", is_ack_disabled=True)
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 
@@ -111,7 +111,9 @@ class NatsJSFastProducer(ProducerProto):
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
-        default = NatsParser(pattern="")  # core parser to serializer responses
+        default = NatsParser(
+            pattern="", is_ack_disabled=True
+        )  # core parser to serializer responses
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 

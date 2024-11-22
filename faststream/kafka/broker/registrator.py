@@ -54,14 +54,14 @@ class KafkaRegistrator(
 ):
     """Includable to KafkaBroker router."""
 
-    subscribers: list[
+    _subscribers: list[
         Union[
             "SpecificationBatchSubscriber",
             "SpecificationDefaultSubscriber",
             "SpecificationConcurrentDefaultSubscriber",
         ]
     ]
-    publishers: list[
+    _publishers: list[
         Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"],
     ]
 

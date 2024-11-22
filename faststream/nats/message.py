@@ -13,35 +13,27 @@ class NatsMessage(StreamMessage[Msg]):
     async def ack(self) -> None:
         # Check `self.raw_message._ackd` instead of `self.committed`
         # to be compatible with `self.raw_message.ack()`
-        try:
-            if not self.raw_message._ackd:
-                await self.raw_message.ack()
-        finally:
-            await super().ack()
+        if not self.raw_message._ackd:
+            await self.raw_message.ack()
+        await super().ack()
 
     async def ack_sync(self) -> None:
-        try:
-            if not self.raw_message._ackd:
-                await self.raw_message.ack_sync()
-        finally:
-            await super().ack()
+        if not self.raw_message._ackd:
+            await self.raw_message.ack_sync()
+        await super().ack()
 
     async def nack(
         self,
         delay: Optional[float] = None,
     ) -> None:
-        try:
-            if not self.raw_message._ackd:
-                await self.raw_message.nak(delay=delay)
-        finally:
-            await super().nack()
+        if not self.raw_message._ackd:
+            await self.raw_message.nak(delay=delay)
+        await super().nack()
 
     async def reject(self) -> None:
-        try:
-            if not self.raw_message._ackd:
-                await self.raw_message.term()
-        finally:
-            await super().reject()
+        if not self.raw_message._ackd:
+            await self.raw_message.term()
+        await super().reject()
 
     async def in_progress(self) -> None:
         if not self.raw_message._ackd:

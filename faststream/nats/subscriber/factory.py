@@ -190,6 +190,7 @@ def create_subscriber(
                 extra_options=extra_options,
                 # Subscriber args
                 no_reply=no_reply,
+                ack_policy=ack_policy,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
                 # Specification
@@ -206,6 +207,7 @@ def create_subscriber(
             extra_options=extra_options,
             # Subscriber args
             no_reply=no_reply,
+            ack_policy=ack_policy,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             # Specification
@@ -381,9 +383,12 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
                 stacklevel=4,
             )
 
-        elif stream is None:
+        elif stream is None and ack_policy is not AckPolicy.DO_NOTHING:
             warnings.warn(
-                "You can't use acknowledgement policy with core subscriber. Use JetStream instead.",
+                (
+                    "Core subscriber supports only `ack_policy=AckPolicy.DO_NOTHING` option for very specific cases. "
+                    "If you are using different option, probably, you should use JetStream Subscriber instead."
+                ),
                 RuntimeWarning,
                 stacklevel=4,
             )

@@ -197,7 +197,9 @@ class TestConsume(NatsTestcaseConfig, BrokerRealConsumeTestcase):
 
         consume_broker = self.get_broker(apply_types=True)
 
-        args, kwargs = self.get_subscriber_params(queue)
+        args, kwargs = self.get_subscriber_params(
+            queue, ack_policy=AckPolicy.DO_NOTHING
+        )
 
         @consume_broker.subscriber(*args, **kwargs)
         async def handler(msg: NatsMessage) -> None:

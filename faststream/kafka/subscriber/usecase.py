@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from collections.abc import Iterable, Sequence
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Callable, Optional
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from faststream.middlewares import AckPolicy
 
 
-class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
+class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
     """A class to handle logic for consuming messages from Kafka."""
 
     topics: Sequence[str]

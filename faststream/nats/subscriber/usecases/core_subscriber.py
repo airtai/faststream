@@ -39,12 +39,16 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
         config: "ConsumerConfig",
         queue: str,
         extra_options: Optional["AnyDict"],
+        ack_policy: AckPolicy,
         # Subscriber args
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
     ) -> None:
-        parser_ = NatsParser(pattern=subject)
+        parser_ = NatsParser(
+            pattern=subject,
+            is_ack_disabled=ack_policy is not AckPolicy.DO_NOTHING,
+        )
 
         self.queue = queue
 
@@ -137,6 +141,7 @@ class ConcurrentCoreSubscriber(ConcurrentMixin, CoreSubscriber):
         queue: str,
         extra_options: Optional["AnyDict"],
         # Subscriber args
+        ack_policy: AckPolicy,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
@@ -149,6 +154,7 @@ class ConcurrentCoreSubscriber(ConcurrentMixin, CoreSubscriber):
             queue=queue,
             extra_options=extra_options,
             # Propagated args
+            ack_policy=ack_policy,
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
