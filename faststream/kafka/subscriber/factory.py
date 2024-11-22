@@ -38,6 +38,7 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
+    max_workers: int,
     no_ack: bool,
     no_reply: bool,
     retry: bool,
@@ -64,6 +65,7 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
+    max_workers: int,
     no_ack: bool,
     no_reply: bool,
     retry: bool,
@@ -90,6 +92,7 @@ def create_subscriber(
     partitions: Iterable["TopicPartition"],
     is_manual: bool,
     # Subscriber args
+    max_workers: int,
     no_ack: bool,
     no_reply: bool,
     retry: bool,

@@ -16,7 +16,7 @@ from typing import (
 )
 
 import anyio
-from typing_extensions import Literal, Self, overload
+from typing_extensions import Self
 
 from faststream.broker.acknowledgement_watcher import WatcherContext, get_watcher
 from faststream.broker.types import MsgType
@@ -33,24 +33,6 @@ if TYPE_CHECKING:
         SyncCallable,
     )
     from faststream.types import LoggerProto
-
-
-@overload
-async def process_msg(
-    msg: Literal[None],
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
-    parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
-    decoder: Callable[["StreamMessage[MsgType]"], "Any"],
-) -> None: ...
-
-
-@overload
-async def process_msg(
-    msg: MsgType,
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
-    parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
-    decoder: Callable[["StreamMessage[MsgType]"], "Any"],
-) -> "StreamMessage[MsgType]": ...
 
 
 async def process_msg(

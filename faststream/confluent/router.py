@@ -518,7 +518,7 @@ class KafkaRouter(
             # basic args
             prefix=prefix,
             dependencies=dependencies,
-            middlewares=middlewares,
+            middlewares=middlewares,  # type: ignore[arg-type]
             parser=parser,
             decoder=decoder,
             include_in_schema=include_in_schema,

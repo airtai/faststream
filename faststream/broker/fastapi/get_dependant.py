@@ -89,7 +89,7 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
                         lambda x: isinstance(x, FieldInfo),
                         p.field_info.metadata or (),
                     ),
-                    Field(**field_data),  # type: ignore[pydantic-field]
+                    Field(**field_data),
                 )
 
             else:
@@ -109,7 +109,7 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
                         "le": info.field_info.le,
                     }
                 )
-                f = Field(**field_data)  # type: ignore[pydantic-field]
+                f = Field(**field_data)
 
             params_unique[p.name] = (
                 info.annotation,
