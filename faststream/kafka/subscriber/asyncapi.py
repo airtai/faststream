@@ -1,3 +1,4 @@
+from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Dict,
@@ -35,7 +36,9 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
 
         payloads = self.get_payloads()
 
-        for t in self.topics:
+        topics = chain(self.topics, {part.topic for part in self.partitions})
+
+        for t in topics:
             handler_name = self.title_ or f"{t}:{self.call_name}"
 
             channels[handler_name] = Channel(
