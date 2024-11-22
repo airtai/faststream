@@ -564,7 +564,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             graceful_timeout=graceful_timeout,
             decoder=decoder,
             parser=parser,
-            middlewares=middlewares,
+            middlewares=middlewares,  # type: ignore[arg-type]
             schema_url=schema_url,
             setup_state=setup_state,
             # logger options

@@ -60,6 +60,7 @@ if TYPE_CHECKING:
     )
     from faststream.kafka.subscriber.asyncapi import (
         AsyncAPIBatchSubscriber,
+        AsyncAPIConcurrentDefaultSubscriber,
         AsyncAPIDefaultSubscriber,
     )
     from faststream.security import BaseSecurity
@@ -2618,13 +2619,19 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                 """
             ),
         ] = False,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> Union[
         "AsyncAPIBatchSubscriber",
         "AsyncAPIDefaultSubscriber",
+        "AsyncAPIConcurrentDefaultSubscriber",
     ]:
         subscriber = super().subscriber(
             *topics,
             group_id=group_id,
+            max_workers=max_workers,
             key_deserializer=key_deserializer,
             value_deserializer=value_deserializer,
             fetch_max_wait_ms=fetch_max_wait_ms,
@@ -2675,7 +2682,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         if batch:
             return cast("AsyncAPIBatchSubscriber", subscriber)
         else:
-            return cast("AsyncAPIDefaultSubscriber", subscriber)
+            if max_workers > 1:
+                return cast("AsyncAPIConcurrentDefaultSubscriber", subscriber)
+            else:
+                return cast("AsyncAPIDefaultSubscriber", subscriber)
 
     @overload  # type: ignore[override]
     def publisher(

@@ -668,12 +668,14 @@ search:
                 - subscriber
                     - asyncapi
                         - [AsyncAPIBatchSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIBatchSubscriber.md)
+                        - [AsyncAPIConcurrentDefaultSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIConcurrentDefaultSubscriber.md)
                         - [AsyncAPIDefaultSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIDefaultSubscriber.md)
                         - [AsyncAPISubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPISubscriber.md)
                     - factory
                         - [create_subscriber](api/faststream/kafka/subscriber/factory/create_subscriber.md)
                     - usecase
                         - [BatchSubscriber](api/faststream/kafka/subscriber/usecase/BatchSubscriber.md)
+                        - [ConcurrentDefaultSubscriber](api/faststream/kafka/subscriber/usecase/ConcurrentDefaultSubscriber.md)
                         - [DefaultSubscriber](api/faststream/kafka/subscriber/usecase/DefaultSubscriber.md)
                         - [LogicSubscriber](api/faststream/kafka/subscriber/usecase/LogicSubscriber.md)
                 - testing

@@ -1034,7 +1034,7 @@ class KeyValueWatchSubscriber(
         else:
             fetch_sub = self._fetch_sub
 
-        raw_message = None
+        raw_message: Optional[KeyValue.Entry] = None
         sleep_interval = timeout / 10
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
@@ -1042,13 +1042,12 @@ class KeyValueWatchSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
-        msg: NatsKvMessage = await process_msg(
+        return await process_msg(  # type: ignore[return-value]
             msg=raw_message,
             middlewares=self._broker_middlewares,
             parser=self._parser,
             decoder=self._decoder,
         )
-        return msg
 
     @override
     async def _create_subscription(
@@ -1192,7 +1191,7 @@ class ObjStoreWatchSubscriber(
         else:
             fetch_sub = self._fetch_sub
 
-        raw_message = None
+        raw_message: Optional[ObjectInfo] = None
         sleep_interval = timeout / 10
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
@@ -1200,13 +1199,12 @@ class ObjStoreWatchSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
-        msg: NatsObjMessage = await process_msg(
+        return await process_msg(  # type: ignore[return-value]
             msg=raw_message,
             middlewares=self._broker_middlewares,
             parser=self._parser,
             decoder=self._decoder,
         )
-        return msg
 
     @override
     async def _create_subscription(

@@ -52,10 +52,12 @@ class KafkaRegistrator(
 ):
     """Includable to KafkaBroker router."""
 
-    _subscribers: Dict[
+    _subscribers: Dict[  # type: ignore[assignment]
         int, Union["AsyncAPIBatchSubscriber", "AsyncAPIDefaultSubscriber"]
     ]
-    _publishers: Dict[int, Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"]]
+    _publishers: Dict[  # type: ignore[assignment]
+        int, Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"]
+    ]
 
     @overload  # type: ignore[override]
     def subscriber(
@@ -1193,60 +1195,56 @@ class KafkaRegistrator(
         if not auto_commit and not group_id:
             raise SetupError("You should install `group_id` with manual commit mode")
 
-        subscriber = super().subscriber(
-            create_subscriber(
-                *topics,
-                polling_interval=polling_interval,
-                partitions=partitions,
-                batch=batch,
-                max_records=max_records,
-                group_id=group_id,
-                connection_data={
-                    "group_instance_id": group_instance_id,
-                    "fetch_max_wait_ms": fetch_max_wait_ms,
-                    "fetch_max_bytes": fetch_max_bytes,
-                    "fetch_min_bytes": fetch_min_bytes,
-                    "max_partition_fetch_bytes": max_partition_fetch_bytes,
-                    "auto_offset_reset": auto_offset_reset,
-                    "enable_auto_commit": auto_commit,
-                    "auto_commit_interval_ms": auto_commit_interval_ms,
-                    "check_crcs": check_crcs,
-                    "partition_assignment_strategy": partition_assignment_strategy,
-                    "max_poll_interval_ms": max_poll_interval_ms,
-                    "session_timeout_ms": session_timeout_ms,
-                    "heartbeat_interval_ms": heartbeat_interval_ms,
-                    "isolation_level": isolation_level,
-                },
-                is_manual=not auto_commit,
-                # subscriber args
-                no_ack=no_ack,
-                no_reply=no_reply,
-                retry=retry,
-                broker_middlewares=self._middlewares,
-                broker_dependencies=self._dependencies,
-                # AsyncAPI
-                title_=title,
-                description_=description,
-                include_in_schema=self._solve_include_in_schema(include_in_schema),
-            )
+        subscriber = create_subscriber(
+            *topics,
+            polling_interval=polling_interval,
+            partitions=partitions,
+            batch=batch,
+            max_records=max_records,
+            group_id=group_id,
+            connection_data={
+                "group_instance_id": group_instance_id,
+                "fetch_max_wait_ms": fetch_max_wait_ms,
+                "fetch_max_bytes": fetch_max_bytes,
+                "fetch_min_bytes": fetch_min_bytes,
+                "max_partition_fetch_bytes": max_partition_fetch_bytes,
+                "auto_offset_reset": auto_offset_reset,
+                "enable_auto_commit": auto_commit,
+                "auto_commit_interval_ms": auto_commit_interval_ms,
+                "check_crcs": check_crcs,
+                "partition_assignment_strategy": partition_assignment_strategy,
+                "max_poll_interval_ms": max_poll_interval_ms,
+                "session_timeout_ms": session_timeout_ms,
+                "heartbeat_interval_ms": heartbeat_interval_ms,
+                "isolation_level": isolation_level,
+            },
+            is_manual=not auto_commit,
+            # subscriber args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_middlewares=self._middlewares,
+            broker_dependencies=self._dependencies,
+            # AsyncAPI
+            title_=title,
+            description_=description,
+            include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
 
         if batch:
-            return cast("AsyncAPIBatchSubscriber", subscriber).add_call(
-                filter_=filter,
-                parser_=parser or self._parser,
-                decoder_=decoder or self._decoder,
-                dependencies_=dependencies,
-                middlewares_=middlewares,
-            )
+            subscriber = cast("AsyncAPIBatchSubscriber", subscriber)
         else:
-            return cast("AsyncAPIDefaultSubscriber", subscriber).add_call(
-                filter_=filter,
-                parser_=parser or self._parser,
-                decoder_=decoder or self._decoder,
-                dependencies_=dependencies,
-                middlewares_=middlewares,
-            )
+            subscriber = cast("AsyncAPIDefaultSubscriber", subscriber)
+
+        subscriber = super().subscriber(subscriber)  # type: ignore[arg-type,assignment]
+
+        return subscriber.add_call(
+            filter_=filter,
+            parser_=parser or self._parser,
+            decoder_=decoder or self._decoder,
+            dependencies_=dependencies,
+            middlewares_=middlewares,
+        )
 
     @overload  # type: ignore[override]
     def publisher(
@@ -1577,6 +1575,8 @@ class KafkaRegistrator(
         )
 
         if batch:
-            return cast("AsyncAPIBatchPublisher", super().publisher(publisher))
+            publisher = cast("AsyncAPIBatchPublisher", publisher)
         else:
-            return cast("AsyncAPIDefaultPublisher", super().publisher(publisher))
+            publisher = cast("AsyncAPIDefaultPublisher", publisher)
+
+        return super().publisher(publisher)  # type: ignore[return-value,arg-type]

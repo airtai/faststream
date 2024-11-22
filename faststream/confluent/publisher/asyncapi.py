@@ -7,6 +7,7 @@ from typing import (
     Optional,
     Tuple,
     Union,
+    cast,
     overload,
 )
 
@@ -64,26 +65,6 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
     @staticmethod
     def create(
         *,
-        batch: Literal[True],
-        key: Optional[bytes],
-        topic: str,
-        partition: Optional[int],
-        headers: Optional[Dict[str, str]],
-        reply_to: str,
-        # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
-        middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
-    ) -> "AsyncAPIBatchPublisher": ...
-
-    @overload
-    @staticmethod
-    def create(
-        *,
         batch: Literal[False],
         key: Optional[bytes],
         topic: str,
@@ -104,6 +85,26 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
     @staticmethod
     def create(
         *,
+        batch: Literal[True],
+        key: Optional[bytes],
+        topic: str,
+        partition: Optional[int],
+        headers: Optional[Dict[str, str]],
+        reply_to: str,
+        # Publisher args
+        broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
+        middlewares: Iterable["PublisherMiddleware"],
+        # AsyncAPI args
+        schema_: Optional[Any],
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> "AsyncAPIBatchPublisher": ...
+
+    @overload
+    @staticmethod
+    def create(
+        *,
         batch: bool,
         key: Optional[bytes],
         topic: str,
@@ -111,8 +112,9 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[
-            "BrokerMiddleware[Union[Tuple[ConfluentMsg, ...], ConfluentMsg]]"
+        broker_middlewares: Union[
+            Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
+            Iterable["BrokerMiddleware[ConfluentMsg]"],
         ],
         middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
@@ -136,8 +138,9 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[
-            "BrokerMiddleware[Union[Tuple[ConfluentMsg, ...], ConfluentMsg]]"
+        broker_middlewares: Union[
+            Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
+            Iterable["BrokerMiddleware[ConfluentMsg]"],
         ],
         middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
@@ -158,7 +161,10 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
                 partition=partition,
                 headers=headers,
                 reply_to=reply_to,
-                broker_middlewares=broker_middlewares,
+                broker_middlewares=cast(
+                    Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
+                    broker_middlewares,
+                ),
                 middlewares=middlewares,
                 schema_=schema_,
                 title_=title_,
@@ -173,7 +179,9 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
                 partition=partition,
                 headers=headers,
                 reply_to=reply_to,
-                broker_middlewares=broker_middlewares,
+                broker_middlewares=cast(
+                    Iterable["BrokerMiddleware[ConfluentMsg]"], broker_middlewares
+                ),
                 middlewares=middlewares,
                 schema_=schema_,
                 title_=title_,
