@@ -24,14 +24,8 @@ class TestArguments(ArgumentsTestcase):
     def test_subscriber_with_one_topic_partitions(self):
         broker = self.broker_class()
 
-        part1 = TopicPartition(
-            "topic_name",
-            1
-        )
-        part2 = TopicPartition(
-            "topic_name",
-            2
-        )
+        part1 = TopicPartition("topic_name", 1)
+        part2 = TopicPartition("topic_name", 2)
 
         @broker.subscriber(partitions=[part1, part2])
         async def handle(msg): ...
@@ -46,14 +40,8 @@ class TestArguments(ArgumentsTestcase):
     def test_subscriber_with_multi_topics_partitions(self):
         broker = self.broker_class()
 
-        part1 = TopicPartition(
-            "topic_name1",
-            1
-        )
-        part2 = TopicPartition(
-            "topic_name2",
-            2
-        )
+        part1 = TopicPartition("topic_name1", 1)
+        part2 = TopicPartition("topic_name2", 2)
 
         @broker.subscriber(partitions=[part1, part2])
         async def handle(msg): ...
@@ -62,7 +50,9 @@ class TestArguments(ArgumentsTestcase):
         key1 = tuple(schema["channels"].keys())[0]  # noqa: RUF015
         key2 = tuple(schema["channels"].keys())[1]
 
-        assert sorted((
-            schema["channels"][key1]["bindings"]["kafka"]["topic"],
-            schema["channels"][key2]["bindings"]["kafka"]["topic"]
-        )) == sorted(("topic_name1", "topic_name2"))
+        assert sorted(
+            (
+                schema["channels"][key1]["bindings"]["kafka"]["topic"],
+                schema["channels"][key2]["bindings"]["kafka"]["topic"],
+            )
+        ) == sorted(("topic_name1", "topic_name2"))
