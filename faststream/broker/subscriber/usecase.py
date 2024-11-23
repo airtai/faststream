@@ -330,7 +330,7 @@ class SubscriberUsecase(
 
             # enter all middlewares
             middlewares: List[BaseMiddleware] = []
-            for base_m in self._broker_middlewares:
+            for base_m in self._broker_middlewares[::-1]:
                 middleware = base_m(msg)
                 middlewares.append(middleware)
                 await middleware.__aenter__()
@@ -360,14 +360,14 @@ class SubscriberUsecase(
                     stack.enter_context(context.scope("message", message))
 
                     # Middlewares should be exited before scope release
-                    for m in middlewares:
+                    for m in middlewares[::-1]:
                         stack.push_async_exit(m.__aexit__)
 
                     result_msg = ensure_response(
                         await h.call(
                             message=message,
                             # consumer middlewares
-                            _extra_middlewares=(m.consume_scope for m in middlewares),
+                            _extra_middlewares=(m.consume_scope for m in middlewares[::-1]),
                         )
                     )
 
@@ -382,7 +382,7 @@ class SubscriberUsecase(
                             result_msg.body,
                             **result_msg.as_publish_kwargs(),
                             # publisher middlewares
-                            _extra_middlewares=(m.publish_scope for m in middlewares),
+                            _extra_middlewares=(m.publish_scope for m in middlewares[::-1]),
                         )
 
                     # Return data for tests
@@ -390,7 +390,7 @@ class SubscriberUsecase(
 
             # Suitable handler was not found or
             # parsing/decoding exception occurred
-            for m in middlewares:
+            for m in middlewares[::-1]:
                 stack.push_async_exit(m.__aexit__)
 
             if parsing_error:
