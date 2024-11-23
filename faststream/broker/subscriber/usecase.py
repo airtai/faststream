@@ -53,11 +53,11 @@ if TYPE_CHECKING:
 
 class _CallOptions:
     __slots__ = (
-        "filter",
-        "parser",
         "decoder",
-        "middlewares",
         "dependencies",
+        "filter",
+        "middlewares",
+        "parser",
     )
 
     def __init__(
@@ -367,7 +367,9 @@ class SubscriberUsecase(
                         await h.call(
                             message=message,
                             # consumer middlewares
-                            _extra_middlewares=(m.consume_scope for m in middlewares[::-1]),
+                            _extra_middlewares=(
+                                m.consume_scope for m in middlewares[::-1]
+                            ),
                         )
                     )
 
@@ -382,7 +384,9 @@ class SubscriberUsecase(
                             result_msg.body,
                             **result_msg.as_publish_kwargs(),
                             # publisher middlewares
-                            _extra_middlewares=(m.publish_scope for m in middlewares[::-1]),
+                            _extra_middlewares=(
+                                m.publish_scope for m in middlewares[::-1]
+                            ),
                         )
 
                     # Return data for tests
