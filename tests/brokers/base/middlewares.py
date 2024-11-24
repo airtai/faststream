@@ -240,7 +240,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         class InnerMiddleware(BaseMiddleware):
             async def __aenter__(self):
                 mock.enter_inner()
-                mock.sub("inner")
+                mock.enter("inner")
                 return self
 
             async def __aexit__(
@@ -250,13 +250,13 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
                 exc_tb=None,
             ):
                 mock.exit_inner()
-                mock.pub("inner")
+                mock.exit("inner")
                 return await self.after_processed(exc_type, exc_val, exc_tb)
 
         class OuterMiddleware(BaseMiddleware):
             async def __aenter__(self):
-                mock.enter_inner()
-                mock.sub("outer")
+                mock.enter_outer()
+                mock.enter("outer")
                 return self
 
             async def __aexit__(
@@ -265,8 +265,8 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
                 exc_val=None,
                 exc_tb=None,
             ):
-                mock.exit_inner()
-                mock.pub("outer")
+                mock.exit_outer()
+                mock.exit("outer")
                 return await self.after_processed(exc_type, exc_val, exc_tb)
 
         broker = self.broker_class(middlewares=[OuterMiddleware, InnerMiddleware])
@@ -280,13 +280,13 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         async with self.patch_broker(broker) as br:
             await br.publish(None, queue)
 
-        mock.consume_inner.assert_called_once()
-        mock.consume_outer.assert_called_once()
-        mock.publish_inner.assert_called_once()
-        mock.publish_outer.assert_called_once()
+        mock.enter_inner.assert_called_once()
+        mock.enter_outer.assert_called_once()
+        mock.exit_inner.assert_called_once()
+        mock.exit_outer.assert_called_once()
 
-        assert [c.args[0] for c in mock.sub.call_args_list] == ["outer", "inner"]
-        assert [c.args[0] for c in mock.pub.call_args_list] == ["outer", "inner"]
+        assert [c.args[0] for c in mock.enter.call_args_list] == ["outer", "inner"]
+        assert [c.args[0] for c in mock.exit.call_args_list] == ["outer", "inner"]
 
 
 @pytest.mark.asyncio
