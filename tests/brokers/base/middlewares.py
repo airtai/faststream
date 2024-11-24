@@ -245,9 +245,9 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
 
             async def __aexit__(
                 self,
-                exc_type = None,
-                exc_val = None,
-                exc_tb = None,
+                exc_type=None,
+                exc_val=None,
+                exc_tb=None,
             ):
                 mock.exit_inner()
                 mock.pub("inner")
