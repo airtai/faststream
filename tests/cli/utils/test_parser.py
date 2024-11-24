@@ -2,7 +2,7 @@ from typing import Tuple
 
 import pytest
 
-from faststream.cli.utils.parser import parse_cli_args
+from faststream.cli.utils.parser import is_bind_arg, parse_cli_args
 
 APPLICATION = "module:app"
 
@@ -52,3 +52,17 @@ def test_custom_argument_parsing(args: Tuple[str]):
         "k7": ["1", "2", "3"],
         "bind": ["[::]:8000", "0.0.0.0:8000", "fd://2"],
     }
+
+
+@pytest.mark.parametrize(
+    "args", ["0.0.0.0:8000", "[::]:8000", "fd://2", "unix:/tmp/socket.sock"]
+)
+def test_bind_arg(args: str):
+    assert is_bind_arg(args) is True
+
+
+@pytest.mark.parametrize(
+    "args", ["main:app", "src.main:app", "examples.nats.e01_basic:app2"]
+)
+def test_not_bind_arg(args: str):
+    assert is_bind_arg(args) is False

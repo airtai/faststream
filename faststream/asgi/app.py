@@ -172,8 +172,10 @@ class AsgiFastStream(Application):
         )
 
         def init(
-            _self: ASGIRunner, asgi_app: "ASGIApp", options: Dict[str, Any]
-        ) -> None:  # type: ignore[valid-type]
+            _self: ASGIRunner,  # type: ignore[valid-type]
+            asgi_app: "ASGIApp",
+            options: Dict[str, Any],
+        ) -> None:
             _self.options = options  # type: ignore[attr-defined]
             _self.asgi_app = asgi_app  # type: ignore[attr-defined]
             super(ASGIRunner, _self).__init__()  # type: ignore[arg-type]

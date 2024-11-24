@@ -44,7 +44,7 @@ It does nothing but launch the app itself as an **ASGI lifespan**.
     faststream run main:app --workers 4
     ```
     ```shell
-    gunicorn -k uvicorn.workers.UvicornWorker main:app --workers=4 
+    gunicorn -k uvicorn.workers.UvicornWorker main:app --workers=4
     ```
     ```shell
     granian --interface asgi main:app --workers 4
@@ -186,8 +186,8 @@ app.mount("/asyncapi", make_asyncapi_asgi(FastStream(broker)))
 ```
 
 !!! tip
-    You can also bind to unix domain or a file descriptor. FastStream will bind to “127.0.0.1:8000” by default 
-    
+    You can also bind to unix domain or a file descriptor. FastStream will bind to “127.0.0.1:8000” by default
+
     ```shell
     faststream run main:app --bind unix:/tmp/socket.sock
     ```
