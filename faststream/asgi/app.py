@@ -6,6 +6,7 @@ from typing import (
     Any,
     AsyncIterator,
     Dict,
+    List,
     Optional,
     Sequence,
     Tuple,
@@ -146,25 +147,62 @@ class AsgiFastStream(Application):
         run_extra_options: Optional[Dict[str, "SettingField"]] = None,
         sleep_time: float = 0.1,
     ) -> None:
-        import uvicorn
+        try:
+            import uvicorn  # noqa: F401
+            from gunicorn.app.base import BaseApplication
+        except ImportError as e:
+            raise RuntimeError(
+                "You need uvicorn and gunicorn to run FastStream ASGI App via CLI"
+            ) from e
 
-        if not run_extra_options:
-            run_extra_options = {}
-        port = int(run_extra_options.pop("port", 8000))  # type: ignore[arg-type]
-        workers = int(run_extra_options.pop("workers", 1))  # type: ignore[arg-type]
-        host = str(run_extra_options.pop("host", "localhost"))
-        fd = int(run_extra_options.pop("fd", -1))  # type: ignore[arg-type]
-        config = uvicorn.Config(
-            self,
-            host=host,
-            port=port,
-            log_level=log_level,
-            workers=workers,
-            fd=fd if fd != -1 else None,
-            **run_extra_options,
+        def load_config(_self: BaseApplication) -> None:
+            for k, v in _self.options.items():
+                if k in _self.cfg.settings and v is not None:
+                    _self.cfg.set(k.lower(), v)
+                else:
+                    logger.warning(f"Unknown config variable: {k} with value {v}")
+
+        ASGIRunner = type(  # noqa: N806
+            "ASGIRunner",
+            (BaseApplication,),
+            {
+                "load_config": load_config,
+                "load": lambda _self: _self.asgi_app,
+            },
         )
-        server = uvicorn.Server(config)
-        await server.serve()
+
+        def init(
+            _self: ASGIRunner, asgi_app: "ASGIApp", options: Dict[str, Any]
+        ) -> None:  # type: ignore[valid-type]
+            _self.options = options  # type: ignore[attr-defined]
+            _self.asgi_app = asgi_app  # type: ignore[attr-defined]
+            super(ASGIRunner, _self).__init__()  # type: ignore[arg-type]
+
+        ASGIRunner.__init__ = init  # type: ignore[misc]
+
+        run_extra_options = run_extra_options or {}
+
+        bindings: List[str] = []
+        host = run_extra_options.pop("host", None)
+        port = run_extra_options.pop("port", None)
+        if host is not None and port is not None:
+            bindings.append(f"{host}:{port}")
+        elif host is not None:
+            bindings.append(f"{host}:8000")
+        elif port is not None:
+            bindings.append(f"127.0.0.1:{port}")
+
+        bind = run_extra_options.get("bind")
+        if isinstance(bind, list):
+            bindings.extend(bind)  # type: ignore
+        elif isinstance(bind, str):
+            bindings.append(bind)
+
+        run_extra_options["bind"] = bindings or "127.0.0.1:8000"
+        #  We use gunicorn with uvicorn workers because uvicorn don't support multiple workers
+        run_extra_options["worker_class"] = "uvicorn.workers.UvicornWorker"
+
+        ASGIRunner(self, run_extra_options).run()
 
     @asynccontextmanager
     async def start_lifespan_context(self) -> AsyncIterator[None]:
