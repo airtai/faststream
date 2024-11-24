@@ -12,7 +12,8 @@ from faststream.types import DecodedMessage
 
 from .basic import BaseTestcaseConfig
 
-@pytest.mark.asyncio()
+
+@pytest.mark.asyncio
 class MiddlewaresOrderTestcase(BaseTestcaseConfig):
     broker_class: Type[BrokerUsecase]
 
