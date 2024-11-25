@@ -16,6 +16,14 @@ from .basic import BaseTestcaseConfig
 class MiddlewaresOrderTestcase(BaseTestcaseConfig):
     async def test_broker_middleware_order(self, queue: str, mock: MagicMock):
         class InnerMiddleware(BaseMiddleware):
+            async def __aenter__(self):
+                mock.enter_inner()
+                mock.enter("inner")
+
+            async def __aexit__(self, *args):
+                mock.exit_inner()
+                mock.exit("inner")
+
             async def consume_scope(self, call_next, msg):
                 mock.consume_inner()
                 mock.sub("inner")
@@ -27,6 +35,14 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
                 return await call_next(cmd)
 
         class OuterMiddleware(BaseMiddleware):
+            async def __aenter__(self):
+                mock.enter_outer()
+                mock.enter("outer")
+
+            async def __aexit__(self, *args):
+                mock.exit_outer()
+                mock.exit("outer")
+
             async def consume_scope(self, call_next, msg):
                 mock.consume_outer()
                 mock.sub("outer")
@@ -52,9 +68,15 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         mock.consume_outer.assert_called_once()
         mock.publish_inner.assert_called_once()
         mock.publish_outer.assert_called_once()
+        mock.enter_inner.assert_called_once()
+        mock.enter_outer.assert_called_once()
+        mock.exit_inner.assert_called_once()
+        mock.exit_outer.assert_called_once()
 
         assert [c.args[0] for c in mock.sub.call_args_list] == ["outer", "inner"]
         assert [c.args[0] for c in mock.pub.call_args_list] == ["outer", "inner"]
+        assert [c.args[0] for c in mock.enter.call_args_list] == ["outer", "inner"]
+        assert [c.args[0] for c in mock.exit.call_args_list] == ["inner", "outer"]
 
     async def test_publisher_middleware_order(self, queue: str, mock: MagicMock):
         class InnerMiddleware(BaseMiddleware):
