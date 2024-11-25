@@ -285,7 +285,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         mock.exit_inner.assert_called_once()
         mock.exit_outer.assert_called_once()
 
-        assert [c.args[0] for c in mock.enter.call_args_list] == ["inner", "outer"]
+        assert [c.args[0] for c in mock.enter.call_args_list] == ["outer", "inner"]
         assert [c.args[0] for c in mock.exit.call_args_list] == ["inner", "outer"]
 
 
