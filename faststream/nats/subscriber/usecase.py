@@ -88,7 +88,7 @@ class LogicSubscriber(Generic[ConnectionType, MsgType], SubscriberUsecase[MsgTyp
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -263,7 +263,7 @@ class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -336,7 +336,7 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -448,7 +448,7 @@ class ConcurrentCoreSubscriber(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -510,7 +510,7 @@ class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -644,7 +644,7 @@ class ConcurrentPushStreamSubscriber(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -711,7 +711,7 @@ class PullStreamSubscriber(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -795,7 +795,7 @@ class ConcurrentPullStreamSubscriber(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -864,7 +864,7 @@ class BatchPullStreamSubscriber(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[List[Msg]]"],
+        broker_middlewares: Sequence["BrokerMiddleware[List[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -979,7 +979,7 @@ class KeyValueWatchSubscriber(
         config: "ConsumerConfig",
         kv_watch: "KvWatch",
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[KeyValue.Entry]"],
+        broker_middlewares: Sequence["BrokerMiddleware[KeyValue.Entry]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -1135,7 +1135,7 @@ class ObjStoreWatchSubscriber(
         config: "ConsumerConfig",
         obj_watch: "ObjWatch",
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[List[Msg]]"],
+        broker_middlewares: Sequence["BrokerMiddleware[List[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],

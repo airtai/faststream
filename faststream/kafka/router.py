@@ -90,7 +90,7 @@ class KafkaPublisher(ArgsContainer):
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -607,7 +607,7 @@ class KafkaRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable[
+            Sequence[
                 Union[
                     "BrokerMiddleware[ConsumerRecord]",
                     "BrokerMiddleware[Tuple[ConsumerRecord, ...]]",

@@ -6,6 +6,7 @@ from typing import (
     Dict,
     Iterable,
     Optional,
+    Sequence,
     Union,
 )
 
@@ -71,7 +72,7 @@ class NatsPublisher(ArgsContainer):
         ] = None,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

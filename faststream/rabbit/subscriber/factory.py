@@ -1,5 +1,5 @@
 import warnings
-from typing import TYPE_CHECKING, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Iterable, Optional, Sequence, Union
 
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 
@@ -23,7 +23,7 @@ def create_subscriber(
     no_reply: bool,
     retry: Union[bool, int],
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
+    broker_middlewares: Sequence["BrokerMiddleware[IncomingMessage]"],
     # AsyncAPI args
     title_: Optional[str],
     description_: Optional[str],

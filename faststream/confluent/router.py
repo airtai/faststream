@@ -88,7 +88,7 @@ class KafkaPublisher(ArgsContainer):
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -378,7 +378,7 @@ class KafkaRoute(SubscriberRoute):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -492,7 +492,7 @@ class KafkaRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable[
+            Sequence[
                 Union[
                     "BrokerMiddleware[Message]",
                     "BrokerMiddleware[Tuple[Message, ...]]",

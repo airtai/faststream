@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Sequence, Union, cast
 
 from nats.js import api
 from typing_extensions import Annotated, Doc, deprecated, override
@@ -153,7 +153,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[NatsMessage]"],
+            Sequence["SubscriberMiddleware[NatsMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
