@@ -125,7 +125,9 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
                 mock("outer")
                 return await call_next(msg, *args, **kwargs)
 
-        broker = self.broker_class(middlewares=[OuterMiddleware],)
+        broker = self.broker_class(
+            middlewares=[OuterMiddleware],
+        )
         publisher = broker.publisher(
             queue,
             middlewares=[
@@ -174,7 +176,9 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
                 mock("outer")
                 return await call_next(msg, *args, **kwargs)
 
-        broker = self.broker_class(middlewares=[OuterMiddleware],)
+        broker = self.broker_class(
+            middlewares=[OuterMiddleware],
+        )
         router = self.broker_class(middlewares=[MiddleMiddleware])
         router2 = self.broker_class(middlewares=[InnerMiddleware])
 
@@ -640,7 +644,9 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
             async def on_publish(self, msg: str, *args, **kwargs) -> str:
                 return msg * 2
 
-        broker = self.broker_class(middlewares=(Mid,),)
+        broker = self.broker_class(
+            middlewares=(Mid,),
+        )
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -786,7 +792,9 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
             event.set()
             raise SkipMessage()
 
-        broker = self.broker_class(middlewares=(mid,),)
+        broker = self.broker_class(
+            middlewares=(mid,),
+        )
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
@@ -824,7 +832,9 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             mock()
 
-        broker = self.broker_class(middlewares=(mid,),)
+        broker = self.broker_class(
+            middlewares=(mid,),
+        )
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
@@ -858,7 +868,9 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
             event.set()
             raise exc
 
-        broker = self.broker_class(middlewares=(mid,),)
+        broker = self.broker_class(
+            middlewares=(mid,),
+        )
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
@@ -900,7 +912,9 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             return "value"
 
-        broker = self.broker_class(middlewares=(mid,),)
+        broker = self.broker_class(
+            middlewares=(mid,),
+        )
         args, kwargs = self.get_subscriber_params(queue)
 
         publisher = broker.publisher(queue + "2")
@@ -981,7 +995,10 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             event.set()
 
-        broker = self.broker_class(middlewares=(mid,), decoder=decoder,)
+        broker = self.broker_class(
+            middlewares=(mid,),
+            decoder=decoder,
+        )
 
         args, kwargs = self.get_subscriber_params(queue)
 
