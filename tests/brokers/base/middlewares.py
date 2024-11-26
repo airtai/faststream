@@ -111,7 +111,9 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
 
         assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
 
-    async def test_publisher_with_router_middleware_order(self, queue: str, mock: Mock, raw_broker):
+    async def test_publisher_with_router_middleware_order(
+        self, queue: str, mock: Mock, raw_broker
+    ):
         class InnerMiddleware(BaseMiddleware):
             async def publish_scope(self, call_next, msg, *args, **kwargs):
                 mock.publish_inner()
@@ -196,7 +198,9 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
 
         assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
 
-    async def test_consume_with_middleware_order(self, queue: str, mock: Mock, raw_broker):
+    async def test_consume_with_middleware_order(
+        self, queue: str, mock: Mock, raw_broker
+    ):
         class InnerMiddleware(BaseMiddleware):
             async def consume_scope(self, call_next, msg):
                 mock.consume_inner()

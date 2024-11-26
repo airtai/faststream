@@ -17,6 +17,7 @@ class TestMiddlewares(MiddlewareTestcase):
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
     broker_class = RedisBroker
 
+
 @pytest.mark.redis
 class TestMiddlewaresOrder(MiddlewaresOrderTestcase):
     broker_class = RedisBroker

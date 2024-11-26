@@ -17,6 +17,7 @@ class TestMiddlewares(MiddlewareTestcase):
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
     broker_class = RabbitBroker
 
+
 @pytest.mark.rabbit
 class TestMiddlewaresOrder(MiddlewaresOrderTestcase):
     broker_class = RabbitBroker
