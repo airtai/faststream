@@ -583,6 +583,7 @@ search:
                 - [ContentTypes](api/faststream/constants/ContentTypes.md)
             - dummy
                 - [Dummy](api/faststream/dummy/Dummy.md)
+                - [Strange](api/faststream/dummy/Strange.md)
             - exceptions
                 - [AckMessage](api/faststream/exceptions/AckMessage.md)
                 - [FastStreamException](api/faststream/exceptions/FastStreamException.md)
