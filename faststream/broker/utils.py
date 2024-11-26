@@ -50,7 +50,7 @@ async def process_msg(
             Awaitable[StreamMessage[MsgType]],
         ] = return_input
 
-        for m in middlewares:
+        for m in middlewares[::-1]:
             mid = m(msg)
             await stack.enter_async_context(mid)
             return_msg = partial(mid.consume_scope, return_msg)

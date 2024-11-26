@@ -331,7 +331,7 @@ class SubscriberUsecase(
 
             # enter all middlewares
             middlewares: List[BaseMiddleware] = []
-            for base_m in self._broker_middlewares[::-1]:
+            for base_m in self._broker_middlewares:
                 middleware = base_m(msg)
                 middlewares.append(middleware)
                 await middleware.__aenter__()
@@ -361,7 +361,7 @@ class SubscriberUsecase(
                     stack.enter_context(context.scope("message", message))
 
                     # Middlewares should be exited before scope release
-                    for m in middlewares[::-1]:
+                    for m in middlewares:
                         stack.push_async_exit(m.__aexit__)
 
                     result_msg = ensure_response(
@@ -395,7 +395,7 @@ class SubscriberUsecase(
 
             # Suitable handler was not found or
             # parsing/decoding exception occurred
-            for m in middlewares[::-1]:
+            for m in middlewares:
                 stack.push_async_exit(m.__aexit__)
 
             if parsing_error:

@@ -877,7 +877,7 @@ class KafkaBroker(
 
         call: AsyncFunc = self._producer.publish_batch
 
-        for m in self._middlewares:
+        for m in self._middlewares[::-1]:
             call = partial(m(None).publish_scope, call)
 
         await call(

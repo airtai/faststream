@@ -26,7 +26,9 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
     ) -> BrokerUsecase:
         return broker
 
-    async def test_broker_middleware_order(self, event: asyncio.Event, queue: str, mock: Mock, raw_broker):
+    async def test_broker_middleware_order(
+        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+    ):
         class InnerMiddleware(BaseMiddleware):
             async def __aenter__(self):
                 mock.enter_inner()
@@ -65,7 +67,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
                 mock.pub("outer")
                 return await call_next(msg, *args, **kwargs)
 
-        broker = self.broker_class(middlewares=[OuterMiddleware, InnerMiddleware])
+        broker = self.broker_class(middlewares=[OuterMiddleware, InnerMiddleware], logger=None)
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -100,7 +102,9 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         assert [c.args[0] for c in mock.enter.call_args_list] == ["outer", "inner"]
         assert [c.args[0] for c in mock.exit.call_args_list] == ["inner", "outer"]
 
-    async def test_publisher_middleware_order(self, event: asyncio.Event, queue: str, mock: Mock, raw_broker):
+    async def test_publisher_middleware_order(
+        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+    ):
         class InnerMiddleware(BaseMiddleware):
             async def publish_scope(self, call_next, msg, *args, **kwargs):
                 mock.publish_inner()
@@ -119,7 +123,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
                 mock("outer")
                 return await call_next(msg, *args, **kwargs)
 
-        broker = self.broker_class(middlewares=[OuterMiddleware])
+        broker = self.broker_class(middlewares=[OuterMiddleware], logger=None)
         publisher = broker.publisher(
             queue,
             middlewares=[
@@ -141,12 +145,15 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         mock.publish_inner.assert_called_once()
         mock.publish_middle.assert_called_once()
         mock.publish_outer.assert_called_once()
-
-        assert event.is_set()
+        print([c.args[0] for c in mock.call_args_list])
         assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
 
     async def test_publisher_with_router_middleware_order(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker,
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+        raw_broker,
     ):
         class InnerMiddleware(BaseMiddleware):
             async def publish_scope(self, call_next, msg, *args, **kwargs):
@@ -166,7 +173,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
                 mock("outer")
                 return await call_next(msg, *args, **kwargs)
 
-        broker = self.broker_class(middlewares=[OuterMiddleware])
+        broker = self.broker_class(middlewares=[OuterMiddleware], logger=None)
         router = self.broker_class(middlewares=[MiddleMiddleware])
         router2 = self.broker_class(middlewares=[InnerMiddleware])
 
@@ -192,7 +199,9 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         assert event.is_set()
         assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
 
-    async def test_consume_middleware_order(self, event: asyncio.Event, queue: str, mock: Mock, raw_broker):
+    async def test_consume_middleware_order(
+        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+    ):
         class InnerMiddleware(BaseMiddleware):
             async def consume_scope(self, call_next, msg):
                 mock.consume_inner()
@@ -211,7 +220,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
                 mock("outer")
                 return await call_next(msg)
 
-        broker = self.broker_class(middlewares=[OuterMiddleware])
+        broker = self.broker_class(middlewares=[OuterMiddleware], logger=None)
 
         args, kwargs = self.get_subscriber_params(
             queue,
@@ -223,19 +232,28 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
 
         @broker.subscriber(*args, **kwargs)
         async def handler(msg):
-            event.is_set()
+            event.set()
 
-        async with self.patch_broker(raw_broker, broker) as br:
-            await br.start()
-            await br.publish(None, queue)
+        async with broker:
+            await broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("start", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
 
+        assert event.is_set()
         mock.consume_inner.assert_called_once()
         mock.consume_middle.assert_called_once()
         mock.consume_outer.assert_called_once()
 
         assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
 
-    async def test_consume_with_middleware_order(self, event: asyncio.Event, queue: str, mock: Mock, raw_broker):
+    async def test_consume_with_middleware_order(
+        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+    ):
         class InnerMiddleware(BaseMiddleware):
             async def consume_scope(self, call_next, cmd):
                 mock.consume_inner()
@@ -254,7 +272,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
                 mock("outer")
                 return await call_next(cmd)
 
-        broker = self.broker_class(middlewares=[OuterMiddleware])
+        broker = self.broker_class(middlewares=[OuterMiddleware], logger=None)
         router = self.broker_class(middlewares=[MiddleMiddleware])
         router2 = self.broker_class(middlewares=[InnerMiddleware])
 
@@ -266,9 +284,16 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
 
         router.include_router(router2)
         broker.include_router(router)
-        async with self.patch_broker(raw_broker, broker) as br:
-            await br.start()
-            await br.publish(None, queue)
+
+        async with broker:
+            await broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("start", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
 
         mock.consume_inner.assert_called_once()
         mock.consume_middle.assert_called_once()
@@ -305,7 +330,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             event.set()
             return result
 
-        broker = self.broker_class()
+        broker = self.broker_class(logger=None)
 
         args, kwargs = self.get_subscriber_params(queue, middlewares=(mid,))
 
@@ -347,7 +372,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
                 event.set()
             return result
 
-        broker = self.broker_class()
+        broker = self.broker_class(logger=None)
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -387,7 +412,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             mock.end()
             return result
 
-        broker = self.broker_class()
+        broker = self.broker_class(logger=None)
 
         args, kwargs = self.get_subscriber_params(queue)
         args2, kwargs2 = self.get_subscriber_params(
@@ -437,7 +462,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             mock.end()
             return result
 
-        broker = self.broker_class()
+        broker = self.broker_class(logger=None)
 
         args, kwargs = self.get_subscriber_params(
             queue,
@@ -487,7 +512,7 @@ class LocalMiddlewareTestcase(BaseTestcaseConfig):
             else:
                 return result
 
-        broker = self.broker_class()
+        broker = self.broker_class(logger=None)
 
         args, kwargs = self.get_subscriber_params(queue, middlewares=(mid,))
 
@@ -528,7 +553,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                 return await super().after_processed(exc_type, exc_val, exc_tb)
 
         broker = self.broker_class(
-            middlewares=(mid,),
+            middlewares=(mid,), logger=None
         )
 
         args, kwargs = self.get_subscriber_params(queue)
@@ -570,7 +595,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                 mock.end()
                 return await super().after_processed(exc_type, exc_val, exc_tb)
 
-        broker = self.broker_class()
+        broker = self.broker_class(logger=None)
 
         # already registered subscriber
         args, kwargs = self.get_subscriber_params(queue)
@@ -616,7 +641,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
             async def on_publish(self, msg: str, *args, **kwargs) -> str:
                 return msg * 2
 
-        broker = self.broker_class(middlewares=(Mid,))
+        broker = self.broker_class(middlewares=(Mid,), logger=None)
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -668,7 +693,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                 if mock.end.call_count > 2:
                     event.set()
 
-        broker = self.broker_class(middlewares=(Mid,))
+        broker = self.broker_class(middlewares=(Mid,), logger=None)
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -720,7 +745,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             return "value"
 
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.broker_class(middlewares=(mid,), logger=None)
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -762,7 +787,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
             event.set()
             raise SkipMessage()
 
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.broker_class(middlewares=(mid,), logger=None)
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
@@ -800,7 +825,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             mock()
 
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.broker_class(middlewares=(mid,), logger=None)
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
@@ -834,7 +859,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
             event.set()
             raise exc
 
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.broker_class(middlewares=(mid,), logger=None)
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
@@ -876,7 +901,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             return "value"
 
-        broker = self.broker_class(middlewares=(mid,))
+        broker = self.broker_class(middlewares=(mid,), logger=None)
         args, kwargs = self.get_subscriber_params(queue)
 
         publisher = broker.publisher(queue + "2")
@@ -957,7 +982,7 @@ class ExceptionMiddlewareTestcase(BaseTestcaseConfig):
         async def value_error_handler(exc):
             event.set()
 
-        broker = self.broker_class(middlewares=(mid,), decoder=decoder)
+        broker = self.broker_class(middlewares=(mid,), decoder=decoder, logger=None)
 
         args, kwargs = self.get_subscriber_params(queue)
 

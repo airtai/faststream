@@ -182,9 +182,9 @@ class ChannelPublisher(LogicPublisher):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
+            self._middlewares[::-1],
         ):
             call = partial(m, call)
 
@@ -248,9 +248,9 @@ class ChannelPublisher(LogicPublisher):
         for pub_m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
+            self._middlewares[::-1],
         ):
             request = partial(pub_m, request)
 
@@ -261,7 +261,7 @@ class ChannelPublisher(LogicPublisher):
 
         async with AsyncExitStack() as stack:
             return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
+            for m in self._broker_middlewares[::-1]:
                 mid = m(published_msg)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
@@ -395,9 +395,9 @@ class ListPublisher(LogicPublisher):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
+            self._middlewares[::-1],
         ):
             call = partial(m, call)
 
@@ -462,9 +462,9 @@ class ListPublisher(LogicPublisher):
         for pub_m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
+            self._middlewares[::-1],
         ):
             request = partial(pub_m, request)
 
@@ -475,7 +475,7 @@ class ListPublisher(LogicPublisher):
 
         async with AsyncExitStack() as stack:
             return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
+            for m in self._broker_middlewares[::-1]:
                 mid = m(published_msg)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
@@ -526,9 +526,9 @@ class ListBatchPublisher(ListPublisher):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
+            self._middlewares[::-1],
         ):
             call = partial(m, call)
 
@@ -669,9 +669,9 @@ class StreamPublisher(LogicPublisher):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
+            self._middlewares[::-1],
         ):
             call = partial(m, call)
 
@@ -744,9 +744,9 @@ class StreamPublisher(LogicPublisher):
         for pub_m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
+            self._middlewares[::-1],
         ):
             request = partial(pub_m, request)
 
@@ -757,7 +757,7 @@ class StreamPublisher(LogicPublisher):
 
         async with AsyncExitStack() as stack:
             return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
+            for m in self._broker_middlewares[::-1]:
                 mid = m(published_msg)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)

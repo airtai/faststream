@@ -107,9 +107,9 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         for pub_m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
+            self._middlewares[::-1],
         ):
             request = partial(pub_m, request)
 
@@ -117,7 +117,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
         async with AsyncExitStack() as stack:
             return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = return_input
-            for m in self._broker_middlewares:
+            for m in self._broker_middlewares[::-1]:
                 mid = m(published_msg)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
@@ -200,9 +200,9 @@ class DefaultPublisher(LogicPublisher[Message]):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
+            self._middlewares[::-1],
         ):
             call = partial(m, call)
 
@@ -275,9 +275,9 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
         for m in chain(
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
+            self._middlewares[::-1],
         ):
             call = partial(m, call)
 
