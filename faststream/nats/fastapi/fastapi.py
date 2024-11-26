@@ -203,6 +203,10 @@ class NatsRouter(StreamRouter["Msg"]):
             Optional[str],
             Doc("Nkeys seed to be used."),
         ] = None,
+        nkeys_seed_str: Annotated[
+            Optional[str],
+            Doc("Raw nkeys seed to be used."),
+        ] = None,
         inbox_prefix: Annotated[
             Union[str, bytes],
             Doc(
@@ -533,6 +537,7 @@ class NatsRouter(StreamRouter["Msg"]):
             user_jwt_cb=user_jwt_cb,
             user_credentials=user_credentials,
             nkeys_seed=nkeys_seed,
+            nkeys_seed_str=nkeys_seed_str,
             inbox_prefix=inbox_prefix,
             pending_size=pending_size,
             flush_timeout=flush_timeout,
@@ -630,9 +635,9 @@ class NatsRouter(StreamRouter["Msg"]):
             Doc("Enable Heartbeats for a consumer to detect failures."),
         ] = None,
         flow_control: Annotated[
-            bool,
+            Optional[bool],
             Doc("Enable Flow Control for a consumer."),
-        ] = False,
+        ] = None,
         deliver_policy: Annotated[
             Optional["api.DeliverPolicy"],
             Doc("Deliver Policy to be used for subscription."),

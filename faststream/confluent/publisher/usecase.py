@@ -17,7 +17,7 @@ from typing import (
 from confluent_kafka import Message
 from typing_extensions import override
 
-from faststream.broker.message import gen_cor_id
+from faststream.broker.message import SourceType, gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.broker.types import MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -124,6 +124,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
             parsed_msg = await self._producer._parser(published_msg)
             parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
+            parsed_msg._source_type = SourceType.Response
             return await return_msg(parsed_msg)
 
         raise AssertionError("unreachable")

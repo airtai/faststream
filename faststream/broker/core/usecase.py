@@ -20,6 +20,7 @@ from typing_extensions import Annotated, Doc, Self
 
 from faststream._compat import is_test_env
 from faststream.broker.core.logging import LoggingBroker
+from faststream.broker.message import SourceType
 from faststream.broker.middlewares.logging import CriticalLogMiddleware
 from faststream.broker.proto import SetupAble
 from faststream.broker.subscriber.proto import SubscriberProto
@@ -376,6 +377,7 @@ class BrokerUsecase(
 
             parsed_msg: StreamMessage[Any] = await producer._parser(published_msg)
             parsed_msg._decoded_body = await producer._decoder(parsed_msg)
+            parsed_msg._source_type = SourceType.Response
             return await return_msg(parsed_msg)
 
     @abstractmethod

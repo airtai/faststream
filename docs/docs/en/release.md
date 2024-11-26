@@ -12,6 +12,111 @@ hide:
 ---
 
 # Release Notes
+## 0.5.30
+
+### What's Changed
+* Introducing FastStream Guru on Gurubase.io by [@kursataktas](https://github.com/kursataktas){.external-link target="_blank"} in [#1903](https://github.com/airtai/faststream/pull/1903){.external-link target="_blank"}
+* docs: add gurubase badge to the doc by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1905](https://github.com/airtai/faststream/pull/1905){.external-link target="_blank"}
+* fix: allow users to pass `nkeys_seed_str` as argument for NATS broker. by [@Drakorgaur](https://github.com/Drakorgaur){.external-link target="_blank"} in [#1908](https://github.com/airtai/faststream/pull/1908){.external-link target="_blank"}
+* Add more warning's to nats subscription factory by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [#1907](https://github.com/airtai/faststream/pull/1907){.external-link target="_blank"}
+* fix: correct working with dependencies versions by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1918](https://github.com/airtai/faststream/pull/1918){.external-link target="_blank"}
+
+### New Contributors
+* [@kursataktas](https://github.com/kursataktas){.external-link target="_blank"} made their first contribution in [#1903](https://github.com/airtai/faststream/pull/1903){.external-link target="_blank"}
+* [@Drakorgaur](https://github.com/Drakorgaur){.external-link target="_blank"} made their first contribution in [#1908](https://github.com/airtai/faststream/pull/1908){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.29...0.5.30](https://github.com/airtai/faststream/compare/0.5.29...0.5.30){.external-link target="_blank"}
+
+## 0.5.29
+
+### What's Changed
+
+* feat: add explicit message source enum by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1866](https://github.com/airtai/faststream/pull/1866){.external-link target="_blank"}
+* Change uv manual installation to setup-uv in CI by [@pavelepanov](https://github.com/pavelepanov){.external-link target="_blank"} in [#1871](https://github.com/airtai/faststream/pull/1871){.external-link target="_blank"}
+* refactor: make Task and Concurrent mixins broker-agnostic by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1873](https://github.com/airtai/faststream/pull/1873){.external-link target="_blank"}
+* Add support for environment variables in faststream run command by [@ulbwa](https://github.com/ulbwa){.external-link target="_blank"} in [#1876](https://github.com/airtai/faststream/pull/1876){.external-link target="_blank"}
+* fastapi example update by [@xodiumx](https://github.com/xodiumx){.external-link target="_blank"} in [#1875](https://github.com/airtai/faststream/pull/1875){.external-link target="_blank"}
+* Do not import `fake_context` if not needed by [@sobolevn](https://github.com/sobolevn){.external-link target="_blank"} in [#1877](https://github.com/airtai/faststream/pull/1877){.external-link target="_blank"}
+* build: add warning about manual lifespan_context by [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} in [#1878](https://github.com/airtai/faststream/pull/1878){.external-link target="_blank"}
+* Add trending badge by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1882](https://github.com/airtai/faststream/pull/1882){.external-link target="_blank"}
+* feat: add class method to create a baggage instance from headers by [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} in [#1885](https://github.com/airtai/faststream/pull/1885){.external-link target="_blank"}
+* ops: update docker compose commands to compose V2 in scripts by [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} in [#1889](https://github.com/airtai/faststream/pull/1889){.external-link target="_blank"}
+
+### New Contributors
+* [@pavelepanov](https://github.com/pavelepanov){.external-link target="_blank"} made their first contribution in [#1871](https://github.com/airtai/faststream/pull/1871){.external-link target="_blank"}
+* [@xodiumx](https://github.com/xodiumx){.external-link target="_blank"} made their first contribution in [#1875](https://github.com/airtai/faststream/pull/1875){.external-link target="_blank"}
+* [@sobolevn](https://github.com/sobolevn){.external-link target="_blank"} made their first contribution in [#1877](https://github.com/airtai/faststream/pull/1877){.external-link target="_blank"}
+* [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} made their first contribution in [#1878](https://github.com/airtai/faststream/pull/1878){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.28...0.5.29](https://github.com/airtai/faststream/compare/0.5.28...0.5.29){.external-link target="_blank"}
+
+## 0.5.28
+
+### What's Changed
+
+There were a lot of time since [**0.5.7 OpenTelemetry** release](https://github.com/airtai/faststream/releases/tag/0.5.7) and now we completed **Observability** features we planned! **FastStream** supports **Prometheus** metrics in a native way!
+
+Special thanks to @roma-frolov and @draincoder (again) for it!
+
+To collect **Prometheus** metrics for your **FastStream** application you just need to install special distribution
+
+```cmd
+pip install faststream[prometheus]
+```
+
+And use **PrometheusMiddleware**. Also, it could be helpful to use our [**ASGI**](https://faststream.airt.ai/latest/getting-started/asgi/) to serve metrics endpoint in the same app.
+
+```python
+from prometheus_client import CollectorRegistry, make_asgi_app
+from faststream.asgi import AsgiFastStream
+from faststream.nats import NatsBroker
+from faststream.nats.prometheus import NatsPrometheusMiddleware
+
+registry = CollectorRegistry()
+
+broker = NatsBroker(
+    middlewares=(
+        NatsPrometheusMiddleware(registry=registry),
+    )
+)
+
+app = AsgiFastStream(
+    broker,
+    asgi_routes=[
+        ("/metrics", make_asgi_app(registry)),
+    ]
+)
+```
+
+Moreover, we have a ready-to-use [**Grafana** dashboard](https://grafana.com/grafana/dashboards/22130-faststream-metrics/) you can just import and use!
+
+To find more information about **Prometheus** support, just visit [our documentation](https://faststream.airt.ai/latest/getting-started/prometheus/).
+
+### All changes
+
+* docs: Correct minimum FastAPI version for lifespan handling by @tim-hutchinson in https://github.com/airtai/faststream/pull/1853
+* add aiogram example by @IvanKirpichnikov in https://github.com/airtai/faststream/pull/1858
+* Feature: Prometheus Middleware by @roma-frolov in https://github.com/airtai/faststream/pull/1791
+* Add in-progress tutorial to how-to section by @sheldygg in https://github.com/airtai/faststream/pull/1859
+* docs: Add info about Grafana dashboard by @draincoder in https://github.com/airtai/faststream/pull/1863
+
+### New Contributors
+
+* @tim-hutchinson made their first contribution in https://github.com/airtai/faststream/pull/1853
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.5.27...0.5.28
+
+## 0.5.27
+
+### What's Changed
+
+* fix: anyio major version parser by [@dotX12](https://github.com/dotX12){.external-link target="_blank"} in [#1850](https://github.com/airtai/faststream/pull/1850){.external-link target="_blank"}
+
+### New Contributors
+* [@dotX12](https://github.com/dotX12){.external-link target="_blank"} made their first contribution in [#1850](https://github.com/airtai/faststream/pull/1850){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.26...0.5.27](https://github.com/airtai/faststream/compare/0.5.26...0.5.27){.external-link target="_blank"}
+
 ## 0.5.26
 
 ### What's Changed

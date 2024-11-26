@@ -15,7 +15,12 @@ class NatsMessage(StreamMessage[Msg]):
         # to be compatible with `self.raw_message.ack()`
         if not self.raw_message._ackd:
             await self.raw_message.ack()
-            await super().ack()
+        await super().ack()
+
+    async def ack_sync(self) -> None:
+        if not self.raw_message._ackd:
+            await self.raw_message.ack_sync()
+        await super().ack()
 
     async def nack(
         self,
@@ -23,12 +28,12 @@ class NatsMessage(StreamMessage[Msg]):
     ) -> None:
         if not self.raw_message._ackd:
             await self.raw_message.nak(delay=delay)
-            await super().nack()
+        await super().nack()
 
     async def reject(self) -> None:
         if not self.raw_message._ackd:
             await self.raw_message.term()
-            await super().reject()
+        await super().reject()
 
     async def in_progress(self) -> None:
         if not self.raw_message._ackd:

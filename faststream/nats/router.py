@@ -184,9 +184,9 @@ class NatsRoute(SubscriberRoute):
             Doc("Enable Heartbeats for a consumer to detect failures."),
         ] = None,
         flow_control: Annotated[
-            bool,
+            Optional[bool],
             Doc("Enable Flow Control for a consumer."),
-        ] = False,
+        ] = None,
         deliver_policy: Annotated[
             Optional["api.DeliverPolicy"],
             Doc("Deliver Policy to be used for subscription."),

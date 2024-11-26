@@ -15,7 +15,7 @@ from typing import (
 from aio_pika import IncomingMessage
 from typing_extensions import Annotated, Doc, TypedDict, Unpack, deprecated, override
 
-from faststream.broker.message import gen_cor_id
+from faststream.broker.message import SourceType, gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
@@ -373,6 +373,7 @@ class LogicPublisher(
 
             parsed_msg = await self._producer._parser(published_msg)
             parsed_msg._decoded_body = await self._producer._decoder(parsed_msg)
+            parsed_msg._source_type = SourceType.Response
             return await return_msg(parsed_msg)
 
         raise AssertionError("unreachable")
