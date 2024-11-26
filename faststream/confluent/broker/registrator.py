@@ -16,7 +16,6 @@ from faststream._internal.broker.abc_broker import ABCBroker
 from faststream._internal.constants import EMPTY
 from faststream.confluent.publisher.factory import create_publisher
 from faststream.confluent.subscriber.factory import create_subscriber
-from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
@@ -161,7 +160,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -433,7 +438,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -705,7 +716,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -980,7 +997,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -1150,10 +1173,6 @@ class KafkaRegistrator(
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
     ]:
-        if not auto_commit and not group_id:
-            msg = "You should install `group_id` with manual commit mode"
-            raise SetupError(msg)
-
         subscriber = create_subscriber(
             *topics,
             polling_interval=polling_interval,
@@ -1168,7 +1187,6 @@ class KafkaRegistrator(
                 "fetch_min_bytes": fetch_min_bytes,
                 "max_partition_fetch_bytes": max_partition_fetch_bytes,
                 "auto_offset_reset": auto_offset_reset,
-                "enable_auto_commit": auto_commit,
                 "auto_commit_interval_ms": auto_commit_interval_ms,
                 "check_crcs": check_crcs,
                 "partition_assignment_strategy": partition_assignment_strategy,
@@ -1177,7 +1195,7 @@ class KafkaRegistrator(
                 "heartbeat_interval_ms": heartbeat_interval_ms,
                 "isolation_level": isolation_level,
             },
-            is_manual=not auto_commit,
+            auto_commit=auto_commit,
             # subscriber args
             ack_policy=ack_policy,
             no_ack=no_ack,

@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from faststream import BaseMiddleware
+from faststream import AckPolicy, BaseMiddleware
 from faststream.confluent.annotations import KafkaMessage
 from faststream.confluent.message import FAKE_CONSUMER
 from faststream.confluent.testing import FakeProducer
@@ -24,8 +24,8 @@ class TestTestclient(ConfluentMemoryTestcaseConfig, BrokerTestclientTestcase):
         @broker.subscriber(
             queue,
             group_id=f"{queue}-consume",
-            auto_commit=False,
             auto_offset_reset="earliest",
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
         async def m(msg: KafkaMessage) -> None:
             await msg.nack()

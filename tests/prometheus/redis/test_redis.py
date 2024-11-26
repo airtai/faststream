@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -11,15 +12,15 @@ from tests.brokers.redis.test_consume import TestConsume
 from tests.brokers.redis.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase, LocalRPCPrometheusTestcase
 
+from .basic import RedisPrometheusSettings
+
 
 @pytest.mark.redis()
-class TestPrometheus(LocalPrometheusTestcase, LocalRPCPrometheusTestcase):
-    def get_broker(self, apply_types=False, **kwargs):
-        return RedisBroker(apply_types=apply_types, **kwargs)
-
-    def get_middleware(self, **kwargs):
-        return RedisPrometheusMiddleware(**kwargs)
-
+class TestPrometheus(
+    RedisPrometheusSettings,
+    LocalPrometheusTestcase,
+    LocalRPCPrometheusTestcase,
+):
     async def test_metrics_batch(
         self,
         queue: str,
@@ -60,7 +61,7 @@ class TestPrometheus(LocalPrometheusTestcase, LocalRPCPrometheusTestcase):
 
 @pytest.mark.redis()
 class TestPublishWithPrometheus(TestPublish):
-    def get_broker(self, apply_types: bool = False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
         return RedisBroker(
             middlewares=(RedisPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
@@ -70,7 +71,7 @@ class TestPublishWithPrometheus(TestPublish):
 
 @pytest.mark.redis()
 class TestConsumeWithPrometheus(TestConsume):
-    def get_broker(self, apply_types: bool = False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
         return RedisBroker(
             middlewares=(RedisPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,

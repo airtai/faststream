@@ -136,7 +136,13 @@ class NatsRegistrator(ABCBroker["Msg"]):
         ack_first: Annotated[
             bool,
             Doc("Whether to `ack` message at start of consuming or not."),
-        ] = False,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         stream: Annotated[
             Union[str, "JStream", None],
             Doc("Subscribe to NATS Stream with `subject` filter."),

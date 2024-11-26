@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -11,6 +12,8 @@ from tests.brokers.nats.test_consume import TestConsume
 from tests.brokers.nats.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase, LocalRPCPrometheusTestcase
 
+from .basic import NatsPrometheusSettings
+
 
 @pytest.fixture()
 def stream(queue):
@@ -18,18 +21,14 @@ def stream(queue):
 
 
 @pytest.mark.nats()
-class TestPrometheus(LocalPrometheusTestcase, LocalRPCPrometheusTestcase):
-    def get_broker(self, apply_types=False, **kwargs):
-        return NatsBroker(apply_types=apply_types, **kwargs)
-
-    def get_middleware(self, **kwargs):
-        return NatsPrometheusMiddleware(**kwargs)
-
+class TestPrometheus(
+    NatsPrometheusSettings, LocalPrometheusTestcase, LocalRPCPrometheusTestcase
+):
     async def test_metrics_batch(
         self,
         queue: str,
         stream: JStream,
-    ):
+    ) -> None:
         event = asyncio.Event()
 
         middleware = self.get_middleware(registry=CollectorRegistry())
@@ -69,7 +68,7 @@ class TestPrometheus(LocalPrometheusTestcase, LocalRPCPrometheusTestcase):
 
 @pytest.mark.nats()
 class TestPublishWithPrometheus(TestPublish):
-    def get_broker(self, apply_types: bool = False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
         return NatsBroker(
             middlewares=(NatsPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
@@ -79,7 +78,7 @@ class TestPublishWithPrometheus(TestPublish):
 
 @pytest.mark.nats()
 class TestConsumeWithPrometheus(TestConsume):
-    def get_broker(self, apply_types: bool = False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
         return NatsBroker(
             middlewares=(NatsPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,

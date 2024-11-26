@@ -105,8 +105,14 @@ def create_subscriber(
         stream=stream,
     )
 
+    if ack_first is not EMPTY:
+        ack_policy = AckPolicy.ACK_FIRST if ack_first else AckPolicy.REJECT_ON_ERROR
+
+    if no_ack is not EMPTY:
+        no_ack = AckPolicy.DO_NOTHING if no_ack else EMPTY
+
     if ack_policy is EMPTY:
-        ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
+        ack_policy = AckPolicy.REJECT_ON_ERROR
 
     config = config or ConsumerConfig(filter_subjects=[])
     if config.durable_name is None:
@@ -135,6 +141,12 @@ def create_subscriber(
 
         else:
             # JS Push Subscriber
+            if ack_policy is AckPolicy.ACK_FIRST:
+                manual_ack = False
+                ack_policy = AckPolicy.DO_NOTHING
+            else:
+                manual_ack = True
+
             extra_options.update(
                 {
                     "ordered_consumer": ordered_consumer,
@@ -142,7 +154,7 @@ def create_subscriber(
                     "flow_control": flow_control,
                     "deliver_policy": deliver_policy,
                     "headers_only": headers_only,
-                    "manual_ack": not ack_first,
+                    "manual_ack": manual_ack,
                 },
             )
 
@@ -331,43 +343,10 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
     obj_watch: Optional["ObjWatch"],
     ack_policy: "AckPolicy",  # default EMPTY
     no_ack: bool,  # default EMPTY
-    ack_first: bool,  # default False
+    ack_first: bool,  # default EMPTY
     max_workers: int,  # default 1
     stream: Optional["JStream"],
 ) -> None:
-    if no_ack is not EMPTY:
-        warnings.warn(
-            "`no_ack` option was deprecated in prior to `ack_policy=AckPolicy.DO_NOTHING`. Scheduled to remove in 0.7.0",
-            category=DeprecationWarning,
-            stacklevel=4,
-        )
-
-        if ack_policy is not EMPTY:
-            msg = "You can't use deprecated `no_ack` and `ack_policy` simultaneously. Please, use `ack_policy` only."
-            raise SetupError(msg)
-
-    if not subject and not config:
-        msg = "You must provide either the `subject` or `config` option."
-        raise SetupError(msg)
-
-    if stream and kv_watch:
-        msg = "You can't use both the `stream` and `kv_watch` options simultaneously."
-        raise SetupError(msg)
-
-    if stream and obj_watch:
-        msg = "You can't use both the `stream` and `obj_watch` options simultaneously."
-        raise SetupError(msg)
-
-    if kv_watch and obj_watch:
-        msg = (
-            "You can't use both the `kv_watch` and `obj_watch` options simultaneously."
-        )
-        raise SetupError(msg)
-
-    if pull_sub and not stream:
-        msg = "JetStream Pull Subscriber can only be used with the `stream` option."
-        raise SetupError(msg)
-
     if ack_policy is not EMPTY:
         if obj_watch is not None:
             warnings.warn(
@@ -393,12 +372,63 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
                 stacklevel=4,
             )
 
-    if max_msgs > 0 and any((stream, kv_watch, obj_watch)):
+        if max_msgs > 0 and any((stream, kv_watch, obj_watch)):
+            warnings.warn(
+                "The `max_msgs` option can be used only with a NATS Core Subscriber.",
+                RuntimeWarning,
+                stacklevel=4,
+            )
+
+    if ack_first is not EMPTY:
         warnings.warn(
-            "The `max_msgs` option can be used only with a NATS Core Subscriber.",
-            RuntimeWarning,
+            "`ack_first` option was deprecated in prior to `ack_policy=AckPolicy.ACK_FIRST`. Scheduled to remove in 0.7.0",
+            category=DeprecationWarning,
             stacklevel=4,
         )
+
+        if ack_policy is not EMPTY:
+            msg = "You can't use deprecated `ack_first` and `ack_policy` simultaneously. Please, use `ack_policy` only."
+            raise SetupError(msg)
+
+        ack_policy = AckPolicy.ACK_FIRST if ack_first else AckPolicy.REJECT_ON_ERROR
+
+    if no_ack is not EMPTY:
+        warnings.warn(
+            "`no_ack` option was deprecated in prior to `ack_policy=AckPolicy.DO_NOTHING`. Scheduled to remove in 0.7.0",
+            category=DeprecationWarning,
+            stacklevel=4,
+        )
+
+        if ack_policy is not EMPTY:
+            msg = "You can't use deprecated `no_ack` and `ack_policy` simultaneously. Please, use `ack_policy` only."
+            raise SetupError(msg)
+
+        no_ack = AckPolicy.DO_NOTHING if no_ack else EMPTY
+
+    if ack_policy is EMPTY:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
+
+    if not subject and not config:
+        msg = "You must provide either the `subject` or `config` option."
+        raise SetupError(msg)
+
+    if stream and kv_watch:
+        msg = "You can't use both the `stream` and `kv_watch` options simultaneously."
+        raise SetupError(msg)
+
+    if stream and obj_watch:
+        msg = "You can't use both the `stream` and `obj_watch` options simultaneously."
+        raise SetupError(msg)
+
+    if kv_watch and obj_watch:
+        msg = (
+            "You can't use both the `kv_watch` and `obj_watch` options simultaneously."
+        )
+        raise SetupError(msg)
+
+    if pull_sub and not stream:
+        msg = "JetStream Pull Subscriber can only be used with the `stream` option."
+        raise SetupError(msg)
 
     if not stream:
         if obj_watch or kv_watch:
@@ -481,9 +511,9 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
                 stacklevel=4,
             )
 
-        if ack_first:
+        if ack_policy is AckPolicy.ACK_FIRST:
             warnings.warn(
-                message="The `ack_first` option can be used only with JetStream Push Subscription.",
+                message="The `ack_policy=AckPolicy.ACK_FIRST:` option can be used only with JetStream Push Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
@@ -504,9 +534,9 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
                 stacklevel=4,
             )
 
-        if ack_first:
+        if ack_policy is AckPolicy.ACK_FIRST:
             warnings.warn(
-                message="The `ack_first` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
+                message="The `ack_policy=AckPolicy.ACK_FIRST` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )

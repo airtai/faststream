@@ -65,6 +65,9 @@ class _AcknowledgementMiddleware(BaseMiddleware):
         msg: "StreamMessage[Any]",
     ) -> Any:
         self.message = msg
+        if self.ack_policy is AckPolicy.ACK_FIRST:
+            await self.__ack()
+
         return await call_next(msg)
 
     async def __aexit__(
@@ -73,6 +76,9 @@ class _AcknowledgementMiddleware(BaseMiddleware):
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
+        if self.ack_policy is AckPolicy.ACK_FIRST:
+            return False
+
         if not exc_type:
             await self.__ack()
 
@@ -104,7 +110,7 @@ class _AcknowledgementMiddleware(BaseMiddleware):
                 await self.message.ack(**exc_extra_options, **self.extra_options)
             except Exception as er:
                 if self.logger is not None:
-                    self.logger.log(er, logging.CRITICAL, exc_info=er)
+                    self.logger.log(repr(er), logging.CRITICAL, exc_info=er)
 
     async def __nack(self, **exc_extra_options: Any) -> None:
         if self.message:
@@ -112,7 +118,7 @@ class _AcknowledgementMiddleware(BaseMiddleware):
                 await self.message.nack(**exc_extra_options, **self.extra_options)
             except Exception as er:
                 if self.logger is not None:
-                    self.logger.log(er, logging.CRITICAL, exc_info=er)
+                    self.logger.log(repr(er), logging.CRITICAL, exc_info=er)
 
     async def __reject(self, **exc_extra_options: Any) -> None:
         if self.message:
@@ -120,4 +126,4 @@ class _AcknowledgementMiddleware(BaseMiddleware):
                 await self.message.reject(**exc_extra_options, **self.extra_options)
             except Exception as er:
                 if self.logger is not None:
-                    self.logger.log(er, logging.CRITICAL, exc_info=er)
+                    self.logger.log(repr(er), logging.CRITICAL, exc_info=er)

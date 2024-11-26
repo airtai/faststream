@@ -263,7 +263,6 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         pattern: Optional[str],
         connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
-        is_manual: bool,
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
@@ -281,7 +280,9 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             reg = None
 
         self.parser = AioKafkaParser(
-            msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
+            msg_class=KafkaMessage
+            if ack_policy is ack_policy.ACK_FIRST
+            else KafkaAckableMessage,
             regex=reg,
         )
 
@@ -332,7 +333,6 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber):
         pattern: Optional[str],
         connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
-        is_manual: bool,
         # Subscriber args
         max_workers: int,
         ack_policy: "AckPolicy",
@@ -347,7 +347,6 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber):
             pattern=pattern,
             connection_args=connection_args,
             partitions=partitions,
-            is_manual=is_manual,
             max_workers=max_workers,
             # Propagated args
             ack_policy=ack_policy,
@@ -376,7 +375,6 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
         pattern: Optional[str],
         connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
-        is_manual: bool,
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
@@ -399,7 +397,9 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
             reg = None
 
         self.parser = AioKafkaBatchParser(
-            msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
+            msg_class=KafkaMessage
+            if ack_policy is ack_policy.ACK_FIRST
+            else KafkaAckableMessage,
             regex=reg,
         )
 
