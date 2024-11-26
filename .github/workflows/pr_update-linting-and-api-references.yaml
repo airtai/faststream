@@ -1,4 +1,4 @@
-name: Generate API References documentation
+name: Run linting, update API References and commit changes
 
 on:
   pull_request_target:
@@ -6,8 +6,6 @@ on:
       - opened
       - synchronize
       - ready_for_review
-    paths:
-      - faststream/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -17,7 +15,7 @@ permissions:
   contents: write
 
 jobs:
-  check-docs-changes:
+  check-linting-and-docs-changes:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
@@ -32,6 +30,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Set $PY environment variable
+        run: echo "PY=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         shell: bash
@@ -39,8 +39,15 @@ jobs:
         run: |
           set -ux
           uv pip install --system -e .[dev]
+
+      - uses: pre-commit/action@v3.0.1
+        continue-on-error: true
+        with:
+          extra_args: --hook-stage manual --all-files
+
       - name: Run build docs
         run: bash scripts/build-docs.sh
+
       - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
