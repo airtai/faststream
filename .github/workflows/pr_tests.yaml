@@ -3,7 +3,7 @@ name: Run all tests
 on:
   schedule:
     - cron: "0 0 * * *"
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - synchronize
@@ -37,14 +37,6 @@ jobs:
         with:
           path: ~/.cache/pre-commit
           key: pre-commit|${{ hashFiles('.pre-commit-config.yaml') }}
-      - uses: pre-commit/action@v3.0.1
-        continue-on-error: true
-        with:
-          extra_args: --hook-stage manual --all-files
-      - name: Commit
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "fix: add missing pre-commit changes"
       - uses: pre-commit/action@v3.0.1
 
   test-basic:

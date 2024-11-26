@@ -1,0 +1,41 @@
+name: Run linting and commit changes
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - ready_for_review
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  pre-commit-check:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    env:
+      SKIP: "docs"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Set $PY environment variable
+        run: echo "PY=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit|${{ hashFiles('.pre-commit-config.yaml') }}
+      - uses: pre-commit/action@v3.0.1
+        continue-on-error: true
+        with:
+          extra_args: --hook-stage manual --all-files
+      - name: Commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "fix: add missing pre-commit changes"
