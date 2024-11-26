@@ -172,7 +172,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -543,7 +549,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -914,7 +926,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -1288,7 +1306,13 @@ class KafkaRegistrator(
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -1559,51 +1583,51 @@ class KafkaRegistrator(
         "SpecificationBatchSubscriber",
         "SpecificationConcurrentDefaultSubscriber",
     ]:
-        subscriber = super().subscriber(
-            create_subscriber(
-                *topics,
-                batch=batch,
-                max_workers=max_workers,
-                batch_timeout_ms=batch_timeout_ms,
-                max_records=max_records,
-                group_id=group_id,
-                listener=listener,
-                pattern=pattern,
-                connection_args={
-                    "key_deserializer": key_deserializer,
-                    "value_deserializer": value_deserializer,
-                    "fetch_max_wait_ms": fetch_max_wait_ms,
-                    "fetch_max_bytes": fetch_max_bytes,
-                    "fetch_min_bytes": fetch_min_bytes,
-                    "max_partition_fetch_bytes": max_partition_fetch_bytes,
-                    "auto_offset_reset": auto_offset_reset,
-                    "enable_auto_commit": auto_commit,
-                    "auto_commit_interval_ms": auto_commit_interval_ms,
-                    "check_crcs": check_crcs,
-                    "partition_assignment_strategy": partition_assignment_strategy,
-                    "max_poll_interval_ms": max_poll_interval_ms,
-                    "rebalance_timeout_ms": rebalance_timeout_ms,
-                    "session_timeout_ms": session_timeout_ms,
-                    "heartbeat_interval_ms": heartbeat_interval_ms,
-                    "consumer_timeout_ms": consumer_timeout_ms,
-                    "max_poll_records": max_poll_records,
-                    "exclude_internal_topics": exclude_internal_topics,
-                    "isolation_level": isolation_level,
-                },
-                partitions=partitions,
-                is_manual=not auto_commit,
-                # subscriber args
-                ack_policy=ack_policy,
-                no_ack=no_ack,
-                no_reply=no_reply,
-                broker_middlewares=self.middlewares,
-                broker_dependencies=self._dependencies,
-                # Specification
-                title_=title,
-                description_=description,
-                include_in_schema=self._solve_include_in_schema(include_in_schema),
-            ),
+        sub = create_subscriber(
+            *topics,
+            batch=batch,
+            max_workers=max_workers,
+            batch_timeout_ms=batch_timeout_ms,
+            max_records=max_records,
+            group_id=group_id,
+            listener=listener,
+            pattern=pattern,
+            connection_args={
+                "key_deserializer": key_deserializer,
+                "value_deserializer": value_deserializer,
+                "fetch_max_wait_ms": fetch_max_wait_ms,
+                "fetch_max_bytes": fetch_max_bytes,
+                "fetch_min_bytes": fetch_min_bytes,
+                "max_partition_fetch_bytes": max_partition_fetch_bytes,
+                "auto_offset_reset": auto_offset_reset,
+                "auto_commit_interval_ms": auto_commit_interval_ms,
+                "check_crcs": check_crcs,
+                "partition_assignment_strategy": partition_assignment_strategy,
+                "max_poll_interval_ms": max_poll_interval_ms,
+                "rebalance_timeout_ms": rebalance_timeout_ms,
+                "session_timeout_ms": session_timeout_ms,
+                "heartbeat_interval_ms": heartbeat_interval_ms,
+                "consumer_timeout_ms": consumer_timeout_ms,
+                "max_poll_records": max_poll_records,
+                "exclude_internal_topics": exclude_internal_topics,
+                "isolation_level": isolation_level,
+            },
+            partitions=partitions,
+            # acknowledgement args
+            ack_policy=ack_policy,
+            no_ack=no_ack,
+            auto_commit=auto_commit,
+            # subscriber args
+            no_reply=no_reply,
+            broker_middlewares=self.middlewares,
+            broker_dependencies=self._dependencies,
+            # Specification
+            title_=title,
+            description_=description,
+            include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
+
+        subscriber = super().subscriber(sub)
 
         if batch:
             subscriber = cast("SpecificationBatchSubscriber", subscriber)

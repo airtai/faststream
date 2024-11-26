@@ -81,7 +81,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     @pytest.mark.slow()
-    async def test_consume_ack(
+    async def test_consume_auto_ack(
         self,
         queue: str,
     ) -> None:
@@ -92,7 +92,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -136,7 +136,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -176,7 +176,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -216,7 +216,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -297,8 +297,8 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
         args, kwargs = self.get_subscriber_params(
             queue,
-            auto_commit=False,
             group_id="test",
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -311,8 +311,8 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
         args, kwargs = self.get_subscriber_params(
             queue,
-            auto_commit=True,
             group_id="test",
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @broker2.subscriber(*args, **kwargs)

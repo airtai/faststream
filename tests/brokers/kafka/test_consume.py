@@ -112,7 +112,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     @pytest.mark.slow()
-    async def test_consume_ack(
+    async def test_consume_auto_ack(
         self,
         queue: str,
     ) -> None:
@@ -120,7 +120,9 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
         async def handler(msg: KafkaMessage) -> None:
             event.set()
 
@@ -186,7 +188,9 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
         async def handler(msg: KafkaMessage) -> None:
             await msg.ack()
             event.set()
@@ -217,7 +221,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     @pytest.mark.slow()
-    async def test_consume_ack_raise(
+    async def test_consume_ack_by_raise(
         self,
         queue: str,
     ) -> None:
@@ -225,7 +229,9 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
         async def handler(msg: KafkaMessage):
             event.set()
             raise AckMessage
@@ -256,7 +262,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     @pytest.mark.slow()
-    async def test_nack(
+    async def test_manual_nack(
         self,
         queue: str,
     ) -> None:
@@ -264,7 +270,9 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
         async def handler(msg: KafkaMessage) -> None:
             await msg.nack()
             event.set()

@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from faststream import BaseMiddleware
+from faststream import AckPolicy, BaseMiddleware
 from faststream.kafka import TopicPartition
 from faststream.kafka.annotations import KafkaMessage
 from faststream.kafka.message import FAKE_CONSUMER
@@ -72,7 +72,7 @@ class TestTestclient(KafkaMemoryTestcaseConfig, BrokerTestclientTestcase):
     ) -> None:
         broker = self.get_broker(apply_types=True)
 
-        @broker.subscriber(queue)
+        @broker.subscriber(queue, group_id=f"{queue}1", ack_policy=AckPolicy.DO_NOTHING)
         async def m(msg: KafkaMessage) -> None:
             await msg.nack()
 

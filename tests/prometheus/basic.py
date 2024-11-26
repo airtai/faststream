@@ -20,10 +20,10 @@ from tests.brokers.base.basic import BaseTestcaseConfig
 
 @pytest.mark.asyncio()
 class LocalPrometheusTestcase(BaseTestcaseConfig):
-    def get_broker(self, apply_types=False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any):
         raise NotImplementedError
 
-    def get_middleware(self, **kwargs) -> BasePrometheusMiddleware:
+    def get_middleware(self, **kwargs: Any) -> BasePrometheusMiddleware:
         raise NotImplementedError
 
     @staticmethod
@@ -264,6 +264,9 @@ class LocalRPCPrometheusTestcase:
 class LocalMetricsSettingsProviderTestcase:
     messaging_system: str
 
+    def get_middleware(self, **kwargs) -> BasePrometheusMiddleware:
+        raise NotImplementedError
+
     @staticmethod
     def get_provider() -> MetricsSettingsProvider:
         raise NotImplementedError
@@ -272,13 +275,7 @@ class LocalMetricsSettingsProviderTestcase:
         provider = self.get_provider()
         assert provider.messaging_system == self.messaging_system
 
-    def test_get_consume_attrs_from_message(self, *args, **kwargs) -> None:
-        raise NotImplementedError
-
-    def test_get_publish_destination_name_from_cmd(self, *args, **kwargs) -> None:
-        raise NotImplementedError
-
-    async def test_one_registry_for_some_middlewares(self, queue: str) -> None:
+    def test_one_registry_for_some_middlewares(self) -> None:
         registry = CollectorRegistry()
 
         middleware_1 = self.get_middleware(registry=registry)

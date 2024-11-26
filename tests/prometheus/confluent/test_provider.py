@@ -11,12 +11,13 @@ from faststream.confluent.prometheus.provider import (
 from faststream.prometheus import MetricsSettingsProvider
 from tests.prometheus.basic import LocalMetricsSettingsProviderTestcase
 
+from .basic import KafkaPrometheusSettings
+
 
 class LocalBaseConfluentMetricsSettingsProviderTestcase(
-    LocalMetricsSettingsProviderTestcase
+    KafkaPrometheusSettings,
+    LocalMetricsSettingsProviderTestcase,
 ):
-    messaging_system = "kafka"
-
     def test_get_publish_destination_name_from_cmd(self, queue: str) -> None:
         expected_destination_name = queue
         provider = self.get_provider()

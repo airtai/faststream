@@ -18,6 +18,7 @@ from faststream._internal.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.fake import KafkaFakePublisher
 from faststream.confluent.schemas import TopicPartition
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
@@ -32,7 +33,6 @@ if TYPE_CHECKING:
     )
     from faststream.confluent.client import AsyncConfluentConsumer
     from faststream.message import StreamMessage
-    from faststream.middlewares import AckPolicy
 
 
 class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
@@ -244,14 +244,15 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         polling_interval: float,
         group_id: Optional[str],
         connection_data: "AnyDict",
-        is_manual: bool,
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Message]"],
     ) -> None:
-        self.parser = AsyncConfluentParser(is_manual=is_manual)
+        self.parser = AsyncConfluentParser(
+            is_manual=ack_policy is not AckPolicy.ACK_FIRST
+        )
 
         super().__init__(
             *topics,
@@ -299,7 +300,6 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
         # Kafka information
         group_id: Optional[str],
         connection_data: "AnyDict",
-        is_manual: bool,
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
@@ -308,7 +308,9 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
     ) -> None:
         self.max_records = max_records
 
-        self.parser = AsyncConfluentParser(is_manual=is_manual)
+        self.parser = AsyncConfluentParser(
+            is_manual=ack_policy is not AckPolicy.ACK_FIRST
+        )
 
         super().__init__(
             *topics,
