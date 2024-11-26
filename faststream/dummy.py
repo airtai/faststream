@@ -5,3 +5,4 @@ class Dummy:
 
     def dummy_method(self) -> str:
         return "dummy"
+
