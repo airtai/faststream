@@ -1,13 +1,6 @@
-from .main import (
-    ChannelBinding,
-    OperationBinding,
-    channel_binding_from_spec,
-    operation_binding_from_spec,
-)
+from .main import ChannelBinding, OperationBinding
 
 __all__ = (
     "ChannelBinding",
     "OperationBinding",
-    "channel_binding_from_spec",
-    "operation_binding_from_spec",
 )

@@ -34,8 +34,6 @@ from faststream.middlewares import AckPolicy, AcknowledgementMiddleware
 from faststream.middlewares.logging import CriticalLogMiddleware
 from faststream.response import ensure_response
 
-from .specified import BaseSpicificationSubscriber
-
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
@@ -79,7 +77,7 @@ class _CallOptions:
         self.dependencies = dependencies
 
 
-class SubscriberUsecase(BaseSpicificationSubscriber, SubscriberProto[MsgType]):
+class SubscriberUsecase(SubscriberProto[MsgType]):
     """A class representing an asynchronous handler."""
 
     lock: "AbstractContextManager[Any]"
@@ -100,18 +98,8 @@ class SubscriberUsecase(BaseSpicificationSubscriber, SubscriberProto[MsgType]):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         ack_policy: AckPolicy,
-        # AsyncAPI information
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         """Initialize a new instance of the class."""
-        super().__init__(
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
-
         self.calls = []
 
         self._parser = default_parser
@@ -349,7 +337,9 @@ class SubscriberUsecase(BaseSpicificationSubscriber, SubscriberProto[MsgType]):
                         await h.call(
                             message=message,
                             # consumer middlewares
-                            _extra_middlewares=(m.consume_scope for m in middlewares),
+                            _extra_middlewares=(
+                                m.consume_scope for m in middlewares[::-1]
+                            ),
                         ),
                     )
 
@@ -362,7 +352,9 @@ class SubscriberUsecase(BaseSpicificationSubscriber, SubscriberProto[MsgType]):
                     ):
                         await p._publish(
                             result_msg.as_publish_command(),
-                            _extra_middlewares=(m.publish_scope for m in middlewares),
+                            _extra_middlewares=(
+                                m.publish_scope for m in middlewares[::-1]
+                            ),
                         )
 
                     # Return data for tests

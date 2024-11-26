@@ -162,4 +162,4 @@ To use restart feature, please install dependencies:\n
 pip install watchfiles
 """
 
-SCHEMA_NOT_SUPPORTED = "{schema_filename} not supported. Make sure that your schema is valid and schema version supported by FastStream"
+SCHEMA_NOT_SUPPORTED = "`{schema_filename}` not supported. Make sure that your schema is valid and schema version supported by FastStream"

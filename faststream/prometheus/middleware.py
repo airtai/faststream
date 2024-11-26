@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from faststream import BaseMiddleware
 from faststream._internal.constants import EMPTY
+from faststream.exceptions import IgnoredException
 from faststream.message import SourceType
 from faststream.prometheus.consts import (
     PROCESSING_STATUS_BY_ACK_STATUS,
@@ -58,8 +59,8 @@ class PrometheusMiddleware:
         /,
         *,
         context: "ContextRepo",
-    ) -> "_PrometheusMiddleware":
-        return _PrometheusMiddleware(
+    ) -> "BasePrometheusMiddleware":
+        return BasePrometheusMiddleware(
             msg,
             metrics_manager=self._metrics_manager,
             settings_provider_factory=self._settings_provider_factory,
@@ -67,7 +68,7 @@ class PrometheusMiddleware:
         )
 
 
-class _PrometheusMiddleware(BaseMiddleware):
+class BasePrometheusMiddleware(BaseMiddleware):
     def __init__(
         self,
         msg: Optional[Any],
@@ -121,11 +122,13 @@ class _PrometheusMiddleware(BaseMiddleware):
 
         except Exception as e:
             err = e
-            self._metrics_manager.add_received_processed_message_exception(
-                exception_type=type(err).__name__,
-                broker=messaging_system,
-                handler=destination_name,
-            )
+
+            if not isinstance(err, IgnoredException):
+                self._metrics_manager.add_received_processed_message_exception(
+                    exception_type=type(err).__name__,
+                    broker=messaging_system,
+                    handler=destination_name,
+                )
             raise
 
         finally:

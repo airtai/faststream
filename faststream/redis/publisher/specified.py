@@ -1,40 +1,41 @@
 from typing import TYPE_CHECKING
 
+from faststream._internal.publisher.specified import (
+    SpecificationPublisher as SpecificationPublisherMixin,
+)
 from faststream.redis.publisher.usecase import (
     ChannelPublisher,
     ListBatchPublisher,
     ListPublisher,
-    LogicPublisher,
     StreamPublisher,
 )
 from faststream.redis.schemas.proto import RedisSpecificationProtocol
 from faststream.specification.asyncapi.utils import resolve_payloads
+from faststream.specification.schema import Message, Operation, PublisherSpec
 from faststream.specification.schema.bindings import ChannelBinding, redis
-from faststream.specification.schema.channel import Channel
-from faststream.specification.schema.message import CorrelationId, Message
-from faststream.specification.schema.operation import Operation
 
 if TYPE_CHECKING:
     from faststream.redis.schemas import ListSub
 
 
-class SpecificationPublisher(LogicPublisher, RedisSpecificationProtocol):
+class SpecificationPublisher(
+    SpecificationPublisherMixin,
+    RedisSpecificationProtocol[PublisherSpec],
+):
     """A class to represent a Redis publisher."""
 
-    def get_schema(self) -> dict[str, Channel]:
+    def get_schema(self) -> dict[str, PublisherSpec]:
         payloads = self.get_payloads()
 
         return {
-            self.name: Channel(
+            self.name: PublisherSpec(
                 description=self.description,
-                publish=Operation(
+                operation=Operation(
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads, "Publisher"),
-                        correlationId=CorrelationId(
-                            location="$message.header#/correlation_id",
-                        ),
                     ),
+                    bindings=None,
                 ),
                 bindings=ChannelBinding(
                     redis=self.channel_binding,
@@ -43,8 +44,8 @@ class SpecificationPublisher(LogicPublisher, RedisSpecificationProtocol):
         }
 
 
-class SpecificationChannelPublisher(ChannelPublisher, SpecificationPublisher):
-    def get_name(self) -> str:
+class SpecificationChannelPublisher(SpecificationPublisher, ChannelPublisher):
+    def get_default_name(self) -> str:
         return f"{self.channel.name}:Publisher"
 
     @property
@@ -58,7 +59,7 @@ class SpecificationChannelPublisher(ChannelPublisher, SpecificationPublisher):
 class _ListPublisherMixin(SpecificationPublisher):
     list: "ListSub"
 
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.list.name}:Publisher"
 
     @property
@@ -69,16 +70,16 @@ class _ListPublisherMixin(SpecificationPublisher):
         )
 
 
-class SpecificationListPublisher(ListPublisher, _ListPublisherMixin):
+class SpecificationListPublisher(_ListPublisherMixin, ListPublisher):
     pass
 
 
-class SpecificationListBatchPublisher(ListBatchPublisher, _ListPublisherMixin):
+class SpecificationListBatchPublisher(_ListPublisherMixin, ListBatchPublisher):
     pass
 
 
-class SpecificationStreamPublisher(StreamPublisher, SpecificationPublisher):
-    def get_name(self) -> str:
+class SpecificationStreamPublisher(SpecificationPublisher, StreamPublisher):
+    def get_default_name(self) -> str:
         return f"{self.stream.name}:Publisher"
 
     @property

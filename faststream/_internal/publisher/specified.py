@@ -1,11 +1,9 @@
 from inspect import Parameter, unwrap
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union
 
 from fast_depends.core import build_call_model
 from fast_depends.pydantic._compat import create_model, get_config_base
 
-from faststream._internal.publisher.proto import PublisherProto
-from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
 from faststream._internal.types import (
     MsgType,
     P_HandlerParams,
@@ -13,34 +11,40 @@ from faststream._internal.types import (
 )
 from faststream.specification.asyncapi.message import get_model_schema
 from faststream.specification.asyncapi.utils import to_camelcase
-from faststream.specification.base.proto import SpecificationEndpoint
+from faststream.specification.proto import EndpointSpecification
+from faststream.specification.schema import PublisherSpec
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.basic_types import AnyCallable, AnyDict
+    from faststream._internal.state import BrokerState, Pointer
+    from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
 
 
-class BaseSpicificationPublisher(SpecificationEndpoint, PublisherProto[MsgType]):
+class SpecificationPublisher(EndpointSpecification[PublisherSpec]):
     """A base class for publishers in an asynchronous API."""
+
+    _state: "Pointer[BrokerState]"  # should be set in next parent
 
     def __init__(
         self,
-        *,
+        *args: Any,
         schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
+        **kwargs: Any,
     ) -> None:
-        self.calls = []
+        self.calls: list[AnyCallable] = []
 
-        self.title_ = title_
-        self.description_ = description_
-        self.include_in_schema = include_in_schema
         self.schema_ = schema_
+
+        super().__init__(*args, **kwargs)
 
     def __call__(
         self,
-        func: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-    ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
+        func: Union[
+            Callable[P_HandlerParams, T_HandlerReturn],
+            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+        ],
+    ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
+        func = super().__call__(func)
         self.calls.append(func._original_call)
         return func
 

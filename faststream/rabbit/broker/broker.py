@@ -59,7 +59,7 @@ if TYPE_CHECKING:
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 
 class RabbitBroker(
@@ -196,9 +196,9 @@ class RabbitBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("AsyncAPI server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],
@@ -807,7 +807,7 @@ class RabbitBroker(
                 if cancel_scope.cancel_called:
                     return False
 
-                if not self._connection.is_closed:
+                if self._connection.connected.is_set():
                     return True
 
                 await anyio.sleep(sleep_time)

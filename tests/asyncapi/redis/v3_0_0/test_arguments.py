@@ -79,8 +79,8 @@ class TestArguments(ArgumentsTestcase):
             "redis": {
                 "bindingVersion": "custom",
                 "channel": "test",
-                "consumer_name": "consumer",
-                "group_name": "group",
+                "consumerName": "consumer",
+                "groupName": "group",
                 "method": "xreadgroup",
             },
         }

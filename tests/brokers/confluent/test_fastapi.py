@@ -1,15 +1,13 @@
 import asyncio
-from typing import Any
 from unittest.mock import Mock
 
 import pytest
 
-from faststream.confluent import KafkaBroker, KafkaRouter
+from faststream.confluent import KafkaRouter
 from faststream.confluent.fastapi import KafkaRouter as StreamRouter
-from faststream.confluent.testing import TestKafkaBroker
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
-from .basic import ConfluentTestcaseConfig
+from .basic import ConfluentMemoryTestcaseConfig, ConfluentTestcaseConfig
 
 
 @pytest.mark.confluent()
@@ -47,12 +45,9 @@ class TestConfluentRouter(ConfluentTestcaseConfig, FastAPITestcase):
         mock.assert_called_with(["hi"])
 
 
-class TestRouterLocal(ConfluentTestcaseConfig, FastAPILocalTestcase):
+class TestRouterLocal(ConfluentMemoryTestcaseConfig, FastAPILocalTestcase):
     router_class = StreamRouter
     broker_router_class = KafkaRouter
-
-    def patch_broker(self, broker: KafkaBroker, **kwargs: Any) -> TestKafkaBroker:
-        return TestKafkaBroker(broker, **kwargs)
 
     async def test_batch_testclient(
         self,

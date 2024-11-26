@@ -1,10 +1,9 @@
-from typing import Any
-
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.nats import NatsBroker, NatsRouter, TestNatsBroker
 from tests.brokers.base.requests import RequestsTestcase
+
+from .basic import NatsMemoryTestcaseConfig, NatsTestcaseConfig
 
 
 class Mid(BaseMiddleware):
@@ -20,12 +19,6 @@ class Mid(BaseMiddleware):
 class NatsRequestsTestcase(RequestsTestcase):
     def get_middleware(self, **kwargs):
         return Mid
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types, **kwargs)
-
-    def get_router(self, **kwargs):
-        return NatsRouter(**kwargs)
 
     async def test_broker_stream_request(self, queue: str) -> None:
         broker = self.get_broker()
@@ -78,10 +71,9 @@ class NatsRequestsTestcase(RequestsTestcase):
 
 
 @pytest.mark.nats()
-class TestRealRequests(NatsRequestsTestcase):
+class TestRealRequests(NatsTestcaseConfig, NatsRequestsTestcase):
     pass
 
 
-class TestRequestTestClient(NatsRequestsTestcase):
-    def patch_broker(self, broker, **kwargs):
-        return TestNatsBroker(broker, **kwargs)
+class TestRequestTestClient(NatsMemoryTestcaseConfig, NatsRequestsTestcase):
+    pass

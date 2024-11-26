@@ -34,14 +34,7 @@ def test_run_as_asgi(runner: CliRunner) -> None:
         assert result.exit_code == 0
 
 
-@pytest.mark.parametrize(
-    "workers",
-    (
-        pytest.param(1),
-        pytest.param(2),
-        pytest.param(5),
-    ),
-)
+@pytest.mark.parametrize("workers", (pytest.param(1), pytest.param(2), pytest.param(5)))
 def test_run_as_asgi_with_workers(runner: CliRunner, workers: int) -> None:
     app = AsgiFastStream(AsyncMock())
     app.run = AsyncMock()

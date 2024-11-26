@@ -1,56 +1,43 @@
-from typing import TYPE_CHECKING
-
-from faststream._internal.types import MsgType
-from faststream.kafka.publisher.usecase import (
-    BatchPublisher,
-    DefaultPublisher,
-    LogicPublisher,
+from faststream._internal.publisher.specified import (
+    SpecificationPublisher as SpecificationPublisherMixin,
 )
+from faststream.kafka.publisher.usecase import BatchPublisher, DefaultPublisher
 from faststream.specification.asyncapi.utils import resolve_payloads
+from faststream.specification.schema import Message, Operation, PublisherSpec
 from faststream.specification.schema.bindings import ChannelBinding, kafka
-from faststream.specification.schema.channel import Channel
-from faststream.specification.schema.message import CorrelationId, Message
-from faststream.specification.schema.operation import Operation
-
-if TYPE_CHECKING:
-    from aiokafka import ConsumerRecord
 
 
-class SpecificationPublisher(LogicPublisher[MsgType]):
+class SpecificationPublisher(SpecificationPublisherMixin):
     """A class representing a publisher."""
 
-    def get_name(self) -> str:
+    def get_default_name(self) -> str:
         return f"{self.topic}:Publisher"
 
-    def get_schema(self) -> dict[str, Channel]:
+    def get_schema(self) -> dict[str, PublisherSpec]:
         payloads = self.get_payloads()
 
         return {
-            self.name: Channel(
+            self.name: PublisherSpec(
                 description=self.description,
-                publish=Operation(
+                operation=Operation(
                     message=Message(
                         title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads, "Publisher"),
-                        correlationId=CorrelationId(
-                            location="$message.header#/correlation_id",
-                        ),
                     ),
+                    bindings=None,
                 ),
-                bindings=ChannelBinding(kafka=kafka.ChannelBinding(topic=self.topic)),
+                bindings=ChannelBinding(
+                    kafka=kafka.ChannelBinding(
+                        topic=self.topic, partitions=None, replicas=None
+                    )
+                ),
             ),
         }
 
 
-class SpecificationBatchPublisher(
-    BatchPublisher,
-    SpecificationPublisher[tuple["ConsumerRecord", ...]],
-):
+class SpecificationBatchPublisher(SpecificationPublisher, BatchPublisher):
     pass
 
 
-class SpecificationDefaultPublisher(
-    DefaultPublisher,
-    SpecificationPublisher["ConsumerRecord"],
-):
+class SpecificationDefaultPublisher(SpecificationPublisher, DefaultPublisher):
     pass

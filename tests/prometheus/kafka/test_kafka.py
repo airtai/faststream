@@ -11,15 +11,11 @@ from tests.brokers.kafka.test_consume import TestConsume
 from tests.brokers.kafka.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase
 
+from .basic import KafkaPrometheusSettings
+
 
 @pytest.mark.kafka()
-class TestPrometheus(LocalPrometheusTestcase):
-    def get_broker(self, apply_types=False, **kwargs):
-        return KafkaBroker(apply_types=apply_types, **kwargs)
-
-    def get_middleware(self, **kwargs):
-        return KafkaPrometheusMiddleware(**kwargs)
-
+class TestPrometheus(KafkaPrometheusSettings, LocalPrometheusTestcase):
     async def test_metrics_batch(
         self,
         queue: str,

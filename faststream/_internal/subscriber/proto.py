@@ -17,15 +17,15 @@ if TYPE_CHECKING:
         ProducerProto,
     )
     from faststream._internal.state import BrokerState, Pointer
-    from faststream._internal.subscriber.call_item import HandlerItem
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         SubscriberMiddleware,
     )
     from faststream.message import StreamMessage
     from faststream.response import Response
+
+    from .call_item import HandlerItem
 
 
 class SubscriberProto(
@@ -68,10 +68,6 @@ class SubscriberProto(
         message: "StreamMessage[MsgType]",
     ) -> Iterable["BasePublisherProto"]: ...
 
-    @property
-    @abstractmethod
-    def call_name(self) -> str: ...
-
     @abstractmethod
     async def start(self) -> None: ...
 
@@ -95,7 +91,6 @@ class SubscriberProto(
     def add_call(
         self,
         *,
-        filter_: "Filter[Any]",
         parser_: "CustomCallable",
         decoder_: "CustomCallable",
         middlewares_: Iterable["SubscriberMiddleware[Any]"],

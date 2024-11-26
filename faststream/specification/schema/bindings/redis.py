@@ -14,14 +14,12 @@ class ChannelBinding:
     Attributes:
         channel : the channel name
         method : the method used for binding (ssubscribe, psubscribe, subscribe)
-        bindingVersion : the version of the binding
     """
 
     channel: str
     method: Optional[str] = None
     group_name: Optional[str] = None
     consumer_name: Optional[str] = None
-    bindingVersion: str = "custom"
 
 
 @dataclass
@@ -29,9 +27,7 @@ class OperationBinding:
     """A class to represent an operation binding.
 
     Attributes:
-        replyTo : optional dictionary containing reply information
-        bindingVersion : version of the binding (default is "custom")
+        reply_to : optional dictionary containing reply information
     """
 
-    replyTo: Optional[dict[str, Any]] = None
-    bindingVersion: str = "custom"
+    reply_to: Optional[dict[str, Any]] = None

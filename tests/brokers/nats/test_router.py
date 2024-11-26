@@ -1,28 +1,23 @@
 import asyncio
-from typing import Any
 
 import pytest
 
 from faststream import Path
 from faststream.nats import (
     JStream,
-    NatsBroker,
     NatsPublisher,
     NatsRoute,
     NatsRouter,
-    TestNatsBroker,
 )
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
+from .basic import NatsMemoryTestcaseConfig, NatsTestcaseConfig
+
 
 @pytest.mark.nats()
-class TestRouter(RouterTestcase):
-    broker_class = NatsRouter
+class TestRouter(NatsTestcaseConfig, RouterTestcase):
     route_class = NatsRoute
     publisher_class = NatsPublisher
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types, **kwargs)
 
     async def test_router_path(
         self,
@@ -158,15 +153,9 @@ class TestRouter(RouterTestcase):
         assert event.is_set()
 
 
-class TestRouterLocal(RouterLocalTestcase):
+class TestRouterLocal(NatsMemoryTestcaseConfig, RouterLocalTestcase):
     route_class = NatsRoute
     publisher_class = NatsPublisher
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types, **kwargs)
-
-    def patch_broker(self, broker: NatsBroker, **kwargs: Any) -> NatsBroker:
-        return TestNatsBroker(broker, **kwargs)
 
     async def test_include_stream(
         self,

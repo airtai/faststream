@@ -4,16 +4,15 @@ from unittest.mock import Mock
 import pytest
 
 from faststream import Context
-from faststream.nats import NatsBroker, NatsResponse
+from faststream.nats import NatsResponse
 from tests.brokers.base.publish import BrokerPublishTestcase
+
+from .basic import NatsTestcaseConfig
 
 
 @pytest.mark.nats()
-class TestPublish(BrokerPublishTestcase):
+class TestPublish(NatsTestcaseConfig, BrokerPublishTestcase):
     """Test publish method of NATS broker."""
-
-    def get_broker(self, apply_types: bool = False, **kwargs) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types, **kwargs)
 
     @pytest.mark.asyncio()
     async def test_response(

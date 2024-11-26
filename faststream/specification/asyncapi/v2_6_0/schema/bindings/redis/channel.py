@@ -8,7 +8,7 @@ from typing import Optional
 from pydantic import BaseModel
 from typing_extensions import Self
 
-from faststream.specification import schema as spec
+from faststream.specification.schema.bindings import redis
 
 
 class ChannelBinding(BaseModel):
@@ -22,20 +22,30 @@ class ChannelBinding(BaseModel):
 
     channel: str
     method: Optional[str] = None
-    group_name: Optional[str] = None
-    consumer_name: Optional[str] = None
+    groupName: Optional[str] = None
+    consumerName: Optional[str] = None
     bindingVersion: str = "custom"
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.redis.ChannelBinding) -> Self:
+    def from_sub(cls, binding: Optional[redis.ChannelBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
+
         return cls(
             channel=binding.channel,
             method=binding.method,
-            group_name=binding.group_name,
-            consumer_name=binding.consumer_name,
-            bindingVersion=binding.bindingVersion,
+            groupName=binding.group_name,
+            consumerName=binding.consumer_name,
         )
 
+    @classmethod
+    def from_pub(cls, binding: Optional[redis.ChannelBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
 
-def from_spec(binding: spec.bindings.redis.ChannelBinding) -> ChannelBinding:
-    return ChannelBinding.from_spec(binding)
+        return cls(
+            channel=binding.channel,
+            method=binding.method,
+            groupName=binding.group_name,
+            consumerName=binding.consumer_name,
+        )

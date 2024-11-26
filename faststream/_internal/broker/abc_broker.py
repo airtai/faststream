@@ -76,10 +76,8 @@ class ABCBroker(Generic[MsgType]):
         is_running: bool = False,
     ) -> "PublisherProto[MsgType]":
         publisher.add_prefix(self.prefix)
-
         if not is_running:
             self._publishers.append(publisher)
-
         return publisher
 
     def setup_publisher(

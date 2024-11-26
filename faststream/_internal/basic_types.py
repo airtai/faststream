@@ -58,7 +58,7 @@ SendableTable: TypeAlias = dict[str, "BaseSendableMessage"]
 class StandardDataclass(Protocol):
     """Protocol to check type is dataclass."""
 
-    __dataclass_fields__: ClassVar[dict[str, Any]]
+    __dataclass_fields__: ClassVar[AnyDict]
 
 
 BaseSendableMessage: TypeAlias = Union[

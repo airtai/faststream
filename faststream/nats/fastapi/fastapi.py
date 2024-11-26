@@ -63,7 +63,7 @@ if TYPE_CHECKING:
     from faststream.nats.publisher.specified import SpecificationPublisher
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 
 class NatsRouter(StreamRouter["Msg"]):
@@ -188,6 +188,10 @@ class NatsRouter(StreamRouter["Msg"]):
             Optional[str],
             Doc("Nkeys seed to be used."),
         ] = None,
+        nkeys_seed_str: Annotated[
+            Optional[str],
+            Doc("Raw nkeys seed to be used."),
+        ] = None,
         inbox_prefix: Annotated[
             Union[str, bytes],
             Doc(
@@ -245,9 +249,9 @@ class NatsRouter(StreamRouter["Msg"]):
             Doc("AsyncAPI server description."),
         ] = None,
         specification_tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("AsyncAPI server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],
@@ -515,6 +519,7 @@ class NatsRouter(StreamRouter["Msg"]):
             user_jwt_cb=user_jwt_cb,
             user_credentials=user_credentials,
             nkeys_seed=nkeys_seed,
+            nkeys_seed_str=nkeys_seed_str,
             inbox_prefix=inbox_prefix,
             pending_size=pending_size,
             flush_timeout=flush_timeout,
@@ -651,7 +656,13 @@ class NatsRouter(StreamRouter["Msg"]):
         ack_first: Annotated[
             bool,
             Doc("Whether to `ack` message at start of consuming or not."),
-        ] = False,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.7.0 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         stream: Annotated[
             Union[str, "JStream", None],
             Doc("Subscribe to NATS Stream with `subject` filter."),
@@ -677,10 +688,15 @@ class NatsRouter(StreamRouter["Msg"]):
             int,
             Doc("Number of workers to process messages concurrently."),
         ] = 1,
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -853,6 +869,7 @@ class NatsRouter(StreamRouter["Msg"]):
                 middlewares=middlewares,
                 max_workers=max_workers,
                 ack_policy=ack_policy,
+                no_ack=no_ack,
                 no_reply=no_reply,
                 title=title,
                 description=description,

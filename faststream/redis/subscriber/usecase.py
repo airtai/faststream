@@ -76,10 +76,6 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -89,10 +85,6 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self._client = None
@@ -208,10 +200,6 @@ class ChannelSubscriber(LogicSubscriber):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = RedisPubSubParser(pattern=channel.path_regex)
         super().__init__(
@@ -222,10 +210,6 @@ class ChannelSubscriber(LogicSubscriber):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.channel = channel
@@ -333,10 +317,6 @@ class _ListHandlerMixin(LogicSubscriber):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -346,10 +326,6 @@ class _ListHandlerMixin(LogicSubscriber):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.list_sub = list
@@ -438,10 +414,6 @@ class ListSubscriber(_ListHandlerMixin):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = RedisListParser()
         super().__init__(
@@ -453,10 +425,6 @@ class ListSubscriber(_ListHandlerMixin):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
@@ -486,10 +454,6 @@ class BatchListSubscriber(_ListHandlerMixin):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = RedisBatchListParser()
         super().__init__(
@@ -501,10 +465,6 @@ class BatchListSubscriber(_ListHandlerMixin):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
@@ -538,10 +498,6 @@ class _StreamHandlerMixin(LogicSubscriber):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -551,10 +507,6 @@ class _StreamHandlerMixin(LogicSubscriber):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.stream_sub = stream
@@ -728,10 +680,6 @@ class StreamSubscriber(_StreamHandlerMixin):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = RedisStreamParser()
         super().__init__(
@@ -743,10 +691,6 @@ class StreamSubscriber(_StreamHandlerMixin):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def _get_msgs(
@@ -795,10 +739,6 @@ class StreamBatchSubscriber(_StreamHandlerMixin):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = RedisBatchStreamParser()
         super().__init__(
@@ -810,10 +750,6 @@ class StreamBatchSubscriber(_StreamHandlerMixin):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def _get_msgs(

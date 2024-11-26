@@ -3,7 +3,6 @@ from copy import deepcopy
 from typing import (
     TYPE_CHECKING,
     Annotated,
-    Any,
     Optional,
     Union,
 )
@@ -15,7 +14,7 @@ from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.utils.data import filter_by_dict
 from faststream.message import gen_cor_id
 from faststream.rabbit.response import RabbitPublishCommand
-from faststream.rabbit.schemas import BaseRMQInformation, RabbitExchange, RabbitQueue
+from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
 from faststream.response.publish_type import PublishType
 
 from .options import MessageOptions, PublishOptions
@@ -47,10 +46,7 @@ class PublishKwargs(MessageOptions, PublishOptions, total=False):
     ]
 
 
-class LogicPublisher(
-    PublisherUsecase[IncomingMessage],
-    BaseRMQInformation,
-):
+class LogicPublisher(PublisherUsecase[IncomingMessage]):
     """A class to represent a RabbitMQ publisher."""
 
     app_id: Optional[str]
@@ -68,53 +64,38 @@ class LogicPublisher(
         # Publisher args
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
         middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
+        self.queue = queue
+        self.routing_key = routing_key
+
+        self.exchange = exchange
+
         super().__init__(
             broker_middlewares=broker_middlewares,
             middlewares=middlewares,
-            # AsyncAPI args
-            schema_=schema_,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
-
-        self.routing_key = routing_key
 
         request_options = dict(message_kwargs)
         self.headers = request_options.pop("headers") or {}
         self.reply_to = request_options.pop("reply_to", "")
         self.timeout = request_options.pop("timeout", None)
-        self.message_options = filter_by_dict(MessageOptions, request_options)
-        self.publish_options = filter_by_dict(PublishOptions, request_options)
 
-        # BaseRMQInformation
-        self.queue = queue
-        self.exchange = exchange
+        message_options, _ = filter_by_dict(MessageOptions, request_options)
+        self.message_options = message_options
 
-        # Setup it later
+        publish_options, _ = filter_by_dict(PublishOptions, request_options)
+        self.publish_options = publish_options
+
         self.app_id = None
-        self.virtual_host = ""
 
     @override
     def _setup(  # type: ignore[override]
         self,
         *,
-        app_id: Optional[str],
-        virtual_host: str,
         state: "BrokerState",
     ) -> None:
-        if app_id:
-            self.message_options["app_id"] = app_id
-            self.app_id = app_id
-
-        self.virtual_host = virtual_host
-
+        # AppId was set in `faststream.rabbit.schemas.proto.BaseRMQInformation`
+        self.message_options["app_id"] = self.app_id
         super()._setup(state=state)
 
     @property

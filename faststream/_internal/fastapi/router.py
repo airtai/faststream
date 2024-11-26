@@ -55,7 +55,7 @@ if TYPE_CHECKING:
     from faststream._internal.types import BrokerMiddleware
     from faststream.message import StreamMessage
     from faststream.specification.base.specification import Specification
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 
 class _BackgroundMiddleware(BaseMiddleware):
@@ -121,7 +121,7 @@ class StreamRouter(
             generate_unique_id,
         ),
         # Specification information
-        specification_tags: Optional[Iterable[Union["Tag", "TagDict"]]] = None,
+        specification_tags: Iterable[Union["Tag", "TagDict"]] = (),
         schema_url: Optional[str] = "/asyncapi",
         **connection_kwars: Any,
     ) -> None:

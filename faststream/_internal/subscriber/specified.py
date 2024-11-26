@@ -1,30 +1,38 @@
 from typing import (
     TYPE_CHECKING,
+    Any,
     Optional,
 )
 
-from faststream._internal.subscriber.proto import SubscriberProto
-from faststream._internal.types import MsgType
 from faststream.exceptions import SetupError
 from faststream.specification.asyncapi.message import parse_handler_params
 from faststream.specification.asyncapi.utils import to_camelcase
-from faststream.specification.base.proto import SpecificationEndpoint
+from faststream.specification.proto import EndpointSpecification
+from faststream.specification.schema import SubscriberSpec
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
+    from faststream._internal.types import (
+        MsgType,
+    )
+
+    from .call_item import HandlerItem
 
 
-class BaseSpicificationSubscriber(SpecificationEndpoint, SubscriberProto[MsgType]):
+class SpecificationSubscriber(
+    EndpointSpecification[SubscriberSpec],
+):
+    calls: list["HandlerItem[MsgType]"]
+
     def __init__(
         self,
-        *,
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
-        self.title_ = title_
-        self.description_ = description_
-        self.include_in_schema = include_in_schema
+        self.calls = []
+
+        # Call next base class parent init
+        super().__init__(*args, **kwargs)
 
     @property
     def call_name(self) -> str:
@@ -34,9 +42,9 @@ class BaseSpicificationSubscriber(SpecificationEndpoint, SubscriberProto[MsgType
 
         return to_camelcase(self.calls[0].call_name)
 
-    def get_description(self) -> Optional[str]:
+    def get_default_description(self) -> Optional[str]:
         """Returns the description of the handler."""
-        if not self.calls:  # pragma: no cover
+        if not self.calls:
             return None
 
         return self.calls[0].description

@@ -1,5 +1,4 @@
 import asyncio
-from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -7,17 +6,16 @@ from aio_pika import IncomingMessage, Message
 
 from faststream import AckPolicy
 from faststream.exceptions import AckMessage, NackMessage, RejectMessage, SkipMessage
-from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
+from faststream.rabbit import RabbitExchange, RabbitQueue
 from faststream.rabbit.annotations import RabbitMessage
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
+from .basic import RabbitTestcaseConfig
+
 
 @pytest.mark.rabbit()
-class TestConsume(BrokerRealConsumeTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
-        return RabbitBroker(apply_types=apply_types, **kwargs)
-
+class TestConsume(RabbitTestcaseConfig, BrokerRealConsumeTestcase):
     @pytest.mark.asyncio()
     async def test_consume_from_exchange(
         self,
@@ -398,7 +396,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(
-            queue, exchange=exchange, ack_policy=AckPolicy.DO_NOTHING
+            queue,
+            exchange=exchange,
+            ack_policy=AckPolicy.DO_NOTHING,
         )
         async def handler(msg: RabbitMessage) -> None:
             event.set()

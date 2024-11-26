@@ -1,11 +1,9 @@
 import asyncio
-from typing import Any
 from unittest.mock import patch
 
 import pytest
 
 from faststream import AckPolicy
-from faststream.confluent import KafkaBroker
 from faststream.confluent.annotations import KafkaMessage
 from faststream.confluent.client import AsyncConfluentConsumer
 from faststream.exceptions import AckMessage
@@ -18,9 +16,6 @@ from .basic import ConfluentTestcaseConfig
 @pytest.mark.confluent()
 class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     """A class to represent a test Kafka broker."""
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
-        return KafkaBroker(apply_types=apply_types, **kwargs)
 
     @pytest.mark.asyncio()
     async def test_consume_batch(self, queue: str) -> None:
@@ -86,7 +81,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     @pytest.mark.slow()
-    async def test_consume_ack(
+    async def test_consume_auto_ack(
         self,
         queue: str,
     ) -> None:
@@ -97,7 +92,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -141,7 +136,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -181,7 +176,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -221,7 +216,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -302,8 +297,8 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
         args, kwargs = self.get_subscriber_params(
             queue,
-            auto_commit=False,
             group_id="test",
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -316,8 +311,8 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
         args, kwargs = self.get_subscriber_params(
             queue,
-            auto_commit=True,
             group_id="test",
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @broker2.subscriber(*args, **kwargs)

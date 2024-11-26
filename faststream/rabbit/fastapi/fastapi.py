@@ -50,7 +50,7 @@ if TYPE_CHECKING:
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.specified import SpecificationPublisher
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 
 class RabbitRouter(StreamRouter["IncomingMessage"]):
@@ -176,9 +176,9 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Doc("AsyncAPI server description."),
         ] = None,
         specification_tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("AsyncAPI server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],
@@ -512,10 +512,15 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Iterable["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -673,6 +678,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
                 decoder=decoder,
                 middlewares=middlewares,
                 ack_policy=ack_policy,
+                no_ack=no_ack,
                 no_reply=no_reply,
                 title=title,
                 description=description,

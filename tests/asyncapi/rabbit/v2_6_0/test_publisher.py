@@ -29,7 +29,7 @@ class TestArguments(PublisherTestcase):
                         "is": "routingKey",
                     },
                 },
-                "publish": {
+                "subscribe": {
                     "bindings": {
                         "amqp": {
                             "ack": True,
@@ -105,7 +105,15 @@ class TestArguments(PublisherTestcase):
                         "is": "routingKey",
                     },
                 },
-                "publish": {
+                "subscribe": {
+                    "bindings": {
+                        "amqp": {
+                            "ack": True,
+                            "bindingVersion": "0.2.0",
+                            "deliveryMode": 1,
+                            "mandatory": True,
+                        },
+                    },
                     "message": {
                         "$ref": "#/components/messages/_:test-ex:Publisher:Message",
                     },
@@ -138,7 +146,7 @@ class TestArguments(PublisherTestcase):
                         "is": "routingKey",
                     },
                 },
-                "publish": {
+                "subscribe": {
                     "bindings": {
                         "amqp": {
                             "ack": True,
@@ -168,7 +176,7 @@ class TestArguments(PublisherTestcase):
                         "is": "routingKey",
                     },
                 },
-                "publish": {
+                "subscribe": {
                     "bindings": {
                         "amqp": {
                             "ack": True,

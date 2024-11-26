@@ -110,7 +110,7 @@ class _AcknowledgementMiddleware(BaseMiddleware):
                 await self.message.ack(**exc_extra_options, **self.extra_options)
             except Exception as er:
                 if self.logger is not None:
-                    self.logger.log(er, logging.CRITICAL, exc_info=er)
+                    self.logger.log(repr(er), logging.CRITICAL, exc_info=er)
 
     async def __nack(self, **exc_extra_options: Any) -> None:
         if self.message:
@@ -118,7 +118,7 @@ class _AcknowledgementMiddleware(BaseMiddleware):
                 await self.message.nack(**exc_extra_options, **self.extra_options)
             except Exception as er:
                 if self.logger is not None:
-                    self.logger.log(er, logging.CRITICAL, exc_info=er)
+                    self.logger.log(repr(er), logging.CRITICAL, exc_info=er)
 
     async def __reject(self, **exc_extra_options: Any) -> None:
         if self.message:
@@ -126,4 +126,4 @@ class _AcknowledgementMiddleware(BaseMiddleware):
                 await self.message.reject(**exc_extra_options, **self.extra_options)
             except Exception as er:
                 if self.logger is not None:
-                    self.logger.log(er, logging.CRITICAL, exc_info=er)
+                    self.logger.log(repr(er), logging.CRITICAL, exc_info=er)

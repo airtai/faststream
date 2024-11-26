@@ -16,7 +16,6 @@ from faststream._internal.broker.abc_broker import ABCBroker
 from faststream._internal.constants import EMPTY
 from faststream.confluent.publisher.factory import create_publisher
 from faststream.confluent.subscriber.factory import create_subscriber
-from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
@@ -50,10 +49,10 @@ class KafkaRegistrator(
 ):
     """Includable to KafkaBroker router."""
 
-    _subscribers: list[
+    _subscribers: list[  # type: ignore[assignment]
         Union["SpecificationBatchSubscriber", "SpecificationDefaultSubscriber"]
     ]
-    _publishers: list[
+    _publishers: list[  # type: ignore[assignment]
         Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"]
     ]
 
@@ -167,7 +166,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -302,10 +301,15 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -440,7 +444,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -575,10 +579,15 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -713,7 +722,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -848,10 +857,15 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -989,7 +1003,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -1124,10 +1138,15 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1154,52 +1173,49 @@ class KafkaRegistrator(
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
     ]:
-
-        subscriber = super().subscriber(
-            create_subscriber(
-                *topics,
-                polling_interval=polling_interval,
-                partitions=partitions,
-                batch=batch,
-                max_records=max_records,
-                group_id=group_id,
-                connection_data={
-                    "group_instance_id": group_instance_id,
-                    "fetch_max_wait_ms": fetch_max_wait_ms,
-                    "fetch_max_bytes": fetch_max_bytes,
-                    "fetch_min_bytes": fetch_min_bytes,
-                    "max_partition_fetch_bytes": max_partition_fetch_bytes,
-                    "auto_offset_reset": auto_offset_reset,
-                    "enable_auto_commit": auto_commit,
-                    "auto_commit_interval_ms": auto_commit_interval_ms,
-                    "check_crcs": check_crcs,
-                    "partition_assignment_strategy": partition_assignment_strategy,
-                    "max_poll_interval_ms": max_poll_interval_ms,
-                    "session_timeout_ms": session_timeout_ms,
-                    "heartbeat_interval_ms": heartbeat_interval_ms,
-                    "isolation_level": isolation_level,
-                },
-                is_manual=not auto_commit,
-                # subscriber args
-                ack_policy=ack_policy,
-                no_reply=no_reply,
-                broker_middlewares=self.middlewares,
-                broker_dependencies=self._dependencies,
-                # Specification
-                title_=title,
-                description_=description,
-                include_in_schema=self._solve_include_in_schema(include_in_schema),
-            ),
+        subscriber = create_subscriber(
+            *topics,
+            polling_interval=polling_interval,
+            partitions=partitions,
+            batch=batch,
+            max_records=max_records,
+            group_id=group_id,
+            connection_data={
+                "group_instance_id": group_instance_id,
+                "fetch_max_wait_ms": fetch_max_wait_ms,
+                "fetch_max_bytes": fetch_max_bytes,
+                "fetch_min_bytes": fetch_min_bytes,
+                "max_partition_fetch_bytes": max_partition_fetch_bytes,
+                "auto_offset_reset": auto_offset_reset,
+                "auto_commit_interval_ms": auto_commit_interval_ms,
+                "check_crcs": check_crcs,
+                "partition_assignment_strategy": partition_assignment_strategy,
+                "max_poll_interval_ms": max_poll_interval_ms,
+                "session_timeout_ms": session_timeout_ms,
+                "heartbeat_interval_ms": heartbeat_interval_ms,
+                "isolation_level": isolation_level,
+            },
+            auto_commit=auto_commit,
+            # subscriber args
+            ack_policy=ack_policy,
+            no_ack=no_ack,
+            no_reply=no_reply,
+            broker_middlewares=self.middlewares,
+            broker_dependencies=self._dependencies,
+            # Specification
+            title_=title,
+            description_=description,
+            include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
 
         if batch:
-            return cast("SpecificationBatchSubscriber", subscriber).add_call(
-                parser_=parser or self._parser,
-                decoder_=decoder or self._decoder,
-                dependencies_=dependencies,
-                middlewares_=middlewares,
-            )
-        return cast("SpecificationDefaultSubscriber", subscriber).add_call(
+            subscriber = cast("SpecificationBatchSubscriber", subscriber)
+        else:
+            subscriber = cast("SpecificationDefaultSubscriber", subscriber)
+
+        subscriber = super().subscriber(subscriber)  # type: ignore[arg-type,assignment]
+
+        return subscriber.add_call(
             parser_=parser or self._parser,
             decoder_=decoder or self._decoder,
             dependencies_=dependencies,
@@ -1535,6 +1551,8 @@ class KafkaRegistrator(
         )
 
         if batch:
-            return cast("SpecificationBatchPublisher", super().publisher(publisher))
+            publisher = cast("SpecificationBatchPublisher", publisher)
+        else:
+            publisher = cast("SpecificationDefaultPublisher", publisher)
 
-        return cast("SpecificationDefaultPublisher", super().publisher(publisher))
+        return super().publisher(publisher)

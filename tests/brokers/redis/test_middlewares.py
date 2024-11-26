@@ -1,21 +1,23 @@
-from typing import Any
-
 import pytest
 
-from faststream.redis import RedisBroker
 from tests.brokers.base.middlewares import (
     ExceptionMiddlewareTestcase,
     MiddlewareTestcase,
+    MiddlewaresOrderTestcase,
 )
 
+from .basic import RedisMemoryTestcaseConfig, RedisTestcaseConfig
+
+
+class TestMiddlewaresOrder(RedisMemoryTestcaseConfig, MiddlewaresOrderTestcase):
+    pass
+
 
 @pytest.mark.redis()
-class TestMiddlewares(MiddlewareTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
-        return RedisBroker(apply_types=apply_types, **kwargs)
+class TestMiddlewares(RedisTestcaseConfig, MiddlewareTestcase):
+    pass
 
 
 @pytest.mark.redis()
-class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
-        return RedisBroker(apply_types=apply_types, **kwargs)
+class TestExceptionMiddlewares(RedisTestcaseConfig, ExceptionMiddlewareTestcase):
+    pass

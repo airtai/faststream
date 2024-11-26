@@ -12,6 +12,7 @@ from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
 from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
+    SpecificationConcurrentDefaultSubscriber,
     SpecificationDefaultSubscriber,
 )
 from faststream.middlewares import AckPolicy
@@ -37,9 +38,11 @@ def create_subscriber(
     pattern: Optional[str],
     connection_args: "AnyDict",
     partitions: Iterable["TopicPartition"],
-    is_manual: bool,
+    auto_commit: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    max_workers: int,
+    no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
@@ -62,9 +65,11 @@ def create_subscriber(
     pattern: Optional[str],
     connection_args: "AnyDict",
     partitions: Iterable["TopicPartition"],
-    is_manual: bool,
+    auto_commit: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    max_workers: int,
+    no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
@@ -87,9 +92,11 @@ def create_subscriber(
     pattern: Optional[str],
     connection_args: "AnyDict",
     partitions: Iterable["TopicPartition"],
-    is_manual: bool,
+    auto_commit: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    max_workers: int,
+    no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -102,6 +109,7 @@ def create_subscriber(
 ) -> Union[
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
+    "SpecificationConcurrentDefaultSubscriber",
 ]: ...
 
 
@@ -116,9 +124,11 @@ def create_subscriber(
     pattern: Optional[str],
     connection_args: "AnyDict",
     partitions: Iterable["TopicPartition"],
-    is_manual: bool,
+    auto_commit: bool,
     # Subscriber args
     ack_policy: "AckPolicy",
+    max_workers: int,
+    no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Iterable[
@@ -131,21 +141,31 @@ def create_subscriber(
 ) -> Union[
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
+    "SpecificationConcurrentDefaultSubscriber",
 ]:
     _validate_input_for_misconfigure(
         *topics,
         pattern=pattern,
         partitions=partitions,
         ack_policy=ack_policy,
-        is_manual=is_manual,
+        no_ack=no_ack,
+        auto_commit=auto_commit,
+        max_workers=max_workers,
         group_id=group_id,
     )
 
+    if auto_commit is not EMPTY:
+        ack_policy = AckPolicy.ACK_FIRST if auto_commit else AckPolicy.REJECT_ON_ERROR
+
+    if no_ack is not EMPTY:
+        ack_policy = AckPolicy.DO_NOTHING if no_ack else EMPTY
+
     if ack_policy is EMPTY:
-        if not is_manual:
-            ack_policy = AckPolicy.DO_NOTHING
-        else:
-            ack_policy = AckPolicy.REJECT_ON_ERROR
+        ack_policy = AckPolicy.ACK_FIRST
+
+    if ack_policy is AckPolicy.ACK_FIRST:
+        connection_args["enable_auto_commit"] = True
+        ack_policy = AckPolicy.DO_NOTHING
 
     if batch:
         return SpecificationBatchSubscriber(
@@ -157,7 +177,24 @@ def create_subscriber(
             pattern=pattern,
             connection_args=connection_args,
             partitions=partitions,
-            is_manual=is_manual,
+            ack_policy=ack_policy,
+            no_reply=no_reply,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=broker_middlewares,
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+    if max_workers > 1:
+        return SpecificationConcurrentDefaultSubscriber(
+            *topics,
+            max_workers=max_workers,
+            group_id=group_id,
+            listener=listener,
+            pattern=pattern,
+            connection_args=connection_args,
+            partitions=partitions,
             ack_policy=ack_policy,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
@@ -174,7 +211,6 @@ def create_subscriber(
         pattern=pattern,
         connection_args=connection_args,
         partitions=partitions,
-        is_manual=is_manual,
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
@@ -190,31 +226,51 @@ def _validate_input_for_misconfigure(
     partitions: Iterable["TopicPartition"],
     pattern: Optional[str],
     ack_policy: "AckPolicy",
-    is_manual: bool,
+    auto_commit: bool,
+    no_ack: bool,
     group_id: Optional[str],
+    max_workers: int,
 ) -> None:
-    if not is_manual and ack_policy is not EMPTY and ack_policy is not AckPolicy.ACK_FIRST:
+    if auto_commit is not EMPTY:
         warnings.warn(
-            "You can't use ack_policy other then AckPolicy.ACK_FIRST with `auto_commit=True`",
-            RuntimeWarning,
-            stacklevel=4,
-        )
-    elif is_manual and ack_policy is not EMPTY and ack_policy is AckPolicy.ACK_FIRST:
-        warnings.warn(
-            "You can't use AckPolicy.ACK_FIRST with `auto_commit=False`",
-            RuntimeWarning,
+            "`auto_commit` option was deprecated in prior to `ack_policy=AckPolicy.ACK_FIRST`. Scheduled to remove in 0.7.0",
+            category=DeprecationWarning,
             stacklevel=4,
         )
 
-    if is_manual and not group_id:
+        if ack_policy is not EMPTY:
+            msg = "You can't use deprecated `auto_commit` and `ack_policy` simultaneously. Please, use `ack_policy` only."
+            raise SetupError(msg)
+
+        ack_policy = AckPolicy.ACK_FIRST if auto_commit else AckPolicy.REJECT_ON_ERROR
+
+    if no_ack is not EMPTY:
+        warnings.warn(
+            "`no_ack` option was deprecated in prior to `ack_policy=AckPolicy.DO_NOTHING`. Scheduled to remove in 0.7.0",
+            category=DeprecationWarning,
+            stacklevel=4,
+        )
+
+        if ack_policy is not EMPTY:
+            msg = "You can't use deprecated `no_ack` and `ack_policy` simultaneously. Please, use `ack_policy` only."
+            raise SetupError(msg)
+
+        ack_policy = AckPolicy.DO_NOTHING if no_ack else EMPTY
+
+    if ack_policy is EMPTY:
+        ack_policy = AckPolicy.ACK_FIRST
+
+    if max_workers > 1 and ack_policy is not AckPolicy.ACK_FIRST:
+        msg = "You can't use `max_workers` option with manual commit mode."
+        raise SetupError(msg)
+
+    if not group_id and ack_policy is not AckPolicy.ACK_FIRST:
         msg = "You must use `group_id` with manual commit mode."
         raise SetupError(msg)
 
     if not topics and not partitions and not pattern:
         msg = "You should provide either `topics` or `partitions` or `pattern`."
-        raise SetupError(
-            msg,
-        )
+        raise SetupError(msg)
     if topics and partitions:
         msg = "You can't provide both `topics` and `partitions`."
         raise SetupError(msg)

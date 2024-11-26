@@ -1,6 +1,6 @@
 from faststream.rabbit import RabbitBroker
+from faststream.specification import Tag
 from faststream.specification.asyncapi import AsyncAPI
-from faststream.specification.schema.tag import Tag
 
 
 def test_base() -> None:
@@ -74,7 +74,7 @@ def test_custom() -> None:
                             },
                         },
                     },
-                    "publish": {
+                    "subscribe": {
                         "bindings": {
                             "amqp": {
                                 "ack": True,
@@ -115,4 +115,4 @@ def test_custom() -> None:
                 },
             },
         }
-    )
+    ), schema

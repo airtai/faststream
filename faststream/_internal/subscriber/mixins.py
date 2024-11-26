@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
 
 class TasksMixin(SubscriberUsecase[Any]):
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
         self.tasks: list[asyncio.Task[Any]] = []
 
     def add_task(self, coro: Coroutine[Any, Any, Any]) -> None:
@@ -36,7 +36,7 @@ class ConcurrentMixin(TasksMixin):
 
     def __init__(
         self,
-        *,
+        *args: Any,
         max_workers: int,
         **kwargs: Any,
     ) -> None:
@@ -47,7 +47,7 @@ class ConcurrentMixin(TasksMixin):
         )
         self.limiter = anyio.Semaphore(max_workers)
 
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
     def start_consume_task(self) -> None:
         self.add_task(self._serve_consume_queue())

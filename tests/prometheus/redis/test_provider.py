@@ -17,12 +17,13 @@ from faststream.redis.prometheus.provider import (
 )
 from tests.prometheus.basic import LocalMetricsSettingsProviderTestcase
 
+from .basic import RedisPrometheusSettings
+
 
 class LocalBaseRedisMetricsSettingsProviderTestcase(
-    LocalMetricsSettingsProviderTestcase
+    RedisPrometheusSettings,
+    LocalMetricsSettingsProviderTestcase,
 ):
-    messaging_system = "redis"
-
     def test_get_publish_destination_name_from_cmd(self, queue: str) -> None:
         expected_destination_name = queue
         provider = self.get_provider()

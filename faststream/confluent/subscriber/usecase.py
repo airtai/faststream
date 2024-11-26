@@ -18,6 +18,7 @@ from faststream._internal.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.fake import KafkaFakePublisher
 from faststream.confluent.schemas import TopicPartition
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
@@ -32,7 +33,6 @@ if TYPE_CHECKING:
     )
     from faststream.confluent.client import AsyncConfluentConsumer
     from faststream.message import StreamMessage
-    from faststream.middlewares import AckPolicy
 
 
 class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
@@ -63,10 +63,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -76,10 +72,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.__connection_data = connection_data
@@ -157,7 +149,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self,
         *,
         timeout: float = 5.0,
-    ) -> "Optional[StreamMessage[Message]]":
+    ) -> "Optional[StreamMessage[MsgType]]":
         assert self.consumer, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
             not self.calls
@@ -168,7 +160,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         context = self._state.get().di_state.context
 
         return await process_msg(
-            msg=raw_message,
+            msg=raw_message,  # type: ignore[arg-type]
             middlewares=(
                 m(raw_message, context=context) for m in self._broker_middlewares
             ),
@@ -252,18 +244,15 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         polling_interval: float,
         group_id: Optional[str],
         connection_data: "AnyDict",
-        is_manual: bool,
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Message]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
-        self.parser = AsyncConfluentParser(is_manual=is_manual)
+        self.parser = AsyncConfluentParser(
+            is_manual=ack_policy is not AckPolicy.ACK_FIRST
+        )
 
         super().__init__(
             *topics,
@@ -279,10 +268,6 @@ class DefaultSubscriber(LogicSubscriber[Message]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def get_msg(self) -> Optional["Message"]:
@@ -315,20 +300,17 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
         # Kafka information
         group_id: Optional[str],
         connection_data: "AnyDict",
-        is_manual: bool,
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[tuple[Message, ...]]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         self.max_records = max_records
 
-        self.parser = AsyncConfluentParser(is_manual=is_manual)
+        self.parser = AsyncConfluentParser(
+            is_manual=ack_policy is not AckPolicy.ACK_FIRST
+        )
 
         super().__init__(
             *topics,
@@ -344,10 +326,6 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def get_msg(self) -> Optional[tuple["Message", ...]]:

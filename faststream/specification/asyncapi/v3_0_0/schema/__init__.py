@@ -1,23 +1,31 @@
-from .channels import (
-    Channel,
-    from_spec as channel_from_spec,
-)
+from .channels import Channel
 from .components import Components
-from .info import Info
-from .operations import (
-    Operation,
-    from_spec as operation_from_spec,
-)
-from .schema import Schema
-from .servers import Server
+from .contact import Contact
+from .docs import ExternalDocs
+from .info import ApplicationInfo
+from .license import License
+from .message import CorrelationId, Message
+from .operations import Operation
+from .schema import ApplicationSchema
+from .servers import Server, ServerVariable
+from .tag import Tag
+from .utils import Parameter, Reference
 
 __all__ = (
+    "ApplicationInfo",
+    "ApplicationSchema",
+    "Channel",
     "Channel",
     "Components",
-    "Info",
+    "Contact",
+    "CorrelationId",
+    "ExternalDocs",
+    "License",
+    "Message",
     "Operation",
-    "Schema",
+    "Parameter",
+    "Reference",
     "Server",
-    "channel_from_spec",
-    "operation_from_spec",
+    "ServerVariable",
+    "Tag",
 )

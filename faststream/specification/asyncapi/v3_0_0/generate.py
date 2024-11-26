@@ -5,40 +5,34 @@ from urllib.parse import urlparse
 from faststream._internal._compat import DEF_KEY
 from faststream._internal.basic_types import AnyDict, AnyHttpUrl
 from faststream._internal.constants import ContentTypes
-from faststream.specification.asyncapi.utils import clear_key
-from faststream.specification.asyncapi.v2_6_0.generate import move_pydantic_refs
-from faststream.specification.asyncapi.v2_6_0.schema import (
-    Reference,
-    Tag,
-    contact_from_spec,
-    docs_from_spec,
-    license_from_spec,
-    tag_from_spec,
-)
-from faststream.specification.asyncapi.v2_6_0.schema.message import Message
+from faststream.specification.asyncapi.utils import clear_key, move_pydantic_refs
 from faststream.specification.asyncapi.v3_0_0.schema import (
+    ApplicationInfo,
+    ApplicationSchema,
     Channel,
     Components,
-    Info,
+    Contact,
+    ExternalDocs,
+    License,
+    Message,
     Operation,
-    Schema,
+    Reference,
     Server,
-    channel_from_spec,
-    operation_from_spec,
-)
-from faststream.specification.asyncapi.v3_0_0.schema.operations import (
-    Action,
+    Tag,
 )
 
 if TYPE_CHECKING:
     from faststream._internal.broker.broker import BrokerUsecase
     from faststream._internal.types import ConnectionType, MsgType
-    from faststream.specification.schema.contact import Contact, ContactDict
-    from faststream.specification.schema.docs import ExternalDocs, ExternalDocsDict
-    from faststream.specification.schema.license import License, LicenseDict
-    from faststream.specification.schema.tag import (
-        Tag as SpecsTag,
-        TagDict as SpecsTagDict,
+    from faststream.specification.schema.extra import (
+        Contact as SpecContact,
+        ContactDict,
+        ExternalDocs as SpecDocs,
+        ExternalDocsDict,
+        License as SpecLicense,
+        LicenseDict,
+        Tag as SpecTag,
+        TagDict,
     )
 
 
@@ -50,18 +44,17 @@ def get_app_schema(
     schema_version: str,
     description: str,
     terms_of_service: Optional["AnyHttpUrl"],
-    contact: Optional[Union["Contact", "ContactDict", "AnyDict"]],
-    license: Optional[Union["License", "LicenseDict", "AnyDict"]],
+    contact: Optional[Union["SpecContact", "ContactDict", "AnyDict"]],
+    license: Optional[Union["SpecLicense", "LicenseDict", "AnyDict"]],
     identifier: Optional[str],
-    tags: Optional[Sequence[Union["SpecsTag", "SpecsTagDict", "AnyDict"]]],
-    external_docs: Optional[Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]],
-) -> Schema:
+    tags: Optional[Sequence[Union["SpecTag", "TagDict", "AnyDict"]]],
+    external_docs: Optional[Union["SpecDocs", "ExternalDocsDict", "AnyDict"]],
+) -> ApplicationSchema:
     """Get the application schema."""
     broker._setup()
 
     servers = get_broker_server(broker)
-    channels = get_broker_channels(broker)
-    operations = get_broker_operations(broker)
+    channels, operations = get_broker_channels(broker)
 
     messages: dict[str, Message] = {}
     payloads: dict[str, AnyDict] = {}
@@ -86,16 +79,16 @@ def get_app_schema(
 
         channel.messages = msgs
 
-    return Schema(
-        info=Info(
+    return ApplicationSchema(
+        info=ApplicationInfo(
             title=title,
             version=app_version,
             description=description,
             termsOfService=terms_of_service,
-            contact=contact_from_spec(contact) if contact else None,
-            license=license_from_spec(license) if license else None,
-            tags=[tag_from_spec(tag) for tag in tags] if tags else None,
-            externalDocs=docs_from_spec(external_docs) if external_docs else None,
+            contact=Contact.from_spec(contact),
+            license=License.from_spec(license),
+            tags=[Tag.from_spec(tag) for tag in tags] or None,
+            externalDocs=ExternalDocs.from_spec(external_docs),
         ),
         asyncapi=schema_version,
         defaultContentType=ContentTypes.JSON.value,
@@ -121,7 +114,7 @@ def get_broker_server(
 
     tags: Optional[list[Union[Tag, AnyDict]]] = None
     if broker.tags:
-        tags = [tag_from_spec(tag) for tag in broker.tags]
+        tags = [Tag.from_spec(tag) for tag in broker.tags]
 
     broker_meta: AnyDict = {
         "protocol": broker.protocol,
@@ -152,77 +145,52 @@ def get_broker_server(
     return servers
 
 
-def get_broker_operations(
-    broker: "BrokerUsecase[MsgType, ConnectionType]",
-) -> dict[str, Operation]:
-    """Get the broker operations for an application."""
-    operations = {}
-
-    for h in broker._subscribers:
-        for channel, specs_channel in h.schema().items():
-            channel_name = clear_key(channel)
-
-            if specs_channel.subscribe is not None:
-                operations[f"{channel_name}Subscribe"] = operation_from_spec(
-                    specs_channel.subscribe,
-                    Action.RECEIVE,
-                    channel_name,
-                )
-
-    for p in broker._publishers:
-        for channel, specs_channel in p.schema().items():
-            channel_name = clear_key(channel)
-
-            if specs_channel.publish is not None:
-                operations[f"{channel_name}"] = operation_from_spec(
-                    specs_channel.publish,
-                    Action.SEND,
-                    channel_name,
-                )
-
-    return operations
-
-
 def get_broker_channels(
     broker: "BrokerUsecase[MsgType, ConnectionType]",
-) -> dict[str, Channel]:
+) -> tuple[dict[str, Channel], dict[str, Operation]]:
     """Get the broker channels for an application."""
     channels = {}
+    operations = {}
 
     for sub in broker._subscribers:
-        channels_schema_v3_0 = {}
-        for channel_name, specs_channel in sub.schema().items():
-            if specs_channel.subscribe:
-                message = specs_channel.subscribe.message
-                assert message.title
+        for key, channel in sub.schema().items():
+            channel_obj = Channel.from_sub(key, channel)
 
-                *left, right = message.title.split(":")
-                message.title = ":".join(left) + f":Subscribe{right}"
+            channel_key = clear_key(key)
+            # TODO: add duplication key warning
+            channels[channel_key] = channel_obj
 
-                # TODO: why we are format just a key?
-                channels_schema_v3_0[clear_key(channel_name)] = channel_from_spec(
-                    specs_channel,
-                    message,
-                    channel_name,
-                    "SubscribeMessage",
-                )
-
-        channels.update(channels_schema_v3_0)
+            operations[f"{channel_key}Subscribe"] = Operation.from_sub(
+                messages=[
+                    Reference(**{
+                        "$ref": f"#/channels/{channel_key}/messages/{msg_name}"
+                    })
+                    for msg_name in channel_obj.messages
+                ],
+                channel=Reference(**{"$ref": f"#/channels/{channel_key}"}),
+                operation=channel.operation,
+            )
 
     for pub in broker._publishers:
-        channels_schema_v3_0 = {}
-        for channel_name, specs_channel in pub.schema().items():
-            if specs_channel.publish:
-                channels_schema_v3_0[clear_key(channel_name)] = channel_from_spec(
-                    specs_channel,
-                    specs_channel.publish.message,
-                    channel_name,
-                    "Message",
-                )
+        for key, channel in pub.schema().items():
+            channel_obj = Channel.from_pub(key, channel)
 
-        channels.update(channels_schema_v3_0)
+            channel_key = clear_key(key)
+            # TODO: add duplication key warning
+            channels[channel_key] = channel_obj
 
-    return channels
+            operations[channel_key] = Operation.from_pub(
+                messages=[
+                    Reference(**{
+                        "$ref": f"#/channels/{channel_key}/messages/{msg_name}"
+                    })
+                    for msg_name in channel_obj.messages
+                ],
+                channel=Reference(**{"$ref": f"#/channels/{channel_key}"}),
+                operation=channel.operation,
+            )
+
+    return channels, operations
 
 
 def _resolve_msg_payloads(

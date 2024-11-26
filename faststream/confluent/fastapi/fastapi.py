@@ -53,7 +53,7 @@ if TYPE_CHECKING:
         SpecificationDefaultSubscriber,
     )
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 
 Partition = TypeVar("Partition")
@@ -296,9 +296,9 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
             Doc("Specification server description."),
         ] = None,
         specification_tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("Specification server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],
@@ -561,7 +561,7 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
             graceful_timeout=graceful_timeout,
             decoder=decoder,
             parser=parser,
-            middlewares=middlewares,
+            middlewares=middlewares,  # type: ignore[arg-type]
             schema_url=schema_url,
             setup_state=setup_state,
             # logger options
@@ -705,7 +705,7 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -840,10 +840,15 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1101,7 +1106,7 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -1487,7 +1492,7 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -1622,10 +1627,15 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1886,7 +1896,7 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -2021,10 +2031,15 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -2174,7 +2189,6 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
         "SpecificationBatchSubscriber",
         "SpecificationDefaultSubscriber",
     ]:
-
         subscriber = super().subscriber(
             *topics,
             polling_interval=polling_interval,
@@ -2202,6 +2216,7 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
             decoder=decoder,
             middlewares=middlewares,
             ack_policy=ack_policy,
+            no_ack=no_ack,
             no_reply=no_reply,
             title=title,
             description=description,

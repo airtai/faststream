@@ -8,7 +8,7 @@ from typing import Optional
 from pydantic import BaseModel
 from typing_extensions import Self
 
-from faststream.specification import schema as spec
+from faststream.specification.schema.bindings import nats
 
 
 class ChannelBinding(BaseModel):
@@ -25,13 +25,23 @@ class ChannelBinding(BaseModel):
     bindingVersion: str = "custom"
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.nats.ChannelBinding) -> Self:
+    def from_sub(cls, binding: Optional[nats.ChannelBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
+
         return cls(
             subject=binding.subject,
             queue=binding.queue,
-            bindingVersion=binding.bindingVersion,
+            bindingVersion="custom",
         )
 
+    @classmethod
+    def from_pub(cls, binding: Optional[nats.ChannelBinding]) -> Optional[Self]:
+        if binding is None:
+            return None
 
-def from_spec(binding: spec.bindings.nats.ChannelBinding) -> ChannelBinding:
-    return ChannelBinding.from_spec(binding)
+        return cls(
+            subject=binding.subject,
+            queue=binding.queue,
+            bindingVersion="custom",
+        )

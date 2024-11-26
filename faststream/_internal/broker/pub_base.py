@@ -37,7 +37,7 @@ class BrokerPublishMixin(Generic[MsgType]):
         publish = producer.publish
         context = self.context  # caches property
 
-        for m in self.middlewares:
+        for m in self.middlewares[::-1]:
             publish = partial(m(None, context=context).publish_scope, publish)
 
         return await publish(cmd)
@@ -58,7 +58,7 @@ class BrokerPublishMixin(Generic[MsgType]):
         publish = producer.publish_batch
         context = self.context  # caches property
 
-        for m in self.middlewares:
+        for m in self.middlewares[::-1]:
             publish = partial(m(None, context=context).publish_scope, publish)
 
         return await publish(cmd)
@@ -82,7 +82,7 @@ class BrokerPublishMixin(Generic[MsgType]):
         request = producer.request
         context = self.context  # caches property
 
-        for m in self.middlewares:
+        for m in self.middlewares[::-1]:
             request = partial(m(None, context=context).publish_scope, request)
 
         published_msg = await request(cmd)

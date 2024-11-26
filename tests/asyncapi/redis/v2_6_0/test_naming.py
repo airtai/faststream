@@ -28,7 +28,7 @@ class TestNaming(NamingTestCase):
                         },
                     },
                     "servers": ["development"],
-                    "subscribe": {
+                    "publish": {
                         "message": {
                             "$ref": "#/components/messages/test:Handle:Message"
                         },

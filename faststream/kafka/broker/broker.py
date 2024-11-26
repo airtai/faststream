@@ -57,7 +57,7 @@ if TYPE_CHECKING:
     )
     from faststream.kafka.message import KafkaMessage
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
     class KafkaInitKwargs(TypedDict, total=False):
         request_timeout_ms: Annotated[
@@ -477,9 +477,9 @@ class KafkaBroker(
             Doc("AsyncAPI server description."),
         ] = None,
         tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("AsyncAPI server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
             Optional["LoggerProto"],
@@ -640,10 +640,8 @@ class KafkaBroker(
 
         await self._producer.connect(producer)
 
-        return partial(
-            aiokafka.AIOKafkaConsumer,
-            **filter_by_dict(ConsumerConnectionParams, kwargs),
-        )
+        connection_kwargs, _ = filter_by_dict(ConsumerConnectionParams, kwargs)
+        return partial(aiokafka.AIOKafkaConsumer, **connection_kwargs)
 
     async def start(self) -> None:
         """Connect broker to Kafka and startup all subscribers."""

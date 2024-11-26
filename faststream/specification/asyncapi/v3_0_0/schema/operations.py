@@ -1,21 +1,17 @@
 from enum import Enum
 from typing import Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing_extensions import Self
 
 from faststream._internal._compat import PYDANTIC_V2
 from faststream._internal.basic_types import AnyDict
-from faststream.specification import schema as spec
-from faststream.specification.asyncapi.v2_6_0.schema.tag import Tag
-from faststream.specification.asyncapi.v2_6_0.schema.utils import (
-    Reference,
-)
-from faststream.specification.asyncapi.v3_0_0.schema.bindings import OperationBinding
-from faststream.specification.asyncapi.v3_0_0.schema.bindings.main import (
-    operation_binding_from_spec,
-)
-from faststream.specification.asyncapi.v3_0_0.schema.channels import Channel
+from faststream.specification.schema.operation import Operation as OperationSpec
+
+from .bindings import OperationBinding
+from .channels import Channel
+from .tag import Tag
+from .utils import Reference
 
 
 class Action(str, Enum):
@@ -27,24 +23,24 @@ class Operation(BaseModel):
     """A class to represent an operation.
 
     Attributes:
-        operationId : ID of the operation
+        operation_id : ID of the operation
         summary : summary of the operation
         description : description of the operation
         bindings : bindings of the operation
         message : message of the operation
         security : security details of the operation
         tags : tags associated with the operation
-
     """
 
     action: Action
+    channel: Union[Channel, Reference]
+
     summary: Optional[str] = None
     description: Optional[str] = None
 
     bindings: Optional[OperationBinding] = None
 
-    messages: list[Reference]
-    channel: Union[Channel, Reference]
+    messages: list[Reference] = Field(default_factory=list)
 
     security: Optional[dict[str, list[str]]] = None
 
@@ -62,38 +58,37 @@ class Operation(BaseModel):
             extra = "allow"
 
     @classmethod
-    def from_spec(
+    def from_sub(
         cls,
-        operation: spec.operation.Operation,
-        action: Action,
-        channel_name: str,
+        messages: list[Reference],
+        channel: Reference,
+        operation: OperationSpec,
     ) -> Self:
         return cls(
-            action=action,
-            summary=operation.summary,
-            description=operation.description,
-            bindings=operation_binding_from_spec(operation.bindings)
-            if operation.bindings
-            else None,
-            messages=[
-                Reference(
-                    **{
-                        "$ref": f"#/channels/{channel_name}/messages/SubscribeMessage"
-                        if action is Action.RECEIVE
-                        else f"#/channels/{channel_name}/messages/Message",
-                    },
-                ),
-            ],
-            channel=Reference(
-                **{"$ref": f"#/channels/{channel_name}"},
-            ),
-            security=operation.security,
+            action=Action.RECEIVE,
+            messages=messages,
+            channel=channel,
+            bindings=OperationBinding.from_sub(operation.bindings),
+            summary=None,
+            description=None,
+            security=None,
+            tags=None,
         )
 
-
-def from_spec(
-    operation: spec.operation.Operation,
-    action: Action,
-    channel_name: str,
-) -> Operation:
-    return Operation.from_spec(operation, action, channel_name)
+    @classmethod
+    def from_pub(
+        cls,
+        messages: list[Reference],
+        channel: Reference,
+        operation: OperationSpec,
+    ) -> Self:
+        return cls(
+            action=Action.SEND,
+            messages=messages,
+            channel=channel,
+            bindings=OperationBinding.from_pub(operation.bindings),
+            summary=None,
+            description=None,
+            security=None,
+            tags=None,
+        )

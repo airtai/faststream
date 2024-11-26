@@ -50,7 +50,7 @@ if TYPE_CHECKING:
     from faststream.redis.message import UnifyRedisMessage
     from faststream.redis.publisher.specified import SpecificationPublisher
     from faststream.security import BaseSecurity
-    from faststream.specification.schema.tag import Tag, TagDict
+    from faststream.specification.schema.extra import Tag, TagDict
 
 
 class RedisRouter(StreamRouter[UnifyRedisDict]):
@@ -125,12 +125,12 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Doc("AsyncAPI server description."),
         ] = None,
         specification_tags: Annotated[
-            Optional[Iterable[Union["Tag", "TagDict"]]],
+            Iterable[Union["Tag", "TagDict"]],
             Doc("AsyncAPI server tags."),
-        ] = None,
+        ] = (),
         # logging args
         logger: Annotated[
-            Union["LoggerProto", None, object],
+            Optional["LoggerProto"],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = EMPTY,
         log_level: Annotated[
@@ -462,10 +462,15 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Iterable["SubscriberMiddleware[UnifyRedisMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -623,6 +628,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 decoder=decoder,
                 middlewares=middlewares,
                 ack_policy=ack_policy,
+                no_ack=no_ack,
                 no_reply=no_reply,
                 title=title,
                 description=description,

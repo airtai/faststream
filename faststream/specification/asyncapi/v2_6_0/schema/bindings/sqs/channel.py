@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing_extensions import Self
 
 from faststream._internal.basic_types import AnyDict
-from faststream.specification import schema as spec
+from faststream.specification.schema.bindings import sqs
 
 
 class ChannelBinding(BaseModel):
@@ -22,12 +22,12 @@ class ChannelBinding(BaseModel):
     bindingVersion: str = "custom"
 
     @classmethod
-    def from_spec(cls, binding: spec.bindings.sqs.ChannelBinding) -> Self:
+    def from_spec(cls, binding: sqs.ChannelBinding) -> Self:
         return cls(
             queue=binding.queue,
             bindingVersion=binding.bindingVersion,
         )
 
 
-def from_spec(binding: spec.bindings.sqs.ChannelBinding) -> ChannelBinding:
+def from_spec(binding: sqs.ChannelBinding) -> ChannelBinding:
     return ChannelBinding.from_spec(binding)

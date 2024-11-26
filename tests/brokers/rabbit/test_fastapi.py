@@ -5,8 +5,9 @@ import pytest
 
 from faststream.rabbit import ExchangeType, RabbitExchange, RabbitQueue, RabbitRouter
 from faststream.rabbit.fastapi import RabbitRouter as StreamRouter
-from faststream.rabbit.testing import TestRabbitBroker
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
+
+from .basic import RabbitMemoryTestcaseConfig
 
 
 @pytest.mark.rabbit()
@@ -55,12 +56,9 @@ class TestRouter(FastAPITestcase):
 
 
 @pytest.mark.asyncio()
-class TestRouterLocal(FastAPILocalTestcase):
+class TestRouterLocal(RabbitMemoryTestcaseConfig, FastAPILocalTestcase):
     router_class = StreamRouter
     broker_router_class = RabbitRouter
-
-    def patch_broker(self, broker, **kwargs):
-        return TestRabbitBroker(broker, **kwargs)
 
     async def test_path(self) -> None:
         router = self.router_class()

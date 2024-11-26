@@ -1,21 +1,19 @@
 import asyncio
-from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
 from redis.asyncio import Redis
 
-from faststream.redis import ListSub, PubSub, RedisBroker, RedisMessage, StreamSub
+from faststream.redis import ListSub, PubSub, RedisMessage, StreamSub
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
+
+from .basic import RedisTestcaseConfig
 
 
 @pytest.mark.redis()
 @pytest.mark.asyncio()
-class TestConsume(BrokerRealConsumeTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
-        return RedisBroker(apply_types=apply_types, **kwargs)
-
+class TestConsume(RedisTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_consume_native(
         self,
         mock: MagicMock,
@@ -98,13 +96,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
 @pytest.mark.redis()
 @pytest.mark.asyncio()
-class TestConsumeList:
-    def get_broker(self, apply_types: bool = False):
-        return RedisBroker(apply_types=apply_types)
-
-    def patch_broker(self, broker):
-        return broker
-
+class TestConsumeList(RedisTestcaseConfig):
     async def test_consume_list(
         self,
         queue: str,
@@ -365,13 +357,7 @@ class TestConsumeList:
 
 @pytest.mark.redis()
 @pytest.mark.asyncio()
-class TestConsumeStream:
-    def get_broker(self, apply_types: bool = False):
-        return RedisBroker(apply_types=apply_types)
-
-    def patch_broker(self, broker):
-        return broker
-
+class TestConsumeStream(RedisTestcaseConfig):
     @pytest.mark.slow()
     async def test_consume_stream(
         self,

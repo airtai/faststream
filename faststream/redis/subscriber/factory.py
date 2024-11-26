@@ -39,6 +39,7 @@ def create_subscriber(
     stream: Union["StreamSub", str, None],
     # Subscriber args
     ack_policy: "AckPolicy",
+    no_ack: bool,
     no_reply: bool = False,
     broker_dependencies: Iterable["Dependant"] = (),
     broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"] = (),
@@ -52,10 +53,11 @@ def create_subscriber(
         list=list,
         stream=stream,
         ack_policy=ack_policy,
+        no_ack=no_ack,
     )
 
     if ack_policy is EMPTY:
-        ack_policy = AckPolicy.REJECT_ON_ERROR
+        ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
     if (channel_sub := PubSub.validate(channel)) is not None:
         return SpecificationChannelSubscriber(
@@ -133,8 +135,20 @@ def _validate_input_for_misconfigure(
     list: Union["ListSub", str, None],
     stream: Union["StreamSub", str, None],
     ack_policy: AckPolicy,
+    no_ack: bool,
 ) -> None:
     validate_options(channel=channel, list=list, stream=stream)
+
+    if no_ack is not EMPTY:
+        warnings.warn(
+            "`no_ack` option was deprecated in prior to `ack_policy=AckPolicy.DO_NOTHING`. Scheduled to remove in 0.7.0",
+            category=DeprecationWarning,
+            stacklevel=4,
+        )
+
+        if ack_policy is not EMPTY:
+            msg = "You can't use deprecated `no_ack` and `ack_policy` simultaneously. Please, use `ack_policy` only."
+            raise SetupError(msg)
 
     if ack_policy is not EMPTY:
         if channel:

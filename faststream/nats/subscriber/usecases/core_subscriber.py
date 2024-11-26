@@ -39,16 +39,16 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
         config: "ConsumerConfig",
         queue: str,
         extra_options: Optional["AnyDict"],
+        ack_policy: AckPolicy,
         # Subscriber args
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
-        parser_ = NatsParser(pattern=subject)
+        parser_ = NatsParser(
+            pattern=subject,
+            is_ack_disabled=ack_policy is not AckPolicy.DO_NOTHING,
+        )
 
         self.queue = queue
 
@@ -64,10 +64,6 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            description_=description_,
-            title_=title_,
-            include_in_schema=include_in_schema,
         )
 
     @override
@@ -145,13 +141,10 @@ class ConcurrentCoreSubscriber(ConcurrentMixin, CoreSubscriber):
         queue: str,
         extra_options: Optional["AnyDict"],
         # Subscriber args
+        ack_policy: AckPolicy,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             max_workers=max_workers,
@@ -161,13 +154,10 @@ class ConcurrentCoreSubscriber(ConcurrentMixin, CoreSubscriber):
             queue=queue,
             extra_options=extra_options,
             # Propagated args
+            ack_policy=ack_policy,
             no_reply=no_reply,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            description_=description_,
-            title_=title_,
-            include_in_schema=include_in_schema,
         )
 
     @override

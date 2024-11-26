@@ -1,13 +1,13 @@
 import asyncio
-from typing import Any
 from unittest.mock import Mock
 
 import pytest
 
-from faststream.redis import ListSub, RedisBroker, RedisRouter, StreamSub
+from faststream.redis import ListSub, RedisRouter, StreamSub
 from faststream.redis.fastapi import RedisRouter as StreamRouter
-from faststream.redis.testing import TestRedisBroker
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
+
+from .basic import RedisMemoryTestcaseConfig
 
 
 @pytest.mark.redis()
@@ -140,12 +140,9 @@ class TestRouter(FastAPITestcase):
         mock.assert_called_once_with(["hello"])
 
 
-class TestRouterLocal(FastAPILocalTestcase):
+class TestRouterLocal(RedisMemoryTestcaseConfig, FastAPILocalTestcase):
     router_class = StreamRouter
     broker_router_class = RedisRouter
-
-    def patch_broker(self, broker: RedisBroker, **kwargs: Any) -> RedisBroker:
-        return TestRedisBroker(broker, **kwargs)
 
     async def test_batch_testclient(
         self,

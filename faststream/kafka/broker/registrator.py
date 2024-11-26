@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     )
     from faststream.kafka.subscriber.specified import (
         SpecificationBatchSubscriber,
+        SpecificationConcurrentDefaultSubscriber,
         SpecificationDefaultSubscriber,
     )
 
@@ -54,7 +55,11 @@ class KafkaRegistrator(
     """Includable to KafkaBroker router."""
 
     _subscribers: list[
-        Union["SpecificationBatchSubscriber", "SpecificationDefaultSubscriber"],
+        Union[
+            "SpecificationBatchSubscriber",
+            "SpecificationDefaultSubscriber",
+            "SpecificationConcurrentDefaultSubscriber",
+        ]
     ]
     _publishers: list[
         Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"],
@@ -173,7 +178,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -404,10 +409,15 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -545,7 +555,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -776,10 +786,15 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -917,7 +932,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -1148,10 +1163,15 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1292,7 +1312,7 @@ class KafkaRegistrator(
             Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
             """,
             ),
-        ] = True,
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -1523,10 +1543,19 @@ class KafkaRegistrator(
             Iterable["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.7.0"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -1552,61 +1581,62 @@ class KafkaRegistrator(
     ) -> Union[
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
+        "SpecificationConcurrentDefaultSubscriber",
     ]:
-
-        subscriber = super().subscriber(
-            create_subscriber(
-                *topics,
-                batch=batch,
-                batch_timeout_ms=batch_timeout_ms,
-                max_records=max_records,
-                group_id=group_id,
-                listener=listener,
-                pattern=pattern,
-                connection_args={
-                    "key_deserializer": key_deserializer,
-                    "value_deserializer": value_deserializer,
-                    "fetch_max_wait_ms": fetch_max_wait_ms,
-                    "fetch_max_bytes": fetch_max_bytes,
-                    "fetch_min_bytes": fetch_min_bytes,
-                    "max_partition_fetch_bytes": max_partition_fetch_bytes,
-                    "auto_offset_reset": auto_offset_reset,
-                    "enable_auto_commit": auto_commit,
-                    "auto_commit_interval_ms": auto_commit_interval_ms,
-                    "check_crcs": check_crcs,
-                    "partition_assignment_strategy": partition_assignment_strategy,
-                    "max_poll_interval_ms": max_poll_interval_ms,
-                    "rebalance_timeout_ms": rebalance_timeout_ms,
-                    "session_timeout_ms": session_timeout_ms,
-                    "heartbeat_interval_ms": heartbeat_interval_ms,
-                    "consumer_timeout_ms": consumer_timeout_ms,
-                    "max_poll_records": max_poll_records,
-                    "exclude_internal_topics": exclude_internal_topics,
-                    "isolation_level": isolation_level,
-                },
-                partitions=partitions,
-                is_manual=not auto_commit,
-                # subscriber args
-                ack_policy=ack_policy,
-                no_reply=no_reply,
-                broker_middlewares=self.middlewares,
-                broker_dependencies=self._dependencies,
-                # Specification
-                title_=title,
-                description_=description,
-                include_in_schema=self._solve_include_in_schema(include_in_schema),
-            ),
+        sub = create_subscriber(
+            *topics,
+            batch=batch,
+            max_workers=max_workers,
+            batch_timeout_ms=batch_timeout_ms,
+            max_records=max_records,
+            group_id=group_id,
+            listener=listener,
+            pattern=pattern,
+            connection_args={
+                "key_deserializer": key_deserializer,
+                "value_deserializer": value_deserializer,
+                "fetch_max_wait_ms": fetch_max_wait_ms,
+                "fetch_max_bytes": fetch_max_bytes,
+                "fetch_min_bytes": fetch_min_bytes,
+                "max_partition_fetch_bytes": max_partition_fetch_bytes,
+                "auto_offset_reset": auto_offset_reset,
+                "auto_commit_interval_ms": auto_commit_interval_ms,
+                "check_crcs": check_crcs,
+                "partition_assignment_strategy": partition_assignment_strategy,
+                "max_poll_interval_ms": max_poll_interval_ms,
+                "rebalance_timeout_ms": rebalance_timeout_ms,
+                "session_timeout_ms": session_timeout_ms,
+                "heartbeat_interval_ms": heartbeat_interval_ms,
+                "consumer_timeout_ms": consumer_timeout_ms,
+                "max_poll_records": max_poll_records,
+                "exclude_internal_topics": exclude_internal_topics,
+                "isolation_level": isolation_level,
+            },
+            partitions=partitions,
+            # acknowledgement args
+            ack_policy=ack_policy,
+            no_ack=no_ack,
+            auto_commit=auto_commit,
+            # subscriber args
+            no_reply=no_reply,
+            broker_middlewares=self.middlewares,
+            broker_dependencies=self._dependencies,
+            # Specification
+            title_=title,
+            description_=description,
+            include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
 
-        if batch:
-            return cast("SpecificationBatchSubscriber", subscriber).add_call(
-                parser_=parser or self._parser,
-                decoder_=decoder or self._decoder,
-                dependencies_=dependencies,
-                middlewares_=middlewares,
-            )
+        subscriber = super().subscriber(sub)
 
-        return cast("SpecificationDefaultSubscriber", subscriber).add_call(
+        if batch:
+            subscriber = cast("SpecificationBatchSubscriber", subscriber)
+        elif max_workers > 1:
+            subscriber = cast("SpecificationConcurrentDefaultSubscriber", subscriber)
+        else:
+            subscriber = cast("SpecificationDefaultSubscriber", subscriber)
+
+        return subscriber.add_call(
             parser_=parser or self._parser,
             decoder_=decoder or self._decoder,
             dependencies_=dependencies,
