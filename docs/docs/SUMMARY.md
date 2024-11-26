@@ -584,6 +584,7 @@ search:
             - dummy
                 - [Dummy](api/faststream/dummy/Dummy.md)
                 - [Strange](api/faststream/dummy/Strange.md)
+                - [Twice](api/faststream/dummy/Twice.md)
             - exceptions
                 - [AckMessage](api/faststream/exceptions/AckMessage.md)
                 - [FastStreamException](api/faststream/exceptions/FastStreamException.md)
