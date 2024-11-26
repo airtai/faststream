@@ -581,6 +581,8 @@ search:
                     - [build_message](api/faststream/confluent/testing/build_message.md)
             - constants
                 - [ContentTypes](api/faststream/constants/ContentTypes.md)
+            - dummy
+                - [Dummy](api/faststream/dummy/Dummy.md)
             - exceptions
                 - [AckMessage](api/faststream/exceptions/AckMessage.md)
                 - [FastStreamException](api/faststream/exceptions/FastStreamException.md)
