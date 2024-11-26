@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 jobs:
-  check-docs-changes:
+  check-linting-and-docs-changes:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:

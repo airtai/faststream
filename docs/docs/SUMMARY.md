@@ -582,6 +582,7 @@ search:
             - constants
                 - [ContentTypes](api/faststream/constants/ContentTypes.md)
             - dummy
+                - [Double](api/faststream/dummy/Double.md)
                 - [Dummy](api/faststream/dummy/Dummy.md)
                 - [Strange](api/faststream/dummy/Strange.md)
                 - [Twice](api/faststream/dummy/Twice.md)

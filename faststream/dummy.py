@@ -20,3 +20,11 @@ class Twice:
 
     def twice_method(self) -> str:
         return "twice"
+
+
+class Double:
+    def __init__(self) -> None:
+        pass
+
+    def double_method(self) -> str:
+        return "double"
