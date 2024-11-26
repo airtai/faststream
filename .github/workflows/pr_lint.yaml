@@ -22,6 +22,9 @@ jobs:
       SKIP: "docs"
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.head_ref }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -35,8 +38,6 @@ jobs:
         continue-on-error: true
         with:
           extra_args: --hook-stage manual --all-files
-      - run: git status
-      - run: git diff
       - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
