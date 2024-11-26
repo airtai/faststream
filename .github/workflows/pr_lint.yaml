@@ -35,6 +35,8 @@ jobs:
         continue-on-error: true
         with:
           extra_args: --hook-stage manual --all-files
+      - run: git status
+      - run: git diff
       - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
