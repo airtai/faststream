@@ -67,7 +67,9 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
                 mock.pub("outer")
                 return await call_next(msg, *args, **kwargs)
 
-        broker = self.broker_class(middlewares=[OuterMiddleware, InnerMiddleware], logger=None)
+        broker = self.broker_class(
+            middlewares=[OuterMiddleware, InnerMiddleware], logger=None
+        )
 
         args, kwargs = self.get_subscriber_params(queue)
 
@@ -145,7 +147,6 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         mock.publish_inner.assert_called_once()
         mock.publish_middle.assert_called_once()
         mock.publish_outer.assert_called_once()
-        print([c.args[0] for c in mock.call_args_list])
         assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
 
     async def test_publisher_with_router_middleware_order(
@@ -552,9 +553,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                 mock.end()
                 return await super().after_processed(exc_type, exc_val, exc_tb)
 
-        broker = self.broker_class(
-            middlewares=(mid,), logger=None
-        )
+        broker = self.broker_class(middlewares=(mid,), logger=None)
 
         args, kwargs = self.get_subscriber_params(queue)
 
