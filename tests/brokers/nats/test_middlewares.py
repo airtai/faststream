@@ -1,6 +1,6 @@
 import pytest
 
-from faststream.rabbit import RabbitBroker
+from faststream.nats import NatsBroker
 from tests.brokers.base.middlewares import (
     ExceptionMiddlewareTestcase,
     MiddlewareTestcase,
@@ -8,15 +8,16 @@ from tests.brokers.base.middlewares import (
 )
 
 
-@pytest.mark.rabbit
+@pytest.mark.nats
 class TestMiddlewares(MiddlewareTestcase):
-    broker_class = RabbitBroker
+    broker_class = NatsBroker
 
 
-@pytest.mark.rabbit
+@pytest.mark.nats
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
-    broker_class = RabbitBroker
+    broker_class = NatsBroker
 
-@pytest.mark.rabbit
+
+@pytest.mark.nats
 class TestMiddlewaresOrder(MiddlewaresOrderTestcase):
-    broker_class = RabbitBroker
+    broker_class = NatsBroker

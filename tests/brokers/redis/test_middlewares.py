@@ -4,6 +4,7 @@ from faststream.redis import RedisBroker
 from tests.brokers.base.middlewares import (
     ExceptionMiddlewareTestcase,
     MiddlewareTestcase,
+    MiddlewaresOrderTestcase,
 )
 
 
@@ -14,4 +15,8 @@ class TestMiddlewares(MiddlewareTestcase):
 
 @pytest.mark.redis
 class TestExceptionMiddlewares(ExceptionMiddlewareTestcase):
+    broker_class = RedisBroker
+
+@pytest.mark.redis
+class TestMiddlewaresOrder(MiddlewaresOrderTestcase):
     broker_class = RedisBroker

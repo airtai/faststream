@@ -26,7 +26,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
     ) -> BrokerUsecase:
         return broker
 
-    async def test_broker_middleware_order(self, queue: str, mock: Mock):
+    async def test_broker_middleware_order(self, queue: str, mock: Mock, raw_broker):
         class InnerMiddleware(BaseMiddleware):
             async def consume_scope(self, call_next, msg):
                 mock.consume_inner()
@@ -57,7 +57,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         async def handler(msg):
             pass
 
-        async with self.patch_broker(broker) as br:
+        async with self.patch_broker(raw_broker, broker) as br:
             await br.publish(None, queue)
 
         mock.consume_inner.assert_called_once()
@@ -68,7 +68,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         assert [c.args[0] for c in mock.sub.call_args_list] == ["outer", "inner"]
         assert [c.args[0] for c in mock.pub.call_args_list] == ["outer", "inner"]
 
-    async def test_publisher_middleware_order(self, queue: str, mock: Mock):
+    async def test_publisher_middleware_order(self, queue: str, mock: Mock, raw_broker):
         class InnerMiddleware(BaseMiddleware):
             async def publish_scope(self, call_next, msg, *args, **kwargs):
                 mock.publish_inner()
@@ -102,7 +102,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         async def handler(msg):
             pass
 
-        async with self.patch_broker(broker):
+        async with self.patch_broker(raw_broker, broker):
             await publisher.publish(None, queue)
 
         mock.publish_inner.assert_called_once()
@@ -111,7 +111,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
 
         assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
 
-    async def test_publisher_with_router_middleware_order(self, queue: str, mock: Mock):
+    async def test_publisher_with_router_middleware_order(self, queue: str, mock: Mock, raw_broker):
         class InnerMiddleware(BaseMiddleware):
             async def publish_scope(self, call_next, msg, *args, **kwargs):
                 mock.publish_inner()
@@ -145,7 +145,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         router.include_router(router2)
         broker.include_router(router)
 
-        async with self.patch_broker(broker):
+        async with self.patch_broker(raw_broker, broker):
             await publisher.publish(None, queue)
 
         mock.publish_inner.assert_called_once()
@@ -154,7 +154,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
 
         assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
 
-    async def test_consume_middleware_order(self, queue: str, mock: Mock):
+    async def test_consume_middleware_order(self, queue: str, mock: Mock, raw_broker):
         class InnerMiddleware(BaseMiddleware):
             async def consume_scope(self, call_next, msg):
                 mock.consume_inner()
@@ -187,7 +187,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         async def handler(msg):
             pass
 
-        async with self.patch_broker(broker) as br:
+        async with self.patch_broker(raw_broker, broker) as br:
             await br.publish(None, queue)
 
         mock.consume_inner.assert_called_once()
@@ -196,7 +196,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
 
         assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
 
-    async def test_consume_with_middleware_order(self, queue: str, mock: Mock):
+    async def test_consume_with_middleware_order(self, queue: str, mock: Mock, raw_broker):
         class InnerMiddleware(BaseMiddleware):
             async def consume_scope(self, call_next, msg):
                 mock.consume_inner()
@@ -227,7 +227,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
 
         router.include_router(router2)
         broker.include_router(router)
-        async with self.patch_broker(broker) as br:
+        async with self.patch_broker(raw_broker, broker) as br:
             await br.publish(None, queue)
 
         mock.consume_inner.assert_called_once()
@@ -236,7 +236,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
 
         assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
 
-    async def test_aenter_aexit(self, queue: str, mock: Mock):
+    async def test_aenter_aexit(self, queue: str, mock: Mock, raw_broker):
         class InnerMiddleware(BaseMiddleware):
             async def __aenter__(self):
                 mock.enter_inner()
@@ -274,10 +274,10 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         args, kwargs = self.get_subscriber_params(queue)
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(msg):
+        async def handler_sub(msg):
             pass
 
-        async with self.patch_broker(broker) as br:
+        async with self.patch_broker(raw_broker, broker) as br:
             await br.publish(None, queue)
 
         mock.enter_inner.assert_called_once()

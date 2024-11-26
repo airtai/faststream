@@ -4,6 +4,7 @@ from faststream.confluent import KafkaBroker
 from tests.brokers.base.middlewares import (
     ExceptionMiddlewareTestcase,
     MiddlewareTestcase,
+    MiddlewaresOrderTestcase,
 )
 
 from .basic import ConfluentTestcaseConfig
@@ -16,4 +17,8 @@ class TestMiddlewares(ConfluentTestcaseConfig, MiddlewareTestcase):
 
 @pytest.mark.confluent
 class TestExceptionMiddlewares(ConfluentTestcaseConfig, ExceptionMiddlewareTestcase):
+    broker_class = KafkaBroker
+
+@pytest.mark.confluent
+class TestMiddlewaresOrder(MiddlewaresOrderTestcase):
     broker_class = KafkaBroker
