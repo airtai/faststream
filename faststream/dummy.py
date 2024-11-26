@@ -13,14 +13,10 @@ class Strange:
     def strange_method(self) -> str:
         return "strange"
 
+
 class Twice:
     def __init__(self) -> None:
         pass
 
     def twice_method(self) -> str:
         return "twice"
-    
-
-
-
-    
