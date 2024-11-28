@@ -152,35 +152,22 @@ class AsgiFastStream(Application):
             from gunicorn.app.base import BaseApplication
         except ImportError as e:
             raise RuntimeError(
-                "You need uvicorn and gunicorn to run FastStream ASGI App via CLI"
+                "You need uvicorn and gunicorn to run FastStream ASGI App via CLI. pip install uvicorn gunicorn"
             ) from e
 
-        def load_config(_self: BaseApplication) -> None:
-            for k, v in _self.options.items():
-                if k in _self.cfg.settings and v is not None:
-                    _self.cfg.set(k.lower(), v)
-                else:
-                    logger.warning(f"Unknown config variable: {k} with value {v}")
+        class ASGIRunner(BaseApplication):  # type: ignore[misc]
+            def __init__(self, options: Dict[str, Any], asgi_app: "ASGIApp") -> None:
+                self.options = options
+                self.asgi_app = asgi_app
+                super().__init__()
 
-        ASGIRunner = type(  # noqa: N806
-            "ASGIRunner",
-            (BaseApplication,),
-            {
-                "load_config": load_config,
-                "load": lambda _self: _self.asgi_app,
-            },
-        )
+            def load_config(self) -> None:
+                for k, v in self.options.items():
+                    if k in self.cfg.settings and v is not None:
+                        self.cfg.set(k.lower(), v)
 
-        def init(
-            _self: ASGIRunner,  # type: ignore[valid-type]
-            asgi_app: "ASGIApp",
-            options: Dict[str, Any],
-        ) -> None:
-            _self.options = options  # type: ignore[attr-defined]
-            _self.asgi_app = asgi_app  # type: ignore[attr-defined]
-            super(ASGIRunner, _self).__init__()  # type: ignore[arg-type]
-
-        ASGIRunner.__init__ = init  # type: ignore[misc]
+            def load(self) -> "ASGIApp":
+                return self.asgi_app
 
         run_extra_options = run_extra_options or {}
 
@@ -204,7 +191,7 @@ class AsgiFastStream(Application):
         #  We use gunicorn with uvicorn workers because uvicorn don't support multiple workers
         run_extra_options["worker_class"] = "uvicorn.workers.UvicornWorker"
 
-        ASGIRunner(self, run_extra_options).run()
+        ASGIRunner(run_extra_options, self).run()
 
     @asynccontextmanager
     async def start_lifespan_context(self) -> AsyncIterator[None]:
