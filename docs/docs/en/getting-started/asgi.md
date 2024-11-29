@@ -153,7 +153,7 @@ app = FastStream(broker).as_asgi(
     ```shell
     faststream run main:app --host 0.0.0.0 --port 8000 --workers 4
     ```
-    This possibility builded on gunicorn + uvicorn, you need install them to run FastStream ASGI app via CLI.
+    This possibility built on gunicorn + uvicorn, you need install them to run FastStream ASGI app via CLI.
     We send all args directly to gunicorn, you can learn more about it [here](https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py).
 
 ## Other ASGI Compatibility
