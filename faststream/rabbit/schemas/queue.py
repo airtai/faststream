@@ -21,17 +21,17 @@ class RabbitQueue(NameRequired):
     """
 
     __slots__ = (
-        "name",
+        "arguments",
+        "auto_delete",
+        "bind_arguments",
         "durable",
         "exclusive",
+        "name",
         "passive",
-        "auto_delete",
-        "arguments",
-        "timeout",
+        "path_regex",
         "robust",
         "routing_key",
-        "path_regex",
-        "bind_arguments",
+        "timeout",
     )
 
     def __hash__(self) -> int:

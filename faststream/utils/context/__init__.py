@@ -3,8 +3,8 @@ from faststream.utils.context.repository import ContextRepo, context
 
 __all__ = (
     "Context",
-    "context",
     "ContextRepo",
     "Header",
     "Path",
+    "context",
 )

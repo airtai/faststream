@@ -8,9 +8,9 @@ class ListSub(NameRequired):
     """A class to represent a Redis List subscriber."""
 
     __slots__ = (
-        "name",
         "batch",
         "max_records",
+        "name",
         "polling_interval",
     )
 

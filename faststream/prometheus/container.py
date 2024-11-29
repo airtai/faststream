@@ -9,17 +9,17 @@ if TYPE_CHECKING:
 
 class MetricsContainer:
     __slots__ = (
-        "_registry",
         "_metrics_prefix",
-        "received_messages_total",
-        "received_messages_size_bytes",
-        "received_processed_messages_duration_seconds",
-        "received_messages_in_process",
-        "received_processed_messages_total",
-        "received_processed_messages_exceptions_total",
-        "published_messages_total",
+        "_registry",
         "published_messages_duration_seconds",
         "published_messages_exceptions_total",
+        "published_messages_total",
+        "received_messages_in_process",
+        "received_messages_size_bytes",
+        "received_messages_total",
+        "received_processed_messages_duration_seconds",
+        "received_processed_messages_exceptions_total",
+        "received_processed_messages_total",
     )
 
     DEFAULT_SIZE_BUCKETS = (

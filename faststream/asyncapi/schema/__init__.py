@@ -29,33 +29,33 @@ from faststream.asyncapi.schema.utils import (
 __all__ = (
     # main
     "ASYNC_API_VERSION",
-    "Schema",
-    "Components",
-    # info
-    "Info",
-    "Contact",
-    "ContactDict",
-    "License",
-    "LicenseDict",
-    # servers
-    "Server",
     # channels
     "Channel",
+    "ChannelBinding",
+    "Components",
+    "Contact",
+    "ContactDict",
+    "CorrelationId",
+    "ExternalDocs",
+    "ExternalDocsDict",
+    # info
+    "Info",
+    "License",
+    "LicenseDict",
+    # messages
+    "Message",
+    # subscription
+    "Operation",
+    "OperationBinding",
+    "Reference",
+    "Schema",
+    # security
+    "SecuritySchemaComponent",
+    # servers
+    "Server",
+    # bindings
+    "ServerBinding",
     # utils
     "Tag",
     "TagDict",
-    "ExternalDocs",
-    "ExternalDocsDict",
-    "Reference",
-    # bindings
-    "ServerBinding",
-    "ChannelBinding",
-    "OperationBinding",
-    # messages
-    "Message",
-    "CorrelationId",
-    # security
-    "SecuritySchemaComponent",
-    # subscription
-    "Operation",
 )

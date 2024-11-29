@@ -37,13 +37,13 @@ class HandlerItem(SetupAble, Generic[MsgType]):
     """A class representing handler overloaded item."""
 
     __slots__ = (
-        "handler",
-        "filter",
         "dependant",
         "dependencies",
-        "item_parser",
+        "filter",
+        "handler",
         "item_decoder",
         "item_middlewares",
+        "item_parser",
     )
 
     dependant: Optional[Any]

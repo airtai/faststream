@@ -7,16 +7,16 @@ from faststream.redis.testing import TestRedisBroker
 from faststream.testing.app import TestApp
 
 __all__ = (
+    "ListSub",
+    "PubSub",
     "Redis",
     "RedisBroker",
     "RedisMessage",
-    "RedisRoute",
-    "RedisRouter",
     "RedisPublisher",
     "RedisResponse",
-    "TestRedisBroker",
-    "TestApp",
-    "PubSub",
-    "ListSub",
+    "RedisRoute",
+    "RedisRouter",
     "StreamSub",
+    "TestApp",
+    "TestRedisBroker",
 )

@@ -8,12 +8,12 @@ from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.utils.context import Context
 
 __all__ = (
-    "Logger",
     "ContextRepo",
-    "NoCast",
-    "KafkaMessage",
     "KafkaBroker",
+    "KafkaMessage",
     "KafkaProducer",
+    "Logger",
+    "NoCast",
 )
 
 Consumer = Annotated[AIOKafkaConsumer, Context("handler_.consumer")]
