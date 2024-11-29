@@ -245,10 +245,10 @@ class RabbitBroker(
             asyncapi_url = str(amqp_url)
 
         # respect ascynapi_url argument scheme
-        builded_asyncapi_url = urlparse(asyncapi_url)
-        self.virtual_host = builded_asyncapi_url.path
+        built_asyncapi_url = urlparse(asyncapi_url)
+        self.virtual_host = built_asyncapi_url.path
         if protocol is None:
-            protocol = builded_asyncapi_url.scheme
+            protocol = built_asyncapi_url.scheme
 
         super().__init__(
             url=str(amqp_url),
@@ -269,7 +269,7 @@ class RabbitBroker(
             # AsyncAPI args
             description=description,
             asyncapi_url=asyncapi_url,
-            protocol=protocol or builded_asyncapi_url.scheme,
+            protocol=protocol or built_asyncapi_url.scheme,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
