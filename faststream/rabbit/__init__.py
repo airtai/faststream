@@ -12,17 +12,17 @@ from faststream.rabbit.testing import TestRabbitBroker
 from faststream.testing.app import TestApp
 
 __all__ = (
-    "RabbitBroker",
-    "TestApp",
-    "TestRabbitBroker",
-    "RabbitRouter",
-    "RabbitRoute",
-    "RabbitPublisher",
-    "RabbitResponse",
     "ExchangeType",
-    "ReplyConfig",
+    "RabbitBroker",
     "RabbitExchange",
-    "RabbitQueue",
     # Annotations
     "RabbitMessage",
+    "RabbitPublisher",
+    "RabbitQueue",
+    "RabbitResponse",
+    "RabbitRoute",
+    "RabbitRouter",
+    "ReplyConfig",
+    "TestApp",
+    "TestRabbitBroker",
 )

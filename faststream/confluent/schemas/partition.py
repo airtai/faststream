@@ -15,11 +15,11 @@ if TYPE_CHECKING:
 
 class TopicPartition:
     __slots__ = (
-        "topic",
-        "partition",
-        "offset",
-        "metadata",
         "leader_epoch",
+        "metadata",
+        "offset",
+        "partition",
+        "topic",
     )
 
     def __init__(

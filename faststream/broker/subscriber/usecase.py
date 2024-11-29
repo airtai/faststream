@@ -53,11 +53,11 @@ if TYPE_CHECKING:
 
 class _CallOptions:
     __slots__ = (
-        "filter",
-        "parser",
         "decoder",
-        "middlewares",
         "dependencies",
+        "filter",
+        "middlewares",
+        "parser",
     )
 
     def __init__(

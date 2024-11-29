@@ -8,12 +8,12 @@ from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 
 __all__ = (
     "Context",
-    "Logger",
     "ContextRepo",
-    "KafkaRouter",
-    "KafkaMessage",
     "KafkaBroker",
+    "KafkaMessage",
     "KafkaProducer",
+    "KafkaRouter",
+    "Logger",
 )
 
 KafkaMessage = Annotated[KM, Context("message")]

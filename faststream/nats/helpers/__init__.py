@@ -4,6 +4,6 @@ from faststream.nats.helpers.object_builder import StreamBuilder
 
 __all__ = (
     "KVBucketDeclarer",
-    "StreamBuilder",
     "OSBucketDeclarer",
+    "StreamBuilder",
 )

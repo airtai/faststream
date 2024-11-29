@@ -13,11 +13,11 @@ class ObjWatch:
     """
 
     __slots__ = (
+        "declare",
         "ignore_deletes",
         "include_history",
         "meta_only",
         "timeout",
-        "declare",
     )
 
     def __init__(

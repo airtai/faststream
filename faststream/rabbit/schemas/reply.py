@@ -7,8 +7,8 @@ class ReplyConfig:
     """Class to store a config for subscribers' replies."""
 
     __slots__ = (
-        "mandatory",
         "immediate",
+        "mandatory",
         "persist",
     )
 

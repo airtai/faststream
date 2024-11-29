@@ -20,10 +20,10 @@ from faststream.types import F_Return, F_Spec
 
 __all__ = (
     "call_or_await",
-    "to_async",
-    "timeout_scope",
-    "fake_context",
     "drop_response_type",
+    "fake_context",
+    "timeout_scope",
+    "to_async",
 )
 
 
