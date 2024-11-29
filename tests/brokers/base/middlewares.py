@@ -149,7 +149,11 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         mock.publish_inner.assert_called_once()
         mock.publish_middle.assert_called_once()
         mock.publish_outer.assert_called_once()
-        assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
+        assert [c.args[0] for c in mock.call_args_list] == [
+            "outer",
+            "middle",
+            "inner",
+        ], mock.call_args_list
 
     async def test_publisher_with_router_middleware_order(
         self,
@@ -201,8 +205,11 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         mock.publish_middle.assert_called_once()
         mock.publish_outer.assert_called_once()
 
-        assert event.is_set()
-        assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
+        assert [c.args[0] for c in mock.call_args_list] == [
+            "outer",
+            "middle",
+            "inner",
+        ], mock.call_args_list
 
     async def test_consume_middleware_order(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker

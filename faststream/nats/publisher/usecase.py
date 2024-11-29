@@ -129,11 +129,11 @@ class LogicPublisher(PublisherUsecase[Msg]):
         call: AsyncFunc = self._producer.publish
 
         for m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
                 or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares[::-1],
         ):
             call = partial(m, call)
 
