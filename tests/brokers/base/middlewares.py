@@ -99,10 +99,22 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         mock.exit_inner.assert_called_once()
         mock.exit_outer.assert_called_once()
 
-        assert [c.args[0] for c in mock.sub.call_args_list] == ["outer", "inner"]
-        assert [c.args[0] for c in mock.pub.call_args_list] == ["outer", "inner"]
-        assert [c.args[0] for c in mock.enter.call_args_list] == ["outer", "inner"]
-        assert [c.args[0] for c in mock.exit.call_args_list] == ["inner", "outer"]
+        assert [c.args[0] for c in mock.sub.call_args_list] == [
+            "outer",
+            "inner",
+        ], mock.sub.call_args_list
+        assert [c.args[0] for c in mock.pub.call_args_list] == [
+            "outer",
+            "inner",
+        ], mock.pub.call_args_list
+        assert [c.args[0] for c in mock.enter.call_args_list] == [
+            "outer",
+            "inner",
+        ], mock.enter.call_args_list
+        assert [c.args[0] for c in mock.exit.call_args_list] == [
+            "inner",
+            "outer",
+        ], mock.exit.call_args_list
 
     async def test_publisher_middleware_order(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
@@ -261,7 +273,11 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         mock.consume_middle.assert_called_once()
         mock.consume_outer.assert_called_once()
 
-        assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
+        assert [c.args[0] for c in mock.call_args_list] == [
+            "outer",
+            "middle",
+            "inner",
+        ], mock.call_args_list
 
     async def test_consume_with_middleware_order(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
@@ -312,7 +328,11 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         mock.consume_outer.assert_called_once()
 
         assert event.is_set()
-        assert [c.args[0] for c in mock.call_args_list] == ["outer", "middle", "inner"]
+        assert [c.args[0] for c in mock.call_args_list] == [
+            "outer",
+            "middle",
+            "inner",
+        ], mock.call_args_list
 
 
 @pytest.mark.asyncio
