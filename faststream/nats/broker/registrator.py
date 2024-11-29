@@ -294,7 +294,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         ] = None,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information
@@ -362,7 +362,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         *,
         prefix: str = "",
         dependencies: Iterable["Depends"] = (),
-        middlewares: Iterable["BrokerMiddleware[Msg]"] = (),
+        middlewares: Sequence["BrokerMiddleware[Msg]"] = (),
         include_in_schema: Optional[bool] = None,
     ) -> None:
         sub_streams = router._stream_builder.objects.copy()

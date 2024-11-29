@@ -7,7 +7,7 @@ from typing import (
     Iterable,
     List,
     Optional,
-    Tuple,
+    Tuple, Sequence,
 )
 from unittest.mock import MagicMock
 
@@ -49,11 +49,11 @@ class PublisherUsecase(
         self,
         *,
         broker_middlewares: Annotated[
-            Iterable["BrokerMiddleware[MsgType]"],
+            Sequence["BrokerMiddleware[MsgType]"],
             Doc("Top-level middlewares to use in direct `.publish` call."),
         ],
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares."),
         ],
         # AsyncAPI args

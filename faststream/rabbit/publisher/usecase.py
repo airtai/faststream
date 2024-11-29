@@ -9,7 +9,7 @@ from typing import (
     Callable,
     Iterable,
     Optional,
-    Union,
+    Union, Sequence,
 )
 
 from aio_pika import IncomingMessage
@@ -126,8 +126,8 @@ class LogicPublisher(
         exchange: "RabbitExchange",
         message_kwargs: "PublishKwargs",
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[IncomingMessage]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -249,7 +249,7 @@ class LogicPublisher(
         ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **publish_kwargs: "Unpack[PublishKwargs]",
@@ -325,7 +325,7 @@ class LogicPublisher(
         ] = None,
         # publisher specific
         _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **publish_kwargs: "Unpack[RequestPublishKwargs]",

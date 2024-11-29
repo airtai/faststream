@@ -209,7 +209,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         ] = None,
         # specific
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

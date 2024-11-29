@@ -9,7 +9,7 @@ from typing import (
     Dict,
     Iterable,
     Optional,
-    Union,
+    Union, Sequence,
 )
 
 from nats.aio.msg import Msg
@@ -42,8 +42,8 @@ class LogicPublisher(PublisherUsecase[Msg]):
         stream: Optional["JStream"],
         timeout: Optional[float],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -85,7 +85,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
         # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Sequence["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
         """Publish message directly.
 
@@ -174,7 +174,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         ] = 0.5,
         # publisher specific
         _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> "NatsMessage":

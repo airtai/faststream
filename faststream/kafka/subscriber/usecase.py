@@ -69,7 +69,7 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -309,7 +309,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
+        broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -390,7 +390,7 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable[
+        broker_middlewares: Sequence[
             "BrokerMiddleware[Sequence[Tuple[ConsumerRecord, ...]]]"
         ],
         # AsyncAPI args
@@ -485,7 +485,7 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
+        broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],

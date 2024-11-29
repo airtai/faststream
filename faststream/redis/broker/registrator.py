@@ -164,7 +164,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             Doc("Reply message destination PubSub object name."),
         ] = "",
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

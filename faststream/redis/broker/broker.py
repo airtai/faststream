@@ -8,7 +8,7 @@ from typing import (
     Mapping,
     Optional,
     Type,
-    Union,
+    Union, Sequence,
 )
 from urllib.parse import urlparse
 
@@ -134,7 +134,7 @@ class RedisBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[BaseMessage]"],
+            Sequence["BrokerMiddleware[BaseMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args

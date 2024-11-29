@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Sequence
 
 from typing_extensions import override
 
@@ -113,8 +113,8 @@ class AsyncAPIPublisher(LogicPublisher):
         exchange: "RabbitExchange",
         message_kwargs: "PublishKwargs",
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[IncomingMessage]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],

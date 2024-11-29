@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, Optional, Protocol, Sequence
 
 from typing_extensions import override
 
@@ -53,7 +53,7 @@ class BasePublisherProto(Protocol):
         /,
         *,
         correlation_id: Optional[str] = None,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Sequence["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
         """Publishes a message asynchronously."""
         ...
@@ -65,7 +65,7 @@ class BasePublisherProto(Protocol):
         /,
         *,
         correlation_id: Optional[str] = None,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Sequence["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
         """Publishes a message synchronously."""
         ...
@@ -79,8 +79,8 @@ class PublisherProto(
 ):
     schema_: Any
 
-    _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
-    _middlewares: Iterable["PublisherMiddleware"]
+    _broker_middlewares: Sequence["BrokerMiddleware[MsgType]"]
+    _middlewares: Sequence["PublisherMiddleware"]
     _producer: Optional["ProducerProto"]
 
     @abstractmethod

@@ -9,7 +9,7 @@ from typing import (
     List,
     Optional,
     Type,
-    Union,
+    Union, Sequence,
 )
 
 import anyio
@@ -394,7 +394,7 @@ class NatsBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[Msg]"],
+            Sequence["BrokerMiddleware[Msg]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args

@@ -7,7 +7,7 @@ from typing import (
     Optional,
     Tuple,
     Union,
-    overload,
+    overload, Sequence,
 )
 
 from typing_extensions import override
@@ -71,8 +71,8 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -91,8 +91,8 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -111,10 +111,10 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[
+        broker_middlewares: Sequence[
             "BrokerMiddleware[Union[Tuple[ConsumerRecord, ...], ConsumerRecord]]"
         ],
-        middlewares: Iterable["PublisherMiddleware"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -136,10 +136,10 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[
+        broker_middlewares: Sequence[
             "BrokerMiddleware[Union[Tuple[ConsumerRecord, ...], ConsumerRecord]]"
         ],
-        middlewares: Iterable["PublisherMiddleware"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],

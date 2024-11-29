@@ -154,7 +154,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[IncomingMessage]"],
+            Sequence["BrokerMiddleware[IncomingMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -773,7 +773,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         ] = None,
         # specific
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

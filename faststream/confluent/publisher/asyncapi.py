@@ -8,7 +8,7 @@ from typing import (
     Tuple,
     Union,
     cast,
-    overload,
+    overload, Sequence,
 )
 
 from typing_extensions import override
@@ -72,8 +72,8 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[ConfluentMsg]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -92,8 +92,8 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -113,10 +113,10 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         reply_to: str,
         # Publisher args
         broker_middlewares: Union[
-            Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
-            Iterable["BrokerMiddleware[ConfluentMsg]"],
+            Sequence["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
+            Sequence["BrokerMiddleware[ConfluentMsg]"],
         ],
-        middlewares: Iterable["PublisherMiddleware"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -139,10 +139,10 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         reply_to: str,
         # Publisher args
         broker_middlewares: Union[
-            Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
-            Iterable["BrokerMiddleware[ConfluentMsg]"],
+            Sequence["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
+            Sequence["BrokerMiddleware[ConfluentMsg]"],
         ],
-        middlewares: Iterable["PublisherMiddleware"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -162,7 +162,7 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
                 headers=headers,
                 reply_to=reply_to,
                 broker_middlewares=cast(
-                    Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
+                    Sequence["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
                     broker_middlewares,
                 ),
                 middlewares=middlewares,
@@ -180,7 +180,7 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
                 headers=headers,
                 reply_to=reply_to,
                 broker_middlewares=cast(
-                    Iterable["BrokerMiddleware[ConfluentMsg]"], broker_middlewares
+                    Sequence["BrokerMiddleware[ConfluentMsg]"], broker_middlewares
                 ),
                 middlewares=middlewares,
                 schema_=schema_,

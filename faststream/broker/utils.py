@@ -12,7 +12,7 @@ from typing import (
     Optional,
     Type,
     Union,
-    cast,
+    cast, Sequence,
 )
 
 import anyio
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 async def process_msg(
     msg: Optional[MsgType],
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    middlewares: Sequence["BrokerMiddleware[MsgType]"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
 ) -> Optional["StreamMessage[MsgType]"]:

@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from functools import partial
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Iterable, Optional
@@ -17,7 +18,7 @@ class FakePublisher(BasePublisherProto):
         method: "AsyncFunc",
         *,
         publish_kwargs: "AnyDict",
-        middlewares: Iterable["PublisherMiddleware"] = (),
+        middlewares: Sequence["PublisherMiddleware"] = (),
     ) -> None:
         """Initialize an object."""
         self.method = method
@@ -29,7 +30,7 @@ class FakePublisher(BasePublisherProto):
         message: "SendableMessage",
         *,
         correlation_id: Optional[str] = None,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Sequence["PublisherMiddleware"] = (),
         **kwargs: Any,
     ) -> Any:
         """Publish a message."""
@@ -51,7 +52,7 @@ class FakePublisher(BasePublisherProto):
         /,
         *,
         correlation_id: Optional[str] = None,
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Sequence["PublisherMiddleware"] = (),
     ) -> Any:
         raise NotImplementedError(
             "`FakePublisher` can be used only to publish "

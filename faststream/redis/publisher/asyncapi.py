@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, Sequence
 
 from typing_extensions import TypeAlias, override
 
@@ -68,8 +68,8 @@ class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
         stream: Union["StreamSub", str, None],
         headers: Optional["AnyDict"],
         reply_to: str,
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],

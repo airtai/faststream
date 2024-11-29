@@ -12,7 +12,7 @@ from typing import (
     Tuple,
     Type,
     TypeVar,
-    Union,
+    Union, Sequence,
 )
 
 import aiokafka
@@ -440,7 +440,7 @@ class KafkaBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable[
+            Sequence[
                 Union[
                     "BrokerMiddleware[ConsumerRecord]",
                     "BrokerMiddleware[Tuple[ConsumerRecord, ...]]",

@@ -3,7 +3,7 @@ from contextlib import AsyncExitStack
 from copy import deepcopy
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional, Sequence
 
 from typing_extensions import Annotated, Doc, deprecated, override
 
@@ -32,8 +32,8 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -68,8 +68,8 @@ class ChannelPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI options
         schema_: Optional[Any],
         title_: Optional[str],
@@ -165,7 +165,7 @@ class ChannelPublisher(LogicPublisher):
         ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **kwargs: Any,  # option to suppress maxlen
@@ -230,7 +230,7 @@ class ChannelPublisher(LogicPublisher):
         ] = 30.0,
         # publisher specific
         _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> "RedisMessage":
@@ -282,8 +282,8 @@ class ListPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI options
         schema_: Optional[Any],
         title_: Optional[str],
@@ -379,7 +379,7 @@ class ListPublisher(LogicPublisher):
         ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **kwargs: Any,  # option to suppress maxlen
@@ -443,7 +443,7 @@ class ListPublisher(LogicPublisher):
         ] = 30.0,
         # publisher specific
         _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> "RedisMessage":
@@ -511,7 +511,7 @@ class ListBatchPublisher(ListPublisher):
         ] = None,
         # publisher specific
         _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **kwargs: Any,  # option to suppress maxlen
@@ -548,8 +548,8 @@ class StreamPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI options
         schema_: Optional[Any],
         title_: Optional[str],
@@ -652,7 +652,7 @@ class StreamPublisher(LogicPublisher):
         ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> Optional[Any]:
@@ -725,7 +725,7 @@ class StreamPublisher(LogicPublisher):
         ] = 30.0,
         # publisher specific
         _extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> "RedisMessage":

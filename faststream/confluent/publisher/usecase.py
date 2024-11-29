@@ -11,7 +11,7 @@ from typing import (
     Optional,
     Tuple,
     Union,
-    cast,
+    cast, Sequence,
 )
 
 from confluent_kafka import Message
@@ -43,8 +43,8 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -87,7 +87,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         correlation_id: Optional[str] = None,
         timeout: float = 0.5,
         # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Sequence["PublisherMiddleware"] = (),
     ) -> "KafkaMessage":
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -140,8 +140,8 @@ class DefaultPublisher(LogicPublisher[Message]):
         headers: Optional[Dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[Message]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[Message]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -179,7 +179,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         reply_to: str = "",
         no_confirm: bool = False,
         # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Sequence["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -221,7 +221,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         correlation_id: Optional[str] = None,
         timeout: float = 0.5,
         # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Sequence["PublisherMiddleware"] = (),
     ) -> "KafkaMessage":
         return await super().request(
             message=message,
@@ -250,7 +250,7 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
         reply_to: str = "",
         no_confirm: bool = False,
         # publisher specific
-        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
+        _extra_middlewares: Sequence["PublisherMiddleware"] = (),
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 

@@ -5,7 +5,7 @@ from typing import (
     Optional,
     Tuple,
     Union,
-    overload,
+    overload, Sequence,
 )
 
 from faststream.exceptions import SetupError
@@ -43,7 +43,7 @@ def create_subscriber(
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
+    broker_middlewares: Sequence["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
     # AsyncAPI args
     title_: Optional[str],
     description_: Optional[str],
@@ -70,7 +70,7 @@ def create_subscriber(
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
+    broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
     # AsyncAPI args
     title_: Optional[str],
     description_: Optional[str],
@@ -128,7 +128,7 @@ def create_subscriber(
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable[
+    broker_middlewares: Sequence[
         "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
     ],
     # AsyncAPI args

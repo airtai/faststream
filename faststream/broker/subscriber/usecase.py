@@ -385,9 +385,9 @@ class SubscriberUsecase(
                             result_msg.body,
                             **result_msg.as_publish_kwargs(),
                             # publisher middlewares
-                            _extra_middlewares=(
+                            _extra_middlewares=[
                                 m.publish_scope for m in middlewares[::-1]
-                            ),
+                            ],
                         )
 
                     # Return data for tests
