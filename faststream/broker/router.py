@@ -4,6 +4,7 @@ from typing import (
     Callable,
     Iterable,
     Optional,
+    Sequence,
 )
 
 from faststream.broker.core.abc import ABCBroker
@@ -64,7 +65,7 @@ class BrokerRouter(ABCBroker[MsgType]):
         # base options
         prefix: str,
         dependencies: Iterable["Depends"],
-        middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        middlewares: Sequence["BrokerMiddleware[MsgType]"],
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
         include_in_schema: Optional[bool],

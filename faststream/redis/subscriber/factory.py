@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Iterable, Optional, Sequence, Union
 
 from typing_extensions import TypeAlias
 
@@ -38,7 +38,7 @@ def create_subscriber(
     no_reply: bool = False,
     retry: bool = False,
     broker_dependencies: Iterable["Depends"] = (),
-    broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"] = (),
+    broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"] = (),
     # AsyncAPI args
     title_: Optional[str] = None,
     description_: Optional[str] = None,

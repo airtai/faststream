@@ -1,5 +1,5 @@
 import warnings
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence, Union
 
 from nats.aio.subscription import (
     DEFAULT_SUB_PENDING_BYTES_LIMIT,
@@ -63,7 +63,7 @@ def create_subscriber(
     no_reply: bool,
     retry: Union[bool, int],
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable["BrokerMiddleware[Any]"],
+    broker_middlewares: Sequence["BrokerMiddleware[Any]"],
     # AsyncAPI information
     title_: Optional[str],
     description_: Optional[str],

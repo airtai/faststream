@@ -8,8 +8,8 @@ from typing import (
     AsyncContextManager,
     Awaitable,
     Callable,
-    Iterable,
     Optional,
+    Sequence,
     Type,
     Union,
     cast,
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 async def process_msg(
     msg: Optional[MsgType],
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    middlewares: Sequence["BrokerMiddleware[MsgType]"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
 ) -> Optional["StreamMessage[MsgType]"]:
@@ -50,7 +50,7 @@ async def process_msg(
             Awaitable[StreamMessage[MsgType]],
         ] = return_input
 
-        for m in middlewares:
+        for m in middlewares[::-1]:
             mid = m(msg)
             await stack.enter_async_context(mid)
             return_msg = partial(mid.consume_scope, return_msg)

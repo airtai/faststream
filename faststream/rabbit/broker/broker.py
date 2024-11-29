@@ -5,6 +5,7 @@ from typing import (
     Callable,
     Iterable,
     Optional,
+    Sequence,
     Type,
     Union,
     cast,
@@ -165,7 +166,7 @@ class RabbitBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[IncomingMessage]"],
+            Sequence["BrokerMiddleware[IncomingMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args

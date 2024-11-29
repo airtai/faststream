@@ -8,6 +8,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Sequence,
     Type,
     Union,
 )
@@ -394,7 +395,7 @@ class NatsBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[Msg]"],
+            Sequence["BrokerMiddleware[Msg]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args

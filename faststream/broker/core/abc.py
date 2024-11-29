@@ -6,6 +6,7 @@ from typing import (
     Iterable,
     Mapping,
     Optional,
+    Sequence,
 )
 
 from faststream.broker.types import MsgType
@@ -30,7 +31,7 @@ class ABCBroker(Generic[MsgType]):
         *,
         prefix: str,
         dependencies: Iterable["Depends"],
-        middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        middlewares: Sequence["BrokerMiddleware[MsgType]"],
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
         include_in_schema: Optional[bool],

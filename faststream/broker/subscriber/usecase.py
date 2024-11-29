@@ -10,6 +10,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Sequence,
     Tuple,
     Union,
     overload,
@@ -53,11 +54,11 @@ if TYPE_CHECKING:
 
 class _CallOptions:
     __slots__ = (
-        "filter",
-        "parser",
         "decoder",
-        "middlewares",
         "dependencies",
+        "filter",
+        "middlewares",
+        "parser",
     )
 
     def __init__(
@@ -66,7 +67,7 @@ class _CallOptions:
         filter: "Filter[Any]",
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
-        middlewares: Iterable["SubscriberMiddleware[Any]"],
+        middlewares: Sequence["SubscriberMiddleware[Any]"],
         dependencies: Iterable["Depends"],
     ) -> None:
         self.filter = filter
@@ -98,7 +99,7 @@ class SubscriberUsecase(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # AsyncAPI information
@@ -211,7 +212,7 @@ class SubscriberUsecase(
         filter_: "Filter[Any]",
         parser_: Optional["CustomCallable"],
         decoder_: Optional["CustomCallable"],
-        middlewares_: Iterable["SubscriberMiddleware[Any]"],
+        middlewares_: Sequence["SubscriberMiddleware[Any]"],
         dependencies_: Iterable["Depends"],
     ) -> Self:
         self._call_options = _CallOptions(
@@ -231,7 +232,7 @@ class SubscriberUsecase(
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
+        middlewares: Sequence["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -246,7 +247,7 @@ class SubscriberUsecase(
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
+        middlewares: Sequence["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
 
@@ -257,7 +258,7 @@ class SubscriberUsecase(
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
+        middlewares: Sequence["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> Any:
         if (options := self._call_options) is None:
@@ -367,7 +368,9 @@ class SubscriberUsecase(
                         await h.call(
                             message=message,
                             # consumer middlewares
-                            _extra_middlewares=(m.consume_scope for m in middlewares),
+                            _extra_middlewares=(
+                                m.consume_scope for m in middlewares[::-1]
+                            ),
                         )
                     )
 
@@ -382,7 +385,9 @@ class SubscriberUsecase(
                             result_msg.body,
                             **result_msg.as_publish_kwargs(),
                             # publisher middlewares
-                            _extra_middlewares=(m.publish_scope for m in middlewares),
+                            _extra_middlewares=[
+                                m.publish_scope for m in middlewares[::-1]
+                            ],
                         )
 
                     # Return data for tests

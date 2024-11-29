@@ -1,4 +1,13 @@
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Iterable,
+    Optional,
+    Sequence,
+    Union,
+)
 
 from typing_extensions import Annotated, Doc, deprecated
 
@@ -55,7 +64,7 @@ class RedisPublisher(ArgsContainer):
             Doc("Reply message destination PubSub object name."),
         ] = "",
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information
@@ -141,7 +150,7 @@ class RedisRoute(SubscriberRoute):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[UnifyRedisMessage]"],
+            Sequence["SubscriberMiddleware[UnifyRedisMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -230,7 +239,7 @@ class RedisRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[BaseMessage]"],
+            Sequence["BrokerMiddleware[BaseMessage]"],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[

@@ -75,7 +75,7 @@ class BrokerUsecase(
             Doc("Dependencies to apply to all broker subscribers."),
         ],
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[MsgType]"],
+            Sequence["BrokerMiddleware[MsgType]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ],
         graceful_timeout: Annotated[
@@ -342,7 +342,7 @@ class BrokerUsecase(
 
         publish = producer.publish
 
-        for m in self._middlewares:
+        for m in self._middlewares[::-1]:
             publish = partial(m(None).publish_scope, publish)
 
         return await publish(msg, correlation_id=correlation_id, **kwargs)
@@ -359,7 +359,7 @@ class BrokerUsecase(
         assert producer, NOT_CONNECTED_YET  # nosec B101
 
         request = producer.request
-        for m in self._middlewares:
+        for m in self._middlewares[::-1]:
             request = partial(m(None).publish_scope, request)
 
         published_msg = await request(
@@ -370,7 +370,7 @@ class BrokerUsecase(
 
         async with AsyncExitStack() as stack:
             return_msg = return_input
-            for m in self._middlewares:
+            for m in self._middlewares[::-1]:
                 mid = m(published_msg)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)

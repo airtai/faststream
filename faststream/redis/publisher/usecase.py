@@ -3,7 +3,7 @@ from contextlib import AsyncExitStack
 from copy import deepcopy
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Iterable, Optional, Sequence
 
 from typing_extensions import Annotated, Doc, deprecated, override
 
@@ -32,8 +32,8 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -68,8 +68,8 @@ class ChannelPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI options
         schema_: Optional[Any],
         title_: Optional[str],
@@ -180,11 +180,11 @@ class ChannelPublisher(LogicPublisher):
         call: AsyncFunc = self._producer.publish
 
         for m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
         ):
             call = partial(m, call)
 
@@ -246,11 +246,11 @@ class ChannelPublisher(LogicPublisher):
         request: AsyncFunc = self._producer.request
 
         for pub_m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
         ):
             request = partial(pub_m, request)
 
@@ -261,7 +261,7 @@ class ChannelPublisher(LogicPublisher):
 
         async with AsyncExitStack() as stack:
             return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
+            for m in self._broker_middlewares[::-1]:
                 mid = m(published_msg)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
@@ -282,8 +282,8 @@ class ListPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI options
         schema_: Optional[Any],
         title_: Optional[str],
@@ -393,11 +393,11 @@ class ListPublisher(LogicPublisher):
         call: AsyncFunc = self._producer.publish
 
         for m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
         ):
             call = partial(m, call)
 
@@ -460,11 +460,11 @@ class ListPublisher(LogicPublisher):
         request: AsyncFunc = self._producer.request
 
         for pub_m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
         ):
             request = partial(pub_m, request)
 
@@ -475,7 +475,7 @@ class ListPublisher(LogicPublisher):
 
         async with AsyncExitStack() as stack:
             return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
+            for m in self._broker_middlewares[::-1]:
                 mid = m(published_msg)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
@@ -524,11 +524,11 @@ class ListBatchPublisher(ListPublisher):
         call: AsyncFunc = self._producer.publish_batch
 
         for m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
         ):
             call = partial(m, call)
 
@@ -548,8 +548,8 @@ class StreamPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI options
         schema_: Optional[Any],
         title_: Optional[str],
@@ -667,11 +667,11 @@ class StreamPublisher(LogicPublisher):
         call: AsyncFunc = self._producer.publish
 
         for m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
         ):
             call = partial(m, call)
 
@@ -742,11 +742,11 @@ class StreamPublisher(LogicPublisher):
         request: AsyncFunc = self._producer.request
 
         for pub_m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
         ):
             request = partial(pub_m, request)
 
@@ -757,7 +757,7 @@ class StreamPublisher(LogicPublisher):
 
         async with AsyncExitStack() as stack:
             return_msg: Callable[[RedisMessage], Awaitable[RedisMessage]] = return_input
-            for m in self._broker_middlewares:
+            for m in self._broker_middlewares[::-1]:
                 mid = m(published_msg)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)

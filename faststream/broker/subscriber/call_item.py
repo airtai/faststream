@@ -9,6 +9,7 @@ from typing import (
     Generic,
     Iterable,
     Optional,
+    Sequence,
     cast,
 )
 
@@ -54,7 +55,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         filter: "AsyncFilter[StreamMessage[MsgType]]",
         item_parser: Optional["CustomCallable"],
         item_decoder: Optional["CustomCallable"],
-        item_middlewares: Iterable["SubscriberMiddleware[StreamMessage[MsgType]]"],
+        item_middlewares: Sequence["SubscriberMiddleware[StreamMessage[MsgType]]"],
         dependencies: Iterable["Depends"],
     ) -> None:
         self.handler = handler
@@ -157,7 +158,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         """Execute wrapped handler with consume middlewares."""
         call: AsyncFuncAny = self.handler.call_wrapped
 
-        for middleware in chain(self.item_middlewares, _extra_middlewares):
+        for middleware in chain(self.item_middlewares[::-1], _extra_middlewares):
             call = partial(middleware, call)
 
         try:
