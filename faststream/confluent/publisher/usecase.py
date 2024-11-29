@@ -105,11 +105,11 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         request: AsyncFunc = self._producer.request
 
         for pub_m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
                 or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares[::-1],
         ):
             request = partial(pub_m, request)
 
@@ -198,11 +198,11 @@ class DefaultPublisher(LogicPublisher[Message]):
         call: AsyncFunc = self._producer.publish
 
         for m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
                 or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares[::-1],
         ):
             call = partial(m, call)
 
@@ -273,11 +273,11 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
         call: AsyncFunc = self._producer.publish_batch
 
         for m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
                 or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares[::-1],
         ):
             call = partial(m, call)
 
