@@ -165,7 +165,7 @@ class ChannelPublisher(LogicPublisher):
         ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **kwargs: Any,  # option to suppress maxlen
@@ -230,7 +230,7 @@ class ChannelPublisher(LogicPublisher):
         ] = 30.0,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> "RedisMessage":
@@ -379,7 +379,7 @@ class ListPublisher(LogicPublisher):
         ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **kwargs: Any,  # option to suppress maxlen
@@ -443,7 +443,7 @@ class ListPublisher(LogicPublisher):
         ] = 30.0,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> "RedisMessage":
@@ -511,7 +511,7 @@ class ListBatchPublisher(ListPublisher):
         ] = None,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **kwargs: Any,  # option to suppress maxlen
@@ -652,7 +652,7 @@ class StreamPublisher(LogicPublisher):
         ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> Optional[Any]:
@@ -725,7 +725,7 @@ class StreamPublisher(LogicPublisher):
         ] = 30.0,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> "RedisMessage":

@@ -1,7 +1,6 @@
-from collections.abc import Sequence
 from functools import partial
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Sequence
 
 from faststream.broker.publisher.proto import BasePublisherProto
 

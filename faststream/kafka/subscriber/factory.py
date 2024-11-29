@@ -98,7 +98,7 @@ def create_subscriber(
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable[
+    broker_middlewares: Sequence[
         "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
     ],
     # AsyncAPI args

@@ -7,6 +7,7 @@ from typing import (
     Any,
     Awaitable,
     Callable,
+    Iterable,
     Optional,
     Sequence,
     Union,
@@ -249,7 +250,7 @@ class LogicPublisher(
         ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **publish_kwargs: "Unpack[PublishKwargs]",
@@ -325,7 +326,7 @@ class LogicPublisher(
         ] = None,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **publish_kwargs: "Unpack[RequestPublishKwargs]",

@@ -136,7 +136,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         ] = 0.5,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> "KafkaMessage":
@@ -284,7 +284,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> Optional[Any]:
@@ -381,7 +381,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         ] = 0.5,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> "KafkaMessage":
@@ -453,7 +453,7 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
         ] = False,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> None:

@@ -7,6 +7,7 @@ from typing import (
     Awaitable,
     Callable,
     Dict,
+    Iterable,
     Optional,
     Sequence,
     Union,
@@ -85,7 +86,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
         # publisher specific
-        _extra_middlewares: Sequence["PublisherMiddleware"] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> Optional[Any]:
         """Publish message directly.
 
@@ -174,7 +175,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         ] = 0.5,
         # publisher specific
         _extra_middlewares: Annotated[
-            Sequence["PublisherMiddleware"],
+            Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
     ) -> "NatsMessage":
