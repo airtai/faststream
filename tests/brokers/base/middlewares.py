@@ -17,17 +17,11 @@ from .basic import BaseTestcaseConfig
 class MiddlewaresOrderTestcase(BaseTestcaseConfig):
     broker_class: Type[BrokerUsecase]
 
-    @pytest.fixture
-    def raw_broker(self):
-        return None
-
-    def patch_broker(
-        self, raw_broker: BrokerUsecase, broker: BrokerUsecase
-    ) -> BrokerUsecase:
+    def patch_broker(self, broker: BrokerUsecase) -> BrokerUsecase:
         return broker
 
     async def test_broker_middleware_order(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+        self, event: asyncio.Event, queue: str, mock: Mock
     ):
         class InnerMiddleware(BaseMiddleware):
             async def __aenter__(self):
@@ -77,10 +71,8 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         async def handler(msg):
             event.set()
 
-        broker = self.patch_broker(raw_broker, broker)
-
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
                     asyncio.create_task(broker.publish("start", queue)),
@@ -117,7 +109,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         ], mock.exit.call_args_list
 
     async def test_publisher_middleware_order(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+        self, event: asyncio.Event, queue: str, mock: Mock
     ):
         class InnerMiddleware(BaseMiddleware):
             async def publish_scope(self, call_next, msg, *args, **kwargs):
@@ -154,8 +146,8 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         async def handler(msg):
             event.set()
 
-        async with self.patch_broker(raw_broker, broker):
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await publisher.publish(None, queue)
 
         mock.publish_inner.assert_called_once()
@@ -172,7 +164,6 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         event: asyncio.Event,
         queue: str,
         mock: Mock,
-        raw_broker,
     ):
         class InnerMiddleware(BaseMiddleware):
             async def publish_scope(self, call_next, msg, *args, **kwargs):
@@ -209,8 +200,8 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         router.include_router(router2)
         broker.include_router(router)
 
-        async with self.patch_broker(raw_broker, broker):
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await publisher.publish(None, queue)
 
         mock.publish_inner.assert_called_once()
@@ -224,7 +215,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         ], mock.call_args_list
 
     async def test_consume_middleware_order(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+        self, event: asyncio.Event, queue: str, mock: Mock
     ):
         class InnerMiddleware(BaseMiddleware):
             async def consume_scope(self, call_next, msg):
@@ -258,8 +249,8 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         async def handler(msg):
             event.set()
 
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
                     asyncio.create_task(broker.publish("start", queue)),
@@ -280,7 +271,7 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         ], mock.call_args_list
 
     async def test_consume_with_middleware_order(
-        self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
+        self, event: asyncio.Event, queue: str, mock: Mock
     ):
         class InnerMiddleware(BaseMiddleware):
             async def consume_scope(self, call_next, cmd):
@@ -313,8 +304,8 @@ class MiddlewaresOrderTestcase(BaseTestcaseConfig):
         router.include_router(router2)
         broker.include_router(router)
 
-        async with broker:
-            await broker.start()
+        async with self.patch_broker(broker) as br:
+            await br.start()
             await asyncio.wait(
                 (
                     asyncio.create_task(broker.publish("start", queue)),
