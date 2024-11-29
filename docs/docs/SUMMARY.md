@@ -470,6 +470,7 @@ search:
                         - [get_log_level](api/faststream/cli/utils/logs/get_log_level.md)
                         - [set_log_level](api/faststream/cli/utils/logs/set_log_level.md)
                     - parser
+                        - [is_bind_arg](api/faststream/cli/utils/parser/is_bind_arg.md)
                         - [parse_cli_args](api/faststream/cli/utils/parser/parse_cli_args.md)
                         - [remove_prefix](api/faststream/cli/utils/parser/remove_prefix.md)
             - confluent
