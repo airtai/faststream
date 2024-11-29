@@ -7,9 +7,9 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Iterable,
     Optional,
-    Union, Sequence,
+    Sequence,
+    Union,
 )
 
 from aio_pika import IncomingMessage

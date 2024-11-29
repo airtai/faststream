@@ -9,9 +9,10 @@ from typing import (
     Dict,
     Iterable,
     Optional,
+    Sequence,
     Tuple,
     Union,
-    cast, Sequence,
+    cast,
 )
 
 from aiokafka import ConsumerRecord

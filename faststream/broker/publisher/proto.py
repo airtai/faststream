@@ -1,5 +1,13 @@
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, Optional, Protocol, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generic,
+    Optional,
+    Protocol,
+    Sequence,
+)
 
 from typing_extensions import override
 

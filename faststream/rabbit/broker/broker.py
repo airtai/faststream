@@ -5,9 +5,10 @@ from typing import (
     Callable,
     Iterable,
     Optional,
+    Sequence,
     Type,
     Union,
-    cast, Sequence,
+    cast,
 )
 from urllib.parse import urlparse
 

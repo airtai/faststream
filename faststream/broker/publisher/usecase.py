@@ -4,10 +4,10 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Iterable,
     List,
     Optional,
-    Tuple, Sequence,
+    Sequence,
+    Tuple,
 )
 from unittest.mock import MagicMock
 

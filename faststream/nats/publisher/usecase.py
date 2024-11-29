@@ -7,9 +7,9 @@ from typing import (
     Awaitable,
     Callable,
     Dict,
-    Iterable,
     Optional,
-    Union, Sequence,
+    Sequence,
+    Union,
 )
 
 from nats.aio.msg import Msg

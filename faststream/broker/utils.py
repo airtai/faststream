@@ -8,11 +8,11 @@ from typing import (
     AsyncContextManager,
     Awaitable,
     Callable,
-    Iterable,
     Optional,
+    Sequence,
     Type,
     Union,
-    cast, Sequence,
+    cast,
 )
 
 import anyio

@@ -7,8 +7,9 @@ from typing import (
     Iterable,
     Mapping,
     Optional,
+    Sequence,
     Type,
-    Union, Sequence,
+    Union,
 )
 from urllib.parse import urlparse
 

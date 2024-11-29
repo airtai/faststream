@@ -3,9 +3,10 @@ from typing import (
     Iterable,
     Literal,
     Optional,
+    Sequence,
     Tuple,
     Union,
-    overload, Sequence,
+    overload,
 )
 
 from faststream.exceptions import SetupError

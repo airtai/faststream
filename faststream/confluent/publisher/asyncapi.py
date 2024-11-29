@@ -2,13 +2,13 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
-    Iterable,
     Literal,
     Optional,
+    Sequence,
     Tuple,
     Union,
     cast,
-    overload, Sequence,
+    overload,
 )
 
 from typing_extensions import override

@@ -8,8 +8,9 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Sequence,
     Type,
-    Union, Sequence,
+    Union,
 )
 
 import anyio

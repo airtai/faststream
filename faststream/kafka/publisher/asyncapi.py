@@ -2,12 +2,12 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
-    Iterable,
     Literal,
     Optional,
+    Sequence,
     Tuple,
     Union,
-    overload, Sequence,
+    overload,
 )
 
 from typing_extensions import override

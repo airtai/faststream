@@ -9,10 +9,11 @@ from typing import (
     List,
     Literal,
     Optional,
+    Sequence,
     Tuple,
     Type,
     TypeVar,
-    Union, Sequence,
+    Union,
 )
 
 import aiokafka
