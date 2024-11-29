@@ -8,14 +8,14 @@ from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from faststream.utils.context import Context
 
 __all__ = (
-    "Logger",
-    "ContextRepo",
-    "NoCast",
-    "RabbitMessage",
-    "RabbitBroker",
-    "RabbitProducer",
     "Channel",
     "Connection",
+    "ContextRepo",
+    "Logger",
+    "NoCast",
+    "RabbitBroker",
+    "RabbitMessage",
+    "RabbitProducer",
 )
 
 RabbitMessage = Annotated[RM, Context("message")]

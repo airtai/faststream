@@ -23,10 +23,10 @@ class JStream(NameRequired):
     """A class to represent a JetStream stream."""
 
     __slots__ = (
-        "name",
         "config",
-        "subjects",
         "declare",
+        "name",
+        "subjects",
     )
 
     def __init__(

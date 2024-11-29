@@ -10,11 +10,11 @@ from faststream.testing.app import TestApp
 __all__ = (
     "KafkaBroker",
     "KafkaMessage",
-    "KafkaRouter",
-    "KafkaRoute",
-    "KafkaResponse",
     "KafkaPublisher",
-    "TestKafkaBroker",
+    "KafkaResponse",
+    "KafkaRoute",
+    "KafkaRouter",
     "TestApp",
+    "TestKafkaBroker",
     "TopicPartition",
 )

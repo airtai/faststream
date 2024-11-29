@@ -41,10 +41,10 @@ _TRACE_PROPAGATOR = TraceContextTextMapPropagator()
 class _MetricsContainer:
     __slots__ = (
         "include_messages_counters",
-        "publish_duration",
-        "publish_counter",
-        "process_duration",
         "process_counter",
+        "process_duration",
+        "publish_counter",
+        "publish_duration",
     )
 
     def __init__(self, meter: "Meter", include_messages_counters: bool) -> None:
@@ -284,10 +284,10 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 class TelemetryMiddleware:
     # NOTE: should it be class or function?
     __slots__ = (
-        "_tracer",
         "_meter",
         "_metrics",
         "_settings_provider_factory",
+        "_tracer",
     )
 
     def __init__(
