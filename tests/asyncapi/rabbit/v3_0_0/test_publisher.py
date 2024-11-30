@@ -88,13 +88,6 @@ class TestArguments(PublisherTestcase):
                     "vhost": "/",
                 },
                 "is": "routingKey",
-                "queue": {
-                    "autoDelete": True,
-                    "durable": False,
-                    "exclusive": False,
-                    "name": "test",
-                    "vhost": "/",
-                },
             },
         }
 

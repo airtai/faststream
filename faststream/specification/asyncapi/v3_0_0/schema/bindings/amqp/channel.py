@@ -3,7 +3,10 @@ from typing import Optional, Self
 from faststream.specification.asyncapi.v2_6_0.schema.bindings.amqp import (
     ChannelBinding as V2Binding,
 )
-from faststream.specification.asyncapi.v2_6_0.schema.bindings.amqp.channel import Queue, Exchange
+from faststream.specification.asyncapi.v2_6_0.schema.bindings.amqp.channel import (
+    Exchange,
+    Queue,
+)
 from faststream.specification.schema.bindings import amqp
 
 
