@@ -21,7 +21,7 @@ class ChannelBinding(V2Binding):
         return cls(
             **{
                 "is": "queue",
-                "queue": Queue.from_spec(binding.queue, binding.virtual_host)
+                "queue": Queue.from_spec(binding.queue, binding.virtual_host),
             },
         )
 
