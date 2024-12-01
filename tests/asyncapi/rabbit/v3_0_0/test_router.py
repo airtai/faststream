@@ -55,7 +55,7 @@ class TestRouter(RouterTestcase):
                     },
                     "bindings": {
                         "amqp": {
-                            "is": "routingKey",
+                            "is": "queue",
                             "bindingVersion": "0.3.0",
                             "queue": {
                                 "name": "test_test",
@@ -64,7 +64,6 @@ class TestRouter(RouterTestcase):
                                 "autoDelete": False,
                                 "vhost": "/",
                             },
-                            "exchange": {"type": "default", "vhost": "/"},
                         },
                     },
                 },

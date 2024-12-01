@@ -12,6 +12,54 @@ hide:
 ---
 
 # Release Notes
+## 0.5.31
+
+### What's Changed
+
+Well, you (community) made a new breathtaken release for us!
+Thanks to all of this release contributors.
+
+Special thanks to @Flosckow. He promores a new perfect feature - concurrent Kafka subscriber (with autocommit mode)
+
+```python
+from faststream.kafka import KafkaBroker
+
+broker = KafkaBroker()
+
+@broker.subscriber("topic", max_workers=10)
+async def handler():
+    """Usign `max_workers` option you can process up to 10 messages by one subscriber concurrently"""
+```
+
+Also, thanks to [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} with his ASGI CLI start fixins - now you can use FastStream CLI to scale your AsgiFastStream application by workers
+
+```bash
+faststream run main:asgi --workers 2
+```
+
+There are a lot of other increadible changes you made:
+
+* feat: add NatsMessage ack_sync method #1906 by [@wpn10](https://github.com/wpn10){.external-link target="_blank"} in [#1909](https://github.com/airtai/faststream/pull/1909){.external-link target="_blank"}
+* feat: support running ASGI app with Uvicorn using file descriptor by [@minhyeoky](https://github.com/minhyeoky){.external-link target="_blank"} in [#1923](https://github.com/airtai/faststream/pull/1923){.external-link target="_blank"}
+* feat: Add kafka concurrent subscriber by [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} in [#1912](https://github.com/airtai/faststream/pull/1912){.external-link target="_blank"}
+* fix: bug when using one register for several middleware by @roma-frolov in [#1921](https://github.com/airtai/faststream/pull/1921){.external-link target="_blank"}
+* fix: change oauth type in asyncapi schema by [@spataphore1337](https://github.com/spataphore1337){.external-link target="_blank"} in [#1926](https://github.com/airtai/faststream/pull/1926){.external-link target="_blank"}
+* fix: HandlerException ingored by @roma-frolov in [#1928](https://github.com/airtai/faststream/pull/1928){.external-link target="_blank"}
+* fix: Pomo/nats router by [@Drakorgaur](https://github.com/Drakorgaur){.external-link target="_blank"} in [#1932](https://github.com/airtai/faststream/pull/1932){.external-link target="_blank"}
+* fix: RabbitBroker's ping is more objective by @roma-frolov in [#1933](https://github.com/airtai/faststream/pull/1933){.external-link target="_blank"}
+* fix: AsyncAPI 2.6.0 fix empty channels for KafkaSubscriber and ConfluentSubscriber if partitions provided by [@KrySeyt](https://github.com/KrySeyt){.external-link target="_blank"} in [#1930](https://github.com/airtai/faststream/pull/1930){.external-link target="_blank"}
+* fix: #1874 support workers for ASGI FastStream by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1936](https://github.com/airtai/faststream/pull/1936){.external-link target="_blank"}
+* fix: correct middlewares order by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [#1935](https://github.com/airtai/faststream/pull/1935){.external-link target="_blank"}
+* chore: run PR altering automated check in same CI job by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1942](https://github.com/airtai/faststream/pull/1942){.external-link target="_blank"}
+* chore: pin typer version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1947](https://github.com/airtai/faststream/pull/1947){.external-link target="_blank"}
+
+### New Contributors
+
+* [@wpn10](https://github.com/wpn10){.external-link target="_blank"} made their first contribution in [#1909](https://github.com/airtai/faststream/pull/1909){.external-link target="_blank"}
+* [@minhyeoky](https://github.com/minhyeoky){.external-link target="_blank"} made their first contribution in [#1923](https://github.com/airtai/faststream/pull/1923){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.30...0.5.31](https://github.com/airtai/faststream/compare/0.5.30...0.5.31){.external-link target="_blank"}
+
 ## 0.5.30
 
 ### What's Changed
