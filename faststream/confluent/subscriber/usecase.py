@@ -1,4 +1,3 @@
-import asyncio
 from abc import ABC, abstractmethod
 from typing import (
     TYPE_CHECKING,
@@ -17,6 +16,7 @@ from confluent_kafka import KafkaException, Message
 from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
+from faststream.broker.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import MsgType
 from faststream.broker.utils import process_msg
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
-class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
+class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
     """A class to handle logic for consuming messages from Kafka."""
 
     topics: Sequence[str]
@@ -46,7 +46,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     builder: Optional[Callable[..., "AsyncConfluentConsumer"]]
     consumer: Optional["AsyncConfluentConsumer"]
 
-    task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
 
     def __init__(
@@ -94,7 +93,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.is_manual = is_manual
 
         self.consumer = None
-        self.task = None
         self.polling_interval = polling_interval
 
         # Setup it later
@@ -154,7 +152,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         await super().start()
 
         if self.calls:
-            self.task = asyncio.create_task(self._consume())
+            self.add_task(self._consume())
 
     async def close(self) -> None:
         await super().close()
@@ -162,11 +160,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         if self.consumer is not None:
             await self.consumer.stop()
             self.consumer = None
-
-        if self.task is not None and not self.task.done():
-            self.task.cancel()
-
-        self.task = None
 
     @override
     async def get_one(
@@ -203,6 +196,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
                 },
             ),
         )
+
+    async def consume_one(self, msg: MsgType) -> None:
+        await self.consume(msg)
 
     @abstractmethod
     async def get_msg(self) -> Optional[MsgType]:
@@ -408,3 +404,56 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
             topic=topic,
             group_id=self.group_id,
         )
+
+
+class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber):
+    def __init__(
+        self,
+        *topics: str,
+        # Kafka information
+        partitions: Sequence["TopicPartition"],
+        polling_interval: float,
+        group_id: Optional[str],
+        connection_data: "AnyDict",
+        is_manual: bool,
+        # Subscriber args
+        max_workers: int,
+        no_ack: bool,
+        no_reply: bool,
+        retry: bool,
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Sequence["BrokerMiddleware[Message]"],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            *topics,
+            partitions=partitions,
+            polling_interval=polling_interval,
+            group_id=group_id,
+            connection_data=connection_data,
+            is_manual=is_manual,
+            # subscriber args
+            default_parser=AsyncConfluentParser.parse_message,
+            default_decoder=AsyncConfluentParser.decode_message,
+            # Propagated args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            # AsyncAPI args
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+            max_workers=max_workers,
+        )
+
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "Message") -> None:
+        await self._put_msg(msg)
