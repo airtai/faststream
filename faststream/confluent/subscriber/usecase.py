@@ -436,8 +436,7 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber):
             connection_data=connection_data,
             is_manual=is_manual,
             # subscriber args
-            default_parser=AsyncConfluentParser.parse_message,
-            default_decoder=AsyncConfluentParser.decode_message,
+            max_workers=max_workers,
             # Propagated args
             no_ack=no_ack,
             no_reply=no_reply,
@@ -448,7 +447,6 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber):
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
-            max_workers=max_workers,
         )
 
     async def start(self) -> None:

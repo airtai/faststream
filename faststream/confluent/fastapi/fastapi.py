@@ -543,15 +543,10 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
                 """
             ),
         ] = Default(generate_unique_id),
-        max_workers: Annotated[
-            int,
-            Doc("Number of workers to process messages concurrently."),
-        ] = 1,
     ) -> None:
         super().__init__(
             bootstrap_servers=bootstrap_servers,
             client_id=client_id,
-            max_workers=max_workers,
             request_timeout_ms=request_timeout_ms,
             retry_backoff_ms=retry_backoff_ms,
             metadata_max_age_ms=metadata_max_age_ms,

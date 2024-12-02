@@ -331,7 +331,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
         consume_broker = self.get_broker()
 
-        args, kwargs = self.get_subscriber_params(queue, max_workers=2)
+        args, kwargs = self.get_subscriber_params(queue, group_id="test", max_workers=2)
 
         @consume_broker.subscriber(*args, **kwargs)
         async def handler(msg):

@@ -1189,7 +1189,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-        max_workers: int,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> Union[
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIBatchSubscriber",
@@ -1200,6 +1203,7 @@ class KafkaRegistrator(
 
         subscriber = create_subscriber(
             *topics,
+            max_workers=max_workers,
             polling_interval=polling_interval,
             partitions=partitions,
             batch=batch,
