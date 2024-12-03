@@ -84,7 +84,7 @@ class BrokerUsecase(
             Doc("Dependencies to apply to all broker subscribers."),
         ],
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[MsgType]"],
+            Sequence["BrokerMiddleware[MsgType]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ],
         graceful_timeout: Annotated[

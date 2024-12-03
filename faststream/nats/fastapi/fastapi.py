@@ -222,7 +222,7 @@ class NatsRouter(StreamRouter["Msg"]):
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[Msg]"],
+            Sequence["BrokerMiddleware[Msg]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -681,7 +681,7 @@ class NatsRouter(StreamRouter["Msg"]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[NatsMessage]"],
+            Sequence["SubscriberMiddleware[NatsMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         max_workers: Annotated[
@@ -919,7 +919,7 @@ class NatsRouter(StreamRouter["Msg"]):
         ] = None,
         # specific
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

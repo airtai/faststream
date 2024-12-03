@@ -4,7 +4,7 @@ from typing import Callable, Optional
 
 from faststream.exceptions import SetupError
 
-PARAM_REGEX = re.compile("{([a-zA-Z0-9_]+)}")
+PARAM_REGEX = re.compile(r"{([a-zA-Z0-9_]+)}")
 
 
 def compile_path(

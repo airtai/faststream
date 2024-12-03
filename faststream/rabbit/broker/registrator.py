@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 
 from typing_extensions import Doc, deprecated, override
@@ -82,7 +82,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[RabbitMessage]"],
+            Sequence["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_reply: Annotated[
@@ -189,7 +189,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         ] = None,
         # specific
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

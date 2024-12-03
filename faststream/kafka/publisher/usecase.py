@@ -1,11 +1,5 @@
-from collections.abc import Iterable
-from typing import (
-    TYPE_CHECKING,
-    Annotated,
-    Any,
-    Optional,
-    Union,
-)
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Annotated, Any, Optional, Union
 
 from aiokafka import ConsumerRecord
 from typing_extensions import Doc, override
@@ -40,8 +34,8 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         headers: Optional[dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
+        middlewares: Sequence["PublisherMiddleware"],
     ) -> None:
         super().__init__(
             broker_middlewares=broker_middlewares,
@@ -142,8 +136,8 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         headers: Optional[dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
+        middlewares: Sequence["PublisherMiddleware"],
     ) -> None:
         super().__init__(
             topic=topic,

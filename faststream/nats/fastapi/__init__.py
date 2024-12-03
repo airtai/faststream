@@ -22,5 +22,6 @@ __all__ = (
     "Logger",
     "NatsBroker",
     "NatsMessage",
+    "NatsMessage",
     "NatsRouter",
 )

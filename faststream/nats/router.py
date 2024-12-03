@@ -1,4 +1,4 @@
-from collections.abc import Awaitable, Iterable
+from collections.abc import Awaitable, Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -74,7 +74,7 @@ class NatsPublisher(ArgsContainer):
         ] = None,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information
@@ -251,7 +251,7 @@ class NatsRoute(SubscriberRoute):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[NatsMessage]"],
+            Sequence["SubscriberMiddleware[NatsMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         max_workers: Annotated[
@@ -349,7 +349,7 @@ class NatsRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[Msg]"],
+            Sequence["BrokerMiddleware[Msg]"],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[

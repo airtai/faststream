@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from collections.abc import Iterable
+from collections.abc import Sequence
 from functools import partial
 from typing import TYPE_CHECKING, Any, Generic
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class BrokerPublishMixin(Generic[MsgType]):
-    middlewares: Iterable["BrokerMiddleware[MsgType]"]
+    middlewares: Sequence["BrokerMiddleware[MsgType]"]
     context: "ContextRepo"
 
     @abstractmethod

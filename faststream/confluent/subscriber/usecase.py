@@ -62,7 +62,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -248,7 +248,7 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[Message]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Message]"],
     ) -> None:
         self.parser = AsyncConfluentParser(
             is_manual=ack_policy is not AckPolicy.ACK_FIRST
@@ -304,7 +304,7 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[tuple[Message, ...]]"],
+        broker_middlewares: Sequence["BrokerMiddleware[tuple[Message, ...]]"],
     ) -> None:
         self.max_records = max_records
 

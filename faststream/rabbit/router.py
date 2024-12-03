@@ -1,4 +1,4 @@
-from collections.abc import Awaitable, Iterable
+from collections.abc import Awaitable, Iterable, Sequence
 from typing import TYPE_CHECKING, Annotated, Any, Callable, Optional, Union
 
 from typing_extensions import Doc, deprecated
@@ -90,7 +90,7 @@ class RabbitPublisher(ArgsContainer):
         ] = None,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -228,7 +228,7 @@ class RabbitRoute(SubscriberRoute):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[RabbitMessage]"],
+            Sequence["SubscriberMiddleware[RabbitMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -306,7 +306,7 @@ class RabbitRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[IncomingMessage]"],
+            Sequence["BrokerMiddleware[IncomingMessage]"],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[

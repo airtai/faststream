@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from typing_extensions import TypeAlias
@@ -35,8 +35,8 @@ def create_publisher(
     stream: Union["StreamSub", str, None],
     headers: Optional["AnyDict"],
     reply_to: str,
-    broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-    middlewares: Iterable["PublisherMiddleware"],
+    broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+    middlewares: Sequence["PublisherMiddleware"],
     # AsyncAPI args
     title_: Optional[str],
     description_: Optional[str],

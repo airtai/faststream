@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -35,7 +35,7 @@ class WrapperProto(Protocol[MsgType]):
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
+        middlewares: Sequence["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Dependant"] = (),
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -53,7 +53,7 @@ class WrapperProto(Protocol[MsgType]):
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
+        middlewares: Sequence["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Dependant"] = (),
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
 
@@ -68,7 +68,7 @@ class WrapperProto(Protocol[MsgType]):
         filter: Optional["Filter[Any]"] = None,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
+        middlewares: Sequence["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Dependant"] = (),
     ) -> Union[
         "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",

@@ -42,7 +42,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
-    broker_middlewares: Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+    broker_middlewares: Sequence["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
     # Specification args
     title_: Optional[str],
     description_: Optional[str],
@@ -66,7 +66,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
-    broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
+    broker_middlewares: Sequence["BrokerMiddleware[ConfluentMsg]"],
     # Specification args
     title_: Optional[str],
     description_: Optional[str],
@@ -91,8 +91,8 @@ def create_subscriber(
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Union[
-        Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
-        Iterable["BrokerMiddleware[ConfluentMsg]"],
+        Sequence["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+        Sequence["BrokerMiddleware[ConfluentMsg]"],
     ],
     # Specification args
     title_: Optional[str],
@@ -120,8 +120,8 @@ def create_subscriber(
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Union[
-        Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
-        Iterable["BrokerMiddleware[ConfluentMsg]"],
+        Sequence["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+        Sequence["BrokerMiddleware[ConfluentMsg]"],
     ],
     # Specification args
     title_: Optional[str],
@@ -165,7 +165,7 @@ def create_subscriber(
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=cast(
-                Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+                Sequence["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
                 broker_middlewares,
             ),
             title_=title_,
@@ -183,7 +183,7 @@ def create_subscriber(
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=cast(
-            Iterable["BrokerMiddleware[ConfluentMsg]"],
+            Sequence["BrokerMiddleware[ConfluentMsg]"],
             broker_middlewares,
         ),
         title_=title_,

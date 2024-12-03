@@ -1,15 +1,9 @@
-import inspect
 import logging
 import traceback
 from abc import abstractmethod
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Optional,
-    Protocol,
-)
+from typing import TYPE_CHECKING, Any, Optional, Protocol
 
 import anyio
 
@@ -30,6 +24,7 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import (
         AnyCallable,
+        AnyDict,
         Lifespan,
         LoggerProto,
         SettingField,
@@ -155,31 +150,50 @@ class AsgiFastStream(Application):
         log_level: int = logging.INFO,
         run_extra_options: Optional[dict[str, "SettingField"]] = None,
     ) -> None:
-        """Method to be compatible with FastStream CLI."""
-        import uvicorn
+        try:
+            import uvicorn  # noqa: F401
+            from gunicorn.app.base import BaseApplication
+        except ImportError as e:
+            msg = "You need uvicorn and gunicorn to run FastStream ASGI App via CLI. pip install uvicorn gunicorn"
+            raise RuntimeError(msg) from e
+
+        class ASGIRunner(BaseApplication):  # type: ignore[misc]
+            def __init__(self, options: "AnyDict", asgi_app: "ASGIApp") -> None:
+                self.options = options
+                self.asgi_app = asgi_app
+                super().__init__()
+
+            def load_config(self) -> None:
+                for k, v in self.options.items():
+                    if k in self.cfg.settings and v is not None:
+                        self.cfg.set(k.lower(), v)
+
+            def load(self) -> "ASGIApp":
+                return self.asgi_app
 
         run_extra_options = run_extra_options or {}
 
-        port = int(run_extra_options.pop("port", 8000))  # type: ignore[arg-type]
-        workers = int(run_extra_options.pop("workers", 1))  # type: ignore[arg-type]
+        bindings: list[str] = []
+        host = run_extra_options.pop("host", None)
+        port = run_extra_options.pop("port", None)
+        if host is not None and port is not None:
+            bindings.append(f"{host}:{port}")
+        elif host is not None:
+            bindings.append(f"{host}:8000")
+        elif port is not None:
+            bindings.append(f"127.0.0.1:{port}")
 
-        uvicorn_config_params = set(inspect.signature(uvicorn.Config).parameters.keys())
+        bind = run_extra_options.get("bind")
+        if isinstance(bind, list):
+            bindings.extend(bind)
+        elif isinstance(bind, str):
+            bindings.append(bind)
 
-        config = uvicorn.Config(
-            app=self,
-            port=port,
-            log_level=log_level,
-            workers=workers,
-            **{
-                key: v
-                for key, v in run_extra_options.items()
-                if key in uvicorn_config_params
-            },
-        )
+        run_extra_options["bind"] = bindings or "127.0.0.1:8000"
+        #  We use gunicorn with uvicorn workers because uvicorn don't support multiple workers
+        run_extra_options["worker_class"] = "uvicorn.workers.UvicornWorker"
 
-        server = uvicorn.Server(config)
-        self._server = CliRunState(server, run_extra_options)
-        await server.serve()
+        ASGIRunner(run_extra_options, self).run()
 
     def exit(self) -> None:
         """Manual stop method."""

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from contextlib import AbstractContextManager, AsyncExitStack
 from itertools import chain
 from typing import (
@@ -7,7 +7,6 @@ from typing import (
     Any,
     Callable,
     Optional,
-    overload,
 )
 
 from typing_extensions import Self, override
@@ -68,7 +67,7 @@ class _CallOptions:
         *,
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
-        middlewares: Iterable["SubscriberMiddleware[Any]"],
+        middlewares: Sequence["SubscriberMiddleware[Any]"],
         dependencies: Iterable["Dependant"],
     ) -> None:
         self.parser = parser
@@ -94,7 +93,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         *,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         ack_policy: AckPolicy,
@@ -186,7 +185,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         *,
         parser_: Optional["CustomCallable"],
         decoder_: Optional["CustomCallable"],
-        middlewares_: Iterable["SubscriberMiddleware[Any]"],
+        middlewares_: Sequence["SubscriberMiddleware[Any]"],
         dependencies_: Iterable["Dependant"],
     ) -> Self:
         self._call_options = _CallOptions(
@@ -197,33 +196,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         )
         return self
 
-    @overload
-    def __call__(
-        self,
-        func: None = None,
-        *,
-        filter: "Filter[Any]" = default_filter,
-        parser: Optional["CustomCallable"] = None,
-        decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
-        dependencies: Iterable["Dependant"] = (),
-    ) -> Callable[
-        [Callable[P_HandlerParams, T_HandlerReturn]],
-        "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
-    ]: ...
-
-    @overload
-    def __call__(
-        self,
-        func: Callable[P_HandlerParams, T_HandlerReturn],
-        *,
-        filter: "Filter[Any]" = default_filter,
-        parser: Optional["CustomCallable"] = None,
-        decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
-        dependencies: Iterable["Dependant"] = (),
-    ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
-
+    @override
     def __call__(
         self,
         func: Optional[Callable[P_HandlerParams, T_HandlerReturn]] = None,
@@ -231,7 +204,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         filter: "Filter[Any]" = default_filter,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
+        middlewares: Sequence["SubscriberMiddleware[Any]"] = (),
         dependencies: Iterable["Dependant"] = (),
     ) -> Any:
         if (options := self._call_options) is None:

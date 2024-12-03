@@ -1,5 +1,5 @@
 import warnings
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.constants import EMPTY
@@ -24,7 +24,7 @@ def create_subscriber(
     # Subscriber args
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
-    broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
+    broker_middlewares: Sequence["BrokerMiddleware[IncomingMessage]"],
     ack_policy: "AckPolicy",
     no_ack: bool,
     # AsyncAPI args

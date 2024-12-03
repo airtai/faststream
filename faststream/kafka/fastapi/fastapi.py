@@ -271,7 +271,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
-            Iterable[
+            Sequence[
                 Union[
                     "BrokerMiddleware[ConsumerRecord]",
                     "BrokerMiddleware[tuple[ConsumerRecord, ...]]",
@@ -949,7 +949,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -1446,7 +1446,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -1943,7 +1943,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -2443,7 +2443,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -2714,7 +2714,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # Specification args
@@ -2788,7 +2788,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
         ],
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # Specification args
@@ -2862,7 +2862,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # Specification args
@@ -2939,7 +2939,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # Specification args

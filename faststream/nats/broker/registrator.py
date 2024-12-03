@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 
 from nats.js import api
@@ -161,7 +161,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[NatsMessage]"],
+            Sequence["SubscriberMiddleware[NatsMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         max_workers: Annotated[
@@ -288,7 +288,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         ] = None,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information
@@ -356,7 +356,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         *,
         prefix: str = "",
         dependencies: Iterable["Dependant"] = (),
-        middlewares: Iterable["BrokerMiddleware[Msg]"] = (),
+        middlewares: Sequence["BrokerMiddleware[Msg]"] = (),
         include_in_schema: Optional[bool] = None,
     ) -> None:
         sub_streams = router._stream_builder.objects.copy()

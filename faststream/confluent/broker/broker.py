@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -272,7 +272,7 @@ class KafkaBroker(  # type: ignore[misc]
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable[
+            Sequence[
                 Union[
                     "BrokerMiddleware[Message]",
                     "BrokerMiddleware[tuple[Message, ...]]",

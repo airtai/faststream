@@ -1,5 +1,5 @@
 import warnings
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from nats.aio.subscription import (
@@ -66,7 +66,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
-    broker_middlewares: Iterable["BrokerMiddleware[Any]"],
+    broker_middlewares: Sequence["BrokerMiddleware[Any]"],
     # Specification information
     title_: Optional[str],
     description_: Optional[str],

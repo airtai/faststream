@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Protocol
 
 from typing_extensions import override
@@ -92,8 +92,8 @@ class PublisherProto(
     BasePublisherProto,
     Generic[MsgType],
 ):
-    _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
-    _middlewares: Iterable["PublisherMiddleware"]
+    _broker_middlewares: Sequence["BrokerMiddleware[MsgType]"]
+    _middlewares: Sequence["PublisherMiddleware"]
     _producer: Optional["ProducerProto"]
 
     @abstractmethod

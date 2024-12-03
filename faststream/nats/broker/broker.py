@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -26,7 +26,7 @@ from nats.aio.client import (
 from nats.aio.msg import Msg
 from nats.errors import Error
 from nats.js.errors import BadRequestError
-from typing_extensions import Doc, Literal, overload, override
+from typing_extensions import Doc, overload, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
@@ -373,7 +373,7 @@ class NatsBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[Msg]"],
+            Sequence["BrokerMiddleware[Msg]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -644,7 +644,7 @@ class NatsBroker(
         headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
-        stream: Literal[None] = None,
+        stream: None = None,
         timeout: Optional[float] = None,
     ) -> None: ...
 

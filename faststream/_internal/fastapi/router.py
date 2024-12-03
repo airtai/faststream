@@ -99,7 +99,7 @@ class StreamRouter(
     def __init__(
         self,
         *connection_args: Any,
-        middlewares: Iterable["BrokerMiddleware[MsgType]"] = (),
+        middlewares: Sequence["BrokerMiddleware[MsgType]"] = (),
         prefix: str = "",
         tags: Optional[list[Union[str, Enum]]] = None,
         dependencies: Optional[Sequence["params.Depends"]] = None,

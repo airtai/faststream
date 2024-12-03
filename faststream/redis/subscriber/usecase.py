@@ -75,7 +75,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -199,7 +199,7 @@ class ChannelSubscriber(LogicSubscriber):
         # Subscriber args
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
     ) -> None:
         parser = RedisPubSubParser(pattern=channel.path_regex)
         super().__init__(
@@ -316,7 +316,7 @@ class _ListHandlerMixin(LogicSubscriber):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -413,7 +413,7 @@ class ListSubscriber(_ListHandlerMixin):
         # Subscriber args
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
     ) -> None:
         parser = RedisListParser()
         super().__init__(
@@ -453,7 +453,7 @@ class BatchListSubscriber(_ListHandlerMixin):
         # Subscriber args
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
     ) -> None:
         parser = RedisBatchListParser()
         super().__init__(
@@ -497,7 +497,7 @@ class _StreamHandlerMixin(LogicSubscriber):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -679,7 +679,7 @@ class StreamSubscriber(_StreamHandlerMixin):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
     ) -> None:
         parser = RedisStreamParser()
         super().__init__(
@@ -738,7 +738,7 @@ class StreamBatchSubscriber(_StreamHandlerMixin):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
     ) -> None:
         parser = RedisBatchStreamParser()
         super().__init__(

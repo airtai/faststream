@@ -1,5 +1,5 @@
 import warnings
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Optional, Union
 
 from typing_extensions import TypeAlias
@@ -42,7 +42,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool = False,
     broker_dependencies: Iterable["Dependant"] = (),
-    broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"] = (),
+    broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"] = (),
     # AsyncAPI args
     title_: Optional[str] = None,
     description_: Optional[str] = None,

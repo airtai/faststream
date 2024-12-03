@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from functools import partial
 from inspect import unwrap
 from itertools import chain
@@ -53,7 +53,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         filter: "AsyncFilter[StreamMessage[MsgType]]",
         item_parser: Optional["CustomCallable"],
         item_decoder: Optional["CustomCallable"],
-        item_middlewares: Iterable["SubscriberMiddleware[StreamMessage[MsgType]]"],
+        item_middlewares: Sequence["SubscriberMiddleware[StreamMessage[MsgType]]"],
         dependencies: Iterable["Dependant"],
     ) -> None:
         self.handler = handler

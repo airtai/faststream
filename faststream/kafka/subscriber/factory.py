@@ -1,12 +1,6 @@
 import warnings
-from collections.abc import Iterable
-from typing import (
-    TYPE_CHECKING,
-    Literal,
-    Optional,
-    Union,
-    overload,
-)
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Literal, Optional, Union, overload
 
 from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
@@ -45,7 +39,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
-    broker_middlewares: Iterable["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
+    broker_middlewares: Sequence["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
     # Specification args
     title_: Optional[str],
     description_: Optional[str],
@@ -72,7 +66,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
-    broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
+    broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
     # Specification args
     title_: Optional[str],
     description_: Optional[str],
@@ -99,7 +93,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
-    broker_middlewares: Iterable[
+    broker_middlewares: Sequence[
         "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
     ],
     # Specification args
@@ -131,7 +125,7 @@ def create_subscriber(
     no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
-    broker_middlewares: Iterable[
+    broker_middlewares: Sequence[
         "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
     ],
     # Specification args

@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 
 from typing_extensions import Doc, deprecated, override
@@ -64,7 +64,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[UnifyRedisMessage]"],
+            Sequence["SubscriberMiddleware[UnifyRedisMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -155,7 +155,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             Doc("Reply message destination PubSub object name."),
         ] = "",
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

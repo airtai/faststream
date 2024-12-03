@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Optional
 
 from typing_extensions import Self, override
@@ -36,7 +36,7 @@ class SubscriberProto(
     running: bool
 
     _broker_dependencies: Iterable["Dependant"]
-    _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
+    _broker_middlewares: Sequence["BrokerMiddleware[MsgType]"]
     _producer: Optional["ProducerProto"]
 
     @abstractmethod
@@ -93,6 +93,6 @@ class SubscriberProto(
         *,
         parser_: "CustomCallable",
         decoder_: "CustomCallable",
-        middlewares_: Iterable["SubscriberMiddleware[Any]"],
+        middlewares_: Sequence["SubscriberMiddleware[Any]"],
         dependencies_: Iterable["Dependant"],
     ) -> Self: ...

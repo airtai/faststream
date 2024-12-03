@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -135,7 +135,7 @@ class RedisBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[BaseMessage]"],
+            Sequence["BrokerMiddleware[BaseMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args

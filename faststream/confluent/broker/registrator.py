@@ -298,7 +298,7 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -576,7 +576,7 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -854,7 +854,7 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -1135,7 +1135,7 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -1271,7 +1271,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # Specification args
@@ -1345,7 +1345,7 @@ class KafkaRegistrator(
         ],
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # Specification args
@@ -1419,7 +1419,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # Specification args
@@ -1496,7 +1496,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # Specification args

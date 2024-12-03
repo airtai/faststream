@@ -62,7 +62,7 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -267,7 +267,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
+        broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
     ) -> None:
         if pattern:
             reg, pattern = compile_path(
@@ -338,7 +338,7 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
+        broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
     ) -> None:
         super().__init__(
             *topics,
@@ -379,7 +379,7 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable[
+        broker_middlewares: Sequence[
             "BrokerMiddleware[Sequence[tuple[ConsumerRecord, ...]]]"
         ],
     ) -> None:
