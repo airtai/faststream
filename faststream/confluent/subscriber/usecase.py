@@ -221,7 +221,7 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
                     connected = True
 
                 if msg is not None:
-                    await self.consume(msg)
+                    await self.consume_one(msg)
 
     @property
     def topic_names(self) -> List[str]:
