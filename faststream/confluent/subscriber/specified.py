@@ -5,7 +5,11 @@ from typing import TYPE_CHECKING
 from faststream._internal.subscriber.specified import (
     SpecificationSubscriber as SpecificationSubscriberMixin,
 )
-from faststream.confluent.subscriber.usecase import BatchSubscriber, DefaultSubscriber
+from faststream.confluent.subscriber.usecase import (
+    BatchSubscriber,
+    ConcurrentDefaultSubscriber,
+    DefaultSubscriber,
+)
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema import Message, Operation, SubscriberSpec
 from faststream.specification.schema.bindings import ChannelBinding, kafka
@@ -47,9 +51,22 @@ class SpecificationSubscriber(SpecificationSubscriberMixin):
         return channels
 
 
-class SpecificationDefaultSubscriber(SpecificationSubscriber, DefaultSubscriber):
+class SpecificationDefaultSubscriber(
+    SpecificationSubscriber,
+    DefaultSubscriber,
+):
     pass
 
 
-class SpecificationBatchSubscriber(SpecificationSubscriber, BatchSubscriber):
+class SpecificationBatchSubscriber(
+    SpecificationSubscriber,
+    BatchSubscriber,
+):
+    pass
+
+
+class SpecificationConcurrentDefaultSubscriber(
+    SpecificationSubscriber,
+    ConcurrentDefaultSubscriber,
+):
     pass

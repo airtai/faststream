@@ -44,7 +44,11 @@ def create_subscriber(
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "SpecificationBatchSubscriber": ...
+) -> Union[
+    "SpecificationDefaultSubscriber",
+    "SpecificationBatchSubscriber",
+    "SpecificationConcurrentDefaultSubscriber",
+]: ...
 
 
 @overload
@@ -71,7 +75,11 @@ def create_subscriber(
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "SpecificationDefaultSubscriber": ...
+) -> Union[
+    "SpecificationDefaultSubscriber",
+    "SpecificationBatchSubscriber",
+    "SpecificationConcurrentDefaultSubscriber",
+]: ...
 
 
 @overload

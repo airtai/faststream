@@ -44,10 +44,7 @@ class PushStreamSubscription(StreamSubscriber):
         )
 
 
-class ConcurrentPushStreamSubscriber(
-    ConcurrentMixin,
-    StreamSubscriber,
-):
+class ConcurrentPushStreamSubscriber(ConcurrentMixin["Msg"], StreamSubscriber):
     subscription: Optional["JetStreamContext.PushSubscription"]
 
     def __init__(

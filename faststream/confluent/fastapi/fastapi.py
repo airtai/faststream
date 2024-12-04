@@ -50,6 +50,7 @@ if TYPE_CHECKING:
     from faststream.confluent.schemas import TopicPartition
     from faststream.confluent.subscriber.specified import (
         SpecificationBatchSubscriber,
+        SpecificationConcurrentDefaultSubscriber,
         SpecificationDefaultSubscriber,
     )
     from faststream.security import BaseSecurity
@@ -994,7 +995,10 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
                 """,
             ),
         ] = False,
-    ) -> "SpecificationDefaultSubscriber": ...
+    ) -> Union[
+        "SpecificationDefaultSubscriber",
+        "SpecificationConcurrentDefaultSubscriber",
+    ]: ...
 
     @overload
     def subscriber(
@@ -1784,6 +1788,7 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
     ) -> Union[
         "SpecificationBatchSubscriber",
         "SpecificationDefaultSubscriber",
+        "SpecificationConcurrentDefaultSubscriber",
     ]: ...
 
     @override
@@ -2185,13 +2190,19 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
                 """,
             ),
         ] = False,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> Union[
         "SpecificationBatchSubscriber",
         "SpecificationDefaultSubscriber",
+        "SpecificationConcurrentDefaultSubscriber",
     ]:
         subscriber = super().subscriber(
             *topics,
             polling_interval=polling_interval,
+            max_workers=max_workers,
             partitions=partitions,
             group_id=group_id,
             group_instance_id=group_instance_id,
@@ -2233,6 +2244,8 @@ class KafkaRouter(StreamRouter[Union[Message, tuple[Message, ...]]]):
 
         if batch:
             return cast("SpecificationBatchSubscriber", subscriber)
+        if max_workers > 1:
+            return cast("SpecificationConcurrentDefaultSubscriber", subscriber)
         return cast("SpecificationDefaultSubscriber", subscriber)
 
     @overload  # type: ignore[override]

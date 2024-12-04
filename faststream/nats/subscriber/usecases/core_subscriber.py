@@ -130,7 +130,7 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
         )
 
 
-class ConcurrentCoreSubscriber(ConcurrentMixin, CoreSubscriber):
+class ConcurrentCoreSubscriber(ConcurrentMixin["Msg"], CoreSubscriber):
     def __init__(
         self,
         *,

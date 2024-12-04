@@ -2,7 +2,31 @@ import pytest
 
 from faststream import AckPolicy
 from faststream.confluent import KafkaBroker, TopicPartition
+from faststream.confluent.subscriber.specified import (
+    SpecificationConcurrentDefaultSubscriber,
+)
 from faststream.exceptions import SetupError
+
+
+def test_max_workers_with_manual(queue: str) -> None:
+    broker = KafkaBroker()
+
+    with pytest.warns(DeprecationWarning):
+        sub = broker.subscriber(queue, max_workers=3, auto_commit=True)
+        assert isinstance(sub, SpecificationConcurrentDefaultSubscriber)
+
+    with pytest.raises(SetupError), pytest.warns(DeprecationWarning):
+        broker.subscriber(queue, max_workers=3, auto_commit=False)
+
+
+def test_max_workers_with_ack_policy(queue: str) -> None:
+    broker = KafkaBroker()
+
+    sub = broker.subscriber(queue, max_workers=3, ack_policy=AckPolicy.ACK_FIRST)
+    assert isinstance(sub, SpecificationConcurrentDefaultSubscriber)
+
+    with pytest.raises(SetupError):
+        broker.subscriber(queue, max_workers=3, ack_policy=AckPolicy.REJECT_ON_ERROR)
 
 
 def test_deprecated_options(queue: str) -> None:

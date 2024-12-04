@@ -4,7 +4,7 @@ from itertools import chain
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import anyio
-from aiokafka import TopicPartition
+from aiokafka import ConsumerRecord, TopicPartition
 from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import override
 
@@ -23,7 +23,7 @@ from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 from faststream.kafka.publisher.fake import KafkaFakePublisher
 
 if TYPE_CHECKING:
-    from aiokafka import AIOKafkaConsumer, ConsumerRecord
+    from aiokafka import AIOKafkaConsumer
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Dependant
 
@@ -323,38 +323,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         )
 
 
-class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber):
-    def __init__(
-        self,
-        *topics: str,
-        # Kafka information
-        group_id: Optional[str],
-        listener: Optional["ConsumerRebalanceListener"],
-        pattern: Optional[str],
-        connection_args: "AnyDict",
-        partitions: Iterable["TopicPartition"],
-        # Subscriber args
-        max_workers: int,
-        ack_policy: "AckPolicy",
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
-    ) -> None:
-        super().__init__(
-            *topics,
-            group_id=group_id,
-            listener=listener,
-            pattern=pattern,
-            connection_args=connection_args,
-            partitions=partitions,
-            max_workers=max_workers,
-            # Propagated args
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-        )
-
+class ConcurrentDefaultSubscriber(ConcurrentMixin["ConsumerRecord"], DefaultSubscriber):
     async def start(self) -> None:
         await super().start()
         self.start_consume_task()

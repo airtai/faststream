@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from faststream.confluent.schemas import TopicPartition
     from faststream.confluent.subscriber.specified import (
         SpecificationBatchSubscriber,
+        SpecificationConcurrentDefaultSubscriber,
         SpecificationDefaultSubscriber,
     )
 
@@ -50,10 +51,17 @@ class KafkaRegistrator(
     """Includable to KafkaBroker router."""
 
     _subscribers: list[  # type: ignore[assignment]
-        Union["SpecificationBatchSubscriber", "SpecificationDefaultSubscriber"]
+        Union[
+            "SpecificationBatchSubscriber",
+            "SpecificationDefaultSubscriber",
+            "SpecificationConcurrentDefaultSubscriber",
+        ],
     ]
     _publishers: list[  # type: ignore[assignment]
-        Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"]
+        Union[
+            "SpecificationBatchPublisher",
+            "SpecificationDefaultPublisher",
+        ]
     ]
 
     @overload  # type: ignore[override]
@@ -610,7 +618,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
-    ) -> "SpecificationDefaultSubscriber": ...
+    ) -> Union[
+        "SpecificationDefaultSubscriber",
+        "SpecificationConcurrentDefaultSubscriber",
+    ]: ...
 
     @overload
     def subscriber(
@@ -891,6 +902,7 @@ class KafkaRegistrator(
     ) -> Union[
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
+        "SpecificationConcurrentDefaultSubscriber",
     ]: ...
 
     @override
@@ -1169,12 +1181,18 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> Union[
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
+        "SpecificationConcurrentDefaultSubscriber",
     ]:
         subscriber = create_subscriber(
             *topics,
+            max_workers=max_workers,
             polling_interval=polling_interval,
             partitions=partitions,
             batch=batch,
@@ -1210,10 +1228,12 @@ class KafkaRegistrator(
 
         if batch:
             subscriber = cast("SpecificationBatchSubscriber", subscriber)
+        elif max_workers > 1:
+            subscriber = cast("SpecificationConcurrentDefaultSubscriber", subscriber)
         else:
             subscriber = cast("SpecificationDefaultSubscriber", subscriber)
 
-        subscriber = super().subscriber(subscriber)  # type: ignore[arg-type,assignment]
+        subscriber = super().subscriber(subscriber)  # type: ignore[assignment]
 
         return subscriber.add_call(
             parser_=parser or self._parser,

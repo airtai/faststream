@@ -11,7 +11,7 @@ import anyio
 from confluent_kafka import KafkaException, Message
 from typing_extensions import override
 
-from faststream._internal.subscriber.mixins import TasksMixin
+from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
@@ -172,6 +172,9 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
             ),
         )
 
+    async def consume_one(self, msg: MsgType) -> None:
+        await self.consume(msg)
+
     @abstractmethod
     async def get_msg(self) -> Optional[MsgType]:
         raise NotImplementedError
@@ -193,7 +196,7 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
                     connected = True
 
                 if msg is not None:
-                    await self.consume(msg)
+                    await self.consume_one(msg)
 
     @property
     def topic_names(self) -> list[str]:
@@ -281,6 +284,15 @@ class DefaultSubscriber(LogicSubscriber[Message]):
             topic=topic,
             group_id=self.group_id,
         )
+
+
+class ConcurrentDefaultSubscriber(ConcurrentMixin["Message"], DefaultSubscriber):
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "Message") -> None:
+        await self._put_msg(msg)
 
 
 class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):

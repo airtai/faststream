@@ -12,6 +12,7 @@ from typing import (
 from faststream._internal.constants import EMPTY
 from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
+    SpecificationConcurrentDefaultSubscriber,
     SpecificationDefaultSubscriber,
 )
 from faststream.exceptions import SetupError
@@ -40,6 +41,7 @@ def create_subscriber(
     # Subscriber args
     ack_policy: "AckPolicy",
     no_ack: bool,
+    max_workers: int,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Sequence["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
@@ -64,6 +66,7 @@ def create_subscriber(
     # Subscriber args
     ack_policy: "AckPolicy",
     no_ack: bool,
+    max_workers: int,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Sequence["BrokerMiddleware[ConfluentMsg]"],
@@ -71,7 +74,10 @@ def create_subscriber(
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "SpecificationDefaultSubscriber": ...
+) -> Union[
+    "SpecificationDefaultSubscriber",
+    "SpecificationConcurrentDefaultSubscriber",
+]: ...
 
 
 @overload
@@ -88,6 +94,7 @@ def create_subscriber(
     # Subscriber args
     ack_policy: "AckPolicy",
     no_ack: bool,
+    max_workers: int,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Union[
@@ -101,6 +108,7 @@ def create_subscriber(
 ) -> Union[
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
+    "SpecificationConcurrentDefaultSubscriber",
 ]: ...
 
 
@@ -117,6 +125,7 @@ def create_subscriber(
     # Subscriber args
     ack_policy: "AckPolicy",
     no_ack: bool,
+    max_workers: int,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
     broker_middlewares: Union[
@@ -130,6 +139,7 @@ def create_subscriber(
 ) -> Union[
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
+    "SpecificationConcurrentDefaultSubscriber",
 ]:
     _validate_input_for_misconfigure(
         *topics,
@@ -138,6 +148,7 @@ def create_subscriber(
         no_ack=no_ack,
         auto_commit=auto_commit,
         group_id=group_id,
+        max_workers=max_workers,
     )
 
     if auto_commit is not EMPTY:
@@ -173,6 +184,27 @@ def create_subscriber(
             include_in_schema=include_in_schema,
         )
 
+    if max_workers > 1:
+        return SpecificationConcurrentDefaultSubscriber(
+            *topics,
+            partitions=partitions,
+            polling_interval=polling_interval,
+            group_id=group_id,
+            connection_data=connection_data,
+            ack_policy=ack_policy,
+            no_reply=no_reply,
+            broker_dependencies=broker_dependencies,
+            broker_middlewares=cast(
+                Sequence["BrokerMiddleware[ConfluentMsg]"],
+                broker_middlewares,
+            ),
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+            # concurrent arg
+            max_workers=max_workers,
+        )
+
     return SpecificationDefaultSubscriber(
         *topics,
         partitions=partitions,
@@ -199,6 +231,7 @@ def _validate_input_for_misconfigure(
     auto_commit: bool,
     no_ack: bool,
     group_id: Optional[str],
+    max_workers: int,
 ) -> None:
     if auto_commit is not EMPTY:
         warnings.warn(
@@ -228,6 +261,10 @@ def _validate_input_for_misconfigure(
 
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.ACK_FIRST
+
+    if AckPolicy.ACK_FIRST is not AckPolicy.ACK_FIRST and max_workers > 1:
+        msg = "Max workers not work with manual commit mode."
+        raise SetupError(msg)
 
     if not group_id and ack_policy is not AckPolicy.ACK_FIRST:
         msg = "You must use `group_id` with manual commit mode."

@@ -109,10 +109,7 @@ class PullStreamSubscriber(
                         tg.start_soon(cb, msg)
 
 
-class ConcurrentPullStreamSubscriber(
-    ConcurrentMixin,
-    PullStreamSubscriber,
-):
+class ConcurrentPullStreamSubscriber(ConcurrentMixin["Msg"], PullStreamSubscriber):
     def __init__(
         self,
         *,
