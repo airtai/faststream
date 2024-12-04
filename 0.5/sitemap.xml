@@ -145,6 +145,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/asgi/app/AsgiFastStream/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/asgi/app/cast_uvicorn_params/</loc>
+        <lastmod>2024-12-04</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/asgi/app/cast_uvicorn_params/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/asgi/factories/make_asyncapi_asgi/</loc>
         <lastmod>2024-12-04</lastmod>
         <changefreq>daily</changefreq>
@@ -1055,6 +1061,12 @@
         <lastmod>2024-12-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/cli/main/version_callback/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/cli/supervisors/asgi_multiprocess/ASGIMultiprocess/</loc>
+        <lastmod>2024-12-04</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/cli/supervisors/asgi_multiprocess/ASGIMultiprocess/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/cli/supervisors/basereload/BaseReload/</loc>
@@ -4603,6 +4615,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/asgi/app/AsgiFastStream/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/asgi/app/cast_uvicorn_params/</loc>
+        <lastmod>2024-12-04</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/asgi/app/cast_uvicorn_params/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/public_api/faststream/asgi/factories/make_asyncapi_asgi/</loc>
         <lastmod>2024-12-04</lastmod>
         <changefreq>daily</changefreq>
@@ -5513,6 +5531,12 @@
         <lastmod>2024-12-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/cli/main/version_callback/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/cli/supervisors/asgi_multiprocess/ASGIMultiprocess/</loc>
+        <lastmod>2024-12-04</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/cli/supervisors/asgi_multiprocess/ASGIMultiprocess/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/public_api/faststream/cli/supervisors/basereload/BaseReload/</loc>
