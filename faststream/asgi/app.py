@@ -173,7 +173,7 @@ class AsgiFastStream(Application):
                 key: v
                 for key, v in run_extra_options.items()
                 if key in uvicorn_config_params
-            },  # type: ignore[arg-type]
+            },
         )
 
         server = uvicorn.Server(config)
