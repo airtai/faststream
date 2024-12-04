@@ -1,6 +1,7 @@
 import pytest
 
 from faststream import FastStream
+from faststream.asgi import AsgiFastStream
 
 
 @pytest.fixture
@@ -22,5 +23,11 @@ def app_without_broker():
 
 
 @pytest.fixture
+def asgi_app_without_broker():
+    return AsgiFastStream()
+
+
+@pytest.fixture
 def app(broker):
     return FastStream(broker)
+
