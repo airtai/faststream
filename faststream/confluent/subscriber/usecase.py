@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
-class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
+class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
     """A class to handle logic for consuming messages from Kafka."""
 
     topics: Sequence[str]
@@ -406,7 +406,7 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
         )
 
 
-class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber):
+class ConcurrentDefaultSubscriber(ConcurrentMixin[Message], DefaultSubscriber):
     def __init__(
         self,
         *topics: str,

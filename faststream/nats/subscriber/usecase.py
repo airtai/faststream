@@ -18,6 +18,7 @@ from typing import (
 
 import anyio
 from fast_depends.dependencies import Depends
+from nats.aio.msg import Msg
 from nats.errors import ConnectionClosedError, TimeoutError
 from nats.js.api import ConsumerConfig, ObjectInfo
 from typing_extensions import Annotated, Doc, override
@@ -45,7 +46,6 @@ from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
     from nats.aio.client import Client
-    from nats.aio.msg import Msg
     from nats.aio.subscription import Subscription
     from nats.js import JetStreamContext
     from nats.js.kv import KeyValue
@@ -431,7 +431,7 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
 
 
 class ConcurrentCoreSubscriber(
-    ConcurrentMixin,
+    ConcurrentMixin[Msg],
     CoreSubscriber,
 ):
     def __init__(
@@ -624,7 +624,7 @@ class PushStreamSubscription(_StreamSubscriber):
 
 
 class ConcurrentPushStreamSubscriber(
-    ConcurrentMixin,
+    ConcurrentMixin[Msg],
     _StreamSubscriber,
 ):
     subscription: Optional["JetStreamContext.PushSubscription"]
@@ -691,10 +691,7 @@ class ConcurrentPushStreamSubscriber(
         )
 
 
-class PullStreamSubscriber(
-    TasksMixin,
-    _StreamSubscriber,
-):
+class PullStreamSubscriber(TasksMixin, _StreamSubscriber):
     subscription: Optional["JetStreamContext.PullSubscription"]
 
     def __init__(
@@ -777,7 +774,7 @@ class PullStreamSubscriber(
 
 
 class ConcurrentPullStreamSubscriber(
-    ConcurrentMixin,
+    ConcurrentMixin[Msg],
     PullStreamSubscriber,
 ):
     def __init__(

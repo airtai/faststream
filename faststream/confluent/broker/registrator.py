@@ -53,7 +53,7 @@ class KafkaRegistrator(
 ):
     """Includable to KafkaBroker router."""
 
-    _subscribers: Dict[  # type: ignore[assignment]
+    _subscribers: Dict[
         int,
         Union[
             "AsyncAPIBatchSubscriber",
@@ -1251,7 +1251,7 @@ class KafkaRegistrator(
             else:
                 subscriber = cast("AsyncAPIDefaultSubscriber", subscriber)
 
-        subscriber = super().subscriber(subscriber)  # type: ignore[arg-type,assignment]
+        subscriber = super().subscriber(subscriber)  # type: ignore[assignment]
 
         return subscriber.add_call(
             filter_=filter,

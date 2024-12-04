@@ -73,7 +73,10 @@ def create_subscriber(
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "AsyncAPIDefaultSubscriber": ...
+) -> Union[
+    "AsyncAPIDefaultSubscriber",
+    "AsyncAPIConcurrentDefaultSubscriber",
+]: ...
 
 
 @overload
@@ -104,6 +107,7 @@ def create_subscriber(
 ) -> Union[
     "AsyncAPIDefaultSubscriber",
     "AsyncAPIBatchSubscriber",
+    "AsyncAPIConcurrentDefaultSubscriber",
 ]: ...
 
 
