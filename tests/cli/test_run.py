@@ -37,9 +37,7 @@ def test_run(runner: CliRunner, app: Application):
 
 
 @pytest.mark.parametrize("workers", [1, 2, 5])
-@pytest.mark.parametrize(
-    "app", [pytest.param(AsgiFastStream())]
-)
+@pytest.mark.parametrize("app", [pytest.param(AsgiFastStream())])
 def test_run_as_asgi_with_workers(runner: CliRunner, workers: int, app: Application):
     app.run = AsyncMock()
 
