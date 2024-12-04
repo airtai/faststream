@@ -13,7 +13,7 @@ from typing import (
 )
 
 import anyio
-from aiokafka import TopicPartition
+from aiokafka import ConsumerRecord, TopicPartition
 from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import override
 
@@ -32,7 +32,7 @@ from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
-    from aiokafka import AIOKafkaConsumer, ConsumerRecord
+    from aiokafka import AIOKafkaConsumer
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
@@ -468,7 +468,7 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         )
 
 
-class ConcurrentDefaultSubscriber(ConcurrentMixin, DefaultSubscriber):
+class ConcurrentDefaultSubscriber(ConcurrentMixin[ConsumerRecord], DefaultSubscriber):
     def __init__(
         self,
         *topics: str,

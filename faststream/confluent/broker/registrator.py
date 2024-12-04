@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     from faststream.confluent.schemas import TopicPartition
     from faststream.confluent.subscriber.asyncapi import (
         AsyncAPIBatchSubscriber,
+        AsyncAPIConcurrentDefaultSubscriber,
         AsyncAPIDefaultSubscriber,
     )
 
@@ -52,8 +53,13 @@ class KafkaRegistrator(
 ):
     """Includable to KafkaBroker router."""
 
-    _subscribers: Dict[  # type: ignore[assignment]
-        int, Union["AsyncAPIBatchSubscriber", "AsyncAPIDefaultSubscriber"]
+    _subscribers: Dict[
+        int,
+        Union[
+            "AsyncAPIBatchSubscriber",
+            "AsyncAPIDefaultSubscriber",
+            "AsyncAPIConcurrentDefaultSubscriber",
+        ],
     ]
     _publishers: Dict[  # type: ignore[assignment]
         int, Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"]
@@ -1188,15 +1194,21 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> Union[
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIBatchSubscriber",
+        "AsyncAPIConcurrentDefaultSubscriber",
     ]:
         if not auto_commit and not group_id:
             raise SetupError("You should install `group_id` with manual commit mode")
 
         subscriber = create_subscriber(
             *topics,
+            max_workers=max_workers,
             polling_interval=polling_interval,
             partitions=partitions,
             batch=batch,
@@ -1234,9 +1246,12 @@ class KafkaRegistrator(
         if batch:
             subscriber = cast("AsyncAPIBatchSubscriber", subscriber)
         else:
-            subscriber = cast("AsyncAPIDefaultSubscriber", subscriber)
+            if max_workers > 1:
+                subscriber = cast("AsyncAPIConcurrentDefaultSubscriber", subscriber)
+            else:
+                subscriber = cast("AsyncAPIDefaultSubscriber", subscriber)
 
-        subscriber = super().subscriber(subscriber)  # type: ignore[arg-type,assignment]
+        subscriber = super().subscriber(subscriber)  # type: ignore[assignment]
 
         return subscriber.add_call(
             filter_=filter,

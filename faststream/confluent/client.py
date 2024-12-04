@@ -112,7 +112,7 @@ class AsyncConfluentProducer:
                 }
             )
 
-        self.producer = Producer(final_config)
+        self.producer = Producer(final_config, logger=self.logger)  # type: ignore[call-arg]
 
         self.__running = True
         self._poll_task = asyncio.create_task(self._poll_loop())
@@ -312,7 +312,7 @@ class AsyncConfluentConsumer:
             )
 
         self.config = final_config
-        self.consumer = Consumer(final_config)
+        self.consumer = Consumer(final_config, logger=self.logger)  # type: ignore[call-arg]
 
     @property
     def topics_to_create(self) -> List[str]:

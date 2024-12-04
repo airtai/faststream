@@ -567,12 +567,14 @@ search:
                 - subscriber
                     - asyncapi
                         - [AsyncAPIBatchSubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPIBatchSubscriber.md)
+                        - [AsyncAPIConcurrentDefaultSubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPIConcurrentDefaultSubscriber.md)
                         - [AsyncAPIDefaultSubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPIDefaultSubscriber.md)
                         - [AsyncAPISubscriber](api/faststream/confluent/subscriber/asyncapi/AsyncAPISubscriber.md)
                     - factory
                         - [create_subscriber](api/faststream/confluent/subscriber/factory/create_subscriber.md)
                     - usecase
                         - [BatchSubscriber](api/faststream/confluent/subscriber/usecase/BatchSubscriber.md)
+                        - [ConcurrentDefaultSubscriber](api/faststream/confluent/subscriber/usecase/ConcurrentDefaultSubscriber.md)
                         - [DefaultSubscriber](api/faststream/confluent/subscriber/usecase/DefaultSubscriber.md)
                         - [LogicSubscriber](api/faststream/confluent/subscriber/usecase/LogicSubscriber.md)
                 - testing
