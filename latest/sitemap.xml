@@ -1549,6 +1549,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/confluent/subscriber/asyncapi/AsyncAPIBatchSubscriber/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/confluent/subscriber/asyncapi/AsyncAPIConcurrentDefaultSubscriber/</loc>
+        <lastmod>2024-12-04</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/confluent/subscriber/asyncapi/AsyncAPIConcurrentDefaultSubscriber/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/confluent/subscriber/asyncapi/AsyncAPIDefaultSubscriber/</loc>
         <lastmod>2024-12-04</lastmod>
         <changefreq>daily</changefreq>
@@ -1571,6 +1577,12 @@
         <lastmod>2024-12-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/confluent/subscriber/usecase/BatchSubscriber/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/confluent/subscriber/usecase/ConcurrentDefaultSubscriber/</loc>
+        <lastmod>2024-12-04</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/confluent/subscriber/usecase/ConcurrentDefaultSubscriber/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/confluent/subscriber/usecase/DefaultSubscriber/</loc>
@@ -5995,6 +6007,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/confluent/subscriber/asyncapi/AsyncAPIBatchSubscriber/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/confluent/subscriber/asyncapi/AsyncAPIConcurrentDefaultSubscriber/</loc>
+        <lastmod>2024-12-04</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/confluent/subscriber/asyncapi/AsyncAPIConcurrentDefaultSubscriber/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/public_api/faststream/confluent/subscriber/asyncapi/AsyncAPIDefaultSubscriber/</loc>
         <lastmod>2024-12-04</lastmod>
         <changefreq>daily</changefreq>
@@ -6017,6 +6035,12 @@
         <lastmod>2024-12-04</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/confluent/subscriber/usecase/BatchSubscriber/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/confluent/subscriber/usecase/ConcurrentDefaultSubscriber/</loc>
+        <lastmod>2024-12-04</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/confluent/subscriber/usecase/ConcurrentDefaultSubscriber/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/public_api/faststream/confluent/subscriber/usecase/DefaultSubscriber/</loc>
