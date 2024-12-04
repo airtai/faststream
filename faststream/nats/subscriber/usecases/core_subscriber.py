@@ -131,35 +131,6 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
 
 
 class ConcurrentCoreSubscriber(ConcurrentMixin["Msg"], CoreSubscriber):
-    def __init__(
-        self,
-        *,
-        max_workers: int,
-        # default args
-        subject: str,
-        config: "ConsumerConfig",
-        queue: str,
-        extra_options: Optional["AnyDict"],
-        # Subscriber args
-        ack_policy: AckPolicy,
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
-    ) -> None:
-        super().__init__(
-            max_workers=max_workers,
-            # basic args
-            subject=subject,
-            config=config,
-            queue=queue,
-            extra_options=extra_options,
-            # Propagated args
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-        )
-
     @override
     async def _create_subscription(self) -> None:
         """Create NATS subscription and start consume task."""
