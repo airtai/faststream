@@ -230,6 +230,7 @@ search:
                 - [make_ping_asgi](api/faststream/asgi/make_ping_asgi.md)
                 - app
                     - [AsgiFastStream](api/faststream/asgi/app/AsgiFastStream.md)
+                    - [cast_uvicorn_params](api/faststream/asgi/app/cast_uvicorn_params.md)
                 - factories
                     - [make_asyncapi_asgi](api/faststream/asgi/factories/make_asyncapi_asgi.md)
                     - [make_ping_asgi](api/faststream/asgi/factories/make_ping_asgi.md)
@@ -448,6 +449,8 @@ search:
                     - [run](api/faststream/cli/main/run.md)
                     - [version_callback](api/faststream/cli/main/version_callback.md)
                 - supervisors
+                    - asgi_multiprocess
+                        - [ASGIMultiprocess](api/faststream/cli/supervisors/asgi_multiprocess/ASGIMultiprocess.md)
                     - basereload
                         - [BaseReload](api/faststream/cli/supervisors/basereload/BaseReload.md)
                     - multiprocess
