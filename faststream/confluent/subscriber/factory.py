@@ -134,7 +134,7 @@ def create_subscriber(
 ) -> Union[
     "AsyncAPIDefaultSubscriber",
     "AsyncAPIBatchSubscriber",
-    "AsyncAPIConcurrentDefaultSubscriber"
+    "AsyncAPIConcurrentDefaultSubscriber",
 ]:
     if is_manual and max_workers > 1:
         raise SetupError("Max workers not work with manual commit mode.")

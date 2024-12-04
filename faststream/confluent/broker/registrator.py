@@ -54,7 +54,12 @@ class KafkaRegistrator(
     """Includable to KafkaBroker router."""
 
     _subscribers: Dict[  # type: ignore[assignment]
-        int, Union["AsyncAPIBatchSubscriber", "AsyncAPIDefaultSubscriber", "AsyncAPIConcurrentDefaultSubscriber"]
+        int,
+        Union[
+            "AsyncAPIBatchSubscriber",
+            "AsyncAPIDefaultSubscriber",
+            "AsyncAPIConcurrentDefaultSubscriber",
+        ],
     ]
     _publishers: Dict[  # type: ignore[assignment]
         int, Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"]
