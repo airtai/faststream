@@ -4,6 +4,7 @@ from typing import (
     Optional,
 )
 
+from faststream._internal.types import MsgType
 from faststream.exceptions import SetupError
 from faststream.specification.asyncapi.message import parse_handler_params
 from faststream.specification.asyncapi.utils import to_camelcase
@@ -12,16 +13,11 @@ from faststream.specification.schema import SubscriberSpec
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
-    from faststream._internal.types import (
-        MsgType,
-    )
 
     from .call_item import HandlerItem
 
 
-class SpecificationSubscriber(
-    EndpointSpecification[SubscriberSpec],
-):
+class SpecificationSubscriber(EndpointSpecification[MsgType, SubscriberSpec]):
     calls: list["HandlerItem[MsgType]"]
 
     def __init__(

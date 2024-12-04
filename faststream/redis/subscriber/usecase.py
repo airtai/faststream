@@ -1,4 +1,3 @@
-import asyncio
 import math
 from abc import abstractmethod
 from collections.abc import Awaitable, Iterable, Sequence
@@ -19,6 +18,7 @@ from redis.asyncio.client import (
 from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
+from faststream._internal.subscriber.mixins import TasksMixin
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream.middlewares import AckPolicy
@@ -61,7 +61,7 @@ TopicName: TypeAlias = bytes
 Offset: TypeAlias = bytes
 
 
-class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
+class LogicSubscriber(TasksMixin, SubscriberUsecase[UnifyRedisDict]):
     """A class to represent a Redis handler."""
 
     _client: Optional["Redis[bytes]"]
@@ -88,7 +88,6 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         )
 
         self._client = None
-        self.task: Optional[asyncio.Task[None]] = None
 
     @override
     def _setup(  # type: ignore[override]
@@ -128,7 +127,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         self,
         *args: Any,
     ) -> None:
-        if self.task:
+        if self.tasks:
             return
 
         await super().start()
@@ -136,9 +135,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         start_signal = anyio.Event()
 
         if self.calls:
-            self.task = asyncio.create_task(
-                self._consume(*args, start_signal=start_signal),
-            )
+            self.add_task(self._consume(*args, start_signal=start_signal))
 
             with anyio.fail_after(3.0):
                 await start_signal.wait()
@@ -170,13 +167,6 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
     @abstractmethod
     async def _get_msgs(self, *args: Any) -> None:
         raise NotImplementedError
-
-    async def close(self) -> None:
-        await super().close()
-
-        if self.task is not None and not self.task.done():
-            self.task.cancel()
-        self.task = None
 
     @staticmethod
     def build_log_context(
@@ -351,7 +341,7 @@ class _ListHandlerMixin(LogicSubscriber):
 
     @override
     async def start(self) -> None:
-        if self.task:
+        if self.tasks:
             return
 
         assert self._client, "You should setup subscriber at first."  # nosec B101
@@ -523,7 +513,7 @@ class _StreamHandlerMixin(LogicSubscriber):
 
     @override
     async def start(self) -> None:
-        if self.task:
+        if self.tasks:
             return
 
         assert self._client, "You should setup subscriber at first."  # nosec B101

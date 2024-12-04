@@ -17,10 +17,10 @@ from faststream.specification.schema import PublisherSpec
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyCallable, AnyDict
     from faststream._internal.state import BrokerState, Pointer
-    from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
+    from faststream._internal.subscriber.call_wrapper import HandlerCallWrapper
 
 
-class SpecificationPublisher(EndpointSpecification[PublisherSpec]):
+class SpecificationPublisher(EndpointSpecification[MsgType, PublisherSpec]):
     """A base class for publishers in an asynchronous API."""
 
     _state: "Pointer[BrokerState]"  # should be set in next parent
@@ -44,9 +44,9 @@ class SpecificationPublisher(EndpointSpecification[PublisherSpec]):
             "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
         ],
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-        func = super().__call__(func)
-        self.calls.append(func._original_call)
-        return func
+        handler = super().__call__(func)
+        self.calls.append(handler._original_call)
+        return handler
 
     def get_payloads(self) -> list[tuple["AnyDict", str]]:
         payloads: list[tuple[AnyDict, str]] = []

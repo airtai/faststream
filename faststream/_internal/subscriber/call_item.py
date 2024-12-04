@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import AsyncFuncAny, Decorator
     from faststream._internal.state import BrokerState, Pointer
-    from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
+    from faststream._internal.subscriber.call_wrapper import HandlerCallWrapper
     from faststream._internal.types import (
         AsyncCallable,
         AsyncFilter,
@@ -128,8 +128,8 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         if not (parser := cast(Optional["AsyncCallable"], self.item_parser)) or not (
             decoder := cast(Optional["AsyncCallable"], self.item_decoder)
         ):
-            msg = "You should setup `HandlerItem` at first."
-            raise SetupError(msg)
+            error_msg = "You should setup `HandlerItem` at first."
+            raise SetupError(error_msg)
 
         message = cache[parser] = cast(
             "StreamMessage[MsgType]",

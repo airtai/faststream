@@ -33,6 +33,7 @@ ujson: Any
 __all__ = (
     "HAS_TYPER",
     "PYDANTIC_V2",
+    "BaseModel",
     "CoreSchema",
     "EmailStr",
     "GetJsonSchemaHandler",

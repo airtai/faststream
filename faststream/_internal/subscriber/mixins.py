@@ -27,7 +27,7 @@ class TasksMixin(SubscriberUsecase[Any]):
             if not task.done():
                 task.cancel()
 
-        self.tasks = []
+        self.tasks.clear()
 
 
 class ConcurrentMixin(TasksMixin):

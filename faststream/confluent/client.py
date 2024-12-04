@@ -311,6 +311,9 @@ class AsyncConfluentConsumer:
         self.config = final_config
         self.consumer = Consumer(final_config)
 
+        # We can't read and close consumer concurrently
+        self._lock = asyncio.Lock()
+
     @property
     def topics_to_create(self) -> list[str]:
         return list({*self.topics, *(p.topic for p in self.partitions)})
@@ -368,12 +371,14 @@ class AsyncConfluentConsumer:
                     exc_info=e,
                 )
 
-        # Wrap calls to async to make method cancelable by timeout
-        await call_or_await(self.consumer.close)
+        async with self._lock:
+            # Wrap calls to async to make method cancelable by timeout
+            await call_or_await(self.consumer.close)
 
     async def getone(self, timeout: float = 0.1) -> Optional[Message]:
         """Consumes a single message from Kafka."""
-        msg = await call_or_await(self.consumer.poll, timeout)
+        async with self._lock:
+            msg = await call_or_await(self.consumer.poll, timeout)
         return check_msg_error(msg)
 
     async def getmany(
@@ -382,11 +387,12 @@ class AsyncConfluentConsumer:
         max_records: Optional[int] = 10,
     ) -> tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
-        raw_messages: list[Optional[Message]] = await call_or_await(
-            self.consumer.consume,  # type: ignore[arg-type]
-            num_messages=max_records or 10,
-            timeout=timeout,
-        )
+        async with self._lock:
+            raw_messages: list[Optional[Message]] = await call_or_await(
+                self.consumer.consume,  # type: ignore[arg-type]
+                num_messages=max_records or 10,
+                timeout=timeout,
+            )
 
         return tuple(x for x in map(check_msg_error, raw_messages) if x is not None)
 

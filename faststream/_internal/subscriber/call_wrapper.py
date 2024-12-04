@@ -24,7 +24,6 @@ from faststream.exceptions import SetupError
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
-    from fast_depends.use import InjectWrapper
 
     from faststream._internal.basic_types import Decorator
     from faststream._internal.publisher.proto import PublisherProto
@@ -88,7 +87,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     async def call_wrapped(
         self,
         message: "StreamMessage[MsgType]",
-    ) -> Awaitable[Any]:
+    ) -> Any:
         """Calls the wrapped function with the given message."""
         assert self._wrapped_call, "You should use `set_wrapped` first"  # nosec B101
         if self.is_test:
@@ -145,7 +144,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     def set_wrapped(
         self,
         *,
-        dependencies: Iterable["Dependant"],
+        dependencies: Sequence["Dependant"],
         _call_decorators: Iterable["Decorator"],
         state: "DIState",
     ) -> Optional["CallModel"]:
@@ -166,7 +165,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
             )
 
             if state.use_fastdepends:
-                wrapper: InjectWrapper[Any, Any] = inject(
+                wrapper = inject(
                     func=None,
                     context__=state.context,
                 )

@@ -56,8 +56,8 @@ async def process_msg(
         parsed_msg.set_decoder(decoder)
         return await return_msg(parsed_msg)
 
-    msg = "unreachable"
-    raise AssertionError(msg)
+    error_msg = "unreachable"
+    raise AssertionError(error_msg)
 
 
 async def default_filter(msg: "StreamMessage[Any]") -> bool:
@@ -66,7 +66,11 @@ async def default_filter(msg: "StreamMessage[Any]") -> bool:
 
 
 class MultiLock:
-    """A class representing a multi lock."""
+    """A class representing a multi lock.
+
+    This lock can be acquired multiple times.
+    `wait_release` method waits for all locks will be released.
+    """
 
     def __init__(self) -> None:
         """Initialize a new instance of the class."""

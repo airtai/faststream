@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from faststream._internal.broker.broker import BrokerUsecase
     from faststream._internal.proto import NameRequired
     from faststream._internal.publisher.proto import PublisherProto
-    from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
+    from faststream._internal.subscriber.call_wrapper import HandlerCallWrapper
     from faststream._internal.types import BrokerMiddleware
     from faststream.message import StreamMessage
     from faststream.specification.base.specification import Specification

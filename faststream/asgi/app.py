@@ -183,6 +183,8 @@ class AsgiFastStream(Application):
         elif port is not None:
             bindings.append(f"127.0.0.1:{port}")
 
+        run_extra_options["workers"] = int(run_extra_options.pop("workers", 1))
+
         bind = run_extra_options.get("bind")
         if isinstance(bind, list):
             bindings.extend(bind)

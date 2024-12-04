@@ -1,5 +1,4 @@
-import asyncio
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
@@ -12,6 +11,7 @@ import anyio
 from confluent_kafka import KafkaException, Message
 from typing_extensions import override
 
+from faststream._internal.subscriber.mixins import TasksMixin
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from faststream.message import StreamMessage
 
 
-class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
+class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
     """A class to handle logic for consuming messages from Kafka."""
 
     topics: Sequence[str]
@@ -45,7 +45,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     consumer: Optional["AsyncConfluentConsumer"]
     parser: AsyncConfluentParser
 
-    task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
 
     def __init__(
@@ -81,7 +80,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.partitions = partitions
 
         self.consumer = None
-        self.task = None
         self.polling_interval = polling_interval
 
         # Setup it later
@@ -130,19 +128,14 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         await super().start()
 
         if self.calls:
-            self.task = asyncio.create_task(self._consume())
+            self.add_task(self._consume())
 
     async def close(self) -> None:
-        await super().close()
-
         if self.consumer is not None:
             await self.consumer.stop()
             self.consumer = None
 
-        if self.task is not None and not self.task.done():
-            self.task.cancel()
-
-        self.task = None
+        await super().close()
 
     @override
     async def get_one(

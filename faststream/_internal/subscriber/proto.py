@@ -2,10 +2,9 @@ from abc import abstractmethod
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Optional
 
-from typing_extensions import Self, override
+from typing_extensions import Self
 
 from faststream._internal.proto import Endpoint
-from faststream._internal.subscriber.call_wrapper.proto import WrapperProto
 from faststream._internal.types import MsgType
 
 if TYPE_CHECKING:
@@ -28,10 +27,7 @@ if TYPE_CHECKING:
     from .call_item import HandlerItem
 
 
-class SubscriberProto(
-    Endpoint,
-    WrapperProto[MsgType],
-):
+class SubscriberProto(Endpoint[MsgType]):
     calls: list["HandlerItem[MsgType]"]
     running: bool
 
@@ -49,9 +45,8 @@ class SubscriberProto(
         /,
     ) -> dict[str, str]: ...
 
-    @override
     @abstractmethod
-    def _setup(  # type: ignore[override]
+    def _setup(
         self,
         *,
         extra_context: "AnyDict",

@@ -20,4 +20,7 @@ def filter_by_dict(
         else:
             extra_data[k] = v
 
-    return typed_dict(out_data), extra_data
+    return (
+        typed_dict(out_data),  # type: ignore[call-arg]
+        extra_data,
+    )

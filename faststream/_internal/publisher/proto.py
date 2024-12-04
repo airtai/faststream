@@ -1,11 +1,16 @@
 from abc import abstractmethod
 from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Protocol
-
-from typing_extensions import override
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Optional,
+    Protocol,
+)
 
 from faststream._internal.proto import Endpoint
-from faststream._internal.types import MsgType
+from faststream._internal.types import (
+    MsgType,
+)
 from faststream.response.response import PublishCommand
 
 if TYPE_CHECKING:
@@ -14,9 +19,7 @@ if TYPE_CHECKING:
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
-        P_HandlerParams,
         PublisherMiddleware,
-        T_HandlerReturn,
     )
     from faststream.response.response import PublishCommand
 
@@ -88,28 +91,23 @@ class BasePublisherProto(Protocol):
 
 
 class PublisherProto(
-    Endpoint,
+    Endpoint[MsgType],
     BasePublisherProto,
-    Generic[MsgType],
 ):
     _broker_middlewares: Sequence["BrokerMiddleware[MsgType]"]
     _middlewares: Sequence["PublisherMiddleware"]
-    _producer: Optional["ProducerProto"]
+
+    @property
+    @abstractmethod
+    def _producer(self) -> "ProducerProto": ...
 
     @abstractmethod
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None: ...
 
-    @override
     @abstractmethod
-    def _setup(  # type: ignore[override]
+    def _setup(
         self,
         *,
-        producer: Optional["ProducerProto"],
         state: "Pointer[BrokerState]",
+        producer: "ProducerProto",
     ) -> None: ...
-
-    @abstractmethod
-    def __call__(
-        self,
-        func: "Callable[P_HandlerParams, T_HandlerReturn]",
-    ) -> "Callable[P_HandlerParams, T_HandlerReturn]": ...

@@ -2,13 +2,14 @@ import logging
 import sys
 import warnings
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import anyio
 import typer
 
 from faststream import FastStream
 from faststream.__about__ import __version__
+from faststream._internal._compat import json_loads
 from faststream._internal.application import Application
 from faststream._internal.cli.docs import asyncapi_app
 from faststream._internal.cli.utils.imports import import_from_string
@@ -122,6 +123,7 @@ def run(
 
     # Should be imported after sys.path changes
     module_path, app_obj = import_from_string(app, is_factory=is_factory)
+    app_obj = cast(Application, app_obj)
 
     args = (app, extra, is_factory, casted_log_level)
 
@@ -160,7 +162,7 @@ def run(
                 workers=workers,
             ).run()
         else:
-            args[1]["workers"] = workers
+            args[1]["workers"] = str(workers)
             _run(*args)
 
     else:
@@ -181,6 +183,7 @@ def _run(
 ) -> None:
     """Runs the specified application."""
     _, app_obj = import_from_string(app, is_factory=is_factory)
+    app_obj = cast(Application, app_obj)
     _run_imported_app(
         app_obj,
         extra_options=extra_options,
@@ -235,7 +238,7 @@ def publish(
     ),
     message: str = typer.Argument(
         ...,
-        help="Message to be published.",
+        help="JSON Message string to publish.",
     ),
     rpc: bool = typer.Option(
         False,
@@ -255,9 +258,9 @@ def publish(
     """
     app, extra = parse_cli_args(app, *ctx.args)
 
-    extra["message"] = message
-    if "timeout" in extra:
-        extra["timeout"] = float(extra["timeout"])
+    publish_extra: AnyDict = extra.copy()
+    if "timeout" in publish_extra:
+        publish_extra["timeout"] = float(publish_extra["timeout"])
 
     try:
         _, app_obj = import_from_string(app, is_factory=is_factory)
@@ -269,7 +272,7 @@ def publish(
             raise ValueError(msg)
 
         app_obj._setup()
-        result = anyio.run(publish_message, app_obj.broker, rpc, extra)
+        result = anyio.run(publish_message, app_obj.broker, rpc, message, publish_extra)
 
         if rpc:
             typer.echo(result)
@@ -282,13 +285,18 @@ def publish(
 async def publish_message(
     broker: "BrokerUsecase[Any, Any]",
     rpc: bool,
+    message: str,
     extra: "AnyDict",
 ) -> Any:
+    with suppress(Exception):
+        message = json_loads(message)
+
     try:
         async with broker:
             if rpc:
-                return await broker.request(**extra)
-            return await broker.publish(**extra)
+                return await broker.request(message, **extra)  # type: ignore[call-arg]
+            return await broker.publish(message, **extra)  # type: ignore[call-arg]
+
     except Exception as e:
-        typer.echo(f"Error when broker was publishing: {e}")
+        typer.echo(f"Error when broker was publishing: {e!r}")
         sys.exit(1)

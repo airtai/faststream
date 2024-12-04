@@ -34,8 +34,15 @@ def test_run_as_asgi(runner: CliRunner) -> None:
         assert result.exit_code == 0
 
 
-@pytest.mark.parametrize("workers", (pytest.param(1), pytest.param(2), pytest.param(5)))
-def test_run_as_asgi_with_workers(runner: CliRunner, workers: int) -> None:
+@pytest.mark.parametrize(
+    "workers",
+    (
+        pytest.param("1"),
+        pytest.param("2"),
+        pytest.param("5"),
+    ),
+)
+def test_run_as_asgi_with_workers(runner: CliRunner, workers: str) -> None:
     app = AsgiFastStream(AsyncMock())
     app.run = AsyncMock()
 
@@ -53,10 +60,10 @@ def test_run_as_asgi_with_workers(runner: CliRunner, workers: int) -> None:
                 "--port",
                 "8000",
                 "-w",
-                str(workers),
+                workers,
             ],
         )
-        extra = {"workers": workers} if workers > 1 else {}
+        extra = {"workers": workers} if int(workers) > 1 else {}
 
         app.run.assert_awaited_once_with(
             logging.INFO,
