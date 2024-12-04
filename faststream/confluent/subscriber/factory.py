@@ -39,6 +39,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     no_ack: bool,
+    max_workers: int,
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
@@ -63,6 +64,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     no_ack: bool,
+    max_workers: int,
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
@@ -87,6 +89,7 @@ def create_subscriber(
     is_manual: bool,
     # Subscriber args
     no_ack: bool,
+    max_workers: int,
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
@@ -131,6 +134,7 @@ def create_subscriber(
 ) -> Union[
     "AsyncAPIDefaultSubscriber",
     "AsyncAPIBatchSubscriber",
+    "AsyncAPIConcurrentDefaultSubscriber"
 ]:
     if is_manual and max_workers > 1:
         raise SetupError("Max workers not work with manual commit mode.")
