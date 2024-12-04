@@ -55,6 +55,7 @@ if TYPE_CHECKING:
     from faststream.confluent.schemas import TopicPartition
     from faststream.confluent.subscriber.asyncapi import (
         AsyncAPIBatchSubscriber,
+        AsyncAPIConcurrentDefaultSubscriber,
         AsyncAPIDefaultSubscriber,
     )
     from faststream.security import BaseSecurity
@@ -2205,13 +2206,19 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
                 """
             ),
         ] = False,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> Union[
         "AsyncAPIBatchSubscriber",
         "AsyncAPIDefaultSubscriber",
+        "AsyncAPIConcurrentDefaultSubscriber",
     ]:
         subscriber = super().subscriber(
             *topics,
             polling_interval=polling_interval,
+            max_workers=max_workers,
             partitions=partitions,
             group_id=group_id,
             group_instance_id=group_instance_id,
@@ -2255,7 +2262,10 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         if batch:
             return cast("AsyncAPIBatchSubscriber", subscriber)
         else:
-            return cast("AsyncAPIDefaultSubscriber", subscriber)
+            if max_workers > 1:
+                return cast("AsyncAPIConcurrentDefaultSubscriber", subscriber)
+            else:
+                return cast("AsyncAPIDefaultSubscriber", subscriber)
 
     @overload  # type: ignore[override]
     def publisher(
