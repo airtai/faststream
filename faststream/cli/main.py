@@ -155,7 +155,7 @@ def run(
                 workers=workers,
             ).run()
         else:
-            args[1]["workers"] = workers
+            args[1]["workers"] = workers  # type: ignore[assignment]
             _run(*args)
 
     else:

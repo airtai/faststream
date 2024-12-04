@@ -1,17 +1,15 @@
 import importlib
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import TYPE_CHECKING, Tuple
+from typing import Tuple
 
 import typer
 
+from faststream._internal.application import Application
 from faststream.exceptions import SetupError
 
-if TYPE_CHECKING:
-    from faststream.app import FastStream
 
-
-def try_import_app(module: Path, app: str) -> "FastStream":
+def try_import_app(module: Path, app: str) -> "Application":
     """Tries to import a FastStream app from a module."""
     try:
         app_object = import_object(module, app)
@@ -71,7 +69,7 @@ def import_from_string(
     import_str: str,
     *,
     is_factory: bool = False,
-) -> Tuple[Path, "FastStream"]:
+) -> Tuple[Path, "Application"]:
     module_path, instance = _import_obj_or_factory(import_str)
 
     if is_factory:
@@ -80,10 +78,13 @@ def import_from_string(
         else:
             raise typer.BadParameter(f'"{instance}" is not a factory')
 
+    if callable(instance) and not is_factory and not isinstance(instance, Application):
+        raise typer.BadParameter("Please, use --factory option for callable object")
+
     return module_path, instance
 
 
-def _import_obj_or_factory(import_str: str) -> Tuple[Path, "FastStream"]:
+def _import_obj_or_factory(import_str: str) -> Tuple[Path, "Application"]:
     """Import FastStream application from module specified by a string."""
     if not isinstance(import_str, str):
         raise typer.BadParameter("Given value is not of type string")
