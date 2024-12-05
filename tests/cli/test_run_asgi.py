@@ -29,11 +29,13 @@ def test_run_as_asgi(runner: CliRunner) -> None:
                 "1",
             ],
         )
+
+        assert result.exit_code == 0
+
         app.run.assert_awaited_once_with(
             logging.INFO,
             {"host": "0.0.0.0", "port": "8000"},
         )
-        assert result.exit_code == 0
 
 
 def test_run_as_asgi_with_workers(runner: CliRunner) -> None:
@@ -55,20 +57,18 @@ def test_run_as_asgi_with_workers(runner: CliRunner) -> None:
             [
                 "run",
                 "faststream:app",
-                "--host",
-                "0.0.0.0",
-                "--port",
-                "8000",
                 "-w",
                 str(workers),
             ],
         )
+
+        assert result.exit_code == 0
+
         asgi_runner.assert_called_once_with(
             target="faststream:app",
-            args=("faststream:app", {"host": "0.0.0.0", "port": "8000"}, False, 0),
+            args=("faststream:app", {}, False, 0),
             workers=workers,
         )
-        assert result.exit_code == 0
 
 
 def test_run_as_asgi_factory(runner: CliRunner) -> None:
@@ -79,25 +79,13 @@ def test_run_as_asgi_factory(runner: CliRunner) -> None:
     with patch(IMPORT_FUNCTION_MOCK_PATH, return_value=(None, app_factory)):
         result = runner.invoke(
             faststream_app,
-            [
-                "run",
-                "faststream:app",
-                "--host",
-                "0.0.0.0",
-                "--port",
-                "8000",
-                "-f",
-            ],
+            ["run", "-f", "faststream:app"],
         )
 
-        # should be called twice - for check object type and for uvicorn
-        assert app_factory.called
-
-        app.run.assert_awaited_once_with(
-            logging.INFO,
-            {"host": "0.0.0.0", "port": "8000"},
-        )
         assert result.exit_code == 0
+
+        app_factory.assert_called_once()
+        app.run.assert_awaited_once_with(logging.INFO, {})
 
 
 def test_run_as_asgi_multiprocess_with_log_level(runner: CliRunner) -> None:
@@ -117,27 +105,22 @@ def test_run_as_asgi_multiprocess_with_log_level(runner: CliRunner) -> None:
             [
                 "run",
                 "faststream:app",
-                "--host",
-                "0.0.0.0",
-                "--port",
-                "8000",
                 "--workers",
-                "3",
+                "2",
                 "--log-level",
                 "critical",
             ],
         )
         assert result.exit_code == 0
 
-        asgi_runner.assert_called_once()
         asgi_runner.assert_called_once_with(
             target="faststream:app",
             args=(
                 "faststream:app",
-                {"host": "0.0.0.0", "port": "8000"},
+                {},
                 False,
                 logging.CRITICAL,
             ),
-            workers=3,
+            workers=2,
         )
         asgi_runner().run.assert_called_once()

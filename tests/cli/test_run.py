@@ -52,6 +52,7 @@ def test_run_factory(runner: CliRunner) -> None:
 
         assert result.exit_code == 0
 
+        app_factory.assert_called_once()
         app.run.assert_awaited_once()
 
 
