@@ -7,15 +7,16 @@ from typer.testing import CliRunner
 from faststream import FastStream
 from faststream._internal.cli.main import cli as faststream_app
 
+IMPORT_FUNCTION_MOCK_PATH = (
+    "faststream._internal.cli.utils.imports._import_object_or_factory"
+)
+
 
 def test_run(runner: CliRunner) -> None:
     app = FastStream(MagicMock())
     app.run = AsyncMock()
 
-    with patch(
-        "faststream._internal.cli.utils.imports._import_object_or_factory",
-        return_value=(None, app),
-    ):
+    with patch(IMPORT_FUNCTION_MOCK_PATH, return_value=(None, app)):
         result = runner.invoke(
             faststream_app,
             [
@@ -39,10 +40,7 @@ def test_run_factory(runner: CliRunner) -> None:
     app.run = AsyncMock()
     app_factory = MagicMock(return_value=app)
 
-    with patch(
-        "faststream._internal.cli.utils.imports._import_object_or_factory",
-        return_value=(None, app_factory),
-    ):
+    with patch(IMPORT_FUNCTION_MOCK_PATH, return_value=(None, app_factory)):
         result = runner.invoke(
             faststream_app,
             [
@@ -62,10 +60,7 @@ def test_run_workers(runner: CliRunner) -> None:
     app.run = AsyncMock()
 
     with (
-        patch(
-            "faststream._internal.cli.utils.imports._import_object_or_factory",
-            return_value=(None, app),
-        ),
+        patch(IMPORT_FUNCTION_MOCK_PATH, return_value=(None, app)),
         patch(
             "faststream._internal.cli.supervisors.multiprocess.Multiprocess",
         ) as mock,
@@ -90,10 +85,7 @@ def test_run_factory_with_workers(runner: CliRunner) -> None:
     app_factory = MagicMock(return_value=app)
 
     with (
-        patch(
-            "faststream._internal.cli.utils.imports._import_object_or_factory",
-            return_value=(None, app_factory),
-        ),
+        patch(IMPORT_FUNCTION_MOCK_PATH, return_value=(None, app_factory)),
         patch(
             "faststream._internal.cli.supervisors.multiprocess.Multiprocess",
         ) as mock,
@@ -117,10 +109,7 @@ def test_run_reloader(runner: CliRunner) -> None:
     app.run = AsyncMock()
 
     with (
-        patch(
-            "faststream._internal.cli.utils.imports._import_object_or_factory",
-            return_value=(None, app),
-        ),
+        patch(IMPORT_FUNCTION_MOCK_PATH, return_value=(None, app)),
         patch(
             "faststream._internal.cli.supervisors.watchfiles.WatchReloader",
         ) as mock,
@@ -155,10 +144,7 @@ def test_run_reloader_with_factory(runner: CliRunner) -> None:
     app_factory = MagicMock(return_value=app)
 
     with (
-        patch(
-            "faststream._internal.cli.utils.imports._import_object_or_factory",
-            return_value=(None, app_factory),
-        ),
+        patch(IMPORT_FUNCTION_MOCK_PATH, return_value=(None, app_factory)),
         patch(
             "faststream._internal.cli.supervisors.watchfiles.WatchReloader",
         ) as mock,

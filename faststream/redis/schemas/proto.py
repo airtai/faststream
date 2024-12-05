@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from faststream.specification.schema.bindings import redis
 
 
-class RedisSpecificationProtocol(EndpointSpecification[T]):
+class RedisSpecificationProtocol(EndpointSpecification[Any, T]):
     @property
     @abstractmethod
     def channel_binding(self) -> "redis.ChannelBinding": ...
@@ -23,7 +23,7 @@ def validate_options(
     channel: Union["PubSub", str, None],
     list: Union["ListSub", str, None],
     stream: Union["StreamSub", str, None],
-) -> str:
+) -> None:
     if all((channel, list)):
         msg = "You can't use `PubSub` and `ListSub` both"
         raise SetupError(msg)
@@ -33,4 +33,3 @@ def validate_options(
     if all((list, stream)):
         msg = "You can't use `ListSub` and `StreamSub` both"
         raise SetupError(msg)
-    return channel or list or stream

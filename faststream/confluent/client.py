@@ -311,8 +311,9 @@ class AsyncConfluentConsumer:
         self.config = final_config
         self.consumer = Consumer(final_config, logger=self.logger)  # type: ignore[call-arg]
 
-        # We can't read and close consumer concurrently
-        self._lock = asyncio.Lock()
+        # We shouldn't read messages and close consumer concurrently
+        # https://github.com/airtai/faststream/issues/1904#issuecomment-2506990895
+        self._lock = anyio.Lock()
 
     @property
     def topics_to_create(self) -> list[str]:
@@ -371,8 +372,8 @@ class AsyncConfluentConsumer:
                     exc_info=e,
                 )
 
+        # Wrap calls to async to make method cancelable by timeout
         async with self._lock:
-            # Wrap calls to async to make method cancelable by timeout
             await call_or_await(self.consumer.close)
 
     async def getone(self, timeout: float = 0.1) -> Optional[Message]:

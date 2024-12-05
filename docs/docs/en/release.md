@@ -12,6 +12,31 @@ hide:
 ---
 
 # Release Notes
+## 0.5.32
+
+### What's Changed
+
+Thanks to [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} one more time for a new release! Now you have an ability to consume Confluent messages (in autocommit mode) concurrently!
+
+```python
+from faststream.confluent import KafkaBroker
+
+broker = KafkaBroker()
+
+@broker.subscriber("topic", max_workers=10)
+async def handler():
+    """Using `max_workers` option you can process up to 10 messages by one subscriber concurrently"""
+```
+
+Also, thanks to [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} for his ASGI CLI support bugfixes
+
+* fix #1959: propagate logger to Confluent by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1960](https://github.com/airtai/faststream/pull/1960){.external-link target="_blank"}
+* Concurrent confluent kafka by [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} in [#1961](https://github.com/airtai/faststream/pull/1961){.external-link target="_blank"}
+* fix: extend validation for --factory param by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1964](https://github.com/airtai/faststream/pull/1964){.external-link target="_blank"}
+* fix: support only uvicorn ASGI Runner by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1965](https://github.com/airtai/faststream/pull/1965){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.31...0.5.32](https://github.com/airtai/faststream/compare/0.5.31...0.5.32){.external-link target="_blank"}
+
 ## 0.5.31
 
 ### What's Changed
