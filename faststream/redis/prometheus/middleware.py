@@ -4,12 +4,13 @@ from typing import TYPE_CHECKING, Optional
 from faststream._internal.constants import EMPTY
 from faststream.prometheus.middleware import PrometheusMiddleware
 from faststream.redis.prometheus.provider import settings_provider_factory
+from faststream.redis.response import RedisPublishCommand
 
 if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
 
 
-class RedisPrometheusMiddleware(PrometheusMiddleware):
+class RedisPrometheusMiddleware(PrometheusMiddleware[RedisPublishCommand]):
     def __init__(
         self,
         *,

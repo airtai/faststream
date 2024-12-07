@@ -14,14 +14,14 @@ if TYPE_CHECKING:
     from faststream.message import StreamMessage
 
 
-_PublishCommand_T = TypeVar(
-    "_PublishCommand_T",
+PublishCommand_T = TypeVar(
+    "PublishCommand_T",
     bound=PublishCommand,
     default=PublishCommand,
 )
 
 
-class BaseMiddleware(Generic[_PublishCommand_T]):
+class BaseMiddleware(Generic[PublishCommand_T]):
     """A base middleware class."""
 
     def __init__(
@@ -92,8 +92,8 @@ class BaseMiddleware(Generic[_PublishCommand_T]):
 
     async def on_publish(
         self,
-        msg: _PublishCommand_T,
-    ) -> _PublishCommand_T:
+        msg: PublishCommand_T,
+    ) -> PublishCommand_T:
         """This option was deprecated and will be removed in 0.7.0. Please, use `publish_scope` instead."""
         return msg
 
@@ -107,8 +107,8 @@ class BaseMiddleware(Generic[_PublishCommand_T]):
 
     async def publish_scope(
         self,
-        call_next: Callable[[_PublishCommand_T], Awaitable[Any]],
-        cmd: _PublishCommand_T,
+        call_next: Callable[[PublishCommand_T], Awaitable[Any]],
+        cmd: PublishCommand_T,
     ) -> Any:
         """Publish a message and return an async iterator."""
         err: Optional[Exception] = None

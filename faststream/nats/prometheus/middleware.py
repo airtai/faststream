@@ -3,13 +3,14 @@ from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.constants import EMPTY
 from faststream.nats.prometheus.provider import settings_provider_factory
+from faststream.nats.response import NatsPublishCommand
 from faststream.prometheus.middleware import PrometheusMiddleware
 
 if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
 
 
-class NatsPrometheusMiddleware(PrometheusMiddleware):
+class NatsPrometheusMiddleware(PrometheusMiddleware[NatsPublishCommand]):
     def __init__(
         self,
         *,

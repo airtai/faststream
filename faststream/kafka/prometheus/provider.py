@@ -2,15 +2,13 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Union, cast
 
 from faststream.message.message import MsgType, StreamMessage
-from faststream.prometheus import (
-    MetricsSettingsProvider,
-)
+from faststream.prometheus import MetricsSettingsProvider
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord
 
-    from faststream.kafka.response import KafkaPublishCommand
     from faststream.prometheus import ConsumeAttrs
+    from faststream.response import PublishCommand
 
 
 class BaseKafkaMetricsSettingsProvider(MetricsSettingsProvider[MsgType]):
@@ -21,7 +19,7 @@ class BaseKafkaMetricsSettingsProvider(MetricsSettingsProvider[MsgType]):
 
     def get_publish_destination_name_from_cmd(
         self,
-        cmd: "KafkaPublishCommand",
+        cmd: "PublishCommand",
     ) -> str:
         return cmd.destination
 
