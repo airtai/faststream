@@ -16,6 +16,7 @@ import anyio
 from typing_extensions import ParamSpec
 
 from faststream.asyncapi.proto import AsyncAPIApplication
+from faststream.constants import AppState
 from faststream.log.logging import logger
 from faststream.utils import apply_types, context
 from faststream.utils.functions import drop_response_type, fake_context, to_async
@@ -70,6 +71,7 @@ class Application(ABC, AsyncAPIApplication):
     ) -> None:
         context.set_global("app", self)
 
+        self._state: AppState = AppState.STATE_STOPPED
         self._should_exit = False
         self.broker = broker
         self.logger = logger
@@ -197,6 +199,7 @@ class Application(ABC, AsyncAPIApplication):
     ) -> None:
         self._log(log_level, "FastStream app starting...")
         await self.start(**(run_extra_options or {}))
+        self._state = AppState.STATE_RUNNING
         self._log(
             log_level, "FastStream app started successfully! To exit, press CTRL+C"
         )
@@ -204,8 +207,13 @@ class Application(ABC, AsyncAPIApplication):
     async def _shutdown(self, log_level: int = logging.INFO) -> None:
         self._log(log_level, "FastStream app shutting down...")
         await self.stop()
+        self._state = AppState.STATE_STOPPED
         self._log(log_level, "FastStream app shut down gracefully.")
 
     def _log(self, level: int, message: str) -> None:
         if self.logger is not None:
             self.logger.log(level, message)
+
+    @property
+    def state(self) -> AppState:
+        return self._state
