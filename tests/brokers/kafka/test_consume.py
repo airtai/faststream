@@ -379,3 +379,57 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
         assert event.is_set()
         assert event2.is_set()
         assert mock.call_count == 2, mock.call_count
+
+    @pytest.mark.asyncio
+    async def test_consume_without_value(
+        self,
+        mock: MagicMock,
+        queue: str,
+        event: asyncio.Event,
+    ) -> None:
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(queue)
+        async def handler(msg):
+            event.set()
+            mock(msg)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br._producer._producer.send(queue, key=b"")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+            mock.assert_called_once_with(b"")
+
+    @pytest.mark.asyncio
+    async def test_consume_batch_without_value(
+        self,
+        mock: MagicMock,
+        queue: str,
+        event: asyncio.Event,
+    ) -> None:
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(queue, batch=True)
+        async def handler(msg):
+            event.set()
+            mock(msg)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br._producer._producer.send(queue, key=b"")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+            mock.assert_called_once_with([b""])
