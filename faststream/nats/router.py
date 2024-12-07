@@ -75,6 +75,10 @@ class NatsPublisher(ArgsContainer):
         # basic args
         middlewares: Annotated[
             Sequence["PublisherMiddleware"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.7.0"
+            ),
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information
@@ -252,6 +256,10 @@ class NatsRoute(SubscriberRoute):
         ] = None,
         middlewares: Annotated[
             Sequence["SubscriberMiddleware[NatsMessage]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.7.0"
+            ),
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         max_workers: Annotated[

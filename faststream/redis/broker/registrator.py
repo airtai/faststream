@@ -65,6 +65,10 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         ] = None,
         middlewares: Annotated[
             Sequence["SubscriberMiddleware[UnifyRedisMessage]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.7.0"
+            ),
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -156,6 +160,10 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         ] = "",
         middlewares: Annotated[
             Sequence["PublisherMiddleware"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.7.0"
+            ),
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

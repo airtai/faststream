@@ -90,6 +90,10 @@ class KafkaPublisher(ArgsContainer):
         # basic args
         middlewares: Annotated[
             Sequence["PublisherMiddleware"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.7.0"
+            ),
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -386,6 +390,10 @@ class KafkaRoute(SubscriberRoute):
         ] = None,
         middlewares: Annotated[
             Sequence["SubscriberMiddleware[KafkaMessage]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.7.0"
+            ),
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
