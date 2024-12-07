@@ -380,7 +380,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
         assert event2.is_set()
         assert mock.call_count == 2, mock.call_count
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_without_value(
         self,
         mock: MagicMock,
@@ -407,7 +407,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
             mock.assert_called_once_with(b"")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_batch_without_value(
         self,
         mock: MagicMock,
