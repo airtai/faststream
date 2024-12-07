@@ -55,7 +55,7 @@ class LoggerState(SetupAble):
         message: str,
         log_level: Optional[int] = None,
         extra: Optional["AnyDict"] = None,
-        exc_info: Optional[Exception] = None,
+        exc_info: Optional[BaseException] = None,
     ) -> None:
         self.logger.log(
             (log_level or self.log_level),

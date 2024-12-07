@@ -1,7 +1,10 @@
 from collections.abc import Awaitable
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional
 
-from typing_extensions import Self
+# We should use typing_extensions.TypeVar until python3.13 due default
+from typing_extensions import Self, TypeVar
+
+from faststream.response.response import PublishCommand
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -9,10 +12,16 @@ if TYPE_CHECKING:
     from faststream._internal.basic_types import AsyncFuncAny
     from faststream._internal.context.repository import ContextRepo
     from faststream.message import StreamMessage
-    from faststream.response.response import PublishCommand
 
 
-class BaseMiddleware:
+_PublishCommand_T = TypeVar(
+    "_PublishCommand_T",
+    bound=PublishCommand,
+    default=PublishCommand,
+)
+
+
+class BaseMiddleware(Generic[_PublishCommand_T]):
     """A base middleware class."""
 
     def __init__(
@@ -54,11 +63,11 @@ class BaseMiddleware:
         self,
         msg: "StreamMessage[Any]",
     ) -> "StreamMessage[Any]":
-        """Asynchronously consumes a message."""
+        """This option was deprecated and will be removed in 0.7.0. Please, use `consume_scope` instead."""
         return msg
 
     async def after_consume(self, err: Optional[Exception]) -> None:
-        """A function to handle the result of consuming a resource asynchronously."""
+        """This option was deprecated and will be removed in 0.7.0. Please, use `consume_scope` instead."""
         if err is not None:
             raise err
 
@@ -83,23 +92,23 @@ class BaseMiddleware:
 
     async def on_publish(
         self,
-        msg: "PublishCommand",
-    ) -> "PublishCommand":
-        """Asynchronously handle a publish event."""
+        msg: _PublishCommand_T,
+    ) -> _PublishCommand_T:
+        """This option was deprecated and will be removed in 0.7.0. Please, use `publish_scope` instead."""
         return msg
 
     async def after_publish(
         self,
         err: Optional[Exception],
     ) -> None:
-        """Asynchronous function to handle the after publish event."""
+        """This option was deprecated and will be removed in 0.7.0. Please, use `publish_scope` instead."""
         if err is not None:
             raise err
 
     async def publish_scope(
         self,
-        call_next: Callable[["PublishCommand"], Awaitable[Any]],
-        cmd: "PublishCommand",
+        call_next: Callable[[_PublishCommand_T], Awaitable[Any]],
+        cmd: _PublishCommand_T,
     ) -> Any:
         """Publish a message and return an async iterator."""
         err: Optional[Exception] = None

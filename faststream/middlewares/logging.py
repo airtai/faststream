@@ -52,7 +52,7 @@ class _LoggingMiddleware(BaseMiddleware):
         self,
         call_next: "AsyncFuncAny",
         msg: "StreamMessage[Any]",
-    ) -> "StreamMessage[Any]":
+    ) -> Any:
         source_type = self._source_type = msg._source_type
 
         if source_type is not SourceType.RESPONSE:
@@ -78,7 +78,7 @@ class _LoggingMiddleware(BaseMiddleware):
                 if issubclass(exc_type, IgnoredException):
                     self.logger.log(
                         log_level=logging.INFO,
-                        message=exc_val,
+                        message=str(exc_val),
                         extra=c,
                     )
 
