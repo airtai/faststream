@@ -4,13 +4,14 @@ from contextlib import AbstractContextManager, AsyncExitStack
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
     Optional,
     Union,
 )
 
-from typing_extensions import Self, overload, override
+from typing_extensions import Self, deprecated, overload, override
 
 from faststream._internal.subscriber.call_item import HandlerItem
 from faststream._internal.subscriber.proto import SubscriberProto
@@ -203,7 +204,13 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         filter: "Filter[StreamMessage[MsgType]]" = default_filter,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Sequence["SubscriberMiddleware[Any]"] = (),
+        middlewares: Annotated[
+            Sequence["SubscriberMiddleware[Any]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
+        ] = (),
         dependencies: Iterable["Dependant"] = (),
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -221,7 +228,13 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         filter: "Filter[StreamMessage[MsgType]]" = default_filter,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Sequence["SubscriberMiddleware[Any]"] = (),
+        middlewares: Annotated[
+            Sequence["SubscriberMiddleware[Any]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
+        ] = (),
         dependencies: Iterable["Dependant"] = (),
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
 
@@ -237,7 +250,13 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         filter: "Filter[StreamMessage[MsgType]]" = default_filter,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Sequence["SubscriberMiddleware[Any]"] = (),
+        middlewares: Annotated[
+            Sequence["SubscriberMiddleware[Any]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
+        ] = (),
         dependencies: Iterable["Dependant"] = (),
     ) -> Union[
         "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",

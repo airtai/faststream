@@ -63,11 +63,11 @@ class BaseMiddleware(Generic[PublishCommand_T]):
         self,
         msg: "StreamMessage[Any]",
     ) -> "StreamMessage[Any]":
-        """This option was deprecated and will be removed in 0.7.0. Please, use `consume_scope` instead."""
+        """This option was deprecated and will be removed in 0.6.10. Please, use `consume_scope` instead."""
         return msg
 
     async def after_consume(self, err: Optional[Exception]) -> None:
-        """This option was deprecated and will be removed in 0.7.0. Please, use `consume_scope` instead."""
+        """This option was deprecated and will be removed in 0.6.10. Please, use `consume_scope` instead."""
         if err is not None:
             raise err
 
@@ -94,14 +94,14 @@ class BaseMiddleware(Generic[PublishCommand_T]):
         self,
         msg: PublishCommand_T,
     ) -> PublishCommand_T:
-        """This option was deprecated and will be removed in 0.7.0. Please, use `publish_scope` instead."""
+        """This option was deprecated and will be removed in 0.6.10. Please, use `publish_scope` instead."""
         return msg
 
     async def after_publish(
         self,
         err: Optional[Exception],
     ) -> None:
-        """This option was deprecated and will be removed in 0.7.0. Please, use `publish_scope` instead."""
+        """This option was deprecated and will be removed in 0.6.10. Please, use `publish_scope` instead."""
         if err is not None:
             raise err
 
