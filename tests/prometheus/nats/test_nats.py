@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -9,28 +10,27 @@ from faststream.nats import JStream, NatsBroker, PullSub
 from faststream.nats.prometheus.middleware import NatsPrometheusMiddleware
 from tests.brokers.nats.test_consume import TestConsume
 from tests.brokers.nats.test_publish import TestPublish
-from tests.prometheus.basic import LocalPrometheusTestcase
+from tests.prometheus.basic import LocalPrometheusTestcase, LocalRPCPrometheusTestcase
+
+from .basic import NatsPrometheusSettings
 
 
-@pytest.fixture
+@pytest.fixture()
 def stream(queue):
     return JStream(queue)
 
 
-@pytest.mark.nats
-class TestPrometheus(LocalPrometheusTestcase):
-    def get_broker(self, apply_types=False, **kwargs):
-        return NatsBroker(apply_types=apply_types, **kwargs)
-
-    def get_middleware(self, **kwargs):
-        return NatsPrometheusMiddleware(**kwargs)
-
+@pytest.mark.nats()
+class TestPrometheus(
+    NatsPrometheusSettings, LocalPrometheusTestcase, LocalRPCPrometheusTestcase
+):
     async def test_metrics_batch(
         self,
-        event: asyncio.Event,
         queue: str,
         stream: JStream,
-    ):
+    ) -> None:
+        event = asyncio.Event()
+
         middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
@@ -66,9 +66,9 @@ class TestPrometheus(LocalPrometheusTestcase):
         self.assert_publish_metrics(metrics_manager=metrics_manager_mock)
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestPublishWithPrometheus(TestPublish):
-    def get_broker(self, apply_types: bool = False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
         return NatsBroker(
             middlewares=(NatsPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
@@ -76,9 +76,9 @@ class TestPublishWithPrometheus(TestPublish):
         )
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestConsumeWithPrometheus(TestConsume):
-    def get_broker(self, apply_types: bool = False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
         return NatsBroker(
             middlewares=(NatsPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,

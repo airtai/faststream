@@ -1,13 +1,14 @@
 import asyncio
-from typing import Any, Optional, Type
+from typing import Any, Optional
 from unittest.mock import ANY, Mock, call
 
 import pytest
 from prometheus_client import CollectorRegistry
 
 from faststream import Context
-from faststream.broker.message import AckStatus
 from faststream.exceptions import IgnoredException, RejectMessage
+from faststream.message import AckStatus
+from faststream.prometheus import MetricsSettingsProvider
 from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
@@ -17,12 +18,12 @@ from faststream.prometheus.types import ProcessingStatus
 from tests.brokers.base.basic import BaseTestcaseConfig
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class LocalPrometheusTestcase(BaseTestcaseConfig):
-    def get_broker(self, apply_types=False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any):
         raise NotImplementedError
 
-    def get_middleware(self, **kwargs) -> BasePrometheusMiddleware:
+    def get_middleware(self, **kwargs: Any) -> BasePrometheusMiddleware:
         raise NotImplementedError
 
     @staticmethod
@@ -40,34 +41,47 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             "status",
             "exception_class",
         ),
-        [
+        (
             pytest.param(
-                AckStatus.acked,
+                AckStatus.ACKED,
                 RejectMessage,
                 id="acked status with reject message exception",
             ),
             pytest.param(
-                AckStatus.acked, Exception, id="acked status with not handler exception"
-            ),
-            pytest.param(AckStatus.acked, None, id="acked status without exception"),
-            pytest.param(AckStatus.nacked, None, id="nacked status without exception"),
-            pytest.param(
-                AckStatus.rejected, None, id="rejected status without exception"
+                AckStatus.ACKED,
+                Exception,
+                id="acked status with not handler exception",
             ),
             pytest.param(
-                AckStatus.acked,
+                AckStatus.ACKED,
+                None,
+                id="acked status without exception",
+            ),
+            pytest.param(
+                AckStatus.NACKED,
+                None,
+                id="nacked status without exception",
+            ),
+            pytest.param(
+                AckStatus.REJECTED,
+                None,
+                id="rejected status without exception",
+            ),
+            pytest.param(
+                AckStatus.ACKED,
                 IgnoredException,
                 id="acked status with ignore exception",
             ),
-        ],
+        ),
     )
     async def test_metrics(
         self,
-        event: asyncio.Event,
         queue: str,
         status: AckStatus,
-        exception_class: Optional[Type[Exception]],
-    ):
+        exception_class: Optional[type[Exception]],
+    ) -> None:
+        event = asyncio.Event()
+
         middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
@@ -88,11 +102,11 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             if exception_class:
                 raise exception_class
 
-            if status == AckStatus.acked:
+            if status == AckStatus.ACKED:
                 await message.ack()
-            elif status == AckStatus.nacked:
+            elif status == AckStatus.NACKED:
                 await message.nack()
-            elif status == AckStatus.rejected:
+            elif status == AckStatus.REJECTED:
                 await message.reject()
 
         async with broker:
@@ -116,8 +130,8 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         *,
         metrics_manager: Any,
         message: Any,
-        exception_class: Optional[Type[Exception]],
-    ):
+        exception_class: Optional[type[Exception]],
+    ) -> None:
         settings_provider = self.settings_provider_factory(message.raw_message)
         consume_attrs = settings_provider.get_consume_attrs_from_message(message)
         assert metrics_manager.add_received_message.mock_calls == [
@@ -198,7 +212,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                 == []
             )
 
-    def assert_publish_metrics(self, metrics_manager: Any):
+    def assert_publish_metrics(self, metrics_manager: Any) -> None:
         settings_provider = self.settings_provider_factory(None)
         assert metrics_manager.observe_published_message_duration.mock_calls == [
             call(
@@ -214,9 +228,54 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             ),
         ]
 
-    async def test_one_registry_for_some_middlewares(
-        self, event: asyncio.Event, queue: str
+
+class LocalRPCPrometheusTestcase:
+    @pytest.mark.asyncio()
+    async def test_rpc_request(
+        self,
+        queue: str,
     ) -> None:
+        event = asyncio.Event()
+
+        middleware = self.get_middleware(registry=CollectorRegistry())
+        metrics_manager_mock = Mock()
+        middleware._metrics_manager = metrics_manager_mock
+
+        broker = self.get_broker(apply_types=True, middlewares=(middleware,))
+
+        @broker.subscriber(queue)
+        async def handle():
+            event.set()
+            return ""
+
+        async with self.patch_broker(broker) as br:
+            await br.start()
+
+            await asyncio.wait_for(
+                br.request("", queue),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        metrics_manager_mock.add_received_message.assert_called_once()
+        metrics_manager_mock.add_published_message.assert_called_once()
+
+
+class LocalMetricsSettingsProviderTestcase:
+    messaging_system: str
+
+    def get_middleware(self, **kwargs) -> BasePrometheusMiddleware:
+        raise NotImplementedError
+
+    @staticmethod
+    def get_provider() -> MetricsSettingsProvider:
+        raise NotImplementedError
+
+    def test_messaging_system(self) -> None:
+        provider = self.get_provider()
+        assert provider.messaging_system == self.messaging_system
+
+    def test_one_registry_for_some_middlewares(self) -> None:
         registry = CollectorRegistry()
 
         middleware_1 = self.get_middleware(registry=registry)

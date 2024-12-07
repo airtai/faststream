@@ -9,9 +9,9 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiopika
-async def test_pydantic_model_rabbit():
+async def test_pydantic_model_rabbit() -> None:
     from docs.docs_src.getting_started.subscription.rabbit.pydantic_model import (
         broker,
         handle,
@@ -23,9 +23,9 @@ async def test_pydantic_model_rabbit():
         handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_pydantic_model_kafka():
+async def test_pydantic_model_kafka() -> None:
     from docs.docs_src.getting_started.subscription.kafka.pydantic_model import (
         broker,
         handle,
@@ -37,9 +37,9 @@ async def test_pydantic_model_kafka():
         handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_confluent
-async def test_pydantic_model_confluent():
+async def test_pydantic_model_confluent() -> None:
     from docs.docs_src.getting_started.subscription.confluent.pydantic_model import (
         broker,
         handle,
@@ -51,9 +51,9 @@ async def test_pydantic_model_confluent():
         handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_nats
-async def test_pydantic_model_nats():
+async def test_pydantic_model_nats() -> None:
     from docs.docs_src.getting_started.subscription.nats.pydantic_model import (
         broker,
         handle,
@@ -65,9 +65,9 @@ async def test_pydantic_model_nats():
         handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_redis
-async def test_pydantic_model_redis():
+async def test_pydantic_model_redis() -> None:
     from docs.docs_src.getting_started.subscription.redis.pydantic_model import (
         broker,
         handle,

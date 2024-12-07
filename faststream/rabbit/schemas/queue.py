@@ -1,15 +1,15 @@
 from copy import deepcopy
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Annotated, Optional
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc
 
-from faststream.broker.schemas import NameRequired
-from faststream.utils.path import compile_path
+from faststream._internal.proto import NameRequired
+from faststream._internal.utils.path import compile_path
 
 if TYPE_CHECKING:
     from aio_pika.abc import TimeoutType
 
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
 
 
 class RabbitQueue(NameRequired):
@@ -34,14 +34,23 @@ class RabbitQueue(NameRequired):
         "timeout",
     )
 
+    def __repr__(self) -> str:
+        if self.passive:
+            body = ""
+        else:
+            body = f", robust={self.robust}, durable={self.durable}, exclusive={self.exclusive}, auto_delete={self.auto_delete})"
+
+        return f"{self.__class__.__name__}({self.name}, routing_key='{self.routing}'{body})"
+
     def __hash__(self) -> int:
+        """Supports hash to store real objects in declarer."""
         return sum(
             (
                 hash(self.name),
                 int(self.durable),
                 int(self.exclusive),
                 int(self.auto_delete),
-            )
+            ),
         )
 
     @property
@@ -63,7 +72,7 @@ class RabbitQueue(NameRequired):
             bool,
             Doc(
                 "The queue can be used only in the current connection "
-                "and will be deleted after connection closed."
+                "and will be deleted after connection closed.",
             ),
         ] = False,
         passive: Annotated[
@@ -78,7 +87,7 @@ class RabbitQueue(NameRequired):
             Optional["AnyDict"],
             Doc(
                 "Queue declarationg arguments. "
-                "You can find information about them in the official RabbitMQ documentation: https://www.rabbitmq.com/docs/queues#optional-arguments"
+                "You can find information about them in the official RabbitMQ documentation: https://www.rabbitmq.com/docs/queues#optional-arguments",
             ),
         ] = None,
         timeout: Annotated[
@@ -120,9 +129,9 @@ class RabbitQueue(NameRequired):
     def add_prefix(self, prefix: str) -> "RabbitQueue":
         new_q: RabbitQueue = deepcopy(self)
 
-        new_q.name = "".join((prefix, new_q.name))
+        new_q.name = f"{prefix}{new_q.name}"
 
         if new_q.routing_key:
-            new_q.routing_key = "".join((prefix, new_q.routing_key))
+            new_q.routing_key = f"{prefix}{new_q.routing_key}"
 
         return new_q

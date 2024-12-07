@@ -4,34 +4,35 @@ from unittest.mock import MagicMock, patch
 import pytest
 from aiokafka import AIOKafkaConsumer
 
+from faststream import AckPolicy
 from faststream.exceptions import AckMessage
-from faststream.kafka import KafkaBroker, TopicPartition
+from faststream.kafka import TopicPartition
 from faststream.kafka.annotations import KafkaMessage
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
+from .basic import KafkaTestcaseConfig
 
-@pytest.mark.kafka
-class TestConsume(BrokerRealConsumeTestcase):
-    def get_broker(self, apply_types: bool = False):
-        return KafkaBroker(apply_types=apply_types)
 
-    @pytest.mark.asyncio
+@pytest.mark.kafka()
+class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
+    @pytest.mark.asyncio()
     async def test_consume_by_pattern(
         self,
         queue: str,
-        event: asyncio.Event,
-    ):
+    ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         @consume_broker.subscriber(queue)
-        async def handler(msg):
+        async def handler(msg) -> None:
             event.set()
 
         pattern_event = asyncio.Event()
 
         @consume_broker.subscriber(pattern=f"{queue[:-1]}*")
-        async def pattern_handler(msg):
+        async def pattern_handler(msg) -> None:
             pattern_event.set()
 
         async with self.patch_broker(consume_broker) as br:
@@ -51,14 +52,14 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
         assert pattern_event.is_set()
 
-    @pytest.mark.asyncio
-    async def test_consume_batch(self, queue: str):
+    @pytest.mark.asyncio()
+    async def test_consume_batch(self, queue: str) -> None:
         consume_broker = self.get_broker()
 
         msgs_queue = asyncio.Queue(maxsize=1)
 
         @consume_broker.subscriber(queue, batch=True)
-        async def handler(msg):
+        async def handler(msg) -> None:
             await msgs_queue.put(msg)
 
         async with self.patch_broker(consume_broker) as br:
@@ -73,23 +74,24 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert [{1, "hi"}] == [set(r.result()) for r in result]
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_batch_headers(
         self,
         mock,
-        event: asyncio.Event,
         queue: str,
-    ):
+    ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
         @consume_broker.subscriber(queue, batch=True)
-        def subscriber(m, msg: KafkaMessage):
+        def subscriber(m, msg: KafkaMessage) -> None:
             check = all(
                 (
                     msg.headers,
                     [msg.headers] == msg.batch_headers,
                     msg.headers.get("custom") == "1",
-                )
+                ),
             )
             mock(check)
             event.set()
@@ -108,24 +110,29 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
         mock.assert_called_once_with(True)
 
-    @pytest.mark.asyncio
-    @pytest.mark.slow
-    async def test_consume_ack(
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
+    async def test_consume_auto_ack(
         self,
         queue: str,
-        event: asyncio.Event,
-    ):
+    ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
-        async def handler(msg: KafkaMessage):
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
+        async def handler(msg: KafkaMessage) -> None:
             event.set()
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AIOKafkaConsumer,
+                "commit",
+                spy_decorator(AIOKafkaConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -133,7 +140,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             consume_broker.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -143,18 +150,19 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_manual_partition_consume(
         self,
         queue: str,
-        event: asyncio.Event,
-    ):
+    ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker()
 
         tp1 = TopicPartition(queue, partition=0)
 
         @consume_broker.subscriber(partitions=[tp1])
-        async def handler_tp1(msg):
+        async def handler_tp1(msg) -> None:
             event.set()
 
         async with self.patch_broker(consume_broker) as br:
@@ -170,17 +178,20 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
-    @pytest.mark.slow
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
     async def test_consume_ack_manual(
         self,
         queue: str,
-        event: asyncio.Event,
-    ):
+    ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
-        async def handler(msg: KafkaMessage):
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
+        async def handler(msg: KafkaMessage) -> None:
             await msg.ack()
             event.set()
 
@@ -188,7 +199,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AIOKafkaConsumer,
+                "commit",
+                spy_decorator(AIOKafkaConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -196,7 +209,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             br.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -206,25 +219,30 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
-    @pytest.mark.slow
-    async def test_consume_ack_raise(
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
+    async def test_consume_ack_by_raise(
         self,
         queue: str,
-        event: asyncio.Event,
-    ):
+    ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
         async def handler(msg: KafkaMessage):
             event.set()
-            raise AckMessage()
+            raise AckMessage
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AIOKafkaConsumer,
+                "commit",
+                spy_decorator(AIOKafkaConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -232,7 +250,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             br.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -242,17 +260,20 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
-    @pytest.mark.slow
-    async def test_nack(
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
+    async def test_manual_nack(
         self,
         queue: str,
-        event: asyncio.Event,
-    ):
+    ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
-        async def handler(msg: KafkaMessage):
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
+        async def handler(msg: KafkaMessage) -> None:
             await msg.nack()
             event.set()
 
@@ -260,7 +281,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await br.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AIOKafkaConsumer,
+                "commit",
+                spy_decorator(AIOKafkaConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -268,7 +291,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             br.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -278,24 +301,29 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
-    @pytest.mark.slow
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
     async def test_consume_no_ack(
         self,
         queue: str,
-        event: asyncio.Event,
-    ):
+    ) -> None:
+        event = asyncio.Event()
+
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", no_ack=True)
-        async def handler(msg: KafkaMessage):
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.DO_NOTHING
+        )
+        async def handler(msg: KafkaMessage) -> None:
             event.set()
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AIOKafkaConsumer,
+                "commit",
+                spy_decorator(AIOKafkaConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -303,7 +331,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             br.publish(
                                 "hello",
                                 queue,
-                            )
+                            ),
                         ),
                         asyncio.create_task(event.wait()),
                     ),
@@ -313,9 +341,9 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             assert event.is_set()
 
-    @pytest.mark.asyncio
-    @pytest.mark.slow
-    async def test_concurrent_consume(self, queue: str, mock: MagicMock):
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
+    async def test_concurrent_consume(self, queue: str, mock: MagicMock) -> None:
         event = asyncio.Event()
         event2 = asyncio.Event()
 
@@ -324,7 +352,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(queue, max_workers=2)
 
         @consume_broker.subscriber(*args, **kwargs)
-        async def handler(msg):
+        async def handler(msg) -> None:
             mock()
             if event.is_set():
                 event2.set()
@@ -352,7 +380,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event2.is_set()
         assert mock.call_count == 2, mock.call_count
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_without_value(
         self,
         mock: MagicMock,
@@ -379,7 +407,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
             mock.assert_called_once_with(b"")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_batch_without_value(
         self,
         mock: MagicMock,

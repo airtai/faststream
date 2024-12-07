@@ -1,11 +1,10 @@
 from typing import TYPE_CHECKING, Protocol
 
-from faststream.broker.message import MsgType
+from faststream.message.message import MsgType, StreamMessage
 
 if TYPE_CHECKING:
-    from faststream.broker.message import StreamMessage
     from faststream.prometheus import ConsumeAttrs
-    from faststream.types import AnyDict
+    from faststream.response.response import PublishCommand
 
 
 class MetricsSettingsProvider(Protocol[MsgType]):
@@ -16,7 +15,7 @@ class MetricsSettingsProvider(Protocol[MsgType]):
         msg: "StreamMessage[MsgType]",
     ) -> "ConsumeAttrs": ...
 
-    def get_publish_destination_name_from_kwargs(
+    def get_publish_destination_name_from_cmd(
         self,
-        kwargs: "AnyDict",
+        cmd: "PublishCommand",
     ) -> str: ...
