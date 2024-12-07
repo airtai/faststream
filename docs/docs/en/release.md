@@ -12,6 +12,17 @@ hide:
 ---
 
 # Release Notes
+## 0.5.33
+
+### What's Changed
+
+Just a Confluent & Kafka hotfix. Messages without body (with key only) parsing correctly now.
+
+* fix: Confluent, read messages under lock by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1963](https://github.com/airtai/faststream/pull/1963){.external-link target="_blank"}
+* fix #1967: correct empty kafka message body processing by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1968](https://github.com/airtai/faststream/pull/1968){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.32...0.5.33](https://github.com/airtai/faststream/compare/0.5.32...0.5.33){.external-link target="_blank"}
+
 ## 0.5.32
 
 ### What's Changed

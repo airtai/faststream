@@ -30,7 +30,7 @@ class AsyncConfluentParser:
         """Parses a Kafka message."""
         headers = _parse_msg_headers(message.headers() or ())
 
-        body = message.value()
+        body = message.value() or b""
         offset = message.offset()
         _, timestamp = message.timestamp()
 
@@ -58,7 +58,7 @@ class AsyncConfluentParser:
         last = message[-1]
 
         for m in message:
-            body.append(m.value())
+            body.append(m.value() or b"")
             batch_headers.append(_parse_msg_headers(m.headers() or ()))
 
         headers = next(iter(batch_headers), {})

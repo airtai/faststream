@@ -36,7 +36,7 @@ class AioKafkaParser:
         headers = {i: j.decode() for i, j in message.headers}
 
         return self.msg_class(
-            body=message.value,
+            body=message.value or b"",
             headers=headers,
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
@@ -73,7 +73,7 @@ class AioKafkaBatchParser(AioKafkaParser):
         last = message[-1]
 
         for m in message:
-            body.append(m.value)
+            body.append(m.value or b"")
             batch_headers.append({i: j.decode() for i, j in m.headers})
 
         headers = next(iter(batch_headers), {})
