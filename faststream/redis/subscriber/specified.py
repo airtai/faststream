@@ -3,10 +3,14 @@ from faststream._internal.subscriber.specified import (
 )
 from faststream.redis.schemas import ListSub, StreamSub
 from faststream.redis.schemas.proto import RedisSpecificationProtocol
-from faststream.redis.subscriber.usecase import (
-    BatchListSubscriber,
+from faststream.redis.subscriber.usecases.channel_subscriber import (
     ChannelSubscriber,
+)
+from faststream.redis.subscriber.usecases.list_subscriber import (
+    BatchListSubscriber,
     ListSubscriber,
+)
+from faststream.redis.subscriber.usecases.stream_subscriber import (
     StreamBatchSubscriber,
     StreamSubscriber,
 )
