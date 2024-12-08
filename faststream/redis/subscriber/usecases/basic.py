@@ -1,4 +1,3 @@
-
 from abc import abstractmethod
 from collections.abc import Iterable, Sequence
 from contextlib import suppress

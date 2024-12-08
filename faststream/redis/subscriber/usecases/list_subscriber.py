@@ -1,4 +1,3 @@
-
 from collections.abc import Iterable, Sequence
 from copy import deepcopy
 from typing import (
