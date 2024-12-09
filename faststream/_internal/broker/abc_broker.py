@@ -7,19 +7,34 @@ from typing import (
     Optional,
 )
 
+from faststream._internal.publisher.proto import PublisherProto
 from faststream._internal.state import BrokerState, Pointer
+from faststream._internal.subscriber.proto import SubscriberProto
 from faststream._internal.types import BrokerMiddleware, CustomCallable, MsgType
+from faststream.specification.proto import EndpointSpecification
+from faststream.specification.schema import PublisherSpec, SubscriberSpec
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
-    from faststream._internal.publisher.proto import PublisherProto
-    from faststream._internal.subscriber.proto import SubscriberProto
+
+class FinalSubscriber(
+    EndpointSpecification[MsgType, SubscriberSpec],
+    SubscriberProto[MsgType],
+):
+    pass
+
+
+class FinalPublisher(
+    EndpointSpecification[MsgType, PublisherSpec],
+    PublisherProto[MsgType],
+):
+    pass
 
 
 class ABCBroker(Generic[MsgType]):
-    _subscribers: list["SubscriberProto[MsgType]"]
-    _publishers: list["PublisherProto[MsgType]"]
+    _subscribers: list[FinalSubscriber[MsgType]]
+    _publishers: list[FinalPublisher[MsgType]]
 
     def __init__(
         self,
@@ -61,9 +76,9 @@ class ABCBroker(Generic[MsgType]):
     @abstractmethod
     def subscriber(
         self,
-        subscriber: "SubscriberProto[MsgType]",
+        subscriber: "FinalSubscriber[MsgType]",
         is_running: bool = False,
-    ) -> "SubscriberProto[MsgType]":
+    ) -> "FinalSubscriber[MsgType]":
         subscriber.add_prefix(self.prefix)
         if not is_running:
             self._subscribers.append(subscriber)
@@ -72,9 +87,9 @@ class ABCBroker(Generic[MsgType]):
     @abstractmethod
     def publisher(
         self,
-        publisher: "PublisherProto[MsgType]",
+        publisher: "FinalPublisher[MsgType]",
         is_running: bool = False,
-    ) -> "PublisherProto[MsgType]":
+    ) -> "FinalPublisher[MsgType]":
         publisher.add_prefix(self.prefix)
         if not is_running:
             self._publishers.append(publisher)
@@ -82,7 +97,7 @@ class ABCBroker(Generic[MsgType]):
 
     def setup_publisher(
         self,
-        publisher: "PublisherProto[MsgType]",
+        publisher: "FinalPublisher[MsgType]",
         **kwargs: Any,
     ) -> None:
         """Setup the Publisher to prepare it to starting."""
