@@ -586,6 +586,7 @@ search:
                     - [TestKafkaBroker](api/faststream/confluent/testing/TestKafkaBroker.md)
                     - [build_message](api/faststream/confluent/testing/build_message.md)
             - constants
+                - [AppState](api/faststream/constants/AppState.md)
                 - [ContentTypes](api/faststream/constants/ContentTypes.md)
             - exceptions
                 - [AckMessage](api/faststream/exceptions/AckMessage.md)
