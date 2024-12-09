@@ -2,26 +2,29 @@ import logging
 import sys
 import warnings
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import anyio
 import typer
 
 from faststream import FastStream
 from faststream.__about__ import __version__
+from faststream._internal._compat import json_loads
 from faststream._internal.application import Application
-from faststream._internal.cli.docs import asyncapi_app
-from faststream._internal.cli.utils.imports import import_from_string
-from faststream._internal.cli.utils.logs import LogLevels, get_log_level, set_log_level
-from faststream._internal.cli.utils.parser import parse_cli_args
+from faststream.asgi import AsgiFastStream
 from faststream.exceptions import INSTALL_WATCHFILES, SetupError, StartupValidationError
+
+from .docs import docs_app
+from .utils.imports import import_from_string
+from .utils.logs import LogLevels, get_log_level, set_log_level
+from .utils.parser import parse_cli_args
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, SettingField
     from faststream._internal.broker.broker import BrokerUsecase
 
 cli = typer.Typer(pretty_exceptions_short=True)
-cli.add_typer(asyncapi_app, name="docs", help="Documentations commands")
+cli.add_typer(docs_app, name="docs", help="Documentations commands")
 
 
 def version_callback(version: bool) -> None:
@@ -122,6 +125,7 @@ def run(
 
     # Should be imported after sys.path changes
     module_path, app_obj = import_from_string(app, is_factory=is_factory)
+    app_obj = cast(Application, app_obj)
 
     args = (app, extra, is_factory, casted_log_level)
 
@@ -151,17 +155,29 @@ def run(
             ).run()
 
     elif workers > 1:
-        from faststream._internal.cli.supervisors.multiprocess import Multiprocess
-
         if isinstance(app_obj, FastStream):
+            from faststream._internal.cli.supervisors.multiprocess import Multiprocess
+
             Multiprocess(
                 target=_run,
                 args=(*args, logging.DEBUG),
                 workers=workers,
             ).run()
+
+        elif isinstance(app_obj, AsgiFastStream):
+            from faststream._internal.cli.supervisors.asgi_multiprocess import (
+                ASGIMultiprocess,
+            )
+
+            ASGIMultiprocess(
+                target=app,
+                args=args,
+                workers=workers,
+            ).run()
+
         else:
-            args[1]["workers"] = workers
-            _run(*args)
+            msg = f"Unexpected app type, expected FastStream or AsgiFastStream, got: {type(app_obj)}."
+            raise typer.BadParameter(msg)
 
     else:
         _run_imported_app(
@@ -181,6 +197,7 @@ def _run(
 ) -> None:
     """Runs the specified application."""
     _, app_obj = import_from_string(app, is_factory=is_factory)
+    app_obj = cast(Application, app_obj)
     _run_imported_app(
         app_obj,
         extra_options=extra_options,
@@ -235,7 +252,7 @@ def publish(
     ),
     message: str = typer.Argument(
         ...,
-        help="Message to be published.",
+        help="JSON Message string to publish.",
     ),
     rpc: bool = typer.Option(
         False,
@@ -255,9 +272,9 @@ def publish(
     """
     app, extra = parse_cli_args(app, *ctx.args)
 
-    extra["message"] = message
-    if "timeout" in extra:
-        extra["timeout"] = float(extra["timeout"])
+    publish_extra: AnyDict = extra.copy()
+    if "timeout" in publish_extra:
+        publish_extra["timeout"] = float(publish_extra["timeout"])
 
     try:
         _, app_obj = import_from_string(app, is_factory=is_factory)
@@ -269,7 +286,7 @@ def publish(
             raise ValueError(msg)
 
         app_obj._setup()
-        result = anyio.run(publish_message, app_obj.broker, rpc, extra)
+        result = anyio.run(publish_message, app_obj.broker, rpc, message, publish_extra)
 
         if rpc:
             typer.echo(result)
@@ -282,13 +299,18 @@ def publish(
 async def publish_message(
     broker: "BrokerUsecase[Any, Any]",
     rpc: bool,
+    message: str,
     extra: "AnyDict",
 ) -> Any:
+    with suppress(Exception):
+        message = json_loads(message)
+
     try:
         async with broker:
             if rpc:
-                return await broker.request(**extra)
-            return await broker.publish(**extra)
+                return await broker.request(message, **extra)  # type: ignore[call-arg]
+            return await broker.publish(message, **extra)  # type: ignore[call-arg]
+
     except Exception as e:
-        typer.echo(f"Error when broker was publishing: {e}")
+        typer.echo(f"Error when broker was publishing: {e!r}")
         sys.exit(1)

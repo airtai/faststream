@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any, Protocol, Union
 
 from aiokafka import TopicPartition as AIOKafkaTopicPartition
 
-from faststream.message import StreamMessage
+from faststream.message import AckStatus, StreamMessage
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord
@@ -51,6 +51,21 @@ class KafkaMessage(
     This class extends `StreamMessage` and is specialized for handling Kafka ConsumerRecord objects.
     """
 
+    def __init__(self, *args: Any, consumer: ConsumerProtocol, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.consumer = consumer
+        self.committed = AckStatus.ACKED
+
+
+class KafkaAckableMessage(
+    StreamMessage[
+        Union[
+            "ConsumerRecord",
+            tuple["ConsumerRecord", ...],
+        ]
+    ]
+):
     def __init__(
         self,
         *args: Any,
@@ -60,6 +75,12 @@ class KafkaMessage(
         super().__init__(*args, **kwargs)
 
         self.consumer = consumer
+
+    async def ack(self) -> None:
+        """Acknowledge the Kafka message."""
+        if not self.committed:
+            await self.consumer.commit()
+        await super().ack()
 
     async def nack(self) -> None:
         """Reject the Kafka message."""
@@ -78,11 +99,3 @@ class KafkaMessage(
                 offset=raw_message.offset,
             )
         await super().nack()
-
-
-class KafkaAckableMessage(KafkaMessage):
-    async def ack(self) -> None:
-        """Acknowledge the Kafka message."""
-        if not self.committed:
-            await self.consumer.commit()
-        await super().ack()

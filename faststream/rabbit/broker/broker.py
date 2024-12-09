@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -169,7 +169,7 @@ class RabbitBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[IncomingMessage]"],
+            Sequence["BrokerMiddleware[IncomingMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -245,10 +245,10 @@ class RabbitBroker(
             specification_url = str(amqp_url)
 
         # respect ascynapi_url argument scheme
-        builded_specification_url = urlparse(specification_url)
-        self.virtual_host = builded_specification_url.path
+        built_asyncapi_url = urlparse(specification_url)
+        self.virtual_host = built_asyncapi_url.path
         if protocol is None:
-            protocol = builded_specification_url.scheme
+            protocol = built_asyncapi_url.scheme
 
         super().__init__(
             url=str(amqp_url),
@@ -269,7 +269,7 @@ class RabbitBroker(
             # AsyncAPI args
             description=description,
             specification_url=specification_url,
-            protocol=protocol or builded_specification_url.scheme,
+            protocol=protocol or built_asyncapi_url.scheme,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
@@ -421,9 +421,15 @@ class RabbitBroker(
 
         url = None if url is EMPTY else url
 
-        if url or any(
-            (host, port, virtualhost, ssl_options, client_properties, security),
-        ):
+        if any((
+            url,
+            host,
+            port,
+            virtualhost,
+            ssl_options,
+            client_properties,
+            security,
+        )):
             security_args = parse_security(security)
 
             kwargs["url"] = build_url(
@@ -807,7 +813,7 @@ class RabbitBroker(
                 if cancel_scope.cancel_called:
                     return False
 
-                if not self._connection.is_closed:
+                if self._connection.connected.is_set():
                     return True
 
                 await anyio.sleep(sleep_time)

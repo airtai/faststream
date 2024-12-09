@@ -107,7 +107,7 @@ class AsyncConfluentProducer:
                 },
             )
 
-        self.producer = Producer(final_config)
+        self.producer = Producer(final_config, logger=self.logger)  # type: ignore[call-arg]
 
         self.__running = True
         self._poll_task = asyncio.create_task(self._poll_loop())
@@ -309,7 +309,11 @@ class AsyncConfluentConsumer:
             )
 
         self.config = final_config
-        self.consumer = Consumer(final_config)
+        self.consumer = Consumer(final_config, logger=self.logger)  # type: ignore[call-arg]
+
+        # We shouldn't read messages and close consumer concurrently
+        # https://github.com/airtai/faststream/issues/1904#issuecomment-2506990895
+        self._lock = anyio.Lock()
 
     @property
     def topics_to_create(self) -> list[str]:
@@ -369,11 +373,13 @@ class AsyncConfluentConsumer:
                 )
 
         # Wrap calls to async to make method cancelable by timeout
-        await call_or_await(self.consumer.close)
+        async with self._lock:
+            await call_or_await(self.consumer.close)
 
     async def getone(self, timeout: float = 0.1) -> Optional[Message]:
         """Consumes a single message from Kafka."""
-        msg = await call_or_await(self.consumer.poll, timeout)
+        async with self._lock:
+            msg = await call_or_await(self.consumer.poll, timeout)
         return check_msg_error(msg)
 
     async def getmany(
@@ -382,11 +388,12 @@ class AsyncConfluentConsumer:
         max_records: Optional[int] = 10,
     ) -> tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
-        raw_messages: list[Optional[Message]] = await call_or_await(
-            self.consumer.consume,
-            num_messages=max_records or 10,
-            timeout=timeout,
-        )
+        async with self._lock:
+            raw_messages: list[Optional[Message]] = await call_or_await(
+                self.consumer.consume,  # type: ignore[arg-type]
+                num_messages=max_records or 10,
+                timeout=timeout,
+            )
 
         return tuple(x for x in map(check_msg_error, raw_messages) if x is not None)
 

@@ -1,24 +1,23 @@
 import asyncio
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
 import pytest
 
 from faststream import Context
-from faststream.rabbit import RabbitBroker, RabbitResponse
+from faststream.rabbit import RabbitResponse
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
+
+from .basic import RabbitTestcaseConfig
 
 if TYPE_CHECKING:
     from faststream.rabbit.response import RabbitPublishCommand
 
 
 @pytest.mark.rabbit()
-class TestPublish(BrokerPublishTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RabbitBroker:
-        return RabbitBroker(apply_types=apply_types, **kwargs)
-
+class TestPublish(RabbitTestcaseConfig, BrokerPublishTestcase):
     @pytest.mark.asyncio()
     async def test_reply_config(
         self,

@@ -1,11 +1,6 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from copy import deepcopy
-from typing import (
-    TYPE_CHECKING,
-    Annotated,
-    Optional,
-    Union,
-)
+from typing import TYPE_CHECKING, Annotated, Optional, Union
 
 from aio_pika import IncomingMessage
 from typing_extensions import Doc, Unpack, override
@@ -62,8 +57,8 @@ class LogicPublisher(PublisherUsecase[IncomingMessage]):
         # PublishCommand options
         message_kwargs: "PublishKwargs",
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[IncomingMessage]"],
+        middlewares: Sequence["PublisherMiddleware"],
     ) -> None:
         self.queue = queue
         self.routing_key = routing_key

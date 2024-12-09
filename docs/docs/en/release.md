@@ -12,6 +12,90 @@ hide:
 ---
 
 # Release Notes
+## 0.5.33
+
+### What's Changed
+
+Just a Confluent & Kafka hotfix. Messages without body (with key only) parsing correctly now.
+
+* fix: Confluent, read messages under lock by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1963](https://github.com/airtai/faststream/pull/1963){.external-link target="_blank"}
+* fix #1967: correct empty kafka message body processing by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1968](https://github.com/airtai/faststream/pull/1968){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.32...0.5.33](https://github.com/airtai/faststream/compare/0.5.32...0.5.33){.external-link target="_blank"}
+
+## 0.5.32
+
+### What's Changed
+
+Thanks to [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} one more time for a new release! Now you have an ability to consume Confluent messages (in autocommit mode) concurrently!
+
+```python
+from faststream.confluent import KafkaBroker
+
+broker = KafkaBroker()
+
+@broker.subscriber("topic", max_workers=10)
+async def handler():
+    """Using `max_workers` option you can process up to 10 messages by one subscriber concurrently"""
+```
+
+Also, thanks to [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} for his ASGI CLI support bugfixes
+
+* fix #1959: propagate logger to Confluent by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1960](https://github.com/airtai/faststream/pull/1960){.external-link target="_blank"}
+* Concurrent confluent kafka by [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} in [#1961](https://github.com/airtai/faststream/pull/1961){.external-link target="_blank"}
+* fix: extend validation for --factory param by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1964](https://github.com/airtai/faststream/pull/1964){.external-link target="_blank"}
+* fix: support only uvicorn ASGI Runner by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1965](https://github.com/airtai/faststream/pull/1965){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.31...0.5.32](https://github.com/airtai/faststream/compare/0.5.31...0.5.32){.external-link target="_blank"}
+
+## 0.5.31
+
+### What's Changed
+
+Well, you (community) made a new breathtaken release for us!
+Thanks to all of this release contributors.
+
+Special thanks to [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"}. He promores a new perfect feature - concurrent Kafka subscriber (with autocommit mode)
+
+```python
+from faststream.kafka import KafkaBroker
+
+broker = KafkaBroker()
+
+@broker.subscriber("topic", max_workers=10)
+async def handler():
+    """Using `max_workers` option you can process up to 10 messages by one subscriber concurrently"""
+```
+
+Also, thanks to [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} with his ASGI CLI start fixins - now you can use FastStream CLI to scale your AsgiFastStream application by workers
+
+```bash
+faststream run main:asgi --workers 2
+```
+
+There are a lot of other incredible changes you made:
+
+* feat: add NatsMessage ack_sync method #1906 by [@wpn10](https://github.com/wpn10){.external-link target="_blank"} in [#1909](https://github.com/airtai/faststream/pull/1909){.external-link target="_blank"}
+* feat: support running ASGI app with Uvicorn using file descriptor by [@minhyeoky](https://github.com/minhyeoky){.external-link target="_blank"} in [#1923](https://github.com/airtai/faststream/pull/1923){.external-link target="_blank"}
+* feat: Add kafka concurrent subscriber by [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} in [#1912](https://github.com/airtai/faststream/pull/1912){.external-link target="_blank"}
+* fix: bug when using one register for several middleware by @roma-frolov in [#1921](https://github.com/airtai/faststream/pull/1921){.external-link target="_blank"}
+* fix: change oauth type in asyncapi schema by [@spataphore1337](https://github.com/spataphore1337){.external-link target="_blank"} in [#1926](https://github.com/airtai/faststream/pull/1926){.external-link target="_blank"}
+* fix: HandlerException ignored by @roma-frolov in [#1928](https://github.com/airtai/faststream/pull/1928){.external-link target="_blank"}
+* fix: Pomo/nats router by [@Drakorgaur](https://github.com/Drakorgaur){.external-link target="_blank"} in [#1932](https://github.com/airtai/faststream/pull/1932){.external-link target="_blank"}
+* fix: RabbitBroker's ping is more objective by @roma-frolov in [#1933](https://github.com/airtai/faststream/pull/1933){.external-link target="_blank"}
+* fix: AsyncAPI 2.6.0 fix empty channels for KafkaSubscriber and ConfluentSubscriber if partitions provided by [@KrySeyt](https://github.com/KrySeyt){.external-link target="_blank"} in [#1930](https://github.com/airtai/faststream/pull/1930){.external-link target="_blank"}
+* fix: #1874 support workers for ASGI FastStream by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1936](https://github.com/airtai/faststream/pull/1936){.external-link target="_blank"}
+* fix: correct middlewares order by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [#1935](https://github.com/airtai/faststream/pull/1935){.external-link target="_blank"}
+* chore: run PR altering automated check in same CI job by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1942](https://github.com/airtai/faststream/pull/1942){.external-link target="_blank"}
+* chore: pin typer version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1947](https://github.com/airtai/faststream/pull/1947){.external-link target="_blank"}
+
+### New Contributors
+
+* [@wpn10](https://github.com/wpn10){.external-link target="_blank"} made their first contribution in [#1909](https://github.com/airtai/faststream/pull/1909){.external-link target="_blank"}
+* [@minhyeoky](https://github.com/minhyeoky){.external-link target="_blank"} made their first contribution in [#1923](https://github.com/airtai/faststream/pull/1923){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.30...0.5.31](https://github.com/airtai/faststream/compare/0.5.30...0.5.31){.external-link target="_blank"}
+
 ## 0.5.30
 
 ### What's Changed

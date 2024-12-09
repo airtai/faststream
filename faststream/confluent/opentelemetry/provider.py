@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream.confluent.response import KafkaPublishCommand
     from faststream.message import StreamMessage
+    from faststream.response import PublishCommand
 
 
 class BaseConfluentTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
@@ -25,7 +26,7 @@ class BaseConfluentTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType])
         self,
         cmd: "KafkaPublishCommand",
     ) -> "AnyDict":
-        attrs = {
+        attrs: AnyDict = {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
             SpanAttributes.MESSAGING_DESTINATION_NAME: cmd.destination,
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: cmd.correlation_id,
@@ -41,7 +42,7 @@ class BaseConfluentTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType])
 
     def get_publish_destination_name(
         self,
-        cmd: "KafkaPublishCommand",
+        cmd: "PublishCommand",
     ) -> str:
         return cmd.destination
 

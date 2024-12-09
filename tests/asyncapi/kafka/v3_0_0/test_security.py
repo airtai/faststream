@@ -205,7 +205,7 @@ def test_oauthbearer_security_schema() -> None:
         {"oauthbearer": []},
     ]
     sasl_oauthbearer_security_schema["components"]["securitySchemes"] = {
-        "oauthbearer": {"type": "oauthBearer"},
+        "oauthbearer": {"type": "oauth2", "$ref": ""}
     }
 
     assert schema == sasl_oauthbearer_security_schema

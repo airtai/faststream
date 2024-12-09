@@ -3,10 +3,9 @@ from typing import Any
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.confluent import KafkaBroker, KafkaRouter, TestKafkaBroker
 from tests.brokers.base.requests import RequestsTestcase
 
-from .basic import ConfluentTestcaseConfig
+from .basic import ConfluentMemoryTestcaseConfig
 
 
 class Mid(BaseMiddleware):
@@ -19,15 +18,6 @@ class Mid(BaseMiddleware):
 
 
 @pytest.mark.asyncio()
-class TestRequestTestClient(ConfluentTestcaseConfig, RequestsTestcase):
+class TestRequestTestClient(ConfluentMemoryTestcaseConfig, RequestsTestcase):
     def get_middleware(self, **kwargs: Any):
         return Mid
-
-    def get_router(self, **kwargs: Any):
-        return KafkaRouter(**kwargs)
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
-        return KafkaBroker(apply_types=apply_types, **kwargs)
-
-    def patch_broker(self, broker: KafkaBroker, **kwargs: Any) -> TestKafkaBroker:
-        return TestKafkaBroker(broker, **kwargs)

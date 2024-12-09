@@ -86,7 +86,7 @@ class FakeProducer(NatsFastProducer):
     def __init__(self, broker: NatsBroker) -> None:
         self.broker = broker
 
-        default = NatsParser(pattern="")
+        default = NatsParser(pattern="", is_ack_disabled=True)
         self._parser = resolve_custom_func(broker._parser, default.parse_message)
         self._decoder = resolve_custom_func(broker._decoder, default.decode_message)
 

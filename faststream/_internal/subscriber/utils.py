@@ -13,7 +13,7 @@ from typing import (
 )
 
 import anyio
-from typing_extensions import Literal, Self, overload
+from typing_extensions import Self
 
 from faststream._internal.types import MsgType
 from faststream._internal.utils.functions import return_input, to_async
@@ -29,26 +29,6 @@ if TYPE_CHECKING:
     )
     from faststream.message import StreamMessage
     from faststream.middlewares import BaseMiddleware
-
-
-@overload
-async def process_msg(
-    msg: Literal[None],
-    middlewares: Iterable["BaseMiddleware"],
-    parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
-    decoder: Callable[["StreamMessage[MsgType]"], "Any"],
-    source_type: SourceType = SourceType.CONSUME,
-) -> None: ...
-
-
-@overload
-async def process_msg(
-    msg: MsgType,
-    middlewares: Iterable["BaseMiddleware"],
-    parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
-    decoder: Callable[["StreamMessage[MsgType]"], "Any"],
-    source_type: SourceType = SourceType.CONSUME,
-) -> "StreamMessage[MsgType]": ...
 
 
 async def process_msg(
@@ -76,8 +56,8 @@ async def process_msg(
         parsed_msg.set_decoder(decoder)
         return await return_msg(parsed_msg)
 
-    msg = "unreachable"
-    raise AssertionError(msg)
+    error_msg = "unreachable"
+    raise AssertionError(error_msg)
 
 
 async def default_filter(msg: "StreamMessage[Any]") -> bool:
@@ -86,7 +66,11 @@ async def default_filter(msg: "StreamMessage[Any]") -> bool:
 
 
 class MultiLock:
-    """A class representing a multi lock."""
+    """A class representing a multi lock.
+
+    This lock can be acquired multiple times.
+    `wait_release` method waits for all locks will be released.
+    """
 
     def __init__(self) -> None:
         """Initialize a new instance of the class."""

@@ -21,14 +21,7 @@ class TestArguments(ArgumentsTestcase):
         assert schema["channels"][key]["bindings"] == {
             "amqp": {
                 "bindingVersion": "0.3.0",
-                "exchange": {
-                    "autoDelete": False,
-                    "durable": False,
-                    "name": "test-ex",
-                    "type": "topic",
-                    "vhost": "/",
-                },
-                "is": "routingKey",
+                "is": "queue",
                 "queue": {
                     "autoDelete": True,
                     "durable": False,
@@ -54,13 +47,13 @@ class TestArguments(ArgumentsTestcase):
         assert schema["channels"][key]["bindings"] == {
             "amqp": {
                 "bindingVersion": "0.3.0",
-                "exchange": {
-                    "autoDelete": False,
+                "queue": {
+                    "autoDelete": True,
                     "durable": False,
-                    "name": "test-ex",
-                    "type": "fanout",
+                    "exclusive": False,
+                    "name": "test",
                     "vhost": "/",
                 },
-                "is": "routingKey",
+                "is": "queue",
             },
         }

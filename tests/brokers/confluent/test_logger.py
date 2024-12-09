@@ -2,8 +2,6 @@ import logging
 
 import pytest
 
-from faststream.confluent import KafkaBroker
-
 from .basic import ConfluentTestcaseConfig
 
 
@@ -14,7 +12,7 @@ class TestLogger(ConfluentTestcaseConfig):
     @pytest.mark.asyncio()
     async def test_custom_logger(self, queue: str) -> None:
         test_logger = logging.getLogger("test_logger")
-        broker = KafkaBroker(logger=test_logger)
+        broker = self.get_broker(logger=test_logger)
 
         args, kwargs = self.get_subscriber_params(queue)
 

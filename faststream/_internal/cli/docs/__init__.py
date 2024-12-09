@@ -1,3 +1,3 @@
-from .app import asyncapi_app
+from .app import docs_app
 
-__all__ = ("asyncapi_app",)
+__all__ = ("docs_app",)

@@ -1,9 +1,5 @@
-from collections.abc import Iterable
-from typing import (
-    TYPE_CHECKING,
-    Optional,
-    Union,
-)
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Optional, Union
 
 from confluent_kafka import Message
 from typing_extensions import override
@@ -37,8 +33,8 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         headers: Optional[dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
+        middlewares: Sequence["PublisherMiddleware"],
     ) -> None:
         super().__init__(
             broker_middlewares=broker_middlewares,
@@ -92,8 +88,8 @@ class DefaultPublisher(LogicPublisher[Message]):
         headers: Optional[dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[Message]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[Message]"],
+        middlewares: Sequence["PublisherMiddleware"],
     ) -> None:
         super().__init__(
             topic=topic,

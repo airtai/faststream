@@ -1,10 +1,11 @@
-from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
     Literal,
     Optional,
     Union,
+    cast,
     overload,
 )
 
@@ -28,8 +29,8 @@ def create_publisher(
     headers: Optional[dict[str, str]],
     reply_to: str,
     # Publisher args
-    broker_middlewares: Iterable["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
-    middlewares: Iterable["PublisherMiddleware"],
+    broker_middlewares: Sequence["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+    middlewares: Sequence["PublisherMiddleware"],
     # Specification args
     schema_: Optional[Any],
     title_: Optional[str],
@@ -48,8 +49,8 @@ def create_publisher(
     headers: Optional[dict[str, str]],
     reply_to: str,
     # Publisher args
-    broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
-    middlewares: Iterable["PublisherMiddleware"],
+    broker_middlewares: Sequence["BrokerMiddleware[ConfluentMsg]"],
+    middlewares: Sequence["PublisherMiddleware"],
     # Specification args
     schema_: Optional[Any],
     title_: Optional[str],
@@ -68,10 +69,11 @@ def create_publisher(
     headers: Optional[dict[str, str]],
     reply_to: str,
     # Publisher args
-    broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[tuple[ConfluentMsg, ...], ConfluentMsg]]"
+    broker_middlewares: Union[
+        Sequence["BrokerMiddleware[ConfluentMsg]"],
+        Sequence["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
     ],
-    middlewares: Iterable["PublisherMiddleware"],
+    middlewares: Sequence["PublisherMiddleware"],
     # Specification args
     schema_: Optional[Any],
     title_: Optional[str],
@@ -92,10 +94,11 @@ def create_publisher(
     headers: Optional[dict[str, str]],
     reply_to: str,
     # Publisher args
-    broker_middlewares: Iterable[
-        "BrokerMiddleware[Union[tuple[ConfluentMsg, ...], ConfluentMsg]]"
+    broker_middlewares: Union[
+        Sequence["BrokerMiddleware[ConfluentMsg]"],
+        Sequence["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
     ],
-    middlewares: Iterable["PublisherMiddleware"],
+    middlewares: Sequence["PublisherMiddleware"],
     # Specification args
     schema_: Optional[Any],
     title_: Optional[str],
@@ -115,7 +118,10 @@ def create_publisher(
             partition=partition,
             headers=headers,
             reply_to=reply_to,
-            broker_middlewares=broker_middlewares,
+            broker_middlewares=cast(
+                Sequence["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+                broker_middlewares,
+            ),
             middlewares=middlewares,
             schema_=schema_,
             title_=title_,
@@ -130,7 +136,10 @@ def create_publisher(
         partition=partition,
         headers=headers,
         reply_to=reply_to,
-        broker_middlewares=broker_middlewares,
+        broker_middlewares=cast(
+            Sequence["BrokerMiddleware[ConfluentMsg]"],
+            broker_middlewares,
+        ),
         middlewares=middlewares,
         schema_=schema_,
         title_=title_,

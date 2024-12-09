@@ -1,5 +1,4 @@
-import asyncio
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
@@ -12,12 +11,14 @@ import anyio
 from confluent_kafka import KafkaException, Message
 from typing_extensions import override
 
+from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.fake import KafkaFakePublisher
 from faststream.confluent.schemas import TopicPartition
+from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
@@ -32,10 +33,9 @@ if TYPE_CHECKING:
     )
     from faststream.confluent.client import AsyncConfluentConsumer
     from faststream.message import StreamMessage
-    from faststream.middlewares import AckPolicy
 
 
-class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
+class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
     """A class to handle logic for consuming messages from Kafka."""
 
     topics: Sequence[str]
@@ -45,7 +45,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     consumer: Optional["AsyncConfluentConsumer"]
     parser: AsyncConfluentParser
 
-    task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
 
     def __init__(
@@ -62,7 +61,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
     ) -> None:
         super().__init__(
             default_parser=default_parser,
@@ -81,7 +80,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.partitions = partitions
 
         self.consumer = None
-        self.task = None
         self.polling_interval = polling_interval
 
         # Setup it later
@@ -130,26 +128,21 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         await super().start()
 
         if self.calls:
-            self.task = asyncio.create_task(self._consume())
+            self.add_task(self._consume())
 
     async def close(self) -> None:
-        await super().close()
-
         if self.consumer is not None:
             await self.consumer.stop()
             self.consumer = None
 
-        if self.task is not None and not self.task.done():
-            self.task.cancel()
-
-        self.task = None
+        await super().close()
 
     @override
     async def get_one(
         self,
         *,
         timeout: float = 5.0,
-    ) -> "Optional[StreamMessage[Message]]":
+    ) -> "Optional[StreamMessage[MsgType]]":
         assert self.consumer, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
             not self.calls
@@ -160,7 +153,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         context = self._state.get().di_state.context
 
         return await process_msg(
-            msg=raw_message,
+            msg=raw_message,  # type: ignore[arg-type]
             middlewares=(
                 m(raw_message, context=context) for m in self._broker_middlewares
             ),
@@ -178,6 +171,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
                 topic=message.reply_to,
             ),
         )
+
+    async def consume_one(self, msg: MsgType) -> None:
+        await self.consume(msg)
 
     @abstractmethod
     async def get_msg(self) -> Optional[MsgType]:
@@ -200,7 +196,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
                     connected = True
 
                 if msg is not None:
-                    await self.consume(msg)
+                    await self.consume_one(msg)
 
     @property
     def topic_names(self) -> list[str]:
@@ -244,14 +240,15 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         polling_interval: float,
         group_id: Optional[str],
         connection_data: "AnyDict",
-        is_manual: bool,
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[Message]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Message]"],
     ) -> None:
-        self.parser = AsyncConfluentParser(is_manual=is_manual)
+        self.parser = AsyncConfluentParser(
+            is_manual=ack_policy is not AckPolicy.ACK_FIRST
+        )
 
         super().__init__(
             *topics,
@@ -289,6 +286,15 @@ class DefaultSubscriber(LogicSubscriber[Message]):
         )
 
 
+class ConcurrentDefaultSubscriber(ConcurrentMixin["Message"], DefaultSubscriber):
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "Message") -> None:
+        await self._put_msg(msg)
+
+
 class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
     def __init__(
         self,
@@ -299,16 +305,17 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
         # Kafka information
         group_id: Optional[str],
         connection_data: "AnyDict",
-        is_manual: bool,
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[tuple[Message, ...]]"],
+        broker_middlewares: Sequence["BrokerMiddleware[tuple[Message, ...]]"],
     ) -> None:
         self.max_records = max_records
 
-        self.parser = AsyncConfluentParser(is_manual=is_manual)
+        self.parser = AsyncConfluentParser(
+            is_manual=ack_policy is not AckPolicy.ACK_FIRST
+        )
 
         super().__init__(
             *topics,

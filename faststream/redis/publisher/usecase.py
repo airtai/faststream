@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from copy import deepcopy
 from typing import TYPE_CHECKING, Annotated, Any, Optional, Union
 
@@ -31,8 +31,8 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
     ) -> None:
         super().__init__(
             broker_middlewares=broker_middlewares,
@@ -55,8 +55,8 @@ class ChannelPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
     ) -> None:
         super().__init__(
             reply_to=reply_to,
@@ -183,8 +183,8 @@ class ListPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
     ) -> None:
         super().__init__(
             reply_to=reply_to,
@@ -369,8 +369,8 @@ class StreamPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        middlewares: Sequence["PublisherMiddleware"],
     ) -> None:
         super().__init__(
             reply_to=reply_to,

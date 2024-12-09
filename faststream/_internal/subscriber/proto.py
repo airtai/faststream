@@ -1,11 +1,10 @@
 from abc import abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Optional
 
-from typing_extensions import Self, override
+from typing_extensions import Self
 
 from faststream._internal.proto import Endpoint
-from faststream._internal.subscriber.call_wrapper.proto import WrapperProto
 from faststream._internal.types import MsgType
 
 if TYPE_CHECKING:
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
-        Filter,
         SubscriberMiddleware,
     )
     from faststream.message import StreamMessage
@@ -29,15 +27,12 @@ if TYPE_CHECKING:
     from .call_item import HandlerItem
 
 
-class SubscriberProto(
-    Endpoint,
-    WrapperProto[MsgType],
-):
+class SubscriberProto(Endpoint[MsgType]):
     calls: list["HandlerItem[MsgType]"]
     running: bool
 
     _broker_dependencies: Iterable["Dependant"]
-    _broker_middlewares: Iterable["BrokerMiddleware[MsgType]"]
+    _broker_middlewares: Sequence["BrokerMiddleware[MsgType]"]
     _producer: Optional["ProducerProto"]
 
     @abstractmethod
@@ -50,9 +45,8 @@ class SubscriberProto(
         /,
     ) -> dict[str, str]: ...
 
-    @override
     @abstractmethod
-    def _setup(  # type: ignore[override]
+    def _setup(
         self,
         *,
         extra_context: "AnyDict",
@@ -92,9 +86,8 @@ class SubscriberProto(
     def add_call(
         self,
         *,
-        filter_: "Filter[Any]",
         parser_: "CustomCallable",
         decoder_: "CustomCallable",
-        middlewares_: Iterable["SubscriberMiddleware[Any]"],
+        middlewares_: Sequence["SubscriberMiddleware[Any]"],
         dependencies_: Iterable["Dependant"],
     ) -> Self: ...

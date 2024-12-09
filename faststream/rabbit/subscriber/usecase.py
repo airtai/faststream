@@ -54,7 +54,7 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
         ack_policy: "AckPolicy",
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
+        broker_middlewares: Sequence["BrokerMiddleware[IncomingMessage]"],
     ) -> None:
         self.queue = queue
 

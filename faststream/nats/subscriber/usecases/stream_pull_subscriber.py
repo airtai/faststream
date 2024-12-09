@@ -109,41 +109,7 @@ class PullStreamSubscriber(
                         tg.start_soon(cb, msg)
 
 
-class ConcurrentPullStreamSubscriber(
-    ConcurrentMixin,
-    PullStreamSubscriber,
-):
-    def __init__(
-        self,
-        *,
-        max_workers: int,
-        # default args
-        pull_sub: "PullSub",
-        stream: "JStream",
-        subject: str,
-        config: "ConsumerConfig",
-        extra_options: Optional["AnyDict"],
-        # Subscriber args
-        ack_policy: "AckPolicy",
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
-    ) -> None:
-        super().__init__(
-            max_workers=max_workers,
-            # basic args
-            pull_sub=pull_sub,
-            stream=stream,
-            subject=subject,
-            config=config,
-            extra_options=extra_options,
-            # Propagated args
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-        )
-
+class ConcurrentPullStreamSubscriber(ConcurrentMixin["Msg"], PullStreamSubscriber):
     @override
     async def _create_subscription(self) -> None:
         """Create NATS subscription and start consume task."""

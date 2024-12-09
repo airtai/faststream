@@ -1,24 +1,22 @@
 import asyncio
-from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
 from nats.aio.msg import Msg
-from nats.js.api import PubAck
 
 from faststream import AckPolicy
 from faststream.exceptions import AckMessage
-from faststream.nats import ConsumerConfig, JStream, NatsBroker, PullSub
+from faststream.nats import ConsumerConfig, JStream, PubAck, PullSub
 from faststream.nats.annotations import NatsMessage
+from faststream.nats.message import NatsMessage as StreamMessage
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
+from .basic import NatsTestcaseConfig
+
 
 @pytest.mark.nats()
-class TestConsume(BrokerRealConsumeTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types, **kwargs)
-
+class TestConsume(NatsTestcaseConfig, BrokerRealConsumeTestcase):
     async def test_concurrent_subscriber(
         self,
         queue: str,
@@ -190,6 +188,43 @@ class TestConsume(BrokerRealConsumeTestcase):
             assert event.is_set()
             mock.assert_called_once_with([b"hello"])
 
+    async def test_core_consume_no_ack(
+        self,
+        queue: str,
+        mock: MagicMock,
+    ) -> None:
+        event = asyncio.Event()
+
+        consume_broker = self.get_broker(apply_types=True)
+
+        args, kwargs = self.get_subscriber_params(
+            queue, ack_policy=AckPolicy.DO_NOTHING
+        )
+
+        @consume_broker.subscriber(*args, **kwargs)
+        async def handler(msg: NatsMessage) -> None:
+            mock(msg.raw_message._ackd)
+            event.set()
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            # Check, that Core Subscriber doesn't call Acknowledgement automatically
+            with patch.object(
+                StreamMessage, "ack", spy_decorator(StreamMessage.ack)
+            ) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(br.publish("hello", queue)),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=3,
+                )
+                assert not m.mock.called
+
+        assert event.is_set()
+        mock.assert_called_once_with(False)
+
     async def test_consume_ack(
         self,
         queue: str,
@@ -215,33 +250,6 @@ class TestConsume(BrokerRealConsumeTestcase):
                     timeout=3,
                 )
                 m.mock.assert_called_once()
-
-        assert event.is_set()
-
-    async def test_core_consume_no_ack(
-        self,
-        queue: str,
-    ) -> None:
-        event = asyncio.Event()
-
-        consume_broker = self.get_broker(apply_types=True)
-
-        @consume_broker.subscriber(queue)
-        async def handler(msg: NatsMessage) -> None:
-            event.set()
-
-        async with self.patch_broker(consume_broker) as br:
-            await br.start()
-
-            with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
-                await asyncio.wait(
-                    (
-                        asyncio.create_task(br.publish("hello", queue)),
-                        asyncio.create_task(event.wait()),
-                    ),
-                    timeout=3,
-                )
-                assert not m.mock.called
 
         assert event.is_set()
 

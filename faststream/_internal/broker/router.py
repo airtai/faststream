@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -70,7 +70,7 @@ class BrokerRouter(ABCBroker[MsgType]):
         # base options
         prefix: str,
         dependencies: Iterable["Dependant"],
-        middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        middlewares: Sequence["BrokerMiddleware[MsgType]"],
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
         include_in_schema: Optional[bool],

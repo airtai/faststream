@@ -1,4 +1,4 @@
-from collections.abc import Awaitable, Iterable
+from collections.abc import Awaitable, Iterable, Sequence
 from functools import partial
 from itertools import chain
 from typing import (
@@ -15,9 +15,8 @@ from typing_extensions import override
 from faststream._internal.publisher.proto import PublisherProto
 from faststream._internal.state import BrokerState, EmptyBrokerState, Pointer
 from faststream._internal.state.producer import ProducerUnset
-from faststream._internal.subscriber.call_wrapper.call import (
+from faststream._internal.subscriber.call_wrapper import (
     HandlerCallWrapper,
-    ensure_call_wrapper,
 )
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import (
@@ -42,8 +41,8 @@ class PublisherUsecase(PublisherProto[MsgType]):
     def __init__(
         self,
         *,
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
+        middlewares: Sequence["PublisherMiddleware"],
     ) -> None:
         self.middlewares = middlewares
         self._broker_middlewares = broker_middlewares
@@ -65,7 +64,7 @@ class PublisherUsecase(PublisherProto[MsgType]):
         return self.__producer or self._state.get().producer
 
     @override
-    def _setup(  # type: ignore[override]
+    def _setup(
         self,
         *,
         state: "Pointer[BrokerState]",
@@ -97,9 +96,7 @@ class PublisherUsecase(PublisherProto[MsgType]):
         ],
     ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
         """Decorate user's function by current publisher."""
-        handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn] = (
-            ensure_call_wrapper(func)
-        )
+        handler = super().__call__(func)
         handler._publishers.append(self)
         return handler
 
@@ -114,18 +111,18 @@ class PublisherUsecase(PublisherProto[MsgType]):
         context = self._state.get().di_state.context
 
         for pub_m in chain(
+            self.middlewares[::-1],
             (
                 _extra_middlewares
                 or (
                     m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
+                    for m in self._broker_middlewares[::-1]
                 )
             ),
-            self.middlewares,
         ):
             pub = partial(pub_m, pub)
 
-        await pub(cmd)
+        return await pub(cmd)
 
     async def _basic_request(
         self,
@@ -136,8 +133,11 @@ class PublisherUsecase(PublisherProto[MsgType]):
         context = self._state.get().di_state.context
 
         for pub_m in chain(
-            (m(None, context=context).publish_scope for m in self._broker_middlewares),
-            self.middlewares,
+            self.middlewares[::-1],
+            (
+                m(None, context=context).publish_scope
+                for m in self._broker_middlewares[::-1]
+            ),
         ):
             request = partial(pub_m, request)
 
@@ -146,7 +146,8 @@ class PublisherUsecase(PublisherProto[MsgType]):
         response_msg: Any = await process_msg(
             msg=published_msg,
             middlewares=(
-                m(published_msg, context=context) for m in self._broker_middlewares
+                m(published_msg, context=context)
+                for m in self._broker_middlewares[::-1]
             ),
             parser=self._producer._parser,
             decoder=self._producer._decoder,
@@ -159,21 +160,21 @@ class PublisherUsecase(PublisherProto[MsgType]):
         cmd: "PublishCommand",
         *,
         _extra_middlewares: Iterable["PublisherMiddleware"],
-    ) -> Optional[Any]:
+    ) -> Any:
         pub = self._producer.publish_batch
 
         context = self._state.get().di_state.context
 
         for pub_m in chain(
+            self.middlewares[::-1],
             (
                 _extra_middlewares
                 or (
                     m(None, context=context).publish_scope
-                    for m in self._broker_middlewares
+                    for m in self._broker_middlewares[::-1]
                 )
             ),
-            self.middlewares,
         ):
             pub = partial(pub_m, pub)
 
-        await pub(cmd)
+        return await pub(cmd)

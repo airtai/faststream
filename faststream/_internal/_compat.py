@@ -33,8 +33,10 @@ ujson: Any
 __all__ = (
     "HAS_TYPER",
     "PYDANTIC_V2",
+    "BaseModel",
     "CoreSchema",
     "EmailStr",
+    "ExceptionGroup",
     "GetJsonSchemaHandler",
     "json_dumps",
     "json_loads",
@@ -183,9 +185,7 @@ if ANYIO_V3:
 elif sys.version_info >= (3, 11):
     ExceptionGroup = ExceptionGroup  # noqa: PLW0127
 else:
-    from exceptiongroup import (
-        ExceptionGroup,
-    )
+    from exceptiongroup import ExceptionGroup
 
 try:
     import email_validator

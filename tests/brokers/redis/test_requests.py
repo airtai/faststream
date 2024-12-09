@@ -3,8 +3,9 @@ import json
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.redis import RedisBroker, RedisRouter, TestRedisBroker
 from tests.brokers.base.requests import RequestsTestcase
+
+from .basic import RedisMemoryTestcaseConfig, RedisTestcaseConfig
 
 
 class Mid(BaseMiddleware):
@@ -23,18 +24,11 @@ class RedisRequestsTestcase(RequestsTestcase):
     def get_middleware(self, **kwargs):
         return Mid
 
-    def get_broker(self, **kwargs):
-        return RedisBroker(**kwargs)
-
-    def get_router(self, **kwargs):
-        return RedisRouter(**kwargs)
-
 
 @pytest.mark.redis()
-class TestRealRequests(RedisRequestsTestcase):
+class TestRealRequests(RedisTestcaseConfig, RedisRequestsTestcase):
     pass
 
 
-class TestRequestTestClient(RedisRequestsTestcase):
-    def patch_broker(self, broker, **kwargs):
-        return TestRedisBroker(broker, **kwargs)
+class TestRequestTestClient(RedisMemoryTestcaseConfig, RedisRequestsTestcase):
+    pass

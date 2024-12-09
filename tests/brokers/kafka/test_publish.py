@@ -1,19 +1,17 @@
 import asyncio
-from typing import Any
 from unittest.mock import Mock
 
 import pytest
 
 from faststream import Context
-from faststream.kafka import KafkaBroker, KafkaResponse
+from faststream.kafka import KafkaResponse
 from tests.brokers.base.publish import BrokerPublishTestcase
+
+from .basic import KafkaTestcaseConfig
 
 
 @pytest.mark.kafka()
-class TestPublish(BrokerPublishTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
-        return KafkaBroker(apply_types=apply_types, **kwargs)
-
+class TestPublish(KafkaTestcaseConfig, BrokerPublishTestcase):
     @pytest.mark.asyncio()
     async def test_publish_batch(self, queue: str) -> None:
         pub_broker = self.get_broker()

@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Optional
 
 from .specified import SpecificationPublisher
@@ -19,7 +19,7 @@ def create_publisher(
     timeout: Optional[float],
     # Publisher args
     broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
-    middlewares: Iterable["PublisherMiddleware"],
+    middlewares: Sequence["PublisherMiddleware"],
     # AsyncAPI args
     schema_: Optional[Any],
     title_: Optional[str],

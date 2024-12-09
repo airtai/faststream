@@ -1,23 +1,21 @@
 import asyncio
-from typing import Any
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from aiokafka import AIOKafkaConsumer
 
 from faststream import AckPolicy
 from faststream.exceptions import AckMessage
-from faststream.kafka import KafkaBroker, TopicPartition
+from faststream.kafka import TopicPartition
 from faststream.kafka.annotations import KafkaMessage
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
+from .basic import KafkaTestcaseConfig
+
 
 @pytest.mark.kafka()
-class TestConsume(BrokerRealConsumeTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
-        return KafkaBroker(apply_types=apply_types, **kwargs)
-
+class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
     @pytest.mark.asyncio()
     async def test_consume_by_pattern(
         self,
@@ -114,7 +112,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     @pytest.mark.slow()
-    async def test_consume_ack(
+    async def test_consume_auto_ack(
         self,
         queue: str,
     ) -> None:
@@ -122,7 +120,9 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
         async def handler(msg: KafkaMessage) -> None:
             event.set()
 
@@ -188,7 +188,9 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
         async def handler(msg: KafkaMessage) -> None:
             await msg.ack()
             event.set()
@@ -219,7 +221,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     @pytest.mark.slow()
-    async def test_consume_ack_raise(
+    async def test_consume_ack_by_raise(
         self,
         queue: str,
     ) -> None:
@@ -227,7 +229,9 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
         async def handler(msg: KafkaMessage):
             event.set()
             raise AckMessage
@@ -258,7 +262,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     @pytest.mark.slow()
-    async def test_nack(
+    async def test_manual_nack(
         self,
         queue: str,
     ) -> None:
@@ -266,7 +270,9 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         consume_broker = self.get_broker(apply_types=True)
 
-        @consume_broker.subscriber(queue, group_id="test", auto_commit=False)
+        @consume_broker.subscriber(
+            queue, group_id="test", ack_policy=AckPolicy.REJECT_ON_ERROR
+        )
         async def handler(msg: KafkaMessage) -> None:
             await msg.nack()
             event.set()
@@ -334,3 +340,96 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_not_called()
 
             assert event.is_set()
+
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
+    async def test_concurrent_consume(self, queue: str, mock: MagicMock) -> None:
+        event = asyncio.Event()
+        event2 = asyncio.Event()
+
+        consume_broker = self.get_broker()
+
+        args, kwargs = self.get_subscriber_params(queue, max_workers=2)
+
+        @consume_broker.subscriber(*args, **kwargs)
+        async def handler(msg) -> None:
+            mock()
+            if event.is_set():
+                event2.set()
+            else:
+                event.set()
+
+            # probably, we should increase it
+            await asyncio.sleep(0.1)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            for i in range(5):
+                await br.publish(i, queue)
+
+        await asyncio.wait(
+            (
+                asyncio.create_task(event.wait()),
+                asyncio.create_task(event2.wait()),
+            ),
+            timeout=3,
+        )
+
+        assert event.is_set()
+        assert event2.is_set()
+        assert mock.call_count == 2, mock.call_count
+
+    @pytest.mark.asyncio()
+    async def test_consume_without_value(
+        self,
+        mock: MagicMock,
+        queue: str,
+        event: asyncio.Event,
+    ) -> None:
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(queue)
+        async def handler(msg):
+            event.set()
+            mock(msg)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br._producer._producer.producer.send(queue, key=b"")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+            mock.assert_called_once_with(b"")
+
+    @pytest.mark.asyncio()
+    async def test_consume_batch_without_value(
+        self,
+        mock: MagicMock,
+        queue: str,
+        event: asyncio.Event,
+    ) -> None:
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(queue, batch=True)
+        async def handler(msg):
+            event.set()
+            mock(msg)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br._producer._producer.producer.send(queue, key=b"")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+            mock.assert_called_once_with([b""])

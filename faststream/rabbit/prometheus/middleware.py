@@ -4,12 +4,13 @@ from typing import TYPE_CHECKING, Optional
 from faststream._internal.constants import EMPTY
 from faststream.prometheus.middleware import PrometheusMiddleware
 from faststream.rabbit.prometheus.provider import RabbitMetricsSettingsProvider
+from faststream.rabbit.response import RabbitPublishCommand
 
 if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
 
 
-class RabbitPrometheusMiddleware(PrometheusMiddleware):
+class RabbitPrometheusMiddleware(PrometheusMiddleware[RabbitPublishCommand]):
     def __init__(
         self,
         *,

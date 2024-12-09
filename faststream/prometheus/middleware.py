@@ -1,10 +1,11 @@
 import time
-from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from collections.abc import Awaitable, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional
 
-from faststream import BaseMiddleware
 from faststream._internal.constants import EMPTY
+from faststream.exceptions import IgnoredException
 from faststream.message import SourceType
+from faststream.middlewares.base import BaseMiddleware, PublishCommand_T
 from faststream.prometheus.consts import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
@@ -18,13 +19,12 @@ from faststream.response import PublishType
 if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
 
-    from faststream._internal.basic_types import AsyncFunc, AsyncFuncAny
+    from faststream._internal.basic_types import AsyncFuncAny
     from faststream._internal.context.repository import ContextRepo
     from faststream.message.message import StreamMessage
-    from faststream.response.response import PublishCommand
 
 
-class PrometheusMiddleware:
+class PrometheusMiddleware(Generic[PublishCommand_T]):
     __slots__ = ("_metrics_container", "_metrics_manager", "_settings_provider_factory")
 
     def __init__(
@@ -58,8 +58,8 @@ class PrometheusMiddleware:
         /,
         *,
         context: "ContextRepo",
-    ) -> "BasePrometheusMiddleware":
-        return BasePrometheusMiddleware(
+    ) -> "BasePrometheusMiddleware[PublishCommand_T]":
+        return BasePrometheusMiddleware[PublishCommand_T](
             msg,
             metrics_manager=self._metrics_manager,
             settings_provider_factory=self._settings_provider_factory,
@@ -67,7 +67,7 @@ class PrometheusMiddleware:
         )
 
 
-class BasePrometheusMiddleware(BaseMiddleware):
+class BasePrometheusMiddleware(BaseMiddleware[PublishCommand_T]):
     def __init__(
         self,
         msg: Optional[Any],
@@ -121,11 +121,13 @@ class BasePrometheusMiddleware(BaseMiddleware):
 
         except Exception as e:
             err = e
-            self._metrics_manager.add_received_processed_message_exception(
-                exception_type=type(err).__name__,
-                broker=messaging_system,
-                handler=destination_name,
-            )
+
+            if not isinstance(err, IgnoredException):
+                self._metrics_manager.add_received_processed_message_exception(
+                    exception_type=type(err).__name__,
+                    broker=messaging_system,
+                    handler=destination_name,
+                )
             raise
 
         finally:
@@ -162,8 +164,8 @@ class BasePrometheusMiddleware(BaseMiddleware):
 
     async def publish_scope(
         self,
-        call_next: "AsyncFunc",
-        cmd: "PublishCommand",
+        call_next: Callable[[PublishCommand_T], Awaitable[Any]],
+        cmd: PublishCommand_T,
     ) -> Any:
         if self._settings_provider is None or cmd.publish_type is PublishType.REPLY:
             return await call_next(cmd)

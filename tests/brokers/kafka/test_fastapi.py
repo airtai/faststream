@@ -1,12 +1,13 @@
 import asyncio
-from typing import Any
 from unittest.mock import Mock
 
 import pytest
 
-from faststream.kafka import KafkaBroker, KafkaRouter, TestKafkaBroker
+from faststream.kafka import KafkaRouter
 from faststream.kafka.fastapi import KafkaRouter as StreamRouter
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
+
+from .basic import KafkaMemoryTestcaseConfig
 
 
 @pytest.mark.kafka()
@@ -42,12 +43,9 @@ class TestKafkaRouter(FastAPITestcase):
         mock.assert_called_with(["hi"])
 
 
-class TestRouterLocal(FastAPILocalTestcase):
+class TestRouterLocal(KafkaMemoryTestcaseConfig, FastAPILocalTestcase):
     router_class = StreamRouter
     broker_router_class = KafkaRouter
-
-    def patch_broker(self, broker: KafkaBroker, **kwargs: Any) -> TestKafkaBroker:
-        return TestKafkaBroker(broker, **kwargs)
 
     async def test_batch_testclient(
         self,

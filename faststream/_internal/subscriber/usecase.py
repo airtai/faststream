@@ -1,22 +1,19 @@
 from abc import abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from contextlib import AbstractContextManager, AsyncExitStack
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     Callable,
     Optional,
-    overload,
+    Union,
 )
 
-from typing_extensions import Self, override
+from typing_extensions import Self, deprecated, overload, override
 
 from faststream._internal.subscriber.call_item import HandlerItem
-from faststream._internal.subscriber.call_wrapper.call import (
-    HandlerCallWrapper,
-    ensure_call_wrapper,
-)
 from faststream._internal.subscriber.proto import SubscriberProto
 from faststream._internal.subscriber.utils import (
     MultiLock,
@@ -43,8 +40,10 @@ if TYPE_CHECKING:
         BasePublisherProto,
     )
     from faststream._internal.state import BrokerState, Pointer
+    from faststream._internal.subscriber.call_wrapper import HandlerCallWrapper
     from faststream._internal.types import (
         AsyncCallable,
+        AsyncFilter,
         BrokerMiddleware,
         CustomCallable,
         Filter,
@@ -68,7 +67,7 @@ class _CallOptions:
         *,
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
-        middlewares: Iterable["SubscriberMiddleware[Any]"],
+        middlewares: Sequence["SubscriberMiddleware[Any]"],
         dependencies: Iterable["Dependant"],
     ) -> None:
         self.parser = parser
@@ -94,7 +93,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         *,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         ack_policy: AckPolicy,
@@ -125,7 +124,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._broker_middlewares = (*self._broker_middlewares, middleware)
 
     @override
-    def _setup(  # type: ignore[override]
+    def _setup(
         self,
         *,
         extra_context: "AnyDict",
@@ -186,7 +185,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         *,
         parser_: Optional["CustomCallable"],
         decoder_: Optional["CustomCallable"],
-        middlewares_: Iterable["SubscriberMiddleware[Any]"],
+        middlewares_: Sequence["SubscriberMiddleware[Any]"],
         dependencies_: Iterable["Dependant"],
     ) -> Self:
         self._call_options = _CallOptions(
@@ -202,10 +201,16 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self,
         func: None = None,
         *,
-        filter: "Filter[Any]" = default_filter,
+        filter: "Filter[StreamMessage[MsgType]]" = default_filter,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
+        middlewares: Annotated[
+            Sequence["SubscriberMiddleware[Any]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
+        ] = (),
         dependencies: Iterable["Dependant"] = (),
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -215,43 +220,69 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     @overload
     def __call__(
         self,
-        func: Callable[P_HandlerParams, T_HandlerReturn],
+        func: Union[
+            Callable[P_HandlerParams, T_HandlerReturn],
+            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+        ],
         *,
-        filter: "Filter[Any]" = default_filter,
+        filter: "Filter[StreamMessage[MsgType]]" = default_filter,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
+        middlewares: Annotated[
+            Sequence["SubscriberMiddleware[Any]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
+        ] = (),
         dependencies: Iterable["Dependant"] = (),
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
 
+    @override
     def __call__(
         self,
-        func: Optional[Callable[P_HandlerParams, T_HandlerReturn]] = None,
+        func: Union[
+            Callable[P_HandlerParams, T_HandlerReturn],
+            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+            None,
+        ] = None,
         *,
-        filter: "Filter[Any]" = default_filter,
+        filter: "Filter[StreamMessage[MsgType]]" = default_filter,
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
-        middlewares: Iterable["SubscriberMiddleware[Any]"] = (),
+        middlewares: Annotated[
+            Sequence["SubscriberMiddleware[Any]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
+        ] = (),
         dependencies: Iterable["Dependant"] = (),
-    ) -> Any:
+    ) -> Union[
+        "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+        Callable[
+            [Callable[P_HandlerParams, T_HandlerReturn]],
+            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+        ],
+    ]:
         if (options := self._call_options) is None:
             msg = (
                 "You can't create subscriber directly. Please, use `add_call` at first."
             )
-            raise SetupError(
-                msg,
-            )
+            raise SetupError(msg)
 
         total_deps = (*options.dependencies, *dependencies)
         total_middlewares = (*options.middlewares, *middlewares)
-        async_filter = to_async(filter)
+        async_filter: AsyncFilter[StreamMessage[MsgType]] = to_async(filter)
 
         def real_wrapper(
-            func: Callable[P_HandlerParams, T_HandlerReturn],
+            func: Union[
+                Callable[P_HandlerParams, T_HandlerReturn],
+                "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+            ],
         ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-            handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn] = (
-                ensure_call_wrapper(func)
-            )
+            handler = super(SubscriberUsecase, self).__call__(func)
+
             self.calls.append(
                 HandlerItem[MsgType](
                     handler=handler,
@@ -337,7 +368,9 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
                         await h.call(
                             message=message,
                             # consumer middlewares
-                            _extra_middlewares=(m.consume_scope for m in middlewares),
+                            _extra_middlewares=(
+                                m.consume_scope for m in middlewares[::-1]
+                            ),
                         ),
                     )
 
@@ -350,7 +383,9 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
                     ):
                         await p._publish(
                             result_msg.as_publish_command(),
-                            _extra_middlewares=(m.publish_scope for m in middlewares),
+                            _extra_middlewares=(
+                                m.publish_scope for m in middlewares[::-1]
+                            ),
                         )
 
                     # Return data for tests
@@ -365,13 +400,13 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             if parsing_error:
                 raise parsing_error
 
-            msg = f"There is no suitable handler for {msg=}"
-            raise SubscriberNotFound(msg)
+            error_msg = f"There is no suitable handler for {msg=}"
+            raise SubscriberNotFound(error_msg)
 
         # An error was raised and processed by some middleware
         return ensure_response(None)
 
-    def __build__middlewares_stack(self) -> tuple["BaseMiddleware", ...]:
+    def __build__middlewares_stack(self) -> tuple["BrokerMiddleware[MsgType]", ...]:
         logger_state = self._state.get().logger_state
 
         if self.ack_policy is AckPolicy.DO_NOTHING:

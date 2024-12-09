@@ -1,16 +1,17 @@
 import asyncio
-from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
 
-from faststream.nats import JStream, NatsBroker, NatsRouter, PullSub, TestNatsBroker
+from faststream.nats import JStream, NatsRouter, PullSub
 from faststream.nats.fastapi import NatsRouter as StreamRouter
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
+from .basic import NatsMemoryTestcaseConfig, NatsTestcaseConfig
+
 
 @pytest.mark.nats()
-class TestRouter(FastAPITestcase):
+class TestRouter(NatsTestcaseConfig, FastAPITestcase):
     router_class = StreamRouter
     broker_router_class = NatsRouter
 
@@ -76,12 +77,9 @@ class TestRouter(FastAPITestcase):
         mock.assert_called_once_with(["hello"])
 
 
-class TestRouterLocal(FastAPILocalTestcase):
+class TestRouterLocal(NatsMemoryTestcaseConfig, FastAPILocalTestcase):
     router_class = StreamRouter
     broker_router_class = NatsRouter
-
-    def patch_broker(self, broker: NatsBroker, **kwargs: Any) -> NatsBroker:
-        return TestNatsBroker(broker, **kwargs)
 
     async def test_consume_batch(
         self,

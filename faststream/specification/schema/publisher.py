@@ -7,6 +7,6 @@ from .operation import Operation
 
 @dataclass
 class PublisherSpec:
-    description: str
+    description: Optional[str]
     operation: Operation
     bindings: Optional[ChannelBinding]
