@@ -1,30 +1,27 @@
-import asyncio
 import math
 from abc import abstractmethod
+from collections.abc import Awaitable, Iterable, Sequence
 from contextlib import suppress
 from copy import deepcopy
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     Callable,
-    Dict,
-    Iterable,
-    List,
     Optional,
-    Sequence,
-    Tuple,
 )
 
 import anyio
-from redis.asyncio.client import PubSub as RPubSub
-from redis.asyncio.client import Redis
+from redis.asyncio.client import (
+    PubSub as RPubSub,
+    Redis,
+)
 from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
-from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.utils import process_msg
+from faststream._internal.subscriber.mixins import TasksMixin
+from faststream._internal.subscriber.usecase import SubscriberUsecase
+from faststream._internal.subscriber.utils import process_msg
+from faststream.middlewares import AckPolicy
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,
@@ -43,26 +40,28 @@ from faststream.redis.parser import (
     RedisPubSubParser,
     RedisStreamParser,
 )
+from faststream.redis.publisher.fake import RedisFakePublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
-    from faststream.broker.message import StreamMessage as BrokerStreamMessage
-    from faststream.broker.publisher.proto import ProducerProto
-    from faststream.broker.types import (
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.publisher.proto import BasePublisherProto
+    from faststream._internal.state import BrokerState
+    from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
         CustomCallable,
     )
-    from faststream.types import AnyDict, Decorator, LoggerProto
+    from faststream.message import StreamMessage as BrokerStreamMessage
 
 
 TopicName: TypeAlias = bytes
 Offset: TypeAlias = bytes
 
 
-class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
+class LogicSubscriber(TasksMixin, SubscriberUsecase[UnifyRedisDict]):
     """A class to represent a Redis handler."""
 
     _client: Optional["Redis[bytes]"]
@@ -73,81 +72,53 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             default_parser=default_parser,
             default_decoder=default_decoder,
             # Propagated options
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self._client = None
-        self.task: Optional[asyncio.Task[None]] = None
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         connection: Optional["Redis[bytes]"],
         # basic args
-        logger: Optional["LoggerProto"],
-        producer: Optional["ProducerProto"],
-        graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
-        _call_decorators: Iterable["Decorator"],
+        state: "BrokerState",
     ) -> None:
         self._client = connection
 
-        super().setup(
-            logger=logger,
-            producer=producer,
-            graceful_timeout=graceful_timeout,
+        super()._setup(
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
-            apply_types=apply_types,
-            is_validate=is_validate,
-            _get_dependant=_get_dependant,
-            _call_decorators=_call_decorators,
+            state=state,
         )
 
     def _make_response_publisher(
         self,
         message: "BrokerStreamMessage[UnifyRedisDict]",
-    ) -> Sequence[FakePublisher]:
-        if self._producer is None:
-            return ()
-
+    ) -> Sequence["BasePublisherProto"]:
         return (
-            FakePublisher(
-                self._producer.publish,
-                publish_kwargs={
-                    "channel": message.reply_to,
-                },
+            RedisFakePublisher(
+                self._state.get().producer,
+                channel=message.reply_to,
             ),
         )
 
@@ -156,7 +127,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         self,
         *args: Any,
     ) -> None:
-        if self.task:
+        if self.tasks:
             return
 
         await super().start()
@@ -164,9 +135,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         start_signal = anyio.Event()
 
         if self.calls:
-            self.task = asyncio.create_task(
-                self._consume(*args, start_signal=start_signal)
-            )
+            self.add_task(self._consume(*args, start_signal=start_signal))
 
             with anyio.fail_after(3.0):
                 await start_signal.wait()
@@ -197,20 +166,13 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
 
     @abstractmethod
     async def _get_msgs(self, *args: Any) -> None:
-        raise NotImplementedError()
-
-    async def close(self) -> None:
-        await super().close()
-
-        if self.task is not None and not self.task.done():
-            self.task.cancel()
-        self.task = None
+        raise NotImplementedError
 
     @staticmethod
     def build_log_context(
         message: Optional["BrokerStreamMessage[Any]"],
         channel: str = "",
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return {
             "channel": channel,
             "message_id": getattr(message, "message_id", ""),
@@ -225,42 +187,28 @@ class ChannelSubscriber(LogicSubscriber):
         *,
         channel: "PubSub",
         # Subscriber args
-        no_ack: bool,
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = RedisPubSubParser(pattern=channel.path_regex)
         super().__init__(
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
-            no_ack=no_ack,
+            ack_policy=AckPolicy.DO_NOTHING,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.channel = channel
         self.subscription = None
 
-    def __hash__(self) -> int:
-        return hash(self.channel)
-
     def get_log_context(
         self,
         message: Optional["BrokerStreamMessage[Any]"],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return self.build_log_context(
             message=message,
             channel=self.channel.name,
@@ -303,15 +251,19 @@ class ChannelSubscriber(LogicSubscriber):
 
         sleep_interval = timeout / 10
 
-        message: Optional[PubSubMessage] = None
+        raw_message: Optional[PubSubMessage] = None
 
         with anyio.move_on_after(timeout):
-            while (message := await self._get_message(self.subscription)) is None:  # noqa: ASYNC110
+            while (raw_message := await self._get_message(self.subscription)) is None:  # noqa: ASYNC110
                 await anyio.sleep(sleep_interval)
 
+        context = self._state.get().di_state.context
+
         msg: Optional[RedisMessage] = await process_msg(  # type: ignore[assignment]
-            msg=message,
-            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
+            msg=raw_message,
+            middlewares=(
+                m(raw_message, context=context) for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -339,7 +291,7 @@ class ChannelSubscriber(LogicSubscriber):
 
     def add_prefix(self, prefix: str) -> None:
         new_ch = deepcopy(self.channel)
-        new_ch.name = "".join((prefix, new_ch.name))
+        new_ch.name = f"{prefix}{new_ch.name}"
         self.channel = new_ch
 
 
@@ -351,40 +303,27 @@ class _ListHandlerMixin(LogicSubscriber):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             default_parser=default_parser,
             default_decoder=default_decoder,
             # Propagated options
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.list_sub = list
 
-    def __hash__(self) -> int:
-        return hash(self.list_sub)
-
     def get_log_context(
         self,
         message: Optional["BrokerStreamMessage[Any]"],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return self.build_log_context(
             message=message,
             channel=self.list_sub.name,
@@ -402,7 +341,7 @@ class _ListHandlerMixin(LogicSubscriber):
 
     @override
     async def start(self) -> None:
-        if self.task:
+        if self.tasks:
             return
 
         assert self._client, "You should setup subscriber at first."  # nosec B101
@@ -432,13 +371,19 @@ class _ListHandlerMixin(LogicSubscriber):
         if not raw_message:
             return None
 
+        redis_incoming_msg = DefaultListMessage(
+            type="list",
+            data=raw_message,
+            channel=self.list_sub.name,
+        )
+
+        context = self._state.get().di_state.context
+
         msg: RedisListMessage = await process_msg(  # type: ignore[assignment]
-            msg=DefaultListMessage(
-                type="list",
-                data=raw_message,
-                channel=self.list_sub.name,
+            msg=redis_incoming_msg,
+            middlewares=(
+                m(redis_incoming_msg, context=context) for m in self._broker_middlewares
             ),
-            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -446,7 +391,7 @@ class _ListHandlerMixin(LogicSubscriber):
 
     def add_prefix(self, prefix: str) -> None:
         new_list = deepcopy(self.list_sub)
-        new_list.name = "".join((prefix, new_list.name))
+        new_list.name = f"{prefix}{new_list.name}"
         self.list_sub = new_list
 
 
@@ -456,15 +401,9 @@ class ListSubscriber(_ListHandlerMixin):
         *,
         list: ListSub,
         # Subscriber args
-        no_ack: bool,
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = RedisListParser()
         super().__init__(
@@ -472,31 +411,28 @@ class ListSubscriber(_ListHandlerMixin):
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
-            no_ack=no_ack,
+            ack_policy=AckPolicy.DO_NOTHING,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
-        raw_msg = await client.lpop(name=self.list_sub.name)
+        raw_msg = await client.blpop(
+            self.list_sub.name,
+            timeout=self.list_sub.polling_interval,
+        )
 
         if raw_msg:
+            _, msg_data = raw_msg
+
             msg = DefaultListMessage(
                 type="list",
-                data=raw_msg,
+                data=msg_data,
                 channel=self.list_sub.name,
             )
 
-            await self.consume(msg)  # type: ignore[arg-type]
-
-        else:
-            await anyio.sleep(self.list_sub.polling_interval)
+            await self.consume(msg)
 
 
 class BatchListSubscriber(_ListHandlerMixin):
@@ -505,15 +441,9 @@ class BatchListSubscriber(_ListHandlerMixin):
         *,
         list: ListSub,
         # Subscriber args
-        no_ack: bool,
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = RedisBatchListParser()
         super().__init__(
@@ -521,15 +451,10 @@ class BatchListSubscriber(_ListHandlerMixin):
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
-            no_ack=no_ack,
+            ack_policy=AckPolicy.DO_NOTHING,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
@@ -559,41 +484,28 @@ class _StreamHandlerMixin(LogicSubscriber):
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             default_parser=default_parser,
             default_decoder=default_decoder,
             # Propagated options
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.stream_sub = stream
         self.last_id = stream.last_id
 
-    def __hash__(self) -> int:
-        return hash(self.stream_sub)
-
     def get_log_context(
         self,
         message: Optional["BrokerStreamMessage[Any]"],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return self.build_log_context(
             message=message,
             channel=self.stream_sub.name,
@@ -601,7 +513,7 @@ class _StreamHandlerMixin(LogicSubscriber):
 
     @override
     async def start(self) -> None:
-        if self.task:
+        if self.tasks:
             return
 
         assert self._client, "You should setup subscriber at first."  # nosec B101
@@ -618,13 +530,13 @@ class _StreamHandlerMixin(LogicSubscriber):
         read: Callable[
             [str],
             Awaitable[
-                Tuple[
-                    Tuple[
+                tuple[
+                    tuple[
                         TopicName,
-                        Tuple[
-                            Tuple[
+                        tuple[
+                            tuple[
                                 Offset,
-                                Dict[bytes, bytes],
+                                dict[bytes, bytes],
                             ],
                             ...,
                         ],
@@ -644,18 +556,18 @@ class _StreamHandlerMixin(LogicSubscriber):
                 )
             except ResponseError as e:
                 if "already exists" not in str(e):
-                    raise e
+                    raise
 
             def read(
                 _: str,
             ) -> Awaitable[
-                Tuple[
-                    Tuple[
+                tuple[
+                    tuple[
                         TopicName,
-                        Tuple[
-                            Tuple[
+                        tuple[
+                            tuple[
                                 Offset,
-                                Dict[bytes, bytes],
+                                dict[bytes, bytes],
                             ],
                             ...,
                         ],
@@ -677,13 +589,13 @@ class _StreamHandlerMixin(LogicSubscriber):
             def read(
                 last_id: str,
             ) -> Awaitable[
-                Tuple[
-                    Tuple[
+                tuple[
+                    tuple[
                         TopicName,
-                        Tuple[
-                            Tuple[
+                        tuple[
+                            tuple[
                                 Offset,
-                                Dict[bytes, bytes],
+                                dict[bytes, bytes],
                             ],
                             ...,
                         ],
@@ -723,14 +635,20 @@ class _StreamHandlerMixin(LogicSubscriber):
 
         self.last_id = message_id.decode()
 
+        redis_incoming_msg = DefaultStreamMessage(
+            type="stream",
+            channel=stream_name.decode(),
+            message_ids=[message_id],
+            data=raw_message,
+        )
+
+        context = self._state.get().di_state.context
+
         msg: RedisStreamMessage = await process_msg(  # type: ignore[assignment]
-            msg=DefaultStreamMessage(
-                type="stream",
-                channel=stream_name.decode(),
-                message_ids=[message_id],
-                data=raw_message,
+            msg=redis_incoming_msg,
+            middlewares=(
+                m(redis_incoming_msg, context=context) for m in self._broker_middlewares
             ),
-            middlewares=self._broker_middlewares,  # type: ignore[arg-type]
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -738,7 +656,7 @@ class _StreamHandlerMixin(LogicSubscriber):
 
     def add_prefix(self, prefix: str) -> None:
         new_stream = deepcopy(self.stream_sub)
-        new_stream.name = "".join((prefix, new_stream.name))
+        new_stream.name = f"{prefix}{new_stream.name}"
         self.stream_sub = new_stream
 
 
@@ -748,15 +666,10 @@ class StreamSubscriber(_StreamHandlerMixin):
         *,
         stream: StreamSub,
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = RedisStreamParser()
         super().__init__(
@@ -764,15 +677,10 @@ class StreamSubscriber(_StreamHandlerMixin):
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def _get_msgs(
@@ -780,13 +688,13 @@ class StreamSubscriber(_StreamHandlerMixin):
         read: Callable[
             [str],
             Awaitable[
-                Tuple[
-                    Tuple[
+                tuple[
+                    tuple[
                         TopicName,
-                        Tuple[
-                            Tuple[
+                        tuple[
+                            tuple[
                                 Offset,
-                                Dict[bytes, bytes],
+                                dict[bytes, bytes],
                             ],
                             ...,
                         ],
@@ -811,21 +719,16 @@ class StreamSubscriber(_StreamHandlerMixin):
                     await self.consume(msg)  # type: ignore[arg-type]
 
 
-class BatchStreamSubscriber(_StreamHandlerMixin):
+class StreamBatchSubscriber(_StreamHandlerMixin):
     def __init__(
         self,
         *,
         stream: StreamSub,
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         parser = RedisBatchStreamParser()
         super().__init__(
@@ -833,15 +736,10 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
             default_parser=parser.parse_message,
             default_decoder=parser.decode_message,
             # Propagated options
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def _get_msgs(
@@ -849,7 +747,7 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
         read: Callable[
             [str],
             Awaitable[
-                Tuple[Tuple[bytes, Tuple[Tuple[bytes, Dict[bytes, bytes]], ...]], ...],
+                tuple[tuple[bytes, tuple[tuple[bytes, dict[bytes, bytes]], ...]], ...],
             ],
         ],
     ) -> None:
@@ -857,8 +755,8 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
             if msgs:
                 self.last_id = msgs[-1][0].decode()
 
-                data: List[Dict[bytes, bytes]] = []
-                ids: List[bytes] = []
+                data: list[dict[bytes, bytes]] = []
+                ids: list[bytes] = []
                 for message_id, i in msgs:
                     data.append(i)
                     ids.append(message_id)

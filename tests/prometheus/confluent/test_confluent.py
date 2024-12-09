@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -7,25 +8,21 @@ from prometheus_client import CollectorRegistry
 from faststream import Context
 from faststream.confluent import KafkaBroker
 from faststream.confluent.prometheus.middleware import KafkaPrometheusMiddleware
-from tests.brokers.confluent.basic import ConfluentTestcaseConfig
 from tests.brokers.confluent.test_consume import TestConsume
 from tests.brokers.confluent.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase
 
+from .basic import KafkaPrometheusSettings
 
-@pytest.mark.confluent
-class TestPrometheus(ConfluentTestcaseConfig, LocalPrometheusTestcase):
-    def get_broker(self, apply_types=False, **kwargs):
-        return KafkaBroker(apply_types=apply_types, **kwargs)
 
-    def get_middleware(self, **kwargs):
-        return KafkaPrometheusMiddleware(**kwargs)
-
+@pytest.mark.confluent()
+class TestPrometheus(KafkaPrometheusSettings, LocalPrometheusTestcase):
     async def test_metrics_batch(
         self,
-        event: asyncio.Event,
         queue: str,
     ):
+        event = asyncio.Event()
+
         middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
@@ -59,9 +56,9 @@ class TestPrometheus(ConfluentTestcaseConfig, LocalPrometheusTestcase):
         self.assert_publish_metrics(metrics_manager=metrics_manager_mock)
 
 
-@pytest.mark.confluent
+@pytest.mark.confluent()
 class TestPublishWithPrometheus(TestPublish):
-    def get_broker(self, apply_types: bool = False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
         return KafkaBroker(
             middlewares=(KafkaPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
@@ -69,9 +66,9 @@ class TestPublishWithPrometheus(TestPublish):
         )
 
 
-@pytest.mark.confluent
+@pytest.mark.confluent()
 class TestConsumeWithPrometheus(TestConsume):
-    def get_broker(self, apply_types: bool = False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
         return KafkaBroker(
             middlewares=(KafkaPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,

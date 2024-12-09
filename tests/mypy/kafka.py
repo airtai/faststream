@@ -1,10 +1,11 @@
-from typing import Awaitable, Callable
+from collections.abc import Awaitable
+from typing import Callable
 
 from aiokafka import ConsumerRecord
 
+from faststream._internal.basic_types import DecodedMessage
 from faststream.kafka import KafkaBroker, KafkaMessage, KafkaRoute, KafkaRouter
 from faststream.kafka.fastapi import KafkaRouter as FastAPIRouter
-from faststream.types import DecodedMessage
 
 
 def sync_decoder(msg: KafkaMessage) -> DecodedMessage:
@@ -16,7 +17,8 @@ async def async_decoder(msg: KafkaMessage) -> DecodedMessage:
 
 
 async def custom_decoder(
-    msg: KafkaMessage, original: Callable[[KafkaMessage], Awaitable[DecodedMessage]]
+    msg: KafkaMessage,
+    original: Callable[[KafkaMessage], Awaitable[DecodedMessage]],
 ) -> DecodedMessage:
     return await original(msg)
 
@@ -27,15 +29,16 @@ KafkaBroker(decoder=custom_decoder)
 
 
 def sync_parser(msg: ConsumerRecord) -> KafkaMessage:
-    return ""  # type: ignore
+    return ""  # type: ignore[return-value]
 
 
 async def async_parser(msg: ConsumerRecord) -> KafkaMessage:
-    return ""  # type: ignore
+    return ""  # type: ignore[return-value]
 
 
 async def custom_parser(
-    msg: ConsumerRecord, original: Callable[[ConsumerRecord], Awaitable[KafkaMessage]]
+    msg: ConsumerRecord,
+    original: Callable[[ConsumerRecord], Awaitable[KafkaMessage]],
 ) -> KafkaMessage:
     return await original(msg)
 
@@ -197,7 +200,7 @@ KafkaRouter(
             parser=custom_parser,
             decoder=custom_decoder,
         ),
-    )
+    ),
 )
 
 

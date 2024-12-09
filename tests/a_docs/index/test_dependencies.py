@@ -3,9 +3,9 @@ import pytest
 from tests.marks import require_aiokafka
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_index_dep():
+async def test_index_dep() -> None:
     from docs.docs_src.index.dependencies import base_handler, broker
     from faststream.kafka import TestKafkaBroker
 

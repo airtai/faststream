@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -9,22 +10,23 @@ from faststream.redis import ListSub, RedisBroker
 from faststream.redis.prometheus.middleware import RedisPrometheusMiddleware
 from tests.brokers.redis.test_consume import TestConsume
 from tests.brokers.redis.test_publish import TestPublish
-from tests.prometheus.basic import LocalPrometheusTestcase
+from tests.prometheus.basic import LocalPrometheusTestcase, LocalRPCPrometheusTestcase
+
+from .basic import RedisPrometheusSettings
 
 
-@pytest.mark.redis
-class TestPrometheus(LocalPrometheusTestcase):
-    def get_broker(self, apply_types=False, **kwargs):
-        return RedisBroker(apply_types=apply_types, **kwargs)
-
-    def get_middleware(self, **kwargs):
-        return RedisPrometheusMiddleware(**kwargs)
-
+@pytest.mark.redis()
+class TestPrometheus(
+    RedisPrometheusSettings,
+    LocalPrometheusTestcase,
+    LocalRPCPrometheusTestcase,
+):
     async def test_metrics_batch(
         self,
-        event: asyncio.Event,
         queue: str,
     ):
+        event = asyncio.Event()
+
         middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
@@ -57,9 +59,9 @@ class TestPrometheus(LocalPrometheusTestcase):
         self.assert_publish_metrics(metrics_manager=metrics_manager_mock)
 
 
-@pytest.mark.redis
+@pytest.mark.redis()
 class TestPublishWithPrometheus(TestPublish):
-    def get_broker(self, apply_types: bool = False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
         return RedisBroker(
             middlewares=(RedisPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,
@@ -67,9 +69,9 @@ class TestPublishWithPrometheus(TestPublish):
         )
 
 
-@pytest.mark.redis
+@pytest.mark.redis()
 class TestConsumeWithPrometheus(TestConsume):
-    def get_broker(self, apply_types: bool = False, **kwargs):
+    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
         return RedisBroker(
             middlewares=(RedisPrometheusMiddleware(registry=CollectorRegistry()),),
             apply_types=apply_types,

@@ -4,9 +4,9 @@ from faststream import TestApp
 from tests.marks import require_aiokafka
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_global_kafka():
+async def test_global_kafka() -> None:
     from docs.docs_src.getting_started.dependencies.global_kafka import (
         app,
         broker,
@@ -19,7 +19,7 @@ async def test_global_kafka():
             {
                 "name": "John",
                 "user_id": 1,
-            }
+            },
         )
 
         with pytest.raises(ValueError):  # noqa: PT011

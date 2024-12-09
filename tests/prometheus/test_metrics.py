@@ -1,5 +1,5 @@
 import random
-from typing import List, Optional
+from typing import Optional
 from unittest.mock import ANY
 
 import pytest
@@ -17,7 +17,7 @@ class TestCaseMetrics:
     def create_metrics_manager(
         app_name: Optional[str] = None,
         metrics_prefix: Optional[str] = None,
-        received_messages_size_buckets: Optional[List[float]] = None,
+        received_messages_size_buckets: Optional[list[float]] = None,
     ) -> MetricsManager:
         registry = CollectorRegistry()
         container = MetricsContainer(
@@ -27,27 +27,27 @@ class TestCaseMetrics:
         )
         return MetricsManager(container, app_name=app_name)
 
-    @pytest.fixture
+    @pytest.fixture()
     def app_name(self, request) -> str:
         return "youtube"
 
-    @pytest.fixture
+    @pytest.fixture()
     def metrics_prefix(self, request) -> str:
         return "fs"
 
-    @pytest.fixture
+    @pytest.fixture()
     def broker(self) -> str:
         return "rabbit"
 
-    @pytest.fixture
+    @pytest.fixture()
     def queue(self) -> str:
         return "default.test"
 
-    @pytest.fixture
+    @pytest.fixture()
     def messages_amount(self) -> int:
         return random.randint(1, 10)
 
-    @pytest.fixture
+    @pytest.fixture()
     def exception_type(self) -> str:
         return Exception.__name__
 
@@ -97,10 +97,10 @@ class TestCaseMetrics:
 
     @pytest.mark.parametrize(
         "is_default_buckets",
-        [
+        (
             pytest.param(True, id="with default buckets"),
             pytest.param(False, id="with custom buckets"),
-        ],
+        ),
     )
     def test_observe_received_messages_size(
         self,
@@ -259,13 +259,13 @@ class TestCaseMetrics:
 
     @pytest.mark.parametrize(
         "status",
-        [
+        (
             pytest.param(ProcessingStatus.acked, id="acked status"),
             pytest.param(ProcessingStatus.nacked, id="nacked status"),
             pytest.param(ProcessingStatus.rejected, id="rejected status"),
             pytest.param(ProcessingStatus.skipped, id="skipped status"),
             pytest.param(ProcessingStatus.error, id="error status"),
-        ],
+        ),
     )
     def test_add_received_processed_message(
         self,
@@ -456,10 +456,10 @@ class TestCaseMetrics:
 
     @pytest.mark.parametrize(
         "status",
-        [
+        (
             pytest.param(PublishingStatus.success, id="success status"),
             pytest.param(PublishingStatus.error, id="error status"),
-        ],
+        ),
     )
     def test_add_published_message(
         self,
