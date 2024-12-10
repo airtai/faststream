@@ -99,7 +99,7 @@ class ChannelSubscriber(LogicSubscriber):
         await super().close()
 
     @override
-    async def get_one(  # type: ignore[override]
+    async def get_one(
         self,
         *,
         timeout: float = 5.0,
@@ -147,7 +147,7 @@ class ChannelSubscriber(LogicSubscriber):
 
     async def _get_msgs(self, psub: RPubSub) -> None:
         if msg := await self._get_message(psub):
-            await self.consume(msg)  # type: ignore[arg-type]
+            await self.consume(msg)
 
     def add_prefix(self, prefix: str) -> None:
         new_ch = deepcopy(self.channel)

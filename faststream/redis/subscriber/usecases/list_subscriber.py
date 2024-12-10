@@ -94,7 +94,7 @@ class _ListHandlerMixin(LogicSubscriber):
         await super().start(self._client)
 
     @override
-    async def get_one(  # type: ignore[override]
+    async def get_one(
         self,
         *,
         timeout: float = 5.0,
@@ -215,7 +215,7 @@ class BatchListSubscriber(_ListHandlerMixin):
                 data=raw_msgs,
             )
 
-            await self.consume(msg)  # type: ignore[arg-type]
+            await self.consume(msg)
 
         else:
             await anyio.sleep(self.list_sub.polling_interval)

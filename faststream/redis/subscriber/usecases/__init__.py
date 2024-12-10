@@ -15,5 +15,5 @@ __all__ = (
     "StreamBatchSubscriber",
     "StreamSubscriber",
     "_ListHandlerMixin",
-    "_StreamHandlerMixin"
+    "_StreamHandlerMixin",
 )

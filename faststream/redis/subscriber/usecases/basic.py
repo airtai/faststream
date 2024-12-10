@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import BasePublisherProto
-    from faststream._internal.state import BrokerState
+    from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.types import (
         AsyncCallable,
         BrokerMiddleware,
@@ -76,7 +76,7 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[UnifyRedisDict]):
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        state: "BrokerState",
+        state: "Pointer[BrokerState]",
     ) -> None:
         self._client = connection
 

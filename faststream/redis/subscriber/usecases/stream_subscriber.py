@@ -177,7 +177,7 @@ class _StreamHandlerMixin(LogicSubscriber):
         await super().start(read)
 
     @override
-    async def get_one(  # type: ignore[override]
+    async def get_one(
         self,
         *,
         timeout: float = 5.0,
@@ -281,7 +281,7 @@ class StreamSubscriber(_StreamHandlerMixin):
                         data=raw_msg,
                     )
 
-                    await self.consume(msg)  # type: ignore[arg-type]
+                    await self.consume(msg)
 
 
 class StreamBatchSubscriber(_StreamHandlerMixin):
@@ -333,4 +333,4 @@ class StreamBatchSubscriber(_StreamHandlerMixin):
                     message_ids=ids,
                 )
 
-                await self.consume(msg)  # type: ignore[arg-type]
+                await self.consume(msg)
