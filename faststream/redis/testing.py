@@ -31,16 +31,14 @@ from faststream.redis.parser import RawMessage, RedisPubSubParser
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.response import DestinationType, RedisPublishCommand
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
-from faststream.redis.subscriber.usecase import (
-    ChannelSubscriber,
-    LogicSubscriber,
-    _ListHandlerMixin,
-    _StreamHandlerMixin,
-)
+from faststream.redis.subscriber.usecases.channel_subscriber import ChannelSubscriber
+from faststream.redis.subscriber.usecases.list_subscriber import _ListHandlerMixin
+from faststream.redis.subscriber.usecases.stream_subscriber import _StreamHandlerMixin
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, SendableMessage
     from faststream.redis.publisher.specified import SpecificationPublisher
+    from faststream.redis.subscriber.usecases.basic import LogicSubscriber
 
 __all__ = ("TestRedisBroker",)
 
