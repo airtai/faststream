@@ -93,6 +93,10 @@ class BrokerUsecase(
                 "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down.",
             ),
         ],
+        routers: Annotated[
+            Sequence["ABCBroker[Any]"],
+            Doc("Routers to apply to broker."),
+        ],
         # Logging args
         logger_state: LoggerState,
         # FastDepends args
@@ -163,6 +167,7 @@ class BrokerUsecase(
                 Optional["AsyncCustomCallable"],
                 to_async(parser) if parser else None,
             ),
+            routers=routers,
             # Broker is a root router
             include_in_schema=True,
             prefix="",

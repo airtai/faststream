@@ -1,4 +1,6 @@
-from typing import Optional, Self
+from typing import Optional
+
+from typing_extensions import Self
 
 from faststream.specification.asyncapi.v2_6_0.schema.bindings.amqp import (
     ChannelBinding as V2Binding,

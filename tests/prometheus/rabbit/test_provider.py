@@ -5,10 +5,7 @@ import pytest
 
 from faststream.prometheus import MetricsSettingsProvider
 from faststream.rabbit.prometheus.provider import RabbitMetricsSettingsProvider
-from tests.prometheus.basic import (
-    LocalMetricsSettingsProviderTestcase,
-    LocalRPCPrometheusTestcase,
-)
+from tests.prometheus.basic import LocalMetricsSettingsProviderTestcase
 
 from .basic import RabbitPrometheusSettings
 
@@ -17,7 +14,6 @@ from .basic import RabbitPrometheusSettings
 class TestRabbitMetricsSettingsProvider(
     RabbitPrometheusSettings,
     LocalMetricsSettingsProviderTestcase,
-    LocalRPCPrometheusTestcase,
 ):
     @staticmethod
     def get_provider() -> MetricsSettingsProvider:

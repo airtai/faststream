@@ -2,9 +2,10 @@ from typing import Any
 
 from faststream.nats import NatsBroker
 from faststream.nats.prometheus import NatsPrometheusMiddleware
+from tests.brokers.nats.basic import NatsTestcaseConfig
 
 
-class NatsPrometheusSettings:
+class NatsPrometheusSettings(NatsTestcaseConfig):
     messaging_system = "nats"
 
     def get_broker(self, apply_types=False, **kwargs: Any) -> NatsBroker:

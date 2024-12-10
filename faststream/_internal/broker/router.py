@@ -74,6 +74,7 @@ class BrokerRouter(ABCBroker[MsgType]):
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
         include_in_schema: Optional[bool],
+        routers: Sequence["ABCBroker[Any]"],
     ) -> None:
         super().__init__(
             prefix=prefix,
@@ -83,6 +84,7 @@ class BrokerRouter(ABCBroker[MsgType]):
             decoder=decoder,
             include_in_schema=include_in_schema,
             state=EmptyBrokerState("You should include router to any broker."),
+            routers=routers,
         )
 
         for h in handlers:
