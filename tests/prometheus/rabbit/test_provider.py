@@ -13,6 +13,7 @@ from tests.prometheus.basic import (
 from .basic import RabbitPrometheusSettings
 
 
+@pytest.mark.rabbit()
 class TestRabbitMetricsSettingsProvider(
     RabbitPrometheusSettings,
     LocalMetricsSettingsProviderTestcase,
