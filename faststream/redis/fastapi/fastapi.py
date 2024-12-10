@@ -460,6 +460,10 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         ] = None,
         middlewares: Annotated[
             Sequence["SubscriberMiddleware[UnifyRedisMessage]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_ack: Annotated[
@@ -467,7 +471,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
             deprecated(
                 "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
-                "Scheduled to remove in 0.7.0"
+                "Scheduled to remove in 0.6.10"
             ),
         ] = EMPTY,
         ack_policy: AckPolicy = EMPTY,
@@ -672,6 +676,10 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         ] = "",
         middlewares: Annotated[
             Sequence["PublisherMiddleware"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

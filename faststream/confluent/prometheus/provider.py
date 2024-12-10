@@ -10,7 +10,7 @@ from faststream.prometheus import (
 if TYPE_CHECKING:
     from confluent_kafka import Message
 
-    from faststream.confluent.response import KafkaPublishCommand
+    from faststream.response import PublishCommand
 
 
 class BaseConfluentMetricsSettingsProvider(MetricsSettingsProvider[MsgType]):
@@ -21,7 +21,7 @@ class BaseConfluentMetricsSettingsProvider(MetricsSettingsProvider[MsgType]):
 
     def get_publish_destination_name_from_cmd(
         self,
-        cmd: "KafkaPublishCommand",
+        cmd: "PublishCommand",
     ) -> str:
         return cmd.destination
 

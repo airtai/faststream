@@ -1,7 +1,7 @@
 import time
 from collections import defaultdict
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, cast
 
 from opentelemetry import baggage, context, metrics, trace
 from opentelemetry.baggage.propagation import W3CBaggagePropagator
@@ -10,7 +10,7 @@ from opentelemetry.semconv.trace import SpanAttributes
 from opentelemetry.trace import Link, Span
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
-from faststream import BaseMiddleware
+from faststream.middlewares.base import BaseMiddleware, PublishCommand_T
 from faststream.opentelemetry.baggage import Baggage
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
@@ -39,8 +39,7 @@ _BAGGAGE_PROPAGATOR = W3CBaggagePropagator()
 _TRACE_PROPAGATOR = TraceContextTextMapPropagator()
 
 
-class TelemetryMiddleware:
-    # NOTE: should it be class or function?
+class TelemetryMiddleware(Generic[PublishCommand_T]):
     __slots__ = (
         "_meter",
         "_metrics",
@@ -71,8 +70,8 @@ class TelemetryMiddleware:
         /,
         *,
         context: "ContextRepo",
-    ) -> "_BaseTelemetryMiddleware":
-        return _BaseTelemetryMiddleware(
+    ) -> "BaseTelemetryMiddleware[PublishCommand_T]":
+        return BaseTelemetryMiddleware[PublishCommand_T](
             msg,
             tracer=self._tracer,
             metrics_container=self._metrics,
@@ -153,7 +152,7 @@ class _MetricsContainer:
             )
 
 
-class _BaseTelemetryMiddleware(BaseMiddleware):
+class BaseTelemetryMiddleware(BaseMiddleware[PublishCommand_T]):
     def __init__(
         self,
         msg: Optional[Any],
