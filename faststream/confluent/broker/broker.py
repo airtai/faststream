@@ -46,6 +46,7 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.broker.abc_broker import ABCBroker
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -280,6 +281,10 @@ class KafkaBroker(  # type: ignore[misc]
             ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
+        routers: Annotated[
+            Sequence["ABCBroker[Any]"],
+            Doc("Routers to apply to broker."),
+        ] = (),
         # AsyncAPI args
         security: Annotated[
             Optional["BaseSecurity"],
@@ -379,6 +384,7 @@ class KafkaBroker(  # type: ignore[misc]
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
+            routers=routers,
             # AsyncAPI args
             description=description,
             specification_url=specification_url,

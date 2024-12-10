@@ -46,6 +46,7 @@ class ABCBroker(Generic[MsgType]):
         decoder: Optional["CustomCallable"],
         include_in_schema: Optional[bool],
         state: "BrokerState",
+        routers: Sequence["ABCBroker[Any]"],
     ) -> None:
         self.prefix = prefix
         self.include_in_schema = include_in_schema
@@ -59,6 +60,8 @@ class ABCBroker(Generic[MsgType]):
         self._decoder = decoder
 
         self._state = Pointer(state)
+
+        self.include_routers(*routers)
 
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         """Append BrokerMiddleware to the end of middlewares list.
