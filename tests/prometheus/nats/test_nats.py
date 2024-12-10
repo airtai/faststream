@@ -22,7 +22,9 @@ def stream(queue):
 
 @pytest.mark.nats()
 class TestPrometheus(
-    NatsPrometheusSettings, LocalPrometheusTestcase, LocalRPCPrometheusTestcase
+    NatsPrometheusSettings,
+    LocalPrometheusTestcase,
+    LocalRPCPrometheusTestcase,
 ):
     async def test_metrics_batch(
         self,
