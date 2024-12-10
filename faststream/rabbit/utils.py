@@ -36,7 +36,7 @@ def build_url(
         port=port or original_url.port or default_port,
         login=login or original_url.user or "guest",
         password=password or original_url.password or "guest",
-        virtualhost=virtualhost or original_url.path.lstrip("/"),
+        virtualhost=virtualhost or original_url.path.replace("/", "", 1),
         ssl=use_ssl,
         ssl_options=ssl_options,
         client_properties=client_properties,
