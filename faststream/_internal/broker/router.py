@@ -84,7 +84,7 @@ class BrokerRouter(ABCBroker[MsgType]):
             decoder=decoder,
             include_in_schema=include_in_schema,
             state=EmptyBrokerState("You should include router to any broker."),
-            routers=routers
+            routers=routers,
         )
 
         for h in handlers:

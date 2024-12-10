@@ -16,7 +16,7 @@ from aio_pika import IncomingMessage, RobustConnection, connect_robust
 from typing_extensions import Doc, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.broker.broker import ABCBroker, BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream._internal.publisher.proto import PublisherProto
 from faststream.message import gen_cor_id

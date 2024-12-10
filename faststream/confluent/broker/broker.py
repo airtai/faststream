@@ -454,6 +454,7 @@ class KafkaBroker(  # type: ignore[misc]
             **kwargs,
             client_id=client_id,
             config=self.config,
+            logger=self._state.get().logger_state,
         )
 
         self._producer.connect(native_producer)
