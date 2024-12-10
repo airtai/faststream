@@ -172,6 +172,10 @@ class RabbitBroker(
             Sequence["BrokerMiddleware[IncomingMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
+        routers: Annotated[
+            Sequence["ABCBroker[Any]"],
+            Doc("Routers to apply to broker."),
+        ] = (),
         # AsyncAPI args
         security: Annotated[
             Optional["BaseSecurity"],
@@ -266,6 +270,7 @@ class RabbitBroker(
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
+            routers=routers,
             # AsyncAPI args
             description=description,
             specification_url=specification_url,
