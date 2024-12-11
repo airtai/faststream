@@ -16,7 +16,11 @@ from typing_extensions import ParamSpec
 from faststream._internal.constants import EMPTY
 from faststream._internal.context import ContextRepo
 from faststream._internal.log import logger
-from faststream._internal.state import DIState
+from faststream._internal.state import (
+    BasicApplicationState,
+    DIState,
+    RunningApplicationState,
+)
 from faststream._internal.state.broker import OuterBrokerState
 from faststream._internal.utils import apply_types
 from faststream._internal.utils.functions import (
@@ -99,13 +103,15 @@ class StartAbleApplication:
 
             serializer = PydanticSerializer()
 
-        self._state = DIState(
-            use_fastdepends=True,
-            get_dependent=None,
-            call_decorators=(),
-            serializer=serializer,
-            provider=self.provider,
-            context=self.context,
+        self._state = BasicApplicationState(
+            di_state=DIState(
+                use_fastdepends=True,
+                get_dependent=None,
+                call_decorators=(),
+                serializer=serializer,
+                provider=self.provider,
+                context=self.context,
+            )
         )
 
         self.broker = broker
@@ -113,7 +119,7 @@ class StartAbleApplication:
         self._setup()
 
     def _setup(self) -> None:
-        self.broker._setup(OuterBrokerState(di_state=self._state))
+        self.broker._setup(OuterBrokerState(di_state=self._state.di_state))
 
     async def _start_broker(self) -> None:
         await self.broker.start()
@@ -188,6 +194,8 @@ class Application(StartAbleApplication):
         async with self._startup_logging(log_level=log_level):
             await self.start(**(run_extra_options or {}))
 
+        self._state = RunningApplicationState(di_state=self._state.di_state)
+
     async def start(
         self,
         **run_extra_options: "SettingField",
@@ -234,6 +242,8 @@ class Application(StartAbleApplication):
         """Private method calls `stop` with logging."""
         async with self._shutdown_logging(log_level=log_level):
             await self.stop()
+
+        self._state = BasicApplicationState(di_state=self._state.di_state)
 
     async def stop(self) -> None:
         """Executes shutdown hooks and stop broker."""
@@ -318,3 +328,7 @@ class Application(StartAbleApplication):
             apply_types(to_async(func), context__=self.context)
         )
         return func
+
+    @property
+    def running(self) -> bool:
+        return self._state.running

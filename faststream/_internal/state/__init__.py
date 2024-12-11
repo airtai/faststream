@@ -1,3 +1,4 @@
+from .application import BasicApplicationState, RunningApplicationState
 from .broker import BrokerState, EmptyBrokerState
 from .fast_depends import DIState
 from .logger import LoggerParamsStorage, LoggerState
@@ -6,6 +7,8 @@ from .proto import SetupAble
 
 __all__ = (
     # state
+    "BasicApplicationState",
+    "RunningApplicationState",
     "BrokerState",
     # FastDepend
     "DIState",
