@@ -4,6 +4,7 @@ import pytest
 
 from faststream.rabbit import RabbitBroker
 from faststream.security import SASLPlaintext
+from faststream.rabbit.utils import build_url
 from tests.brokers.base.connection import BrokerConnectionTestcase
 
 
@@ -58,3 +59,17 @@ class TestConnection(BrokerConnectionTestcase):
         broker = self.broker("fake-url")  # will be ignored
         assert await broker.connect(url=settings.url)
         await broker.close()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "test_input,expected",
+        [
+            ("amqp://root:root@localhost:5672/vh", "amqp://root:root@localhost:5672/vh"),
+            ("amqp://root:root@localhost:5672/", "amqp://root:root@localhost:5672/"),
+            ("amqp://root:root@localhost:5672//vh", "amqp://root:root@localhost:5672//vh"),
+            ("amqp://root:root@localhost:5672/vh/vh2", "amqp://root:root@localhost:5672/vh/vh2"),
+            ("amqp://root:root@localhost:5672//vh/vh2", "amqp://root:root@localhost:5672//vh/vh2")
+        ]
+    )
+    async def test_build_url(self, test_input, expected):
+        assert str(build_url(test_input)) == expected
