@@ -131,7 +131,7 @@ def resolve_custom_func(
     original_params = inspect.signature(custom_func).parameters
 
     if len(original_params) == 1:
-        return to_async(cast(Union["SyncCallable", "AsyncCallable"], custom_func))
+        return to_async(cast("Union[SyncCallable, AsyncCallable]", custom_func))
 
     name = tuple(original_params.items())[1][0]
     return partial(to_async(custom_func), **{name: default_func})

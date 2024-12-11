@@ -119,7 +119,7 @@ def create_publisher(
             headers=headers,
             reply_to=reply_to,
             broker_middlewares=cast(
-                Sequence["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+                "Sequence[BrokerMiddleware[tuple[ConfluentMsg, ...]]]",
                 broker_middlewares,
             ),
             middlewares=middlewares,
@@ -137,7 +137,7 @@ def create_publisher(
         headers=headers,
         reply_to=reply_to,
         broker_middlewares=cast(
-            Sequence["BrokerMiddleware[ConfluentMsg]"],
+            "Sequence[BrokerMiddleware[ConfluentMsg]]",
             broker_middlewares,
         ),
         middlewares=middlewares,

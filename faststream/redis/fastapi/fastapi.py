@@ -622,7 +622,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
         ] = False,
     ) -> SpecificationSubscriber:
         return cast(
-            SpecificationSubscriber,
+            "SpecificationSubscriber",
             super().subscriber(
                 channel=channel,
                 list=list,

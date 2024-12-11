@@ -125,8 +125,8 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         cache: dict[Any, Any],
     ) -> Optional["StreamMessage[MsgType]"]:
         """Check is message suite for current filter."""
-        if not (parser := cast(Optional["AsyncCallable"], self.item_parser)) or not (
-            decoder := cast(Optional["AsyncCallable"], self.item_decoder)
+        if not (parser := cast("Optional[AsyncCallable]", self.item_parser)) or not (
+            decoder := cast("Optional[AsyncCallable]", self.item_decoder)
         ):
             error_msg = "You should setup `HandlerItem` at first."
             raise SetupError(error_msg)

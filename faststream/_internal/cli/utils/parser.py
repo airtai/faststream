@@ -29,7 +29,7 @@ def parse_cli_args(*args: str) -> tuple[str, dict[str, "SettingField"]]:
         *reduce(
             lambda acc, x: acc + x.split("="),
             args,
-            cast(list[str], []),
+            cast("list[str]", []),
         ),
         "-",
     ]:

@@ -7,7 +7,6 @@ from faststream._internal.broker.abc_broker import ABCBroker
 from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
 from faststream.rabbit.publisher.factory import create_publisher
-from faststream.rabbit.publisher.specified import SpecificationPublisher
 from faststream.rabbit.publisher.usecase import PublishKwargs
 from faststream.rabbit.schemas import (
     RabbitExchange,
@@ -28,6 +27,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
+    from faststream.rabbit.publisher.specified import SpecificationPublisher
 
 
 class RabbitRegistrator(ABCBroker["IncomingMessage"]):
@@ -113,7 +113,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         ] = True,
     ) -> SpecificationSubscriber:
         subscriber = cast(
-            SpecificationSubscriber,
+            "SpecificationSubscriber",
             super().subscriber(
                 create_subscriber(
                     queue=RabbitQueue.validate(queue),
@@ -276,7 +276,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         )
 
         return cast(
-            SpecificationPublisher,
+            "SpecificationPublisher",
             super().publisher(
                 create_publisher(
                     routing_key=routing_key,

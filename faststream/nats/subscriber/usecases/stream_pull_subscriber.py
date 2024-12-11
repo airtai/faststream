@@ -13,7 +13,6 @@ from typing_extensions import override
 
 from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.subscriber.utils import process_msg
-from faststream.nats.message import NatsMessage
 from faststream.nats.parser import (
     BatchParser,
 )
@@ -35,6 +34,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
     )
     from faststream.middlewares import AckPolicy
+    from faststream.nats.message import NatsMessage
     from faststream.nats.schemas import JStream, PullSub
 
 
@@ -201,7 +201,7 @@ class BatchPullStreamSubscriber(
         context = self._state.get().di_state.context
 
         return cast(
-            NatsMessage,
+            "NatsMessage",
             await process_msg(
                 msg=raw_message,
                 middlewares=(

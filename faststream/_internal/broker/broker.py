@@ -157,11 +157,11 @@ class BrokerUsecase(
             middlewares=middlewares,
             dependencies=dependencies,
             decoder=cast(
-                Optional["AsyncCustomCallable"],
+                "Optional[AsyncCustomCallable]",
                 to_async(decoder) if decoder else None,
             ),
             parser=cast(
-                Optional["AsyncCustomCallable"],
+                "Optional[AsyncCustomCallable]",
                 to_async(parser) if parser else None,
             ),
             routers=routers,

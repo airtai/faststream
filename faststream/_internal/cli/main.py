@@ -125,7 +125,7 @@ def run(
 
     # Should be imported after sys.path changes
     module_path, app_obj = import_from_string(app, is_factory=is_factory)
-    app_obj = cast(Application, app_obj)
+    app_obj = cast("Application", app_obj)
 
     args = (app, extra, is_factory, casted_log_level)
 
@@ -197,7 +197,7 @@ def _run(
 ) -> None:
     """Runs the specified application."""
     _, app_obj = import_from_string(app, is_factory=is_factory)
-    app_obj = cast(Application, app_obj)
+    app_obj = cast("Application", app_obj)
     _run_imported_app(
         app_obj,
         extra_options=extra_options,

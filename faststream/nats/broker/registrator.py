@@ -9,7 +9,6 @@ from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
 from faststream.nats.helpers import StreamBuilder
 from faststream.nats.publisher.factory import create_publisher
-from faststream.nats.publisher.specified import SpecificationPublisher
 from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
 from faststream.nats.subscriber.factory import create_subscriber
 from faststream.nats.subscriber.specified import SpecificationSubscriber
@@ -25,6 +24,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.nats.message import NatsMessage
+    from faststream.nats.publisher.specified import SpecificationPublisher
 
 
 class NatsRegistrator(ABCBroker["Msg"]):
@@ -211,7 +211,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         stream = self._stream_builder.create(stream)
 
         subscriber = cast(
-            SpecificationSubscriber,
+            "SpecificationSubscriber",
             super().subscriber(
                 create_subscriber(
                     subject=subject,
@@ -330,7 +330,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         stream = self._stream_builder.create(stream)
 
         publisher = cast(
-            SpecificationPublisher,
+            "SpecificationPublisher",
             super().publisher(
                 publisher=create_publisher(
                     subject=subject,
