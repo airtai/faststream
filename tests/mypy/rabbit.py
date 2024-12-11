@@ -1,10 +1,11 @@
-from typing import Awaitable, Callable
+from collections.abc import Awaitable
+from typing import Callable
 
 from aio_pika import IncomingMessage
 
+from faststream._internal.basic_types import DecodedMessage
 from faststream.rabbit import RabbitBroker, RabbitMessage, RabbitRoute, RabbitRouter
 from faststream.rabbit.fastapi import RabbitRouter as FastAPIRouter
-from faststream.types import DecodedMessage
 
 
 def sync_decoder(msg: RabbitMessage) -> DecodedMessage:
@@ -16,7 +17,8 @@ async def async_decoder(msg: RabbitMessage) -> DecodedMessage:
 
 
 async def custom_decoder(
-    msg: RabbitMessage, original: Callable[[RabbitMessage], Awaitable[DecodedMessage]]
+    msg: RabbitMessage,
+    original: Callable[[RabbitMessage], Awaitable[DecodedMessage]],
 ) -> DecodedMessage:
     return await original(msg)
 
@@ -27,11 +29,11 @@ RabbitBroker(decoder=custom_decoder)
 
 
 def sync_parser(msg: IncomingMessage) -> RabbitMessage:
-    return ""  # type: ignore
+    return ""  # type: ignore[return-value]
 
 
 async def async_parser(msg: IncomingMessage) -> RabbitMessage:
-    return ""  # type: ignore
+    return ""  # type: ignore[return-value]
 
 
 async def custom_parser(
@@ -198,7 +200,7 @@ RabbitRouter(
             parser=custom_parser,
             decoder=custom_decoder,
         ),
-    )
+    ),
 )
 
 

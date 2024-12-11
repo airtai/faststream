@@ -1,16 +1,14 @@
 from contextlib import contextmanager
-from typing import Tuple
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from redis.exceptions import AuthenticationError
 
-from faststream.app import FastStream
-from faststream.asyncapi.generate import get_app_schema
+from faststream.specification.asyncapi import AsyncAPI
 
 
 @contextmanager
-def patch_asyncio_open_connection() -> Tuple[MagicMock, MagicMock]:
+def patch_asyncio_open_connection() -> tuple[MagicMock, MagicMock]:
     try:
         reader = MagicMock()
         reader.readline = AsyncMock(return_value=b":1\r\n")
@@ -28,18 +26,18 @@ def patch_asyncio_open_connection() -> Tuple[MagicMock, MagicMock]:
         pass
 
 
-@pytest.mark.asyncio
-@pytest.mark.redis
-async def test_base_security():
+@pytest.mark.asyncio()
+@pytest.mark.redis()
+async def test_base_security() -> None:
     with patch_asyncio_open_connection() as connection:
         from docs.docs_src.redis.security.basic import broker
 
         async with broker:
-            await broker.ping(3.0)
+            await broker.ping(0.01)
 
         assert connection.call_args.kwargs["ssl"]
 
-        schema = get_app_schema(FastStream(broker)).to_jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
         assert schema == {
             "asyncapi": "2.6.0",
             "channels": {},
@@ -52,14 +50,14 @@ async def test_base_security():
                     "protocolVersion": "custom",
                     "security": [],
                     "url": "redis://localhost:6379",
-                }
+                },
             },
         }
 
 
-@pytest.mark.asyncio
-@pytest.mark.redis
-async def test_plaintext_security():
+@pytest.mark.asyncio()
+@pytest.mark.redis()
+async def test_plaintext_security() -> None:
     with patch_asyncio_open_connection() as connection:
         from docs.docs_src.redis.security.plaintext import broker
 
@@ -69,7 +67,7 @@ async def test_plaintext_security():
 
         assert connection.call_args.kwargs["ssl"]
 
-        schema = get_app_schema(FastStream(broker)).to_jsonable()
+        schema = AsyncAPI(broker, schema_version="2.6.0").to_jsonable()
         assert schema == {
             "asyncapi": "2.6.0",
             "channels": {},
@@ -86,6 +84,6 @@ async def test_plaintext_security():
                     "protocolVersion": "custom",
                     "security": [{"user-password": []}],
                     "url": "redis://localhost:6379",
-                }
+                },
             },
         }
