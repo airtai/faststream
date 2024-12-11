@@ -17,7 +17,11 @@ if TYPE_CHECKING:
 
 class BrokerPublishMixin(Generic[MsgType]):
     middlewares: Sequence["BrokerMiddleware[MsgType]"]
-    context: "ContextRepo"
+
+    @property
+    @abstractmethod
+    def context(self) -> "ContextRepo":
+        raise NotImplementedError
 
     @abstractmethod
     async def publish(

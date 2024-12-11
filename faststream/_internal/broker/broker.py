@@ -37,7 +37,7 @@ from faststream._internal.types import (
 from faststream._internal.utils.functions import to_async
 from faststream.specification.proto import ServerSpecification
 
-from .abc_broker import ABCBroker
+from .abc_broker import ABCBroker, FinalPublisher
 from .pub_base import BrokerPublishMixin
 
 if TYPE_CHECKING:
@@ -47,10 +47,7 @@ if TYPE_CHECKING:
     from fast_depends.library.serializer import SerializerProto
 
     from faststream._internal.basic_types import AnyDict, Decorator
-    from faststream._internal.publisher.proto import (
-        ProducerProto,
-        PublisherProto,
-    )
+    from faststream._internal.publisher.proto import ProducerProto
     from faststream.security import BaseSecurity
     from faststream.specification.schema.extra import Tag, TagDict
 
@@ -64,9 +61,9 @@ class BrokerUsecase(
 ):
     """A class representing a broker async use case."""
 
-    url: Union[str, Sequence[str]]
+    url: Union[str, list[str]]
     _connection: Optional[ConnectionType]
-    _producer: "ProducerProto"
+    middlewares: Sequence["BrokerMiddleware[MsgType]"]
 
     def __init__(
         self,
@@ -110,7 +107,7 @@ class BrokerUsecase(
             Doc("Custom library dependant generator callback."),
         ],
         _call_decorators: Annotated[
-            Iterable["Decorator"],
+            Sequence["Decorator"],
             Doc("Any custom decorator to apply to wrapped functions."),
         ],
         # AsyncAPI kwargs
@@ -311,8 +308,12 @@ class BrokerUsecase(
             "broker_decoder": self._decoder,
         }
 
-    def publisher(self, *args: Any, **kwargs: Any) -> "PublisherProto[MsgType]":
-        pub = super().publisher(*args, **kwargs, is_running=self.running)
+    def publisher(
+        self,
+        publisher: "FinalPublisher[MsgType]",
+        is_running: bool = False,
+    ) -> "FinalPublisher[MsgType]":
+        pub = super().publisher(publisher, is_running=self.running)
         self.setup_publisher(pub)
         return pub
 

@@ -22,7 +22,10 @@ class FinalSubscriber(
     EndpointSpecification[MsgType, SubscriberSpec],
     SubscriberProto[MsgType],
 ):
-    pass
+    @property
+    @abstractmethod
+    def call_name(self) -> str:
+        raise NotImplementedError
 
 
 class FinalPublisher(
