@@ -8,7 +8,6 @@ from .proto import SetupAble
 __all__ = (
     # state
     "BasicApplicationState",
-    "RunningApplicationState",
     "BrokerState",
     # FastDepend
     "DIState",
@@ -17,6 +16,7 @@ __all__ = (
     # logging
     "LoggerState",
     "Pointer",
+    "RunningApplicationState",
     # proto
     "SetupAble",
 )
