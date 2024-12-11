@@ -234,7 +234,7 @@ class RedisRouter(RedisRegistrator, BrokerRouter[BaseMessage]):
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         routers: Annotated[
-            Sequence["ABCBroker[Any]"],
+            Sequence["ABCBroker[BaseMessage]"],
             Doc("Routers to apply to broker."),
         ] = (),
         parser: Annotated[

@@ -316,7 +316,7 @@ class RabbitRouter(RabbitRegistrator, BrokerRouter["IncomingMessage"]):
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         routers: Annotated[
-            Sequence["ABCBroker[Any]"],
+            Sequence["ABCBroker[IncomingMessage]"],
             Doc("Routers to apply to broker."),
         ] = (),
         parser: Annotated[

@@ -74,7 +74,7 @@ class BrokerRouter(ABCBroker[MsgType]):
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
         include_in_schema: Optional[bool],
-        routers: Sequence["ABCBroker[Any]"],
+        routers: Sequence["ABCBroker[MsgType]"],
     ) -> None:
         super().__init__(
             prefix=prefix,

@@ -46,7 +46,7 @@ class ABCBroker(Generic[MsgType]):
         decoder: Optional["CustomCallable"],
         include_in_schema: Optional[bool],
         state: "BrokerState",
-        routers: Sequence["ABCBroker[Any]"],
+        routers: Sequence["ABCBroker[MsgType]"],
     ) -> None:
         self.prefix = prefix
         self.include_in_schema = include_in_schema

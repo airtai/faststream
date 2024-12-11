@@ -140,7 +140,7 @@ class RedisBroker(
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         routers: Annotated[
-            Sequence["ABCBroker[Any]"],
+            Sequence["ABCBroker[BaseMessage]"],
             Doc("Routers to apply to broker."),
         ] = (),
         # AsyncAPI args

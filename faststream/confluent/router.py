@@ -510,7 +510,7 @@ class KafkaRouter(
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         routers: Annotated[
-            Sequence["ABCBroker[Any]"],
+            Sequence["ABCBroker[Message]"],
             Doc("Routers to apply to broker."),
         ] = (),
         parser: Annotated[

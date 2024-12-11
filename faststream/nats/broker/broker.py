@@ -378,7 +378,7 @@ class NatsBroker(
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         routers: Annotated[
-            Sequence["ABCBroker[Any]"],
+            Sequence["ABCBroker[Msg]"],
             Doc("Routers to apply to broker."),
         ] = (),
         # AsyncAPI args

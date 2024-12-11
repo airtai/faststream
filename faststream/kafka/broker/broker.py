@@ -455,7 +455,7 @@ class KafkaBroker(
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         routers: Annotated[
-            Sequence["ABCBroker[Any]"],
+            Sequence["ABCBroker[ConsumerRecord]"],
             Doc("Routers to apply to broker."),
         ] = (),
         # AsyncAPI args

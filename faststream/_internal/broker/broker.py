@@ -94,7 +94,7 @@ class BrokerUsecase(
             ),
         ],
         routers: Annotated[
-            Sequence["ABCBroker[Any]"],
+            Sequence["ABCBroker[MsgType]"],
             Doc("Routers to apply to broker."),
         ],
         # Logging args
