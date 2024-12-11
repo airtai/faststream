@@ -3,9 +3,10 @@ from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
+    Literal,
     Optional,
     Union,
-    overload, Literal,
+    overload,
 )
 
 from aiokafka import ConsumerRecord
@@ -20,13 +21,14 @@ from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
     import asyncio
+
     from aiokafka.structs import RecordMetadata
+
     from faststream._internal.basic_types import SendableMessage
     from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
     from faststream.kafka.message import KafkaMessage
     from faststream.kafka.publisher.producer import AioKafkaFastProducer
     from faststream.response.response import PublishCommand
-
 
 
 class LogicPublisher(PublisherUsecase[MsgType]):
@@ -203,8 +205,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         reply_to: str = "",
         no_confirm: bool = False,
     ) -> Union["asyncio.Future[RecordMetadata]", "RecordMetadata"]:
-        """
-        Args:
+        """Args:
             message:
                 Message body to send.
             topic:
@@ -232,6 +233,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
                 Reply message topic name to send response.
             no_confirm:
                 Do not wait for Kafka publish confirmation.
+
         Returns:
             `asyncio.Future[RecordMetadata]` if no_confirm = True.
             `RecordMetadata` if no_confirm = False.
@@ -381,8 +383,7 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
         correlation_id: Optional[str] = None,
         no_confirm: bool = False,
     ) -> Union["asyncio.Future[RecordMetadata]", "RecordMetadata"]:
-        """
-        Args:
+        """Args:
             *messages:
                 Messages bodies to send.
             topic:
@@ -402,6 +403,7 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
                 **correlation_id** is a useful option to trace messages.
             no_confirm:
                 Do not wait for Kafka publish confirmation.
+
         Returns:
             `asyncio.Future[RecordMetadata]` if no_confirm = True.
             `RecordMetadata` if no_confirm = False.

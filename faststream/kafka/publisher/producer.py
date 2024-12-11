@@ -13,8 +13,10 @@ from .state import EmptyProducerState, ProducerState, RealProducer
 
 if TYPE_CHECKING:
     import asyncio
+
     from aiokafka import AIOKafkaProducer
     from aiokafka.structs import RecordMetadata
+
     from faststream._internal.types import CustomCallable
     from faststream.kafka.response import KafkaPublishCommand
 
