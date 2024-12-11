@@ -3,8 +3,8 @@ from typing import Type
 import pytest
 
 from faststream.rabbit import RabbitBroker
-from faststream.security import SASLPlaintext
 from faststream.rabbit.utils import build_url
+from faststream.security import SASLPlaintext
 from tests.brokers.base.connection import BrokerConnectionTestcase
 
 
