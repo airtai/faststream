@@ -181,7 +181,7 @@ class TestBroker(Generic[Broker]):
 
         for subscriber in broker._subscribers:
             subscriber.running = True
-            subscriber.lock = MultiLock()
+            subscriber.lock = MultiLock()  # type: ignore[attr-defined]
 
     def _fake_close(
         self,

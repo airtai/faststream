@@ -8,7 +8,11 @@ from .logger_proxy import (
     NotSetLoggerObject,
     RealLoggerObject,
 )
-from .params_storage import LoggerParamsStorage, make_logger_storage
+from .params_storage import (
+    DefaultLoggerStorage,
+    LoggerParamsStorage,
+    make_logger_storage,
+)
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, LoggerProto
@@ -19,7 +23,7 @@ def make_logger_state(
     logger: Optional["LoggerProto"],
     log_level: int,
     log_fmt: Optional[str],
-    default_storage_cls: type["LoggerParamsStorage"],
+    default_storage_cls: type["DefaultLoggerStorage"],
 ) -> "LoggerState":
     storage = make_logger_storage(
         logger=logger,
@@ -64,7 +68,11 @@ class LoggerState(SetupAble):
             exc_info=exc_info,
         )
 
-    def _setup(self, *, context: "ContextRepo") -> None:
+    def _setup(  # type: ignore[override]
+        self,
+        *,
+        context: "ContextRepo",
+    ) -> None:
         if not self.logger:
             if logger := self.params_storage.get_logger(context=context):
                 self.logger = RealLoggerObject(logger)

@@ -121,9 +121,9 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
     )
 
     dependant.custom_fields = {}  # type: ignore[attr-defined]
-    dependant.flat_params = [
+    dependant.flat_params = [  # type: ignore[attr-defined]
         OptionItem(field_name=name, field_type=type_, default_value=default)
         for name, (type_, default) in params_unique.items()
-    ]  # type: ignore[attr-defined]
+    ]
 
     return dependant
