@@ -960,6 +960,7 @@ search:
                     - [build_message](api/faststream/rabbit/testing/build_message.md)
                 - utils
                     - [build_url](api/faststream/rabbit/utils/build_url.md)
+                    - [build_virtual_host](api/faststream/rabbit/utils/build_virtual_host.md)
                     - [is_routing_exchange](api/faststream/rabbit/utils/is_routing_exchange.md)
             - redis
                 - [ListSub](api/faststream/redis/ListSub.md)
