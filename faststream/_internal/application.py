@@ -16,9 +16,10 @@ from typing_extensions import ParamSpec
 from faststream._internal.constants import EMPTY
 from faststream._internal.context import ContextRepo
 from faststream._internal.log import logger
-from faststream._internal.state import (
+from faststream._internal.state import DIState
+from faststream._internal.state.application import (
+    ApplicationState,
     BasicApplicationState,
-    DIState,
     RunningApplicationState,
 )
 from faststream._internal.state.broker import OuterBrokerState
@@ -103,7 +104,7 @@ class StartAbleApplication:
 
             serializer = PydanticSerializer()
 
-        self._state = BasicApplicationState(
+        self._state: ApplicationState = BasicApplicationState(
             di_state=DIState(
                 use_fastdepends=True,
                 get_dependent=None,
@@ -170,6 +171,10 @@ class Application(StartAbleApplication):
             )
         else:
             self.lifespan_context = fake_context
+
+    @property
+    def running(self) -> bool:
+        return self._state.running
 
     @abstractmethod
     def exit(self) -> None:
@@ -278,7 +283,7 @@ class Application(StartAbleApplication):
             "FastStream app shut down gracefully.",
         )
 
-    # Setvice methods
+    # Service methods
 
     def _log(self, level: int, message: str) -> None:
         if self.logger is not None:
@@ -328,7 +333,3 @@ class Application(StartAbleApplication):
             apply_types(to_async(func), context__=self.context)
         )
         return func
-
-    @property
-    def running(self) -> bool:
-        return self._state.running

@@ -235,7 +235,7 @@ class StreamRouter(
                 response_model_exclude_defaults=response_model_exclude_defaults,
                 response_model_exclude_none=response_model_exclude_none,
                 provider_factory=self._get_dependencies_overides_provider,
-                state=self._state,
+                state=self._state.di_state,
             )
 
         return wrapper
