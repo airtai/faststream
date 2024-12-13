@@ -1,26 +1,21 @@
 import asyncio
-from typing import Any
 from unittest.mock import patch
 
 import pytest
 
-from faststream import BaseMiddleware
-from faststream.kafka import KafkaBroker, TestKafkaBroker, TopicPartition
+from faststream import AckPolicy, BaseMiddleware
+from faststream.kafka import TopicPartition
 from faststream.kafka.annotations import KafkaMessage
 from faststream.kafka.message import FAKE_CONSUMER
 from faststream.kafka.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 from tests.tools import spy_decorator
 
+from .basic import KafkaMemoryTestcaseConfig
+
 
 @pytest.mark.asyncio()
-class TestTestclient(BrokerTestclientTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
-        return KafkaBroker(apply_types=apply_types, **kwargs)
-
-    def patch_broker(self, broker: KafkaBroker, **kwargs: Any) -> TestKafkaBroker:
-        return TestKafkaBroker(broker, **kwargs)
-
+class TestTestclient(KafkaMemoryTestcaseConfig, BrokerTestclientTestcase):
     async def test_partition_match(
         self,
         queue: str,
@@ -77,7 +72,7 @@ class TestTestclient(BrokerTestclientTestcase):
     ) -> None:
         broker = self.get_broker(apply_types=True)
 
-        @broker.subscriber(queue)
+        @broker.subscriber(queue, group_id=f"{queue}1", ack_policy=AckPolicy.DO_NOTHING)
         async def m(msg: KafkaMessage) -> None:
             await msg.nack()
 

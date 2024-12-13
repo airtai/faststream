@@ -1,16 +1,15 @@
 from collections.abc import AsyncIterator, Awaitable, Iterator
-from contextlib import AbstractContextManager, asynccontextmanager, contextmanager
+from contextlib import asynccontextmanager, contextmanager
 from functools import wraps
 from typing import (
     Any,
     Callable,
-    Optional,
     TypeVar,
     Union,
+    cast,
     overload,
 )
 
-import anyio
 from fast_depends.core import CallModel
 from fast_depends.utils import (
     is_coroutine_callable,
@@ -25,7 +24,6 @@ __all__ = (
     "call_or_await",
     "drop_response_type",
     "fake_context",
-    "timeout_scope",
     "to_async",
 )
 
@@ -53,7 +51,9 @@ def to_async(
 ) -> Callable[F_Spec, Awaitable[F_Return]]:
     """Converts a synchronous function to an asynchronous function."""
     if is_coroutine_callable(func):
-        return func
+        return cast("Callable[F_Spec, Awaitable[F_Return]]", func)
+
+    func = cast("Callable[F_Spec, F_Return]", func)
 
     @wraps(func)
     async def to_async_wrapper(*args: F_Spec.args, **kwargs: F_Spec.kwargs) -> F_Return:
@@ -61,16 +61,6 @@ def to_async(
         return await run_in_threadpool(func, *args, **kwargs)
 
     return to_async_wrapper
-
-
-def timeout_scope(
-    timeout: Optional[float] = 30,
-    raise_timeout: bool = False,
-) -> AbstractContextManager[anyio.CancelScope]:
-    scope: Callable[[Optional[float]], AbstractContextManager[anyio.CancelScope]]
-    scope = anyio.fail_after if raise_timeout else anyio.move_on_after
-
-    return scope(timeout)
 
 
 @asynccontextmanager

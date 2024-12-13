@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.nats.subscriber.usecase.CoreSubscriber
+::: faststream.kafka.subscriber.specified.SpecificationConcurrentDefaultSubscriber

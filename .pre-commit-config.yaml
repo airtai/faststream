@@ -68,3 +68,4 @@ repos:
     -   id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
         exclude: package.lock.json
+        stages: [pre-commit, pre-merge-commit, manual]

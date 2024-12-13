@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from functools import partial
 from inspect import unwrap
 from itertools import chain
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import AsyncFuncAny, Decorator
     from faststream._internal.state import BrokerState, Pointer
-    from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
+    from faststream._internal.subscriber.call_wrapper import HandlerCallWrapper
     from faststream._internal.types import (
         AsyncCallable,
         AsyncFilter,
@@ -53,7 +53,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         filter: "AsyncFilter[StreamMessage[MsgType]]",
         item_parser: Optional["CustomCallable"],
         item_decoder: Optional["CustomCallable"],
-        item_middlewares: Iterable["SubscriberMiddleware[StreamMessage[MsgType]]"],
+        item_middlewares: Sequence["SubscriberMiddleware[StreamMessage[MsgType]]"],
         dependencies: Iterable["Dependant"],
     ) -> None:
         self.handler = handler
@@ -125,11 +125,11 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         cache: dict[Any, Any],
     ) -> Optional["StreamMessage[MsgType]"]:
         """Check is message suite for current filter."""
-        if not (parser := cast(Optional["AsyncCallable"], self.item_parser)) or not (
-            decoder := cast(Optional["AsyncCallable"], self.item_decoder)
+        if not (parser := cast("Optional[AsyncCallable]", self.item_parser)) or not (
+            decoder := cast("Optional[AsyncCallable]", self.item_decoder)
         ):
-            msg = "You should setup `HandlerItem` at first."
-            raise SetupError(msg)
+            error_msg = "You should setup `HandlerItem` at first."
+            raise SetupError(error_msg)
 
         message = cache[parser] = cast(
             "StreamMessage[MsgType]",
@@ -153,7 +153,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         """Execute wrapped handler with consume middlewares."""
         call: AsyncFuncAny = self.handler.call_wrapped
 
-        for middleware in chain(self.item_middlewares, _extra_middlewares):
+        for middleware in chain(self.item_middlewares[::-1], _extra_middlewares):
             call = partial(middleware, call)
 
         try:

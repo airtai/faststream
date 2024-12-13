@@ -40,7 +40,7 @@ class TestRouter(RouterTestcase):
                     "bindings": {
                         "nats": {"subject": "test_test", "bindingVersion": "custom"},
                     },
-                    "subscribe": {
+                    "publish": {
                         "message": {
                             "$ref": "#/components/messages/test_test:Handle:Message",
                         },

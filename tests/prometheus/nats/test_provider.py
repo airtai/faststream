@@ -12,12 +12,13 @@ from faststream.nats.prometheus.provider import (
 from faststream.prometheus import MetricsSettingsProvider
 from tests.prometheus.basic import LocalMetricsSettingsProviderTestcase
 
+from .basic import NatsPrometheusSettings
+
 
 class LocalBaseNatsMetricsSettingsProviderTestcase(
-    LocalMetricsSettingsProviderTestcase
+    NatsPrometheusSettings,
+    LocalMetricsSettingsProviderTestcase,
 ):
-    messaging_system = "nats"
-
     def test_get_publish_destination_name_from_cmd(self, queue: str) -> None:
         expected_destination_name = queue
         command = SimpleNamespace(destination=queue)
@@ -29,8 +30,7 @@ class LocalBaseNatsMetricsSettingsProviderTestcase(
 
 
 class TestNatsMetricsSettingsProvider(LocalBaseNatsMetricsSettingsProviderTestcase):
-    @staticmethod
-    def get_provider() -> MetricsSettingsProvider:
+    def get_provider(self) -> MetricsSettingsProvider:
         return NatsMetricsSettingsProvider()
 
     def test_get_consume_attrs_from_message(self, queue: str) -> None:

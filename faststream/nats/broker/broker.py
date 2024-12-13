@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -26,7 +26,7 @@ from nats.aio.client import (
 from nats.aio.msg import Msg
 from nats.errors import Error
 from nats.js.errors import BadRequestError
-from typing_extensions import Doc, Literal, overload, override
+from typing_extensions import Doc, overload, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
@@ -55,7 +55,7 @@ if TYPE_CHECKING:
         JWTCallback,
         SignatureCallback,
     )
-    from nats.js.api import Placement, PubAck, RePublish, StorageType
+    from nats.js.api import Placement, RePublish, StorageType
     from nats.js.kv import KeyValue
     from nats.js.object_store import ObjectStore
     from typing_extensions import TypedDict, Unpack
@@ -66,12 +66,14 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.broker.abc_broker import ABCBroker
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
     )
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.usecase import LogicPublisher
+    from faststream.nats.schemas import PubAck
     from faststream.security import BaseSecurity
     from faststream.specification.schema.extra import Tag, TagDict
 
@@ -372,8 +374,12 @@ class NatsBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[Msg]"],
+            Sequence["BrokerMiddleware[Msg]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
+        ] = (),
+        routers: Annotated[
+            Sequence["ABCBroker[Msg]"],
+            Doc("Routers to apply to broker."),
         ] = (),
         # AsyncAPI args
         security: Annotated[
@@ -484,6 +490,7 @@ class NatsBroker(
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
+            routers=routers,
             # AsyncAPI
             description=description,
             specification_url=specification_url,
@@ -643,7 +650,7 @@ class NatsBroker(
         headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
-        stream: Literal[None] = None,
+        stream: None = None,
         timeout: Optional[float] = None,
     ) -> None: ...
 
@@ -699,7 +706,7 @@ class NatsBroker(
 
         Returns:
             `None` if you publishes a regular message.
-            `nats.js.api.PubAck` if you publishes a message to stream.
+            `faststream.nats.PubAck` if you publishes a message to stream.
         """
         cmd = NatsPublishCommand(
             message=message,
@@ -746,8 +753,7 @@ class NatsBroker(
                 Manual message **correlation_id** setter.
                 **correlation_id** is a useful option to trace messages.
             stream:
-                This option validates that the target subject is in presented stream.
-                Can be omitted without any effect if you doesn't want PubAck frame.
+                JetStream name. This option is required if your target subscriber listens for events using JetStream.
             timeout:
                 Timeout to send message to NATS.
 

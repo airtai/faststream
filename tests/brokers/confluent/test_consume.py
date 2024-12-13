@@ -1,11 +1,9 @@
 import asyncio
-from typing import Any
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from faststream import AckPolicy
-from faststream.confluent import KafkaBroker
 from faststream.confluent.annotations import KafkaMessage
 from faststream.confluent.client import AsyncConfluentConsumer
 from faststream.exceptions import AckMessage
@@ -18,9 +16,6 @@ from .basic import ConfluentTestcaseConfig
 @pytest.mark.confluent()
 class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     """A class to represent a test Kafka broker."""
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> KafkaBroker:
-        return KafkaBroker(apply_types=apply_types, **kwargs)
 
     @pytest.mark.asyncio()
     async def test_consume_batch(self, queue: str) -> None:
@@ -49,7 +44,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
     @pytest.mark.asyncio()
     async def test_consume_batch_headers(
         self,
-        mock,
+        mock: MagicMock,
         queue: str,
     ) -> None:
         event = asyncio.Event()
@@ -86,7 +81,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     @pytest.mark.slow()
-    async def test_consume_ack(
+    async def test_consume_auto_ack(
         self,
         queue: str,
     ) -> None:
@@ -97,7 +92,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -141,7 +136,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -181,7 +176,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -221,7 +216,7 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
         args, kwargs = self.get_subscriber_params(
             queue,
             group_id="test",
-            auto_commit=False,
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -302,8 +297,8 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
         args, kwargs = self.get_subscriber_params(
             queue,
-            auto_commit=False,
             group_id="test",
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @consume_broker.subscriber(*args, **kwargs)
@@ -316,8 +311,8 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
         args, kwargs = self.get_subscriber_params(
             queue,
-            auto_commit=True,
             group_id="test",
+            ack_policy=AckPolicy.REJECT_ON_ERROR,
         )
 
         @broker2.subscriber(*args, **kwargs)
@@ -345,3 +340,40 @@ class TestConsume(ConfluentTestcaseConfig, BrokerRealConsumeTestcase):
 
         assert event.is_set()
         assert event2.is_set()
+
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
+    async def test_concurrent_consume(self, queue: str, mock: MagicMock) -> None:
+        event = asyncio.Event()
+        event2 = asyncio.Event()
+
+        consume_broker = self.get_broker()
+
+        args, kwargs = self.get_subscriber_params(queue, max_workers=2)
+
+        @consume_broker.subscriber(*args, **kwargs)
+        async def handler(msg):
+            mock()
+            if event.is_set():
+                event2.set()
+            else:
+                event.set()
+            await asyncio.sleep(0.1)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            for i in range(5):
+                await br.publish(i, queue)
+
+        await asyncio.wait(
+            (
+                asyncio.create_task(event.wait()),
+                asyncio.create_task(event2.wait()),
+            ),
+            timeout=3,
+        )
+
+        assert event.is_set()
+        assert event2.is_set()
+        assert mock.call_count == 2, mock.call_count

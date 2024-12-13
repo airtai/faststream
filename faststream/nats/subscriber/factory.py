@@ -1,5 +1,5 @@
 import warnings
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from nats.aio.subscription import (
@@ -63,9 +63,10 @@ def create_subscriber(
     stream: Optional["JStream"],
     # Subscriber args
     ack_policy: "AckPolicy",
+    no_ack: bool,
     no_reply: bool,
     broker_dependencies: Iterable["Dependant"],
-    broker_middlewares: Iterable["BrokerMiddleware[Any]"],
+    broker_middlewares: Sequence["BrokerMiddleware[Any]"],
     # Specification information
     title_: Optional[str],
     description_: Optional[str],
@@ -96,12 +97,19 @@ def create_subscriber(
         headers_only=headers_only,
         pull_sub=pull_sub,
         ack_policy=ack_policy,
+        no_ack=no_ack,
         kv_watch=kv_watch,
         obj_watch=obj_watch,
         ack_first=ack_first,
         max_workers=max_workers,
         stream=stream,
     )
+
+    if ack_first is not EMPTY:
+        ack_policy = AckPolicy.ACK_FIRST if ack_first else AckPolicy.REJECT_ON_ERROR
+
+    if no_ack is not EMPTY:
+        no_ack = AckPolicy.DO_NOTHING if no_ack else EMPTY
 
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.REJECT_ON_ERROR
@@ -133,6 +141,12 @@ def create_subscriber(
 
         else:
             # JS Push Subscriber
+            if ack_policy is AckPolicy.ACK_FIRST:
+                manual_ack = False
+                ack_policy = AckPolicy.DO_NOTHING
+            else:
+                manual_ack = True
+
             extra_options.update(
                 {
                     "ordered_consumer": ordered_consumer,
@@ -140,7 +154,7 @@ def create_subscriber(
                     "flow_control": flow_control,
                     "deliver_policy": deliver_policy,
                     "headers_only": headers_only,
-                    "manual_ack": not ack_first,
+                    "manual_ack": manual_ack,
                 },
             )
 
@@ -188,6 +202,7 @@ def create_subscriber(
                 extra_options=extra_options,
                 # Subscriber args
                 no_reply=no_reply,
+                ack_policy=ack_policy,
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
                 # Specification
@@ -204,6 +219,7 @@ def create_subscriber(
             extra_options=extra_options,
             # Subscriber args
             no_reply=no_reply,
+            ack_policy=ack_policy,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
             # Specification
@@ -326,10 +342,72 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
     kv_watch: Optional["KvWatch"],
     obj_watch: Optional["ObjWatch"],
     ack_policy: "AckPolicy",  # default EMPTY
-    ack_first: bool,  # default False
+    no_ack: bool,  # default EMPTY
+    ack_first: bool,  # default EMPTY
     max_workers: int,  # default 1
     stream: Optional["JStream"],
 ) -> None:
+    if ack_policy is not EMPTY:
+        if obj_watch is not None:
+            warnings.warn(
+                "You can't use acknowledgement policy with ObjectStorage watch subscriber.",
+                RuntimeWarning,
+                stacklevel=4,
+            )
+
+        elif kv_watch is not None:
+            warnings.warn(
+                "You can't use acknowledgement policy with KeyValue watch subscriber.",
+                RuntimeWarning,
+                stacklevel=4,
+            )
+
+        elif stream is None and ack_policy is not AckPolicy.DO_NOTHING:
+            warnings.warn(
+                (
+                    "Core subscriber supports only `ack_policy=AckPolicy.DO_NOTHING` option for very specific cases. "
+                    "If you are using different option, probably, you should use JetStream Subscriber instead."
+                ),
+                RuntimeWarning,
+                stacklevel=4,
+            )
+
+        if max_msgs > 0 and any((stream, kv_watch, obj_watch)):
+            warnings.warn(
+                "The `max_msgs` option can be used only with a NATS Core Subscriber.",
+                RuntimeWarning,
+                stacklevel=4,
+            )
+
+    if ack_first is not EMPTY:
+        warnings.warn(
+            "`ack_first` option was deprecated in prior to `ack_policy=AckPolicy.ACK_FIRST`. Scheduled to remove in 0.6.10",
+            category=DeprecationWarning,
+            stacklevel=4,
+        )
+
+        if ack_policy is not EMPTY:
+            msg = "You can't use deprecated `ack_first` and `ack_policy` simultaneously. Please, use `ack_policy` only."
+            raise SetupError(msg)
+
+        ack_policy = AckPolicy.ACK_FIRST if ack_first else AckPolicy.REJECT_ON_ERROR
+
+    if no_ack is not EMPTY:
+        warnings.warn(
+            "`no_ack` option was deprecated in prior to `ack_policy=AckPolicy.DO_NOTHING`. Scheduled to remove in 0.6.10",
+            category=DeprecationWarning,
+            stacklevel=4,
+        )
+
+        if ack_policy is not EMPTY:
+            msg = "You can't use deprecated `no_ack` and `ack_policy` simultaneously. Please, use `ack_policy` only."
+            raise SetupError(msg)
+
+        no_ack = AckPolicy.DO_NOTHING if no_ack else EMPTY
+
+    if ack_policy is EMPTY:
+        ack_policy = AckPolicy.REJECT_ON_ERROR
+
     if not subject and not config:
         msg = "You must provide either the `subject` or `config` option."
         raise SetupError(msg)
@@ -351,35 +429,6 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
     if pull_sub and not stream:
         msg = "JetStream Pull Subscriber can only be used with the `stream` option."
         raise SetupError(msg)
-
-    if ack_policy is not EMPTY:
-        if obj_watch is not None:
-            warnings.warn(
-                "You can't use acknowledgement policy with ObjectStorage watch subscriber.",
-                RuntimeWarning,
-                stacklevel=4,
-            )
-
-        elif kv_watch is not None:
-            warnings.warn(
-                "You can't use acknowledgement policy with KeyValue watch subscriber.",
-                RuntimeWarning,
-                stacklevel=4,
-            )
-
-        elif stream is None:
-            warnings.warn(
-                "You can't use acknowledgement policy with core subscriber. Use JetStream instead.",
-                RuntimeWarning,
-                stacklevel=4,
-            )
-
-    if max_msgs > 0 and any((stream, kv_watch, obj_watch)):
-        warnings.warn(
-            "The `max_msgs` option can be used only with a NATS Core Subscriber.",
-            RuntimeWarning,
-            stacklevel=4,
-        )
 
     if not stream:
         if obj_watch or kv_watch:
@@ -462,9 +511,9 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
                 stacklevel=4,
             )
 
-        if ack_first:
+        if ack_policy is AckPolicy.ACK_FIRST:
             warnings.warn(
-                message="The `ack_first` option can be used only with JetStream Push Subscription.",
+                message="The `ack_policy=AckPolicy.ACK_FIRST:` option can be used only with JetStream Push Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )
@@ -485,9 +534,9 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
                 stacklevel=4,
             )
 
-        if ack_first:
+        if ack_policy is AckPolicy.ACK_FIRST:
             warnings.warn(
-                message="The `ack_first` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
+                message="The `ack_policy=AckPolicy.ACK_FIRST` option has no effect with JetStream Pull Subscription. It can only be used with JetStream Push Subscription.",
                 category=RuntimeWarning,
                 stacklevel=4,
             )

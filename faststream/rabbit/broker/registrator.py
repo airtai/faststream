@@ -1,13 +1,12 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Annotated, Any, Optional, Union, cast
 
-from typing_extensions import Doc, override
+from typing_extensions import Doc, deprecated, override
 
 from faststream._internal.broker.abc_broker import ABCBroker
 from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
 from faststream.rabbit.publisher.factory import create_publisher
-from faststream.rabbit.publisher.specified import SpecificationPublisher
 from faststream.rabbit.publisher.usecase import PublishKwargs
 from faststream.rabbit.schemas import (
     RabbitExchange,
@@ -28,6 +27,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
+    from faststream.rabbit.publisher.specified import SpecificationPublisher
 
 
 class RabbitRegistrator(ABCBroker["IncomingMessage"]):
@@ -59,10 +59,15 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Optional["AnyDict"],
             Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
         ] = None,
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.6.10"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         # broker arguments
         dependencies: Annotated[
             Iterable["Dependant"],
@@ -77,7 +82,11 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[RabbitMessage]"],
+            Sequence["SubscriberMiddleware[RabbitMessage]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         no_reply: Annotated[
@@ -104,7 +113,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         ] = True,
     ) -> SpecificationSubscriber:
         subscriber = cast(
-            SpecificationSubscriber,
+            "SpecificationSubscriber",
             super().subscriber(
                 create_subscriber(
                     queue=RabbitQueue.validate(queue),
@@ -112,6 +121,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
                     consume_args=consume_args,
                     # subscriber args
                     ack_policy=ack_policy,
+                    no_ack=no_ack,
                     no_reply=no_reply,
                     broker_middlewares=self.middlewares,
                     broker_dependencies=self._dependencies,
@@ -183,7 +193,11 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         ] = None,
         # specific
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information
@@ -262,7 +276,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         )
 
         return cast(
-            SpecificationPublisher,
+            "SpecificationPublisher",
             super().publisher(
                 create_publisher(
                     routing_key=routing_key,

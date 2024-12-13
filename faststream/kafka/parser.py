@@ -36,7 +36,7 @@ class AioKafkaParser:
         headers = {i: j.decode() for i, j in message.headers}
 
         return self.msg_class(
-            body=message.value,
+            body=message.value or b"",
             headers=headers,
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
@@ -73,7 +73,7 @@ class AioKafkaBatchParser(AioKafkaParser):
         last = message[-1]
 
         for m in message:
-            body.append(m.value)
+            body.append(m.value or b"")
             batch_headers.append({i: j.decode() for i, j in m.headers})
 
         headers = next(iter(batch_headers), {})
@@ -97,7 +97,7 @@ class AioKafkaBatchParser(AioKafkaParser):
     ) -> "DecodedMessage":
         """Decode a batch of messages."""
         # super() should be here due python can't find it in comprehension
-        super_obj = cast(AioKafkaParser, super())
+        super_obj = cast("AioKafkaParser", super())
 
         return [
             decode_message(await super_obj.parse_message(m)) for m in msg.raw_message

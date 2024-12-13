@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -28,8 +28,8 @@ def create_publisher(
     headers: Optional[dict[str, str]],
     reply_to: str,
     # Publisher args
-    broker_middlewares: Iterable["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
-    middlewares: Iterable["PublisherMiddleware"],
+    broker_middlewares: Sequence["BrokerMiddleware[tuple[ConsumerRecord, ...]]"],
+    middlewares: Sequence["PublisherMiddleware"],
     # Specification args
     schema_: Optional[Any],
     title_: Optional[str],
@@ -48,8 +48,8 @@ def create_publisher(
     headers: Optional[dict[str, str]],
     reply_to: str,
     # Publisher args
-    broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
-    middlewares: Iterable["PublisherMiddleware"],
+    broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
+    middlewares: Sequence["PublisherMiddleware"],
     # Specification args
     schema_: Optional[Any],
     title_: Optional[str],
@@ -68,10 +68,10 @@ def create_publisher(
     headers: Optional[dict[str, str]],
     reply_to: str,
     # Publisher args
-    broker_middlewares: Iterable[
+    broker_middlewares: Sequence[
         "BrokerMiddleware[Union[tuple[ConsumerRecord, ...], ConsumerRecord]]"
     ],
-    middlewares: Iterable["PublisherMiddleware"],
+    middlewares: Sequence["PublisherMiddleware"],
     # Specification args
     schema_: Optional[Any],
     title_: Optional[str],
@@ -92,10 +92,10 @@ def create_publisher(
     headers: Optional[dict[str, str]],
     reply_to: str,
     # Publisher args
-    broker_middlewares: Iterable[
+    broker_middlewares: Sequence[
         "BrokerMiddleware[Union[tuple[ConsumerRecord, ...], ConsumerRecord]]"
     ],
-    middlewares: Iterable["PublisherMiddleware"],
+    middlewares: Sequence["PublisherMiddleware"],
     # Specification args
     schema_: Optional[Any],
     title_: Optional[str],

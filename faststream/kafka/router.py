@@ -10,7 +10,7 @@ from typing import (
 )
 
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
-from typing_extensions import Doc
+from typing_extensions import Doc, deprecated
 
 from faststream._internal.broker.router import (
     ArgsContainer,
@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.broker.abc_broker import ABCBroker
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -91,7 +92,11 @@ class KafkaPublisher(ArgsContainer):
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -255,7 +260,13 @@ class KafkaRoute(SubscriberRoute):
             periodically committed in the background.
             """,
             ),
-        ] = True,
+            deprecated(
+                """
+            This option is deprecated and will be removed in 0.6.10 release.
+            Please, use `ack_policy=AckPolicy.ACK_FIRST` instead.
+            """,
+            ),
+        ] = EMPTY,
         auto_commit_interval_ms: Annotated[
             int,
             Doc(
@@ -482,13 +493,22 @@ class KafkaRoute(SubscriberRoute):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.6.10"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -511,11 +531,16 @@ class KafkaRoute(SubscriberRoute):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> None:
         super().__init__(
             call,
             *topics,
             publishers=publishers,
+            max_workers=max_workers,
             group_id=group_id,
             key_deserializer=key_deserializer,
             value_deserializer=value_deserializer,
@@ -548,12 +573,12 @@ class KafkaRoute(SubscriberRoute):
             decoder=decoder,
             middlewares=middlewares,
             no_reply=no_reply,
+            ack_policy=ack_policy,
+            no_ack=no_ack,
             # AsyncAPI args
             title=title,
             description=description,
             include_in_schema=include_in_schema,
-            # FastDepends args
-            ack_policy=ack_policy,
         )
 
 
@@ -586,13 +611,17 @@ class KafkaRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable[
+            Sequence[
                 Union[
                     "BrokerMiddleware[ConsumerRecord]",
                     "BrokerMiddleware[tuple[ConsumerRecord, ...]]",
                 ]
             ],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
+        ] = (),
+        routers: Annotated[
+            Sequence["ABCBroker[ConsumerRecord]"],
+            Doc("Routers to apply to broker."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -613,6 +642,7 @@ class KafkaRouter(
             prefix=prefix,
             dependencies=dependencies,
             middlewares=middlewares,
+            routers=routers,
             parser=parser,
             decoder=decoder,
             include_in_schema=include_in_schema,

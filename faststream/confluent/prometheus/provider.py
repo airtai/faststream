@@ -10,7 +10,7 @@ from faststream.prometheus import (
 if TYPE_CHECKING:
     from confluent_kafka import Message
 
-    from faststream.confluent.response import KafkaPublishCommand
+    from faststream.response import PublishCommand
 
 
 class BaseConfluentMetricsSettingsProvider(MetricsSettingsProvider[MsgType]):
@@ -21,7 +21,7 @@ class BaseConfluentMetricsSettingsProvider(MetricsSettingsProvider[MsgType]):
 
     def get_publish_destination_name_from_cmd(
         self,
-        cmd: "KafkaPublishCommand",
+        cmd: "PublishCommand",
     ) -> str:
         return cmd.destination
 
@@ -32,7 +32,7 @@ class ConfluentMetricsSettingsProvider(BaseConfluentMetricsSettingsProvider["Mes
         msg: "StreamMessage[Message]",
     ) -> ConsumeAttrs:
         return {
-            "destination_name": cast(str, msg.raw_message.topic()),
+            "destination_name": cast("str", msg.raw_message.topic()),
             "message_size": len(msg.body),
             "messages_count": 1,
         }
@@ -47,8 +47,8 @@ class BatchConfluentMetricsSettingsProvider(
     ) -> ConsumeAttrs:
         raw_message = msg.raw_message[0]
         return {
-            "destination_name": cast(str, raw_message.topic()),
-            "message_size": len(bytearray().join(cast(Sequence[bytes], msg.body))),
+            "destination_name": cast("str", raw_message.topic()),
+            "message_size": len(bytearray().join(cast("Sequence[bytes]", msg.body))),
             "messages_count": len(msg.raw_message),
         }
 

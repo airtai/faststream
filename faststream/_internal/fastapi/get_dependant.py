@@ -68,7 +68,7 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
             if PYDANTIC_V2:
                 from pydantic.fields import FieldInfo
 
-                info = cast(FieldInfo, info)
+                info = cast("FieldInfo", info)
 
                 field_data.update(
                     {
@@ -89,13 +89,13 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
                         lambda x: isinstance(x, FieldInfo),
                         p.field_info.metadata or (),
                     ),
-                    Field(**field_data),  # type: ignore[pydantic-field]
+                    Field(**field_data),  # type: ignore[pydantic-field,unused-ignore]
                 )
 
             else:
                 from pydantic.fields import ModelField  # type: ignore[attr-defined]
 
-                info = cast(ModelField, info)
+                info = cast("ModelField", info)
 
                 field_data.update(
                     {
@@ -109,7 +109,7 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
                         "le": info.field_info.le,
                     },
                 )
-                f = Field(**field_data)  # type: ignore[pydantic-field]
+                f = Field(**field_data)  # type: ignore[pydantic-field,unused-ignore]
 
             params_unique[p.name] = (
                 info.annotation,
@@ -121,9 +121,9 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
     )
 
     dependant.custom_fields = {}  # type: ignore[attr-defined]
-    dependant.flat_params = [
+    dependant.flat_params = [  # type: ignore[attr-defined]
         OptionItem(field_name=name, field_type=type_, default_value=default)
         for name, (type_, default) in params_unique.items()
-    ]  # type: ignore[attr-defined]
+    ]
 
     return dependant

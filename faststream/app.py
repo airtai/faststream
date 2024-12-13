@@ -41,7 +41,7 @@ class FastStream(Application):
 
     def __init__(
         self,
-        broker: "BrokerUsecase[Any, Any]",
+        broker: Optional["BrokerUsecase[Any, Any]"] = None,
         /,
         # regular broker args
         logger: Optional["LoggerProto"] = logger,

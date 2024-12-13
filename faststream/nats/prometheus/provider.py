@@ -10,7 +10,7 @@ from faststream.prometheus import (
 )
 
 if TYPE_CHECKING:
-    from faststream.nats.response import NatsPublishCommand
+    from faststream.response import PublishCommand
 
 
 class BaseNatsMetricsSettingsProvider(MetricsSettingsProvider[MsgType]):
@@ -21,7 +21,7 @@ class BaseNatsMetricsSettingsProvider(MetricsSettingsProvider[MsgType]):
 
     def get_publish_destination_name_from_cmd(
         self,
-        cmd: "NatsPublishCommand",
+        cmd: "PublishCommand",
     ) -> str:
         return cmd.destination
 

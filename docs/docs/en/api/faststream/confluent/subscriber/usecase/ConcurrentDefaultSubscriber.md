@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.nats.subscriber.usecase.LogicSubscriber
+::: faststream.confluent.subscriber.usecase.ConcurrentDefaultSubscriber

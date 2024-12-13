@@ -16,7 +16,6 @@ from typing import (
 )
 from weakref import WeakSet
 
-from fastapi.background import BackgroundTasks
 from fastapi.datastructures import Default
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRoute, APIRouter
@@ -43,6 +42,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from fastapi import FastAPI, params
+    from fastapi.background import BackgroundTasks
     from fastapi.types import IncEx
     from starlette import routing
     from starlette.types import ASGIApp, AppType, Lifespan
@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from faststream._internal.broker.broker import BrokerUsecase
     from faststream._internal.proto import NameRequired
     from faststream._internal.publisher.proto import PublisherProto
-    from faststream._internal.subscriber.call_wrapper.call import HandlerCallWrapper
+    from faststream._internal.subscriber.call_wrapper import HandlerCallWrapper
     from faststream._internal.types import BrokerMiddleware
     from faststream.message import StreamMessage
     from faststream.specification.base.specification import Specification
@@ -67,7 +67,7 @@ class _BackgroundMiddleware(BaseMiddleware):
     ) -> Optional[bool]:
         if not exc_type and (
             background := cast(
-                Optional[BackgroundTasks],
+                "Optional[BackgroundTasks]",
                 getattr(self.context.get_local("message"), "background", None),
             )
         ):
@@ -99,7 +99,7 @@ class StreamRouter(
     def __init__(
         self,
         *connection_args: Any,
-        middlewares: Iterable["BrokerMiddleware[MsgType]"] = (),
+        middlewares: Sequence["BrokerMiddleware[MsgType]"] = (),
         prefix: str = "",
         tags: Optional[list[Union[str, Enum]]] = None,
         dependencies: Optional[Sequence["params.Depends"]] = None,
@@ -235,7 +235,7 @@ class StreamRouter(
                 response_model_exclude_defaults=response_model_exclude_defaults,
                 response_model_exclude_none=response_model_exclude_none,
                 provider_factory=self._get_dependencies_overides_provider,
-                state=self._state,
+                state=self._state.di_state,
             )
 
         return wrapper

@@ -32,11 +32,19 @@ class _EmptyBrokerState(BrokerState):
         self.producer = ProducerUnset()
 
     @property
-    def logger_state(self) -> "DIState":
+    def logger_state(self) -> "LoggerState":
+        raise IncorrectState(self.error_msg)
+
+    @logger_state.setter
+    def logger_state(self, value: "LoggerState", /) -> None:
         raise IncorrectState(self.error_msg)
 
     @property
     def graceful_timeout(self) -> Optional[float]:
+        raise IncorrectState(self.error_msg)
+
+    @graceful_timeout.setter
+    def graceful_timeout(self, value: Optional[float], /) -> None:
         raise IncorrectState(self.error_msg)
 
     def _setup(self) -> None:
@@ -52,6 +60,10 @@ class _EmptyBrokerState(BrokerState):
 class EmptyBrokerState(_EmptyBrokerState):
     @property
     def di_state(self) -> "DIState":
+        raise IncorrectState(self.error_msg)
+
+    @di_state.setter
+    def di_state(self, value: "DIState", /) -> None:
         raise IncorrectState(self.error_msg)
 
 

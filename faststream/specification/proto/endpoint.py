@@ -1,10 +1,13 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any, Generic, Optional, TypeVar
+
+from faststream._internal.proto import EndpointWrapper
+from faststream._internal.types import MsgType
 
 T = TypeVar("T")
 
 
-class EndpointSpecification(ABC, Generic[T]):
+class EndpointSpecification(EndpointWrapper[MsgType], Generic[MsgType, T]):
     """A class representing an asynchronous API operation: Pub or Sub."""
 
     title_: Optional[str]

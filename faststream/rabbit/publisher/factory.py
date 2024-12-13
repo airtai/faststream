@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Optional
 
 from .specified import SpecificationPublisher
@@ -19,8 +19,8 @@ def create_publisher(
     exchange: "RabbitExchange",
     message_kwargs: "PublishKwargs",
     # Publisher args
-    broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
-    middlewares: Iterable["PublisherMiddleware"],
+    broker_middlewares: Sequence["BrokerMiddleware[IncomingMessage]"],
+    middlewares: Sequence["PublisherMiddleware"],
     # AsyncAPI args
     schema_: Optional[Any],
     title_: Optional[str],

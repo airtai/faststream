@@ -1,22 +1,20 @@
 import asyncio
-from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
 from redis.asyncio import Redis
 
 from faststream import Context
-from faststream.redis import ListSub, RedisBroker, RedisResponse, StreamSub
+from faststream.redis import ListSub, RedisResponse, StreamSub
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
+
+from .basic import RedisTestcaseConfig
 
 
 @pytest.mark.redis()
 @pytest.mark.asyncio()
-class TestPublish(BrokerPublishTestcase):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
-        return RedisBroker(apply_types=apply_types, **kwargs)
-
+class TestPublish(RedisTestcaseConfig, BrokerPublishTestcase):
     async def test_list_publisher(
         self,
         queue: str,

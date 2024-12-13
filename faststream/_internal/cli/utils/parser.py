@@ -1,8 +1,19 @@
+import re
 from functools import reduce
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import SettingField
+
+
+def is_bind_arg(arg: str) -> bool:
+    """Determine whether the received argument refers to --bind.
+
+    bind arguments are like: 0.0.0.0:8000, [::]:8000, fd://2, /tmp/socket.sock
+
+    """
+    bind_regex = re.compile(r":\d+$|:/+\d|:/[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+")
+    return bool(bind_regex.search(arg))
 
 
 def parse_cli_args(*args: str) -> tuple[str, dict[str, "SettingField"]]:
@@ -18,11 +29,11 @@ def parse_cli_args(*args: str) -> tuple[str, dict[str, "SettingField"]]:
         *reduce(
             lambda acc, x: acc + x.split("="),
             args,
-            cast(list[str], []),
+            cast("list[str]", []),
         ),
         "-",
     ]:
-        if ":" in item:
+        if ":" in item and not is_bind_arg(item):
             app = item
 
         elif "-" in item:

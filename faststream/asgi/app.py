@@ -4,12 +4,7 @@ import traceback
 from abc import abstractmethod
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Optional,
-    Protocol,
-)
+from typing import TYPE_CHECKING, Any, Optional, Protocol
 
 import anyio
 
@@ -30,6 +25,7 @@ if TYPE_CHECKING:
 
     from faststream._internal.basic_types import (
         AnyCallable,
+        AnyDict,
         Lifespan,
         LoggerProto,
         SettingField,
@@ -71,6 +67,14 @@ class CliRunState(ServerState):
 
     def stop(self) -> None:
         self.server.should_exit = True
+
+
+def cast_uvicorn_params(params: "AnyDict") -> "AnyDict":
+    if port := params.get("port"):
+        params["port"] = int(port)
+    if fd := params.get("fd"):
+        params["fd"] = int(fd)
+    return params
 
 
 class AsgiFastStream(Application):
@@ -155,21 +159,19 @@ class AsgiFastStream(Application):
         log_level: int = logging.INFO,
         run_extra_options: Optional[dict[str, "SettingField"]] = None,
     ) -> None:
-        """Method to be compatible with FastStream CLI."""
-        import uvicorn
+        try:
+            import uvicorn
+        except ImportError as e:
+            error_msg = "You need uvicorn to run FastStream ASGI App via CLI.\npip install uvicorn"
+            raise ImportError(error_msg) from e
 
-        run_extra_options = run_extra_options or {}
-
-        port = int(run_extra_options.pop("port", 8000))  # type: ignore[arg-type]
-        workers = int(run_extra_options.pop("workers", 1))  # type: ignore[arg-type]
+        run_extra_options = cast_uvicorn_params(run_extra_options or {})
 
         uvicorn_config_params = set(inspect.signature(uvicorn.Config).parameters.keys())
 
         config = uvicorn.Config(
             app=self,
-            port=port,
             log_level=log_level,
-            workers=workers,
             **{
                 key: v
                 for key, v in run_extra_options.items()
@@ -178,7 +180,6 @@ class AsgiFastStream(Application):
         )
 
         server = uvicorn.Server(config)
-        self._server = CliRunState(server, run_extra_options)
         await server.serve()
 
     def exit(self) -> None:

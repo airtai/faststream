@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.nats.subscriber.usecase.PullStreamSubscriber
+::: faststream.asgi.app.cast_uvicorn_params

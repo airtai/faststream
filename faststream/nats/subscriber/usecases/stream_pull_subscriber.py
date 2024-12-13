@@ -13,7 +13,6 @@ from typing_extensions import override
 
 from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.subscriber.utils import process_msg
-from faststream.nats.message import NatsMessage
 from faststream.nats.parser import (
     BatchParser,
 )
@@ -35,6 +34,7 @@ if TYPE_CHECKING:
         BrokerMiddleware,
     )
     from faststream.middlewares import AckPolicy
+    from faststream.nats.message import NatsMessage
     from faststream.nats.schemas import JStream, PullSub
 
 
@@ -109,41 +109,7 @@ class PullStreamSubscriber(
                         tg.start_soon(cb, msg)
 
 
-class ConcurrentPullStreamSubscriber(
-    ConcurrentMixin,
-    PullStreamSubscriber,
-):
-    def __init__(
-        self,
-        *,
-        max_workers: int,
-        # default args
-        pull_sub: "PullSub",
-        stream: "JStream",
-        subject: str,
-        config: "ConsumerConfig",
-        extra_options: Optional["AnyDict"],
-        # Subscriber args
-        ack_policy: "AckPolicy",
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
-    ) -> None:
-        super().__init__(
-            max_workers=max_workers,
-            # basic args
-            pull_sub=pull_sub,
-            stream=stream,
-            subject=subject,
-            config=config,
-            extra_options=extra_options,
-            # Propagated args
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-        )
-
+class ConcurrentPullStreamSubscriber(ConcurrentMixin["Msg"], PullStreamSubscriber):
     @override
     async def _create_subscription(self) -> None:
         """Create NATS subscription and start consume task."""
@@ -235,7 +201,7 @@ class BatchPullStreamSubscriber(
         context = self._state.get().di_state.context
 
         return cast(
-            NatsMessage,
+            "NatsMessage",
             await process_msg(
                 msg=raw_message,
                 middlewares=(

@@ -16,7 +16,7 @@ def test_handler_customization() -> None:
     assert subscriber_value == IsPartialDict({
         "servers": ["development"],
         "bindings": {"kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}},
-        "subscribe": {
+        "publish": {
             "message": {"$ref": "#/components/messages/input_data:Consume:Message"},
         },
     }), subscriber_value
@@ -32,7 +32,7 @@ def test_handler_customization() -> None:
         "description": "My publisher description",
         "servers": ["development"],
         "bindings": {"kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}},
-        "publish": {
+        "subscribe": {
             "message": {"$ref": "#/components/messages/output_data:Produce:Message"}
         },
     }

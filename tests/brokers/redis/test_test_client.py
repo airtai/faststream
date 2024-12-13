@@ -1,24 +1,17 @@
 import asyncio
-from typing import Any
 
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.redis import ListSub, RedisBroker, StreamSub, TestRedisBroker
+from faststream.redis import ListSub, StreamSub
 from faststream.redis.testing import FakeProducer
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
+from .basic import RedisMemoryTestcaseConfig
+
 
 @pytest.mark.asyncio()
-class TestTestclient(BrokerTestclientTestcase):
-    test_class = TestRedisBroker
-
-    def get_broker(self, apply_types: bool = False, **kwargs: Any) -> RedisBroker:
-        return RedisBroker(apply_types=apply_types, **kwargs)
-
-    def patch_broker(self, broker: RedisBroker, **kwargs: Any) -> TestRedisBroker:
-        return TestRedisBroker(broker, **kwargs)
-
+class TestTestclient(RedisMemoryTestcaseConfig, BrokerTestclientTestcase):
     @pytest.mark.redis()
     async def test_with_real_testclient(
         self,
@@ -43,7 +36,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert event.is_set()
 
-    async def test_respect_middleware(self, queue) -> None:
+    async def test_respect_middleware(self, queue: str) -> None:
         routes = []
 
         class Middleware(BaseMiddleware):
@@ -66,7 +59,7 @@ class TestTestclient(BrokerTestclientTestcase):
         assert len(routes) == 2
 
     @pytest.mark.redis()
-    async def test_real_respect_middleware(self, queue) -> None:
+    async def test_real_respect_middleware(self, queue: str) -> None:
         routes = []
 
         class Middleware(BaseMiddleware):
@@ -209,10 +202,7 @@ class TestTestclient(BrokerTestclientTestcase):
             m.mock.assert_called_once_with("hello")
             publisher.mock.assert_called_once_with([1, 2, 3])
 
-    async def test_publish_to_none(
-        self,
-        queue: str,
-    ) -> None:
+    async def test_publish_to_none(self) -> None:
         broker = self.get_broker()
 
         async with self.patch_broker(broker) as br:

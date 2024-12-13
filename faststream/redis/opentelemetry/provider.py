@@ -8,7 +8,7 @@ from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream.message import StreamMessage
-    from faststream.redis.response import RedisPublishCommand
+    from faststream.response import PublishCommand
 
 
 class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
@@ -29,7 +29,7 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
             MESSAGING_DESTINATION_PUBLISH_NAME: msg.raw_message["channel"],
         }
 
-        if cast(str, msg.raw_message.get("type", "")).startswith("b"):
+        if cast("str", msg.raw_message.get("type", "")).startswith("b"):
             attrs[SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT] = len(
                 msg.raw_message["data"]
             )
@@ -44,7 +44,7 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
 
     def get_publish_attrs_from_cmd(
         self,
-        cmd: "RedisPublishCommand",
+        cmd: "PublishCommand",
     ) -> "AnyDict":
         return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
@@ -54,7 +54,7 @@ class RedisTelemetrySettingsProvider(TelemetrySettingsProvider["AnyDict"]):
 
     def get_publish_destination_name(
         self,
-        cmd: "RedisPublishCommand",
+        cmd: "PublishCommand",
     ) -> str:
         return cmd.destination
 

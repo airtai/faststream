@@ -22,20 +22,15 @@ IS_WINDOWS = (
     sys.platform == "win32" or sys.platform == "cygwin" or sys.platform == "msys"
 )
 
-
-ModelVar = TypeVar("ModelVar", bound=BaseModel)
-
-
-json_dumps: Callable[..., bytes]
-orjson: Any
-ujson: Any
-
 __all__ = (
     "HAS_TYPER",
     "PYDANTIC_V2",
+    "BaseModel",
     "CoreSchema",
     "EmailStr",
+    "ExceptionGroup",
     "GetJsonSchemaHandler",
+    "PydanticUndefined",
     "json_dumps",
     "json_loads",
     "with_info_plain_validator_function",
@@ -47,8 +42,12 @@ except ImportError:
     HAS_TYPER = False
 
 
+json_dumps: Callable[..., bytes]
+orjson: Any
+ujson: Any
+
 try:
-    import orjson
+    import orjson  # type: ignore[no-redef]
 except ImportError:
     orjson = None
 
@@ -73,6 +72,8 @@ else:
     def json_dumps(*a: Any, **kw: Any) -> bytes:
         return json.dumps(*a, **kw).encode()
 
+
+ModelVar = TypeVar("ModelVar", bound=BaseModel)
 
 JsonSchemaValue = Mapping[str, Any]
 major, minor, *_ = PYDANTIC_VERSION.split(".")
@@ -111,7 +112,7 @@ if PYDANTIC_V2:
         return json_dumps(model_to_jsonable(data))
 
     def get_model_fields(model: type[BaseModel]) -> AnyDict:
-        return model.model_fields
+        return model.model_fields  # type: ignore[return-value]
 
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
         return model.model_dump_json(**kwargs)
@@ -183,9 +184,7 @@ if ANYIO_V3:
 elif sys.version_info >= (3, 11):
     ExceptionGroup = ExceptionGroup  # noqa: PLW0127
 else:
-    from exceptiongroup import (
-        ExceptionGroup,
-    )
+    from exceptiongroup import ExceptionGroup
 
 try:
     import email_validator

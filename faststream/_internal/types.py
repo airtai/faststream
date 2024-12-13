@@ -17,6 +17,7 @@ from faststream.middlewares import BaseMiddleware
 from faststream.response.response import PublishCommand
 
 MsgType = TypeVar("MsgType")
+Msg_contra = TypeVar("Msg_contra", contravariant=True)
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
 ConnectionType = TypeVar("ConnectionType")
 
@@ -63,12 +64,12 @@ WrappedHandlerCall: TypeAlias = Union[
 ]
 
 
-class BrokerMiddleware(Protocol[MsgType]):
+class BrokerMiddleware(Protocol[Msg_contra]):
     """Middleware builder interface."""
 
     def __call__(
         self,
-        msg: Optional[MsgType],
+        msg: Optional[Msg_contra],
         /,
         *,
         context: ContextRepo,
@@ -86,6 +87,6 @@ class PublisherMiddleware(Protocol):
 
     def __call__(
         self,
-        call_next: Callable[[PublishCommand], Awaitable[PublishCommand]],
-        msg: PublishCommand,
+        call_next: Callable[[PublishCommand], Awaitable[Any]],
+        cmd: PublishCommand,
     ) -> Any: ...

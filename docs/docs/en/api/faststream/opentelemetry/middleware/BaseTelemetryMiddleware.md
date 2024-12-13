@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.nats.subscriber.usecase.ObjStoreWatchSubscriber
+::: faststream.opentelemetry.middleware.BaseTelemetryMiddleware

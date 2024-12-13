@@ -1,7 +1,7 @@
-from collections.abc import Awaitable, Iterable
+from collections.abc import Awaitable, Iterable, Sequence
 from typing import TYPE_CHECKING, Annotated, Any, Callable, Optional, Union
 
-from typing_extensions import Doc
+from typing_extensions import Doc, deprecated
 
 from faststream._internal.broker.router import (
     ArgsContainer,
@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict, SendableMessage
+    from faststream._internal.broker.abc_broker import ABCBroker
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -60,7 +61,11 @@ class RedisPublisher(ArgsContainer):
             Doc("Reply message destination PubSub object name."),
         ] = "",
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information
@@ -146,13 +151,22 @@ class RedisRoute(SubscriberRoute):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[UnifyRedisMessage]"],
+            Sequence["SubscriberMiddleware[UnifyRedisMessage]"],
+            deprecated(
+                "This option was deprecated in 0.6.0. Use router-level middlewares instead."
+                "Scheduled to remove in 0.6.10"
+            ),
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-        ack_policy: Annotated[
-            AckPolicy,
+        no_ack: Annotated[
+            bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
+            deprecated(
+                "This option was deprecated in 0.6.0 to prior to **ack_policy=AckPolicy.DO_NOTHING**. "
+                "Scheduled to remove in 0.6.10"
+            ),
         ] = EMPTY,
+        ack_policy: AckPolicy = EMPTY,
         no_reply: Annotated[
             bool,
             Doc(
@@ -187,6 +201,7 @@ class RedisRoute(SubscriberRoute):
             decoder=decoder,
             middlewares=middlewares,
             ack_policy=ack_policy,
+            no_ack=no_ack,
             no_reply=no_reply,
             title=title,
             description=description,
@@ -194,10 +209,7 @@ class RedisRoute(SubscriberRoute):
         )
 
 
-class RedisRouter(
-    RedisRegistrator,
-    BrokerRouter[BaseMessage],
-):
+class RedisRouter(RedisRegistrator, BrokerRouter[BaseMessage]):
     """Includable to RedisBroker router."""
 
     def __init__(
@@ -218,8 +230,12 @@ class RedisRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[BaseMessage]"],
+            Sequence["BrokerMiddleware[BaseMessage]"],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
+        ] = (),
+        routers: Annotated[
+            Sequence["ABCBroker[BaseMessage]"],
+            Doc("Routers to apply to broker."),
         ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
@@ -240,6 +256,7 @@ class RedisRouter(
             prefix=prefix,
             dependencies=dependencies,
             middlewares=middlewares,
+            routers=routers,
             parser=parser,
             decoder=decoder,
             include_in_schema=include_in_schema,

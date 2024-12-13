@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from collections.abc import Mapping
 from typing import Any, Optional
 
@@ -8,6 +9,7 @@ from faststream.exceptions import IncorrectState
 class LoggerObject(LoggerProto):
     logger: Optional["LoggerProto"]
 
+    @abstractmethod
     def __bool__(self) -> bool: ...
 
 
@@ -72,6 +74,8 @@ class RealLoggerObject(LoggerObject):
     Will be used if user setup custom `logger` (.params_storage.ManualLoggerStorage)
     or in default logger case (.params_storage.DefaultLoggerStorage).
     """
+
+    logger: "LoggerProto"
 
     def __init__(self, logger: "LoggerProto") -> None:
         self.logger = logger

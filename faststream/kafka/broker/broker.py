@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from functools import partial
 from typing import (
     TYPE_CHECKING,
@@ -51,6 +51,7 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.broker.abc_broker import ABCBroker
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -445,13 +446,17 @@ class KafkaBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable[
+            Sequence[
                 Union[
                     "BrokerMiddleware[ConsumerRecord]",
                     "BrokerMiddleware[tuple[ConsumerRecord, ...]]",
                 ]
             ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
+        ] = (),
+        routers: Annotated[
+            Sequence["ABCBroker[ConsumerRecord]"],
+            Doc("Routers to apply to broker."),
         ] = (),
         # AsyncAPI args
         security: Annotated[
@@ -559,6 +564,7 @@ class KafkaBroker(
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
+            routers=routers,
             # AsyncAPI args
             description=description,
             specification_url=specification_url,

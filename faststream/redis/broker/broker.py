@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -50,6 +50,7 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.broker.abc_broker import ABCBroker
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -135,8 +136,12 @@ class RedisBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[BaseMessage]"],
+            Sequence["BrokerMiddleware[BaseMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
+        ] = (),
+        routers: Annotated[
+            Sequence["ABCBroker[BaseMessage]"],
+            Doc("Routers to apply to broker."),
         ] = (),
         # AsyncAPI args
         security: Annotated[
@@ -228,6 +233,7 @@ class RedisBroker(
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
+            routers=routers,
             # AsyncAPI
             description=description,
             specification_url=specification_url,

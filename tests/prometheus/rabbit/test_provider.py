@@ -7,10 +7,13 @@ from faststream.prometheus import MetricsSettingsProvider
 from faststream.rabbit.prometheus.provider import RabbitMetricsSettingsProvider
 from tests.prometheus.basic import LocalMetricsSettingsProviderTestcase
 
+from .basic import RabbitPrometheusSettings
 
-class TestRabbitMetricsSettingsProvider(LocalMetricsSettingsProviderTestcase):
-    messaging_system = "rabbitmq"
 
+class TestRabbitMetricsSettingsProvider(
+    RabbitPrometheusSettings,
+    LocalMetricsSettingsProviderTestcase,
+):
     @staticmethod
     def get_provider() -> MetricsSettingsProvider:
         return RabbitMetricsSettingsProvider()

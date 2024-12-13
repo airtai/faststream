@@ -18,84 +18,55 @@ if TYPE_CHECKING:
     )
 
 
-class AsyncAPI(Specification):
-    # Empty init for correct typehints
-    def __init__(
-        self,
-        broker: "BrokerUsecase[Any, Any]",
-        /,
-        title: str = "FastStream",
-        app_version: str = "0.1.0",
-        schema_version: Union[Literal["3.0.0", "2.6.0"], str] = "3.0.0",
-        description: str = "",
-        terms_of_service: Optional["AnyHttpUrl"] = None,
-        license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
-        contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
-        tags: Iterable[Union["Tag", "TagDict", "AnyDict"]] = (),
-        external_docs: Optional[
-            Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
-        ] = None,
-        identifier: Optional[str] = None,
-    ) -> Specification:
-        pass
+def AsyncAPI(  # noqa: N802
+    broker: "BrokerUsecase[Any, Any]",
+    /,
+    title: str = "FastStream",
+    app_version: str = "0.1.0",
+    schema_version: Union[Literal["3.0.0", "2.6.0"], str] = "3.0.0",
+    description: str = "",
+    terms_of_service: Optional["AnyHttpUrl"] = None,
+    license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
+    contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
+    tags: Iterable[Union["Tag", "TagDict", "AnyDict"]] = (),
+    external_docs: Optional[
+        Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
+    ] = None,
+    identifier: Optional[str] = None,
+) -> Specification:
+    if schema_version.startswith("3.0."):
+        from .v3_0_0.facade import AsyncAPI3
 
-    def __new__(  # type: ignore[misc]
-        cls,
-        broker: "BrokerUsecase[Any, Any]",
-        /,
-        title: str = "FastStream",
-        app_version: str = "0.1.0",
-        schema_version: Union[Literal["3.0.0", "2.6.0"], str] = "3.0.0",
-        description: str = "",
-        terms_of_service: Optional["AnyHttpUrl"] = None,
-        license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
-        contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
-        tags: Iterable[Union["Tag", "TagDict", "AnyDict"]] = (),
-        external_docs: Optional[
-            Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
-        ] = None,
-        identifier: Optional[str] = None,
-    ) -> Specification:
-        if schema_version.startswith("3.0."):
-            from .v3_0_0.facade import AsyncAPI3
+        return AsyncAPI3(
+            broker,
+            title=title,
+            app_version=app_version,
+            schema_version=schema_version,
+            description=description,
+            terms_of_service=terms_of_service,
+            contact=contact,
+            license=license,
+            identifier=identifier,
+            tags=tags,
+            external_docs=external_docs,
+        )
 
-            return AsyncAPI3(
-                broker,
-                title=title,
-                app_version=app_version,
-                schema_version=schema_version,
-                description=description,
-                terms_of_service=terms_of_service,
-                contact=contact,
-                license=license,
-                identifier=identifier,
-                tags=tags,
-                external_docs=external_docs,
-            )
-        if schema_version.startswith("2.6."):
-            from .v2_6_0.facade import AsyncAPI2
+    if schema_version.startswith("2.6."):
+        from .v2_6_0.facade import AsyncAPI2
 
-            return AsyncAPI2(
-                broker,
-                title=title,
-                app_version=app_version,
-                schema_version=schema_version,
-                description=description,
-                terms_of_service=terms_of_service,
-                contact=contact,
-                license=license,
-                identifier=identifier,
-                tags=tags,
-                external_docs=external_docs,
-            )
-        msg = f"Unsupported schema version: {schema_version}"
-        raise NotImplementedError(msg)
+        return AsyncAPI2(
+            broker,
+            title=title,
+            app_version=app_version,
+            schema_version=schema_version,
+            description=description,
+            terms_of_service=terms_of_service,
+            contact=contact,
+            license=license,
+            identifier=identifier,
+            tags=tags,
+            external_docs=external_docs,
+        )
 
-    def to_json(self) -> str:
-        raise NotImplementedError
-
-    def to_jsonable(self) -> Any:
-        raise NotImplementedError
-
-    def to_yaml(self) -> str:
-        raise NotImplementedError
+    msg = f"Unsupported schema version: {schema_version}"
+    raise NotImplementedError(msg)

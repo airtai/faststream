@@ -11,6 +11,7 @@ from faststream.nats.message import NatsMessage as _Message
 from faststream.nats.subscriber.usecases.object_storage_subscriber import (
     OBJECT_STORAGE_CONTEXT_KEY,
 )
+from faststream.params import NoCast
 
 __all__ = (
     "Client",
@@ -19,6 +20,7 @@ __all__ = (
     "Logger",
     "NatsBroker",
     "NatsMessage",
+    "NoCast",
     "ObjectStorage",
 )
 

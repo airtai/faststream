@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -7,30 +7,49 @@ from typing import (
     Optional,
 )
 
+from faststream._internal.publisher.proto import PublisherProto
 from faststream._internal.state import BrokerState, Pointer
+from faststream._internal.subscriber.proto import SubscriberProto
 from faststream._internal.types import BrokerMiddleware, CustomCallable, MsgType
+from faststream.specification.proto import EndpointSpecification
+from faststream.specification.schema import PublisherSpec, SubscriberSpec
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
-    from faststream._internal.publisher.proto import PublisherProto
-    from faststream._internal.subscriber.proto import SubscriberProto
+
+class FinalSubscriber(
+    EndpointSpecification[MsgType, SubscriberSpec],
+    SubscriberProto[MsgType],
+):
+    @property
+    @abstractmethod
+    def call_name(self) -> str:
+        raise NotImplementedError
+
+
+class FinalPublisher(
+    EndpointSpecification[MsgType, PublisherSpec],
+    PublisherProto[MsgType],
+):
+    pass
 
 
 class ABCBroker(Generic[MsgType]):
-    _subscribers: list["SubscriberProto[MsgType]"]
-    _publishers: list["PublisherProto[MsgType]"]
+    _subscribers: list[FinalSubscriber[MsgType]]
+    _publishers: list[FinalPublisher[MsgType]]
 
     def __init__(
         self,
         *,
         prefix: str,
         dependencies: Iterable["Dependant"],
-        middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        middlewares: Sequence["BrokerMiddleware[MsgType]"],
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
         include_in_schema: Optional[bool],
         state: "BrokerState",
+        routers: Sequence["ABCBroker[MsgType]"],
     ) -> None:
         self.prefix = prefix
         self.include_in_schema = include_in_schema
@@ -44,6 +63,8 @@ class ABCBroker(Generic[MsgType]):
         self._decoder = decoder
 
         self._state = Pointer(state)
+
+        self.include_routers(*routers)
 
     def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
         """Append BrokerMiddleware to the end of middlewares list.
@@ -61,9 +82,9 @@ class ABCBroker(Generic[MsgType]):
     @abstractmethod
     def subscriber(
         self,
-        subscriber: "SubscriberProto[MsgType]",
+        subscriber: "FinalSubscriber[MsgType]",
         is_running: bool = False,
-    ) -> "SubscriberProto[MsgType]":
+    ) -> "FinalSubscriber[MsgType]":
         subscriber.add_prefix(self.prefix)
         if not is_running:
             self._subscribers.append(subscriber)
@@ -72,19 +93,17 @@ class ABCBroker(Generic[MsgType]):
     @abstractmethod
     def publisher(
         self,
-        publisher: "PublisherProto[MsgType]",
+        publisher: "FinalPublisher[MsgType]",
         is_running: bool = False,
-    ) -> "PublisherProto[MsgType]":
+    ) -> "FinalPublisher[MsgType]":
         publisher.add_prefix(self.prefix)
-
         if not is_running:
             self._publishers.append(publisher)
-
         return publisher
 
     def setup_publisher(
         self,
-        publisher: "PublisherProto[MsgType]",
+        publisher: "FinalPublisher[MsgType]",
         **kwargs: Any,
     ) -> None:
         """Setup the Publisher to prepare it to starting."""

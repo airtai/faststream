@@ -11,7 +11,7 @@ from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream.message import StreamMessage
-    from faststream.nats.response import NatsPublishCommand
+    from faststream.response import PublishCommand
 
 
 class BaseNatsTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
@@ -22,7 +22,7 @@ class BaseNatsTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
 
     def get_publish_attrs_from_cmd(
         self,
-        cmd: "NatsPublishCommand",
+        cmd: "PublishCommand",
     ) -> "AnyDict":
         return {
             SpanAttributes.MESSAGING_SYSTEM: self.messaging_system,
@@ -32,7 +32,7 @@ class BaseNatsTelemetrySettingsProvider(TelemetrySettingsProvider[MsgType]):
 
     def get_publish_destination_name(
         self,
-        cmd: "NatsPublishCommand",
+        cmd: "PublishCommand",
     ) -> str:
         return cmd.destination
 

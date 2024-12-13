@@ -593,6 +593,34 @@ class RouterTestcase(
             mock.parser.assert_called_once()
             mock.decoder.assert_called_once()
 
+    async def test_router_in_init(
+        self,
+        router: BrokerRouter,
+        queue: str,
+    ) -> None:
+        event = asyncio.Event()
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
+        def subscriber(m) -> None:
+            event.set()
+
+        pub_broker = self.get_broker(routers=[router])
+
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=self.timeout,
+            )
+
+            assert event.is_set()
+
 
 @pytest.mark.asyncio()
 class RouterLocalTestcase(RouterTestcase):

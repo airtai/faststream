@@ -23,10 +23,10 @@ from faststream.specification.base.specification import Specification
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-asyncapi_app = typer.Typer(pretty_exceptions_short=True)
+docs_app = typer.Typer(pretty_exceptions_short=True)
 
 
-@asyncapi_app.command(name="serve")
+@docs_app.command(name="serve")
 def serve(
     docs: str = typer.Argument(
         ...,
@@ -96,7 +96,7 @@ def serve(
         _parse_and_serve(docs, host, port, is_factory)
 
 
-@asyncapi_app.command(name="gen")
+@docs_app.command(name="gen")
 def gen(
     asyncapi: str = typer.Argument(
         ...,

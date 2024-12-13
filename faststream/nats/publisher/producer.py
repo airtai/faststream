@@ -19,13 +19,14 @@ from faststream.nats.parser import NatsParser
 if TYPE_CHECKING:
     from nats.aio.client import Client
     from nats.aio.msg import Msg
-    from nats.js import JetStreamContext, api
+    from nats.js import JetStreamContext
 
     from faststream._internal.types import (
         AsyncCallable,
         CustomCallable,
     )
     from faststream.nats.response import NatsPublishCommand
+    from faststream.nats.schemas import PubAck
 
 
 class NatsFastProducer(ProducerProto):
@@ -39,7 +40,7 @@ class NatsFastProducer(ProducerProto):
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
-        default = NatsParser(pattern="")
+        default = NatsParser(pattern="", is_ack_disabled=True)
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 
@@ -110,7 +111,9 @@ class NatsJSFastProducer(ProducerProto):
         parser: Optional["CustomCallable"],
         decoder: Optional["CustomCallable"],
     ) -> None:
-        default = NatsParser(pattern="")  # core parser to serializer responses
+        default = NatsParser(
+            pattern="", is_ack_disabled=True
+        )  # core parser to serializer responses
         self._parser = resolve_custom_func(parser, default.parse_message)
         self._decoder = resolve_custom_func(decoder, default.decode_message)
 
@@ -126,7 +129,7 @@ class NatsJSFastProducer(ProducerProto):
     async def publish(  # type: ignore[override]
         self,
         cmd: "NatsPublishCommand",
-    ) -> "api.PubAck":
+    ) -> "PubAck":
         payload, content_type = encode_message(cmd.body)
 
         headers_to_send = {

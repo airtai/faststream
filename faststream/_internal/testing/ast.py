@@ -9,7 +9,7 @@ from typing import Optional, Union, cast
 def is_contains_context_name(scip_name: str, name: str) -> bool:
     stack = traceback.extract_stack()[-3]
     tree = _read_source_ast(stack.filename)
-    node = cast(Union[ast.With, ast.AsyncWith], _find_ast_node(tree, stack.lineno))
+    node = cast("Union[ast.With, ast.AsyncWith]", _find_ast_node(tree, stack.lineno))
     context_calls = _get_withitem_calls(node)
 
     try:
@@ -29,7 +29,7 @@ def _find_ast_node(module: ast.Module, lineno: Optional[int]) -> Optional[ast.AS
     if lineno is not None:  # pragma: no branch
         for i in getattr(module, "body", ()):
             if i.lineno == lineno:
-                return cast(ast.AST, i)
+                return cast("ast.AST", i)
 
             r = _find_ast_node(i, lineno)
             if r is not None:
