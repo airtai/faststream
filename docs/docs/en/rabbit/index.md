@@ -11,7 +11,7 @@ search:
 # Rabbit Routing
 
 !!! note ""
-      **FastStream** *RabbitMQ* support is implemented on top of [**aio-pika**](https://aio-pika.readthedocs.io/en/latest/){.external-link target="_blank"}. You can always get access to objects of it, if you need to use some low-level methods, not represented in **FastStream**.
+      **FastStream** *RabbitMQ* support is implemented on top of [**aio-pika**](https://docs.aio-pika.com/){.external-link target="_blank"}. You can always get access to objects of it, if you need to use some low-level methods, not represented in **FastStream**.
 
 ## Advantages
 
