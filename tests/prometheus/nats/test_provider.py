@@ -16,7 +16,8 @@ from .basic import NatsPrometheusSettings
 
 
 class LocalBaseNatsMetricsSettingsProviderTestcase(
-    NatsPrometheusSettings, LocalMetricsSettingsProviderTestcase
+    NatsPrometheusSettings,
+    LocalMetricsSettingsProviderTestcase,
 ):
     def test_get_publish_destination_name_from_cmd(self, queue: str) -> None:
         expected_destination_name = queue

@@ -147,7 +147,7 @@ class KeyValueWatchSubscriber(
         while self.running:
             with suppress(ConnectionClosedError, TimeoutError):
                 message = cast(
-                    Optional["KeyValue.Entry"],
+                    "Optional[KeyValue.Entry]",
                     # type: ignore[no-untyped-call]
                     await key_watcher.updates(self.kv_watch.timeout),
                 )

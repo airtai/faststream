@@ -66,6 +66,7 @@ if TYPE_CHECKING:
         LoggerProto,
         SendableMessage,
     )
+    from faststream._internal.broker.abc_broker import ABCBroker
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -376,6 +377,10 @@ class NatsBroker(
             Sequence["BrokerMiddleware[Msg]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
+        routers: Annotated[
+            Sequence["ABCBroker[Msg]"],
+            Doc("Routers to apply to broker."),
+        ] = (),
         # AsyncAPI args
         security: Annotated[
             Optional["BaseSecurity"],
@@ -485,6 +490,7 @@ class NatsBroker(
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
+            routers=routers,
             # AsyncAPI
             description=description,
             specification_url=specification_url,

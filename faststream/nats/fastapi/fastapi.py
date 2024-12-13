@@ -34,7 +34,6 @@ from faststream._internal.constants import EMPTY
 from faststream._internal.fastapi.router import StreamRouter
 from faststream.middlewares import AckPolicy
 from faststream.nats.broker import NatsBroker
-from faststream.nats.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -62,6 +61,7 @@ if TYPE_CHECKING:
     from faststream.nats.message import NatsMessage
     from faststream.nats.publisher.specified import SpecificationPublisher
     from faststream.nats.schemas import JStream, KvWatch, ObjWatch, PullSub
+    from faststream.nats.subscriber.specified import SpecificationSubscriber
     from faststream.security import BaseSecurity
     from faststream.specification.schema.extra import Tag, TagDict
 
@@ -848,7 +848,7 @@ class NatsRouter(StreamRouter["Msg"]):
         ] = False,
     ) -> "SpecificationSubscriber":
         return cast(
-            SpecificationSubscriber,
+            "SpecificationSubscriber",
             super().subscriber(
                 subject=subject,
                 queue=queue,

@@ -672,7 +672,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         ] = False,
     ) -> SpecificationSubscriber:
         return cast(
-            SpecificationSubscriber,
+            "SpecificationSubscriber",
             super().subscriber(
                 queue=queue,
                 exchange=exchange,

@@ -50,7 +50,8 @@ class MetricsContainer:
 
         received_messages_total_name = f"{metrics_prefix}_received_messages_total"
         self.received_messages_total = cast(
-            Counter, self._get_registered_metric(received_messages_total_name)
+            "Counter",
+            self._get_registered_metric(received_messages_total_name),
         ) or Counter(
             name=received_messages_total_name,
             documentation="Count of received messages by broker and handler",
@@ -62,7 +63,8 @@ class MetricsContainer:
             f"{metrics_prefix}_received_messages_size_bytes"
         )
         self.received_messages_size_bytes = cast(
-            Histogram, self._get_registered_metric(received_messages_size_bytes_name)
+            "Histogram",
+            self._get_registered_metric(received_messages_size_bytes_name),
         ) or Histogram(
             name=received_messages_size_bytes_name,
             documentation="Histogram of received messages size in bytes by broker and handler",
@@ -75,7 +77,8 @@ class MetricsContainer:
             f"{metrics_prefix}_received_messages_in_process"
         )
         self.received_messages_in_process = cast(
-            Gauge, self._get_registered_metric(received_messages_in_process_name)
+            "Gauge",
+            self._get_registered_metric(received_messages_in_process_name),
         ) or Gauge(
             name=received_messages_in_process_name,
             documentation="Gauge of received messages in process by broker and handler",
@@ -87,7 +90,8 @@ class MetricsContainer:
             f"{metrics_prefix}_received_processed_messages_total"
         )
         self.received_processed_messages_total = cast(
-            Counter, self._get_registered_metric(received_processed_messages_total_name)
+            "Counter",
+            self._get_registered_metric(received_processed_messages_total_name),
         ) or Counter(
             name=received_processed_messages_total_name,
             documentation="Count of received processed messages by broker, handler and status",
@@ -99,7 +103,7 @@ class MetricsContainer:
             f"{metrics_prefix}_received_processed_messages_duration_seconds"
         )
         self.received_processed_messages_duration_seconds = cast(
-            Histogram,
+            "Histogram",
             self._get_registered_metric(
                 received_processed_messages_duration_seconds_name
             ),
@@ -114,7 +118,7 @@ class MetricsContainer:
             f"{metrics_prefix}_received_processed_messages_exceptions_total"
         )
         self.received_processed_messages_exceptions_total = cast(
-            Counter,
+            "Counter",
             self._get_registered_metric(
                 received_processed_messages_exceptions_total_name
             ),
@@ -127,7 +131,8 @@ class MetricsContainer:
 
         published_messages_total_name = f"{metrics_prefix}_published_messages_total"
         self.published_messages_total = cast(
-            Counter, self._get_registered_metric(published_messages_total_name)
+            "Counter",
+            self._get_registered_metric(published_messages_total_name),
         ) or Counter(
             name=published_messages_total_name,
             documentation="Count of published messages by destination and status",
@@ -139,7 +144,7 @@ class MetricsContainer:
             f"{metrics_prefix}_published_messages_duration_seconds"
         )
         self.published_messages_duration_seconds = cast(
-            Histogram,
+            "Histogram",
             self._get_registered_metric(published_messages_duration_seconds_name),
         ) or Histogram(
             name=published_messages_duration_seconds_name,
@@ -152,7 +157,7 @@ class MetricsContainer:
             f"{metrics_prefix}_published_messages_exceptions_total"
         )
         self.published_messages_exceptions_total = cast(
-            Counter,
+            "Counter",
             self._get_registered_metric(published_messages_exceptions_total_name),
         ) or Counter(
             name=published_messages_exceptions_total_name,

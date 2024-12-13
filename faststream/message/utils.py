@@ -30,7 +30,7 @@ def decode_message(message: "StreamMessage[Any]") -> "DecodedMessage":
     m: DecodedMessage = body
 
     if content_type := getattr(message, "content_type", False):
-        content_type = ContentTypes(cast(str, content_type))
+        content_type = ContentTypes(cast("str", content_type))
 
         if content_type is ContentTypes.TEXT:
             m = body.decode()

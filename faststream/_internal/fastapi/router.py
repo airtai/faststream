@@ -16,7 +16,6 @@ from typing import (
 )
 from weakref import WeakSet
 
-from fastapi.background import BackgroundTasks
 from fastapi.datastructures import Default
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRoute, APIRouter
@@ -43,6 +42,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from fastapi import FastAPI, params
+    from fastapi.background import BackgroundTasks
     from fastapi.types import IncEx
     from starlette import routing
     from starlette.types import ASGIApp, AppType, Lifespan
@@ -67,7 +67,7 @@ class _BackgroundMiddleware(BaseMiddleware):
     ) -> Optional[bool]:
         if not exc_type and (
             background := cast(
-                Optional[BackgroundTasks],
+                "Optional[BackgroundTasks]",
                 getattr(self.context.get_local("message"), "background", None),
             )
         ):
@@ -235,7 +235,7 @@ class StreamRouter(
                 response_model_exclude_defaults=response_model_exclude_defaults,
                 response_model_exclude_none=response_model_exclude_none,
                 provider_factory=self._get_dependencies_overides_provider,
-                state=self._state,
+                state=self._state.di_state,
             )
 
         return wrapper

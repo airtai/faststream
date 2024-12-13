@@ -46,7 +46,7 @@ class BatchKafkaMetricsSettingsProvider(
         raw_message = msg.raw_message[0]
         return {
             "destination_name": raw_message.topic,
-            "message_size": len(bytearray().join(cast(Sequence[bytes], msg.body))),
+            "message_size": len(bytearray().join(cast("Sequence[bytes]", msg.body))),
             "messages_count": len(msg.raw_message),
         }
 

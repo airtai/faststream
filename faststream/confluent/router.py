@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import SendableMessage
+    from faststream._internal.broker.abc_broker import ABCBroker
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -508,6 +509,10 @@ class KafkaRouter(
             ],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
+        routers: Annotated[
+            Sequence["ABCBroker[Message]"],
+            Doc("Routers to apply to broker."),
+        ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
             Doc("Parser to map original **Message** object to FastStream one."),
@@ -527,6 +532,7 @@ class KafkaRouter(
             prefix=prefix,
             dependencies=dependencies,
             middlewares=middlewares,  # type: ignore[arg-type]
+            routers=routers,
             parser=parser,
             decoder=decoder,
             include_in_schema=include_in_schema,

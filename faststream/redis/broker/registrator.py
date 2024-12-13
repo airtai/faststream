@@ -8,7 +8,6 @@ from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.factory import create_publisher
-from faststream.redis.publisher.specified import SpecificationPublisher
 from faststream.redis.subscriber.factory import SubsciberType, create_subscriber
 from faststream.redis.subscriber.specified import SpecificationSubscriber
 
@@ -22,7 +21,10 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.redis.message import UnifyRedisMessage
-    from faststream.redis.publisher.specified import PublisherType
+    from faststream.redis.publisher.specified import (
+        PublisherType,
+        SpecificationPublisher,
+    )
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 
@@ -104,7 +106,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         ] = True,
     ) -> SpecificationSubscriber:
         subscriber = cast(
-            SpecificationSubscriber,
+            "SpecificationSubscriber",
             super().subscriber(
                 create_subscriber(
                     channel=channel,
@@ -195,7 +197,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
         return cast(
-            SpecificationPublisher,
+            "SpecificationPublisher",
             super().publisher(
                 create_publisher(
                     channel=channel,

@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict, SendableMessage
+    from faststream._internal.broker.abc_broker import ABCBroker
     from faststream._internal.types import (
         BrokerMiddleware,
         CustomCallable,
@@ -232,6 +233,10 @@ class RedisRouter(RedisRegistrator, BrokerRouter[BaseMessage]):
             Sequence["BrokerMiddleware[BaseMessage]"],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
+        routers: Annotated[
+            Sequence["ABCBroker[BaseMessage]"],
+            Doc("Routers to apply to broker."),
+        ] = (),
         parser: Annotated[
             Optional["CustomCallable"],
             Doc("Parser to map original **IncomingMessage** Msg to FastStream one."),
@@ -251,6 +256,7 @@ class RedisRouter(RedisRegistrator, BrokerRouter[BaseMessage]):
             prefix=prefix,
             dependencies=dependencies,
             middlewares=middlewares,
+            routers=routers,
             parser=parser,
             decoder=decoder,
             include_in_schema=include_in_schema,

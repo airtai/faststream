@@ -176,7 +176,7 @@ def create_subscriber(
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=cast(
-                Sequence["BrokerMiddleware[tuple[ConfluentMsg, ...]]"],
+                "Sequence[BrokerMiddleware[tuple[ConfluentMsg, ...]]]",
                 broker_middlewares,
             ),
             title_=title_,
@@ -195,7 +195,7 @@ def create_subscriber(
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=cast(
-                Sequence["BrokerMiddleware[ConfluentMsg]"],
+                "Sequence[BrokerMiddleware[ConfluentMsg]]",
                 broker_middlewares,
             ),
             title_=title_,
@@ -215,7 +215,7 @@ def create_subscriber(
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=cast(
-            Sequence["BrokerMiddleware[ConfluentMsg]"],
+            "Sequence[BrokerMiddleware[ConfluentMsg]]",
             broker_middlewares,
         ),
         title_=title_,

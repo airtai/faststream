@@ -16,7 +16,7 @@ from aio_pika import IncomingMessage, RobustConnection, connect_robust
 from typing_extensions import Doc, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream._internal.broker.broker import BrokerUsecase
+from faststream._internal.broker.broker import ABCBroker, BrokerUsecase
 from faststream._internal.constants import EMPTY
 from faststream._internal.publisher.proto import PublisherProto
 from faststream.message import gen_cor_id
@@ -172,6 +172,10 @@ class RabbitBroker(
             Sequence["BrokerMiddleware[IncomingMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
+        routers: Annotated[
+            Sequence["ABCBroker[IncomingMessage]"],
+            Doc("Routers to apply to broker."),
+        ] = (),
         # AsyncAPI args
         security: Annotated[
             Optional["BaseSecurity"],
@@ -266,6 +270,7 @@ class RabbitBroker(
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
+            routers=routers,
             # AsyncAPI args
             description=description,
             specification_url=specification_url,

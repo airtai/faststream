@@ -51,9 +51,9 @@ def to_async(
 ) -> Callable[F_Spec, Awaitable[F_Return]]:
     """Converts a synchronous function to an asynchronous function."""
     if is_coroutine_callable(func):
-        return cast(Callable[F_Spec, Awaitable[F_Return]], func)
+        return cast("Callable[F_Spec, Awaitable[F_Return]]", func)
 
-    func = cast(Callable[F_Spec, F_Return], func)
+    func = cast("Callable[F_Spec, F_Return]", func)
 
     @wraps(func)
     async def to_async_wrapper(*args: F_Spec.args, **kwargs: F_Spec.kwargs) -> F_Return:

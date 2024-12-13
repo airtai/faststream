@@ -73,7 +73,7 @@ class ConfluentTelemetrySettingsProvider(
         self,
         msg: "StreamMessage[Message]",
     ) -> str:
-        return cast(str, msg.raw_message.topic())
+        return cast("str", msg.raw_message.topic())
 
 
 class BatchConfluentTelemetrySettingsProvider(
@@ -90,7 +90,7 @@ class BatchConfluentTelemetrySettingsProvider(
             SpanAttributes.MESSAGING_MESSAGE_CONVERSATION_ID: msg.correlation_id,
             SpanAttributes.MESSAGING_BATCH_MESSAGE_COUNT: len(msg.raw_message),
             SpanAttributes.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES: len(
-                bytearray().join(cast(Sequence[bytes], msg.body)),
+                bytearray().join(cast("Sequence[bytes]", msg.body)),
             ),
             SpanAttributes.MESSAGING_KAFKA_DESTINATION_PARTITION: raw_message.partition(),
             MESSAGING_DESTINATION_PUBLISH_NAME: raw_message.topic(),
@@ -100,7 +100,7 @@ class BatchConfluentTelemetrySettingsProvider(
         self,
         msg: "StreamMessage[tuple[Message, ...]]",
     ) -> str:
-        return cast(str, msg.raw_message[0].topic())
+        return cast("str", msg.raw_message[0].topic())
 
 
 def telemetry_attributes_provider_factory(
