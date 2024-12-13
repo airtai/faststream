@@ -10,7 +10,7 @@ from typing import (
     Optional,
     TypeVar,
     Union,
-    overload
+    overload,
 )
 
 import aiokafka
@@ -878,30 +878,30 @@ class KafkaBroker(
             no_confirm: bool = False,
     ) -> Union["asyncio.Future[RecordMetadata]", "RecordMetadata"]:
         """Args:
-                    *messages:
-                        Messages bodies to send.
-                    topic:
-                        Topic where the message will be published.
-                    partition:
-                        Specify a partition. If not set, the partition will be
-                        selected using the configured `partitioner`
-                    timestamp_ms:
-                        Epoch milliseconds (from Jan 1 1970 UTC) to use as
-                        the message timestamp. Defaults to current time.
-                    headers:
-                        Message headers to store metainformation.
-                    reply_to:
-                        Reply message topic name to send response.
-                    correlation_id:
-                        Manual message **correlation_id** setter.
-                        **correlation_id** is a useful option to trace messages.
-                    no_confirm:
-                        Do not wait for Kafka publish confirmation.
+            *messages:
+                Messages bodies to send.
+            topic:
+                Topic where the message will be published.
+            partition:
+                Specify a partition. If not set, the partition will be
+                selected using the configured `partitioner`
+            timestamp_ms:
+                Epoch milliseconds (from Jan 1 1970 UTC) to use as
+                the message timestamp. Defaults to current time.
+            headers:
+                Message headers to store metainformation.
+            reply_to:
+                Reply message topic name to send response.
+            correlation_id:
+                Manual message **correlation_id** setter.
+                **correlation_id** is a useful option to trace messages.
+            no_confirm:
+                Do not wait for Kafka publish confirmation.
 
-                Returns:
-                    `asyncio.Future[RecordMetadata]` if no_confirm = True.
-                    `RecordMetadata` if no_confirm = False.
-                """
+        Returns:
+            `asyncio.Future[RecordMetadata]` if no_confirm = True.
+            `RecordMetadata` if no_confirm = False.
+        """
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         cmd = KafkaPublishCommand(
