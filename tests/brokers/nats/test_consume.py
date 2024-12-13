@@ -75,22 +75,17 @@ class TestConsume(NatsTestcaseConfig, BrokerRealConsumeTestcase):
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
-            completed, _ = await asyncio.wait(
-                (
-                    asyncio.create_task(br.publish("hello", queue, stream=stream.name)),
-                    asyncio.create_task(event.wait()),
-                ),
+
+            result = await br.publish("hello", queue, stream=stream.name)
+
+            await asyncio.wait(
+                (asyncio.create_task(event.wait()),),
                 timeout=3,
             )
 
-            publish_with_stream_returns_ack_frame = False
-            for task in completed:
-                if isinstance(task.result(), PubAck):
-                    publish_with_stream_returns_ack_frame = True
-                    break
+            assert isinstance(result, PubAck), result
 
         assert event.is_set()
-        assert publish_with_stream_returns_ack_frame
 
     async def test_consume_with_filter(
         self,
