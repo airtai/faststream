@@ -1,4 +1,4 @@
-from typing import Optional, Union, overload
+from typing import Optional, Union, cast, overload
 
 from pydantic import AnyHttpUrl, BaseModel
 from typing_extensions import Self
@@ -64,6 +64,7 @@ class License(BaseModel):
                 url=license.url,
             )
 
+        license = cast(AnyDict, license)
         license_data, custom_data = filter_by_dict(LicenseDict, license)
 
         if custom_data:

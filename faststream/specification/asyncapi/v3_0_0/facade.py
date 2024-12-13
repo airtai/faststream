@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from faststream.specification.base.specification import Specification
@@ -34,7 +34,7 @@ class AsyncAPI3(Specification):
         contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
         license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
         identifier: Optional[str] = None,
-        tags: Iterable[Union["Tag", "TagDict", "AnyDict"]] = (),
+        tags: Sequence[Union["Tag", "TagDict", "AnyDict"]] = (),
         external_docs: Optional[
             Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
         ] = None,
