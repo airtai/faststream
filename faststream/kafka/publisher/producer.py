@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from typing_extensions import override
 
@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     import asyncio
 
     from aiokafka import AIOKafkaProducer
+    from aiokafka.structs import RecordMetadata
 
     from faststream._internal.types import CustomCallable
     from faststream.kafka.response import KafkaPublishCommand
@@ -58,7 +59,7 @@ class AioKafkaFastProducer(ProducerProto):
     async def publish(  # type: ignore[override]
         self,
         cmd: "KafkaPublishCommand",
-    ) -> "asyncio.Future":
+    ) -> Union["asyncio.Future[RecordMetadata]", "RecordMetadata"]:
         """Publish a message to a topic."""
         message, content_type = encode_message(cmd.body)
 
@@ -77,13 +78,13 @@ class AioKafkaFastProducer(ProducerProto):
         )
 
         if not cmd.no_confirm:
-            await send_future
+            return await send_future
         return send_future
 
     async def publish_batch(
         self,
         cmd: "KafkaPublishCommand",
-    ) -> "asyncio.Future":
+    ) -> Union["asyncio.Future[RecordMetadata]", "RecordMetadata"]:
         """Publish a batch of messages to a topic."""
         batch = self._producer.producer.create_batch()
 
@@ -113,7 +114,7 @@ class AioKafkaFastProducer(ProducerProto):
             partition=cmd.partition,
         )
         if not cmd.no_confirm:
-            await send_future
+            return await send_future
         return send_future
 
     @override
