@@ -1,3 +1,5 @@
+from faststream.specification.asyncapi.v2_6_0.schema import ServerVariable
+
 from .channels import Channel
 from .components import Components
 from .contact import Contact
@@ -7,7 +9,7 @@ from .license import License
 from .message import CorrelationId, Message
 from .operations import Operation
 from .schema import ApplicationSchema
-from .servers import Server, ServerVariable
+from .servers import Server
 from .tag import Tag
 from .utils import Parameter, Reference
 

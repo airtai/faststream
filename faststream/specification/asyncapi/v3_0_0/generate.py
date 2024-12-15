@@ -87,7 +87,7 @@ def get_app_schema(
             termsOfService=terms_of_service,
             contact=Contact.from_spec(contact),
             license=License.from_spec(license),
-            tags=[Tag.from_spec(tag) for tag in tags] or None,
+            tags=[Tag.from_spec(tag) for tag in tags] or None if tags else None,
             externalDocs=ExternalDocs.from_spec(external_docs),
         ),
         asyncapi=schema_version,
@@ -153,10 +153,10 @@ def get_broker_channels(
     operations = {}
 
     for sub in broker._subscribers:
-        for key, channel in sub.schema().items():
-            channel_obj = Channel.from_sub(key, channel)
+        for sub_key, sub_channel in sub.schema().items():
+            channel_obj = Channel.from_sub(sub_key, sub_channel)
 
-            channel_key = clear_key(key)
+            channel_key = clear_key(sub_key)
             # TODO: add duplication key warning
             channels[channel_key] = channel_obj
 
@@ -168,14 +168,14 @@ def get_broker_channels(
                     for msg_name in channel_obj.messages
                 ],
                 channel=Reference(**{"$ref": f"#/channels/{channel_key}"}),
-                operation=channel.operation,
+                operation=sub_channel.operation,
             )
 
     for pub in broker._publishers:
-        for key, channel in pub.schema().items():
-            channel_obj = Channel.from_pub(key, channel)
+        for pub_key, pub_channel in pub.schema().items():
+            channel_obj = Channel.from_pub(pub_key, pub_channel)
 
-            channel_key = clear_key(key)
+            channel_key = clear_key(pub_key)
             # TODO: add duplication key warning
             channels[channel_key] = channel_obj
 
@@ -187,7 +187,7 @@ def get_broker_channels(
                     for msg_name in channel_obj.messages
                 ],
                 channel=Reference(**{"$ref": f"#/channels/{channel_key}"}),
-                operation=channel.operation,
+                operation=pub_channel.operation,
             )
 
     return channels, operations

@@ -24,12 +24,15 @@ class OperationBinding(BaseModel):
     bindingVersion: str = "custom"
 
     @classmethod
-    def from_spec(cls, binding: sqs.OperationBinding) -> Self:
+    def from_pub(cls, binding: sqs.OperationBinding) -> Self:
         return cls(
             replyTo=binding.replyTo,
             bindingVersion=binding.bindingVersion,
         )
 
-
-def from_spec(binding: sqs.OperationBinding) -> OperationBinding:
-    return OperationBinding.from_spec(binding)
+    @classmethod
+    def from_sub(cls, binding: sqs.OperationBinding) -> Self:
+        return cls(
+            replyTo=binding.replyTo,
+            bindingVersion=binding.bindingVersion,
+        )
