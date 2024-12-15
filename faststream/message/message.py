@@ -12,7 +12,7 @@ from uuid import uuid4
 from .source_type import SourceType
 
 if TYPE_CHECKING:
-    from faststream._internal.basic_types import AnyDict, DecodedMessage
+    from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import AsyncCallable
 
 # prevent circular imports
@@ -74,7 +74,7 @@ class StreamMessage(Generic[MsgType]):
             filter(
                 bool,
                 (
-                    f"body={self.body}",
+                    f"body={self.body!r}",
                     f"content_type={self.content_type}",
                     f"message_id={self.message_id}",
                     f"correlation_id={self.correlation_id}",
@@ -89,7 +89,7 @@ class StreamMessage(Generic[MsgType]):
 
         return f"{self.__class__.__name__}({inner})"
 
-    async def decode(self) -> Optional["DecodedMessage"]:
+    async def decode(self) -> Optional["Any"]:
         """Serialize the message by lazy decoder.
 
         Returns a cache after first usage. To prevent such behavior, please call
