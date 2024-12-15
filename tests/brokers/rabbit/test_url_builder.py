@@ -33,6 +33,6 @@ from faststream.rabbit.utils import build_url
         ),
     ],
 )
-def test_unpack_args(self, url_kwargs: Dict[str, Any], expected_url: URL) -> None:
+def test_unpack_args(url_kwargs: Dict[str, Any], expected_url: URL) -> None:
     url = build_url(**url_kwargs)
     assert url == expected_url
