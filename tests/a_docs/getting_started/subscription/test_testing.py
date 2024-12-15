@@ -9,10 +9,10 @@ from tests.marks import (
 )
 
 
-@pytest.mark.kafka
-@pytest.mark.asyncio
+@pytest.mark.kafka()
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_handle_kafka():
+async def test_handle_kafka() -> None:
     from docs.docs_src.getting_started.subscription.kafka.testing import (
         test_handle as test_handle_k,
     )
@@ -20,10 +20,10 @@ async def test_handle_kafka():
     await test_handle_k()
 
 
-@pytest.mark.kafka
-@pytest.mark.asyncio
+@pytest.mark.kafka()
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_validate_kafka():
+async def test_validate_kafka() -> None:
     from docs.docs_src.getting_started.subscription.kafka.testing import (
         test_validation_error as test_validation_error_k,
     )
@@ -31,10 +31,10 @@ async def test_validate_kafka():
     await test_validation_error_k()
 
 
-@pytest.mark.confluent
-@pytest.mark.asyncio
+@pytest.mark.confluent()
+@pytest.mark.asyncio()
 @require_confluent
-async def test_handle_confluent():
+async def test_handle_confluent() -> None:
     from docs.docs_src.getting_started.subscription.confluent.testing import (
         test_handle as test_handle_confluent,
     )
@@ -42,10 +42,10 @@ async def test_handle_confluent():
     await test_handle_confluent()
 
 
-@pytest.mark.asyncio
-@pytest.mark.confluent
+@pytest.mark.asyncio()
+@pytest.mark.confluent()
 @require_confluent
-async def test_validate_confluent():
+async def test_validate_confluent() -> None:
     from docs.docs_src.getting_started.subscription.confluent.testing import (
         test_validation_error as test_validation_error_confluent,
     )
@@ -53,10 +53,10 @@ async def test_validate_confluent():
     await test_validation_error_confluent()
 
 
-@pytest.mark.asyncio
-@pytest.mark.rabbit
+@pytest.mark.asyncio()
+@pytest.mark.rabbit()
 @require_aiopika
-async def test_handle_rabbit():
+async def test_handle_rabbit() -> None:
     from docs.docs_src.getting_started.subscription.rabbit.testing import (
         test_handle as test_handle_r,
     )
@@ -64,10 +64,10 @@ async def test_handle_rabbit():
     await test_handle_r()
 
 
-@pytest.mark.asyncio
-@pytest.mark.rabbit
+@pytest.mark.asyncio()
+@pytest.mark.rabbit()
 @require_aiopika
-async def test_validate_rabbit():
+async def test_validate_rabbit() -> None:
     from docs.docs_src.getting_started.subscription.rabbit.testing import (
         test_validation_error as test_validation_error_r,
     )
@@ -75,10 +75,10 @@ async def test_validate_rabbit():
     await test_validation_error_r()
 
 
-@pytest.mark.asyncio
-@pytest.mark.nats
+@pytest.mark.asyncio()
+@pytest.mark.nats()
 @require_nats
-async def test_handle_nats():
+async def test_handle_nats() -> None:
     from docs.docs_src.getting_started.subscription.nats.testing import (
         test_handle as test_handle_n,
     )
@@ -86,10 +86,10 @@ async def test_handle_nats():
     await test_handle_n()
 
 
-@pytest.mark.asyncio
-@pytest.mark.nats
+@pytest.mark.asyncio()
+@pytest.mark.nats()
 @require_nats
-async def test_validate_nats():
+async def test_validate_nats() -> None:
     from docs.docs_src.getting_started.subscription.nats.testing import (
         test_validation_error as test_validation_error_n,
     )
@@ -97,10 +97,10 @@ async def test_validate_nats():
     await test_validation_error_n()
 
 
-@pytest.mark.asyncio
-@pytest.mark.redis
+@pytest.mark.asyncio()
+@pytest.mark.redis()
 @require_redis
-async def test_handle_redis():
+async def test_handle_redis() -> None:
     from docs.docs_src.getting_started.subscription.redis.testing import (
         test_handle as test_handle_rd,
     )
@@ -108,10 +108,10 @@ async def test_handle_redis():
     await test_handle_rd()
 
 
-@pytest.mark.asyncio
-@pytest.mark.redis
+@pytest.mark.asyncio()
+@pytest.mark.redis()
 @require_redis
-async def test_validate_redis():
+async def test_validate_redis() -> None:
     from docs.docs_src.getting_started.subscription.redis.testing import (
         test_validation_error as test_validation_error_rd,
     )

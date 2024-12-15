@@ -11,20 +11,17 @@ from tests.brokers.kafka.test_consume import TestConsume
 from tests.brokers.kafka.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase
 
+from .basic import KafkaPrometheusSettings
 
-@pytest.mark.kafka
-class TestPrometheus(LocalPrometheusTestcase):
-    def get_broker(self, apply_types=False, **kwargs):
-        return KafkaBroker(apply_types=apply_types, **kwargs)
 
-    def get_middleware(self, **kwargs):
-        return KafkaPrometheusMiddleware(**kwargs)
-
+@pytest.mark.kafka()
+class TestPrometheus(KafkaPrometheusSettings, LocalPrometheusTestcase):
     async def test_metrics_batch(
         self,
-        event: asyncio.Event,
         queue: str,
     ):
+        event = asyncio.Event()
+
         middleware = self.get_middleware(registry=CollectorRegistry())
         metrics_manager_mock = Mock()
         middleware._metrics_manager = metrics_manager_mock
@@ -58,7 +55,7 @@ class TestPrometheus(LocalPrometheusTestcase):
         self.assert_publish_metrics(metrics_manager=metrics_manager_mock)
 
 
-@pytest.mark.kafka
+@pytest.mark.kafka()
 class TestPublishWithPrometheus(TestPublish):
     def get_broker(
         self,
@@ -72,7 +69,7 @@ class TestPublishWithPrometheus(TestPublish):
         )
 
 
-@pytest.mark.kafka
+@pytest.mark.kafka()
 class TestConsumeWithPrometheus(TestConsume):
     def get_broker(self, apply_types: bool = False, **kwargs):
         return KafkaBroker(

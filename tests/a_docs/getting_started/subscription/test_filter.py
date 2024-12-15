@@ -10,9 +10,9 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiokafka
-async def test_kafka_filtering():
+async def test_kafka_filtering() -> None:
     from docs.docs_src.getting_started.subscription.kafka.filter import (
         app,
         broker,
@@ -26,9 +26,9 @@ async def test_kafka_filtering():
         default_handler.mock.assert_called_once_with("Hello, FastStream!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_confluent
-async def test_confluent_filtering():
+async def test_confluent_filtering() -> None:
     from docs.docs_src.getting_started.subscription.confluent.filter import (
         app,
         broker,
@@ -42,9 +42,9 @@ async def test_confluent_filtering():
         default_handler.mock.assert_called_once_with("Hello, FastStream!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_aiopika
-async def test_rabbit_filtering():
+async def test_rabbit_filtering() -> None:
     from docs.docs_src.getting_started.subscription.rabbit.filter import (
         app,
         broker,
@@ -58,9 +58,9 @@ async def test_rabbit_filtering():
         default_handler.mock.assert_called_once_with("Hello, FastStream!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_nats
-async def test_nats_filtering():
+async def test_nats_filtering() -> None:
     from docs.docs_src.getting_started.subscription.nats.filter import (
         app,
         broker,
@@ -74,9 +74,9 @@ async def test_nats_filtering():
         default_handler.mock.assert_called_once_with("Hello, FastStream!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @require_redis
-async def test_redis_filtering():
+async def test_redis_filtering() -> None:
     from docs.docs_src.getting_started.subscription.redis.filter import (
         app,
         broker,

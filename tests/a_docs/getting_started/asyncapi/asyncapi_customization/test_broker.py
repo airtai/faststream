@@ -1,11 +1,10 @@
 from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_broker import (
-    app,
+    docs_obj,
 )
-from faststream.asyncapi.generate import get_app_schema
 
 
-def test_broker_customization():
-    schema = get_app_schema(app).to_jsonable()
+def test_broker_customization() -> None:
+    schema = docs_obj.to_jsonable()
 
     assert schema["servers"] == {
         "development": {
@@ -13,5 +12,5 @@ def test_broker_customization():
             "protocol": "kafka",
             "description": "Kafka broker running locally",
             "protocolVersion": "auto",
-        }
+        },
     }
