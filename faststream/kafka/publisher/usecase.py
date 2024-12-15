@@ -155,32 +155,32 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
 
     @overload
     async def publish(
-            self,
-            message: "SendableMessage",
-            topic: str = "",
-            *,
-            key: Union[bytes, Any, None] = None,
-            partition: Optional[int] = None,
-            timestamp_ms: Optional[int] = None,
-            headers: Optional[dict[str, str]] = None,
-            correlation_id: Optional[str] = None,
-            reply_to: str = "",
-            no_confirm: Literal[True] = False,
+        self,
+        message: "SendableMessage",
+        topic: str = "",
+        *,
+        key: Union[bytes, Any, None] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        reply_to: str = "",
+        no_confirm: Literal[True],
     ) -> "asyncio.Future[RecordMetadata]": ...
 
     @overload
     async def publish(
-            self,
-            message: "SendableMessage",
-            topic: str = "",
-            *,
-            key: Union[bytes, Any, None] = None,
-            partition: Optional[int] = None,
-            timestamp_ms: Optional[int] = None,
-            headers: Optional[dict[str, str]] = None,
-            correlation_id: Optional[str] = None,
-            reply_to: str = "",
-            no_confirm: Literal[False] = False,
+        self,
+        message: "SendableMessage",
+        topic: str = "",
+        *,
+        key: Union[bytes, Any, None] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        reply_to: str = "",
+        no_confirm: Literal[False] = False,
     ) -> "RecordMetadata": ...
 
     @override
@@ -197,7 +197,9 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         reply_to: str = "",
         no_confirm: bool = False,
     ) -> Union["asyncio.Future[RecordMetadata]", "RecordMetadata"]:
-        """Args:
+        """Publishes a message to Kafka.
+
+        Args:
             message:
                 Message body to send.
             topic:
@@ -336,31 +338,30 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
 
 
 class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
-
     @overload
     async def publish(
-            self,
-            *messages: "SendableMessage",
-            topic: str = "",
-            partition: Optional[int] = None,
-            timestamp_ms: Optional[int] = None,
-            headers: Optional[dict[str, str]] = None,
-            reply_to: str = "",
-            correlation_id: Optional[str] = None,
-            no_confirm: Literal[True] = False,
+        self,
+        *messages: "SendableMessage",
+        topic: str = "",
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        no_confirm: Literal[True],
     ) -> "asyncio.Future[RecordMetadata]": ...
 
     @overload
     async def publish(
-            self,
-            *messages: "SendableMessage",
-            topic: str = "",
-            partition: Optional[int] = None,
-            timestamp_ms: Optional[int] = None,
-            headers: Optional[dict[str, str]] = None,
-            reply_to: str = "",
-            correlation_id: Optional[str] = None,
-            no_confirm: Literal[False] = False,
+        self,
+        *messages: "SendableMessage",
+        topic: str = "",
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        no_confirm: Literal[False] = False,
     ) -> "RecordMetadata": ...
 
     @override
@@ -375,7 +376,9 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
         correlation_id: Optional[str] = None,
         no_confirm: bool = False,
     ) -> Union["asyncio.Future[RecordMetadata]", "RecordMetadata"]:
-        """Args:
+        """Publish a message batch as a single request to broker.
+
+        Args:
             *messages:
                 Messages bodies to send.
             topic:

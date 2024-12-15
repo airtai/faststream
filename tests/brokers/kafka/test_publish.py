@@ -151,7 +151,9 @@ class TestPublish(KafkaTestcaseConfig, BrokerPublishTestcase):
         async with self.patch_broker(pub_broker) as br:
             await br.start()
 
-            batch_record_metadata_future = await br.publish_batch(1, "hi", topic=queue, no_confirm=True)
+            batch_record_metadata_future = await br.publish_batch(
+                1, "hi", topic=queue, no_confirm=True
+            )
             record_metadata_future = await br.publish("", topic=queue, no_confirm=True)
             assert isinstance(batch_record_metadata_future, asyncio.Future)
             assert isinstance(record_metadata_future, asyncio.Future)

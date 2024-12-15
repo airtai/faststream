@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Any, Protocol, runtime_checkable
 
 from .schema import BaseApplicationSchema
@@ -5,7 +6,9 @@ from .schema import BaseApplicationSchema
 
 @runtime_checkable
 class Specification(Protocol):
-    schema: BaseApplicationSchema
+    @property
+    @abstractmethod
+    def schema(self) -> BaseApplicationSchema: ...
 
     def to_json(self) -> str:
         return self.schema.to_json()

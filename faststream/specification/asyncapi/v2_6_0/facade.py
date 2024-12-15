@@ -61,7 +61,7 @@ class AsyncAPI2(Specification):
         return self.schema.to_yaml()
 
     @property
-    def schema(self) -> ApplicationSchema:  # type: ignore[override]
+    def schema(self) -> ApplicationSchema:
         return get_app_schema(
             self.broker,
             title=self.title,

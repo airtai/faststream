@@ -667,49 +667,47 @@ class KafkaBroker(
 
     @overload
     async def publish(
-            self,
-            message: "SendableMessage",
-            topic: str = "",
-            *,
-            key: Union[bytes, Any, None] = None,
-            partition: Optional[int] = None,
-            timestamp_ms: Optional[int] = None,
-            headers: Optional[dict[str, str]] = None,
-            correlation_id: Optional[str] = None,
-            reply_to: str = "",
-            no_confirm: Literal[True] = False,
-    ) -> "asyncio.Future[RecordMetadata]":
-        ...
+        self,
+        message: "SendableMessage",
+        topic: str = "",
+        *,
+        key: Union[bytes, Any, None] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        reply_to: str = "",
+        no_confirm: Literal[True],
+    ) -> "asyncio.Future[RecordMetadata]": ...
 
     @overload
     async def publish(
-            self,
-            message: "SendableMessage",
-            topic: str = "",
-            *,
-            key: Union[bytes, Any, None] = None,
-            partition: Optional[int] = None,
-            timestamp_ms: Optional[int] = None,
-            headers: Optional[dict[str, str]] = None,
-            correlation_id: Optional[str] = None,
-            reply_to: str = "",
-            no_confirm: Literal[False] = False,
-    ) -> "RecordMetadata":
-        ...
+        self,
+        message: "SendableMessage",
+        topic: str = "",
+        *,
+        key: Union[bytes, Any, None] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        reply_to: str = "",
+        no_confirm: Literal[False] = False,
+    ) -> "RecordMetadata": ...
 
     @override
     async def publish(
-            self,
-            message: "SendableMessage",
-            topic: str = "",
-            *,
-            key: Union[bytes, Any, None] = None,
-            partition: Optional[int] = None,
-            timestamp_ms: Optional[int] = None,
-            headers: Optional[dict[str, str]] = None,
-            correlation_id: Optional[str] = None,
-            reply_to: str = "",
-            no_confirm: bool = False,
+        self,
+        message: "SendableMessage",
+        topic: str = "",
+        *,
+        key: Union[bytes, Any, None] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        reply_to: str = "",
+        no_confirm: bool = False,
     ) -> Union["asyncio.Future[RecordMetadata]", "RecordMetadata"]:
         """Publish message directly.
 
@@ -842,42 +840,44 @@ class KafkaBroker(
 
     @overload
     async def publish_batch(
-            self,
-            *messages: "SendableMessage",
-            topic: str = "",
-            partition: Optional[int] = None,
-            timestamp_ms: Optional[int] = None,
-            headers: Optional[dict[str, str]] = None,
-            reply_to: str = "",
-            correlation_id: Optional[str] = None,
-            no_confirm: Literal[True] = False,
+        self,
+        *messages: "SendableMessage",
+        topic: str = "",
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        no_confirm: Literal[True],
     ) -> "asyncio.Future[RecordMetadata]": ...
 
     @overload
     async def publish_batch(
-            self,
-            *messages: "SendableMessage",
-            topic: str = "",
-            partition: Optional[int] = None,
-            timestamp_ms: Optional[int] = None,
-            headers: Optional[dict[str, str]] = None,
-            reply_to: str = "",
-            correlation_id: Optional[str] = None,
-            no_confirm: Literal[False] = False,
+        self,
+        *messages: "SendableMessage",
+        topic: str = "",
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        no_confirm: Literal[False] = False,
     ) -> "RecordMetadata": ...
 
     async def publish_batch(
-            self,
-            *messages: "SendableMessage",
-            topic: str = "",
-            partition: Optional[int] = None,
-            timestamp_ms: Optional[int] = None,
-            headers: Optional[dict[str, str]] = None,
-            reply_to: str = "",
-            correlation_id: Optional[str] = None,
-            no_confirm: bool = False,
+        self,
+        *messages: "SendableMessage",
+        topic: str = "",
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        no_confirm: bool = False,
     ) -> Union["asyncio.Future[RecordMetadata]", "RecordMetadata"]:
-        """Args:
+        """Publish a message batch as a single request to broker.
+
+        Args:
             *messages:
                 Messages bodies to send.
             topic:

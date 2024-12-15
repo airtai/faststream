@@ -48,7 +48,7 @@ class AioKafkaFastProducer(ProducerProto):
         await self._producer.stop()
         self._producer = EmptyProducerState()
 
-    def __bool__(self) -> None:
+    def __bool__(self) -> bool:
         return bool(self._producer)
 
     @property
