@@ -1,9 +1,12 @@
 from collections.abc import Awaitable
 from typing import TYPE_CHECKING, Any, Callable, Generic, Optional
 
-from typing_extensions import Self
+from typing_extensions import (
+    Self,
+    TypeVar as TypeVar313,
+)
 
-from faststream._internal.types import PublishCommandType
+from faststream.response import PublishCommand
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -11,6 +14,13 @@ if TYPE_CHECKING:
     from faststream._internal.basic_types import AsyncFuncAny
     from faststream._internal.context.repository import ContextRepo
     from faststream.message import StreamMessage
+
+
+PublishCommandType = TypeVar313(
+    "PublishCommandType",
+    bound=PublishCommand,
+    default=PublishCommand,
+)
 
 
 class BaseMiddleware(Generic[PublishCommandType]):

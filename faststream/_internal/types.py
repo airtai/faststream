@@ -11,7 +11,6 @@ from typing import (
 from typing_extensions import (
     ParamSpec,
     TypeAlias,
-    TypeVar as TypeVar313,
 )
 
 from faststream._internal.basic_types import AsyncFuncAny
@@ -83,13 +82,6 @@ SubscriberMiddleware: TypeAlias = Callable[
     [AsyncFuncAny, MsgType],
     MsgType,
 ]
-
-
-PublishCommandType = TypeVar313(
-    "PublishCommandType",
-    bound=PublishCommand,
-    default=PublishCommand,
-)
 
 
 class PublisherMiddleware(Protocol):

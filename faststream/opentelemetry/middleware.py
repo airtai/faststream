@@ -10,8 +10,7 @@ from opentelemetry.semconv.trace import SpanAttributes
 from opentelemetry.trace import Link, Span
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
-from faststream._internal.types import PublishCommandType
-from faststream.middlewares.base import BaseMiddleware
+from faststream.middlewares.base import BaseMiddleware, PublishCommandType
 from faststream.opentelemetry.baggage import Baggage
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
