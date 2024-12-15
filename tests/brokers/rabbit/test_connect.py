@@ -15,7 +15,7 @@ class TestConnection(BrokerConnectionTestcase):
         return {"url": settings.url}
 
     @pytest.mark.asyncio
-    async def test_init_connect_by_raw_data(self, settings):
+    async def test_connect_handover_config_to_init(self, settings):
         broker = self.broker(
             host=settings.host,
             port=settings.port,
@@ -28,7 +28,7 @@ class TestConnection(BrokerConnectionTestcase):
         await broker.close()
 
     @pytest.mark.asyncio
-    async def test_connection_by_params(self, settings):
+    async def test_connect_handover_config_to_connect(self, settings):
         broker = self.broker()
         assert await broker.connect(
             host=settings.host,
@@ -41,20 +41,7 @@ class TestConnection(BrokerConnectionTestcase):
         await broker.close()
 
     @pytest.mark.asyncio
-    async def test_connect_merge_kwargs_with_priority(self, settings):
-        broker = self.broker(host="fake-host", port=5677)  # kwargs will be ignored
-        assert await broker.connect(
-            host=settings.host,
-            port=settings.port,
-            security=SASLPlaintext(
-                username=settings.login,
-                password=settings.password,
-            ),
-        )
-        await broker.close()
-
-    @pytest.mark.asyncio
-    async def test_connect_merge_args_and_kwargs_native(self, settings):
+    async def test_connect_handover_config_to_connect_override_init(self, settings):
         broker = self.broker("fake-url")  # will be ignored
         assert await broker.connect(url=settings.url)
         await broker.close()
