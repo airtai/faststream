@@ -4,16 +4,18 @@ from opentelemetry.semconv.trace import SpanAttributes
 
 from faststream.opentelemetry import TelemetrySettingsProvider
 from faststream.opentelemetry.consts import MESSAGING_DESTINATION_PUBLISH_NAME
+from faststream.rabbit.response import RabbitPublishCommand
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage
 
     from faststream._internal.basic_types import AnyDict
     from faststream.message import StreamMessage
-    from faststream.rabbit.response import RabbitPublishCommand
 
 
-class RabbitTelemetrySettingsProvider(TelemetrySettingsProvider["IncomingMessage"]):
+class RabbitTelemetrySettingsProvider(
+    TelemetrySettingsProvider["IncomingMessage", RabbitPublishCommand],
+):
     __slots__ = ("messaging_system",)
 
     def __init__(self) -> None:

@@ -1,10 +1,9 @@
 from collections.abc import Awaitable
 from typing import TYPE_CHECKING, Any, Callable, Generic, Optional
 
-# We should use typing_extensions.TypeVar until python3.13 due default
-from typing_extensions import Self, TypeVar
+from typing_extensions import Self
 
-from faststream.response.response import PublishCommand
+from faststream._internal.types import PublishCommandType
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -14,14 +13,7 @@ if TYPE_CHECKING:
     from faststream.message import StreamMessage
 
 
-PublishCommand_T = TypeVar(
-    "PublishCommand_T",
-    bound=PublishCommand,
-    default=PublishCommand,
-)
-
-
-class BaseMiddleware(Generic[PublishCommand_T]):
+class BaseMiddleware(Generic[PublishCommandType]):
     """A base middleware class."""
 
     def __init__(
@@ -92,8 +84,8 @@ class BaseMiddleware(Generic[PublishCommand_T]):
 
     async def on_publish(
         self,
-        msg: PublishCommand_T,
-    ) -> PublishCommand_T:
+        msg: PublishCommandType,
+    ) -> PublishCommandType:
         """This option was deprecated and will be removed in 0.6.10. Please, use `publish_scope` instead."""
         return msg
 
@@ -107,8 +99,8 @@ class BaseMiddleware(Generic[PublishCommand_T]):
 
     async def publish_scope(
         self,
-        call_next: Callable[[PublishCommand_T], Awaitable[Any]],
-        cmd: PublishCommand_T,
+        call_next: Callable[[PublishCommandType], Awaitable[Any]],
+        cmd: PublishCommandType,
     ) -> Any:
         """Publish a message and return an async iterator."""
         err: Optional[Exception] = None

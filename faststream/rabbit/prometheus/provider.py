@@ -4,15 +4,17 @@ from faststream.prometheus import (
     ConsumeAttrs,
     MetricsSettingsProvider,
 )
+from faststream.rabbit.response import RabbitPublishCommand
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage
 
     from faststream.message.message import StreamMessage
-    from faststream.rabbit.response import RabbitPublishCommand
 
 
-class RabbitMetricsSettingsProvider(MetricsSettingsProvider["IncomingMessage"]):
+class RabbitMetricsSettingsProvider(
+    MetricsSettingsProvider["IncomingMessage", RabbitPublishCommand],
+):
     __slots__ = ("messaging_system",)
 
     def __init__(self) -> None:
@@ -33,6 +35,6 @@ class RabbitMetricsSettingsProvider(MetricsSettingsProvider["IncomingMessage"]):
 
     def get_publish_destination_name_from_cmd(
         self,
-        cmd: "RabbitPublishCommand",
+        cmd: RabbitPublishCommand,
     ) -> str:
         return f"{cmd.exchange.name or 'default'}.{cmd.destination}"

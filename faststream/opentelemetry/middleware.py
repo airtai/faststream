@@ -10,7 +10,8 @@ from opentelemetry.semconv.trace import SpanAttributes
 from opentelemetry.trace import Link, Span
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
-from faststream.middlewares.base import BaseMiddleware, PublishCommand_T
+from faststream._internal.types import PublishCommandType
+from faststream.middlewares.base import BaseMiddleware
 from faststream.opentelemetry.baggage import Baggage
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
@@ -32,14 +33,13 @@ if TYPE_CHECKING:
     from faststream._internal.context.repository import ContextRepo
     from faststream.message import StreamMessage
     from faststream.opentelemetry.provider import TelemetrySettingsProvider
-    from faststream.response.response import PublishCommand
 
 
 _BAGGAGE_PROPAGATOR = W3CBaggagePropagator()
 _TRACE_PROPAGATOR = TraceContextTextMapPropagator()
 
 
-class TelemetryMiddleware(Generic[PublishCommand_T]):
+class TelemetryMiddleware(Generic[PublishCommandType]):
     __slots__ = (
         "_meter",
         "_metrics",
@@ -52,7 +52,7 @@ class TelemetryMiddleware(Generic[PublishCommand_T]):
         *,
         settings_provider_factory: Callable[
             [Any],
-            Optional["TelemetrySettingsProvider[Any]"],
+            Optional["TelemetrySettingsProvider[Any, PublishCommandType]"],
         ],
         tracer_provider: Optional["TracerProvider"] = None,
         meter_provider: Optional["MeterProvider"] = None,
@@ -70,8 +70,8 @@ class TelemetryMiddleware(Generic[PublishCommand_T]):
         /,
         *,
         context: "ContextRepo",
-    ) -> "BaseTelemetryMiddleware[PublishCommand_T]":
-        return BaseTelemetryMiddleware[PublishCommand_T](
+    ) -> "BaseTelemetryMiddleware[PublishCommandType]":
+        return BaseTelemetryMiddleware[PublishCommandType](
             msg,
             tracer=self._tracer,
             metrics_container=self._metrics,
@@ -152,7 +152,7 @@ class _MetricsContainer:
             )
 
 
-class BaseTelemetryMiddleware(BaseMiddleware[PublishCommand_T]):
+class BaseTelemetryMiddleware(BaseMiddleware[PublishCommandType]):
     def __init__(
         self,
         msg: Optional[Any],
@@ -161,7 +161,7 @@ class BaseTelemetryMiddleware(BaseMiddleware[PublishCommand_T]):
         tracer: "Tracer",
         settings_provider_factory: Callable[
             [Any],
-            Optional["TelemetrySettingsProvider[Any]"],
+            Optional["TelemetrySettingsProvider[Any, PublishCommandType]"],
         ],
         metrics_container: _MetricsContainer,
         context: "ContextRepo",
@@ -178,7 +178,7 @@ class BaseTelemetryMiddleware(BaseMiddleware[PublishCommand_T]):
     async def publish_scope(
         self,
         call_next: "AsyncFunc",
-        msg: "PublishCommand",
+        msg: "PublishCommandType",
     ) -> Any:
         if (provider := self.__settings_provider) is None:
             return await call_next(msg)

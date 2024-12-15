@@ -8,7 +8,11 @@ from typing import (
     Union,
 )
 
-from typing_extensions import ParamSpec, TypeAlias
+from typing_extensions import (
+    ParamSpec,
+    TypeAlias,
+    TypeVar as TypeVar313,
+)
 
 from faststream._internal.basic_types import AsyncFuncAny
 from faststream._internal.context.repository import ContextRepo
@@ -20,7 +24,6 @@ MsgType = TypeVar("MsgType")
 Msg_contra = TypeVar("Msg_contra", contravariant=True)
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
 ConnectionType = TypeVar("ConnectionType")
-
 
 SyncFilter: TypeAlias = Callable[[StreamMsg], bool]
 AsyncFilter: TypeAlias = Callable[[StreamMsg], Awaitable[bool]]
@@ -80,6 +83,13 @@ SubscriberMiddleware: TypeAlias = Callable[
     [AsyncFuncAny, MsgType],
     MsgType,
 ]
+
+
+PublishCommandType = TypeVar313(
+    "PublishCommandType",
+    bound=PublishCommand,
+    default=PublishCommand,
+)
 
 
 class PublisherMiddleware(Protocol):
