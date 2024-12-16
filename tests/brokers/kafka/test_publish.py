@@ -5,6 +5,7 @@ import pytest
 
 from faststream import Context
 from faststream.kafka import KafkaBroker, KafkaResponse
+from faststream.kafka.exceptions import BatchBufferOverflowException
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 
@@ -133,3 +134,19 @@ class TestPublish(BrokerPublishTestcase):
             body=b"1",
             key=b"1",
         )
+
+    @pytest.mark.asyncio
+    async def test_raise_buffer_overflow_exception(
+        self, queue: str, mock: Mock
+    ) -> None:
+        pub_broker = self.get_broker(max_batch_size=16)
+
+        @pub_broker.subscriber(queue)
+        async def handler(m) -> None:
+            pass
+
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
+            with pytest.raises(BatchBufferOverflowException) as e:
+                await br.publish_batch(1, "Hello, world!", topic=queue, no_confirm=True)
+            assert e.value.message_position == 1
