@@ -101,7 +101,7 @@ class AioKafkaFastProducer(ProducerProto):
                 reply_to,
             )
 
-        for message_position, msg in msgs:
+        for message_position, msg in enumerate(msgs):
             message, content_type = encode_message(msg)
 
             if content_type:
