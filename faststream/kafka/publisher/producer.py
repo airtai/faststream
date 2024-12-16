@@ -5,12 +5,12 @@ from typing_extensions import override
 from faststream._internal.publisher.proto import ProducerProto
 from faststream._internal.subscriber.utils import resolve_custom_func
 from faststream.exceptions import FeatureNotSupportedException
+from faststream.kafka.exceptions import BatchBufferOverflowException
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
 from faststream.message import encode_message
 
 from .state import EmptyProducerState, ProducerState, RealProducer
-
 if TYPE_CHECKING:
     import asyncio
 
@@ -90,7 +90,7 @@ class AioKafkaFastProducer(ProducerProto):
 
         headers_to_send = cmd.headers_to_publish()
 
-        for body in cmd.batch_bodies:
+        for message_position, body in enumerate(cmd.batch_bodies):
             message, content_type = encode_message(body)
 
             if content_type:
@@ -101,12 +101,14 @@ class AioKafkaFastProducer(ProducerProto):
             else:
                 final_headers = headers_to_send.copy()
 
-            batch.append(
+            metadata = batch.append(
                 key=None,
                 value=message,
                 timestamp=cmd.timestamp_ms,
                 headers=[(i, j.encode()) for i, j in final_headers.items()],
             )
+            if metadata is None:
+                raise BatchBufferOverflowException(message_position=message_position)
 
         send_future = await self._producer.producer.send_batch(
             batch,
