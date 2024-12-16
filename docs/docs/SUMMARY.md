@@ -618,6 +618,8 @@ search:
                         - [KafkaLoggingBroker](api/faststream/kafka/broker/logging/KafkaLoggingBroker.md)
                     - registrator
                         - [KafkaRegistrator](api/faststream/kafka/broker/registrator/KafkaRegistrator.md)
+                - exceptions
+                    - [BatchBufferOverflowException](api/faststream/kafka/exceptions/BatchBufferOverflowException.md)
                 - fastapi
                     - [Context](api/faststream/kafka/fastapi/Context.md)
                     - [KafkaRouter](api/faststream/kafka/fastapi/KafkaRouter.md)
