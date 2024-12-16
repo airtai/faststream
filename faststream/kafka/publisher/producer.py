@@ -90,9 +90,8 @@ class AioKafkaFastProducer(ProducerProto):
 
         headers_to_send = cmd.headers_to_publish()
 
-        for body in enumerate(cmd.batch_bodies):
-            message_position = body[0]
-            message, content_type = encode_message(body[1])
+        for message_position, body in enumerate(cmd.batch_bodies):
+            message, content_type = encode_message(body)
 
             if content_type:
                 final_headers = {
