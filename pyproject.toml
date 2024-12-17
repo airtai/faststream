@@ -89,7 +89,7 @@ prometheus = ["prometheus-client>=0.20.0,<0.30.0"]
 optionals = ["faststream[rabbit,kafka,confluent,nats,redis,otel,cli,prometheus]"]
 
 devdocs = [
-    "mkdocs-material==9.5.48",
+    "mkdocs-material==9.5.49",
     "mkdocs-static-i18n==1.2.3",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.27.0",
@@ -121,17 +121,17 @@ types = [
 
 lint = [
     "faststream[types]",
-    "ruff==0.8.2",
+    "ruff==0.8.3",
     "bandit==1.8.0",
-    "semgrep==1.99.0",
+    "semgrep==1.100.0",
     "codespell==2.3.0",
 ]
 
 test-core = [
-    "coverage[toml]==7.6.1; python_version == '3.8'",
+    "coverage[toml]==7.6.9; python_version == '3.8'",
     "coverage[toml]==7.6.9; python_version >= '3.9'",
     "pytest==8.3.4",
-    "pytest-asyncio==0.24.0",
+    "pytest-asyncio==0.25.0",
     "dirty-equals==0.8.0",
     "typing-extensions>=4.8.0,<4.12.1; python_version < '3.9'",  # to fix dirty-equals
 ]
