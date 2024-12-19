@@ -1,4 +1,3 @@
-import asyncio
 import math
 from abc import abstractmethod
 from contextlib import suppress
@@ -23,6 +22,7 @@ from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
 from faststream.broker.publisher.fake import FakePublisher
+from faststream.broker.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.utils import process_msg
 from faststream.redis.message import (
@@ -62,7 +62,7 @@ TopicName: TypeAlias = bytes
 Offset: TypeAlias = bytes
 
 
-class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
+class LogicSubscriber(TasksMixin, SubscriberUsecase[UnifyRedisDict]):
     """A class to represent a Redis handler."""
 
     _client: Optional["Redis[bytes]"]
@@ -99,7 +99,6 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         )
 
         self._client = None
-        self.task: Optional[asyncio.Task[None]] = None
 
     @override
     def setup(  # type: ignore[override]
@@ -156,15 +155,13 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         self,
         *args: Any,
     ) -> None:
-        if self.task:
-            return
 
         await super().start()
 
         start_signal = anyio.Event()
 
         if self.calls:
-            self.task = asyncio.create_task(
+            self.add_task(
                 self._consume(*args, start_signal=start_signal)
             )
 
@@ -202,9 +199,6 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
     async def close(self) -> None:
         await super().close()
 
-        if self.task is not None and not self.task.done():
-            self.task.cancel()
-        self.task = None
 
     @staticmethod
     def build_log_context(
@@ -215,6 +209,9 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
             "channel": channel,
             "message_id": getattr(message, "message_id", ""),
         }
+
+    async def consume_one(self, msg: "BrokerStreamMessage") -> None:
+        await self.consume(msg)
 
 
 class ChannelSubscriber(LogicSubscriber):
@@ -335,7 +332,7 @@ class ChannelSubscriber(LogicSubscriber):
 
     async def _get_msgs(self, psub: RPubSub) -> None:
         if msg := await self._get_message(psub):
-            await self.consume(msg)  # type: ignore[arg-type]
+            await self.consume_one(msg)  # type: ignore[arg-type]
 
     def add_prefix(self, prefix: str) -> None:
         new_ch = deepcopy(self.channel)
@@ -493,7 +490,7 @@ class ListSubscriber(_ListHandlerMixin):
                 channel=self.list_sub.name,
             )
 
-            await self.consume(msg)  # type: ignore[arg-type]
+            await self.consume_one(msg)  # type: ignore[arg-type]
 
         else:
             await anyio.sleep(self.list_sub.polling_interval)
@@ -545,7 +542,7 @@ class BatchListSubscriber(_ListHandlerMixin):
                 data=raw_msgs,
             )
 
-            await self.consume(msg)  # type: ignore[arg-type]
+            await self.consume_one(msg)  # type: ignore[arg-type]
 
         else:
             await anyio.sleep(self.list_sub.polling_interval)
@@ -808,7 +805,7 @@ class StreamSubscriber(_StreamHandlerMixin):
                         data=raw_msg,
                     )
 
-                    await self.consume(msg)  # type: ignore[arg-type]
+                    await self.consume_one(msg)  # type: ignore[arg-type]
 
 
 class BatchStreamSubscriber(_StreamHandlerMixin):
@@ -870,4 +867,172 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
                     message_ids=ids,
                 )
 
-                await self.consume(msg)  # type: ignore[arg-type]
+                await self.consume_one(msg)  # type: ignore[arg-type]
+
+
+class ConcurrentSubscriber(ConcurrentMixin["BrokerStreamMessage"], LogicSubscriber):
+    def __init__(
+        self,
+        *,
+        default_parser: "AsyncCallable",
+        default_decoder: "AsyncCallable",
+        # Subscriber args
+        max_workers: int,
+        no_ack: bool,
+        no_reply: bool,
+        retry: bool,
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            max_workers=max_workers,
+            default_parser=default_parser,
+            default_decoder=default_decoder,
+            # Propagated options
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+        self._client = None
+
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "BrokerStreamMessage") -> None:
+        await self._put_msg(msg)
+
+
+class ConcurrentListSubscriber(ConcurrentMixin["BrokerStreamMessage"], ListSubscriber):
+    def __init__(
+        self,
+        *,
+        list: ListSub,
+        # Subscriber args
+        no_ack: bool,
+        no_reply: bool,
+        retry: bool,
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        max_workers: int,
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        parser = RedisListParser()
+        super().__init__(
+            list=list,
+            default_parser=parser.parse_message,
+            default_decoder=parser.decode_message,
+            # Propagated options
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            max_workers=max_workers,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "BrokerStreamMessage") -> None:
+        await self._put_msg(msg)
+
+
+class ConcurrentStreamSubscriber(ConcurrentMixin["BrokerStreamMessage"], StreamSubscriber):
+    def __init__(
+        self,
+        *,
+        stream: StreamSub,
+        # Subscriber args
+        no_ack: bool,
+        no_reply: bool,
+        retry: bool,
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        max_workers: int,
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            stream=stream,
+            # Propagated options
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            max_workers=max_workers,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "BrokerStreamMessage") -> None:
+        await self._put_msg(msg)
+
+
+class ConcurrentChannelSubscriber(ConcurrentMixin["BrokerStreamMessage"], ChannelSubscriber):
+    def __init__(
+        self,
+        *,
+        channel: "PubSub",
+        # Subscriber args
+        no_ack: bool,
+        no_reply: bool,
+        retry: bool,
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+        max_workers: int
+    ) -> None:
+        super().__init__(
+            # Propagated options
+            channel=channel,
+            no_ack=no_ack,
+            no_reply=no_reply,
+            max_workers=max_workers,
+            retry=retry,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "BrokerStreamMessage") -> None:
+        await self._put_msg(msg)

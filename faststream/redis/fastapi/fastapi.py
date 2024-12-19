@@ -33,7 +33,10 @@ from faststream.redis.broker.broker import RedisBroker as RB
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.redis.subscriber.asyncapi import (
+    AsyncAPIConcurrentSubscriber,
+    AsyncAPISubscriber,
+)
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -631,11 +634,16 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 """
             ),
         ] = False,
-    ) -> AsyncAPISubscriber:
-        return cast(
-            AsyncAPISubscriber,
-            super().subscriber(
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
+    ) -> Union[AsyncAPISubscriber, AsyncAPIConcurrentSubscriber]:
+
+
+        subscriber = super().subscriber(
                 channel=channel,
+                max_workers=max_workers,
                 list=list,
                 stream=stream,
                 dependencies=dependencies,
@@ -657,8 +665,13 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 response_model_exclude_unset=response_model_exclude_unset,
                 response_model_exclude_defaults=response_model_exclude_defaults,
                 response_model_exclude_none=response_model_exclude_none,
-            ),
         )
+
+        if max_workers > 1:
+            return cast("AsyncAPIConcurrentSubscriber", subscriber)
+        else:
+            return cast("AsyncAPISubscriber", subscriber)
+
 
     @override
     def publisher(

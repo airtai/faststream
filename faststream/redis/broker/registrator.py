@@ -6,7 +6,10 @@ from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
-from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.redis.subscriber.asyncapi import (
+    AsyncAPIConcurrentSubscriber,
+    AsyncAPISubscriber,
+)
 from faststream.redis.subscriber.factory import SubsciberType, create_subscriber
 
 if TYPE_CHECKING:
@@ -106,27 +109,35 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPISubscriber:
-        subscriber = cast(
-            AsyncAPISubscriber,
-            super().subscriber(
-                create_subscriber(
-                    channel=channel,
-                    list=list,
-                    stream=stream,
-                    # subscriber args
-                    no_ack=no_ack,
-                    no_reply=no_reply,
-                    retry=retry,
-                    broker_middlewares=self._middlewares,
-                    broker_dependencies=self._dependencies,
-                    # AsyncAPI
-                    title_=title,
-                    description_=description,
-                    include_in_schema=self._solve_include_in_schema(include_in_schema),
-                )
-            ),
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
+    ) -> Union[AsyncAPISubscriber, AsyncAPIConcurrentSubscriber]:
+
+        subscriber = create_subscriber(
+            channel=channel,
+            list=list,
+            stream=stream,
+            # subscriber args
+            max_workers=max_workers,
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_middlewares=self._middlewares,
+            broker_dependencies=self._dependencies,
+            # AsyncAPI
+            title_=title,
+            description_=description,
+            include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
+
+        if max_workers > 1:
+            subscriber = cast("AsyncAPIConcurrentSubscriber", subscriber)
+        else:
+            subscriber = cast("AsyncAPISubscriber", subscriber)
+
+        subscriber = super().subscriber(subscriber) # type: ignore[assignment]
 
         return subscriber.add_call(
             filter_=filter,

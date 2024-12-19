@@ -92,6 +92,40 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         mock.assert_called_once_with("hello")
 
+    async def test_concurrent_consume_channel(self, queue: str, mock: MagicMock):
+        event = asyncio.Event()
+        event2 = asyncio.Event()
+
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(channel=PubSub(queue), max_workers=2)
+        async def handler(msg):
+            mock()
+            if event.is_set():
+                event2.set()
+            else:
+                event.set()
+            await asyncio.sleep(0.1)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            for i in range(5):
+                await br.publish(i, queue)
+
+        await asyncio.wait(
+            (
+                asyncio.create_task(event.wait()),
+                asyncio.create_task(event2.wait()),
+            ),
+            timeout=3,
+        )
+
+        assert event.is_set()
+        assert event2.is_set()
+        assert mock.call_count == 2, mock.call_count
+
+
 
 @pytest.mark.redis
 @pytest.mark.asyncio
@@ -355,6 +389,39 @@ class TestConsumeList:
 
             mock(await subscriber.get_one(timeout=1e-24))
             mock.assert_called_once_with(None)
+    
+    async def test_concurrent_consume_list(self, queue: str, mock: MagicMock):
+        event = asyncio.Event()
+        event2 = asyncio.Event()
+
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(list=ListSub(queue), max_workers=2)
+        async def handler(msg):
+            mock()
+            if event.is_set():
+                event2.set()
+            else:
+                event.set()
+            await asyncio.sleep(0.1)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            for i in range(5):
+                await br.publish(i, queue)
+
+        await asyncio.wait(
+            (
+                asyncio.create_task(event.wait()),
+                asyncio.create_task(event2.wait()),
+            ),
+            timeout=3,
+        )
+
+        assert event.is_set()
+        assert event2.is_set()
+        assert mock.call_count == 2, mock.call_count
 
 
 @pytest.mark.redis
@@ -682,3 +749,36 @@ class TestConsumeStream:
 
             mock(await subscriber.get_one(timeout=1e-24))
             mock.assert_called_once_with(None)
+
+    async def test_concurrent_consume_stream(self, queue: str, mock: MagicMock):
+        event = asyncio.Event()
+        event2 = asyncio.Event()
+
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(stream=StreamSub(queue), max_workers=2)
+        async def handler(msg):
+            mock()
+            if event.is_set():
+                event2.set()
+            else:
+                event.set()
+            await asyncio.sleep(0.1)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+
+            for i in range(5):
+                await br.publish(i, queue)
+
+        await asyncio.wait(
+            (
+                asyncio.create_task(event.wait()),
+                asyncio.create_task(event2.wait()),
+            ),
+            timeout=3,
+        )
+
+        assert event.is_set()
+        assert event2.is_set()
+        assert mock.call_count == 2, mock.call_count

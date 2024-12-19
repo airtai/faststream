@@ -15,6 +15,10 @@ from faststream.redis.subscriber.usecase import (
     BatchListSubscriber,
     BatchStreamSubscriber,
     ChannelSubscriber,
+    ConcurrentChannelSubscriber,
+    ConcurrentListSubscriber,
+    ConcurrentStreamSubscriber,
+    ConcurrentSubscriber,
     ListSubscriber,
     LogicSubscriber,
     StreamSubscriber,
@@ -102,3 +106,16 @@ class AsyncAPIListSubscriber(ListSubscriber, _ListSubscriberMixin):
 
 class AsyncAPIListBatchSubscriber(BatchListSubscriber, _ListSubscriberMixin):
     pass
+
+class AsyncAPIConcurrentSubscriber(ConcurrentSubscriber, RedisAsyncAPIProtocol):
+    pass
+
+class AsyncAPIStreamConcurrentSubscriber(ConcurrentStreamSubscriber, RedisAsyncAPIProtocol):
+    pass
+
+class AsyncAPIChannelConcurrentSubscriber(ConcurrentChannelSubscriber, RedisAsyncAPIProtocol):
+    pass
+
+class AsyncAPIListConcurrentSubscriber(ConcurrentListSubscriber, RedisAsyncAPIProtocol):
+    pass
+
