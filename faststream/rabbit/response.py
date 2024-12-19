@@ -75,7 +75,7 @@ class RabbitPublishCommand(PublishCommand):
         **message_options: Unpack["MessageOptions"],
     ) -> None:
         headers = message_options.pop("headers", {})
-        reply_to = message_options.pop("reply_to") or ""
+        reply_to = message_options.pop("reply_to", None) or ""
         correlation_id = message_options.pop("correlation_id", None)
 
         super().__init__(
