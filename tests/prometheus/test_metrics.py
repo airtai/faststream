@@ -1,5 +1,5 @@
 import random
-from typing import Optional, Any
+from typing import Any, Optional
 
 import pytest
 from prometheus_client import CollectorRegistry
@@ -7,11 +7,17 @@ from prometheus_client import CollectorRegistry
 from faststream.prometheus.container import MetricsContainer
 from faststream.prometheus.manager import MetricsManager
 from faststream.prometheus.types import ProcessingStatus, PublishingStatus
-from tests.prometheus.utils import get_received_messages_metric, get_received_messages_size_bytes_metric, \
-    get_received_messages_in_process_metric, get_received_processed_messages_metric, \
-    get_received_processed_messages_duration_seconds_metric, get_received_processed_messages_exceptions_metric, \
-    get_published_messages_metric, get_published_messages_duration_seconds_metric, \
-    get_published_messages_exceptions_metric
+from tests.prometheus.utils import (
+    get_published_messages_duration_seconds_metric,
+    get_published_messages_exceptions_metric,
+    get_published_messages_metric,
+    get_received_messages_in_process_metric,
+    get_received_messages_metric,
+    get_received_messages_size_bytes_metric,
+    get_received_processed_messages_duration_seconds_metric,
+    get_received_processed_messages_exceptions_metric,
+    get_received_processed_messages_metric,
+)
 
 
 class TestCaseMetrics:
@@ -178,7 +184,7 @@ class TestCaseMetrics:
             app_name=app_name,
             broker=broker,
             queue=queue,
-            messages_amount=messages_amount-1,
+            messages_amount=messages_amount - 1,
         )
 
         manager.add_received_message_in_process(

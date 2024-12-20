@@ -1,4 +1,5 @@
-from typing import Sequence, cast
+from collections.abc import Sequence
+from typing import cast
 
 from dirty_equals import IsPositiveFloat, IsStr
 from prometheus_client import Histogram, Metric
@@ -8,12 +9,12 @@ from faststream.prometheus.types import ProcessingStatus, PublishingStatus
 
 
 def get_received_messages_metric(
-        *,
-        metrics_prefix: str,
-        app_name: str,
-        broker: str,
-        queue: str,
-        messages_amount: int,
+    *,
+    metrics_prefix: str,
+    app_name: str,
+    broker: str,
+    queue: str,
+    messages_amount: int,
 ) -> Metric:
     metric = Metric(
         name=f"{metrics_prefix}_received_messages",
@@ -51,11 +52,11 @@ def get_received_messages_size_bytes_metric(
     size: int,
 ) -> Metric:
     metric = Metric(
-            name=f"{metrics_prefix}_received_messages_size_bytes",
-            documentation="Histogram of received messages size in bytes by broker and handler",
-            unit="",
-            typ="histogram",
-        )
+        name=f"{metrics_prefix}_received_messages_size_bytes",
+        documentation="Histogram of received messages size in bytes by broker and handler",
+        unit="",
+        typ="histogram",
+    )
     metric.samples = [
         *[
             Sample(
@@ -99,12 +100,12 @@ def get_received_messages_size_bytes_metric(
 
 
 def get_received_messages_in_process_metric(
-        *,
-        metrics_prefix: str,
-        app_name: str,
-        broker: str,
-        queue: str,
-        messages_amount: int,
+    *,
+    metrics_prefix: str,
+    app_name: str,
+    broker: str,
+    queue: str,
+    messages_amount: int,
 ) -> Metric:
     metric = Metric(
         name=f"{metrics_prefix}_received_messages_in_process",
