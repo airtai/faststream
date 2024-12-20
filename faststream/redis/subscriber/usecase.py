@@ -155,15 +155,12 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[UnifyRedisDict]):
         self,
         *args: Any,
     ) -> None:
-
         await super().start()
 
         start_signal = anyio.Event()
 
         if self.calls:
-            self.add_task(
-                self._consume(*args, start_signal=start_signal)
-            )
+            self.add_task(self._consume(*args, start_signal=start_signal))
 
             with anyio.fail_after(3.0):
                 await start_signal.wait()
@@ -198,7 +195,6 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[UnifyRedisDict]):
 
     async def close(self) -> None:
         await super().close()
-
 
     @staticmethod
     def build_log_context(
@@ -595,7 +591,6 @@ class _StreamHandlerMixin(LogicSubscriber):
 
     @override
     async def start(self) -> None:
-
         assert self._client, "You should setup subscriber at first."  # nosec B101
 
         client = self._client
@@ -949,7 +944,9 @@ class ConcurrentListSubscriber(ConcurrentMixin["BrokerStreamMessage"], ListSubsc
         await self._put_msg(msg)
 
 
-class ConcurrentStreamSubscriber(ConcurrentMixin["BrokerStreamMessage"], StreamSubscriber):
+class ConcurrentStreamSubscriber(
+    ConcurrentMixin["BrokerStreamMessage"], StreamSubscriber
+):
     def __init__(
         self,
         *,
@@ -989,7 +986,9 @@ class ConcurrentStreamSubscriber(ConcurrentMixin["BrokerStreamMessage"], StreamS
         await self._put_msg(msg)
 
 
-class ConcurrentChannelSubscriber(ConcurrentMixin["BrokerStreamMessage"], ChannelSubscriber):
+class ConcurrentChannelSubscriber(
+    ConcurrentMixin["BrokerStreamMessage"], ChannelSubscriber
+):
     def __init__(
         self,
         *,
@@ -1004,7 +1003,7 @@ class ConcurrentChannelSubscriber(ConcurrentMixin["BrokerStreamMessage"], Channe
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-        max_workers: int
+        max_workers: int,
     ) -> None:
         super().__init__(
             # Propagated options
@@ -1020,7 +1019,6 @@ class ConcurrentChannelSubscriber(ConcurrentMixin["BrokerStreamMessage"], Channe
             description_=description_,
             include_in_schema=include_in_schema,
         )
-
 
     async def start(self) -> None:
         await super().start()

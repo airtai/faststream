@@ -126,7 +126,6 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert mock.call_count == 2, mock.call_count
 
 
-
 @pytest.mark.redis
 @pytest.mark.asyncio
 class TestConsumeList:

@@ -639,39 +639,36 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Doc("Number of workers to process messages concurrently."),
         ] = 1,
     ) -> Union[AsyncAPISubscriber, AsyncAPIConcurrentSubscriber]:
-
-
         subscriber = super().subscriber(
-                channel=channel,
-                max_workers=max_workers,
-                list=list,
-                stream=stream,
-                dependencies=dependencies,
-                parser=parser,
-                decoder=decoder,
-                middlewares=middlewares,
-                filter=filter,
-                retry=retry,
-                no_ack=no_ack,
-                no_reply=no_reply,
-                title=title,
-                description=description,
-                include_in_schema=include_in_schema,
-                # FastAPI args
-                response_model=response_model,
-                response_model_include=response_model_include,
-                response_model_exclude=response_model_exclude,
-                response_model_by_alias=response_model_by_alias,
-                response_model_exclude_unset=response_model_exclude_unset,
-                response_model_exclude_defaults=response_model_exclude_defaults,
-                response_model_exclude_none=response_model_exclude_none,
+            channel=channel,
+            max_workers=max_workers,
+            list=list,
+            stream=stream,
+            dependencies=dependencies,
+            parser=parser,
+            decoder=decoder,
+            middlewares=middlewares,
+            filter=filter,
+            retry=retry,
+            no_ack=no_ack,
+            no_reply=no_reply,
+            title=title,
+            description=description,
+            include_in_schema=include_in_schema,
+            # FastAPI args
+            response_model=response_model,
+            response_model_include=response_model_include,
+            response_model_exclude=response_model_exclude,
+            response_model_by_alias=response_model_by_alias,
+            response_model_exclude_unset=response_model_exclude_unset,
+            response_model_exclude_defaults=response_model_exclude_defaults,
+            response_model_exclude_none=response_model_exclude_none,
         )
 
         if max_workers > 1:
             return cast("AsyncAPIConcurrentSubscriber", subscriber)
         else:
             return cast("AsyncAPISubscriber", subscriber)
-
 
     @override
     def publisher(

@@ -114,7 +114,6 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             Doc("Number of workers to process messages concurrently."),
         ] = 1,
     ) -> Union[AsyncAPISubscriber, AsyncAPIConcurrentSubscriber]:
-
         subscriber = create_subscriber(
             channel=channel,
             list=list,
@@ -137,7 +136,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         # else:
         subscriber = cast("AsyncAPISubscriber", subscriber)
 
-        subscriber = super().subscriber(subscriber) # type: ignore[assignment]
+        subscriber = super().subscriber(subscriber)  # type: ignore[assignment]
 
         return subscriber.add_call(
             filter_=filter,

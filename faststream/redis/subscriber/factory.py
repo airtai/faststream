@@ -30,7 +30,7 @@ SubsciberType: TypeAlias = Union[
     "AsyncAPIListSubscriber",
     "AsyncAPIChannelConcurrentSubscriber",
     "AsyncAPIListConcurrentSubscriber",
-    "AsyncAPIStreamConcurrentSubscriber"
+    "AsyncAPIStreamConcurrentSubscriber",
 ]
 
 
