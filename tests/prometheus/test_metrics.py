@@ -129,6 +129,7 @@ class TestCaseMetrics:
             queue=queue,
             buckets=buckets,
             size=size,
+            messages_amount=1,
         )
 
         manager.observe_received_messages_size(size=size, broker=broker, handler=queue)
