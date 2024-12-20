@@ -72,7 +72,7 @@ class LogicPublisher(PublisherUsecase[IncomingMessage]):
 
         request_options = dict(message_kwargs)
         self.headers = request_options.pop("headers") or {}
-        self.reply_to = request_options.pop("reply_to", "")
+        self.reply_to = request_options.pop("reply_to", None) or ""
         self.timeout = request_options.pop("timeout", None)
 
         message_options, _ = filter_by_dict(MessageOptions, request_options)
