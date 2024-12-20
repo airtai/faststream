@@ -22,12 +22,15 @@ class ChannelBinding(BaseModel):
     bindingVersion: str = "custom"
 
     @classmethod
-    def from_spec(cls, binding: sqs.ChannelBinding) -> Self:
+    def from_pub(cls, binding: sqs.ChannelBinding) -> Self:
         return cls(
             queue=binding.queue,
             bindingVersion=binding.bindingVersion,
         )
 
-
-def from_spec(binding: sqs.ChannelBinding) -> ChannelBinding:
-    return ChannelBinding.from_spec(binding)
+    @classmethod
+    def from_sub(cls, binding: sqs.ChannelBinding) -> Self:
+        return cls(
+            queue=binding.queue,
+            bindingVersion=binding.bindingVersion,
+        )

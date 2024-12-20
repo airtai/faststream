@@ -37,4 +37,4 @@ class BaseRMQInformation:
         self.virtual_host = virtual_host
 
         # Setup next parent class
-        super()._setup(**kwargs)
+        super()._setup(**kwargs)  # type: ignore[misc]

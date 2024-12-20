@@ -8,7 +8,10 @@ from typing import (
     Union,
 )
 
-from typing_extensions import ParamSpec, TypeAlias
+from typing_extensions import (
+    ParamSpec,
+    TypeAlias,
+)
 
 from faststream._internal.basic_types import AsyncFuncAny
 from faststream._internal.context.repository import ContextRepo
@@ -20,7 +23,6 @@ MsgType = TypeVar("MsgType")
 Msg_contra = TypeVar("Msg_contra", contravariant=True)
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
 ConnectionType = TypeVar("ConnectionType")
-
 
 SyncFilter: TypeAlias = Callable[[StreamMsg], bool]
 AsyncFilter: TypeAlias = Callable[[StreamMsg], Awaitable[bool]]

@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import TYPE_CHECKING, Protocol
 
 from faststream.exceptions import IncorrectState
@@ -8,7 +9,10 @@ if TYPE_CHECKING:
 
 class ProducerState(Protocol):
     producer: "AIOKafkaProducer"
-    closed: bool
+
+    @property
+    @abstractmethod
+    def closed(self) -> bool: ...
 
     def __bool__(self) -> bool: ...
 

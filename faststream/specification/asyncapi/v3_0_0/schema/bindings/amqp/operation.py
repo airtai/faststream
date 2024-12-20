@@ -5,16 +5,20 @@ References: https://github.com/asyncapi/bindings/tree/master/amqp
 
 from typing import Optional
 
+from pydantic import BaseModel, PositiveInt
 from typing_extensions import Self
 
-from faststream.specification.asyncapi.v2_6_0.schema.bindings.amqp import (
-    OperationBinding as V2Binding,
-)
 from faststream.specification.schema.bindings import amqp
 
 
-class OperationBinding(V2Binding):
+class OperationBinding(BaseModel):
     cc: Optional[list[str]] = None
+    ack: bool
+    replyTo: Optional[str] = None
+    deliveryMode: Optional[int] = None
+    mandatory: Optional[bool] = None
+    priority: Optional[PositiveInt] = None
+
     bindingVersion: str = "0.3.0"
 
     @classmethod

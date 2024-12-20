@@ -22,7 +22,7 @@ def parse_handler_params(call: "CallModel", prefix: str = "") -> AnyDict:
     assert model  # nosec B101
 
     body = get_model_schema(
-        create_model(  # type: ignore[call-overload]
+        create_model(
             model.__name__,
             **{p.field_name: (p.field_type, p.default_value) for p in call.flat_params},
         ),

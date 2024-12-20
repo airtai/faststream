@@ -10,6 +10,12 @@ from faststream.specification.asyncapi.v2_6_0.schema.utils import Reference
 SecurityRequirement = list[dict[str, list[str]]]
 
 
+__all__ = (
+    "Server",
+    "ServerVariable",
+)
+
+
 class Server(BaseModel):
     """A class to represent a server.
 

@@ -1,4 +1,4 @@
-from typing import Optional, Union, overload
+from typing import Optional, Union, cast, overload
 
 from pydantic import BaseModel
 from typing_extensions import Self
@@ -56,6 +56,7 @@ class Tag(BaseModel):
                 externalDocs=ExternalDocs.from_spec(tag.external_docs),
             )
 
+        tag = cast(AnyDict, tag)
         tag_data, custom_data = filter_by_dict(TagDict, tag)
 
         if custom_data:

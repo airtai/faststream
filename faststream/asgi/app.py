@@ -172,7 +172,7 @@ class AsgiFastStream(Application):
         config = uvicorn.Config(
             app=self,
             log_level=log_level,
-            **{
+            **{  # type: ignore[arg-type]
                 key: v
                 for key, v in run_extra_options.items()
                 if key in uvicorn_config_params

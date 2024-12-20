@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 from faststream.specification.base.specification import Specification
@@ -28,7 +28,7 @@ def AsyncAPI(  # noqa: N802
     terms_of_service: Optional["AnyHttpUrl"] = None,
     license: Optional[Union["License", "LicenseDict", "AnyDict"]] = None,
     contact: Optional[Union["Contact", "ContactDict", "AnyDict"]] = None,
-    tags: Iterable[Union["Tag", "TagDict", "AnyDict"]] = (),
+    tags: Sequence[Union["Tag", "TagDict", "AnyDict"]] = (),
     external_docs: Optional[
         Union["ExternalDocs", "ExternalDocsDict", "AnyDict"]
     ] = None,

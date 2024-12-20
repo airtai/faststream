@@ -1,4 +1,4 @@
-from typing import Optional, Union, overload
+from typing import Optional, Union, cast, overload
 
 from pydantic import AnyHttpUrl, BaseModel
 from typing_extensions import Self
@@ -58,6 +58,7 @@ class ExternalDocs(BaseModel):
         if isinstance(docs, SpecDocs):
             return cls(url=docs.url, description=docs.description)
 
+        docs = cast(AnyDict, docs)
         docs_data, custom_data = filter_by_dict(ExternalDocsDict, docs)
 
         if custom_data:
