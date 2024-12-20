@@ -68,4 +68,5 @@ def set_log_level(level: int, app: "Application") -> None:
     if app.logger and getattr(app.logger, "setLevel", None):
         app.logger.setLevel(level)  # type: ignore[attr-defined]
 
-    app.broker._state.get().logger_state.set_level(level)
+    for broker in app.brokers:
+        broker._state.get().logger_state.set_level(level)

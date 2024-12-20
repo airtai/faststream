@@ -121,8 +121,8 @@ class StartAbleApplication:
         self._setup()
 
     def _setup(self) -> None:
-        if self.broker:
-            self.broker._setup(OuterBrokerState(di_state=self._state.di_state))
+        for broker in self.brokers:
+            broker._setup(OuterBrokerState(di_state=self._state.di_state))
 
     async def _start_broker(self) -> None:
         assert self.broker, "You should setup a broker"
@@ -272,7 +272,8 @@ class Application(StartAbleApplication):
     async def stop(self) -> None:
         """Executes shutdown hooks and stop broker."""
         async with self._shutdown_hooks_context():
-            await self.broker.close()
+            for broker in self.brokers:
+                await broker.close()
 
     @asynccontextmanager
     async def _shutdown_hooks_context(self) -> AsyncIterator[None]:
