@@ -8,19 +8,17 @@ from faststream.confluent.prometheus.provider import (
     ConfluentMetricsSettingsProvider,
     settings_provider_factory,
 )
-from faststream.prometheus import MetricsSettingsProvider
 from tests.prometheus.basic import LocalMetricsSettingsProviderTestcase
 
-from .basic import KafkaPrometheusSettings
+from .basic import BatchConfluentPrometheusSettings, ConfluentPrometheusSettings
 
 
 class LocalBaseConfluentMetricsSettingsProviderTestcase(
-    KafkaPrometheusSettings,
     LocalMetricsSettingsProviderTestcase,
 ):
     def test_get_publish_destination_name_from_cmd(self, queue: str) -> None:
         expected_destination_name = queue
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         command = SimpleNamespace(destination=queue)
 
         destination_name = provider.get_publish_destination_name_from_cmd(command)
@@ -29,12 +27,8 @@ class LocalBaseConfluentMetricsSettingsProviderTestcase(
 
 
 class TestKafkaMetricsSettingsProvider(
-    LocalBaseConfluentMetricsSettingsProviderTestcase
+    ConfluentPrometheusSettings, LocalBaseConfluentMetricsSettingsProviderTestcase
 ):
-    @staticmethod
-    def get_provider() -> MetricsSettingsProvider:
-        return ConfluentMetricsSettingsProvider()
-
     def test_get_consume_attrs_from_message(self, queue: str) -> None:
         body = b"Hello"
         expected_attrs = {
@@ -47,19 +41,15 @@ class TestKafkaMetricsSettingsProvider(
             body=body, raw_message=SimpleNamespace(topic=lambda: queue)
         )
 
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         attrs = provider.get_consume_attrs_from_message(message)
 
         assert attrs == expected_attrs
 
 
 class TestBatchConfluentMetricsSettingsProvider(
-    LocalBaseConfluentMetricsSettingsProviderTestcase
+    BatchConfluentPrometheusSettings, LocalBaseConfluentMetricsSettingsProviderTestcase
 ):
-    @staticmethod
-    def get_provider() -> MetricsSettingsProvider:
-        return BatchConfluentMetricsSettingsProvider()
-
     def test_get_consume_attrs_from_message(self, queue: str) -> None:
         body = [b"Hi ", b"again, ", b"FastStream!"]
         message = SimpleNamespace(
@@ -75,7 +65,7 @@ class TestBatchConfluentMetricsSettingsProvider(
             "messages_count": len(message.raw_message),
         }
 
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         attrs = provider.get_consume_attrs_from_message(message)
 
         assert attrs == expected_attrs

@@ -1,6 +1,5 @@
 import asyncio
 from typing import Any
-from unittest.mock import Mock
 
 import pytest
 from prometheus_client import CollectorRegistry
@@ -12,7 +11,7 @@ from tests.brokers.nats.test_consume import TestConsume
 from tests.brokers.nats.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase, LocalRPCPrometheusTestcase
 
-from .basic import NatsPrometheusSettings
+from .basic import BatchNatsPrometheusSettings, NatsPrometheusSettings
 
 
 @pytest.fixture()
@@ -21,21 +20,16 @@ def stream(queue):
 
 
 @pytest.mark.nats()
-class TestPrometheus(
-    NatsPrometheusSettings,
-    LocalPrometheusTestcase,
-    LocalRPCPrometheusTestcase,
-):
-    async def test_metrics_batch(
+class TestBatchPrometheus(BatchNatsPrometheusSettings, LocalPrometheusTestcase):
+    async def test_metrics(
         self,
         queue: str,
         stream: JStream,
     ) -> None:
         event = asyncio.Event()
 
-        middleware = self.get_middleware(registry=CollectorRegistry())
-        metrics_manager_mock = Mock()
-        middleware._metrics_manager = metrics_manager_mock
+        registry = CollectorRegistry()
+        middleware = self.get_middleware(registry=registry)
 
         broker = self.get_broker(apply_types=True, middlewares=(middleware,))
 
@@ -62,10 +56,19 @@ class TestPrometheus(
             await asyncio.wait(tasks, timeout=self.timeout)
 
         assert event.is_set()
-        self.assert_consume_metrics(
-            metrics_manager=metrics_manager_mock, message=message, exception_class=None
+        self.assert_metrics(
+            registry=registry,
+            message=message,
+            exception_class=None,
         )
-        self.assert_publish_metrics(metrics_manager=metrics_manager_mock)
+
+
+@pytest.mark.nats()
+class TestPrometheus(
+    NatsPrometheusSettings,
+    LocalPrometheusTestcase,
+    LocalRPCPrometheusTestcase,
+): ...
 
 
 @pytest.mark.nats()

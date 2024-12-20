@@ -3,8 +3,6 @@ from typing import Union
 
 import pytest
 
-from faststream.prometheus import MetricsSettingsProvider
-from faststream.rabbit.prometheus.provider import RabbitMetricsSettingsProvider
 from tests.prometheus.basic import LocalMetricsSettingsProviderTestcase
 
 from .basic import RabbitPrometheusSettings
@@ -14,10 +12,6 @@ class TestRabbitMetricsSettingsProvider(
     RabbitPrometheusSettings,
     LocalMetricsSettingsProviderTestcase,
 ):
-    @staticmethod
-    def get_provider() -> MetricsSettingsProvider:
-        return RabbitMetricsSettingsProvider()
-
     @pytest.mark.parametrize(
         "exchange",
         (
@@ -40,7 +34,7 @@ class TestRabbitMetricsSettingsProvider(
             body=body, raw_message=SimpleNamespace(exchange=exchange, routing_key=queue)
         )
 
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         attrs = provider.get_consume_attrs_from_message(message)
 
         assert attrs == expected_attrs
@@ -62,7 +56,7 @@ class TestRabbitMetricsSettingsProvider(
             exchange=SimpleNamespace(name=exchange), destination=queue
         )
 
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         destination_name = provider.get_publish_destination_name_from_cmd(command)
 
         assert destination_name == expected_destination_name

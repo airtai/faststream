@@ -34,6 +34,8 @@ def test_kafka_response_class() -> None:
         pytest.param(None, (), id="None Response"),
         pytest.param((), (), id="Empty Sequence"),
         pytest.param("123", ("123",), id="String Response"),
+        pytest.param("", ("",), id="Empty String Response"),
+        pytest.param(b"", (b"",), id="Empty Bytes Response"),
         pytest.param([1, 2, 3], (1, 2, 3), id="Sequence Data"),
         pytest.param([0, 1, 2], (0, 1, 2), id="Sequence Data with False first element"),
     ),

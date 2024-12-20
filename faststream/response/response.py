@@ -52,7 +52,7 @@ class PublishCommand(Response):
 
     @property
     def batch_bodies(self) -> tuple["Any", ...]:
-        if self.body:
+        if self.body or isinstance(self.body, (str, bytes)):
             return (self.body,)
         return ()
 

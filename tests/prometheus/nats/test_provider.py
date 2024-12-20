@@ -9,30 +9,27 @@ from faststream.nats.prometheus.provider import (
     NatsMetricsSettingsProvider,
     settings_provider_factory,
 )
-from faststream.prometheus import MetricsSettingsProvider
 from tests.prometheus.basic import LocalMetricsSettingsProviderTestcase
 
-from .basic import NatsPrometheusSettings
+from .basic import BatchNatsPrometheusSettings, NatsPrometheusSettings
 
 
 class LocalBaseNatsMetricsSettingsProviderTestcase(
-    NatsPrometheusSettings,
-    LocalMetricsSettingsProviderTestcase,
+    LocalMetricsSettingsProviderTestcase
 ):
     def test_get_publish_destination_name_from_cmd(self, queue: str) -> None:
         expected_destination_name = queue
         command = SimpleNamespace(destination=queue)
 
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         destination_name = provider.get_publish_destination_name_from_cmd(command)
 
         assert destination_name == expected_destination_name
 
 
-class TestNatsMetricsSettingsProvider(LocalBaseNatsMetricsSettingsProviderTestcase):
-    def get_provider(self) -> MetricsSettingsProvider:
-        return NatsMetricsSettingsProvider()
-
+class TestNatsMetricsSettingsProvider(
+    NatsPrometheusSettings, LocalBaseNatsMetricsSettingsProviderTestcase
+):
     def test_get_consume_attrs_from_message(self, queue: str) -> None:
         body = b"Hello"
         expected_attrs = {
@@ -42,19 +39,15 @@ class TestNatsMetricsSettingsProvider(LocalBaseNatsMetricsSettingsProviderTestca
         }
         message = SimpleNamespace(body=body, raw_message=SimpleNamespace(subject=queue))
 
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         attrs = provider.get_consume_attrs_from_message(message)
 
         assert attrs == expected_attrs
 
 
 class TestBatchNatsMetricsSettingsProvider(
-    LocalBaseNatsMetricsSettingsProviderTestcase
+    BatchNatsPrometheusSettings, LocalBaseNatsMetricsSettingsProviderTestcase
 ):
-    @staticmethod
-    def get_provider() -> MetricsSettingsProvider:
-        return BatchNatsMetricsSettingsProvider()
-
     def test_get_consume_attrs_from_message(self, queue: str) -> None:
         body = b"Hello"
         raw_messages = [
@@ -68,7 +61,7 @@ class TestBatchNatsMetricsSettingsProvider(
         }
         message = SimpleNamespace(body=body, raw_message=raw_messages)
 
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         attrs = provider.get_consume_attrs_from_message(message)
 
         assert attrs == expected_attrs

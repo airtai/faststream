@@ -109,7 +109,7 @@ class KafkaPublishCommand(PublishCommand):
             if body is None:
                 body = EMPTY
 
-            if isinstance(body, Sequence) and not isinstance(body, str):
+            if isinstance(body, Sequence) and not isinstance(body, (str, bytes)):
                 if body:
                     body, extra_bodies = body[0], body[1:]
                 else:
