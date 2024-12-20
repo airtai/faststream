@@ -27,7 +27,8 @@ class LocalBaseKafkaMetricsSettingsProviderTestcase(
 
 
 class TestKafkaMetricsSettingsProvider(
-    KafkaPrometheusSettings, LocalBaseKafkaMetricsSettingsProviderTestcase
+    KafkaPrometheusSettings,
+    LocalBaseKafkaMetricsSettingsProviderTestcase,
 ):
     def test_get_consume_attrs_from_message(self, queue: str) -> None:
         body = b"Hello"
@@ -46,7 +47,8 @@ class TestKafkaMetricsSettingsProvider(
 
 
 class TestBatchKafkaMetricsSettingsProvider(
-    BatchKafkaPrometheusSettings, LocalBaseKafkaMetricsSettingsProviderTestcase
+    BatchKafkaPrometheusSettings,
+    LocalBaseKafkaMetricsSettingsProviderTestcase,
 ):
     def test_get_consume_attrs_from_message(self, queue: str) -> None:
         body = [b"Hi ", b"again, ", b"FastStream!"]
