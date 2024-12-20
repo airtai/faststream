@@ -1,6 +1,5 @@
 import asyncio
 from typing import Any
-from unittest.mock import Mock
 
 import pytest
 from prometheus_client import CollectorRegistry
@@ -12,24 +11,19 @@ from tests.brokers.redis.test_consume import TestConsume
 from tests.brokers.redis.test_publish import TestPublish
 from tests.prometheus.basic import LocalPrometheusTestcase, LocalRPCPrometheusTestcase
 
-from .basic import RedisPrometheusSettings
+from .basic import BatchRedisPrometheusSettings, RedisPrometheusSettings
 
 
 @pytest.mark.redis()
-class TestPrometheus(
-    RedisPrometheusSettings,
-    LocalPrometheusTestcase,
-    LocalRPCPrometheusTestcase,
-):
-    async def test_metrics_batch(
+class TestBatchPrometheus(BatchRedisPrometheusSettings, LocalPrometheusTestcase):
+    async def test_metrics(
         self,
         queue: str,
-    ):
+    ) -> None:
         event = asyncio.Event()
 
-        middleware = self.get_middleware(registry=CollectorRegistry())
-        metrics_manager_mock = Mock()
-        middleware._metrics_manager = metrics_manager_mock
+        registry = CollectorRegistry()
+        middleware = self.get_middleware(registry=registry)
 
         broker = self.get_broker(apply_types=True, middlewares=(middleware,))
 
@@ -47,16 +41,25 @@ class TestPrometheus(
         async with broker:
             await broker.start()
             tasks = (
-                asyncio.create_task(broker.publish_batch("hello", "world", list=queue)),
+                asyncio.create_task(broker.publish_batch("hel", "lo", list=queue)),
                 asyncio.create_task(event.wait()),
             )
             await asyncio.wait(tasks, timeout=self.timeout)
 
         assert event.is_set()
-        self.assert_consume_metrics(
-            metrics_manager=metrics_manager_mock, message=message, exception_class=None
+        self.assert_metrics(
+            registry=registry,
+            message=message,
+            exception_class=None,
         )
-        self.assert_publish_metrics(metrics_manager=metrics_manager_mock)
+
+
+@pytest.mark.redis()
+class TestPrometheus(
+    RedisPrometheusSettings,
+    LocalPrometheusTestcase,
+    LocalRPCPrometheusTestcase,
+): ...
 
 
 @pytest.mark.redis()

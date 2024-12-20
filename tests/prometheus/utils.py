@@ -1,7 +1,7 @@
 from collections.abc import Sequence
-from typing import cast
+from typing import Optional, cast
 
-from dirty_equals import IsPositiveFloat, IsStr
+from dirty_equals import IsFloat, IsPositiveFloat, IsStr
 from prometheus_client import Histogram, Metric
 from prometheus_client.samples import Sample
 
@@ -50,6 +50,7 @@ def get_received_messages_size_bytes_metric(
     queue: str,
     buckets: Sequence[float],
     size: int,
+    messages_amount: int,
 ) -> Metric:
     metric = Metric(
         name=f"{metrics_prefix}_received_messages_size_bytes",
@@ -67,7 +68,7 @@ def get_received_messages_size_bytes_metric(
                     "handler": queue,
                     "le": cast(str, IsStr),
                 },
-                value=1.0,
+                value=float(messages_amount),
                 timestamp=None,
                 exemplar=None,
             )
@@ -76,7 +77,7 @@ def get_received_messages_size_bytes_metric(
         Sample(
             name=f"{metrics_prefix}_received_messages_size_bytes_count",
             labels={"app_name": app_name, "broker": broker, "handler": queue},
-            value=1.0,
+            value=float(messages_amount),
             timestamp=None,
             exemplar=None,
         ),
@@ -195,7 +196,7 @@ def get_received_processed_messages_duration_seconds_metric(
                     "handler": queue,
                     "le": cast(str, IsStr),
                 },
-                value=1.0,
+                value=cast(float, IsFloat),
                 timestamp=None,
                 exemplar=None,
             )
@@ -204,7 +205,7 @@ def get_received_processed_messages_duration_seconds_metric(
         Sample(
             name=f"{metrics_prefix}_received_processed_messages_duration_seconds_count",
             labels={"app_name": app_name, "broker": broker, "handler": queue},
-            value=1.0,
+            value=cast(float, IsPositiveFloat),
             timestamp=None,
             exemplar=None,
         ),
@@ -233,7 +234,8 @@ def get_received_processed_messages_exceptions_metric(
     app_name: str,
     broker: str,
     queue: str,
-    exception_type: str,
+    exception_type: Optional[str],
+    exceptions_amount: int,
 ) -> Metric:
     metric = Metric(
         name=f"{metrics_prefix}_received_processed_messages_exceptions",
@@ -241,32 +243,36 @@ def get_received_processed_messages_exceptions_metric(
         unit="",
         typ="counter",
     )
-    metric.samples = [
-        Sample(
-            name=f"{metrics_prefix}_received_processed_messages_exceptions_total",
-            labels={
-                "app_name": app_name,
-                "broker": broker,
-                "handler": queue,
-                "exception_type": exception_type,
-            },
-            value=1.0,
-            timestamp=None,
-            exemplar=None,
-        ),
-        Sample(
-            name=f"{metrics_prefix}_received_processed_messages_exceptions_created",
-            labels={
-                "app_name": app_name,
-                "broker": broker,
-                "handler": queue,
-                "exception_type": exception_type,
-            },
-            value=cast(float, IsPositiveFloat),
-            timestamp=None,
-            exemplar=None,
-        ),
-    ]
+    metric.samples = (
+        [
+            Sample(
+                name=f"{metrics_prefix}_received_processed_messages_exceptions_total",
+                labels={
+                    "app_name": app_name,
+                    "broker": broker,
+                    "handler": queue,
+                    "exception_type": exception_type,
+                },
+                value=float(exceptions_amount),
+                timestamp=None,
+                exemplar=None,
+            ),
+            Sample(
+                name=f"{metrics_prefix}_received_processed_messages_exceptions_created",
+                labels={
+                    "app_name": app_name,
+                    "broker": broker,
+                    "handler": queue,
+                    "exception_type": exception_type,
+                },
+                value=cast(float, IsPositiveFloat),
+                timestamp=None,
+                exemplar=None,
+            ),
+        ]
+        if exception_type is not None
+        else []
+    )
 
     return metric
 
@@ -277,6 +283,7 @@ def get_published_messages_metric(
     app_name: str,
     broker: str,
     queue: str,
+    messages_amount: int,
     status: PublishingStatus,
 ) -> Metric:
     metric = Metric(
@@ -294,7 +301,7 @@ def get_published_messages_metric(
                 "destination": queue,
                 "status": status.value,
             },
-            value=1.0,
+            value=messages_amount,
             timestamp=None,
             exemplar=None,
         ),
@@ -339,7 +346,7 @@ def get_published_messages_duration_seconds_metric(
                     "destination": queue,
                     "le": cast(str, IsStr),
                 },
-                value=1.0,
+                value=cast(float, IsFloat),
                 timestamp=None,
                 exemplar=None,
             )
@@ -348,7 +355,7 @@ def get_published_messages_duration_seconds_metric(
         Sample(
             name=f"{metrics_prefix}_published_messages_duration_seconds_count",
             labels={"app_name": app_name, "broker": broker, "destination": queue},
-            value=1.0,
+            value=cast(float, IsPositiveFloat),
             timestamp=None,
             exemplar=None,
         ),
@@ -377,7 +384,7 @@ def get_published_messages_exceptions_metric(
     app_name: str,
     broker: str,
     queue: str,
-    exception_type: str,
+    exception_type: Optional[str],
 ) -> Metric:
     metric = Metric(
         name=f"{metrics_prefix}_published_messages_exceptions",
@@ -385,31 +392,35 @@ def get_published_messages_exceptions_metric(
         unit="",
         typ="counter",
     )
-    metric.samples = [
-        Sample(
-            name=f"{metrics_prefix}_published_messages_exceptions_total",
-            labels={
-                "app_name": app_name,
-                "broker": broker,
-                "destination": queue,
-                "exception_type": exception_type,
-            },
-            value=1.0,
-            timestamp=None,
-            exemplar=None,
-        ),
-        Sample(
-            name=f"{metrics_prefix}_published_messages_exceptions_created",
-            labels={
-                "app_name": app_name,
-                "broker": broker,
-                "destination": queue,
-                "exception_type": exception_type,
-            },
-            value=cast(float, IsPositiveFloat),
-            timestamp=None,
-            exemplar=None,
-        ),
-    ]
+    metric.samples = (
+        [
+            Sample(
+                name=f"{metrics_prefix}_published_messages_exceptions_total",
+                labels={
+                    "app_name": app_name,
+                    "broker": broker,
+                    "destination": queue,
+                    "exception_type": exception_type,
+                },
+                value=1.0,
+                timestamp=None,
+                exemplar=None,
+            ),
+            Sample(
+                name=f"{metrics_prefix}_published_messages_exceptions_created",
+                labels={
+                    "app_name": app_name,
+                    "broker": broker,
+                    "destination": queue,
+                    "exception_type": exception_type,
+                },
+                value=cast(float, IsPositiveFloat),
+                timestamp=None,
+                exemplar=None,
+            ),
+        ]
+        if exception_type is not None
+        else []
+    )
 
     return metric

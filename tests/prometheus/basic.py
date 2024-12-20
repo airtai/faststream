@@ -1,8 +1,8 @@
 import asyncio
-from typing import Any, Optional
-from unittest.mock import ANY, Mock, call
+from typing import Any, Optional, cast
 
 import pytest
+from dirty_equals import IsList, IsPositiveFloat, IsStr
 from prometheus_client import CollectorRegistry
 
 from faststream import Context
@@ -14,27 +14,28 @@ from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
     BasePrometheusMiddleware,
 )
-from faststream.prometheus.types import ProcessingStatus
+from faststream.prometheus.types import ProcessingStatus, PublishingStatus
 from tests.brokers.base.basic import BaseTestcaseConfig
+from tests.prometheus.utils import (
+    get_published_messages_duration_seconds_metric,
+    get_published_messages_exceptions_metric,
+    get_published_messages_metric,
+    get_received_messages_in_process_metric,
+    get_received_messages_metric,
+    get_received_messages_size_bytes_metric,
+    get_received_processed_messages_duration_seconds_metric,
+    get_received_processed_messages_exceptions_metric,
+    get_received_processed_messages_metric,
+)
 
 
 @pytest.mark.asyncio()
 class LocalPrometheusTestcase(BaseTestcaseConfig):
-    def get_broker(self, apply_types: bool = False, **kwargs: Any):
-        raise NotImplementedError
-
     def get_middleware(self, **kwargs: Any) -> BasePrometheusMiddleware:
         raise NotImplementedError
 
-    @staticmethod
-    def consume_destination_name(queue: str) -> str:
-        return queue
-
-    @property
-    def settings_provider_factory(self):
-        return self.get_middleware(
-            registry=CollectorRegistry()
-        )._settings_provider_factory
+    def get_settings_provider(self) -> MetricsSettingsProvider[Any]:
+        raise NotImplementedError
 
     @pytest.mark.parametrize(
         (
@@ -81,10 +82,8 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         exception_class: Optional[type[Exception]],
     ) -> None:
         event = asyncio.Event()
-
-        middleware = self.get_middleware(registry=CollectorRegistry())
-        metrics_manager_mock = Mock()
-        middleware._metrics_manager = metrics_manager_mock
+        registry = CollectorRegistry()
+        middleware = self.get_middleware(registry=registry)
 
         broker = self.get_broker(apply_types=True, middlewares=(middleware,))
 
@@ -118,62 +117,69 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             await asyncio.wait(tasks, timeout=self.timeout)
 
         assert event.is_set()
-        self.assert_consume_metrics(
-            metrics_manager=metrics_manager_mock,
+        self.assert_metrics(
+            registry=registry,
             message=message,
             exception_class=exception_class,
         )
-        self.assert_publish_metrics(metrics_manager=metrics_manager_mock)
 
-    def assert_consume_metrics(
+    def assert_metrics(
         self,
         *,
-        metrics_manager: Any,
+        registry: CollectorRegistry,
         message: Any,
         exception_class: Optional[type[Exception]],
     ) -> None:
-        settings_provider = self.settings_provider_factory(message.raw_message)
+        settings_provider = self.get_settings_provider()
         consume_attrs = settings_provider.get_consume_attrs_from_message(message)
-        assert metrics_manager.add_received_message.mock_calls == [
-            call(
-                amount=consume_attrs["messages_count"],
-                broker=settings_provider.messaging_system,
-                handler=consume_attrs["destination_name"],
-            ),
-        ]
 
-        assert metrics_manager.observe_received_messages_size.mock_calls == [
-            call(
-                size=consume_attrs["message_size"],
-                broker=settings_provider.messaging_system,
-                handler=consume_attrs["destination_name"],
-            ),
-        ]
+        received_messages_metric = get_received_messages_metric(
+            metrics_prefix="faststream",
+            app_name="faststream",
+            broker=settings_provider.messaging_system,
+            queue=consume_attrs["destination_name"],
+            messages_amount=consume_attrs["messages_count"],
+        )
 
-        assert metrics_manager.add_received_message_in_process.mock_calls == [
-            call(
-                amount=consume_attrs["messages_count"],
-                broker=settings_provider.messaging_system,
-                handler=consume_attrs["destination_name"],
+        received_messages_size_bytes_metric = get_received_messages_size_bytes_metric(
+            metrics_prefix="faststream",
+            app_name="faststream",
+            broker=settings_provider.messaging_system,
+            queue=consume_attrs["destination_name"],
+            buckets=(
+                2.0**4,
+                2.0**6,
+                2.0**8,
+                2.0**10,
+                2.0**12,
+                2.0**14,
+                2.0**16,
+                2.0**18,
+                2.0**20,
+                2.0**22,
+                2.0**24,
+                float("inf"),
             ),
-        ]
-        assert metrics_manager.remove_received_message_in_process.mock_calls == [
-            call(
-                amount=consume_attrs["messages_count"],
+            size=consume_attrs["message_size"],
+            messages_amount=1,
+        )
+
+        received_messages_in_process_metric = get_received_messages_in_process_metric(
+            metrics_prefix="faststream",
+            app_name="faststream",
+            broker=settings_provider.messaging_system,
+            queue=consume_attrs["destination_name"],
+            messages_amount=0,
+        )
+
+        received_processed_messages_duration_seconds_metric = (
+            get_received_processed_messages_duration_seconds_metric(
+                metrics_prefix="faststream",
+                app_name="faststream",
                 broker=settings_provider.messaging_system,
-                handler=consume_attrs["destination_name"],
+                queue=consume_attrs["destination_name"],
+                duration=cast(float, IsPositiveFloat),
             )
-        ]
-
-        assert (
-            metrics_manager.observe_received_processed_message_duration.mock_calls
-            == [
-                call(
-                    duration=ANY,
-                    broker=settings_provider.messaging_system,
-                    handler=consume_attrs["destination_name"],
-                ),
-            ]
         )
 
         status = ProcessingStatus.acked
@@ -186,47 +192,73 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         elif message.committed:
             status = PROCESSING_STATUS_BY_ACK_STATUS[message.committed]
 
-        assert metrics_manager.add_received_processed_message.mock_calls == [
-            call(
-                amount=consume_attrs["messages_count"],
-                broker=settings_provider.messaging_system,
-                handler=consume_attrs["destination_name"],
-                status=status.value,
-            ),
-        ]
+        received_processed_messages_metric = get_received_processed_messages_metric(
+            metrics_prefix="faststream",
+            app_name="faststream",
+            broker=settings_provider.messaging_system,
+            queue=consume_attrs["destination_name"],
+            messages_amount=consume_attrs["messages_count"],
+            status=status,
+        )
+
+        exception_type: Optional[str] = None
 
         if exception_class and not issubclass(exception_class, IgnoredException):
-            assert (
-                metrics_manager.add_received_processed_message_exception.mock_calls
-                == [
-                    call(
-                        broker=settings_provider.messaging_system,
-                        handler=consume_attrs["destination_name"],
-                        exception_type=exception_class.__name__,
-                    ),
-                ]
-            )
-        else:
-            assert (
-                metrics_manager.add_received_processed_message_exception.mock_calls
-                == []
-            )
+            exception_type = exception_class.__name__
 
-    def assert_publish_metrics(self, metrics_manager: Any) -> None:
-        settings_provider = self.settings_provider_factory(None)
-        assert metrics_manager.observe_published_message_duration.mock_calls == [
-            call(
-                duration=ANY, broker=settings_provider.messaging_system, destination=ANY
-            ),
-        ]
-        assert metrics_manager.add_published_message.mock_calls == [
-            call(
-                amount=ANY,
+        received_processed_messages_exceptions_metric = (
+            get_received_processed_messages_exceptions_metric(
+                metrics_prefix="faststream",
+                app_name="faststream",
                 broker=settings_provider.messaging_system,
-                destination=ANY,
-                status="success",
-            ),
-        ]
+                queue=consume_attrs["destination_name"],
+                exception_type=exception_type,
+                exceptions_amount=consume_attrs["messages_count"],
+            )
+        )
+
+        published_messages_metric = get_published_messages_metric(
+            metrics_prefix="faststream",
+            app_name="faststream",
+            broker=settings_provider.messaging_system,
+            queue=cast(str, IsStr),
+            status=PublishingStatus.success,
+            messages_amount=consume_attrs["messages_count"],
+        )
+
+        published_messages_duration_seconds_metric = (
+            get_published_messages_duration_seconds_metric(
+                metrics_prefix="faststream",
+                app_name="faststream",
+                broker=settings_provider.messaging_system,
+                queue=cast(str, IsStr),
+                duration=cast(float, IsPositiveFloat),
+            )
+        )
+
+        published_messages_exceptions_metric = get_published_messages_exceptions_metric(
+            metrics_prefix="faststream",
+            app_name="faststream",
+            broker=settings_provider.messaging_system,
+            queue=cast(str, IsStr),
+            exception_type=None,
+        )
+
+        expected_metrics = IsList(
+            received_messages_metric,
+            received_messages_size_bytes_metric,
+            received_messages_in_process_metric,
+            received_processed_messages_metric,
+            received_processed_messages_duration_seconds_metric,
+            received_processed_messages_exceptions_metric,
+            published_messages_metric,
+            published_messages_duration_seconds_metric,
+            published_messages_exceptions_metric,
+            check_order=False,
+        )
+        real_metrics = list(registry.collect())
+
+        assert real_metrics == expected_metrics
 
 
 class LocalRPCPrometheusTestcase:
@@ -236,16 +268,21 @@ class LocalRPCPrometheusTestcase:
         queue: str,
     ) -> None:
         event = asyncio.Event()
+        registry = CollectorRegistry()
 
-        middleware = self.get_middleware(registry=CollectorRegistry())
-        metrics_manager_mock = Mock()
-        middleware._metrics_manager = metrics_manager_mock
+        middleware = self.get_middleware(registry=registry)
 
         broker = self.get_broker(apply_types=True, middlewares=(middleware,))
 
+        message = None
+
         @broker.subscriber(queue)
-        async def handle():
+        async def handle(m=Context("message")):
             event.set()
+
+            nonlocal message
+            message = m
+
             return ""
 
         async with self.patch_broker(broker) as br:
@@ -257,8 +294,12 @@ class LocalRPCPrometheusTestcase:
             )
 
         assert event.is_set()
-        metrics_manager_mock.add_received_message.assert_called_once()
-        metrics_manager_mock.add_published_message.assert_called_once()
+
+        self.assert_metrics(
+            registry=registry,
+            message=message,
+            exception_class=None,
+        )
 
 
 class LocalMetricsSettingsProviderTestcase:
@@ -268,11 +309,11 @@ class LocalMetricsSettingsProviderTestcase:
         raise NotImplementedError
 
     @staticmethod
-    def get_provider() -> MetricsSettingsProvider:
+    def get_settings_provider() -> MetricsSettingsProvider:
         raise NotImplementedError
 
     def test_messaging_system(self) -> None:
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         assert provider.messaging_system == self.messaging_system
 
     def test_one_registry_for_some_middlewares(self) -> None:

@@ -295,6 +295,7 @@ class TestCaseMetrics:
             broker=broker,
             queue=queue,
             exception_type=exception_type,
+            exceptions_amount=1,
         )
 
         manager.add_received_processed_message_exception(
@@ -336,6 +337,7 @@ class TestCaseMetrics:
             broker=broker,
             queue=queue,
             status=status,
+            messages_amount=1,
         )
 
         manager.add_published_message(
