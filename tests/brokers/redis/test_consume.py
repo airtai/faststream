@@ -389,7 +389,7 @@ class TestConsumeList:
 
             mock(await subscriber.get_one(timeout=1e-24))
             mock.assert_called_once_with(None)
-    
+
     async def test_concurrent_consume_list(self, queue: str, mock: MagicMock):
         event = asyncio.Event()
         event2 = asyncio.Event()

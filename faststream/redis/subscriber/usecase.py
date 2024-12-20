@@ -399,9 +399,6 @@ class _ListHandlerMixin(LogicSubscriber):
 
     @override
     async def start(self) -> None:
-        if self.task:
-            return
-
         assert self._client, "You should setup subscriber at first."  # nosec B101
 
         await super().start(self._client)
@@ -598,8 +595,6 @@ class _StreamHandlerMixin(LogicSubscriber):
 
     @override
     async def start(self) -> None:
-        if self.task:
-            return
 
         assert self._client, "You should setup subscriber at first."  # nosec B101
 
@@ -931,11 +926,8 @@ class ConcurrentListSubscriber(ConcurrentMixin["BrokerStreamMessage"], ListSubsc
         description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
-        parser = RedisListParser()
         super().__init__(
             list=list,
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
             # Propagated options
             no_ack=no_ack,
             no_reply=no_reply,

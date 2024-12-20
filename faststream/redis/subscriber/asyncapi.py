@@ -110,12 +110,12 @@ class AsyncAPIListBatchSubscriber(BatchListSubscriber, _ListSubscriberMixin):
 class AsyncAPIConcurrentSubscriber(ConcurrentSubscriber, RedisAsyncAPIProtocol):
     pass
 
-class AsyncAPIStreamConcurrentSubscriber(ConcurrentStreamSubscriber, RedisAsyncAPIProtocol):
+class AsyncAPIStreamConcurrentSubscriber(ConcurrentStreamSubscriber, _StreamSubscriberMixin):
     pass
 
-class AsyncAPIChannelConcurrentSubscriber(ConcurrentChannelSubscriber, RedisAsyncAPIProtocol):
+class AsyncAPIChannelConcurrentSubscriber(ConcurrentChannelSubscriber, AsyncAPIChannelSubscriber):
     pass
 
-class AsyncAPIListConcurrentSubscriber(ConcurrentListSubscriber, RedisAsyncAPIProtocol):
+class AsyncAPIListConcurrentSubscriber(ConcurrentListSubscriber, _ListSubscriberMixin):
     pass
 
