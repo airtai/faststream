@@ -13,9 +13,11 @@ from typing import (
     Sequence,
     Tuple,
     Union,
+    cast,
 )
 
 import anyio
+import anyio.lowlevel
 from confluent_kafka import Consumer, KafkaError, KafkaException, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 
@@ -376,8 +378,14 @@ class AsyncConfluentConsumer:
 
     async def getone(self, timeout: float = 0.1) -> Optional[Message]:
         """Consumes a single message from Kafka."""
-        async with self._lock:
-            msg = await call_or_await(self.consumer.poll, timeout)
+        msg: Optional[Message] = None
+        with anyio.move_on_after(delay=timeout):
+            while msg is None:
+                # We can't remove the lock from here,
+                # because a race condition with the stop method is still possible:
+                async with self._lock:
+                    msg = self.consumer.poll(0)
+                await anyio.lowlevel.checkpoint()
         return check_msg_error(msg)
 
     async def getmany(
@@ -386,12 +394,20 @@ class AsyncConfluentConsumer:
         max_records: Optional[int] = 10,
     ) -> Tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
-        async with self._lock:
-            raw_messages: List[Optional[Message]] = await call_or_await(
-                self.consumer.consume,  # type: ignore[arg-type]
-                num_messages=max_records or 10,
-                timeout=timeout,
-            )
+        raw_messages: List[Optional[Message]] = []
+        max_records = max_records or 10
+        with anyio.move_on_after(delay=timeout):
+            while to_consume := max_records - len(raw_messages):
+                # We can't remove the lock from here,
+                # because a race condition with the stop method is still possible:
+                async with self._lock:
+                    raw_messages.extend(
+                        cast(
+                            List[Optional[Message]],
+                            self.consumer.consume(num_messages=to_consume, timeout=0),
+                        )
+                    )
+                await anyio.lowlevel.checkpoint()
 
         return tuple(x for x in map(check_msg_error, raw_messages) if x is not None)
 
