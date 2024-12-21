@@ -378,17 +378,13 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
 
     async def get_msg(self) -> Optional[Tuple["Message", ...]]:
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
-
-        messages = await self.consumer.getmany(
-            timeout=self.polling_interval,
-            max_records=self.max_records,
+        return (
+            await self.consumer.getmany(
+                timeout=self.polling_interval,
+                max_records=self.max_records,
+            )
+            or None
         )
-
-        if not messages:  # TODO: why we are sleeping here?
-            await anyio.sleep(self.polling_interval)
-            return None
-
-        return messages
 
     def get_log_context(
         self,
