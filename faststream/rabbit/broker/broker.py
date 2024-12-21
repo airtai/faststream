@@ -27,6 +27,7 @@ from faststream.rabbit.schemas import (
     RABBIT_REPLY,
     RabbitExchange,
     RabbitQueue,
+    RabbitQueueType,
 )
 from faststream.rabbit.security import parse_security
 from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
@@ -475,7 +476,7 @@ class RabbitBroker(
             if max_consumers:
                 c = AsyncAPISubscriber.build_log_context(
                     None,
-                    RabbitQueue(""),
+                    RabbitQueue("", queue_type=RabbitQueueType.Classic),
                     RabbitExchange(""),
                 )
                 self._log(f"Set max consumers to {max_consumers}", extra=c)
