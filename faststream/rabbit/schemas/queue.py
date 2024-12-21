@@ -131,7 +131,7 @@ class RabbitQueue(NameRequired):
     def __init__(
         self,
         name: str,
-        queue_type: Literal[RabbitQueueType.Classic],
+        queue_type: Literal[RabbitQueueType.Classic] = RabbitQueueType.Classic,
         durable: Literal[True, False] = False,
         exclusive: bool = False,
         passive: bool = False,

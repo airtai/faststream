@@ -14,6 +14,4 @@ __all__ = (
     "ReplyConfig",
 )
 
-RABBIT_REPLY = RabbitQueue(
-    "amq.rabbitmq.reply-to", passive=True, queue_type=RabbitQueueType.Classic
-)
+RABBIT_REPLY = RabbitQueue("amq.rabbitmq.reply-to", passive=True)
