@@ -350,7 +350,11 @@ class AsyncConfluentConsumer:
 
     async def commit(self, asynchronous: bool = True) -> None:
         """Commits the offsets of all messages returned by the last poll operation."""
-        await call_or_await(self.consumer.commit, asynchronous=asynchronous)
+        if asynchronous:
+            # Asynchronous commit is non-blocking:
+            self.consumer.commit(asynchronous=True)
+        else:
+            await call_or_await(self.consumer.commit, asynchronous=False)
 
     async def stop(self) -> None:
         """Stops the Kafka consumer and releases all resources."""
