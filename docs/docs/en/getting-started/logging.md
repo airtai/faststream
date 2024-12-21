@@ -10,11 +10,6 @@ search:
 
 # Application and Access Logging
 
-**FastStream** uses two already configured loggers:
-
-* `faststream` - used by `FastStream` app
-* `faststream.access` - used by the broker
-
 ## Logging Requests
 
 To log requests, it is strongly recommended to use the `access_logger` of your broker, as it is available from the [Context](../getting-started/context/existed.md){.internal-link} of your application.
@@ -75,22 +70,6 @@ If you are not satisfied with the current format of your application logs, you c
 ```python
 from faststream.rabbit import RabbitBroker
 broker = RabbitBroker(log_fmt="%(asctime)s %(levelname)s - %(message)s")
-```
-
-## Logger Access
-
-If you want to override default logger's behavior, you can access them directly via `logging`.
-
-```python
-import logging
-logger = logging.getLogger("faststream")
-access_logger = logging.getLogger("faststream.access")
-```
-
-Or you can import them from **FastStream**.
-
-```python
-from faststream.log import access_logger, logger
 ```
 
 ## Using Your Own Loggers

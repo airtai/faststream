@@ -15,6 +15,8 @@ from faststream import context as fs_context
 from faststream.opentelemetry.baggage import Baggage
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
+    INSTRUMENTING_LIBRARY_VERSION,
+    INSTRUMENTING_MODULE_NAME,
     MESSAGING_DESTINATION_PUBLISH_NAME,
     OTEL_SCHEMA,
     WITH_BATCH,
@@ -330,7 +332,8 @@ def _get_meter(
 
 def _get_tracer(tracer_provider: Optional["TracerProvider"] = None) -> "Tracer":
     return trace.get_tracer(
-        __name__,
+        instrumenting_module_name=INSTRUMENTING_MODULE_NAME,
+        instrumenting_library_version=INSTRUMENTING_LIBRARY_VERSION,
         tracer_provider=tracer_provider,
         schema_url=OTEL_SCHEMA,
     )
