@@ -131,10 +131,10 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
 
-        # if max_workers > 1:
-        #     subscriber = cast("AsyncAPIConcurrentSubscriber", subscriber)
-        # else:
-        subscriber = cast("AsyncAPISubscriber", subscriber)
+        if max_workers > 1:
+            subscriber = cast("AsyncAPIConcurrentSubscriber", subscriber)
+        else:
+            subscriber = cast("AsyncAPISubscriber", subscriber)
 
         subscriber = super().subscriber(subscriber)  # type: ignore[assignment]
 
