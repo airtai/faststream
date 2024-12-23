@@ -2851,6 +2851,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/ExchangeType/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/QueueType/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/QueueType/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/RabbitBroker/</loc>
         <lastmod>2024-12-23</lastmod>
         <changefreq>daily</changefreq>
@@ -3073,6 +3079,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/ExchangeType/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/QueueType/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/QueueType/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/RabbitExchange/</loc>
         <lastmod>2024-12-23</lastmod>
         <changefreq>daily</changefreq>
@@ -3109,10 +3121,64 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/proto/BaseRMQInformation/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/ClassicQueueArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/ClassicQueueArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/CommonQueueArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/CommonQueueArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/QueueClassicTypeSpecificArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/QueueClassicTypeSpecificArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/QueueQuorumTypeSpecificArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/QueueQuorumTypeSpecificArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/QueueStreamTypeSpecificArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/QueueStreamTypeSpecificArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/QueueType/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/QueueType/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/QuorumQueueArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/QuorumQueueArgs/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/RabbitQueue/</loc>
         <lastmod>2024-12-23</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/RabbitQueue/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/SharedQueueClassicAndQuorumArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/SharedQueueClassicAndQuorumArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/StreamQueueArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/queue/StreamQueueArgs/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/schemas/reply/ReplyConfig/</loc>
@@ -7333,6 +7399,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/ExchangeType/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/QueueType/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/QueueType/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/RabbitBroker/</loc>
         <lastmod>2024-12-23</lastmod>
         <changefreq>daily</changefreq>
@@ -7555,6 +7627,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/ExchangeType/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/QueueType/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/QueueType/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/RabbitExchange/</loc>
         <lastmod>2024-12-23</lastmod>
         <changefreq>daily</changefreq>
@@ -7591,10 +7669,64 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/proto/BaseRMQInformation/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/ClassicQueueArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/ClassicQueueArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/CommonQueueArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/CommonQueueArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/QueueClassicTypeSpecificArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/QueueClassicTypeSpecificArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/QueueQuorumTypeSpecificArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/QueueQuorumTypeSpecificArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/QueueStreamTypeSpecificArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/QueueStreamTypeSpecificArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/QueueType/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/QueueType/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/QuorumQueueArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/QuorumQueueArgs/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/RabbitQueue/</loc>
         <lastmod>2024-12-23</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/RabbitQueue/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/SharedQueueClassicAndQuorumArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/SharedQueueClassicAndQuorumArgs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/StreamQueueArgs/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/queue/StreamQueueArgs/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/public_api/faststream/rabbit/schemas/reply/ReplyConfig/</loc>
