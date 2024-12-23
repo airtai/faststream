@@ -408,15 +408,15 @@ class TestConsumeList:
             await br.start()
 
             for i in range(5):
-                await br.publish(i, queue)
+                await br.publish(i, list=queue)
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(event.wait()),
-                asyncio.create_task(event2.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(event.wait()),
+                    asyncio.create_task(event2.wait()),
+                ),
+                timeout=3,
+            )
 
         assert event.is_set()
         assert event2.is_set()
@@ -768,7 +768,7 @@ class TestConsumeStream:
             await br.start()
 
             for i in range(5):
-                await br.publish(i, queue)
+                await br.publish(i, stream=queue)
 
         await asyncio.wait(
             (
