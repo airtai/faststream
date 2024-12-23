@@ -11,10 +11,10 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict
 
 
-class RabbitQueueType(Enum):
-    Classic = "classic"
-    Quorum = "quorum"
-    Stream = "stream"
+class QueueType(str, Enum):
+    CLASSIC = "CLASSIC"
+    QUORUM = "QUORUM"
+    STREAM = "STREAM"
 
 
 CommonQueueArgs = TypedDict(
@@ -23,7 +23,7 @@ CommonQueueArgs = TypedDict(
         "x-queue-leader-locator": Literal["client-local", "balanced"],
         "x-max-length-bytes": int,
     },
-    total=True,
+    total=False,
 )
 
 SharedQueueClassicAndQuorumArgs = TypedDict(
@@ -35,18 +35,16 @@ SharedQueueClassicAndQuorumArgs = TypedDict(
         "x-dead-letter-exchange": str,
         "x-dead-letter-routing-key": str,
         "x-max-length": int,
+        "x-max-priority": int,
     },
-    total=True,
+    total=False,
 )
 
 
 QueueClassicTypeSpecificArgs = TypedDict(
     "QueueClassicTypeSpecificArgs",
-    {
-        "x-overflow": Literal["drop-head", "reject-publish", "reject-publish-dlx"],
-        "x-max-priority": int,
-    },
-    total=True,
+    {"x-overflow": Literal["drop-head", "reject-publish", "reject-publish-dlx"]},
+    total=False,
 )
 
 QueueQuorumTypeSpecificArgs = TypedDict(
@@ -58,7 +56,7 @@ QueueQuorumTypeSpecificArgs = TypedDict(
         "x-quorum-target-group-size": int,
         "x-dead-letter-strategy": Literal["at-most-once", "at-least-once"],
     },
-    total=True,
+    total=False,
 )
 
 
@@ -70,7 +68,7 @@ QueueStreamTypeSpecificArgs = TypedDict(
         "x-stream-filter-size-bytes": int,
         "x-initial-cluster-size": int,
     },
-    total=True,
+    total=False,
 )
 
 
@@ -131,7 +129,7 @@ class RabbitQueue(NameRequired):
     def __init__(
         self,
         name: str,
-        queue_type: Literal[RabbitQueueType.Classic] = RabbitQueueType.Classic,
+        queue_type: Literal[QueueType.CLASSIC] = QueueType.CLASSIC,
         durable: Literal[True, False] = False,
         exclusive: bool = False,
         passive: bool = False,
@@ -147,7 +145,7 @@ class RabbitQueue(NameRequired):
     def __init__(
         self,
         name: str,
-        queue_type: Literal[RabbitQueueType.Quorum],
+        queue_type: Literal[QueueType.QUORUM],
         durable: Literal[True],
         exclusive: bool = False,
         passive: bool = False,
@@ -163,7 +161,7 @@ class RabbitQueue(NameRequired):
     def __init__(
         self,
         name: str,
-        queue_type: Literal[RabbitQueueType.Stream],
+        queue_type: Literal[QueueType.STREAM],
         durable: Literal[True],
         exclusive: bool = False,
         passive: bool = False,
@@ -178,15 +176,13 @@ class RabbitQueue(NameRequired):
     def __init__(
         self,
         name: str,
-        queue_type: Literal[
-            RabbitQueueType.Quorum, RabbitQueueType.Classic, RabbitQueueType.Stream
-        ] = RabbitQueueType.Classic,
-        durable: Literal[True, False] = False,
+        queue_type: QueueType = QueueType.CLASSIC,
+        durable: bool = False,
         exclusive: bool = False,
         passive: bool = False,
         auto_delete: bool = False,
         arguments: Optional[
-            Union[QuorumQueueArgs, ClassicQueueArgs, StreamQueueArgs]
+            Union[QuorumQueueArgs, ClassicQueueArgs, StreamQueueArgs, "AnyDict"]
         ] = None,
         timeout: "TimeoutType" = None,
         robust: bool = True,
@@ -211,7 +207,7 @@ class RabbitQueue(NameRequired):
         re, routing_key = compile_path(
             routing_key,
             replace_symbol="*",
-            patch_regex=lambda x: x.replace(r"#", ".+"),
+            patch_regex=lambda x: x.replace(r"\#", ".+"),
         )
 
         _arguments = {"x-queue-type": queue_type.value}

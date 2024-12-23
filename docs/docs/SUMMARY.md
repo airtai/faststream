@@ -186,6 +186,7 @@ search:
                 - [TelemetrySettingsProvider](public_api/faststream/opentelemetry/TelemetrySettingsProvider.md)
             - rabbit
                 - [ExchangeType](public_api/faststream/rabbit/ExchangeType.md)
+                - [QueueType](public_api/faststream/rabbit/QueueType.md)
                 - [RabbitBroker](public_api/faststream/rabbit/RabbitBroker.md)
                 - [RabbitExchange](public_api/faststream/rabbit/RabbitExchange.md)
                 - [RabbitPublisher](public_api/faststream/rabbit/RabbitPublisher.md)
@@ -872,6 +873,7 @@ search:
                     - [PublishingStatus](api/faststream/prometheus/types/PublishingStatus.md)
             - rabbit
                 - [ExchangeType](api/faststream/rabbit/ExchangeType.md)
+                - [QueueType](api/faststream/rabbit/QueueType.md)
                 - [RabbitBroker](api/faststream/rabbit/RabbitBroker.md)
                 - [RabbitExchange](api/faststream/rabbit/RabbitExchange.md)
                 - [RabbitPublisher](api/faststream/rabbit/RabbitPublisher.md)
@@ -932,9 +934,9 @@ search:
                 - schemas
                     - [BaseRMQInformation](api/faststream/rabbit/schemas/BaseRMQInformation.md)
                     - [ExchangeType](api/faststream/rabbit/schemas/ExchangeType.md)
+                    - [QueueType](api/faststream/rabbit/schemas/QueueType.md)
                     - [RabbitExchange](api/faststream/rabbit/schemas/RabbitExchange.md)
                     - [RabbitQueue](api/faststream/rabbit/schemas/RabbitQueue.md)
-                    - [RabbitQueueType](api/faststream/rabbit/schemas/RabbitQueueType.md)
                     - [ReplyConfig](api/faststream/rabbit/schemas/ReplyConfig.md)
                     - constants
                         - [ExchangeType](api/faststream/rabbit/schemas/constants/ExchangeType.md)
@@ -948,9 +950,9 @@ search:
                         - [QueueClassicTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueClassicTypeSpecificArgs.md)
                         - [QueueQuorumTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueQuorumTypeSpecificArgs.md)
                         - [QueueStreamTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueStreamTypeSpecificArgs.md)
+                        - [QueueType](api/faststream/rabbit/schemas/queue/QueueType.md)
                         - [QuorumQueueArgs](api/faststream/rabbit/schemas/queue/QuorumQueueArgs.md)
                         - [RabbitQueue](api/faststream/rabbit/schemas/queue/RabbitQueue.md)
-                        - [RabbitQueueType](api/faststream/rabbit/schemas/queue/RabbitQueueType.md)
                         - [SharedQueueClassicAndQuorumArgs](api/faststream/rabbit/schemas/queue/SharedQueueClassicAndQuorumArgs.md)
                         - [StreamQueueArgs](api/faststream/rabbit/schemas/queue/StreamQueueArgs.md)
                     - reply

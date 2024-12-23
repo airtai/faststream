@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.rabbit.schemas.queue.RabbitQueueType
+::: faststream.rabbit.schemas.queue.QueueType
