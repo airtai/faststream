@@ -130,7 +130,7 @@ class RabbitQueue(NameRequired):
         self,
         name: str,
         queue_type: Literal[QueueType.CLASSIC] = QueueType.CLASSIC,
-        durable: Literal[True, False] = False,
+        durable: bool = False,
         exclusive: bool = False,
         passive: bool = False,
         auto_delete: bool = False,
@@ -181,9 +181,7 @@ class RabbitQueue(NameRequired):
         exclusive: bool = False,
         passive: bool = False,
         auto_delete: bool = False,
-        arguments: Optional[
-            Union[QuorumQueueArgs, ClassicQueueArgs, StreamQueueArgs, "AnyDict"]
-        ] = None,
+        arguments: Union[QuorumQueueArgs, ClassicQueueArgs, StreamQueueArgs, "AnyDict", None] = None,
         timeout: "TimeoutType" = None,
         robust: bool = True,
         bind_arguments: Optional["AnyDict"] = None,
@@ -210,11 +208,6 @@ class RabbitQueue(NameRequired):
             patch_regex=lambda x: x.replace(r"\#", ".+"),
         )
 
-        _arguments = {"x-queue-type": queue_type.value}
-
-        if arguments:
-            _arguments.update(**arguments)
-
         super().__init__(name)
 
         self.path_regex = re
@@ -225,7 +218,7 @@ class RabbitQueue(NameRequired):
         self.robust = robust
         self.passive = passive
         self.auto_delete = auto_delete
-        self.arguments = _arguments
+        self.arguments = {"x-queue-type": queue_type.value, **arguments}
         self.timeout = timeout
 
     def add_prefix(self, prefix: str) -> "RabbitQueue":
