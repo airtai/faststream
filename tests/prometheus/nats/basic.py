@@ -1,15 +1,25 @@
 from typing import Any
 
-from faststream.nats import NatsBroker
 from faststream.nats.prometheus import NatsPrometheusMiddleware
+from faststream.nats.prometheus.provider import (
+    BatchNatsMetricsSettingsProvider,
+    NatsMetricsSettingsProvider,
+)
 from tests.brokers.nats.basic import NatsTestcaseConfig
 
 
-class NatsPrometheusSettings(NatsTestcaseConfig):
+class BaseNatsPrometheusSettings(NatsTestcaseConfig):
     messaging_system = "nats"
-
-    def get_broker(self, apply_types=False, **kwargs: Any) -> NatsBroker:
-        return NatsBroker(apply_types=apply_types, **kwargs)
 
     def get_middleware(self, **kwargs: Any) -> NatsPrometheusMiddleware:
         return NatsPrometheusMiddleware(**kwargs)
+
+
+class NatsPrometheusSettings(BaseNatsPrometheusSettings):
+    def get_settings_provider(self) -> NatsMetricsSettingsProvider:
+        return NatsMetricsSettingsProvider()
+
+
+class BatchNatsPrometheusSettings(BaseNatsPrometheusSettings):
+    def get_settings_provider(self) -> BatchNatsMetricsSettingsProvider:
+        return BatchNatsMetricsSettingsProvider()

@@ -2,10 +2,14 @@ from typing import Any
 
 from faststream import AckPolicy
 from faststream.kafka.prometheus import KafkaPrometheusMiddleware
+from faststream.kafka.prometheus.provider import (
+    BatchKafkaMetricsSettingsProvider,
+    KafkaMetricsSettingsProvider,
+)
 from tests.brokers.kafka.basic import KafkaTestcaseConfig
 
 
-class KafkaPrometheusSettings(KafkaTestcaseConfig):
+class BaseKafkaPrometheusSettings(KafkaTestcaseConfig):
     messaging_system = "kafka"
 
     def get_middleware(self, **kwargs: Any) -> KafkaPrometheusMiddleware:
@@ -25,3 +29,13 @@ class KafkaPrometheusSettings(KafkaTestcaseConfig):
             "ack_policy": AckPolicy.REJECT_ON_ERROR,
             **kwargs,
         }
+
+
+class KafkaPrometheusSettings(BaseKafkaPrometheusSettings):
+    def get_settings_provider(self) -> KafkaMetricsSettingsProvider:
+        return KafkaMetricsSettingsProvider()
+
+
+class BatchKafkaPrometheusSettings(BaseKafkaPrometheusSettings):
+    def get_settings_provider(self) -> BatchKafkaMetricsSettingsProvider:
+        return BatchKafkaMetricsSettingsProvider()
