@@ -153,7 +153,7 @@ class RabbitQueue(NameRequired):
         if queue_type is QueueType.QUORUM or queue_type is QueueType.STREAM:
             if durable is EMPTY:
                 durable = True
-            else:
+            elif not durable:
                 raise SetupError("Quorum and Stream queues must be durable")
         elif durable is EMPTY:
             durable = False
