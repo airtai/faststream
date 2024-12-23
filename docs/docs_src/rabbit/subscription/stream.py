@@ -1,5 +1,5 @@
 from faststream import FastStream, Logger
-from faststream.rabbit import RabbitBroker, RabbitQueue
+from faststream.rabbit import RabbitBroker, RabbitQueue, QueueType
 
 broker = RabbitBroker(max_consumers=10)
 app = FastStream(broker)
@@ -7,9 +7,7 @@ app = FastStream(broker)
 queue = RabbitQueue(
     name="test-stream",
     durable=True,
-    arguments={
-        "x-queue-type": "stream",
-    },
+    queue_type=QueueType.STREAM
 )
 
 
