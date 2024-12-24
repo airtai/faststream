@@ -53,7 +53,6 @@ def create_subscriber(
 ) -> SubsciberType:
     validate_options(channel=channel, list=list, stream=stream)
 
-
     if (channel_sub := PubSub.validate(channel)) is not None:
         if max_workers > 1:
             return AsyncAPIChannelConcurrentSubscriber(
