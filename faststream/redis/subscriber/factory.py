@@ -53,6 +53,7 @@ def create_subscriber(
 ) -> SubsciberType:
     validate_options(channel=channel, list=list, stream=stream)
 
+
     if (channel_sub := PubSub.validate(channel)) is not None:
         if max_workers > 1:
             return AsyncAPIChannelConcurrentSubscriber(
@@ -100,6 +101,8 @@ def create_subscriber(
                 include_in_schema=include_in_schema,
             )
         else:
+            if no_ack and max_workers > 1:
+                raise SetupError("Max workers not work with manual no_ack mode.")
             if max_workers > 1:
                 return AsyncAPIStreamConcurrentSubscriber(
                     stream=stream_sub,
