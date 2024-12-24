@@ -186,6 +186,7 @@ search:
                 - [TelemetrySettingsProvider](public_api/faststream/opentelemetry/TelemetrySettingsProvider.md)
             - rabbit
                 - [ExchangeType](public_api/faststream/rabbit/ExchangeType.md)
+                - [QueueType](public_api/faststream/rabbit/QueueType.md)
                 - [RabbitBroker](public_api/faststream/rabbit/RabbitBroker.md)
                 - [RabbitExchange](public_api/faststream/rabbit/RabbitExchange.md)
                 - [RabbitPublisher](public_api/faststream/rabbit/RabbitPublisher.md)
@@ -618,6 +619,8 @@ search:
                         - [KafkaLoggingBroker](api/faststream/kafka/broker/logging/KafkaLoggingBroker.md)
                     - registrator
                         - [KafkaRegistrator](api/faststream/kafka/broker/registrator/KafkaRegistrator.md)
+                - exceptions
+                    - [BatchBufferOverflowException](api/faststream/kafka/exceptions/BatchBufferOverflowException.md)
                 - fastapi
                     - [Context](api/faststream/kafka/fastapi/Context.md)
                     - [KafkaRouter](api/faststream/kafka/fastapi/KafkaRouter.md)
@@ -870,6 +873,7 @@ search:
                     - [PublishingStatus](api/faststream/prometheus/types/PublishingStatus.md)
             - rabbit
                 - [ExchangeType](api/faststream/rabbit/ExchangeType.md)
+                - [QueueType](api/faststream/rabbit/QueueType.md)
                 - [RabbitBroker](api/faststream/rabbit/RabbitBroker.md)
                 - [RabbitExchange](api/faststream/rabbit/RabbitExchange.md)
                 - [RabbitPublisher](api/faststream/rabbit/RabbitPublisher.md)
@@ -930,6 +934,7 @@ search:
                 - schemas
                     - [BaseRMQInformation](api/faststream/rabbit/schemas/BaseRMQInformation.md)
                     - [ExchangeType](api/faststream/rabbit/schemas/ExchangeType.md)
+                    - [QueueType](api/faststream/rabbit/schemas/QueueType.md)
                     - [RabbitExchange](api/faststream/rabbit/schemas/RabbitExchange.md)
                     - [RabbitQueue](api/faststream/rabbit/schemas/RabbitQueue.md)
                     - [ReplyConfig](api/faststream/rabbit/schemas/ReplyConfig.md)
@@ -940,7 +945,16 @@ search:
                     - proto
                         - [BaseRMQInformation](api/faststream/rabbit/schemas/proto/BaseRMQInformation.md)
                     - queue
+                        - [ClassicQueueArgs](api/faststream/rabbit/schemas/queue/ClassicQueueArgs.md)
+                        - [CommonQueueArgs](api/faststream/rabbit/schemas/queue/CommonQueueArgs.md)
+                        - [QueueClassicTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueClassicTypeSpecificArgs.md)
+                        - [QueueQuorumTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueQuorumTypeSpecificArgs.md)
+                        - [QueueStreamTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueStreamTypeSpecificArgs.md)
+                        - [QueueType](api/faststream/rabbit/schemas/queue/QueueType.md)
+                        - [QuorumQueueArgs](api/faststream/rabbit/schemas/queue/QuorumQueueArgs.md)
                         - [RabbitQueue](api/faststream/rabbit/schemas/queue/RabbitQueue.md)
+                        - [SharedQueueClassicAndQuorumArgs](api/faststream/rabbit/schemas/queue/SharedQueueClassicAndQuorumArgs.md)
+                        - [StreamQueueArgs](api/faststream/rabbit/schemas/queue/StreamQueueArgs.md)
                     - reply
                         - [ReplyConfig](api/faststream/rabbit/schemas/reply/ReplyConfig.md)
                 - security
@@ -960,6 +974,7 @@ search:
                     - [build_message](api/faststream/rabbit/testing/build_message.md)
                 - utils
                     - [build_url](api/faststream/rabbit/utils/build_url.md)
+                    - [build_virtual_host](api/faststream/rabbit/utils/build_virtual_host.md)
                     - [is_routing_exchange](api/faststream/rabbit/utils/is_routing_exchange.md)
             - redis
                 - [ListSub](api/faststream/redis/ListSub.md)

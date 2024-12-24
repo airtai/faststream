@@ -261,17 +261,19 @@ class TestTelemetry(LocalTelemetryTestcase):
 
 @pytest.mark.kafka
 class TestPublishWithTelemetry(TestPublish):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs):
         return KafkaBroker(
             middlewares=(KafkaTelemetryMiddleware(),),
             apply_types=apply_types,
+            **kwargs,
         )
 
 
 @pytest.mark.kafka
 class TestConsumeWithTelemetry(TestConsume):
-    def get_broker(self, apply_types: bool = False):
+    def get_broker(self, apply_types: bool = False, **kwargs):
         return KafkaBroker(
             middlewares=(KafkaTelemetryMiddleware(),),
             apply_types=apply_types,
+            **kwargs,
         )

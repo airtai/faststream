@@ -6,6 +6,7 @@ from faststream.broker.message import encode_message
 from faststream.broker.publisher.proto import ProducerProto
 from faststream.broker.utils import resolve_custom_func
 from faststream.exceptions import OperationForbiddenError
+from faststream.kafka.exceptions import BatchBufferOverflowException
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
 
@@ -100,7 +101,7 @@ class AioKafkaFastProducer(ProducerProto):
                 reply_to,
             )
 
-        for msg in msgs:
+        for message_position, msg in enumerate(msgs):
             message, content_type = encode_message(msg)
 
             if content_type:
@@ -111,12 +112,14 @@ class AioKafkaFastProducer(ProducerProto):
             else:
                 final_headers = headers_to_send.copy()
 
-            batch.append(
+            metadata = batch.append(
                 key=None,
                 value=message,
                 timestamp=timestamp_ms,
                 headers=[(i, j.encode()) for i, j in final_headers.items()],
             )
+            if metadata is None:
+                raise BatchBufferOverflowException(message_position=message_position)
 
         send_future = await self._producer.send_batch(batch, topic, partition=partition)
         if not no_confirm:
