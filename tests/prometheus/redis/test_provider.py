@@ -2,7 +2,6 @@ from types import SimpleNamespace
 
 import pytest
 
-from faststream.prometheus import MetricsSettingsProvider
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,
@@ -17,16 +16,15 @@ from faststream.redis.prometheus.provider import (
 )
 from tests.prometheus.basic import LocalMetricsSettingsProviderTestcase
 
-from .basic import RedisPrometheusSettings
+from .basic import BatchRedisPrometheusSettings, RedisPrometheusSettings
 
 
 class LocalBaseRedisMetricsSettingsProviderTestcase(
-    RedisPrometheusSettings,
-    LocalMetricsSettingsProviderTestcase,
+    LocalMetricsSettingsProviderTestcase
 ):
     def test_get_publish_destination_name_from_cmd(self, queue: str) -> None:
         expected_destination_name = queue
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         command = SimpleNamespace(destination=queue)
 
         destination_name = provider.get_publish_destination_name_from_cmd(command)
@@ -34,11 +32,9 @@ class LocalBaseRedisMetricsSettingsProviderTestcase(
         assert destination_name == expected_destination_name
 
 
-class TestRedisMetricsSettingsProvider(LocalBaseRedisMetricsSettingsProviderTestcase):
-    @staticmethod
-    def get_provider() -> MetricsSettingsProvider:
-        return RedisMetricsSettingsProvider()
-
+class TestRedisMetricsSettingsProvider(
+    RedisPrometheusSettings, LocalBaseRedisMetricsSettingsProviderTestcase
+):
     @pytest.mark.parametrize(
         "destination",
         (
@@ -62,19 +58,16 @@ class TestRedisMetricsSettingsProvider(LocalBaseRedisMetricsSettingsProviderTest
 
         message = SimpleNamespace(body=body, raw_message=raw_message)
 
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         attrs = provider.get_consume_attrs_from_message(message)
 
         assert attrs == expected_attrs
 
 
 class TestBatchRedisMetricsSettingsProvider(
-    LocalBaseRedisMetricsSettingsProviderTestcase
+    BatchRedisPrometheusSettings,
+    LocalBaseRedisMetricsSettingsProviderTestcase,
 ):
-    @staticmethod
-    def get_provider() -> MetricsSettingsProvider:
-        return BatchRedisMetricsSettingsProvider()
-
     @pytest.mark.parametrize(
         "destination",
         (
@@ -104,7 +97,7 @@ class TestBatchRedisMetricsSettingsProvider(
             raw_message=raw_message,
         )
 
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         attrs = provider.get_consume_attrs_from_message(message)
 
         assert attrs == expected_attrs

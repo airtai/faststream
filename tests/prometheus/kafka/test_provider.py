@@ -8,19 +8,17 @@ from faststream.kafka.prometheus.provider import (
     KafkaMetricsSettingsProvider,
     settings_provider_factory,
 )
-from faststream.prometheus import MetricsSettingsProvider
 from tests.prometheus.basic import LocalMetricsSettingsProviderTestcase
 
-from .basic import KafkaPrometheusSettings
+from .basic import BatchKafkaPrometheusSettings, KafkaPrometheusSettings
 
 
 class LocalBaseKafkaMetricsSettingsProviderTestcase(
-    KafkaPrometheusSettings,
     LocalMetricsSettingsProviderTestcase,
 ):
     def test_get_publish_destination_name_from_cmd(self, queue: str) -> None:
         expected_destination_name = queue
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         command = SimpleNamespace(destination=queue)
 
         destination_name = provider.get_publish_destination_name_from_cmd(command)
@@ -28,11 +26,10 @@ class LocalBaseKafkaMetricsSettingsProviderTestcase(
         assert destination_name == expected_destination_name
 
 
-class TestKafkaMetricsSettingsProvider(LocalBaseKafkaMetricsSettingsProviderTestcase):
-    @staticmethod
-    def get_provider() -> MetricsSettingsProvider:
-        return KafkaMetricsSettingsProvider()
-
+class TestKafkaMetricsSettingsProvider(
+    KafkaPrometheusSettings,
+    LocalBaseKafkaMetricsSettingsProviderTestcase,
+):
     def test_get_consume_attrs_from_message(self, queue: str) -> None:
         body = b"Hello"
         expected_attrs = {
@@ -43,19 +40,16 @@ class TestKafkaMetricsSettingsProvider(LocalBaseKafkaMetricsSettingsProviderTest
 
         message = SimpleNamespace(body=body, raw_message=SimpleNamespace(topic=queue))
 
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         attrs = provider.get_consume_attrs_from_message(message)
 
         assert attrs == expected_attrs
 
 
 class TestBatchKafkaMetricsSettingsProvider(
-    LocalBaseKafkaMetricsSettingsProviderTestcase
+    BatchKafkaPrometheusSettings,
+    LocalBaseKafkaMetricsSettingsProviderTestcase,
 ):
-    @staticmethod
-    def get_provider() -> MetricsSettingsProvider:
-        return BatchKafkaMetricsSettingsProvider()
-
     def test_get_consume_attrs_from_message(self, queue: str) -> None:
         body = [b"Hi ", b"again, ", b"FastStream!"]
         message = SimpleNamespace(
@@ -70,7 +64,7 @@ class TestBatchKafkaMetricsSettingsProvider(
             "messages_count": len(message.raw_message),
         }
 
-        provider = self.get_provider()
+        provider = self.get_settings_provider()
         attrs = provider.get_consume_attrs_from_message(message)
 
         assert attrs == expected_attrs
