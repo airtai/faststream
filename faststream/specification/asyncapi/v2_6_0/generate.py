@@ -1,3 +1,4 @@
+import warnings
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Optional, Union
 
@@ -204,8 +205,14 @@ def _resolve_msg_payloads(
         payloads.update(m.payload.pop(DEF_KEY, {}))
         p_title = m.payload.get("title", f"{channel_name}Payload")
         p_title = clear_key(p_title)
-        if p_title not in payloads:
-            payloads[p_title] = m.payload
+        if p_title in payloads:
+            warnings.warn(
+                f"Overwriting the message schema, data types have the same name: `{p_title}`",
+                RuntimeWarning,
+                stacklevel=1,
+            )
+
+        payloads[p_title] = m.payload
         m.payload = {"$ref": f"#/components/schemas/{p_title}"}
 
     else:
