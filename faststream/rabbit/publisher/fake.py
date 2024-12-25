@@ -19,12 +19,14 @@ class RabbitFakePublisher(FakePublisher):
     ) -> None:
         super().__init__(producer=producer)
         self.routing_key = routing_key
-        self.app_id = str
+        self.app_id = app_id
 
     def patch_command(
         self, cmd: Union["PublishCommand", "RabbitPublishCommand"]
     ) -> "RabbitPublishCommand":
+        cmd = super().patch_command(cmd)
         real_cmd = RabbitPublishCommand.from_cmd(cmd)
         real_cmd.destination = self.routing_key
-        real_cmd.app_id = self.app_id
+        if self.app_id:
+            real_cmd.message_options["app_id"] = self.app_id
         return real_cmd

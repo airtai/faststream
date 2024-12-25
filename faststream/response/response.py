@@ -20,11 +20,12 @@ class Response:
         self.correlation_id = correlation_id
 
     def as_publish_command(self) -> "PublishCommand":
+        """Method to transform handlers' Response result to DTO for publishers."""
         return PublishCommand(
             body=self.body,
             headers=self.headers,
             correlation_id=self.correlation_id,
-            _publish_type=PublishType.REPLY,
+            _publish_type=PublishType.PUBLISH,
         )
 
 

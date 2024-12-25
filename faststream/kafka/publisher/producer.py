@@ -11,6 +11,7 @@ from faststream.kafka.parser import AioKafkaParser
 from faststream.message import encode_message
 
 from .state import EmptyProducerState, ProducerState, RealProducer
+
 if TYPE_CHECKING:
     import asyncio
 

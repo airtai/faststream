@@ -22,6 +22,7 @@ class NatsFakePublisher(FakePublisher):
     def patch_command(
         self, cmd: Union["PublishCommand", "NatsPublishCommand"]
     ) -> "NatsPublishCommand":
+        cmd = super().patch_command(cmd)
         real_cmd = NatsPublishCommand.from_cmd(cmd)
         real_cmd.destination = self.subject
         return real_cmd

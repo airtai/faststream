@@ -31,7 +31,7 @@ class NatsResponse(Response):
             message=self.body,
             headers=self.headers,
             correlation_id=self.correlation_id,
-            _publish_type=PublishType.REPLY,
+            _publish_type=PublishType.PUBLISH,
             # Nats specific
             subject="",
             stream=self.stream,

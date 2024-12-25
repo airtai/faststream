@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from faststream._internal.basic_types import SendableMessage
 from faststream._internal.publisher.proto import BasePublisherProto
+from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AsyncFunc
@@ -26,7 +27,8 @@ class FakePublisher(BasePublisherProto):
 
     @abstractmethod
     def patch_command(self, cmd: "PublishCommand") -> "PublishCommand":
-        raise NotImplementedError
+        cmd.publish_type = PublishType.REPLY
+        return cmd
 
     async def _publish(
         self,

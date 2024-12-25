@@ -44,7 +44,7 @@ class KafkaResponse(Response):
             self.body,
             headers=self.headers,
             correlation_id=self.correlation_id,
-            _publish_type=PublishType.REPLY,
+            _publish_type=PublishType.PUBLISH,
             # Kafka specific
             topic="",
             key=self.key,
