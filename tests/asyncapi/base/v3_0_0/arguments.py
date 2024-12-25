@@ -707,14 +707,17 @@ class ArgumentsTestcase(FastAPICompatible):
 
         payload = schema["components"]["schemas"]
 
-        for key, v in payload.items():
-            assert key == "User"
-            assert v == {
-                "properties": {
-                    "id": {"title": "Id", "type": "integer"},
-                    "email": {"default": "", "title": "Email", "type": "string"},
-                },
-                "required": ["id"],
-                "title": key,
-                "type": "object",
-            }
+        assert len(payload) == 1
+
+        key, value = next(iter(payload.items()))
+
+        assert key == "User"
+        assert value == {
+            "properties": {
+                "id": {"title": "Id", "type": "integer"},
+                "email": {"default": "", "title": "Email", "type": "string"},
+            },
+            "required": ["id"],
+            "title": key,
+            "type": "object",
+        }
