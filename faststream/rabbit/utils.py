@@ -12,6 +12,16 @@ if TYPE_CHECKING:
     from faststream.rabbit.schemas import RabbitExchange
 
 
+def build_virtual_host(
+    url: Union[str, "URL", None], virtualhost: Optional[str], path: str
+) -> str:
+    if (not url and not virtualhost) or virtualhost == "/":
+        return ""
+    if virtualhost:
+        return virtualhost.replace("/", "", 1)
+    return path.replace("/", "", 1)
+
+
 def build_url(
     url: Union[str, "URL", None] = None,
     *,
@@ -36,7 +46,7 @@ def build_url(
         port=port or original_url.port or default_port,
         login=login or original_url.user or "guest",
         password=password or original_url.password or "guest",
-        virtualhost=virtualhost or original_url.path.lstrip("/"),
+        virtualhost=build_virtual_host(url, virtualhost, original_url.path),
         ssl=use_ssl,
         ssl_options=ssl_options,
         client_properties=client_properties,

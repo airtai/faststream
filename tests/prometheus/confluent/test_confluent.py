@@ -56,7 +56,8 @@ class TestBatchPrometheus(BatchConfluentPrometheusSettings, LocalPrometheusTestc
 
 
 @pytest.mark.confluent()
-class TestPrometheus(ConfluentPrometheusSettings, LocalPrometheusTestcase): ...
+class TestPrometheus(ConfluentPrometheusSettings, LocalPrometheusTestcase):
+    pass
 
 
 @pytest.mark.confluent()

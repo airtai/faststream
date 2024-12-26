@@ -41,7 +41,7 @@ class TestBatchPrometheus(BatchRedisPrometheusSettings, LocalPrometheusTestcase)
         async with broker:
             await broker.start()
             tasks = (
-                asyncio.create_task(broker.publish_batch("hel", "lo", list=queue)),
+                asyncio.create_task(broker.publish_batch(1, 2, list=queue)),
                 asyncio.create_task(event.wait()),
             )
             await asyncio.wait(tasks, timeout=self.timeout)

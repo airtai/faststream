@@ -92,7 +92,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
         message = None
 
         @broker.subscriber(*args, **kwargs)
-        async def handler(m=Context("message")):
+        async def handler(m=Context("message")) -> None:
             event.set()
 
             nonlocal message
