@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Annotated, Any, Optional, Union
 
 import pydantic
+import pytest
 from dirty_equals import IsDict, IsPartialDict, IsStr
 from fast_depends import Depends
 from typing_extensions import Literal
@@ -697,3 +698,42 @@ class ArgumentsTestcase(FastAPICompatible):
                     "type": "object",
                 },
             )
+
+    def test_overwrite_schema(self) -> None:
+        @dataclass
+        class User:
+            id: int
+            name: str = ""
+
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle(user: User) -> None: ...
+
+        @dataclass
+        class User:
+            id: int
+            email: str = ""
+
+        @broker.subscriber("test2")
+        async def second_handle(user: User) -> None: ...
+
+        with pytest.warns(RuntimeWarning, match="Overwriting the message schema, data types have the same name"):
+            schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        assert len(payload) == 1
+
+        key, value = next(iter(payload.items()))
+
+        assert key == "User"
+        assert value == {
+            "properties": {
+                "id": {"title": "Id", "type": "integer"},
+                "email": {"default": "", "title": "Email", "type": "string"},
+            },
+            "required": ["id"],
+            "title": key,
+            "type": "object",
+        }
