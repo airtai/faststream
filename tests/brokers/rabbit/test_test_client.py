@@ -337,72 +337,37 @@ exch_headers = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.HE
 queue_1 = RabbitQueue("test-q-1", auto_delete=True)
 queue_2 = RabbitQueue("test-queue-1", auto_delete=True, routing_key="*.info")
 queue_3 = RabbitQueue("test-queue-1", auto_delete=True, bind_arguments={"key": 1})
-queue_4 = RabbitQueue("test-queue-2", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "any"}, )
-queue_5 = RabbitQueue("test-queue-3", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "all"},
-                      )
+queue_4 = RabbitQueue("test-queue-2", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "any"})
+queue_5 = RabbitQueue("test-queue-3", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "all"})
 
 broker = RabbitBroker()
 
 
-@pytest.mark.parametrize(
-    ("queue", "exchange", "routing_key", "headers", "expected_result"),
-    (
-        pytest.param(queue_1, exch_direct, "test-q-1", {}, True, id="direct_match"),
-        pytest.param(
-            queue_1, exch_direct, "test-q-1111", {}, False, id="direct_no_match"
-        ),
-        pytest.param(queue_1, exch_fanout, "any_key", {}, True, id="fanout_match"),
-        pytest.param(queue_2, exch_topic, "log.info", {}, True, id="topic_match"),
-        pytest.param(queue_2, exch_topic, "log.debug", {}, False, id="topic_no_match"),
-        pytest.param(
-            queue_3, exch_headers, "any_key", {"key": 1}, True, id="headers_match"
-        ),
-        pytest.param(
-            queue_3,
-            exch_headers,
-            "any_key",
-            {"key": 3333},
-            False,
-            id="headers_no_match",
-        ),
-        pytest.param(
-            queue_4, exch_headers, "any_key", {"key2": 2}, True, id="headers_any_match"
-        ),
-        pytest.param(
-            queue_4,
-            exch_headers,
-            "any_key",
-            {"key2": 33333},
-            False,
-            id="headers_any_no_match",
-        ),
-        pytest.param(
-            queue_5,
-            exch_headers,
-            "any-key",
-            {"key": 2, "key2": 2},
-            True,
-            id="headers_all_match",
-        ),
-        pytest.param(
-            queue_5,
-            exch_headers,
-            "any-key",
-            {"key": 1, "key2": 2},
-            False,
-            id="headers_all_no_match",
-        ),
-    ),
-)
-def test_in_memory_routing(
-    queue: str,
-    exchange: RabbitExchange,
-    routing_key: str,
-    headers: dict,
-    expected_result: bool,
-):
+@pytest.mark.parametrize(("queue", "exchange", "routing_key", "headers", "expected_result"),
+                         (pytest.param(queue_1, exch_direct, "test-q-1", {}, True,
+                                       id="direct_match"),
+                          pytest.param(queue_1, exch_direct, "test-q-1111", {}, False,
+                                       id="direct_no_match"),
+                          pytest.param(queue_1, exch_fanout, "any_key", {}, True,
+                                       id="fanout_match"),
+                          pytest.param(queue_2, exch_topic, "log.info", {}, True,
+                                       id="topic_match"),
+                          pytest.param(queue_2, exch_topic, "log.debug", {}, False,
+                                       id="topic_no_match"),
+                          pytest.param(queue_3, exch_headers, "any_key", {"key": 1}, True,
+                                       id="headers_match"),
+                          pytest.param(queue_3, exch_headers, "any_key", {"key": 3333}, False,
+                                       id="headers_no_match"),
+                          pytest.param(queue_4, exch_headers, "any_key", {"key2": 2}, True,
+                                       id="headers_any_match"),
+                          pytest.param(queue_4, exch_headers, "any_key", {"key2": 33333}, False,
+                                       id="headers_any_no_match"),
+                          pytest.param(queue_5, exch_headers, "any-key", {"key": 2, "key2": 2}, True,
+                                       id="headers_all_match"),
+                          pytest.param(queue_5, exch_headers, "any-key", {"key": 1, "key2": 2}, False,
+                                       id="headers_all_no_match")
+                          ))
+def test_in_memory_routing(queue: str, exchange: RabbitExchange, routing_key: str, headers: dict,
+                           expected_result: bool):
     subscriber = broker.subscriber(queue, exchange)
-    assert (
-        _is_handler_matches(subscriber, routing_key, headers, exchange)
-        == expected_result
-    )
+    assert _is_handler_matches(subscriber, routing_key, headers, exchange) == expected_result
