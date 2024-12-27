@@ -1,27 +1,26 @@
 import asyncio
 
 import pytest
-
 from faststream import BaseMiddleware
 from faststream.exceptions import SubscriberNotFound
 from faststream.rabbit import (
     ExchangeType,
     RabbitExchange,
-    RabbitQueue,
+    RabbitQueue, RabbitBroker,
 )
 from faststream.rabbit.annotations import RabbitMessage
-from faststream.rabbit.testing import FakeProducer, apply_pattern
+from faststream.rabbit.testing import FakeProducer, apply_pattern, _is_handler_matches
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
-from .basic import RabbitMemoryTestcaseConfig
+from .basic import RabbitMemoryTestcaseConfig, RabbitTestcaseConfig
 
 
 @pytest.mark.asyncio()
 class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
     @pytest.mark.rabbit()
     async def test_with_real_testclient(
-        self,
-        queue: str,
+            self,
+            queue: str,
     ) -> None:
         event = asyncio.Event()
 
@@ -56,8 +55,8 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
             publisher.mock.assert_called_once_with("Hi!")
 
     async def test_direct(
-        self,
-        queue: str,
+            self,
+            queue: str,
     ) -> None:
         broker = self.get_broker()
 
@@ -74,16 +73,16 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
 
             assert await (await br.request("", queue)).decode() == 1
             assert (
-                await (await br.request("", queue + "1", exchange="test")).decode() == 2
+                    await (await br.request("", queue + "1", exchange="test")).decode() == 2
             )
 
             with pytest.raises(SubscriberNotFound):
                 await br.request("", exchange="test2")
 
     async def test_fanout(
-        self,
-        queue: str,
-        mock,
+            self,
+            queue: str,
+            mock,
     ) -> None:
         broker = self.get_broker()
 
@@ -177,21 +176,21 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
 
         async with self.patch_broker(broker) as br:
             assert (
-                await (
-                    await br.request(exchange=exch, headers={"key": 2, "key2": 2})
-                ).decode()
-                == 2
+                    await (
+                        await br.request(exchange=exch, headers={"key": 2, "key2": 2})
+                    ).decode()
+                    == 2
             )
             assert (
-                await (await br.request(exchange=exch, headers={"key": 2})).decode()
-                == 1
+                    await (await br.request(exchange=exch, headers={"key": 2})).decode()
+                    == 1
             )
             assert await (await br.request(exchange=exch, headers={})).decode() == 3
 
     async def test_consume_manual_ack(
-        self,
-        queue: str,
-        exchange: RabbitExchange,
+            self,
+            queue: str,
+            exchange: RabbitExchange,
     ) -> None:
         broker = self.get_broker(apply_types=True)
 
@@ -296,8 +295,8 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
 
     @pytest.mark.rabbit()
     async def test_broker_with_real_patches_publishers_and_subscribers(
-        self,
-        queue: str,
+            self,
+            queue: str,
     ) -> None:
         await super().test_broker_with_real_patches_publishers_and_subscribers(queue)
 
@@ -305,27 +304,71 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
 @pytest.mark.parametrize(
     ("pattern", "current", "result"),
     (
-        pytest.param("#", "1.2.3", True, id="#"),
-        pytest.param("*", "1", True, id="*"),
-        pytest.param("*", "1.2", False, id="* - broken"),
-        pytest.param("test.*", "test.1", True, id="test.*"),
-        pytest.param("test.#", "test.1", True, id="test.#"),
-        pytest.param("#.test.#", "1.2.test.1.2", True, id="#.test.#"),
-        pytest.param("#.test.*", "1.2.test.1", True, id="#.test.*"),
-        pytest.param("#.test.*.*", "1.2.test.1.2", True, id="#.test.*."),
-        pytest.param("#.test.*.*.*", "1.2.test.1.2", False, id="#.test.*.*.* - broken"),
-        pytest.param(
-            "#.test.*.test.#",
-            "1.2.test.1.test.1.2",
-            True,
-            id="#.test.*.test.#",
-        ),
-        pytest.param("#.*.test", "1.2.2.test", True, id="#.*.test"),
-        pytest.param("#.2.*.test", "1.2.2.test", True, id="#.2.*.test"),
-        pytest.param("#.*.*.test", "1.2.2.test", True, id="#.*.*.test"),
-        pytest.param("*.*.*.test", "1.2.test", False, id="*.*.*.test - broken"),
-        pytest.param("#.*.*.test", "1.2.test", False, id="#.*.*.test - broken"),
+            pytest.param("#", "1.2.3", True, id="#"),
+            pytest.param("*", "1", True, id="*"),
+            pytest.param("*", "1.2", False, id="* - broken"),
+            pytest.param("test.*", "test.1", True, id="test.*"),
+            pytest.param("test.#", "test.1", True, id="test.#"),
+            pytest.param("#.test.#", "1.2.test.1.2", True, id="#.test.#"),
+            pytest.param("#.test.*", "1.2.test.1", True, id="#.test.*"),
+            pytest.param("#.test.*.*", "1.2.test.1.2", True, id="#.test.*."),
+            pytest.param("#.test.*.*.*", "1.2.test.1.2", False, id="#.test.*.*.* - broken"),
+            pytest.param(
+                "#.test.*.test.#",
+                "1.2.test.1.test.1.2",
+                True,
+                id="#.test.*.test.#",
+            ),
+            pytest.param("#.*.test", "1.2.2.test", True, id="#.*.test"),
+            pytest.param("#.2.*.test", "1.2.2.test", True, id="#.2.*.test"),
+            pytest.param("#.*.*.test", "1.2.2.test", True, id="#.*.*.test"),
+            pytest.param("*.*.*.test", "1.2.test", False, id="*.*.*.test - broken"),
+            pytest.param("#.*.*.test", "1.2.test", False, id="#.*.*.test - broken"),
     ),
 )
 def test(pattern: str, current: str, result: bool) -> None:
     assert apply_pattern(pattern, current) == result
+
+
+exch_direct = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.DIRECT)
+exch_fanout = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.FANOUT)
+exch_topic = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.TOPIC)
+exch_headers = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.HEADERS)
+queue_1 = RabbitQueue("test-q-1", auto_delete=True)
+queue_2 = RabbitQueue("test-queue-1", auto_delete=True, routing_key="*.info")
+queue_3 = RabbitQueue("test-queue-1", auto_delete=True, bind_arguments={"key": 1})
+queue_4 = RabbitQueue("test-queue-2", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "any"}, )
+queue_5 = RabbitQueue("test-queue-3", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "all"},
+                      )
+
+broker = RabbitBroker()
+
+
+@pytest.mark.parametrize(("queue", "exchange", "routing_key", "headers", "expected_result"),
+                         [pytest.param(queue_1, exch_direct, "test-q-1", {}, True,
+                                       id="direct_match"),
+                          pytest.param(queue_1, exch_direct, "test-q-1111", {}, False,
+                                       id="direct_no_match"),
+                          pytest.param(queue_1, exch_fanout, "any_key", {}, True,
+                                       id="fanout_match"),
+                          pytest.param(queue_2, exch_topic, "log.info", {}, True,
+                                       id="topic_match"),
+                          pytest.param(queue_2, exch_topic, "log.debug", {}, False,
+                                       id="topic_no_match"),
+                          pytest.param(queue_3, exch_headers, "any_key", {"key": 1}, True,
+                                       id="headers_match"),
+                          pytest.param(queue_3, exch_headers, "any_key", {"key": 3333}, False,
+                                       id="headers_no_match"),
+                          pytest.param(queue_4, exch_headers, "any_key", {"key2": 2}, True,
+                                       id="headers_any_match"),
+                          pytest.param(queue_4, exch_headers, "any_key", {"key2": 33333}, False,
+                                       id="headers_any_no_match"),
+                          pytest.param(queue_5, exch_headers, "any-key", {"key": 2, "key2": 2},
+                                       True, id="headers_all_match"),
+                          pytest.param(queue_5, exch_headers, "any-key", {"key": 1, "key2": 2},
+                                       False, id="headers_all_no_match")
+                          ])
+def test_in_memory_routing(queue: str, exchange: RabbitExchange, routing_key: str, headers: dict,
+                           expected_result: bool):
+    subscriber = broker.subscriber(queue, exchange)
+    assert _is_handler_matches(subscriber, routing_key, headers, exchange) == expected_result
