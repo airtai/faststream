@@ -27,4 +27,3 @@ async def declare_smth():
         exchange=exchange,
         routing_key=queue.name # This parameter is optional
     )
-
