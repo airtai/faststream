@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 import pytest
 
@@ -337,40 +338,135 @@ exch_fanout = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.FAN
 exch_topic = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.TOPIC)
 exch_headers = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.HEADERS)
 reqular_queue = RabbitQueue("test-reqular-queue", auto_delete=True)
-routing_key_queue = RabbitQueue("test-routing-key-queue", auto_delete=True, routing_key="*.info")
-one_key_queue = RabbitQueue("test-one-key-queue", auto_delete=True, bind_arguments={"key": 1})
-any_keys_queue = RabbitQueue("test-any-keys-queue", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "any"})
-all_keys_queue = RabbitQueue("test-all-keys-queue", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "all"})
+
+routing_key_queue = RabbitQueue(
+    "test-routing-key-queue", auto_delete=True, routing_key="*.info"
+)
+one_key_queue = RabbitQueue(
+    "test-one-key-queue", auto_delete=True, bind_arguments={"key": 1}
+)
+any_keys_queue = RabbitQueue(
+    "test-any-keys-queue",
+    auto_delete=True,
+    bind_arguments={"key": 2, "key2": 2, "x-match": "any"},
+)
+all_keys_queue = RabbitQueue(
+    "test-all-keys-queue",
+    auto_delete=True,
+    bind_arguments={"key": 2, "key2": 2, "x-match": "all"},
+)
 
 broker = RabbitBroker()
 
 
-@pytest.mark.parametrize(("queue", "exchange", "routing_key", "headers", "expected_result"),
-                         (pytest.param(reqular_queue, exch_direct, "test-reqular-queue", {}, True,
-                                       id="direct match"),
-                          pytest.param(reqular_queue, exch_direct, "test-reqular-queue-11111111", {}, False,
-                                       id="direct no match"),
-                          pytest.param(reqular_queue, exch_fanout, "any-key", {}, True,
-                                       id="fanout match"),
-                          pytest.param(routing_key_queue, exch_topic, "log.info", {}, True,
-                                       id="topic match"),
-                          pytest.param(routing_key_queue, exch_topic, "log.debug", {}, False,
-                                       id="topic no match"),
-                          pytest.param(one_key_queue, exch_headers, "any-key", {"key": 1}, True,
-                                       id="headers match"),
-                          pytest.param(one_key_queue, exch_headers, "any-key", {"key": 3333}, False,
-                                       id="headers no match"),
-                          pytest.param(any_keys_queue, exch_headers, "any-key", {"key2": 2}, True,
-                                       id="headers any match"),
-                          pytest.param(any_keys_queue, exch_headers, "any-key", {"key2": 33333}, False,
-                                       id="headers any no match"),
-                          pytest.param(all_keys_queue, exch_headers, "any-key", {"key": 2, "key2": 2}, True,
-                                       id="headers all match"),
-                          pytest.param(all_keys_queue, exch_headers, "any-key", {"key": 1, "key2": 2}, False,
-                                       id="headers all no match"),
-                          ))
-def test_in_memory_routing(queue: str, exchange: RabbitExchange, routing_key: str, headers: dict[str,Any],
-                           expected_result: bool):
+@pytest.mark.parametrize(
+    (
+        "queue",
+        "exchange",
+        "routing_key",
+        "headers",
+        "expected_result",
+    ),
+    (
+        pytest.param(
+            reqular_queue,
+            exch_direct,
+            reqular_queue.routing,
+            {},
+            True,
+            id="direct match",
+        ),
+        pytest.param(
+            reqular_queue,
+            exch_direct,
+            "wrong key",
+            {},
+            False,
+            id="direct mismatch",
+        ),
+        pytest.param(
+            reqular_queue,
+            exch_fanout,
+            "",
+            {},
+            True,
+            id="fanout match",
+        ),
+        pytest.param(
+            routing_key_queue,
+            exch_topic,
+            "log.info",
+            {},
+            True,
+            id="topic match",
+        ),
+        pytest.param(
+            routing_key_queue,
+            exch_topic,
+            "log.wrong",
+            {},
+            False,
+            id="topic mismatch",
+        ),
+        pytest.param(
+            one_key_queue,
+            exch_headers,
+            "",
+            {"key": 1},
+            True,
+            id="one header match",
+        ),
+        pytest.param(
+            one_key_queue,
+            exch_headers,
+            "",
+            {"key": "wrong"},
+            False,
+            id="one header mismatch",
+        ),
+        pytest.param(
+            any_keys_queue,
+            exch_headers,
+            "",
+            {"key2": 2},
+            True,
+            id="any headers match",
+        ),
+        pytest.param(
+            any_keys_queue,
+            exch_headers,
+            "",
+            {"key2": "wrong"},
+            False,
+            id="any headers mismatch",
+        ),
+        pytest.param(
+            all_keys_queue,
+            exch_headers,
+            "",
+            {"key": 2, "key2": 2},
+            True,
+            id="all headers match",
+        ),
+        pytest.param(
+            all_keys_queue,
+            exch_headers,
+            "",
+            {"key": "wrong", "key2": 2},
+            False,
+            id="all headers mismatch",
+        ),
+    ),
+)
+def test_in_memory_routing(
+    queue: str,
+    exchange: RabbitExchange,
+    routing_key: str,
+    headers: dict[str, Any],
+    expected_result: bool,
+) -> None:
     subscriber = broker.subscriber(queue, exchange)
-    assert _is_handler_matches(subscriber, routing_key, headers, exchange) == expected_result
-
+    assert (
+        _is_handler_matches(subscriber, routing_key, headers, exchange)
+        is expected_result
+    )
