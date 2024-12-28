@@ -1,26 +1,28 @@
 import asyncio
 
 import pytest
+
 from faststream import BaseMiddleware
 from faststream.exceptions import SubscriberNotFound
 from faststream.rabbit import (
     ExchangeType,
+    RabbitBroker,
     RabbitExchange,
-    RabbitQueue, RabbitBroker,
+    RabbitQueue,
 )
 from faststream.rabbit.annotations import RabbitMessage
-from faststream.rabbit.testing import FakeProducer, apply_pattern, _is_handler_matches
+from faststream.rabbit.testing import FakeProducer, _is_handler_matches, apply_pattern
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
-from .basic import RabbitMemoryTestcaseConfig, RabbitTestcaseConfig
+from .basic import RabbitMemoryTestcaseConfig
 
 
 @pytest.mark.asyncio()
 class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
     @pytest.mark.rabbit()
     async def test_with_real_testclient(
-            self,
-            queue: str,
+        self,
+        queue: str,
     ) -> None:
         event = asyncio.Event()
 
@@ -55,8 +57,8 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
             publisher.mock.assert_called_once_with("Hi!")
 
     async def test_direct(
-            self,
-            queue: str,
+        self,
+        queue: str,
     ) -> None:
         broker = self.get_broker()
 
@@ -73,16 +75,16 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
 
             assert await (await br.request("", queue)).decode() == 1
             assert (
-                    await (await br.request("", queue + "1", exchange="test")).decode() == 2
+                await (await br.request("", queue + "1", exchange="test")).decode() == 2
             )
 
             with pytest.raises(SubscriberNotFound):
                 await br.request("", exchange="test2")
 
     async def test_fanout(
-            self,
-            queue: str,
-            mock,
+        self,
+        queue: str,
+        mock,
     ) -> None:
         broker = self.get_broker()
 
@@ -176,21 +178,21 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
 
         async with self.patch_broker(broker) as br:
             assert (
-                    await (
-                        await br.request(exchange=exch, headers={"key": 2, "key2": 2})
-                    ).decode()
-                    == 2
+                await (
+                    await br.request(exchange=exch, headers={"key": 2, "key2": 2})
+                ).decode()
+                == 2
             )
             assert (
-                    await (await br.request(exchange=exch, headers={"key": 2})).decode()
-                    == 1
+                await (await br.request(exchange=exch, headers={"key": 2})).decode()
+                == 1
             )
             assert await (await br.request(exchange=exch, headers={})).decode() == 3
 
     async def test_consume_manual_ack(
-            self,
-            queue: str,
-            exchange: RabbitExchange,
+        self,
+        queue: str,
+        exchange: RabbitExchange,
     ) -> None:
         broker = self.get_broker(apply_types=True)
 
@@ -295,8 +297,8 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
 
     @pytest.mark.rabbit()
     async def test_broker_with_real_patches_publishers_and_subscribers(
-            self,
-            queue: str,
+        self,
+        queue: str,
     ) -> None:
         await super().test_broker_with_real_patches_publishers_and_subscribers(queue)
 
@@ -304,26 +306,26 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
 @pytest.mark.parametrize(
     ("pattern", "current", "result"),
     (
-            pytest.param("#", "1.2.3", True, id="#"),
-            pytest.param("*", "1", True, id="*"),
-            pytest.param("*", "1.2", False, id="* - broken"),
-            pytest.param("test.*", "test.1", True, id="test.*"),
-            pytest.param("test.#", "test.1", True, id="test.#"),
-            pytest.param("#.test.#", "1.2.test.1.2", True, id="#.test.#"),
-            pytest.param("#.test.*", "1.2.test.1", True, id="#.test.*"),
-            pytest.param("#.test.*.*", "1.2.test.1.2", True, id="#.test.*."),
-            pytest.param("#.test.*.*.*", "1.2.test.1.2", False, id="#.test.*.*.* - broken"),
-            pytest.param(
-                "#.test.*.test.#",
-                "1.2.test.1.test.1.2",
-                True,
-                id="#.test.*.test.#",
-            ),
-            pytest.param("#.*.test", "1.2.2.test", True, id="#.*.test"),
-            pytest.param("#.2.*.test", "1.2.2.test", True, id="#.2.*.test"),
-            pytest.param("#.*.*.test", "1.2.2.test", True, id="#.*.*.test"),
-            pytest.param("*.*.*.test", "1.2.test", False, id="*.*.*.test - broken"),
-            pytest.param("#.*.*.test", "1.2.test", False, id="#.*.*.test - broken"),
+        pytest.param("#", "1.2.3", True, id="#"),
+        pytest.param("*", "1", True, id="*"),
+        pytest.param("*", "1.2", False, id="* - broken"),
+        pytest.param("test.*", "test.1", True, id="test.*"),
+        pytest.param("test.#", "test.1", True, id="test.#"),
+        pytest.param("#.test.#", "1.2.test.1.2", True, id="#.test.#"),
+        pytest.param("#.test.*", "1.2.test.1", True, id="#.test.*"),
+        pytest.param("#.test.*.*", "1.2.test.1.2", True, id="#.test.*."),
+        pytest.param("#.test.*.*.*", "1.2.test.1.2", False, id="#.test.*.*.* - broken"),
+        pytest.param(
+            "#.test.*.test.#",
+            "1.2.test.1.test.1.2",
+            True,
+            id="#.test.*.test.#",
+        ),
+        pytest.param("#.*.test", "1.2.2.test", True, id="#.*.test"),
+        pytest.param("#.2.*.test", "1.2.2.test", True, id="#.2.*.test"),
+        pytest.param("#.*.*.test", "1.2.2.test", True, id="#.*.*.test"),
+        pytest.param("*.*.*.test", "1.2.test", False, id="*.*.*.test - broken"),
+        pytest.param("#.*.*.test", "1.2.test", False, id="#.*.*.test - broken"),
     ),
 )
 def test(pattern: str, current: str, result: bool) -> None:
