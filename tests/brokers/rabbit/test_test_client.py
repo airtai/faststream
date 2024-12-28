@@ -336,40 +336,40 @@ exch_direct = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.DIR
 exch_fanout = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.FANOUT)
 exch_topic = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.TOPIC)
 exch_headers = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.HEADERS)
-queue_1 = RabbitQueue("test-q-1", auto_delete=True)
-queue_2 = RabbitQueue("test-queue-1", auto_delete=True, routing_key="*.info")
-queue_3 = RabbitQueue("test-queue-1", auto_delete=True, bind_arguments={"key": 1})
-queue_4 = RabbitQueue("test-queue-2", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "any"})
-queue_5 = RabbitQueue("test-queue-3", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "all"})
+reqular_queue = RabbitQueue("test-reqular-queue", auto_delete=True)
+routing_key_queue = RabbitQueue("test-routing-key-queue", auto_delete=True, routing_key="*.info")
+one_key_queue = RabbitQueue("test-one_key-queue", auto_delete=True, bind_arguments={"key": 1})
+any_keys_queue = RabbitQueue("any-keys-queue", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "any"})
+all_keys_queue = RabbitQueue("all-keys-queue", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "all"})
 
 broker = RabbitBroker()
 
 
 @pytest.mark.parametrize(("queue", "exchange", "routing_key", "headers", "expected_result"),
-                         (pytest.param(queue_1, exch_direct, "test-q-1", {}, True,
-                                       id="direct_match"),
-                          pytest.param(queue_1, exch_direct, "test-q-1111", {}, False,
-                                       id="direct_no_match"),
-                          pytest.param(queue_1, exch_fanout, "any_key", {}, True,
-                                       id="fanout_match"),
-                          pytest.param(queue_2, exch_topic, "log.info", {}, True,
-                                       id="topic_match"),
-                          pytest.param(queue_2, exch_topic, "log.debug", {}, False,
-                                       id="topic_no_match"),
-                          pytest.param(queue_3, exch_headers, "any_key", {"key": 1}, True,
-                                       id="headers_match"),
-                          pytest.param(queue_3, exch_headers, "any_key", {"key": 3333}, False,
-                                       id="headers_no_match"),
-                          pytest.param(queue_4, exch_headers, "any_key", {"key2": 2}, True,
-                                       id="headers_any_match"),
-                          pytest.param(queue_4, exch_headers, "any_key", {"key2": 33333}, False,
-                                       id="headers_any_no_match"),
-                          pytest.param(queue_5, exch_headers, "any-key", {"key": 2, "key2": 2}, True,
-                                       id="headers_all_match"),
-                          pytest.param(queue_5, exch_headers, "any-key", {"key": 1, "key2": 2}, False,
-                                       id="headers_all_no_match")
+                         (pytest.param(reqular_queue, exch_direct, "test-q-1", {}, True,
+                                       id="direct match"),
+                          pytest.param(reqular_queue, exch_direct, "test-q-1111", {}, False,
+                                       id="direct no match"),
+                          pytest.param(reqular_queue, exch_fanout, "any-key", {}, True,
+                                       id="fanout match"),
+                          pytest.param(routing_key_queue, exch_topic, "log.info", {}, True,
+                                       id="topic match"),
+                          pytest.param(routing_key_queue, exch_topic, "log.debug", {}, False,
+                                       id="topic no match"),
+                          pytest.param(one_key_queue, exch_headers, "any-key", {"key": 1}, True,
+                                       id="headers match"),
+                          pytest.param(one_key_queue, exch_headers, "any-key", {"key": 3333}, False,
+                                       id="headers no match"),
+                          pytest.param(any_keys_queue, exch_headers, "any-key", {"key2": 2}, True,
+                                       id="headers any match"),
+                          pytest.param(any_keys_queue, exch_headers, "any-key", {"key2": 33333}, False,
+                                       id="headers any no match"),
+                          pytest.param(all_keys_queue, exch_headers, "any-key", {"key": 2, "key2": 2}, True,
+                                       id="headers all match"),
+                          pytest.param(all_keys_queue, exch_headers, "any-key", {"key": 1, "key2": 2}, False,
+                                       id="headers all no match"),
                           ))
-def test_in_memory_routing(queue: str, exchange: RabbitExchange, routing_key: str, headers: dict,
+def test_in_memory_routing(queue: str, exchange: RabbitExchange, routing_key: str, headers: dict[str,Any],
                            expected_result: bool):
     subscriber = broker.subscriber(queue, exchange)
     assert _is_handler_matches(subscriber, routing_key, headers, exchange) == expected_result
