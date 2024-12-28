@@ -338,9 +338,9 @@ exch_topic = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.TOPI
 exch_headers = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.HEADERS)
 reqular_queue = RabbitQueue("test-reqular-queue", auto_delete=True)
 routing_key_queue = RabbitQueue("test-routing-key-queue", auto_delete=True, routing_key="*.info")
-one_key_queue = RabbitQueue("test-one_key-queue", auto_delete=True, bind_arguments={"key": 1})
-any_keys_queue = RabbitQueue("any-keys-queue", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "any"})
-all_keys_queue = RabbitQueue("all-keys-queue", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "all"})
+one_key_queue = RabbitQueue("test-one-key-queue", auto_delete=True, bind_arguments={"key": 1})
+any_keys_queue = RabbitQueue("test-any-keys-queue", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "any"})
+all_keys_queue = RabbitQueue("test-all-keys-queue", auto_delete=True, bind_arguments={"key": 2, "key2": 2, "x-match": "all"})
 
 broker = RabbitBroker()
 
