@@ -196,7 +196,7 @@ def get_received_processed_messages_duration_seconds_metric(
                     "handler": queue,
                     "le": cast(str, IsStr),
                 },
-                value=cast("float", IsFloat),
+                value=cast(float, IsFloat),
                 timestamp=None,
                 exemplar=None,
             )
@@ -346,7 +346,7 @@ def get_published_messages_duration_seconds_metric(
                     "destination": queue,
                     "le": cast(str, IsStr),
                 },
-                value=cast("float", IsFloat),
+                value=cast(float, IsFloat),
                 timestamp=None,
                 exemplar=None,
             )
