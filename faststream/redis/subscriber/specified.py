@@ -113,7 +113,7 @@ class SpecificationConcurrentSubscriber(
 
 
 class SpecificationStreamConcurrentSubscriber(
-    ConcurrentStreamSubscriber, _StreamSubscriberMixin
+    ConcurrentStreamSubscriber, SpecificationStreamSubscriber
 ):
     pass
 
@@ -125,6 +125,6 @@ class SpecificationChannelConcurrentSubscriber(
 
 
 class SpecificationListConcurrentSubscriber(
-    ConcurrentListSubscriber, _ListSubscriberMixin
+    ConcurrentListSubscriber, SpecificationListSubscriber
 ):
     pass
