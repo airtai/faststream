@@ -251,7 +251,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         self,
         cmd: Union["PublishCommand", "KafkaPublishCommand"],
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"],
+        extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = KafkaPublishCommand.from_cmd(cmd)
@@ -263,7 +263,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         cmd.partition = cmd.partition or self.partition
         cmd.key = cmd.key or self.key
 
-        await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
+        await self._basic_publish(cmd, _extra_middlewares=extra_middlewares)
 
     @override
     async def request(
@@ -423,7 +423,7 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
         self,
         cmd: Union["PublishCommand", "KafkaPublishCommand"],
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"],
+        extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = KafkaPublishCommand.from_cmd(cmd, batch=True)
@@ -434,4 +434,4 @@ class BatchPublisher(LogicPublisher[tuple["ConsumerRecord", ...]]):
 
         cmd.partition = cmd.partition or self.partition
 
-        await self._basic_publish_batch(cmd, _extra_middlewares=_extra_middlewares)
+        await self._basic_publish_batch(cmd, _extra_middlewares=extra_middlewares)

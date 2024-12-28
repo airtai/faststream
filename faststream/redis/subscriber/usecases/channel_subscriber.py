@@ -12,6 +12,7 @@ from redis.asyncio.client import (
 )
 from typing_extensions import TypeAlias, override
 
+from faststream._internal.subscriber.mixins import ConcurrentMixin
 from faststream._internal.subscriber.utils import process_msg
 from faststream.middlewares import AckPolicy
 from faststream.redis.message import (
@@ -147,9 +148,47 @@ class ChannelSubscriber(LogicSubscriber):
 
     async def _get_msgs(self, psub: RPubSub) -> None:
         if msg := await self._get_message(psub):
-            await self.consume(msg)
+            await self.consume_one(msg)
 
     def add_prefix(self, prefix: str) -> None:
         new_ch = deepcopy(self.channel)
         new_ch.name = f"{prefix}{new_ch.name}"
         self.channel = new_ch
+
+
+class ConcurrentChannelSubscriber(
+    ConcurrentMixin["BrokerStreamMessage"], ChannelSubscriber
+):
+    def __init__(
+        self,
+        *,
+        channel: "PubSub",
+        # Subscriber args
+        no_reply: bool,
+        broker_dependencies: Iterable["Dependant"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+        max_workers: int,
+    ) -> None:
+        super().__init__(
+            # Propagated options
+            channel=channel,
+            no_reply=no_reply,
+            max_workers=max_workers,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "BrokerStreamMessage") -> None:
+        await self._put_msg(msg)

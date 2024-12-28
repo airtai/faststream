@@ -189,6 +189,10 @@ class RedisRoute(SubscriberRoute):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> None:
         super().__init__(
             call,
@@ -197,6 +201,7 @@ class RedisRoute(SubscriberRoute):
             list=list,
             stream=stream,
             dependencies=dependencies,
+            max_workers=max_workers,
             parser=parser,
             decoder=decoder,
             middlewares=middlewares,

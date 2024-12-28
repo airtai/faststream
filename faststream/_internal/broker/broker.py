@@ -102,11 +102,11 @@ class BrokerUsecase(
             Doc("Whether to use FastDepends or not."),
         ],
         serializer: Optional["SerializerProto"] = EMPTY,
-        _get_dependant: Annotated[
+        get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
         ],
-        _call_decorators: Annotated[
+        call_decorators: Annotated[
             Sequence["Decorator"],
             Doc("Any custom decorator to apply to wrapped functions."),
         ],
@@ -142,8 +142,8 @@ class BrokerUsecase(
         state = InitialBrokerState(
             di_state=DIState(
                 use_fastdepends=apply_types,
-                get_dependent=_get_dependant,
-                call_decorators=_call_decorators,
+                get_dependent=get_dependant,
+                call_decorators=call_decorators,
                 serializer=serializer,
                 provider=Provider(),
                 context=ContextRepo(),

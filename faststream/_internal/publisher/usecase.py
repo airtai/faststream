@@ -104,7 +104,7 @@ class PublisherUsecase(PublisherProto[MsgType]):
         self,
         cmd: "PublishCommand",
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"],
+        extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> Any:
         pub: Callable[..., Awaitable[Any]] = self._producer.publish
 
@@ -113,7 +113,7 @@ class PublisherUsecase(PublisherProto[MsgType]):
         for pub_m in chain(
             self.middlewares[::-1],
             (
-                _extra_middlewares
+                extra_middlewares
                 or (
                     m(None, context=context).publish_scope
                     for m in self._broker_middlewares[::-1]
@@ -159,7 +159,7 @@ class PublisherUsecase(PublisherProto[MsgType]):
         self,
         cmd: "PublishCommand",
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"],
+        extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> Any:
         pub = self._producer.publish_batch
 
@@ -168,7 +168,7 @@ class PublisherUsecase(PublisherProto[MsgType]):
         for pub_m in chain(
             self.middlewares[::-1],
             (
-                _extra_middlewares
+                extra_middlewares
                 or (
                     m(None, context=context).publish_scope
                     for m in self._broker_middlewares[::-1]

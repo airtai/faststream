@@ -157,7 +157,7 @@ class LogicPublisher(PublisherUsecase[IncomingMessage]):
         self,
         cmd: Union["RabbitPublishCommand", "PublishCommand"],
         *,
-        _extra_middlewares: Iterable["PublisherMiddleware"],
+        extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = RabbitPublishCommand.from_cmd(cmd)
@@ -171,7 +171,7 @@ class LogicPublisher(PublisherUsecase[IncomingMessage]):
         cmd.message_options = {**self.message_options, **cmd.message_options}
         cmd.publish_options = {**self.publish_options, **cmd.publish_options}
 
-        await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
+        await self._basic_publish(cmd, _extra_middlewares=extra_middlewares)
 
     @override
     async def request(

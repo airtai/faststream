@@ -49,7 +49,7 @@ class NatsPublishCommand(PublishCommand):
         reply_to: str = "",
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
-        _publish_type: PublishType,
+        publish_type: PublishType,
     ) -> None:
         super().__init__(
             body=message,
@@ -57,7 +57,7 @@ class NatsPublishCommand(PublishCommand):
             correlation_id=correlation_id,
             headers=headers,
             reply_to=reply_to,
-            _publish_type=_publish_type,
+            _publish_type=publish_type,
         )
 
         self.stream = stream

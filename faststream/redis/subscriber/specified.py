@@ -3,14 +3,18 @@ from faststream._internal.subscriber.specified import (
 )
 from faststream.redis.schemas import ListSub, StreamSub
 from faststream.redis.schemas.proto import RedisSpecificationProtocol
+from faststream.redis.subscriber.usecases.basic import ConcurrentSubscriber
 from faststream.redis.subscriber.usecases.channel_subscriber import (
     ChannelSubscriber,
+    ConcurrentChannelSubscriber,
 )
 from faststream.redis.subscriber.usecases.list_subscriber import (
     BatchListSubscriber,
+    ConcurrentListSubscriber,
     ListSubscriber,
 )
 from faststream.redis.subscriber.usecases.stream_subscriber import (
+    ConcurrentStreamSubscriber,
     StreamBatchSubscriber,
     StreamSubscriber,
 )
@@ -99,4 +103,28 @@ class SpecificationListSubscriber(_ListSubscriberMixin, ListSubscriber):
 
 
 class SpecificationListBatchSubscriber(_ListSubscriberMixin, BatchListSubscriber):
+    pass
+
+
+class SpecificationConcurrentSubscriber(
+    ConcurrentSubscriber, RedisSpecificationProtocol[SubscriberSpec]
+):
+    pass
+
+
+class SpecificationStreamConcurrentSubscriber(
+    ConcurrentStreamSubscriber, _StreamSubscriberMixin
+):
+    pass
+
+
+class SpecificationChannelConcurrentSubscriber(
+    ConcurrentChannelSubscriber, SpecificationChannelSubscriber
+):
+    pass
+
+
+class SpecificationListConcurrentSubscriber(
+    ConcurrentListSubscriber, _ListSubscriberMixin
+):
     pass

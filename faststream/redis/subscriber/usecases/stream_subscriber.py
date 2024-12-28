@@ -11,6 +11,7 @@ from typing import (
 from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
+from faststream._internal.subscriber.mixins import ConcurrentMixin
 from faststream._internal.subscriber.utils import process_msg
 from faststream.redis.message import (
     BatchStreamMessage,
@@ -281,7 +282,7 @@ class StreamSubscriber(_StreamHandlerMixin):
                         data=raw_msg,
                     )
 
-                    await self.consume(msg)
+                    await self.consume_one(msg)
 
 
 class StreamBatchSubscriber(_StreamHandlerMixin):
@@ -333,4 +334,44 @@ class StreamBatchSubscriber(_StreamHandlerMixin):
                     message_ids=ids,
                 )
 
-                await self.consume(msg)
+                await self.consume_one(msg)
+
+
+class ConcurrentStreamSubscriber(
+    ConcurrentMixin["BrokerStreamMessage"], StreamSubscriber
+):
+    def __init__(
+        self,
+        *,
+        stream: StreamSub,
+        # Subscriber args
+        ack_policy: "AckPolicy",
+        no_reply: bool,
+        broker_dependencies: Iterable["Dependant"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        max_workers: int,
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            stream=stream,
+            # Propagated options
+            ack_policy=ack_policy,
+            no_reply=no_reply,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            max_workers=max_workers,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "BrokerStreamMessage") -> None:
+        await self._put_msg(msg)

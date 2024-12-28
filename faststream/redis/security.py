@@ -25,10 +25,10 @@ def _parse_base_security(security: BaseSecurity) -> "AnyDict":
         class SSLConnection(Connection):
             def __init__(
                 self,
-                _security: BaseSecurity = security,
+                security_: BaseSecurity = security,
                 **kwargs: Any,
             ) -> None:
-                self._security = _security
+                self._security = security_
                 super().__init__(**kwargs)
 
             def _connection_arguments(self) -> Any:

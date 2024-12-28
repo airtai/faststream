@@ -77,7 +77,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         decoder: "AsyncCallable",
         state: "Pointer[BrokerState]",
         broker_dependencies: Iterable["Dependant"],
-        _call_decorators: Iterable["Decorator"],
+        call_decorators: Iterable["Decorator"],
     ) -> None:
         if self.dependant is None:
             di_state = state.get().di_state
@@ -89,7 +89,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
 
             dependant = self.handler.set_wrapped(
                 dependencies=dependencies,
-                _call_decorators=(*_call_decorators, *di_state.call_decorators),
+                _call_decorators=(*call_decorators, *di_state.call_decorators),
                 state=di_state,
             )
 
@@ -148,12 +148,12 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         self,
         /,
         message: "StreamMessage[MsgType]",
-        _extra_middlewares: Iterable["SubscriberMiddleware[Any]"],
+        extra_middlewares: Iterable["SubscriberMiddleware[Any]"],
     ) -> Any:
         """Execute wrapped handler with consume middlewares."""
         call: AsyncFuncAny = self.handler.call_wrapped
 
-        for middleware in chain(self.item_middlewares[::-1], _extra_middlewares):
+        for middleware in chain(self.item_middlewares[::-1], extra_middlewares):
             call = partial(middleware, call)
 
         try:

@@ -29,7 +29,10 @@ from faststream.middlewares import AckPolicy
 from faststream.redis.broker.broker import RedisBroker as RB
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.redis.subscriber.specified import SpecificationSubscriber
+from faststream.redis.subscriber.specified import (
+    SpecificationConcurrentSubscriber,
+    SpecificationSubscriber,
+)
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -620,33 +623,39 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
                 """,
             ),
         ] = False,
-    ) -> SpecificationSubscriber:
-        return cast(
-            "SpecificationSubscriber",
-            super().subscriber(
-                channel=channel,
-                list=list,
-                stream=stream,
-                dependencies=dependencies,
-                parser=parser,
-                decoder=decoder,
-                middlewares=middlewares,
-                ack_policy=ack_policy,
-                no_ack=no_ack,
-                no_reply=no_reply,
-                title=title,
-                description=description,
-                include_in_schema=include_in_schema,
-                # FastAPI args
-                response_model=response_model,
-                response_model_include=response_model_include,
-                response_model_exclude=response_model_exclude,
-                response_model_by_alias=response_model_by_alias,
-                response_model_exclude_unset=response_model_exclude_unset,
-                response_model_exclude_defaults=response_model_exclude_defaults,
-                response_model_exclude_none=response_model_exclude_none,
-            ),
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
+    ) -> Union[SpecificationSubscriber, SpecificationConcurrentSubscriber]:
+        subscriber = super().subscriber(
+            channel=channel,
+            max_workers=max_workers,
+            list=list,
+            stream=stream,
+            dependencies=dependencies,
+            parser=parser,
+            decoder=decoder,
+            middlewares=middlewares,
+            filter=filter,
+            no_ack=no_ack,
+            no_reply=no_reply,
+            title=title,
+            description=description,
+            include_in_schema=include_in_schema,
+            # FastAPI args
+            response_model=response_model,
+            response_model_include=response_model_include,
+            response_model_exclude=response_model_exclude,
+            response_model_by_alias=response_model_by_alias,
+            response_model_exclude_unset=response_model_exclude_unset,
+            response_model_exclude_defaults=response_model_exclude_defaults,
+            response_model_exclude_none=response_model_exclude_none,
         )
+
+        if max_workers > 1:
+            return cast("SpecificationConcurrentSubscriber", subscriber)
+        return cast("SpecificationSubscriber", subscriber)
 
     @override
     def publisher(

@@ -189,11 +189,11 @@ class RedisBroker(
             Doc("Whether to use FastDepends or not."),
         ] = True,
         serializer: Optional["SerializerProto"] = EMPTY,
-        _get_dependant: Annotated[
+        get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
         ] = None,
-        _call_decorators: Annotated[
+        call_decorators: Annotated[
             Iterable["Decorator"],
             Doc("Any custom decorator to apply to wrapped functions."),
         ] = (),
@@ -250,8 +250,8 @@ class RedisBroker(
             # FastDepends args
             apply_types=apply_types,
             serializer=serializer,
-            _get_dependant=_get_dependant,
-            _call_decorators=_call_decorators,
+            _get_dependant=get_dependant,
+            _call_decorators=call_decorators,
         )
 
         self._state.patch_value(

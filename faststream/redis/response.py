@@ -57,7 +57,7 @@ class RedisPublishCommand(PublishCommand):
         message: "SendableMessage",
         /,
         *messages: "SendableMessage",
-        _publish_type: "PublishType",
+        publish_type: "PublishType",
         correlation_id: Optional[str] = None,
         channel: Optional[str] = None,
         list: Optional[str] = None,
@@ -69,7 +69,7 @@ class RedisPublishCommand(PublishCommand):
     ) -> None:
         super().__init__(
             message,
-            _publish_type=_publish_type,
+            _publish_type=publish_type,
             correlation_id=correlation_id,
             reply_to=reply_to,
             destination="",
