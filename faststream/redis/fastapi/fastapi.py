@@ -637,7 +637,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             parser=parser,
             decoder=decoder,
             middlewares=middlewares,
-            filter=filter,
+            ack_policy=ack_policy,
             no_ack=no_ack,
             no_reply=no_reply,
             title=title,
