@@ -346,9 +346,9 @@ broker = RabbitBroker()
 
 
 @pytest.mark.parametrize(("queue", "exchange", "routing_key", "headers", "expected_result"),
-                         (pytest.param(reqular_queue, exch_direct, "test-q-1", {}, True,
+                         (pytest.param(reqular_queue, exch_direct, "test-reqular-queue", {}, True,
                                        id="direct match"),
-                          pytest.param(reqular_queue, exch_direct, "test-q-1111", {}, False,
+                          pytest.param(reqular_queue, exch_direct, "test-reqular-queue-11111111", {}, False,
                                        id="direct no match"),
                           pytest.param(reqular_queue, exch_fanout, "any-key", {}, True,
                                        id="fanout match"),
@@ -373,3 +373,4 @@ def test_in_memory_routing(queue: str, exchange: RabbitExchange, routing_key: st
                            expected_result: bool):
     subscriber = broker.subscriber(queue, exchange)
     assert _is_handler_matches(subscriber, routing_key, headers, exchange) == expected_result
+
