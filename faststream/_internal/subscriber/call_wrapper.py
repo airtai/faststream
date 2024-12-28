@@ -145,11 +145,11 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         self,
         *,
         dependencies: Sequence["Dependant"],
-        call_decorators: Iterable["Decorator"],
+        _call_decorators: Iterable["Decorator"],
         state: "DIState",
     ) -> Optional["CallModel"]:
         call = self._original_call
-        for decor in call_decorators:
+        for decor in _call_decorators:
             call = decor(call)
         self._original_call = call
 

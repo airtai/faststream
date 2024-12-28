@@ -34,7 +34,7 @@ class PublishCommand(Response):
         self,
         body: Any,
         *,
-        publish_type: PublishType,
+        _publish_type: PublishType,
         reply_to: str = "",
         destination: str = "",
         correlation_id: Optional[str] = None,
@@ -49,7 +49,7 @@ class PublishCommand(Response):
         self.destination = destination
         self.reply_to = reply_to
 
-        self.publish_type = publish_type
+        self.publish_type = _publish_type
 
     @property
     def batch_bodies(self) -> tuple["Any", ...]:

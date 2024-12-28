@@ -77,7 +77,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         decoder: "AsyncCallable",
         state: "Pointer[BrokerState]",
         broker_dependencies: Iterable["Dependant"],
-        call_decorators: Iterable["Decorator"],
+        _call_decorators: Iterable["Decorator"],
     ) -> None:
         if self.dependant is None:
             di_state = state.get().di_state
@@ -89,7 +89,7 @@ class HandlerItem(SetupAble, Generic[MsgType]):
 
             dependant = self.handler.set_wrapped(
                 dependencies=dependencies,
-                _call_decorators=(*call_decorators, *di_state.call_decorators),
+                _call_decorators=(*_call_decorators, *di_state.call_decorators),
                 state=di_state,
             )
 

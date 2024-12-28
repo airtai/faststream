@@ -27,14 +27,14 @@ if TYPE_CHECKING:
     from faststream.redis.message import UnifyRedisDict
 
 SubsciberType: TypeAlias = Union[
-    SpecificationChannelSubscriber,
-    SpecificationStreamBatchSubscriber,
-    SpecificationStreamSubscriber,
-    SpecificationListBatchSubscriber,
-    SpecificationListSubscriber,
-    SpecificationChannelConcurrentSubscriber,
-    SpecificationListConcurrentSubscriber,
-    SpecificationStreamConcurrentSubscriber,
+    "SpecificationChannelSubscriber",
+    "SpecificationStreamBatchSubscriber",
+    "SpecificationStreamSubscriber",
+    "SpecificationListBatchSubscriber",
+    "SpecificationListSubscriber",
+    "SpecificationChannelConcurrentSubscriber",
+    "SpecificationListConcurrentSubscriber",
+    "SpecificationStreamConcurrentSubscriber",
 ]
 
 

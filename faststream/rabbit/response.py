@@ -65,7 +65,7 @@ class RabbitPublishCommand(PublishCommand):
         self,
         message: "AioPikaSendableMessage",
         *,
-        publish_type: PublishType,
+        _publish_type: PublishType,
         routing_key: str = "",
         exchange: Optional[RabbitExchange] = None,
         # publish kwargs
@@ -84,7 +84,7 @@ class RabbitPublishCommand(PublishCommand):
             correlation_id=correlation_id,
             headers=headers,
             reply_to=reply_to,
-            _publish_type=publish_type,
+            _publish_type=_publish_type,
         )
         self.exchange = exchange or RabbitExchange()
 

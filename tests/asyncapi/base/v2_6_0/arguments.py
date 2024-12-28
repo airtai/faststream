@@ -718,13 +718,8 @@ class ArgumentsTestcase(FastAPICompatible):
         @broker.subscriber("test2")
         async def second_handle(user: User) -> None: ...
 
-        with pytest.warns(
-            RuntimeWarning,
-            match="Overwriting the message schema, data types have the same name",
-        ):
-            schema = AsyncAPI(
-                self.build_app(broker), schema_version="2.6.0"
-            ).to_jsonable()
+        with pytest.warns(RuntimeWarning, match="Overwriting the message schema, data types have the same name"):
+            schema = AsyncAPI(self.build_app(broker), schema_version="2.6.0").to_jsonable()
 
         payload = schema["components"]["schemas"]
 

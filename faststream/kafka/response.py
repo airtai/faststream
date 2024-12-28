@@ -51,7 +51,7 @@ class KafkaPublishCommand(PublishCommand):
         /,
         *messages: "SendableMessage",
         topic: str,
-        publish_type: PublishType,
+        _publish_type: PublishType,
         key: Union[bytes, Any, None] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
@@ -67,7 +67,7 @@ class KafkaPublishCommand(PublishCommand):
             reply_to=reply_to,
             correlation_id=correlation_id,
             headers=headers,
-            _publish_type=publish_type,
+            _publish_type=_publish_type,
         )
         self.extra_bodies = messages
 

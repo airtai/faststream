@@ -219,14 +219,14 @@ except ImportError:  # pragma: no cover
             return str(v)
 
         @classmethod
-        def _validate(cls, input_value: Any, _: Any) -> str:
+        def _validate(cls, __input_value: Any, _: Any) -> str:
             warnings.warn(
                 "email-validator bot installed, email fields will be treated as str.\n"
                 "To install, run: pip install email-validator",
                 category=RuntimeWarning,
                 stacklevel=1,
             )
-            return str(input_value)
+            return str(__input_value)
 
         @classmethod
         def __get_pydantic_json_schema__(

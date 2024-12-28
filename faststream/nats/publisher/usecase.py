@@ -125,7 +125,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         self,
         cmd: Union["PublishCommand", "NatsPublishCommand"],
         *,
-        extra_middlewares: Iterable["PublisherMiddleware"],
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = NatsPublishCommand.from_cmd(cmd)
@@ -138,7 +138,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             cmd.stream = self.stream.name
             cmd.timeout = self.timeout
 
-        return await self._basic_publish(cmd, _extra_middlewares=extra_middlewares)
+        return await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(

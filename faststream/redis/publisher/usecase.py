@@ -122,7 +122,7 @@ class ChannelPublisher(LogicPublisher):
         self,
         cmd: Union["PublishCommand", "RedisPublishCommand"],
         *,
-        extra_middlewares: Iterable["PublisherMiddleware"],
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = RedisPublishCommand.from_cmd(cmd)
@@ -132,7 +132,7 @@ class ChannelPublisher(LogicPublisher):
         cmd.add_headers(self.headers, override=False)
         cmd.reply_to = cmd.reply_to or self.reply_to
 
-        await self._basic_publish(cmd, _extra_middlewares=extra_middlewares)
+        await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(
@@ -251,7 +251,7 @@ class ListPublisher(LogicPublisher):
         self,
         cmd: Union["PublishCommand", "RedisPublishCommand"],
         *,
-        extra_middlewares: Iterable["PublisherMiddleware"],
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = RedisPublishCommand.from_cmd(cmd)
@@ -261,7 +261,7 @@ class ListPublisher(LogicPublisher):
         cmd.add_headers(self.headers, override=False)
         cmd.reply_to = cmd.reply_to or self.reply_to
 
-        await self._basic_publish(cmd, _extra_middlewares=extra_middlewares)
+        await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(
@@ -348,7 +348,7 @@ class ListBatchPublisher(ListPublisher):
         self,
         cmd: Union["PublishCommand", "RedisPublishCommand"],
         *,
-        extra_middlewares: Iterable["PublisherMiddleware"],
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = RedisPublishCommand.from_cmd(cmd, batch=True)
@@ -358,7 +358,7 @@ class ListBatchPublisher(ListPublisher):
         cmd.add_headers(self.headers, override=False)
         cmd.reply_to = cmd.reply_to or self.reply_to
 
-        await self._basic_publish_batch(cmd, _extra_middlewares=extra_middlewares)
+        await self._basic_publish_batch(cmd, _extra_middlewares=_extra_middlewares)
 
 
 class StreamPublisher(LogicPublisher):
@@ -446,7 +446,7 @@ class StreamPublisher(LogicPublisher):
         self,
         cmd: Union["PublishCommand", "RedisPublishCommand"],
         *,
-        extra_middlewares: Iterable["PublisherMiddleware"],
+        _extra_middlewares: Iterable["PublisherMiddleware"],
     ) -> None:
         """This method should be called in subscriber flow only."""
         cmd = RedisPublishCommand.from_cmd(cmd)
@@ -457,7 +457,7 @@ class StreamPublisher(LogicPublisher):
         cmd.reply_to = cmd.reply_to or self.reply_to
         cmd.maxlen = self.stream.maxlen
 
-        await self._basic_publish(cmd, _extra_middlewares=extra_middlewares)
+        await self._basic_publish(cmd, _extra_middlewares=_extra_middlewares)
 
     @override
     async def request(

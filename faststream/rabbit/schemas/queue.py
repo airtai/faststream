@@ -163,8 +163,8 @@ class RabbitQueue(NameRequired):
             if durable is EMPTY:
                 durable = True
             elif not durable:
-                error_msg = "Quorum and Stream queues must be durable"
-                raise SetupError(error_msg)
+                _error_msg = "Quorum and Stream queues must be durable"
+                raise SetupError(_error_msg)
         elif durable is EMPTY:
             durable = False
 

@@ -30,10 +30,10 @@ GeneralExceptionHandler: TypeAlias = Union[
     Callable[..., None],
     Callable[..., Awaitable[None]],
 ]
-PublishingExceptionHandler: TypeAlias = Callable[..., Any]
+PublishingExceptionHandler: TypeAlias = Callable[..., "Any"]
 
 CastedGeneralExceptionHandler: TypeAlias = Callable[..., Awaitable[None]]
-CastedPublishingExceptionHandler: TypeAlias = Callable[..., Awaitable[Any]]
+CastedPublishingExceptionHandler: TypeAlias = Callable[..., Awaitable["Any"]]
 CastedHandlers: TypeAlias = list[
     tuple[
         type[Exception],

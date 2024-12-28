@@ -222,11 +222,11 @@ class RabbitBroker(
             Doc("Whether to use FastDepends or not."),
         ] = True,
         serializer: Optional["SerializerProto"] = EMPTY,
-        get_dependant: Annotated[
+        _get_dependant: Annotated[
             Optional[Callable[..., Any]],
             Doc("Custom library dependant generator callback."),
         ] = None,
-        call_decorators: Annotated[
+        _call_decorators: Annotated[
             Iterable["Decorator"],
             Doc("Any custom decorator to apply to wrapped functions."),
         ] = (),
@@ -287,8 +287,8 @@ class RabbitBroker(
             # FastDepends args
             apply_types=apply_types,
             serializer=serializer,
-            _get_dependant=get_dependant,
-            _call_decorators=call_decorators,
+            _get_dependant=_get_dependant,
+            _call_decorators=_call_decorators,
         )
 
         self._max_consumers = max_consumers
