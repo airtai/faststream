@@ -39,7 +39,7 @@ class ProducerProto(Protocol):
         ...
 
     @abstractmethod
-    async def publish_batch(self, cmd: "PublishCommand") -> None:
+    async def publish_batch(self, cmd: "PublishCommand") -> Any:
         """Publishes a messages batch asynchronously."""
         ...
 

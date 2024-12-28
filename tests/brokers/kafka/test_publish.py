@@ -6,6 +6,7 @@ from aiokafka.structs import RecordMetadata
 
 from faststream import Context
 from faststream.kafka import KafkaResponse
+from faststream.kafka.exceptions import BatchBufferOverflowException
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 from .basic import KafkaTestcaseConfig
@@ -157,3 +158,19 @@ class TestPublish(KafkaTestcaseConfig, BrokerPublishTestcase):
             record_metadata_future = await br.publish("", topic=queue, no_confirm=True)
             assert isinstance(batch_record_metadata_future, asyncio.Future)
             assert isinstance(record_metadata_future, asyncio.Future)
+
+    @pytest.mark.asyncio()
+    async def test_raise_buffer_overflow_exception(
+        self, queue: str, mock: Mock
+    ) -> None:
+        pub_broker = self.get_broker(max_batch_size=16)
+
+        @pub_broker.subscriber(queue)
+        async def handler(m) -> None:
+            pass
+
+        async with self.patch_broker(pub_broker) as br:
+            await br.start()
+            with pytest.raises(BatchBufferOverflowException) as e:
+                await br.publish_batch(1, "Hello, world!", topic=queue, no_confirm=True)
+            assert e.value.message_position == 1
