@@ -270,9 +270,12 @@ class FakeProducer(AioPikaFastProducer):
 def _is_handler_matches(
     handler: "LogicSubscriber",
     routing_key: str,
-    headers: "Mapping[Any, Any]",
-    exchange: "RabbitExchange",
+    headers: Optional["Mapping[Any, Any]"] = None,
+    exchange: Optional["RabbitExchange"] = None,
 ) -> bool:
+    headers = headers or {}
+    exchange = RabbitExchange.validate(exchange)
+
     if handler.exchange != exchange:
         return False
 
