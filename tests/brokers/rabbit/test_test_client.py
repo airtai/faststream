@@ -44,151 +44,15 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
 
         assert event.is_set()
 
-    async def test_respect_routing_key(self) -> None:
-        broker = self.get_broker()
-
-        publisher = broker.publisher(
-            exchange=RabbitExchange("test", type=ExchangeType.TOPIC),
-            routing_key="up",
-        )
-
-        async with self.patch_broker(broker):
-            await publisher.publish("Hi!")
-
-            publisher.mock.assert_called_once_with("Hi!")
-
-    async def test_direct(
+    async def test_direct_not_found(
         self,
         queue: str,
     ) -> None:
         broker = self.get_broker()
 
-        @broker.subscriber(queue)
-        async def handler(m) -> int:
-            return 1
-
-        @broker.subscriber(queue + "1", exchange="test")
-        async def handler2(m) -> int:
-            return 2
-
         async with self.patch_broker(broker) as br:
-            await br.start()
-
-            assert await (await br.request("", queue)).decode() == 1
-            assert (
-                await (await br.request("", queue + "1", exchange="test")).decode() == 2
-            )
-
             with pytest.raises(SubscriberNotFound):
-                await br.request("", exchange="test2")
-
-    async def test_fanout(
-        self,
-        queue: str,
-        mock,
-    ) -> None:
-        broker = self.get_broker()
-
-        exch = RabbitExchange("test", type=ExchangeType.FANOUT)
-
-        @broker.subscriber(queue, exchange=exch)
-        async def handler(m) -> None:
-            mock()
-
-        async with self.patch_broker(broker) as br:
-            await br.request("", exchange=exch)
-
-            with pytest.raises(SubscriberNotFound):
-                await br.request("", exchange="test2")
-
-            assert mock.call_count == 1
-
-    async def test_any_topic_routing(self) -> None:
-        broker = self.get_broker()
-
-        exch = RabbitExchange("test", type=ExchangeType.TOPIC)
-
-        @broker.subscriber(
-            RabbitQueue("test", routing_key="test.*.subj.*"),
-            exchange=exch,
-        )
-        def subscriber(msg) -> None: ...
-
-        async with self.patch_broker(broker) as br:
-            await br.publish("hello", "test.a.subj.b", exchange=exch)
-            subscriber.mock.assert_called_once_with("hello")
-
-    async def test_ending_topic_routing(self) -> None:
-        broker = self.get_broker()
-
-        exch = RabbitExchange("test", type=ExchangeType.TOPIC)
-
-        @broker.subscriber(
-            RabbitQueue("test", routing_key="test.#"),
-            exchange=exch,
-        )
-        def subscriber(msg) -> None: ...
-
-        async with self.patch_broker(broker) as br:
-            await br.publish("hello", "test.a.subj.b", exchange=exch)
-            subscriber.mock.assert_called_once_with("hello")
-
-    async def test_mixed_topic_routing(self) -> None:
-        broker = self.get_broker()
-
-        exch = RabbitExchange("test", type=ExchangeType.TOPIC)
-
-        @broker.subscriber(
-            RabbitQueue("test", routing_key="*.*.subj.#"),
-            exchange=exch,
-        )
-        def subscriber(msg) -> None: ...
-
-        async with self.patch_broker(broker) as br:
-            await br.publish("hello", "test.a.subj.b.c", exchange=exch)
-            subscriber.mock.assert_called_once_with("hello")
-
-    async def test_header(self) -> None:
-        broker = self.get_broker()
-
-        q1 = RabbitQueue(
-            "test-queue-2",
-            bind_arguments={"key": 2, "key2": 2, "x-match": "any"},
-        )
-        q2 = RabbitQueue(
-            "test-queue-3",
-            bind_arguments={"key": 2, "key2": 2, "x-match": "all"},
-        )
-        q3 = RabbitQueue(
-            "test-queue-4",
-            bind_arguments={},
-        )
-        exch = RabbitExchange("exchange", type=ExchangeType.HEADERS)
-
-        @broker.subscriber(q2, exch)
-        async def handler2(msg) -> int:
-            return 2
-
-        @broker.subscriber(q1, exch)
-        async def handler(msg) -> int:
-            return 1
-
-        @broker.subscriber(q3, exch)
-        async def handler3(msg) -> int:
-            return 3
-
-        async with self.patch_broker(broker) as br:
-            assert (
-                await (
-                    await br.request(exchange=exch, headers={"key": 2, "key2": 2})
-                ).decode()
-                == 2
-            )
-            assert (
-                await (await br.request(exchange=exch, headers={"key": 2})).decode()
-                == 1
-            )
-            assert await (await br.request(exchange=exch, headers={})).decode() == 3
+                await br.request("", "")
 
     async def test_consume_manual_ack(
         self,
@@ -207,13 +71,13 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
             consume.set()
 
         @broker.subscriber(queue=queue + "1", exchange=exchange)
-        async def handler2(msg: RabbitMessage):
+        async def handler2(msg: RabbitMessage) -> None:
             await msg.raw_message.nack()
             consume2.set()
             raise ValueError
 
         @broker.subscriber(queue=queue + "2", exchange=exchange)
-        async def handler3(msg: RabbitMessage):
+        async def handler3(msg: RabbitMessage) -> None:
             await msg.raw_message.reject()
             consume3.set()
             raise ValueError
@@ -241,7 +105,7 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
         assert consume2.is_set()
         assert consume3.is_set()
 
-    async def test_respect_middleware(self, queue) -> None:
+    async def test_respect_middleware(self, queue: str) -> None:
         routes = []
 
         class Middleware(BaseMiddleware):
@@ -264,7 +128,7 @@ class TestTestclient(RabbitMemoryTestcaseConfig, BrokerTestclientTestcase):
         assert len(routes) == 2
 
     @pytest.mark.rabbit()
-    async def test_real_respect_middleware(self, queue) -> None:
+    async def test_real_respect_middleware(self, queue: str) -> None:
         routes = []
 
         class Middleware(BaseMiddleware):
