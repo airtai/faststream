@@ -62,5 +62,4 @@ async def test_publisher_declare(
     await broker.start()
 
     assert not async_mock.declare_queue.await_count
-
     async_mock.declare_exchange.assert_awaited_once()
