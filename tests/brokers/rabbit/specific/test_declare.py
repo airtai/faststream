@@ -1,5 +1,3 @@
-from unittest.mock import AsyncMock
-
 import pytest
 
 from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
@@ -65,29 +63,3 @@ async def test_publisher_declare(
 
     assert not async_mock.declare_queue.await_count
     async_mock.declare_exchange.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-async def test_declare_binding(
-    async_mock,
-    queue: str,
-):
-    queue_mock = AsyncMock()
-    async_mock.declare_queue.side_effect = lambda *_, **__: queue_mock
-
-    declarer = RabbitDeclarer(async_mock)
-
-    q1 = RabbitQueue(queue)
-    q2 = RabbitQueue(queue)
-
-    exch1 = RabbitExchange(queue)
-    exch2 = RabbitExchange(queue)
-
-    await declarer.declare_binding(q1, exch1)
-    await declarer.declare_binding(q2, exch2)
-
-    assert async_mock.declare_exchange.await_count == 1
-    assert async_mock.declare_queue.await_count == 1
-
-    queue_mock.bind.assert_awaited()
-    assert queue_mock.bind.await_count == 2

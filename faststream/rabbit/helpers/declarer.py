@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, Optional, cast
+from typing import TYPE_CHECKING, Dict, cast
 
 if TYPE_CHECKING:
     import aio_pika
@@ -77,18 +77,3 @@ class RabbitDeclarer:
                 )
 
         return exch
-
-    async def declare_binding(
-        self,
-        queue: "RabbitQueue",
-        exchange: "RabbitExchange",
-        routing_key: Optional[str] = None,
-    ) -> None:
-        """Declare a binding between a queue and an exchange."""
-        q = await self.declare_queue(queue)
-        exch = await self.declare_exchange(exchange)
-
-        await q.bind(
-            exchange=exch,
-            routing_key=routing_key,
-        )
