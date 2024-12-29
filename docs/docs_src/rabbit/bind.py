@@ -10,20 +10,24 @@ broker = RabbitBroker()
 app = FastStream(broker)
 
 
+some_queue = RabbitQueue(
+    name="some-queue",
+    durable=True,
+)
+
+some_exchange = RabbitExchange(
+    name="some-exchange",
+    type=ExchangeType.FANOUT,
+)
+
 @app.after_startup
 async def bind_queue_exchange():
     queue = await broker.declare_queue(
-        RabbitQueue(
-            name="some-queue",
-            durable=True,
-        )
+        some_queue
     ) # This gives a aio_pika.RobustQueue object
 
     exchange = await broker.declare_exchange(
-        RabbitExchange(
-            name="some-exchange",
-            type=ExchangeType.FANOUT,
-        )
+        some_exchange
     )
 
     await queue.bind(
