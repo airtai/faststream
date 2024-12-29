@@ -24,7 +24,7 @@ async def bind_queue_exchange():
             name="some-exchange",
             type=ExchangeType.FANOUT,
         )
-    )   
+    )
 
     await queue.bind(
         queue=queue,
