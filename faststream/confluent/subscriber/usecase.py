@@ -131,11 +131,11 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
             self.add_task(self._consume())
 
     async def close(self) -> None:
+        await super().close()
+
         if self.consumer is not None:
             await self.consumer.stop()
             self.consumer = None
-
-        await super().close()
 
     @override
     async def get_one(
