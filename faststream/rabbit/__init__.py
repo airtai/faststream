@@ -1,3 +1,4 @@
+from faststream._internal.testing.app import TestApp
 from faststream.rabbit.annotations import RabbitMessage
 from faststream.rabbit.broker import RabbitBroker
 from faststream.rabbit.response import RabbitResponse
@@ -7,10 +8,8 @@ from faststream.rabbit.schemas import (
     QueueType,
     RabbitExchange,
     RabbitQueue,
-    ReplyConfig,
 )
 from faststream.rabbit.testing import TestRabbitBroker
-from faststream.testing.app import TestApp
 
 __all__ = (
     "ExchangeType",
@@ -24,7 +23,6 @@ __all__ = (
     "RabbitResponse",
     "RabbitRoute",
     "RabbitRouter",
-    "ReplyConfig",
     "TestApp",
     "TestRabbitBroker",
 )

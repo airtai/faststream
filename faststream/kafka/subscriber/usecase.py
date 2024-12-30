@@ -1,47 +1,40 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+from collections.abc import Iterable, Sequence
 from itertools import chain
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import anyio
 from aiokafka import ConsumerRecord, TopicPartition
 from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import override
 
-from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.subscriber.mixins import ConcurrentMixin, TasksMixin
-from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.types import (
+from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
+from faststream._internal.subscriber.usecase import SubscriberUsecase
+from faststream._internal.subscriber.utils import process_msg
+from faststream._internal.types import (
     AsyncCallable,
     BrokerMiddleware,
     CustomCallable,
     MsgType,
 )
-from faststream.broker.utils import process_msg
+from faststream._internal.utils.path import compile_path
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
-from faststream.utils.path import compile_path
+from faststream.kafka.publisher.fake import KafkaFakePublisher
 
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer
     from aiokafka.abc import ConsumerRebalanceListener
-    from fast_depends.dependencies import Depends
+    from fast_depends.dependencies import Dependant
 
-    from faststream.broker.message import StreamMessage
-    from faststream.broker.publisher.proto import ProducerProto
-    from faststream.types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.basic_types import AnyDict
+    from faststream._internal.publisher.proto import BasePublisherProto
+    from faststream._internal.state import BrokerState
+    from faststream.message import StreamMessage
+    from faststream.middlewares import AckPolicy
 
 
-class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
+class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
     """A class to handle logic for consuming messages from Kafka."""
 
     topics: Sequence[str]
@@ -52,6 +45,7 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
 
     client_id: Optional[str]
     batch: bool
+    parser: AioKafkaParser
 
     def __init__(
         self,
@@ -65,29 +59,19 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
         # Subscriber args
         default_parser: "AsyncCallable",
         default_decoder: "AsyncCallable",
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         super().__init__(
             default_parser=default_parser,
             default_decoder=default_decoder,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
         self.topics = topics
@@ -105,39 +89,27 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
         self.consumer = None
 
     @override
-    def setup(  # type: ignore[override]
+    def _setup(  # type: ignore[override]
         self,
         *,
         client_id: Optional[str],
         builder: Callable[..., "AIOKafkaConsumer"],
         # basic args
-        logger: Optional["LoggerProto"],
-        producer: Optional["ProducerProto"],
-        graceful_timeout: Optional[float],
         extra_context: "AnyDict",
         # broker options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
-        apply_types: bool,
-        is_validate: bool,
-        _get_dependant: Optional[Callable[..., Any]],
-        _call_decorators: Iterable["Decorator"],
+        state: "BrokerState",
     ) -> None:
         self.client_id = client_id
         self.builder = builder
 
-        super().setup(
-            logger=logger,
-            producer=producer,
-            graceful_timeout=graceful_timeout,
+        super()._setup(
             extra_context=extra_context,
             broker_parser=broker_parser,
             broker_decoder=broker_decoder,
-            apply_types=apply_types,
-            is_validate=is_validate,
-            _get_dependant=_get_dependant,
-            _call_decorators=_call_decorators,
+            state=state,
         )
 
     async def start(self) -> None:
@@ -149,6 +121,8 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
             client_id=self.client_id,
             **self.__connection_args,
         )
+
+        self.parser._setup(consumer)
 
         if self.topics or self._pattern:
             consumer.subscribe(
@@ -185,7 +159,8 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
         ), "You can't use `get_one` method if subscriber has registered handlers."
 
         raw_messages = await self.consumer.getmany(
-            timeout_ms=timeout * 1000, max_records=1
+            timeout_ms=timeout * 1000,
+            max_records=1,
         )
 
         if not raw_messages:
@@ -193,9 +168,13 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
 
         ((raw_message,),) = raw_messages.values()
 
+        context = self._state.get().di_state.context
+
         return await process_msg(
             msg=raw_message,
-            middlewares=self._broker_middlewares,
+            middlewares=(
+                m(raw_message, context=context) for m in self._broker_middlewares
+            ),
             parser=self._parser,
             decoder=self._decoder,
         )
@@ -203,22 +182,17 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
     def _make_response_publisher(
         self,
         message: "StreamMessage[Any]",
-    ) -> Sequence[FakePublisher]:
-        if self._producer is None:
-            return ()
-
+    ) -> Sequence["BasePublisherProto"]:
         return (
-            FakePublisher(
-                self._producer.publish,
-                publish_kwargs={
-                    "topic": message.reply_to,
-                },
+            KafkaFakePublisher(
+                self._state.get().producer,
+                topic=message.reply_to,
             ),
         )
 
     @abstractmethod
     async def get_msg(self) -> MsgType:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     async def _consume(self) -> None:
         assert self.consumer, "You should start subscriber at first."  # nosec B101
@@ -247,34 +221,20 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
     async def consume_one(self, msg: MsgType) -> None:
         await self.consume(msg)
 
-    @staticmethod
-    def get_routing_hash(
-        topics: Iterable[str],
-        group_id: Optional[str] = None,
-    ) -> int:
-        return hash("".join((*topics, group_id or "")))
-
     @property
-    def topic_names(self) -> List[str]:
+    def topic_names(self) -> list[str]:
         if self._pattern:
             return [self._pattern]
-        elif self.topics:
+        if self.topics:
             return list(self.topics)
-        else:
-            return [f"{p.topic}-{p.partition}" for p in self.partitions]
-
-    def __hash__(self) -> int:
-        return self.get_routing_hash(
-            topics=self.topic_names,
-            group_id=self.group_id,
-        )
+        return [f"{p.topic}-{p.partition}" for p in self.partitions]
 
     @staticmethod
     def build_log_context(
         message: Optional["StreamMessage[Any]"],
         topic: str,
         group_id: Optional[str] = None,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return {
             "topic": topic,
             "group_id": group_id or "",
@@ -282,11 +242,11 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
         }
 
     def add_prefix(self, prefix: str) -> None:
-        self.topics = tuple("".join((prefix, t)) for t in self.topics)
+        self.topics = tuple(f"{prefix}{t}" for t in self.topics)
 
         self.partitions = [
             TopicPartition(
-                topic="".join((prefix, p.topic)),
+                topic=f"{prefix}{p.topic}",
                 partition=p.partition,
             )
             for p in self.partitions
@@ -303,17 +263,11 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         pattern: Optional[str],
         connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
-        is_manual: bool,
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         if pattern:
             reg, pattern = compile_path(
@@ -325,8 +279,10 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         else:
             reg = None
 
-        parser = AioKafkaParser(
-            msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
+        self.parser = AioKafkaParser(
+            msg_class=KafkaMessage
+            if ack_policy is ack_policy.ACK_FIRST
+            else KafkaAckableMessage,
             regex=reg,
         )
 
@@ -338,18 +294,13 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             connection_args=connection_args,
             partitions=partitions,
             # subscriber args
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
+            default_parser=self.parser.parse_message,
+            default_decoder=self.parser.decode_message,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def get_msg(self) -> "ConsumerRecord":
@@ -359,7 +310,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
     def get_log_context(
         self,
         message: Optional["StreamMessage[ConsumerRecord]"],
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         if message is None:
             topic = ",".join(self.topic_names)
         else:
@@ -372,7 +323,16 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         )
 
 
-class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
+class ConcurrentDefaultSubscriber(ConcurrentMixin["ConsumerRecord"], DefaultSubscriber):
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "ConsumerRecord") -> None:
+        await self._put_msg(msg)
+
+
+class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
     def __init__(
         self,
         *topics: str,
@@ -384,19 +344,13 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         pattern: Optional[str],
         connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
-        is_manual: bool,
         # Subscriber args
-        no_ack: bool,
+        ack_policy: "AckPolicy",
         no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
+        broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence[
-            "BrokerMiddleware[Sequence[Tuple[ConsumerRecord, ...]]]"
+            "BrokerMiddleware[Sequence[tuple[ConsumerRecord, ...]]]"
         ],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
     ) -> None:
         self.batch_timeout_ms = batch_timeout_ms
         self.max_records = max_records
@@ -411,8 +365,10 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         else:
             reg = None
 
-        parser = AioKafkaBatchParser(
-            msg_class=KafkaAckableMessage if is_manual else KafkaMessage,
+        self.parser = AioKafkaBatchParser(
+            msg_class=KafkaMessage
+            if ack_policy is ack_policy.ACK_FIRST
+            else KafkaAckableMessage,
             regex=reg,
         )
 
@@ -424,21 +380,16 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             connection_args=connection_args,
             partitions=partitions,
             # subscriber args
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
+            default_parser=self.parser.parse_message,
+            default_decoder=self.parser.decode_message,
             # Propagated args
-            no_ack=no_ack,
+            ack_policy=ack_policy,
             no_reply=no_reply,
-            retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
-    async def get_msg(self) -> Tuple["ConsumerRecord", ...]:
+    async def get_msg(self) -> tuple["ConsumerRecord", ...]:
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
 
         messages = await self.consumer.getmany(
@@ -454,8 +405,8 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
 
     def get_log_context(
         self,
-        message: Optional["StreamMessage[Tuple[ConsumerRecord, ...]]"],
-    ) -> Dict[str, str]:
+        message: Optional["StreamMessage[tuple[ConsumerRecord, ...]]"],
+    ) -> dict[str, str]:
         if message is None:
             topic = ",".join(self.topic_names)
         else:
@@ -466,55 +417,3 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             topic=topic,
             group_id=self.group_id,
         )
-
-
-class ConcurrentDefaultSubscriber(ConcurrentMixin[ConsumerRecord], DefaultSubscriber):
-    def __init__(
-        self,
-        *topics: str,
-        # Kafka information
-        group_id: Optional[str],
-        listener: Optional["ConsumerRebalanceListener"],
-        pattern: Optional[str],
-        connection_args: "AnyDict",
-        partitions: Iterable["TopicPartition"],
-        is_manual: bool,
-        # Subscriber args
-        max_workers: int,
-        no_ack: bool,
-        no_reply: bool,
-        retry: bool,
-        broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
-    ) -> None:
-        super().__init__(
-            *topics,
-            group_id=group_id,
-            listener=listener,
-            pattern=pattern,
-            connection_args=connection_args,
-            partitions=partitions,
-            is_manual=is_manual,
-            # Propagated args
-            no_ack=no_ack,
-            no_reply=no_reply,
-            retry=retry,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-            max_workers=max_workers,
-        )
-
-    async def start(self) -> None:
-        await super().start()
-        self.start_consume_task()
-
-    async def consume_one(self, msg: "ConsumerRecord") -> None:
-        await self._put_msg(msg)

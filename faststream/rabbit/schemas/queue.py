@@ -2,15 +2,15 @@ from copy import deepcopy
 from enum import Enum
 from typing import TYPE_CHECKING, Literal, Optional, TypedDict, Union, overload
 
-from faststream.broker.schemas import NameRequired
+from faststream._internal.constants import EMPTY
+from faststream._internal.proto import NameRequired
+from faststream._internal.utils.path import compile_path
 from faststream.exceptions import SetupError
-from faststream.types import EMPTY
-from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
     from aio_pika.abc import TimeoutType
 
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
 
 
 class QueueType(str, Enum):
@@ -46,14 +46,23 @@ class RabbitQueue(NameRequired):
         "timeout",
     )
 
+    def __repr__(self) -> str:
+        if self.passive:
+            body = ""
+        else:
+            body = f", robust={self.robust}, durable={self.durable}, exclusive={self.exclusive}, auto_delete={self.auto_delete})"
+
+        return f"{self.__class__.__name__}({self.name}, routing_key='{self.routing}'{body})"
+
     def __hash__(self) -> int:
+        """Supports hash to store real objects in declarer."""
         return sum(
             (
                 hash(self.name),
                 int(self.durable),
                 int(self.exclusive),
                 int(self.auto_delete),
-            )
+            ),
         )
 
     @property
@@ -154,7 +163,8 @@ class RabbitQueue(NameRequired):
             if durable is EMPTY:
                 durable = True
             elif not durable:
-                raise SetupError("Quorum and Stream queues must be durable")
+                _error_msg = "Quorum and Stream queues must be durable"
+                raise SetupError(_error_msg)
         elif durable is EMPTY:
             durable = False
 
@@ -174,10 +184,10 @@ class RabbitQueue(NameRequired):
     def add_prefix(self, prefix: str) -> "RabbitQueue":
         new_q: RabbitQueue = deepcopy(self)
 
-        new_q.name = "".join((prefix, new_q.name))
+        new_q.name = f"{prefix}{new_q.name}"
 
         if new_q.routing_key:
-            new_q.routing_key = "".join((prefix, new_q.routing_key))
+            new_q.routing_key = f"{prefix}{new_q.routing_key}"
 
         return new_q
 

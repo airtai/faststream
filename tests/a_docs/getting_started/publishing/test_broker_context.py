@@ -10,10 +10,10 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio
-@pytest.mark.kafka
+@pytest.mark.asyncio()
+@pytest.mark.kafka()
 @require_aiokafka
-async def test_broker_context_kafka():
+async def test_broker_context_kafka() -> None:
     from docs.docs_src.getting_started.publishing.kafka.broker_context import (
         app,
         broker,
@@ -26,10 +26,10 @@ async def test_broker_context_kafka():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
-@pytest.mark.confluent
+@pytest.mark.asyncio()
+@pytest.mark.confluent()
 @require_confluent
-async def test_broker_context_confluent():
+async def test_broker_context_confluent() -> None:
     from docs.docs_src.getting_started.publishing.confluent.broker_context import (
         app,
         broker,
@@ -42,10 +42,10 @@ async def test_broker_context_confluent():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
-@pytest.mark.nats
+@pytest.mark.asyncio()
+@pytest.mark.nats()
 @require_nats
-async def test_broker_context_nats():
+async def test_broker_context_nats() -> None:
     from docs.docs_src.getting_started.publishing.nats.broker_context import (
         app,
         broker,
@@ -58,10 +58,10 @@ async def test_broker_context_nats():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
-@pytest.mark.rabbit
+@pytest.mark.asyncio()
+@pytest.mark.rabbit()
 @require_aiopika
-async def test_broker_context_rabbit():
+async def test_broker_context_rabbit() -> None:
     from docs.docs_src.getting_started.publishing.rabbit.broker_context import (
         app,
         broker,
@@ -74,10 +74,10 @@ async def test_broker_context_rabbit():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
-@pytest.mark.redis
+@pytest.mark.asyncio()
+@pytest.mark.redis()
 @require_redis
-async def test_broker_context_redis():
+async def test_broker_context_redis() -> None:
     from docs.docs_src.getting_started.publishing.redis.broker_context import (
         app,
         broker,

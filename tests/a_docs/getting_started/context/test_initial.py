@@ -1,6 +1,5 @@
 import pytest
 
-from faststream import context
 from tests.marks import (
     python39,
     require_aiokafka,
@@ -11,10 +10,10 @@ from tests.marks import (
 )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @python39
 @require_aiokafka
-async def test_kafka():
+async def test_kafka() -> None:
     from docs.docs_src.getting_started.context.kafka.initial import broker
     from faststream.kafka import TestKafkaBroker
 
@@ -22,14 +21,14 @@ async def test_kafka():
         await br.publish("", "test-topic")
         await br.publish("", "test-topic")
 
-    assert context.get("collector") == ["", ""]
-    context.clear()
+    assert broker.context.get("collector") == ["", ""]
+    broker.context.clear()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @python39
 @require_confluent
-async def test_confluent():
+async def test_confluent() -> None:
     from docs.docs_src.getting_started.context.confluent.initial import broker
     from faststream.confluent import TestKafkaBroker
 
@@ -37,14 +36,14 @@ async def test_confluent():
         await br.publish("", "test-topic")
         await br.publish("", "test-topic")
 
-    assert context.get("collector") == ["", ""]
-    context.clear()
+    assert broker.context.get("collector") == ["", ""]
+    broker.context.clear()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @python39
 @require_aiopika
-async def test_rabbit():
+async def test_rabbit() -> None:
     from docs.docs_src.getting_started.context.rabbit.initial import broker
     from faststream.rabbit import TestRabbitBroker
 
@@ -52,14 +51,14 @@ async def test_rabbit():
         await br.publish("", "test-queue")
         await br.publish("", "test-queue")
 
-    assert context.get("collector") == ["", ""]
-    context.clear()
+    assert broker.context.get("collector") == ["", ""]
+    broker.context.clear()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @python39
 @require_nats
-async def test_nats():
+async def test_nats() -> None:
     from docs.docs_src.getting_started.context.nats.initial import broker
     from faststream.nats import TestNatsBroker
 
@@ -67,14 +66,14 @@ async def test_nats():
         await br.publish("", "test-subject")
         await br.publish("", "test-subject")
 
-    assert context.get("collector") == ["", ""]
-    context.clear()
+    assert broker.context.get("collector") == ["", ""]
+    broker.context.clear()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @python39
 @require_redis
-async def test_redis():
+async def test_redis() -> None:
     from docs.docs_src.getting_started.context.redis.initial import broker
     from faststream.redis import TestRedisBroker
 
@@ -82,5 +81,5 @@ async def test_redis():
         await br.publish("", "test-channel")
         await br.publish("", "test-channel")
 
-    assert context.get("collector") == ["", ""]
-    context.clear()
+    assert broker.context.get("collector") == ["", ""]
+    broker.context.clear()
