@@ -15,6 +15,7 @@ async def test_bind(monkeypatch, async_mock: AsyncMock):
 
     with monkeypatch.context() as m:
         m.setattr(RobustQueue, "bind", async_mock)
+
         async with TestApp(app):
             assert len(broker.declarer._RabbitDeclarer__queues) == 2  # with `reply-to`
             assert len(broker.declarer._RabbitDeclarer__exchanges) == 1
@@ -22,8 +23,8 @@ async def test_bind(monkeypatch, async_mock: AsyncMock):
             assert some_queue in broker.declarer._RabbitDeclarer__queues
             assert some_exchange in broker.declarer._RabbitDeclarer__exchanges
 
+            row_exchange = await broker.declarer.declare_exchange(some_exchange)
             async_mock.assert_awaited_once_with(
-                queue=broker.declarer._RabbitDeclarer__queues[some_queue],
-                exchange=broker.declarer._RabbitDeclarer__exchanges[some_exchange],
+                exchange=row_exchange,
                 routing_key=some_queue.name,
             )

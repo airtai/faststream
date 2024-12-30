@@ -1,3 +1,4 @@
+import aio_pika
 from faststream import FastStream
 from faststream.rabbit import (
     ExchangeType,
@@ -10,10 +11,7 @@ broker = RabbitBroker()
 app = FastStream(broker)
 
 
-some_queue = RabbitQueue(
-    name="some-queue",
-    durable=True,
-)
+some_queue = RabbitQueue("some-queue")
 
 some_exchange = RabbitExchange(
     name="some-exchange",
@@ -22,16 +20,15 @@ some_exchange = RabbitExchange(
 
 @app.after_startup
 async def bind_queue_exchange():
-    queue = await broker.declare_queue(
+    queue: aio_pika.RobustQueue = await broker.declare_queue(
         some_queue
-    ) # This gives a aio_pika.RobustQueue object
+    )
 
-    exchange = await broker.declare_exchange(
+    exchange: aio_pika.RobustExchange = await broker.declare_exchange(
         some_exchange
     )
 
     await queue.bind(
-        queue=queue,
         exchange=exchange,
-        routing_key=queue.name # This parameter is optional
+        routing_key=queue.name  # Optional parameter
     )
