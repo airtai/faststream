@@ -1,9 +1,12 @@
+import asyncio
 from collections.abc import AsyncIterator, Awaitable, Iterator
+from concurrent.futures import Executor
 from contextlib import asynccontextmanager, contextmanager
-from functools import wraps
+from functools import partial, wraps
 from typing import (
     Any,
     Callable,
+    Optional,
     TypeVar,
     Union,
     cast,
@@ -80,3 +83,8 @@ def drop_response_type(model: CallModel) -> CallModel:
 
 async def return_input(x: Any) -> Any:
     return x
+
+
+async def run_in_executor(executor: Optional[Executor], func: Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(executor, partial(func, *args, **kwargs))
