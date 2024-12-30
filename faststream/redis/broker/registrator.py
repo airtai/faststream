@@ -9,7 +9,10 @@ from faststream.middlewares import AckPolicy
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.factory import create_publisher
 from faststream.redis.subscriber.factory import SubsciberType, create_subscriber
-from faststream.redis.subscriber.specified import SpecificationSubscriber
+from faststream.redis.subscriber.specified import (
+    SpecificationConcurrentSubscriber,
+    SpecificationSubscriber,
+)
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
@@ -104,27 +107,34 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> SpecificationSubscriber:
-        subscriber = cast(
-            "SpecificationSubscriber",
-            super().subscriber(
-                create_subscriber(
-                    channel=channel,
-                    list=list,
-                    stream=stream,
-                    # subscriber args
-                    ack_policy=ack_policy,
-                    no_ack=no_ack,
-                    no_reply=no_reply,
-                    broker_middlewares=self.middlewares,
-                    broker_dependencies=self._dependencies,
-                    # AsyncAPI
-                    title_=title,
-                    description_=description,
-                    include_in_schema=self._solve_include_in_schema(include_in_schema),
-                ),
-            ),
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
+    ) -> Union[SpecificationSubscriber, SpecificationConcurrentSubscriber]:
+        subscriber = create_subscriber(
+            channel=channel,
+            list=list,
+            stream=stream,
+            # subscriber args
+            max_workers=max_workers,
+            no_ack=no_ack,
+            no_reply=no_reply,
+            ack_policy=ack_policy,
+            broker_middlewares=self.middlewares,
+            broker_dependencies=self._dependencies,
+            # AsyncAPI
+            title_=title,
+            description_=description,
+            include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
+
+        if max_workers > 1:
+            subscriber = cast("SpecificationConcurrentSubscriber", subscriber)
+        else:
+            subscriber = cast("SpecificationSubscriber", subscriber)
+
+        subscriber = super().subscriber(subscriber)  # type: ignore[assignment]
 
         return subscriber.add_call(
             parser_=parser or self._parser,

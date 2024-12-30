@@ -10,10 +10,13 @@ from faststream.middlewares import AckPolicy
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
 from faststream.redis.subscriber.specified import (
+    SpecificationChannelConcurrentSubscriber,
     SpecificationChannelSubscriber,
     SpecificationListBatchSubscriber,
+    SpecificationListConcurrentSubscriber,
     SpecificationListSubscriber,
     SpecificationStreamBatchSubscriber,
+    SpecificationStreamConcurrentSubscriber,
     SpecificationStreamSubscriber,
 )
 
@@ -29,6 +32,9 @@ SubsciberType: TypeAlias = Union[
     "SpecificationStreamSubscriber",
     "SpecificationListBatchSubscriber",
     "SpecificationListSubscriber",
+    "SpecificationChannelConcurrentSubscriber",
+    "SpecificationListConcurrentSubscriber",
+    "SpecificationStreamConcurrentSubscriber",
 ]
 
 
@@ -47,6 +53,7 @@ def create_subscriber(
     title_: Optional[str] = None,
     description_: Optional[str] = None,
     include_in_schema: bool = True,
+    max_workers: int = 1,
 ) -> SubsciberType:
     _validate_input_for_misconfigure(
         channel=channel,
@@ -54,12 +61,26 @@ def create_subscriber(
         stream=stream,
         ack_policy=ack_policy,
         no_ack=no_ack,
+        max_workers=max_workers,
     )
 
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
     if (channel_sub := PubSub.validate(channel)) is not None:
+        if max_workers > 1:
+            return SpecificationChannelConcurrentSubscriber(
+                channel=channel_sub,
+                # basic args
+                no_reply=no_reply,
+                broker_dependencies=broker_dependencies,
+                broker_middlewares=broker_middlewares,
+                max_workers=max_workers,
+                # AsyncAPI args
+                title_=title_,
+                description_=description_,
+                include_in_schema=include_in_schema,
+            )
         return SpecificationChannelSubscriber(
             channel=channel_sub,
             # basic args
@@ -86,7 +107,20 @@ def create_subscriber(
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
-
+        if max_workers > 1:
+            return SpecificationStreamConcurrentSubscriber(
+                stream=stream_sub,
+                # basic args
+                ack_policy=ack_policy,
+                no_reply=no_reply,
+                broker_dependencies=broker_dependencies,
+                broker_middlewares=broker_middlewares,
+                max_workers=max_workers,
+                # AsyncAPI args
+                title_=title_,
+                description_=description_,
+                include_in_schema=include_in_schema,
+            )
         return SpecificationStreamSubscriber(
             stream=stream_sub,
             # basic args
@@ -113,7 +147,19 @@ def create_subscriber(
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
-
+        if max_workers > 1:
+            return SpecificationListConcurrentSubscriber(
+                list=list_sub,
+                # basic args
+                no_reply=no_reply,
+                broker_dependencies=broker_dependencies,
+                broker_middlewares=broker_middlewares,
+                max_workers=max_workers,
+                # AsyncAPI args
+                title_=title_,
+                description_=description_,
+                include_in_schema=include_in_schema,
+            )
         return SpecificationListSubscriber(
             list=list_sub,
             # basic args
@@ -136,6 +182,7 @@ def _validate_input_for_misconfigure(
     stream: Union["StreamSub", str, None],
     ack_policy: AckPolicy,
     no_ack: bool,
+    max_workers: int,
 ) -> None:
     validate_options(channel=channel, list=list, stream=stream)
 
@@ -149,6 +196,9 @@ def _validate_input_for_misconfigure(
         if ack_policy is not EMPTY:
             msg = "You can't use deprecated `no_ack` and `ack_policy` simultaneously. Please, use `ack_policy` only."
             raise SetupError(msg)
+    if stream and no_ack and max_workers > 1:
+        msg = "Max workers not work with manual no_ack mode."
+        raise SetupError(msg)
 
     if ack_policy is not EMPTY:
         if channel:
