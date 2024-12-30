@@ -380,6 +380,10 @@ class AsyncConfluentConsumer:
                 )
 
         # Wrap calls to async to make method cancelable by timeout
+        # We shouldn't read messages and close consumer concurrently
+        # https://github.com/airtai/faststream/issues/1904#issuecomment-2506990895
+        # Now it works withouth lock due `ThreadPoolExecutor(max_workers=1)`
+        # that makes all calls to consumer sequential
         await run_in_executor(self._thread_pool, self.consumer.close)
 
         self._thread_pool.shutdown(wait=False)
