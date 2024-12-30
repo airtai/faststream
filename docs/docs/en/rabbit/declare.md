@@ -30,6 +30,6 @@ These methods require just one argument (`RabbitQueue`/`RabbitExchange`) contain
 
 It is also possible to bind a queue and an exchange using low-level **aio-pika** `RobustQueue.bind` method:
 
-```python linenums="1" hl_lines="23-25 27-29 31-34"
+```python linenums="1" hl_lines="24-26 28-30 32-35"
 {! docs_src/rabbit/bind.py !}
 ```

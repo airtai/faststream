@@ -11,7 +11,10 @@ broker = RabbitBroker()
 app = FastStream(broker)
 
 
-some_queue = RabbitQueue("some-queue")
+some_queue = RabbitQueue(
+    name="some-queue",
+    durable=True,
+)
 
 some_exchange = RabbitExchange(
     name="some-exchange",
