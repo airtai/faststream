@@ -10,7 +10,7 @@ from typing import (
 import anyio
 from typing_extensions import TypeAlias, override
 
-from faststream._internal.subscriber.mixins import TasksMixin
+from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream.redis.message import (
     UnifyRedisDict,
@@ -153,3 +153,50 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[UnifyRedisDict]):
             "channel": channel,
             "message_id": getattr(message, "message_id", ""),
         }
+
+    async def consume_one(self, msg: "BrokerStreamMessage") -> None:
+        await self.consume(msg)
+
+
+class ConcurrentSubscriber(ConcurrentMixin["BrokerStreamMessage"], LogicSubscriber):
+    def __init__(
+        self,
+        *,
+        default_parser: "AsyncCallable",
+        default_decoder: "AsyncCallable",
+        # Subscriber args
+        max_workers: int,
+        no_ack: bool,
+        no_reply: bool,
+        retry: bool,
+        broker_dependencies: Iterable["Dependant"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            max_workers=max_workers,
+            default_parser=default_parser,
+            default_decoder=default_decoder,
+            # Propagated options
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+        self._client = None
+
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "BrokerStreamMessage") -> None:
+        await self._put_msg(msg)

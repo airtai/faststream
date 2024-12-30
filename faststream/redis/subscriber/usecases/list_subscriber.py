@@ -9,6 +9,7 @@ from typing import (
 import anyio
 from typing_extensions import TypeAlias, override
 
+from faststream._internal.subscriber.mixins import ConcurrentMixin
 from faststream._internal.subscriber.utils import process_msg
 from faststream.middlewares import AckPolicy
 from faststream.redis.message import (
@@ -177,7 +178,7 @@ class ListSubscriber(_ListHandlerMixin):
                 channel=self.list_sub.name,
             )
 
-            await self.consume(msg)
+            await self.consume_one(msg)
 
 
 class BatchListSubscriber(_ListHandlerMixin):
@@ -215,7 +216,43 @@ class BatchListSubscriber(_ListHandlerMixin):
                 data=raw_msgs,
             )
 
-            await self.consume(msg)
+            await self.consume_one(msg)
 
         else:
             await anyio.sleep(self.list_sub.polling_interval)
+
+
+class ConcurrentListSubscriber(ConcurrentMixin["BrokerStreamMessage"], ListSubscriber):
+    def __init__(
+        self,
+        *,
+        list: ListSub,
+        # Subscriber args
+        no_reply: bool,
+        broker_dependencies: Iterable["Dependant"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        max_workers: int,
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            list=list,
+            # Propagated options
+            no_reply=no_reply,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            max_workers=max_workers,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "BrokerStreamMessage") -> None:
+        await self._put_msg(msg)
