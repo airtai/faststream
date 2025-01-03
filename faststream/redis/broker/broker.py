@@ -370,53 +370,35 @@ class RedisBroker(
 
     @override
     async def publish(  # type: ignore[override]
-        self,
-        message: Annotated[
-            "SendableMessage",
-            Doc("Message body to send."),
-        ] = None,
-        channel: Annotated[
-            Optional[str],
-            Doc("Redis PubSub object name to send message."),
-        ] = None,
-        *,
-        reply_to: Annotated[
-            str,
-            Doc("Reply message destination PubSub object name."),
-        ] = "",
-        headers: Annotated[
-            Optional["AnyDict"],
-            Doc("Message headers to store metainformation."),
-        ] = None,
-        correlation_id: Annotated[
-            Optional[str],
-            Doc(
-                "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages.",
-            ),
-        ] = None,
-        list: Annotated[
-            Optional[str],
-            Doc("Redis List object name to send message."),
-        ] = None,
-        stream: Annotated[
-            Optional[str],
-            Doc("Redis Stream object name to send message."),
-        ] = None,
-        maxlen: Annotated[
-            Optional[int],
-            Doc(
-                "Redis Stream maxlen publish option. "
-                "Remove eldest message if maxlen exceeded.",
-            ),
-        ] = None,
+            self,
+            message: "SendableMessage" = None,
+            channel: Optional[str] = None,
+            *,
+            reply_to: str = "",
+            headers: Optional["AnyDict"] = None,
+            correlation_id: Optional[str] = None,
+            list: Optional[str] = None,
+            stream: Optional[str] = None,
+            maxlen: Optional[int] = None,
     ) -> int:
-        """Publish message directly.
+        """
+        Publish message directly.
 
-        This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
-        applications or to publish messages from time to time.
+        This method allows you to publish a message in a non-AsyncAPI-documented way.
+        It can be used in other frameworks or to publish messages at specific intervals.
 
-        Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
+        Args:
+            message: The body of the message to send.
+            channel: Redis PubSub object name to send the message.
+            reply_to: The destination PubSub object name for reply messages.
+            headers: Custom headers for storing message metadata.
+            correlation_id: A manual identifier for the message, useful for tracing.
+            list: Redis List object name to send the message.
+            stream: Redis Stream object name to send the message.
+            maxlen: Redis Stream maxlen option to remove eldest message if exceeded.
+
+        Returns:
+            int: The result of the publish operation, typically the number of messages published.
         """
         cmd = RedisPublishCommand(
             message,
