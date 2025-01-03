@@ -17,6 +17,7 @@ from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import MsgType
 from faststream.kafka.subscriber.usecase import (
     BatchSubscriber,
+    ConcurrentBetweenPartitionsSubscriber,
     ConcurrentDefaultSubscriber,
     DefaultSubscriber,
     LogicSubscriber,
@@ -78,5 +79,12 @@ class AsyncAPIBatchSubscriber(
 class AsyncAPIConcurrentDefaultSubscriber(
     AsyncAPISubscriber["ConsumerRecord"],
     ConcurrentDefaultSubscriber,
+):
+    pass
+
+
+class AsyncAPIConcurrentBetweenPartitionsSubscriber(
+    ConcurrentBetweenPartitionsSubscriber,
+    AsyncAPISubscriber["ConsumerRecord"],
 ):
     pass
