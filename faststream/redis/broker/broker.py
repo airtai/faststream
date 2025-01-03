@@ -21,7 +21,7 @@ from redis.asyncio.connection import (
     parse_url,
 )
 from redis.exceptions import ConnectionError
-from typing_extensions import Doc, TypeAlias, override
+from typing_extensions import Doc, TypeAlias, override, overload
 
 from faststream.__about__ import __version__
 from faststream._internal.broker.broker import BrokerUsecase
@@ -368,6 +368,35 @@ class RedisBroker(
             "connection": self._connection,
         }
 
+    @overload
+    async def publish(  # type: ignore[override]
+            self,
+            message: "SendableMessage" = None,
+            channel: Optional[str] = None,
+            *,
+            reply_to: str = "",
+            headers: Optional["AnyDict"] = None,
+            correlation_id: Optional[str] = None,
+            list: Optional[str] = None,
+            stream: None = None,
+            maxlen: Optional[int] = None,
+    ) -> None: ...
+
+    @overload
+    async def publish(  # type: ignore[override]
+            self,
+            message: "SendableMessage" = None,
+            channel: Optional[str] = None,
+            *,
+            reply_to: str = "",
+            headers: Optional["AnyDict"] = None,
+            correlation_id: Optional[str] = None,
+            list: Optional[str] = None,
+            stream: Optional[str] = None,
+            maxlen: Optional[int] = None,
+    ) -> int: ...
+
+
     @override
     async def publish(  # type: ignore[override]
             self,
@@ -380,7 +409,7 @@ class RedisBroker(
             list: Optional[str] = None,
             stream: Optional[str] = None,
             maxlen: Optional[int] = None,
-    ) -> int:
+    ) -> Optional[int]:
         """
         Publish message directly.
 
