@@ -1,11 +1,30 @@
 import pytest
+from aiokafka import TopicPartition
 
 from faststream.exceptions import SetupError
 from faststream.kafka import KafkaBroker
 
 
-def test_max_workers_with_manual(queue: str) -> None:
+def test_max_workers_with_manual_commit_with_multiple_queues() -> None:
     broker = KafkaBroker()
 
     with pytest.raises(SetupError):
-        broker.subscriber(queue, max_workers=3, auto_commit=False)
+        broker.subscriber(["queue1", "queue2"], max_workers=3, auto_commit=False)
+
+
+def test_max_workers_with_manual_commit_with_pattern() -> None:
+    broker = KafkaBroker()
+
+    with pytest.raises(SetupError):
+        broker.subscriber(pattern="pattern", max_workers=3, auto_commit=False)
+
+
+def test_max_workers_with_manual_commit_partitions() -> None:
+    broker = KafkaBroker()
+
+    with pytest.raises(SetupError):
+        broker.subscriber(
+            partitions=[TopicPartition(topic="topic", partition=1)],
+            max_workers=3,
+            auto_commit=False,
+        )
