@@ -417,14 +417,22 @@ class RedisBroker(
         It can be used in other frameworks or to publish messages at specific intervals.
 
         Args:
-            message: Message body to send.
-            channel: Redis PubSub object name to send message.
-            reply_to: Reply message destination PubSub object name.
-            headers: Message headers to store metainformation.
-            correlation_id: Manual message correlation_id setter. correlation_id is a useful option to trace messages.
-            list: Redis List object name to send message.
-            stream: Redis Stream object name to send message.
-            maxlen: Redis Stream maxlen publish option. Remove eldest message if maxlen exceeded.
+            message:
+                Message body to send.
+            channel:
+                Redis PubSub object name to send message.
+            reply_to:
+                Reply message destination PubSub object name.
+            headers:
+                Message headers to store metainformation.
+            correlation_id:
+                Manual message correlation_id setter. correlation_id is a useful option to trace messages.
+            list:
+                Redis List object name to send message.
+            stream:
+                Redis Stream object name to send message.
+            maxlen:
+                Redis Stream maxlen publish option. Remove eldest message if maxlen exceeded.
 
         Returns:
             int: The result of the publish operation, typically the number of messages published.

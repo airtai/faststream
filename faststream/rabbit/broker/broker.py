@@ -624,25 +624,44 @@ class RabbitBroker(
         Please, use @broker.publisher(...) or broker.publisher(...).publish(...) for the regular method of publishing.
 
         Args:
-            message: Message body to send.
-            queue: Message routing key to publish with.
-            exchange: Target exchange to publish message to.
-            routing_key: Message routing key to publish with. Overrides `queue` option if presented.
-            mandatory: Client waits for confirmation that the message is placed to some queue. RabbitMQ returns message to client if there is no suitable queue.
-            immediate: Client expects that there is consumer ready to take the message to work. RabbitMQ returns message to client if there is no suitable consumer.
-            timeout: Send confirmation time from RabbitMQ.
-            persist: Restore the message on RabbitMQ reboot.
-            reply_to: Reply message routing key to send with (always sending to default exchange).
-            correlation_id: Manual message **correlation_id** setter. **correlation_id** is a useful option to trace messages.
-            headers: Message headers to store metainformation.
-            content_type: Message **content-type** header. Used by application, not core RabbitMQ. Will be set automatically if not specified.
-            content_encoding: Message body content encoding, e.g. **gzip**.
-            expiration: Message expiration (lifetime) in seconds (or datetime or timedelta).
-            message_id: Arbitrary message id. Generated automatically if not presented.
-            timestamp: Message publish timestamp. Generated automatically if not presented.
-            message_type: Application-specific message type, e.g. **orders.created**.
-            user_id: Publisher connection User ID, validated if set.
-            priority: The message priority (0 by default).
+            message:
+                Message body to send.
+            queue:
+                Message routing key to publish with.
+            exchange:
+                Target exchange to publish message to.
+            routing_key:
+                Message routing key to publish with. Overrides `queue` option if presented.
+            mandatory:
+                Client waits for confirmation that the message is placed to some queue. RabbitMQ returns message to client if there is no suitable queue.
+            immediate:
+                Client expects that there is consumer ready to take the message to work. RabbitMQ returns message to client if there is no suitable consumer.
+            timeout:
+                Send confirmation time from RabbitMQ.
+            persist:
+                Restore the message on RabbitMQ reboot.
+            reply_to:
+                Reply message routing key to send with (always sending to default exchange).
+            correlation_id:
+                Manual message **correlation_id** setter. **correlation_id** is a useful option to trace messages.
+            headers:
+                Message headers to store metainformation.
+            content_type:
+                Message **content-type** header. Used by application, not core RabbitMQ. Will be set automatically if not specified.
+            content_encoding:
+                Message body content encoding, e.g. **gzip**.
+            expiration:
+                Message expiration (lifetime) in seconds (or datetime or timedelta).
+            message_id:
+                Arbitrary message id. Generated automatically if not presented.
+            timestamp:
+                Message publish timestamp. Generated automatically if not presented.
+            message_type:
+                Application-specific message type, e.g. **orders.created**.
+            user_id:
+                Publisher connection User ID, validated if set.
+            priority:
+                The message priority (0 by default).
 
         Returns:
             An optional aiormq.abc.ConfirmationFrameType representing the confirmation frame if RabbitMQ is configured to send confirmations.
