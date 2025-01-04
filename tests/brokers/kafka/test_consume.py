@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from aiokafka import AIOKafkaConsumer
+from aiokafka.structs import RecordMetadata
 
 from faststream import AckPolicy
 from faststream.exceptions import AckMessage
@@ -38,7 +39,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
-            await br.publish(1, topic=queue)
+            result = await br.publish(1, topic=queue)
 
             await asyncio.wait(
                 (
@@ -48,6 +49,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
                 ),
                 timeout=3,
             )
+            assert isinstance(result, RecordMetadata), result
 
         assert event.is_set()
         assert pattern_event.is_set()

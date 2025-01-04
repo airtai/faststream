@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 from aio_pika import IncomingMessage, Message
-
+from aiormq.abc import ConfirmationFrameType
 from faststream import AckPolicy
 from faststream.exceptions import AckMessage, NackMessage, RejectMessage, SkipMessage
 from faststream.rabbit import RabbitExchange, RabbitQueue
@@ -41,6 +41,8 @@ class TestConsume(RabbitTestcaseConfig, BrokerRealConsumeTestcase):
                 ),
                 timeout=3,
             )
+            result = await br.publish("hello", queue=queue, exchange=exchange)
+            assert isinstance(result,ConfirmationFrameType), result
 
         assert event.is_set()
 
