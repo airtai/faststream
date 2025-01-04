@@ -624,44 +624,25 @@ class RabbitBroker(
         Please, use @broker.publisher(...) or broker.publisher(...).publish(...) for the regular method of publishing.
 
         Args:
-            message:
-                The body of the message to send.
-            queue:
-                The routing key for the message. Used to determine where the message should be delivered.
-            exchange:
-                The target exchange to publish the message to. If None, the default exchange is used.
-            routing_key:
-                A key used for routing the message. Overrides the queue option if provided.
-            mandatory:
-                If set to True, the client waits for confirmation that the message is placed into a queue. If there is no suitable queue, RabbitMQ returns the message to the client.
-            immediate:
-                If set to True, the client expects a consumer ready to process the message. If no consumer is available, RabbitMQ returns the message to the client.
-            timeout:
-                The time in seconds to wait for confirmation from RabbitMQ that the message has been processed.
-            persist:
-                If set to True, the message will be restored if RabbitMQ is restarted.
-            reply_to:
-                The routing key for the reply message. This will always be sent to the default exchange.
-            correlation_id:
-                A manual identifier for the message, used for tracing.
-            headers:
-                Custom headers for the message to store metadata.
-            content_type:
-                The content type for the message body, such as application/json.
-            content_encoding:
-                The encoding of the message body (e.g., gzip).
-            expiration:
-                The lifetime of the message in seconds, or a datetime or timedelta.
-            message_id:
-                A custom ID for the message. If not provided, it will be automatically generated.
-            timestamp:
-                A timestamp for when the message is published. If not provided, it will be automatically generated.
-            message_type:
-                A type to specify the kind of message being sent (e.g., orders.created).
-            user_id:
-                The ID of the user sending the message, if required.
-            priority:
-                The priority of the message (0 by default).
+            message: Message body to send.
+            queue: Message routing key to publish with.
+            exchange: Target exchange to publish message to.
+            routing_key: Message routing key to publish with. Overrides `queue` option if presented.
+            mandatory: Client waits for confirmation that the message is placed to some queue. RabbitMQ returns message to client if there is no suitable queue.
+            immediate: Client expects that there is consumer ready to take the message to work. RabbitMQ returns message to client if there is no suitable consumer.
+            timeout: Send confirmation time from RabbitMQ.
+            persist: Restore the message on RabbitMQ reboot.
+            reply_to: Reply message routing key to send with (always sending to default exchange).
+            correlation_id: Manual message **correlation_id** setter. **correlation_id** is a useful option to trace messages.
+            headers: Message headers to store metainformation.
+            content_type: Message **content-type** header. Used by application, not core RabbitMQ. Will be set automatically if not specified.
+            content_encoding: Message body content encoding, e.g. **gzip**.
+            expiration: Message expiration (lifetime) in seconds (or datetime or timedelta).
+            message_id: Arbitrary message id. Generated automatically if not presented.
+            timestamp: Message publish timestamp. Generated automatically if not presented.
+            message_type: Application-specific message type, e.g. **orders.created**.
+            user_id: Publisher connection User ID, validated if set.
+            priority: The message priority (0 by default).
 
         Returns:
             An optional aiormq.abc.ConfirmationFrameType representing the confirmation frame if RabbitMQ is configured to send confirmations.
