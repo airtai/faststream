@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from typing_extensions import override
 
@@ -12,6 +12,8 @@ from .state import EmptyProducerState, ProducerState, RealProducer
 
 if TYPE_CHECKING:
     import asyncio
+
+    from confluent_kafka import Message
 
     from faststream._internal.types import CustomCallable
     from faststream.confluent.client import AsyncConfluentProducer
@@ -50,7 +52,7 @@ class AsyncConfluentFastProducer(ProducerProto):
     async def publish(  # type: ignore[override]
         self,
         cmd: "KafkaPublishCommand",
-    ) -> "asyncio.Future":
+    ) -> "Union[asyncio.Future[Optional[Message]], Optional[Message]]":
         """Publish a message to a topic."""
         message, content_type = encode_message(cmd.body)
 
