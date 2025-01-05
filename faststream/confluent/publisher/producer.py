@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, NoReturn, Optional, Union
 
 from typing_extensions import override
 
@@ -45,7 +45,7 @@ class AsyncConfluentFastProducer(ProducerProto):
     def __bool__(self) -> bool:
         return bool(self._producer)
 
-    async def ping(self, timeout: float) -> None:
+    async def ping(self, timeout: float) -> bool:
         return await self._producer.ping(timeout=timeout)
 
     @override
@@ -71,7 +71,8 @@ class AsyncConfluentFastProducer(ProducerProto):
             no_confirm=cmd.no_confirm,
         )
 
-    async def publish_batch(
+    @override
+    async def publish_batch(  # type: ignore[override]
         self,
         cmd: "KafkaPublishCommand",
     ) -> None:
@@ -106,9 +107,9 @@ class AsyncConfluentFastProducer(ProducerProto):
         )
 
     @override
-    async def request(
+    async def request(  # type: ignore[override]
         self,
         cmd: "KafkaPublishCommand",
-    ) -> Any:
+    ) -> NoReturn:
         msg = "Kafka doesn't support `request` method without test client."
         raise FeatureNotSupportedException(msg)
