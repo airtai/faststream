@@ -569,6 +569,60 @@ class RabbitBroker(
             self,
             message: "AioPikaSendableMessage" = None,
             queue: Union["RabbitQueue", str] = "",
+            exchange: None = None,
+            *,
+            routing_key: str = "",
+            # ↓ publish kwargs
+            mandatory: bool = True,
+            immediate: bool = False,
+            timeout: "TimeoutType" = None,
+            persist: bool = False,
+            reply_to: Optional[str] = None,
+            correlation_id: Optional[str] = None,
+            # ↓ kwargs for super().init(), super is PublishCommand
+            headers: Optional["HeadersType"] = None,
+            content_type: Optional[str] = None,
+            content_encoding: Optional[str] = None,
+            expiration: Optional["DateType"] = None,
+            message_id: Optional[str] = None,
+            timestamp: Optional["DateType"] = None,
+            message_type: Optional[str] = None,
+            user_id: Optional[str] = None,
+            priority: Optional[int] = None,
+    ) -> None:...
+
+    @overload
+    async def publish(
+            self,
+            message: "AioPikaSendableMessage" = None,
+            queue: None = "",
+            exchange: None = None,
+            *,
+            routing_key: str = "",
+            # ↓ publish kwargs
+            mandatory: bool = True,
+            immediate: bool = False,
+            timeout: "TimeoutType" = None,
+            persist: bool = False,
+            reply_to: Optional[str] = None,
+            correlation_id: Optional[str] = None,
+            # ↓ kwargs for super().init(), super is PublishCommand
+            headers: Optional["HeadersType"] = None,
+            content_type: Optional[str] = None,
+            content_encoding: Optional[str] = None,
+            expiration: Optional["DateType"] = None,
+            message_id: Optional[str] = None,
+            timestamp: Optional["DateType"] = None,
+            message_type: Optional[str] = None,
+            user_id: Optional[str] = None,
+            priority: Optional[int] = None,
+    ) -> None:...
+
+    @overload
+    async def publish(
+            self,
+            message: "AioPikaSendableMessage" = None,
+            queue: Union["RabbitQueue", str] = "",
             exchange: Union["RabbitExchange", str, None] = None,
             *,
             routing_key: str = "",
