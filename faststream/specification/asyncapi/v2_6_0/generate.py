@@ -150,16 +150,25 @@ def get_broker_channels(
     channels = {}
 
     for h in broker._subscribers:
-        # TODO: add duplication key warning
-        channels.update({
-            key: Channel.from_sub(channel) for key, channel in h.schema().items()
-        })
-
+        for key, channel in h.schema().items():
+            if key in channels:
+                warnings.warn(
+                    f"Overwrite channel handler, channels have the same names: `{key}`",
+                    RuntimeWarning,
+                    stacklevel=1,
+                )
+            channels[key] = Channel.from_sub(channel)
+             
     for p in broker._publishers:
-        # TODO: add duplication key warning
-        channels.update({
-            key: Channel.from_pub(channel) for key, channel in p.schema().items()
-        })
+        for key, channel in p.schema().items():
+            if key in channels:
+                warnings.warn(
+                    f"Overwrite channel handler, channels have the same names: `{key}`",
+                    RuntimeWarning,
+                    stacklevel=1,
+                )
+
+            channels[key] = Channel.from_pub(channel)
 
     return channels
 
