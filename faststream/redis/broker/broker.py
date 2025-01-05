@@ -372,13 +372,27 @@ class RedisBroker(
     async def publish(  # type: ignore[override]
             self,
             message: "SendableMessage" = None,
+            channel: None = None,
+            *,
+            reply_to: str = "",
+            headers: Optional["AnyDict"] = None,
+            correlation_id: Optional[str] = None,
+            list: Optional[str] = None,
+            stream: Optional[str] = None,
+            maxlen: Optional[int] = None,
+    ) -> None: ...
+
+    @overload
+    async def publish(  # type: ignore[override]
+            self,
+            message: None = None,
             channel: Optional[str] = None,
             *,
             reply_to: str = "",
             headers: Optional["AnyDict"] = None,
             correlation_id: Optional[str] = None,
             list: Optional[str] = None,
-            stream: None = None,
+            stream: Optional[str] = None,
             maxlen: Optional[int] = None,
     ) -> None: ...
 
