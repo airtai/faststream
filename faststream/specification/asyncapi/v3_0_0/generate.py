@@ -158,7 +158,13 @@ def get_broker_channels(
             channel_obj = Channel.from_sub(sub_key, sub_channel)
 
             channel_key = clear_key(sub_key)
-            # TODO: add duplication key warning
+            if channel_key in channels:
+                warnings.warn(
+                    f"Overwrite channel handler, channels have the same names: `{channel_key}`",
+                    RuntimeWarning,
+                    stacklevel=1,
+                )
+
             channels[channel_key] = channel_obj
 
             operations[f"{channel_key}Subscribe"] = Operation.from_sub(
@@ -177,7 +183,12 @@ def get_broker_channels(
             channel_obj = Channel.from_pub(pub_key, pub_channel)
 
             channel_key = clear_key(pub_key)
-            # TODO: add duplication key warning
+            if channel_key in channels:
+                warnings.warn(
+                    f"Overwrite channel handler, channels have the same names: `{channel_key}`",
+                    RuntimeWarning,
+                    stacklevel=1,
+                )
             channels[channel_key] = channel_obj
 
             operations[channel_key] = Operation.from_pub(
