@@ -205,7 +205,7 @@ def _resolve_msg_payloads(
         payloads.update(m.payload.pop(DEF_KEY, {}))
         p_title = m.payload.get("title", f"{channel_name}Payload")
         p_title = clear_key(p_title)
-        if p_title in payloads:
+        if p_title in payloads and payloads[p_title] != m.payload:
             warnings.warn(
                 f"Overwriting the message schema, data types have the same name: `{p_title}`",
                 RuntimeWarning,
