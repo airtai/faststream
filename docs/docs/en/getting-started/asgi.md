@@ -101,7 +101,7 @@ app = AsgiFastStream(
 
 !!! tip
     You do not need to setup all routes using the `asgi_routes=[]` parameter.<br/>
-    You can use the `#!python app.mount("/healh", asgi_endpoint)` method also.
+    You can use the `#!python app.mount("/health", asgi_endpoint)` method also.
 
 ### AsyncAPI Documentation
 
