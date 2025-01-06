@@ -33,8 +33,8 @@
 <span class=normal><a href=#__codelineno-0-24>24</a></span>
 <span class=normal><a href=#__codelineno-0-25>25</a></span>
 <span class=normal><a href=#__codelineno-0-26>26</a></span>
-<span class=normal><a href=#__codelineno-0-27>27</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span>
-<a id=__codelineno-0-2 name=__codelineno-0-2></a><span class=kn>from</span> <span class=nn>faststream.rabbit</span> <span class=kn>import</span> <span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-27>27</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span>
+<a id=__codelineno-0-2 name=__codelineno-0-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.rabbit</span><span class=w> </span><span class=kn>import</span> <span class=p>(</span>
 <a id=__codelineno-0-3 name=__codelineno-0-3></a>    <span class=n>ExchangeType</span><span class=p>,</span>
 <a id=__codelineno-0-4 name=__codelineno-0-4></a>    <span class=n>RabbitBroker</span><span class=p>,</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5></a>    <span class=n>RabbitExchange</span><span class=p>,</span>
@@ -46,7 +46,7 @@
 <a id=__codelineno-0-11 name=__codelineno-0-11></a>
 <a id=__codelineno-0-12 name=__codelineno-0-12></a>
 <a id=__codelineno-0-13 name=__codelineno-0-13></a><span class=nd>@app</span><span class=o>.</span><span class=n>after_startup</span>
-<a id=__codelineno-0-14 name=__codelineno-0-14></a><span class=k>async</span> <span class=k>def</span> <span class=nf>declare_smth</span><span class=p>():</span>
+<a id=__codelineno-0-14 name=__codelineno-0-14></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>declare_smth</span><span class=p>():</span>
 <a id=__codelineno-0-15 name=__codelineno-0-15></a><span class=hll>    <span class=k>await</span> <span class=n>broker</span><span class=o>.</span><span class=n>declare_exchange</span><span class=p>(</span>
 </span><a id=__codelineno-0-16 name=__codelineno-0-16></a><span class=hll>        <span class=n>RabbitExchange</span><span class=p>(</span>
 </span><a id=__codelineno-0-17 name=__codelineno-0-17></a><span class=hll>            <span class=n>name</span><span class=o>=</span><span class=s2>&quot;some-exchange&quot;</span><span class=p>,</span>
@@ -96,9 +96,9 @@
 <span class=normal><a href=#__codelineno-1-34>34</a></span>
 <span class=normal><a href=#__codelineno-1-35>35</a></span>
 <span class=normal><a href=#__codelineno-1-36>36</a></span>
-<span class=normal><a href=#__codelineno-1-37>37</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-1-1 name=__codelineno-1-1></a><span class=kn>import</span> <span class=nn>aio_pika</span>
-<a id=__codelineno-1-2 name=__codelineno-1-2></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span>
-<a id=__codelineno-1-3 name=__codelineno-1-3></a><span class=kn>from</span> <span class=nn>faststream.rabbit</span> <span class=kn>import</span> <span class=p>(</span>
+<span class=normal><a href=#__codelineno-1-37>37</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-1-1 name=__codelineno-1-1></a><span class=kn>import</span><span class=w> </span><span class=nn>aio_pika</span>
+<a id=__codelineno-1-2 name=__codelineno-1-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span>
+<a id=__codelineno-1-3 name=__codelineno-1-3></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.rabbit</span><span class=w> </span><span class=kn>import</span> <span class=p>(</span>
 <a id=__codelineno-1-4 name=__codelineno-1-4></a>    <span class=n>ExchangeType</span><span class=p>,</span>
 <a id=__codelineno-1-5 name=__codelineno-1-5></a>    <span class=n>RabbitBroker</span><span class=p>,</span>
 <a id=__codelineno-1-6 name=__codelineno-1-6></a>    <span class=n>RabbitExchange</span><span class=p>,</span>
@@ -120,7 +120,7 @@
 <a id=__codelineno-1-22 name=__codelineno-1-22></a><span class=p>)</span>
 <a id=__codelineno-1-23 name=__codelineno-1-23></a>
 <a id=__codelineno-1-24 name=__codelineno-1-24></a><span class=hll><span class=nd>@app</span><span class=o>.</span><span class=n>after_startup</span>
-</span><a id=__codelineno-1-25 name=__codelineno-1-25></a><span class=hll><span class=k>async</span> <span class=k>def</span> <span class=nf>bind_queue_exchange</span><span class=p>():</span>
+</span><a id=__codelineno-1-25 name=__codelineno-1-25></a><span class=hll><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>bind_queue_exchange</span><span class=p>():</span>
 </span><a id=__codelineno-1-26 name=__codelineno-1-26></a><span class=hll>    <span class=n>queue</span><span class=p>:</span> <span class=n>aio_pika</span><span class=o>.</span><span class=n>RobustQueue</span> <span class=o>=</span> <span class=k>await</span> <span class=n>broker</span><span class=o>.</span><span class=n>declare_queue</span><span class=p>(</span>
 </span><a id=__codelineno-1-27 name=__codelineno-1-27></a>        <span class=n>some_queue</span>
 <a id=__codelineno-1-28 name=__codelineno-1-28></a><span class=hll>    <span class=p>)</span>

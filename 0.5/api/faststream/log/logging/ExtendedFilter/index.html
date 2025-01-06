@@ -16,7 +16,7 @@
 <span class=normal><a href=#__codelineno-0-28>28</a></span>
 <span class=normal><a href=#__codelineno-0-29>29</a></span>
 <span class=normal><a href=#__codelineno-0-30>30</a></span>
-<span class=normal><a href=#__codelineno-0-31>31</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-23 name=__codelineno-0-23></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-31>31</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-23 name=__codelineno-0-23></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-24 name=__codelineno-0-24></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25></a>    <span class=n>default_context</span><span class=p>:</span> <span class=n>Mapping</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=nb>str</span><span class=p>],</span>
 <a id=__codelineno-0-26 name=__codelineno-0-26></a>    <span class=n>message_id_ln</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span>
@@ -40,7 +40,7 @@
 <span class=normal><a href=#__codelineno-0-42>42</a></span>
 <span class=normal><a href=#__codelineno-0-43>43</a></span>
 <span class=normal><a href=#__codelineno-0-44>44</a></span>
-<span class=normal><a href=#__codelineno-0-45>45</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-33 name=__codelineno-0-33></a><span class=k>def</span> <span class=nf>filter</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>record</span><span class=p>:</span> <span class=n>LogRecord</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-45>45</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-33 name=__codelineno-0-33></a><span class=k>def</span><span class=w> </span><span class=nf>filter</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>record</span><span class=p>:</span> <span class=n>LogRecord</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
 <a id=__codelineno-0-34 name=__codelineno-0-34></a>    <span class=k>if</span> <span class=n>is_suitable</span> <span class=o>:=</span> <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>filter</span><span class=p>(</span><span class=n>record</span><span class=p>):</span>
 <a id=__codelineno-0-35 name=__codelineno-0-35></a>        <span class=n>log_context</span><span class=p>:</span> <span class=n>Mapping</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>context</span><span class=o>.</span><span class=n>get_local</span><span class=p>(</span>
 <a id=__codelineno-0-36 name=__codelineno-0-36></a>            <span class=s2>&quot;log_context&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>default_context</span>

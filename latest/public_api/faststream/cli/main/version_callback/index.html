@@ -18,10 +18,10 @@
 <span class=normal><a href=#__codelineno-0-37>37</a></span>
 <span class=normal><a href=#__codelineno-0-38>38</a></span>
 <span class=normal><a href=#__codelineno-0-39>39</a></span>
-<span class=normal><a href=#__codelineno-0-40>40</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-30 name=__codelineno-0-30></a><span class=k>def</span> <span class=nf>version_callback</span><span class=p>(</span><span class=n>version</span><span class=p>:</span> <span class=nb>bool</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-40>40</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-30 name=__codelineno-0-30></a><span class=k>def</span><span class=w> </span><span class=nf>version_callback</span><span class=p>(</span><span class=n>version</span><span class=p>:</span> <span class=nb>bool</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-31 name=__codelineno-0-31></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Callback function for displaying version information.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-32 name=__codelineno-0-32></a>    <span class=k>if</span> <span class=n>version</span><span class=p>:</span>
-<a id=__codelineno-0-33 name=__codelineno-0-33></a>        <span class=kn>import</span> <span class=nn>platform</span>
+<a id=__codelineno-0-33 name=__codelineno-0-33></a>        <span class=kn>import</span><span class=w> </span><span class=nn>platform</span>
 <a id=__codelineno-0-34 name=__codelineno-0-34></a>
 <a id=__codelineno-0-35 name=__codelineno-0-35></a>        <span class=n>typer</span><span class=o>.</span><span class=n>echo</span><span class=p>(</span>
 <a id=__codelineno-0-36 name=__codelineno-0-36></a>            <span class=sa>f</span><span class=s2>&quot;Running FastStream </span><span class=si>{</span><span class=n>__version__</span><span class=si>}</span><span class=s2> with </span><span class=si>{</span><span class=n>platform</span><span class=o>.</span><span class=n>python_implementation</span><span class=p>()</span><span class=si>}</span><span class=s2> &quot;</span>

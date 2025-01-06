@@ -15,7 +15,7 @@
 <span class=normal><a href=#__codelineno-0-187>187</a></span>
 <span class=normal><a href=#__codelineno-0-188>188</a></span>
 <span class=normal><a href=#__codelineno-0-189>189</a></span>
-<span class=normal><a href=#__codelineno-0-190>190</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-183 name=__codelineno-0-183></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>broker</span><span class=p>:</span> <span class=n>RabbitBroker</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-190>190</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-183 name=__codelineno-0-183></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>broker</span><span class=p>:</span> <span class=n>RabbitBroker</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-184 name=__codelineno-0-184></a>    <span class=bp>self</span><span class=o>.</span><span class=n>broker</span> <span class=o>=</span> <span class=n>broker</span>
 <a id=__codelineno-0-185 name=__codelineno-0-185></a>
 <a id=__codelineno-0-186 name=__codelineno-0-186></a>    <span class=n>default_parser</span> <span class=o>=</span> <span class=n>AioPikaParser</span><span class=p>()</span>
@@ -112,7 +112,7 @@
 <span class=normal><a href=#__codelineno-0-251>251</a></span>
 <span class=normal><a href=#__codelineno-0-252>252</a></span>
 <span class=normal><a href=#__codelineno-0-253>253</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-192 name=__codelineno-0-192></a><span class=nd>@override</span>
-<a id=__codelineno-0-193 name=__codelineno-0-193></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<a id=__codelineno-0-193 name=__codelineno-0-193></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>publish</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-194 name=__codelineno-0-194></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-195 name=__codelineno-0-195></a>    <span class=n>message</span><span class=p>:</span> <span class=s2>&quot;AioPikaSendableMessage&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-196 name=__codelineno-0-196></a>    <span class=n>exchange</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=s2>&quot;RabbitExchange&quot;</span><span class=p>,</span> <span class=nb>str</span><span class=p>,</span> <span class=kc>None</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
@@ -246,7 +246,7 @@
 <span class=normal><a href=#__codelineno-0-304>304</a></span>
 <span class=normal><a href=#__codelineno-0-305>305</a></span>
 <span class=normal><a href=#__codelineno-0-306>306</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-255 name=__codelineno-0-255></a><span class=nd>@override</span>
-<a id=__codelineno-0-256 name=__codelineno-0-256></a><span class=k>async</span> <span class=k>def</span> <span class=nf>request</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<a id=__codelineno-0-256 name=__codelineno-0-256></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>request</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-257 name=__codelineno-0-257></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-258 name=__codelineno-0-258></a>    <span class=n>message</span><span class=p>:</span> <span class=s2>&quot;AioPikaSendableMessage&quot;</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-259 name=__codelineno-0-259></a>    <span class=n>exchange</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=s2>&quot;RabbitExchange&quot;</span><span class=p>,</span> <span class=nb>str</span><span class=p>,</span> <span class=kc>None</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>

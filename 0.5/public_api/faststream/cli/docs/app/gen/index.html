@@ -90,7 +90,7 @@
 <span class=normal><a href=#__codelineno-0-145>145</a></span>
 <span class=normal><a href=#__codelineno-0-146>146</a></span>
 <span class=normal><a href=#__codelineno-0-147>147</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-89 name=__codelineno-0-89></a><span class=nd>@docs_app</span><span class=o>.</span><span class=n>command</span><span class=p>(</span><span class=n>name</span><span class=o>=</span><span class=s2>&quot;gen&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-90 name=__codelineno-0-90></a><span class=k>def</span> <span class=nf>gen</span><span class=p>(</span>
+<a id=__codelineno-0-90 name=__codelineno-0-90></a><span class=k>def</span><span class=w> </span><span class=nf>gen</span><span class=p>(</span>
 <a id=__codelineno-0-91 name=__codelineno-0-91></a>    <span class=n>app</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>typer</span><span class=o>.</span><span class=n>Argument</span><span class=p>(</span>
 <a id=__codelineno-0-92 name=__codelineno-0-92></a>        <span class=o>...</span><span class=p>,</span>
 <a id=__codelineno-0-93 name=__codelineno-0-93></a>        <span class=n>help</span><span class=o>=</span><span class=s2>&quot;[python_module:FastStream] - path to your application.&quot;</span><span class=p>,</span>
@@ -133,7 +133,7 @@
 <a id=__codelineno-0-130 name=__codelineno-0-130></a>            <span class=n>schema</span> <span class=o>=</span> <span class=n>raw_schema</span><span class=o>.</span><span class=n>to_yaml</span><span class=p>()</span>
 <a id=__codelineno-0-131 name=__codelineno-0-131></a>        <span class=k>except</span> <span class=ne>ImportError</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
 <a id=__codelineno-0-132 name=__codelineno-0-132></a>            <span class=n>typer</span><span class=o>.</span><span class=n>echo</span><span class=p>(</span><span class=n>INSTALL_YAML</span><span class=p>,</span> <span class=n>err</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
-<a id=__codelineno-0-133 name=__codelineno-0-133></a>            <span class=k>raise</span> <span class=n>typer</span><span class=o>.</span><span class=n>Exit</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span> <span class=kn>from</span> <span class=nn>e</span>
+<a id=__codelineno-0-133 name=__codelineno-0-133></a>            <span class=k>raise</span> <span class=n>typer</span><span class=o>.</span><span class=n>Exit</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span> <span class=kn>from</span><span class=w> </span><span class=nn>e</span>
 <a id=__codelineno-0-134 name=__codelineno-0-134></a>
 <a id=__codelineno-0-135 name=__codelineno-0-135></a>        <span class=n>name</span> <span class=o>=</span> <span class=n>out</span> <span class=ow>or</span> <span class=s2>&quot;asyncapi.yaml&quot;</span>
 <a id=__codelineno-0-136 name=__codelineno-0-136></a>

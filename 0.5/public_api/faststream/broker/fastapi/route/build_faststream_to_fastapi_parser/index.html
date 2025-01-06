@@ -84,7 +84,7 @@
 <span class=normal><a href=#__codelineno-0-171>171</a></span>
 <span class=normal><a href=#__codelineno-0-172>172</a></span>
 <span class=normal><a href=#__codelineno-0-173>173</a></span>
-<span class=normal><a href=#__codelineno-0-174>174</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-109 name=__codelineno-0-109></a><span class=k>def</span> <span class=nf>build_faststream_to_fastapi_parser</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-174>174</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-109 name=__codelineno-0-109></a><span class=k>def</span><span class=w> </span><span class=nf>build_faststream_to_fastapi_parser</span><span class=p>(</span>
 <a id=__codelineno-0-110 name=__codelineno-0-110></a>    <span class=o>*</span><span class=p>,</span>
 <a id=__codelineno-0-111 name=__codelineno-0-111></a>    <span class=n>dependent</span><span class=p>:</span> <span class=s2>&quot;Dependant&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-112 name=__codelineno-0-112></a>    <span class=n>provider_factory</span><span class=p>:</span> <span class=n>Callable</span><span class=p>[[],</span> <span class=n>Any</span><span class=p>],</span>
@@ -121,7 +121,7 @@
 <a id=__codelineno-0-143 name=__codelineno-0-143></a>        <span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-144 name=__codelineno-0-144></a>    <span class=p>)</span>
 <a id=__codelineno-0-145 name=__codelineno-0-145></a>
-<a id=__codelineno-0-146 name=__codelineno-0-146></a>    <span class=k>async</span> <span class=k>def</span> <span class=nf>parsed_consumer</span><span class=p>(</span><span class=n>message</span><span class=p>:</span> <span class=s2>&quot;NativeMessage[Any]&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
+<a id=__codelineno-0-146 name=__codelineno-0-146></a>    <span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>parsed_consumer</span><span class=p>(</span><span class=n>message</span><span class=p>:</span> <span class=s2>&quot;NativeMessage[Any]&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
 <a id=__codelineno-0-147 name=__codelineno-0-147></a><span class=w>        </span><span class=sd>&quot;&quot;&quot;Wrapper, that parser FastStream message to FastAPI compatible one.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-148 name=__codelineno-0-148></a>        <span class=n>body</span> <span class=o>=</span> <span class=k>await</span> <span class=n>message</span><span class=o>.</span><span class=n>decode</span><span class=p>()</span>
 <a id=__codelineno-0-149 name=__codelineno-0-149></a>

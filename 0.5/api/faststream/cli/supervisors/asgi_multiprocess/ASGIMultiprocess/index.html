@@ -16,7 +16,7 @@
 <span class=normal><a href=#__codelineno-0-13>13</a></span>
 <span class=normal><a href=#__codelineno-0-14>14</a></span>
 <span class=normal><a href=#__codelineno-0-15>15</a></span>
-<span class=normal><a href=#__codelineno-0-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-8 name=__codelineno-0-8></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-8 name=__codelineno-0-8></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-9 name=__codelineno-0-9></a>    <span class=bp>self</span><span class=p>,</span> <span class=n>target</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>args</span><span class=p>:</span> <span class=n>Tuple</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=nb>str</span><span class=p>],</span> <span class=nb>bool</span><span class=p>,</span> <span class=nb>int</span><span class=p>],</span> <span class=n>workers</span><span class=p>:</span> <span class=nb>int</span>
 <a id=__codelineno-0-10 name=__codelineno-0-10></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-11 name=__codelineno-0-11></a>    <span class=n>_</span><span class=p>,</span> <span class=n>uvicorn_kwargs</span><span class=p>,</span> <span class=n>is_factory</span><span class=p>,</span> <span class=n>log_level</span> <span class=o>=</span> <span class=n>args</span>
@@ -46,13 +46,13 @@
 <span class=normal><a href=#__codelineno-0-35>35</a></span>
 <span class=normal><a href=#__codelineno-0-36>36</a></span>
 <span class=normal><a href=#__codelineno-0-37>37</a></span>
-<span class=normal><a href=#__codelineno-0-38>38</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-18 name=__codelineno-0-18></a><span class=k>def</span> <span class=nf>run</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-38>38</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-18 name=__codelineno-0-18></a><span class=k>def</span><span class=w> </span><span class=nf>run</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-19 name=__codelineno-0-19></a>    <span class=k>try</span><span class=p>:</span>
-<a id=__codelineno-0-20 name=__codelineno-0-20></a>        <span class=kn>import</span> <span class=nn>uvicorn</span>
+<a id=__codelineno-0-20 name=__codelineno-0-20></a>        <span class=kn>import</span><span class=w> </span><span class=nn>uvicorn</span>
 <a id=__codelineno-0-21 name=__codelineno-0-21></a>    <span class=k>except</span> <span class=ne>ImportError</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
 <a id=__codelineno-0-22 name=__codelineno-0-22></a>        <span class=k>raise</span> <span class=ne>RuntimeError</span><span class=p>(</span>
 <a id=__codelineno-0-23 name=__codelineno-0-23></a>            <span class=s2>&quot;You need uvicorn to run FastStream ASGI App via CLI. pip install uvicorn&quot;</span>
-<a id=__codelineno-0-24 name=__codelineno-0-24></a>        <span class=p>)</span> <span class=kn>from</span> <span class=nn>e</span>
+<a id=__codelineno-0-24 name=__codelineno-0-24></a>        <span class=p>)</span> <span class=kn>from</span><span class=w> </span><span class=nn>e</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25></a>
 <a id=__codelineno-0-26 name=__codelineno-0-26></a>    <span class=n>uvicorn_params</span> <span class=o>=</span> <span class=nb>set</span><span class=p>(</span><span class=n>inspect</span><span class=o>.</span><span class=n>signature</span><span class=p>(</span><span class=n>uvicorn</span><span class=o>.</span><span class=n>run</span><span class=p>)</span><span class=o>.</span><span class=n>parameters</span><span class=o>.</span><span class=n>keys</span><span class=p>())</span>
 <a id=__codelineno-0-27 name=__codelineno-0-27></a>

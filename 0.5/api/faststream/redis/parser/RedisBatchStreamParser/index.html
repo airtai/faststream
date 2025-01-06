@@ -12,7 +12,7 @@
 <span class=normal><a href=#__codelineno-0-130>130</a></span>
 <span class=normal><a href=#__codelineno-0-131>131</a></span>
 <span class=normal><a href=#__codelineno-0-132>132</a></span>
-<span class=normal><a href=#__codelineno-0-133>133</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-129 name=__codelineno-0-129></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-133>133</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-129 name=__codelineno-0-129></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-130 name=__codelineno-0-130></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-131 name=__codelineno-0-131></a>    <span class=n>pattern</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;Pattern[str]&quot;</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-132 name=__codelineno-0-132></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
@@ -38,7 +38,7 @@
 <span class=normal><a href=#__codelineno-0-150>150</a></span>
 <span class=normal><a href=#__codelineno-0-151>151</a></span>
 <span class=normal><a href=#__codelineno-0-152>152</a></span>
-<span class=normal><a href=#__codelineno-0-153>153</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-135 name=__codelineno-0-135></a><span class=k>async</span> <span class=k>def</span> <span class=nf>parse_message</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-153>153</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-135 name=__codelineno-0-135></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>parse_message</span><span class=p>(</span>
 <a id=__codelineno-0-136 name=__codelineno-0-136></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-137 name=__codelineno-0-137></a>    <span class=n>message</span><span class=p>:</span> <span class=n>Mapping</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Any</span><span class=p>],</span>
 <a id=__codelineno-0-138 name=__codelineno-0-138></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;StreamMessage[Mapping[str, Any]]&quot;</span><span class=p>:</span>
@@ -67,7 +67,7 @@
 <span class=normal><a href=#__codelineno-0-167>167</a></span>
 <span class=normal><a href=#__codelineno-0-168>168</a></span>
 <span class=normal><a href=#__codelineno-0-169>169</a></span>
-<span class=normal><a href=#__codelineno-0-170>170</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-161 name=__codelineno-0-161></a><span class=k>def</span> <span class=nf>get_path</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>message</span><span class=p>:</span> <span class=n>Mapping</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Any</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=s2>&quot;AnyDict&quot;</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-170>170</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-161 name=__codelineno-0-161></a><span class=k>def</span><span class=w> </span><span class=nf>get_path</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>message</span><span class=p>:</span> <span class=n>Mapping</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Any</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=s2>&quot;AnyDict&quot;</span><span class=p>:</span>
 <a id=__codelineno-0-162 name=__codelineno-0-162></a>    <span class=k>if</span> <span class=p>(</span>
 <a id=__codelineno-0-163 name=__codelineno-0-163></a>        <span class=n>message</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&quot;pattern&quot;</span><span class=p>)</span>
 <a id=__codelineno-0-164 name=__codelineno-0-164></a>        <span class=ow>and</span> <span class=p>(</span><span class=n>path_re</span> <span class=o>:=</span> <span class=bp>self</span><span class=o>.</span><span class=n>pattern</span><span class=p>)</span>
@@ -82,7 +82,7 @@
 <span class=normal><a href=#__codelineno-0-173>173</a></span>
 <span class=normal><a href=#__codelineno-0-174>174</a></span>
 <span class=normal><a href=#__codelineno-0-175>175</a></span>
-<span class=normal><a href=#__codelineno-0-176>176</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-172 name=__codelineno-0-172></a><span class=k>async</span> <span class=k>def</span> <span class=nf>decode_message</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-176>176</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-172 name=__codelineno-0-172></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>decode_message</span><span class=p>(</span>
 <a id=__codelineno-0-173 name=__codelineno-0-173></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-174 name=__codelineno-0-174></a>    <span class=n>msg</span><span class=p>:</span> <span class=s2>&quot;StreamMessage[MsgType]&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-175 name=__codelineno-0-175></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>DecodedMessage</span><span class=p>:</span>

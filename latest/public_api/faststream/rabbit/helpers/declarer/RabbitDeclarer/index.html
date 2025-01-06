@@ -11,7 +11,7 @@
 </code></pre></div> <div class="doc doc-contents first"> <p>An utility class to declare RabbitMQ queues and exchanges.</p> <details class=quote> <summary>Source code in <code>faststream/rabbit/helpers/declarer.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-16>16</a></span>
 <span class=normal><a href=#__codelineno-0-17>17</a></span>
 <span class=normal><a href=#__codelineno-0-18>18</a></span>
-<span class=normal><a href=#__codelineno-0-19>19</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-16 name=__codelineno-0-16></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>channel</span><span class=p>:</span> <span class=s2>&quot;aio_pika.RobustChannel&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-19>19</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-16 name=__codelineno-0-16></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>channel</span><span class=p>:</span> <span class=s2>&quot;aio_pika.RobustChannel&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-17 name=__codelineno-0-17></a>    <span class=bp>self</span><span class=o>.</span><span class=n>__channel</span> <span class=o>=</span> <span class=n>channel</span>
 <a id=__codelineno-0-18 name=__codelineno-0-18></a>    <span class=bp>self</span><span class=o>.</span><span class=n>__queues</span> <span class=o>=</span> <span class=p>{}</span>
 <a id=__codelineno-0-19 name=__codelineno-0-19></a>    <span class=bp>self</span><span class=o>.</span><span class=n>__exchanges</span> <span class=o>=</span> <span class=p>{}</span>
@@ -37,7 +37,7 @@
 <span class=normal><a href=#__codelineno-0-39>39</a></span>
 <span class=normal><a href=#__codelineno-0-40>40</a></span>
 <span class=normal><a href=#__codelineno-0-41>41</a></span>
-<span class=normal><a href=#__codelineno-0-42>42</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-21 name=__codelineno-0-21></a><span class=k>async</span> <span class=k>def</span> <span class=nf>declare_queue</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-42>42</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-21 name=__codelineno-0-21></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>declare_queue</span><span class=p>(</span>
 <a id=__codelineno-0-22 name=__codelineno-0-22></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-23 name=__codelineno-0-23></a>    <span class=n>queue</span><span class=p>:</span> <span class=s2>&quot;RabbitQueue&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-24 name=__codelineno-0-24></a>    <span class=n>passive</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
@@ -95,7 +95,7 @@
 <span class=normal><a href=#__codelineno-0-76>76</a></span>
 <span class=normal><a href=#__codelineno-0-77>77</a></span>
 <span class=normal><a href=#__codelineno-0-78>78</a></span>
-<span class=normal><a href=#__codelineno-0-79>79</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-44 name=__codelineno-0-44></a><span class=k>async</span> <span class=k>def</span> <span class=nf>declare_exchange</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-79>79</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-44 name=__codelineno-0-44></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>declare_exchange</span><span class=p>(</span>
 <a id=__codelineno-0-45 name=__codelineno-0-45></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-46 name=__codelineno-0-46></a>    <span class=n>exchange</span><span class=p>:</span> <span class=s2>&quot;RabbitExchange&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-47 name=__codelineno-0-47></a>    <span class=n>passive</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>

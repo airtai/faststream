@@ -19,7 +19,7 @@
 <span class=normal><a href=#__codelineno-0-107>107</a></span>
 <span class=normal><a href=#__codelineno-0-108>108</a></span>
 <span class=normal><a href=#__codelineno-0-109>109</a></span>
-<span class=normal><a href=#__codelineno-0-110>110</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-99 name=__codelineno-0-99></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>broker</span><span class=p>:</span> <span class=n>RedisBroker</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-110>110</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-99 name=__codelineno-0-99></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>broker</span><span class=p>:</span> <span class=n>RedisBroker</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-100 name=__codelineno-0-100></a>    <span class=bp>self</span><span class=o>.</span><span class=n>broker</span> <span class=o>=</span> <span class=n>broker</span>
 <a id=__codelineno-0-101 name=__codelineno-0-101></a>
 <a id=__codelineno-0-102 name=__codelineno-0-102></a>    <span class=n>default</span> <span class=o>=</span> <span class=n>RedisPubSubParser</span><span class=p>()</span>
@@ -92,7 +92,7 @@
 <span class=normal><a href=#__codelineno-0-155>155</a></span>
 <span class=normal><a href=#__codelineno-0-156>156</a></span>
 <span class=normal><a href=#__codelineno-0-157>157</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-112 name=__codelineno-0-112></a><span class=nd>@override</span>
-<a id=__codelineno-0-113 name=__codelineno-0-113></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish</span><span class=p>(</span>
+<a id=__codelineno-0-113 name=__codelineno-0-113></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>publish</span><span class=p>(</span>
 <a id=__codelineno-0-114 name=__codelineno-0-114></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-115 name=__codelineno-0-115></a>    <span class=n>message</span><span class=p>:</span> <span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-116 name=__codelineno-0-116></a>    <span class=o>*</span><span class=p>,</span>
@@ -185,7 +185,7 @@
 <span class=normal><a href=#__codelineno-0-193>193</a></span>
 <span class=normal><a href=#__codelineno-0-194>194</a></span>
 <span class=normal><a href=#__codelineno-0-195>195</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-159 name=__codelineno-0-159></a><span class=nd>@override</span>
-<a id=__codelineno-0-160 name=__codelineno-0-160></a><span class=k>async</span> <span class=k>def</span> <span class=nf>request</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<a id=__codelineno-0-160 name=__codelineno-0-160></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>request</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-161 name=__codelineno-0-161></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-162 name=__codelineno-0-162></a>    <span class=n>message</span><span class=p>:</span> <span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-163 name=__codelineno-0-163></a>    <span class=o>*</span><span class=p>,</span>
@@ -250,7 +250,7 @@
 <span class=normal><a href=#__codelineno-0-220>220</a></span>
 <span class=normal><a href=#__codelineno-0-221>221</a></span>
 <span class=normal><a href=#__codelineno-0-222>222</a></span>
-<span class=normal><a href=#__codelineno-0-223>223</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-197 name=__codelineno-0-197></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish_batch</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-223>223</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-197 name=__codelineno-0-197></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>publish_batch</span><span class=p>(</span>
 <a id=__codelineno-0-198 name=__codelineno-0-198></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-199 name=__codelineno-0-199></a>    <span class=o>*</span><span class=n>msgs</span><span class=p>:</span> <span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-200 name=__codelineno-0-200></a>    <span class=nb>list</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>

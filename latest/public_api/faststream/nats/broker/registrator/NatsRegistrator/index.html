@@ -11,7 +11,7 @@
 </code></pre></div> <div class="doc doc-contents first"> <p class="doc doc-class-bases"> Bases: <code><a class="autorefs autorefs-internal" title="faststream.broker.core.abc.ABCBroker" href="../../../../../../api/faststream/broker/core/abc/ABCBroker/#faststream.broker.core.abc.ABCBroker">ABCBroker</a>[&#39;Msg&#39;]</code></p> <p>Includable to NatsBroker router.</p> <details class=quote> <summary>Source code in <code>faststream/nats/broker/registrator.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-34>34</a></span>
 <span class=normal><a href=#__codelineno-0-35>35</a></span>
 <span class=normal><a href=#__codelineno-0-36>36</a></span>
-<span class=normal><a href=#__codelineno-0-37>37</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-34 name=__codelineno-0-34></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-37>37</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-34 name=__codelineno-0-34></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-35 name=__codelineno-0-35></a>    <span class=bp>self</span><span class=o>.</span><span class=n>_stream_builder</span> <span class=o>=</span> <span class=n>StreamBuilder</span><span class=p>()</span>
 <a id=__codelineno-0-36 name=__codelineno-0-36></a>
 <a id=__codelineno-0-37 name=__codelineno-0-37></a>    <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>(</span><span class=o>**</span><span class=n>kwargs</span><span class=p>)</span>
@@ -29,7 +29,7 @@
 <span class=normal><a href=#__codelineno-0-58>58</a></span>
 <span class=normal><a href=#__codelineno-0-59>59</a></span>
 <span class=normal><a href=#__codelineno-0-60>60</a></span>
-<span class=normal><a href=#__codelineno-0-61>61</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-50 name=__codelineno-0-50></a><span class=k>def</span> <span class=nf>add_middleware</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>middleware</span><span class=p>:</span> <span class=s2>&quot;BrokerMiddleware[MsgType]&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-61>61</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-50 name=__codelineno-0-50></a><span class=k>def</span><span class=w> </span><span class=nf>add_middleware</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>middleware</span><span class=p>:</span> <span class=s2>&quot;BrokerMiddleware[MsgType]&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-51 name=__codelineno-0-51></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Append BrokerMiddleware to the end of middlewares list.</span>
 <a id=__codelineno-0-52 name=__codelineno-0-52></a>
 <a id=__codelineno-0-53 name=__codelineno-0-53></a><span class=sd>    Current middleware will be used as a most inner of already existed ones.</span>
@@ -48,7 +48,7 @@
 <span class=normal><a href=#__codelineno-0-139>139</a></span>
 <span class=normal><a href=#__codelineno-0-140>140</a></span>
 <span class=normal><a href=#__codelineno-0-141>141</a></span>
-<span class=normal><a href=#__codelineno-0-142>142</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-136 name=__codelineno-0-136></a><span class=k>def</span> <span class=nf>include_routers</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-142>142</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-136 name=__codelineno-0-136></a><span class=k>def</span><span class=w> </span><span class=nf>include_routers</span><span class=p>(</span>
 <a id=__codelineno-0-137 name=__codelineno-0-137></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-138 name=__codelineno-0-138></a>    <span class=o>*</span><span class=n>routers</span><span class=p>:</span> <span class=s2>&quot;ABCBroker[MsgType]&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-139 name=__codelineno-0-139></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
@@ -310,7 +310,7 @@
 <span class=normal><a href=#__codelineno-0-259>259</a></span>
 <span class=normal><a href=#__codelineno-0-260>260</a></span>
 <span class=normal><a href=#__codelineno-0-261>261</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-39 name=__codelineno-0-39></a><span class=nd>@override</span>
-<a id=__codelineno-0-40 name=__codelineno-0-40></a><span class=k>def</span> <span class=nf>subscriber</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<a id=__codelineno-0-40 name=__codelineno-0-40></a><span class=k>def</span><span class=w> </span><span class=nf>subscriber</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-41 name=__codelineno-0-41></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-42 name=__codelineno-0-42></a>    <span class=n>subject</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-43 name=__codelineno-0-43></a>        <span class=nb>str</span><span class=p>,</span>
@@ -639,7 +639,7 @@
 <span class=normal><a href=#__codelineno-0-354>354</a></span>
 <span class=normal><a href=#__codelineno-0-355>355</a></span>
 <span class=normal><a href=#__codelineno-0-356>356</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-263 name=__codelineno-0-263></a><span class=nd>@override</span>
-<a id=__codelineno-0-264 name=__codelineno-0-264></a><span class=k>def</span> <span class=nf>publisher</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<a id=__codelineno-0-264 name=__codelineno-0-264></a><span class=k>def</span><span class=w> </span><span class=nf>publisher</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-265 name=__codelineno-0-265></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-266 name=__codelineno-0-266></a>    <span class=n>subject</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-267 name=__codelineno-0-267></a>        <span class=nb>str</span><span class=p>,</span>
@@ -772,7 +772,7 @@
 <span class=normal><a href=#__codelineno-0-387>387</a></span>
 <span class=normal><a href=#__codelineno-0-388>388</a></span>
 <span class=normal><a href=#__codelineno-0-389>389</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-358 name=__codelineno-0-358></a><span class=nd>@override</span>
-<a id=__codelineno-0-359 name=__codelineno-0-359></a><span class=k>def</span> <span class=nf>include_router</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<a id=__codelineno-0-359 name=__codelineno-0-359></a><span class=k>def</span><span class=w> </span><span class=nf>include_router</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-360 name=__codelineno-0-360></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-361 name=__codelineno-0-361></a>    <span class=n>router</span><span class=p>:</span> <span class=s2>&quot;NatsRegistrator&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-362 name=__codelineno-0-362></a>    <span class=o>*</span><span class=p>,</span>

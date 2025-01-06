@@ -465,7 +465,7 @@
 <span class=normal><a href=#__codelineno-0-473>473</a></span>
 <span class=normal><a href=#__codelineno-0-474>474</a></span>
 <span class=normal><a href=#__codelineno-0-475>475</a></span>
-<span class=normal><a href=#__codelineno-0-476>476</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-67 name=__codelineno-0-67></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-476>476</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-67 name=__codelineno-0-67></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-68 name=__codelineno-0-68></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-69 name=__codelineno-0-69></a>    <span class=n>url</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-70 name=__codelineno-0-70></a>        <span class=n>Union</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=s2>&quot;URL&quot;</span><span class=p>,</span> <span class=kc>None</span><span class=p>],</span>
@@ -926,7 +926,7 @@
 <span class=normal><a href=#__codelineno-0-651>651</a></span>
 <span class=normal><a href=#__codelineno-0-652>652</a></span>
 <span class=normal><a href=#__codelineno-0-653>653</a></span>
-<span class=normal><a href=#__codelineno-0-654>654</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-641 name=__codelineno-0-641></a><span class=k>async</span> <span class=k>def</span> <span class=nf>not_found</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>scope</span><span class=p>:</span> <span class=n>Scope</span><span class=p>,</span> <span class=n>receive</span><span class=p>:</span> <span class=n>Receive</span><span class=p>,</span> <span class=n>send</span><span class=p>:</span> <span class=n>Send</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-654>654</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-641 name=__codelineno-0-641></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>not_found</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>scope</span><span class=p>:</span> <span class=n>Scope</span><span class=p>,</span> <span class=n>receive</span><span class=p>:</span> <span class=n>Receive</span><span class=p>,</span> <span class=n>send</span><span class=p>:</span> <span class=n>Send</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-642 name=__codelineno-0-642></a>    <span class=k>if</span> <span class=n>scope</span><span class=p>[</span><span class=s2>&quot;type&quot;</span><span class=p>]</span> <span class=o>==</span> <span class=s2>&quot;websocket&quot;</span><span class=p>:</span>
 <a id=__codelineno-0-643 name=__codelineno-0-643></a>        <span class=n>websocket_close</span> <span class=o>=</span> <span class=n>WebSocketClose</span><span class=p>()</span>
 <a id=__codelineno-0-644 name=__codelineno-0-644></a>        <span class=k>await</span> <span class=n>websocket_close</span><span class=p>(</span><span class=n>scope</span><span class=p>,</span> <span class=n>receive</span><span class=p>,</span> <span class=n>send</span><span class=p>)</span>
@@ -947,7 +947,7 @@
 <span class=normal><a href=#__codelineno-0-659>659</a></span>
 <span class=normal><a href=#__codelineno-0-660>660</a></span>
 <span class=normal><a href=#__codelineno-0-661>661</a></span>
-<span class=normal><a href=#__codelineno-0-662>662</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-656 name=__codelineno-0-656></a><span class=k>def</span> <span class=nf>url_path_for</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=o>/</span><span class=p>,</span> <span class=o>**</span><span class=n>path_params</span><span class=p>:</span> <span class=n>typing</span><span class=o>.</span><span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>URLPath</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-662>662</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-656 name=__codelineno-0-656></a><span class=k>def</span><span class=w> </span><span class=nf>url_path_for</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=o>/</span><span class=p>,</span> <span class=o>**</span><span class=n>path_params</span><span class=p>:</span> <span class=n>typing</span><span class=o>.</span><span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>URLPath</span><span class=p>:</span>
 <a id=__codelineno-0-657 name=__codelineno-0-657></a>    <span class=k>for</span> <span class=n>route</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>routes</span><span class=p>:</span>
 <a id=__codelineno-0-658 name=__codelineno-0-658></a>        <span class=k>try</span><span class=p>:</span>
 <a id=__codelineno-0-659 name=__codelineno-0-659></a>            <span class=k>return</span> <span class=n>route</span><span class=o>.</span><span class=n>url_path_for</span><span class=p>(</span><span class=n>name</span><span class=p>,</span> <span class=o>**</span><span class=n>path_params</span><span class=p>)</span>
@@ -963,7 +963,7 @@
 <span class=normal><a href=#__codelineno-0-669>669</a></span>
 <span class=normal><a href=#__codelineno-0-670>670</a></span>
 <span class=normal><a href=#__codelineno-0-671>671</a></span>
-<span class=normal><a href=#__codelineno-0-672>672</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-664 name=__codelineno-0-664></a><span class=k>async</span> <span class=k>def</span> <span class=nf>startup</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-672>672</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-664 name=__codelineno-0-664></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>startup</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-665 name=__codelineno-0-665></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
 <a id=__codelineno-0-666 name=__codelineno-0-666></a><span class=sd>    Run any `.on_startup` event handlers.</span>
 <a id=__codelineno-0-667 name=__codelineno-0-667></a><span class=sd>    &quot;&quot;&quot;</span>
@@ -981,7 +981,7 @@
 <span class=normal><a href=#__codelineno-0-679>679</a></span>
 <span class=normal><a href=#__codelineno-0-680>680</a></span>
 <span class=normal><a href=#__codelineno-0-681>681</a></span>
-<span class=normal><a href=#__codelineno-0-682>682</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-674 name=__codelineno-0-674></a><span class=k>async</span> <span class=k>def</span> <span class=nf>shutdown</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-682>682</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-674 name=__codelineno-0-674></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>shutdown</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-675 name=__codelineno-0-675></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
 <a id=__codelineno-0-676 name=__codelineno-0-676></a><span class=sd>    Run any `.on_shutdown` event handlers.</span>
 <a id=__codelineno-0-677 name=__codelineno-0-677></a><span class=sd>    &quot;&quot;&quot;</span>
@@ -1016,7 +1016,7 @@
 <span class=normal><a href=#__codelineno-0-706>706</a></span>
 <span class=normal><a href=#__codelineno-0-707>707</a></span>
 <span class=normal><a href=#__codelineno-0-708>708</a></span>
-<span class=normal><a href=#__codelineno-0-709>709</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-684 name=__codelineno-0-684></a><span class=k>async</span> <span class=k>def</span> <span class=nf>lifespan</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>scope</span><span class=p>:</span> <span class=n>Scope</span><span class=p>,</span> <span class=n>receive</span><span class=p>:</span> <span class=n>Receive</span><span class=p>,</span> <span class=n>send</span><span class=p>:</span> <span class=n>Send</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-709>709</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-684 name=__codelineno-0-684></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>lifespan</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>scope</span><span class=p>:</span> <span class=n>Scope</span><span class=p>,</span> <span class=n>receive</span><span class=p>:</span> <span class=n>Receive</span><span class=p>,</span> <span class=n>send</span><span class=p>:</span> <span class=n>Send</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-685 name=__codelineno-0-685></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
 <a id=__codelineno-0-686 name=__codelineno-0-686></a><span class=sd>    Handle ASGI lifespan messages, which allows us to manage application</span>
 <a id=__codelineno-0-687 name=__codelineno-0-687></a><span class=sd>    startup and shutdown events.</span>
@@ -1091,7 +1091,7 @@
 <span class=normal><a href=#__codelineno-0-762>762</a></span>
 <span class=normal><a href=#__codelineno-0-763>763</a></span>
 <span class=normal><a href=#__codelineno-0-764>764</a></span>
-<span class=normal><a href=#__codelineno-0-765>765</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-717 name=__codelineno-0-717></a><span class=k>async</span> <span class=k>def</span> <span class=nf>app</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>scope</span><span class=p>:</span> <span class=n>Scope</span><span class=p>,</span> <span class=n>receive</span><span class=p>:</span> <span class=n>Receive</span><span class=p>,</span> <span class=n>send</span><span class=p>:</span> <span class=n>Send</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-765>765</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-717 name=__codelineno-0-717></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>app</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>scope</span><span class=p>:</span> <span class=n>Scope</span><span class=p>,</span> <span class=n>receive</span><span class=p>:</span> <span class=n>Receive</span><span class=p>,</span> <span class=n>send</span><span class=p>:</span> <span class=n>Send</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-718 name=__codelineno-0-718></a>    <span class=k>assert</span> <span class=n>scope</span><span class=p>[</span><span class=s2>&quot;type&quot;</span><span class=p>]</span> <span class=ow>in</span> <span class=p>(</span><span class=s2>&quot;http&quot;</span><span class=p>,</span> <span class=s2>&quot;websocket&quot;</span><span class=p>,</span> <span class=s2>&quot;lifespan&quot;</span><span class=p>)</span>
 <a id=__codelineno-0-719 name=__codelineno-0-719></a>
 <a id=__codelineno-0-720 name=__codelineno-0-720></a>    <span class=k>if</span> <span class=s2>&quot;router&quot;</span> <span class=ow>not</span> <span class=ow>in</span> <span class=n>scope</span><span class=p>:</span>
@@ -1143,13 +1143,13 @@
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.rabbit.fastapi.RabbitRouter.mount class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">mount</span> <a href=#faststream.rabbit.fastapi.RabbitRouter.mount class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>mount</span><span class=p>(</span><span class=n>path</span><span class=p>,</span> <span class=n>app</span><span class=p>,</span> <span class=n>name</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>starlette/routing.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-770>770</a></span>
 <span class=normal><a href=#__codelineno-0-771>771</a></span>
-<span class=normal><a href=#__codelineno-0-772>772</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-770 name=__codelineno-0-770></a><span class=k>def</span> <span class=nf>mount</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>path</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>app</span><span class=p>:</span> <span class=n>ASGIApp</span><span class=p>,</span> <span class=n>name</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
+<span class=normal><a href=#__codelineno-0-772>772</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-770 name=__codelineno-0-770></a><span class=k>def</span><span class=w> </span><span class=nf>mount</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>path</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>app</span><span class=p>:</span> <span class=n>ASGIApp</span><span class=p>,</span> <span class=n>name</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
 <a id=__codelineno-0-771 name=__codelineno-0-771></a>    <span class=n>route</span> <span class=o>=</span> <span class=n>Mount</span><span class=p>(</span><span class=n>path</span><span class=p>,</span> <span class=n>app</span><span class=o>=</span><span class=n>app</span><span class=p>,</span> <span class=n>name</span><span class=o>=</span><span class=n>name</span><span class=p>)</span>
 <a id=__codelineno-0-772 name=__codelineno-0-772></a>    <span class=bp>self</span><span class=o>.</span><span class=n>routes</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>route</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.rabbit.fastapi.RabbitRouter.host class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">host</span> <a href=#faststream.rabbit.fastapi.RabbitRouter.host class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>host</span><span class=p>(</span><span class=n>host</span><span class=p>,</span> <span class=n>app</span><span class=p>,</span> <span class=n>name</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>starlette/routing.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-774>774</a></span>
 <span class=normal><a href=#__codelineno-0-775>775</a></span>
-<span class=normal><a href=#__codelineno-0-776>776</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-774 name=__codelineno-0-774></a><span class=k>def</span> <span class=nf>host</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>host</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>app</span><span class=p>:</span> <span class=n>ASGIApp</span><span class=p>,</span> <span class=n>name</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
+<span class=normal><a href=#__codelineno-0-776>776</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-774 name=__codelineno-0-774></a><span class=k>def</span><span class=w> </span><span class=nf>host</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>host</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>app</span><span class=p>:</span> <span class=n>ASGIApp</span><span class=p>,</span> <span class=n>name</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
 <a id=__codelineno-0-775 name=__codelineno-0-775></a>    <span class=n>route</span> <span class=o>=</span> <span class=n>Host</span><span class=p>(</span><span class=n>host</span><span class=p>,</span> <span class=n>app</span><span class=o>=</span><span class=n>app</span><span class=p>,</span> <span class=n>name</span><span class=o>=</span><span class=n>name</span><span class=p>)</span>
 <a id=__codelineno-0-776 name=__codelineno-0-776></a>    <span class=bp>self</span><span class=o>.</span><span class=n>routes</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>route</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.rabbit.fastapi.RabbitRouter.add_route class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">add_route</span> <a href=#faststream.rabbit.fastapi.RabbitRouter.add_route class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>add_route</span><span class=p>(</span>
@@ -1174,7 +1174,7 @@
 <span class=normal><a href=#__codelineno-0-790>790</a></span>
 <span class=normal><a href=#__codelineno-0-791>791</a></span>
 <span class=normal><a href=#__codelineno-0-792>792</a></span>
-<span class=normal><a href=#__codelineno-0-793>793</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-778 name=__codelineno-0-778></a><span class=k>def</span> <span class=nf>add_route</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-793>793</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-778 name=__codelineno-0-778></a><span class=k>def</span><span class=w> </span><span class=nf>add_route</span><span class=p>(</span>
 <a id=__codelineno-0-779 name=__codelineno-0-779></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-780 name=__codelineno-0-780></a>    <span class=n>path</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-0-781 name=__codelineno-0-781></a>    <span class=n>endpoint</span><span class=p>:</span> <span class=n>typing</span><span class=o>.</span><span class=n>Callable</span><span class=p>[[</span><span class=n>Request</span><span class=p>],</span> <span class=n>typing</span><span class=o>.</span><span class=n>Awaitable</span><span class=p>[</span><span class=n>Response</span><span class=p>]</span> <span class=o>|</span> <span class=n>Response</span><span class=p>],</span>
@@ -1198,7 +1198,7 @@
 <span class=normal><a href=#__codelineno-0-799>799</a></span>
 <span class=normal><a href=#__codelineno-0-800>800</a></span>
 <span class=normal><a href=#__codelineno-0-801>801</a></span>
-<span class=normal><a href=#__codelineno-0-802>802</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-795 name=__codelineno-0-795></a><span class=k>def</span> <span class=nf>add_websocket_route</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-802>802</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-795 name=__codelineno-0-795></a><span class=k>def</span><span class=w> </span><span class=nf>add_websocket_route</span><span class=p>(</span>
 <a id=__codelineno-0-796 name=__codelineno-0-796></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-797 name=__codelineno-0-797></a>    <span class=n>path</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-0-798 name=__codelineno-0-798></a>    <span class=n>endpoint</span><span class=p>:</span> <span class=n>typing</span><span class=o>.</span><span class=n>Callable</span><span class=p>[[</span><span class=n>WebSocket</span><span class=p>],</span> <span class=n>typing</span><span class=o>.</span><span class=n>Awaitable</span><span class=p>[</span><span class=kc>None</span><span class=p>]],</span>
@@ -1226,14 +1226,14 @@
 <span class=normal><a href=#__codelineno-0-876>876</a></span>
 <span class=normal><a href=#__codelineno-0-877>877</a></span>
 <span class=normal><a href=#__codelineno-0-878>878</a></span>
-<span class=normal><a href=#__codelineno-0-879>879</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-862 name=__codelineno-0-862></a><span class=k>def</span> <span class=nf>route</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-879>879</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-862 name=__codelineno-0-862></a><span class=k>def</span><span class=w> </span><span class=nf>route</span><span class=p>(</span>
 <a id=__codelineno-0-863 name=__codelineno-0-863></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-864 name=__codelineno-0-864></a>    <span class=n>path</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-0-865 name=__codelineno-0-865></a>    <span class=n>methods</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>List</span><span class=p>[</span><span class=nb>str</span><span class=p>]]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-866 name=__codelineno-0-866></a>    <span class=n>name</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-867 name=__codelineno-0-867></a>    <span class=n>include_in_schema</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
 <a id=__codelineno-0-868 name=__codelineno-0-868></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Callable</span><span class=p>[[</span><span class=n>DecoratedCallable</span><span class=p>],</span> <span class=n>DecoratedCallable</span><span class=p>]:</span>
-<a id=__codelineno-0-869 name=__codelineno-0-869></a>    <span class=k>def</span> <span class=nf>decorator</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=n>DecoratedCallable</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>DecoratedCallable</span><span class=p>:</span>
+<a id=__codelineno-0-869 name=__codelineno-0-869></a>    <span class=k>def</span><span class=w> </span><span class=nf>decorator</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=n>DecoratedCallable</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>DecoratedCallable</span><span class=p>:</span>
 <a id=__codelineno-0-870 name=__codelineno-0-870></a>        <span class=bp>self</span><span class=o>.</span><span class=n>add_route</span><span class=p>(</span>
 <a id=__codelineno-0-871 name=__codelineno-0-871></a>            <span class=n>path</span><span class=p>,</span>
 <a id=__codelineno-0-872 name=__codelineno-0-872></a>            <span class=n>func</span><span class=p>,</span>
@@ -1252,10 +1252,10 @@
 <span class=normal><a href=#__codelineno-0-1117>1117</a></span>
 <span class=normal><a href=#__codelineno-0-1118>1118</a></span>
 <span class=normal><a href=#__codelineno-0-1119>1119</a></span>
-<span class=normal><a href=#__codelineno-0-1120>1120</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1113 name=__codelineno-0-1113></a><span class=k>def</span> <span class=nf>websocket_route</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-1120>1120</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1113 name=__codelineno-0-1113></a><span class=k>def</span><span class=w> </span><span class=nf>websocket_route</span><span class=p>(</span>
 <a id=__codelineno-0-1114 name=__codelineno-0-1114></a>    <span class=bp>self</span><span class=p>,</span> <span class=n>path</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>name</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=kc>None</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
 <a id=__codelineno-0-1115 name=__codelineno-0-1115></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Callable</span><span class=p>[[</span><span class=n>DecoratedCallable</span><span class=p>],</span> <span class=n>DecoratedCallable</span><span class=p>]:</span>
-<a id=__codelineno-0-1116 name=__codelineno-0-1116></a>    <span class=k>def</span> <span class=nf>decorator</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=n>DecoratedCallable</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>DecoratedCallable</span><span class=p>:</span>
+<a id=__codelineno-0-1116 name=__codelineno-0-1116></a>    <span class=k>def</span><span class=w> </span><span class=nf>decorator</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=n>DecoratedCallable</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>DecoratedCallable</span><span class=p>:</span>
 <a id=__codelineno-0-1117 name=__codelineno-0-1117></a>        <span class=bp>self</span><span class=o>.</span><span class=n>add_websocket_route</span><span class=p>(</span><span class=n>path</span><span class=p>,</span> <span class=n>func</span><span class=p>,</span> <span class=n>name</span><span class=o>=</span><span class=n>name</span><span class=p>)</span>
 <a id=__codelineno-0-1118 name=__codelineno-0-1118></a>        <span class=k>return</span> <span class=n>func</span>
 <a id=__codelineno-0-1119 name=__codelineno-0-1119></a>
@@ -1267,7 +1267,7 @@
 <span class=normal><a href=#__codelineno-0-859>859</a></span>
 <span class=normal><a href=#__codelineno-0-860>860</a></span>
 <span class=normal><a href=#__codelineno-0-861>861</a></span>
-<span class=normal><a href=#__codelineno-0-862>862</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-856 name=__codelineno-0-856></a><span class=k>def</span> <span class=nf>add_event_handler</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>event_type</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>func</span><span class=p>:</span> <span class=n>typing</span><span class=o>.</span><span class=n>Callable</span><span class=p>[[],</span> <span class=n>typing</span><span class=o>.</span><span class=n>Any</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
+<span class=normal><a href=#__codelineno-0-862>862</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-856 name=__codelineno-0-856></a><span class=k>def</span><span class=w> </span><span class=nf>add_event_handler</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>event_type</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>func</span><span class=p>:</span> <span class=n>typing</span><span class=o>.</span><span class=n>Callable</span><span class=p>[[],</span> <span class=n>typing</span><span class=o>.</span><span class=n>Any</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
 <a id=__codelineno-0-857 name=__codelineno-0-857></a>    <span class=k>assert</span> <span class=n>event_type</span> <span class=ow>in</span> <span class=p>(</span><span class=s2>&quot;startup&quot;</span><span class=p>,</span> <span class=s2>&quot;shutdown&quot;</span><span class=p>)</span>
 <a id=__codelineno-0-858 name=__codelineno-0-858></a>
 <a id=__codelineno-0-859 name=__codelineno-0-859></a>    <span class=k>if</span> <span class=n>event_type</span> <span class=o>==</span> <span class=s2>&quot;startup&quot;</span><span class=p>:</span>
@@ -1315,7 +1315,7 @@
 <a id=__codelineno-0-4412 name=__codelineno-0-4412></a><span class=sd>    [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).</span>
 <a id=__codelineno-0-4413 name=__codelineno-0-4413></a><span class=sd>    &quot;&quot;&quot;</span>
 <a id=__codelineno-0-4414 name=__codelineno-0-4414></a><span class=p>)</span>
-<a id=__codelineno-0-4415 name=__codelineno-0-4415></a><span class=k>def</span> <span class=nf>on_event</span><span class=p>(</span>
+<a id=__codelineno-0-4415 name=__codelineno-0-4415></a><span class=k>def</span><span class=w> </span><span class=nf>on_event</span><span class=p>(</span>
 <a id=__codelineno-0-4416 name=__codelineno-0-4416></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-4417 name=__codelineno-0-4417></a>    <span class=n>event_type</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-4418 name=__codelineno-0-4418></a>        <span class=nb>str</span><span class=p>,</span>
@@ -1335,7 +1335,7 @@
 <a id=__codelineno-0-4432 name=__codelineno-0-4432></a><span class=sd>    [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/#alternative-events-deprecated).</span>
 <a id=__codelineno-0-4433 name=__codelineno-0-4433></a><span class=sd>    &quot;&quot;&quot;</span>
 <a id=__codelineno-0-4434 name=__codelineno-0-4434></a>
-<a id=__codelineno-0-4435 name=__codelineno-0-4435></a>    <span class=k>def</span> <span class=nf>decorator</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=n>DecoratedCallable</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>DecoratedCallable</span><span class=p>:</span>
+<a id=__codelineno-0-4435 name=__codelineno-0-4435></a>    <span class=k>def</span><span class=w> </span><span class=nf>decorator</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=n>DecoratedCallable</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>DecoratedCallable</span><span class=p>:</span>
 <a id=__codelineno-0-4436 name=__codelineno-0-4436></a>        <span class=bp>self</span><span class=o>.</span><span class=n>add_event_handler</span><span class=p>(</span><span class=n>event_type</span><span class=p>,</span> <span class=n>func</span><span class=p>)</span>
 <a id=__codelineno-0-4437 name=__codelineno-0-4437></a>        <span class=k>return</span> <span class=n>func</span>
 <a id=__codelineno-0-4438 name=__codelineno-0-4438></a>
@@ -1449,7 +1449,7 @@
 <span class=normal><a href=#__codelineno-0-958>958</a></span>
 <span class=normal><a href=#__codelineno-0-959>959</a></span>
 <span class=normal><a href=#__codelineno-0-960>960</a></span>
-<span class=normal><a href=#__codelineno-0-961>961</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-881 name=__codelineno-0-881></a><span class=k>def</span> <span class=nf>add_api_route</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-961>961</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-881 name=__codelineno-0-881></a><span class=k>def</span><span class=w> </span><span class=nf>add_api_route</span><span class=p>(</span>
 <a id=__codelineno-0-882 name=__codelineno-0-882></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-883 name=__codelineno-0-883></a>    <span class=n>path</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-0-884 name=__codelineno-0-884></a>    <span class=n>endpoint</span><span class=p>:</span> <span class=n>Callable</span><span class=p>[</span><span class=o>...</span><span class=p>,</span> <span class=n>Any</span><span class=p>],</span>
@@ -1617,7 +1617,7 @@
 <span class=normal><a href=#__codelineno-0-1020>1020</a></span>
 <span class=normal><a href=#__codelineno-0-1021>1021</a></span>
 <span class=normal><a href=#__codelineno-0-1022>1022</a></span>
-<span class=normal><a href=#__codelineno-0-1023>1023</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-963 name=__codelineno-0-963></a><span class=k>def</span> <span class=nf>api_route</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-1023>1023</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-963 name=__codelineno-0-963></a><span class=k>def</span><span class=w> </span><span class=nf>api_route</span><span class=p>(</span>
 <a id=__codelineno-0-964 name=__codelineno-0-964></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-965 name=__codelineno-0-965></a>    <span class=n>path</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-0-966 name=__codelineno-0-966></a>    <span class=o>*</span><span class=p>,</span>
@@ -1647,7 +1647,7 @@
 <a id=__codelineno-0-990 name=__codelineno-0-990></a>        <span class=n>generate_unique_id</span>
 <a id=__codelineno-0-991 name=__codelineno-0-991></a>    <span class=p>),</span>
 <a id=__codelineno-0-992 name=__codelineno-0-992></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Callable</span><span class=p>[[</span><span class=n>DecoratedCallable</span><span class=p>],</span> <span class=n>DecoratedCallable</span><span class=p>]:</span>
-<a id=__codelineno-0-993 name=__codelineno-0-993></a>    <span class=k>def</span> <span class=nf>decorator</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=n>DecoratedCallable</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>DecoratedCallable</span><span class=p>:</span>
+<a id=__codelineno-0-993 name=__codelineno-0-993></a>    <span class=k>def</span><span class=w> </span><span class=nf>decorator</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=n>DecoratedCallable</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>DecoratedCallable</span><span class=p>:</span>
 <a id=__codelineno-0-994 name=__codelineno-0-994></a>        <span class=bp>self</span><span class=o>.</span><span class=n>add_api_route</span><span class=p>(</span>
 <a id=__codelineno-0-995 name=__codelineno-0-995></a>            <span class=n>path</span><span class=p>,</span>
 <a id=__codelineno-0-996 name=__codelineno-0-996></a>            <span class=n>func</span><span class=p>,</span>
@@ -1700,7 +1700,7 @@
 <span class=normal><a href=#__codelineno-0-1041>1041</a></span>
 <span class=normal><a href=#__codelineno-0-1042>1042</a></span>
 <span class=normal><a href=#__codelineno-0-1043>1043</a></span>
-<span class=normal><a href=#__codelineno-0-1044>1044</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1025 name=__codelineno-0-1025></a><span class=k>def</span> <span class=nf>add_api_websocket_route</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-1044>1044</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1025 name=__codelineno-0-1025></a><span class=k>def</span><span class=w> </span><span class=nf>add_api_websocket_route</span><span class=p>(</span>
 <a id=__codelineno-0-1026 name=__codelineno-0-1026></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-1027 name=__codelineno-0-1027></a>    <span class=n>path</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-0-1028 name=__codelineno-0-1028></a>    <span class=n>endpoint</span><span class=p>:</span> <span class=n>Callable</span><span class=p>[</span><span class=o>...</span><span class=p>,</span> <span class=n>Any</span><span class=p>],</span>
@@ -1721,13 +1721,13 @@
 <a id=__codelineno-0-1043 name=__codelineno-0-1043></a>    <span class=p>)</span>
 <a id=__codelineno-0-1044 name=__codelineno-0-1044></a>    <span class=bp>self</span><span class=o>.</span><span class=n>routes</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>route</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.rabbit.fastapi.RabbitRouter.websocket class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">websocket</span> <a href=#faststream.rabbit.fastapi.RabbitRouter.websocket class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>websocket</span><span class=p>(</span><span class=n>path</span><span class=p>,</span> <span class=n>name</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>dependencies</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Decorate a WebSocket function.</p> <p>Read more about it in the <a href=https://fastapi.tiangolo.com/advanced/websockets/ >FastAPI docs for WebSockets</a>.</p> <p><strong>Example</strong></p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.websocket--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.websocket--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span><span class=p>,</span> <span class=n>WebSocket</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Decorate a WebSocket function.</p> <p>Read more about it in the <a href=https://fastapi.tiangolo.com/advanced/websockets/ >FastAPI docs for WebSockets</a>.</p> <p><strong>Example</strong></p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.websocket--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.websocket--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>fastapi</span><span class=w> </span><span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span><span class=p>,</span> <span class=n>WebSocket</span>
 <a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a>
 <a id=__codelineno-0-3 name=__codelineno-0-3 href=#__codelineno-0-3></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastAPI</span><span class=p>()</span>
 <a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=n>router</span> <span class=o>=</span> <span class=n>APIRouter</span><span class=p>()</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5 href=#__codelineno-0-5></a>
 <a id=__codelineno-0-6 name=__codelineno-0-6 href=#__codelineno-0-6></a><span class=nd>@router</span><span class=o>.</span><span class=n>websocket</span><span class=p>(</span><span class=s2>&quot;/ws&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a><span class=k>async</span> <span class=k>def</span> <span class=nf>websocket_endpoint</span><span class=p>(</span><span class=n>websocket</span><span class=p>:</span> <span class=n>WebSocket</span><span class=p>):</span>
+<a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>websocket_endpoint</span><span class=p>(</span><span class=n>websocket</span><span class=p>:</span> <span class=n>WebSocket</span><span class=p>):</span>
 <a id=__codelineno-0-8 name=__codelineno-0-8 href=#__codelineno-0-8></a>    <span class=k>await</span> <span class=n>websocket</span><span class=o>.</span><span class=n>accept</span><span class=p>()</span>
 <a id=__codelineno-0-9 name=__codelineno-0-9 href=#__codelineno-0-9></a>    <span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
 <a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a>        <span class=n>data</span> <span class=o>=</span> <span class=k>await</span> <span class=n>websocket</span><span class=o>.</span><span class=n>receive_text</span><span class=p>()</span>
@@ -1799,7 +1799,7 @@
 <span class=normal><a href=#__codelineno-0-1108>1108</a></span>
 <span class=normal><a href=#__codelineno-0-1109>1109</a></span>
 <span class=normal><a href=#__codelineno-0-1110>1110</a></span>
-<span class=normal><a href=#__codelineno-0-1111>1111</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1046 name=__codelineno-0-1046></a><span class=k>def</span> <span class=nf>websocket</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-1111>1111</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1046 name=__codelineno-0-1046></a><span class=k>def</span><span class=w> </span><span class=nf>websocket</span><span class=p>(</span>
 <a id=__codelineno-0-1047 name=__codelineno-0-1047></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-1048 name=__codelineno-0-1048></a>    <span class=n>path</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-1049 name=__codelineno-0-1049></a>        <span class=nb>str</span><span class=p>,</span>
@@ -1858,7 +1858,7 @@
 <a id=__codelineno-0-1102 name=__codelineno-0-1102></a><span class=sd>    ```</span>
 <a id=__codelineno-0-1103 name=__codelineno-0-1103></a><span class=sd>    &quot;&quot;&quot;</span>
 <a id=__codelineno-0-1104 name=__codelineno-0-1104></a>
-<a id=__codelineno-0-1105 name=__codelineno-0-1105></a>    <span class=k>def</span> <span class=nf>decorator</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=n>DecoratedCallable</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>DecoratedCallable</span><span class=p>:</span>
+<a id=__codelineno-0-1105 name=__codelineno-0-1105></a>    <span class=k>def</span><span class=w> </span><span class=nf>decorator</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=n>DecoratedCallable</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>DecoratedCallable</span><span class=p>:</span>
 <a id=__codelineno-0-1106 name=__codelineno-0-1106></a>        <span class=bp>self</span><span class=o>.</span><span class=n>add_api_websocket_route</span><span class=p>(</span>
 <a id=__codelineno-0-1107 name=__codelineno-0-1107></a>            <span class=n>path</span><span class=p>,</span> <span class=n>func</span><span class=p>,</span> <span class=n>name</span><span class=o>=</span><span class=n>name</span><span class=p>,</span> <span class=n>dependencies</span><span class=o>=</span><span class=n>dependencies</span>
 <a id=__codelineno-0-1108 name=__codelineno-0-1108></a>        <span class=p>)</span>
@@ -1929,7 +1929,7 @@
 <span class=normal><a href=#__codelineno-0-542>542</a></span>
 <span class=normal><a href=#__codelineno-0-543>543</a></span>
 <span class=normal><a href=#__codelineno-0-544>544</a></span>
-<span class=normal><a href=#__codelineno-0-545>545</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-494 name=__codelineno-0-494></a><span class=k>def</span> <span class=nf>include_router</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<span class=normal><a href=#__codelineno-0-545>545</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-494 name=__codelineno-0-494></a><span class=k>def</span><span class=w> </span><span class=nf>include_router</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-495 name=__codelineno-0-495></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-496 name=__codelineno-0-496></a>    <span class=n>router</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=s2>&quot;StreamRouter[MsgType]&quot;</span><span class=p>,</span> <span class=s2>&quot;BrokerRouter[MsgType]&quot;</span><span class=p>],</span>
 <a id=__codelineno-0-497 name=__codelineno-0-497></a>    <span class=o>*</span><span class=p>,</span>
@@ -2007,13 +2007,13 @@
 <a id=__codelineno-0-24 name=__codelineno-0-24 href=#__codelineno-0-24></a>    <span class=n>openapi_extra</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25 href=#__codelineno-0-25></a>    <span class=n>generate_unique_id_function</span><span class=o>=</span><span class=n><span title="fastapi.datastructures.Default">Default</span></span><span class=p>(</span><span class=n><span title="fastapi.utils.generate_unique_id">generate_unique_id</span></span><span class=p>),</span>
 <a id=__codelineno-0-26 name=__codelineno-0-26 href=#__codelineno-0-26></a><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP GET operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.get--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.get--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP GET operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.get--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.get--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>fastapi</span><span class=w> </span><span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
 <a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a>
 <a id=__codelineno-0-3 name=__codelineno-0-3 href=#__codelineno-0-3></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastAPI</span><span class=p>()</span>
 <a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=n>router</span> <span class=o>=</span> <span class=n>APIRouter</span><span class=p>()</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5 href=#__codelineno-0-5></a>
 <a id=__codelineno-0-6 name=__codelineno-0-6 href=#__codelineno-0-6></a><span class=nd>@router</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&quot;/items/&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a><span class=k>def</span> <span class=nf>read_items</span><span class=p>():</span>
+<a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a><span class=k>def</span><span class=w> </span><span class=nf>read_items</span><span class=p>():</span>
 <a id=__codelineno-0-8 name=__codelineno-0-8 href=#__codelineno-0-8></a>    <span class=k>return</span> <span class=p>[{</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;Empanada&quot;</span><span class=p>},</span> <span class=p>{</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;Arepa&quot;</span><span class=p>}]</span>
 <a id=__codelineno-0-9 name=__codelineno-0-9 href=#__codelineno-0-9></a>
 <a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a><span class=n>app</span><span class=o>.</span><span class=n>include_router</span><span class=p>(</span><span class=n>router</span><span class=p>)</span>
@@ -2392,7 +2392,7 @@
 <span class=normal><a href=#__codelineno-0-1738>1738</a></span>
 <span class=normal><a href=#__codelineno-0-1739>1739</a></span>
 <span class=normal><a href=#__codelineno-0-1740>1740</a></span>
-<span class=normal><a href=#__codelineno-0-1741>1741</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1366 name=__codelineno-0-1366></a><span class=k>def</span> <span class=nf>get</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-1741>1741</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1366 name=__codelineno-0-1366></a><span class=k>def</span><span class=w> </span><span class=nf>get</span><span class=p>(</span>
 <a id=__codelineno-0-1367 name=__codelineno-0-1367></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-1368 name=__codelineno-0-1368></a>    <span class=n>path</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-1369 name=__codelineno-0-1369></a>        <span class=nb>str</span><span class=p>,</span>
@@ -2794,10 +2794,10 @@
 <a id=__codelineno-0-24 name=__codelineno-0-24 href=#__codelineno-0-24></a>    <span class=n>openapi_extra</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25 href=#__codelineno-0-25></a>    <span class=n>generate_unique_id_function</span><span class=o>=</span><span class=n><span title="fastapi.datastructures.Default">Default</span></span><span class=p>(</span><span class=n><span title="fastapi.utils.generate_unique_id">generate_unique_id</span></span><span class=p>),</span>
 <a id=__codelineno-0-26 name=__codelineno-0-26 href=#__codelineno-0-26></a><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP PUT operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.put--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.put--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
-<a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>BaseModel</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP PUT operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.put--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.put--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>fastapi</span><span class=w> </span><span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
+<a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>BaseModel</span>
 <a id=__codelineno-0-3 name=__codelineno-0-3 href=#__codelineno-0-3></a>
-<a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=k>class</span> <span class=nc>Item</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+<a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=k>class</span><span class=w> </span><span class=nc>Item</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5 href=#__codelineno-0-5></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span>
 <a id=__codelineno-0-6 name=__codelineno-0-6 href=#__codelineno-0-6></a>    <span class=n>description</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span>
 <a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a>
@@ -2805,7 +2805,7 @@
 <a id=__codelineno-0-9 name=__codelineno-0-9 href=#__codelineno-0-9></a><span class=n>router</span> <span class=o>=</span> <span class=n>APIRouter</span><span class=p>()</span>
 <a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a>
 <a id=__codelineno-0-11 name=__codelineno-0-11 href=#__codelineno-0-11></a><span class=nd>@router</span><span class=o>.</span><span class=n>put</span><span class=p>(</span><span class=s2>&quot;/items/</span><span class=si>{item_id}</span><span class=s2>&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a><span class=k>def</span> <span class=nf>replace_item</span><span class=p>(</span><span class=n>item_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>item</span><span class=p>:</span> <span class=n>Item</span><span class=p>):</span>
+<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a><span class=k>def</span><span class=w> </span><span class=nf>replace_item</span><span class=p>(</span><span class=n>item_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>item</span><span class=p>:</span> <span class=n>Item</span><span class=p>):</span>
 <a id=__codelineno-0-13 name=__codelineno-0-13 href=#__codelineno-0-13></a>    <span class=k>return</span> <span class=p>{</span><span class=s2>&quot;message&quot;</span><span class=p>:</span> <span class=s2>&quot;Item replaced&quot;</span><span class=p>,</span> <span class=s2>&quot;id&quot;</span><span class=p>:</span> <span class=n>item_id</span><span class=p>}</span>
 <a id=__codelineno-0-14 name=__codelineno-0-14 href=#__codelineno-0-14></a>
 <a id=__codelineno-0-15 name=__codelineno-0-15 href=#__codelineno-0-15></a><span class=n>app</span><span class=o>.</span><span class=n>include_router</span><span class=p>(</span><span class=n>router</span><span class=p>)</span>
@@ -3189,7 +3189,7 @@
 <span class=normal><a href=#__codelineno-0-2120>2120</a></span>
 <span class=normal><a href=#__codelineno-0-2121>2121</a></span>
 <span class=normal><a href=#__codelineno-0-2122>2122</a></span>
-<span class=normal><a href=#__codelineno-0-2123>2123</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1743 name=__codelineno-0-1743></a><span class=k>def</span> <span class=nf>put</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-2123>2123</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1743 name=__codelineno-0-1743></a><span class=k>def</span><span class=w> </span><span class=nf>put</span><span class=p>(</span>
 <a id=__codelineno-0-1744 name=__codelineno-0-1744></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-1745 name=__codelineno-0-1745></a>    <span class=n>path</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-1746 name=__codelineno-0-1746></a>        <span class=nb>str</span><span class=p>,</span>
@@ -3596,10 +3596,10 @@
 <a id=__codelineno-0-24 name=__codelineno-0-24 href=#__codelineno-0-24></a>    <span class=n>openapi_extra</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25 href=#__codelineno-0-25></a>    <span class=n>generate_unique_id_function</span><span class=o>=</span><span class=n><span title="fastapi.datastructures.Default">Default</span></span><span class=p>(</span><span class=n><span title="fastapi.utils.generate_unique_id">generate_unique_id</span></span><span class=p>),</span>
 <a id=__codelineno-0-26 name=__codelineno-0-26 href=#__codelineno-0-26></a><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP POST operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.post--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.post--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
-<a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>BaseModel</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP POST operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.post--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.post--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>fastapi</span><span class=w> </span><span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
+<a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>BaseModel</span>
 <a id=__codelineno-0-3 name=__codelineno-0-3 href=#__codelineno-0-3></a>
-<a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=k>class</span> <span class=nc>Item</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+<a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=k>class</span><span class=w> </span><span class=nc>Item</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5 href=#__codelineno-0-5></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span>
 <a id=__codelineno-0-6 name=__codelineno-0-6 href=#__codelineno-0-6></a>    <span class=n>description</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span>
 <a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a>
@@ -3607,7 +3607,7 @@
 <a id=__codelineno-0-9 name=__codelineno-0-9 href=#__codelineno-0-9></a><span class=n>router</span> <span class=o>=</span> <span class=n>APIRouter</span><span class=p>()</span>
 <a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a>
 <a id=__codelineno-0-11 name=__codelineno-0-11 href=#__codelineno-0-11></a><span class=nd>@router</span><span class=o>.</span><span class=n>post</span><span class=p>(</span><span class=s2>&quot;/items/&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a><span class=k>def</span> <span class=nf>create_item</span><span class=p>(</span><span class=n>item</span><span class=p>:</span> <span class=n>Item</span><span class=p>):</span>
+<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a><span class=k>def</span><span class=w> </span><span class=nf>create_item</span><span class=p>(</span><span class=n>item</span><span class=p>:</span> <span class=n>Item</span><span class=p>):</span>
 <a id=__codelineno-0-13 name=__codelineno-0-13 href=#__codelineno-0-13></a>    <span class=k>return</span> <span class=p>{</span><span class=s2>&quot;message&quot;</span><span class=p>:</span> <span class=s2>&quot;Item created&quot;</span><span class=p>}</span>
 <a id=__codelineno-0-14 name=__codelineno-0-14 href=#__codelineno-0-14></a>
 <a id=__codelineno-0-15 name=__codelineno-0-15 href=#__codelineno-0-15></a><span class=n>app</span><span class=o>.</span><span class=n>include_router</span><span class=p>(</span><span class=n>router</span><span class=p>)</span>
@@ -3991,7 +3991,7 @@
 <span class=normal><a href=#__codelineno-0-2502>2502</a></span>
 <span class=normal><a href=#__codelineno-0-2503>2503</a></span>
 <span class=normal><a href=#__codelineno-0-2504>2504</a></span>
-<span class=normal><a href=#__codelineno-0-2505>2505</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-2125 name=__codelineno-0-2125></a><span class=k>def</span> <span class=nf>post</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-2505>2505</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-2125 name=__codelineno-0-2125></a><span class=k>def</span><span class=w> </span><span class=nf>post</span><span class=p>(</span>
 <a id=__codelineno-0-2126 name=__codelineno-0-2126></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-2127 name=__codelineno-0-2127></a>    <span class=n>path</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-2128 name=__codelineno-0-2128></a>        <span class=nb>str</span><span class=p>,</span>
@@ -4398,13 +4398,13 @@
 <a id=__codelineno-0-24 name=__codelineno-0-24 href=#__codelineno-0-24></a>    <span class=n>openapi_extra</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25 href=#__codelineno-0-25></a>    <span class=n>generate_unique_id_function</span><span class=o>=</span><span class=n><span title="fastapi.datastructures.Default">Default</span></span><span class=p>(</span><span class=n><span title="fastapi.utils.generate_unique_id">generate_unique_id</span></span><span class=p>),</span>
 <a id=__codelineno-0-26 name=__codelineno-0-26 href=#__codelineno-0-26></a><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP DELETE operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.delete--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.delete--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP DELETE operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.delete--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.delete--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>fastapi</span><span class=w> </span><span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
 <a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a>
 <a id=__codelineno-0-3 name=__codelineno-0-3 href=#__codelineno-0-3></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastAPI</span><span class=p>()</span>
 <a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=n>router</span> <span class=o>=</span> <span class=n>APIRouter</span><span class=p>()</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5 href=#__codelineno-0-5></a>
 <a id=__codelineno-0-6 name=__codelineno-0-6 href=#__codelineno-0-6></a><span class=nd>@router</span><span class=o>.</span><span class=n>delete</span><span class=p>(</span><span class=s2>&quot;/items/</span><span class=si>{item_id}</span><span class=s2>&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a><span class=k>def</span> <span class=nf>delete_item</span><span class=p>(</span><span class=n>item_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>):</span>
+<a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a><span class=k>def</span><span class=w> </span><span class=nf>delete_item</span><span class=p>(</span><span class=n>item_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>):</span>
 <a id=__codelineno-0-8 name=__codelineno-0-8 href=#__codelineno-0-8></a>    <span class=k>return</span> <span class=p>{</span><span class=s2>&quot;message&quot;</span><span class=p>:</span> <span class=s2>&quot;Item deleted&quot;</span><span class=p>}</span>
 <a id=__codelineno-0-9 name=__codelineno-0-9 href=#__codelineno-0-9></a>
 <a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a><span class=n>app</span><span class=o>.</span><span class=n>include_router</span><span class=p>(</span><span class=n>router</span><span class=p>)</span>
@@ -4783,7 +4783,7 @@
 <span class=normal><a href=#__codelineno-0-2879>2879</a></span>
 <span class=normal><a href=#__codelineno-0-2880>2880</a></span>
 <span class=normal><a href=#__codelineno-0-2881>2881</a></span>
-<span class=normal><a href=#__codelineno-0-2882>2882</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-2507 name=__codelineno-0-2507></a><span class=k>def</span> <span class=nf>delete</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-2882>2882</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-2507 name=__codelineno-0-2507></a><span class=k>def</span><span class=w> </span><span class=nf>delete</span><span class=p>(</span>
 <a id=__codelineno-0-2508 name=__codelineno-0-2508></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-2509 name=__codelineno-0-2509></a>    <span class=n>path</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-2510 name=__codelineno-0-2510></a>        <span class=nb>str</span><span class=p>,</span>
@@ -5185,13 +5185,13 @@
 <a id=__codelineno-0-24 name=__codelineno-0-24 href=#__codelineno-0-24></a>    <span class=n>openapi_extra</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25 href=#__codelineno-0-25></a>    <span class=n>generate_unique_id_function</span><span class=o>=</span><span class=n><span title="fastapi.datastructures.Default">Default</span></span><span class=p>(</span><span class=n><span title="fastapi.utils.generate_unique_id">generate_unique_id</span></span><span class=p>),</span>
 <a id=__codelineno-0-26 name=__codelineno-0-26 href=#__codelineno-0-26></a><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP OPTIONS operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.options--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.options--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP OPTIONS operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.options--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.options--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>fastapi</span><span class=w> </span><span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
 <a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a>
 <a id=__codelineno-0-3 name=__codelineno-0-3 href=#__codelineno-0-3></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastAPI</span><span class=p>()</span>
 <a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=n>router</span> <span class=o>=</span> <span class=n>APIRouter</span><span class=p>()</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5 href=#__codelineno-0-5></a>
 <a id=__codelineno-0-6 name=__codelineno-0-6 href=#__codelineno-0-6></a><span class=nd>@router</span><span class=o>.</span><span class=n>options</span><span class=p>(</span><span class=s2>&quot;/items/&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a><span class=k>def</span> <span class=nf>get_item_options</span><span class=p>():</span>
+<a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a><span class=k>def</span><span class=w> </span><span class=nf>get_item_options</span><span class=p>():</span>
 <a id=__codelineno-0-8 name=__codelineno-0-8 href=#__codelineno-0-8></a>    <span class=k>return</span> <span class=p>{</span><span class=s2>&quot;additions&quot;</span><span class=p>:</span> <span class=p>[</span><span class=s2>&quot;Aji&quot;</span><span class=p>,</span> <span class=s2>&quot;Guacamole&quot;</span><span class=p>]}</span>
 <a id=__codelineno-0-9 name=__codelineno-0-9 href=#__codelineno-0-9></a>
 <a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a><span class=n>app</span><span class=o>.</span><span class=n>include_router</span><span class=p>(</span><span class=n>router</span><span class=p>)</span>
@@ -5570,7 +5570,7 @@
 <span class=normal><a href=#__codelineno-0-3256>3256</a></span>
 <span class=normal><a href=#__codelineno-0-3257>3257</a></span>
 <span class=normal><a href=#__codelineno-0-3258>3258</a></span>
-<span class=normal><a href=#__codelineno-0-3259>3259</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-2884 name=__codelineno-0-2884></a><span class=k>def</span> <span class=nf>options</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-3259>3259</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-2884 name=__codelineno-0-2884></a><span class=k>def</span><span class=w> </span><span class=nf>options</span><span class=p>(</span>
 <a id=__codelineno-0-2885 name=__codelineno-0-2885></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-2886 name=__codelineno-0-2886></a>    <span class=n>path</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-2887 name=__codelineno-0-2887></a>        <span class=nb>str</span><span class=p>,</span>
@@ -5972,10 +5972,10 @@
 <a id=__codelineno-0-24 name=__codelineno-0-24 href=#__codelineno-0-24></a>    <span class=n>openapi_extra</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25 href=#__codelineno-0-25></a>    <span class=n>generate_unique_id_function</span><span class=o>=</span><span class=n><span title="fastapi.datastructures.Default">Default</span></span><span class=p>(</span><span class=n><span title="fastapi.utils.generate_unique_id">generate_unique_id</span></span><span class=p>),</span>
 <a id=__codelineno-0-26 name=__codelineno-0-26 href=#__codelineno-0-26></a><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP HEAD operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.head--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.head--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
-<a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>BaseModel</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP HEAD operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.head--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.head--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>fastapi</span><span class=w> </span><span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
+<a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>BaseModel</span>
 <a id=__codelineno-0-3 name=__codelineno-0-3 href=#__codelineno-0-3></a>
-<a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=k>class</span> <span class=nc>Item</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+<a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=k>class</span><span class=w> </span><span class=nc>Item</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5 href=#__codelineno-0-5></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span>
 <a id=__codelineno-0-6 name=__codelineno-0-6 href=#__codelineno-0-6></a>    <span class=n>description</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span>
 <a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a>
@@ -5983,7 +5983,7 @@
 <a id=__codelineno-0-9 name=__codelineno-0-9 href=#__codelineno-0-9></a><span class=n>router</span> <span class=o>=</span> <span class=n>APIRouter</span><span class=p>()</span>
 <a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a>
 <a id=__codelineno-0-11 name=__codelineno-0-11 href=#__codelineno-0-11></a><span class=nd>@router</span><span class=o>.</span><span class=n>head</span><span class=p>(</span><span class=s2>&quot;/items/&quot;</span><span class=p>,</span> <span class=n>status_code</span><span class=o>=</span><span class=mi>204</span><span class=p>)</span>
-<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a><span class=k>def</span> <span class=nf>get_items_headers</span><span class=p>(</span><span class=n>response</span><span class=p>:</span> <span class=n>Response</span><span class=p>):</span>
+<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a><span class=k>def</span><span class=w> </span><span class=nf>get_items_headers</span><span class=p>(</span><span class=n>response</span><span class=p>:</span> <span class=n>Response</span><span class=p>):</span>
 <a id=__codelineno-0-13 name=__codelineno-0-13 href=#__codelineno-0-13></a>    <span class=n>response</span><span class=o>.</span><span class=n>headers</span><span class=p>[</span><span class=s2>&quot;X-Cat-Dog&quot;</span><span class=p>]</span> <span class=o>=</span> <span class=s2>&quot;Alone in the world&quot;</span>
 <a id=__codelineno-0-14 name=__codelineno-0-14 href=#__codelineno-0-14></a>
 <a id=__codelineno-0-15 name=__codelineno-0-15 href=#__codelineno-0-15></a><span class=n>app</span><span class=o>.</span><span class=n>include_router</span><span class=p>(</span><span class=n>router</span><span class=p>)</span>
@@ -6367,7 +6367,7 @@
 <span class=normal><a href=#__codelineno-0-3638>3638</a></span>
 <span class=normal><a href=#__codelineno-0-3639>3639</a></span>
 <span class=normal><a href=#__codelineno-0-3640>3640</a></span>
-<span class=normal><a href=#__codelineno-0-3641>3641</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-3261 name=__codelineno-0-3261></a><span class=k>def</span> <span class=nf>head</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-3641>3641</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-3261 name=__codelineno-0-3261></a><span class=k>def</span><span class=w> </span><span class=nf>head</span><span class=p>(</span>
 <a id=__codelineno-0-3262 name=__codelineno-0-3262></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-3263 name=__codelineno-0-3263></a>    <span class=n>path</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-3264 name=__codelineno-0-3264></a>        <span class=nb>str</span><span class=p>,</span>
@@ -6774,10 +6774,10 @@
 <a id=__codelineno-0-24 name=__codelineno-0-24 href=#__codelineno-0-24></a>    <span class=n>openapi_extra</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25 href=#__codelineno-0-25></a>    <span class=n>generate_unique_id_function</span><span class=o>=</span><span class=n><span title="fastapi.datastructures.Default">Default</span></span><span class=p>(</span><span class=n><span title="fastapi.utils.generate_unique_id">generate_unique_id</span></span><span class=p>),</span>
 <a id=__codelineno-0-26 name=__codelineno-0-26 href=#__codelineno-0-26></a><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP PATCH operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.patch--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.patch--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
-<a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>BaseModel</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP PATCH operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.patch--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.patch--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>fastapi</span><span class=w> </span><span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
+<a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>BaseModel</span>
 <a id=__codelineno-0-3 name=__codelineno-0-3 href=#__codelineno-0-3></a>
-<a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=k>class</span> <span class=nc>Item</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+<a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=k>class</span><span class=w> </span><span class=nc>Item</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5 href=#__codelineno-0-5></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span>
 <a id=__codelineno-0-6 name=__codelineno-0-6 href=#__codelineno-0-6></a>    <span class=n>description</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span>
 <a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a>
@@ -6785,7 +6785,7 @@
 <a id=__codelineno-0-9 name=__codelineno-0-9 href=#__codelineno-0-9></a><span class=n>router</span> <span class=o>=</span> <span class=n>APIRouter</span><span class=p>()</span>
 <a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a>
 <a id=__codelineno-0-11 name=__codelineno-0-11 href=#__codelineno-0-11></a><span class=nd>@router</span><span class=o>.</span><span class=n>patch</span><span class=p>(</span><span class=s2>&quot;/items/&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a><span class=k>def</span> <span class=nf>update_item</span><span class=p>(</span><span class=n>item</span><span class=p>:</span> <span class=n>Item</span><span class=p>):</span>
+<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a><span class=k>def</span><span class=w> </span><span class=nf>update_item</span><span class=p>(</span><span class=n>item</span><span class=p>:</span> <span class=n>Item</span><span class=p>):</span>
 <a id=__codelineno-0-13 name=__codelineno-0-13 href=#__codelineno-0-13></a>    <span class=k>return</span> <span class=p>{</span><span class=s2>&quot;message&quot;</span><span class=p>:</span> <span class=s2>&quot;Item updated in place&quot;</span><span class=p>}</span>
 <a id=__codelineno-0-14 name=__codelineno-0-14 href=#__codelineno-0-14></a>
 <a id=__codelineno-0-15 name=__codelineno-0-15 href=#__codelineno-0-15></a><span class=n>app</span><span class=o>.</span><span class=n>include_router</span><span class=p>(</span><span class=n>router</span><span class=p>)</span>
@@ -7169,7 +7169,7 @@
 <span class=normal><a href=#__codelineno-0-4020>4020</a></span>
 <span class=normal><a href=#__codelineno-0-4021>4021</a></span>
 <span class=normal><a href=#__codelineno-0-4022>4022</a></span>
-<span class=normal><a href=#__codelineno-0-4023>4023</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-3643 name=__codelineno-0-3643></a><span class=k>def</span> <span class=nf>patch</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-4023>4023</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-3643 name=__codelineno-0-3643></a><span class=k>def</span><span class=w> </span><span class=nf>patch</span><span class=p>(</span>
 <a id=__codelineno-0-3644 name=__codelineno-0-3644></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-3645 name=__codelineno-0-3645></a>    <span class=n>path</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-3646 name=__codelineno-0-3646></a>        <span class=nb>str</span><span class=p>,</span>
@@ -7576,10 +7576,10 @@
 <a id=__codelineno-0-24 name=__codelineno-0-24 href=#__codelineno-0-24></a>    <span class=n>openapi_extra</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25 href=#__codelineno-0-25></a>    <span class=n>generate_unique_id_function</span><span class=o>=</span><span class=n><span title="fastapi.datastructures.Default">Default</span></span><span class=p>(</span><span class=n><span title="fastapi.utils.generate_unique_id">generate_unique_id</span></span><span class=p>),</span>
 <a id=__codelineno-0-26 name=__codelineno-0-26 href=#__codelineno-0-26></a><span class=p>)</span>
-</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP TRACE operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.trace--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.trace--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
-<a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>BaseModel</span>
+</code></pre></div> <div class="doc doc-contents "> <p>Add a <em>path operation</em> using an HTTP TRACE operation.</p> <h5 id=faststream.rabbit.fastapi.RabbitRouter.trace--example>Example<a class=headerlink href=#faststream.rabbit.fastapi.RabbitRouter.trace--example title="Permanent link">#</a></h5> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>fastapi</span><span class=w> </span><span class=kn>import</span> <span class=n>APIRouter</span><span class=p>,</span> <span class=n>FastAPI</span>
+<a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>BaseModel</span>
 <a id=__codelineno-0-3 name=__codelineno-0-3 href=#__codelineno-0-3></a>
-<a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=k>class</span> <span class=nc>Item</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+<a id=__codelineno-0-4 name=__codelineno-0-4 href=#__codelineno-0-4></a><span class=k>class</span><span class=w> </span><span class=nc>Item</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5 href=#__codelineno-0-5></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span>
 <a id=__codelineno-0-6 name=__codelineno-0-6 href=#__codelineno-0-6></a>    <span class=n>description</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span>
 <a id=__codelineno-0-7 name=__codelineno-0-7 href=#__codelineno-0-7></a>
@@ -7587,7 +7587,7 @@
 <a id=__codelineno-0-9 name=__codelineno-0-9 href=#__codelineno-0-9></a><span class=n>router</span> <span class=o>=</span> <span class=n>APIRouter</span><span class=p>()</span>
 <a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a>
 <a id=__codelineno-0-11 name=__codelineno-0-11 href=#__codelineno-0-11></a><span class=nd>@router</span><span class=o>.</span><span class=n>trace</span><span class=p>(</span><span class=s2>&quot;/items/</span><span class=si>{item_id}</span><span class=s2>&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a><span class=k>def</span> <span class=nf>trace_item</span><span class=p>(</span><span class=n>item_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>):</span>
+<a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a><span class=k>def</span><span class=w> </span><span class=nf>trace_item</span><span class=p>(</span><span class=n>item_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>):</span>
 <a id=__codelineno-0-13 name=__codelineno-0-13 href=#__codelineno-0-13></a>    <span class=k>return</span> <span class=kc>None</span>
 <a id=__codelineno-0-14 name=__codelineno-0-14 href=#__codelineno-0-14></a>
 <a id=__codelineno-0-15 name=__codelineno-0-15 href=#__codelineno-0-15></a><span class=n>app</span><span class=o>.</span><span class=n>include_router</span><span class=p>(</span><span class=n>router</span><span class=p>)</span>
@@ -7971,7 +7971,7 @@
 <span class=normal><a href=#__codelineno-0-4402>4402</a></span>
 <span class=normal><a href=#__codelineno-0-4403>4403</a></span>
 <span class=normal><a href=#__codelineno-0-4404>4404</a></span>
-<span class=normal><a href=#__codelineno-0-4405>4405</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-4025 name=__codelineno-0-4025></a><span class=k>def</span> <span class=nf>trace</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-4405>4405</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-4025 name=__codelineno-0-4025></a><span class=k>def</span><span class=w> </span><span class=nf>trace</span><span class=p>(</span>
 <a id=__codelineno-0-4026 name=__codelineno-0-4026></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-4027 name=__codelineno-0-4027></a>    <span class=n>path</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-4028 name=__codelineno-0-4028></a>        <span class=nb>str</span><span class=p>,</span>
@@ -8381,7 +8381,7 @@
 <span class=normal><a href=#__codelineno-0-389>389</a></span>
 <span class=normal><a href=#__codelineno-0-390>390</a></span>
 <span class=normal><a href=#__codelineno-0-391>391</a></span>
-<span class=normal><a href=#__codelineno-0-392>392</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-376 name=__codelineno-0-376></a><span class=k>def</span> <span class=nf>after_startup</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-392>392</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-376 name=__codelineno-0-376></a><span class=k>def</span><span class=w> </span><span class=nf>after_startup</span><span class=p>(</span>
 <a id=__codelineno-0-377 name=__codelineno-0-377></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-378 name=__codelineno-0-378></a>    <span class=n>func</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span>
 <a id=__codelineno-0-379 name=__codelineno-0-379></a>        <span class=n>Callable</span><span class=p>[[</span><span class=s2>&quot;AppType&quot;</span><span class=p>],</span> <span class=n>Mapping</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Any</span><span class=p>]],</span>
@@ -8417,7 +8417,7 @@
 <span class=normal><a href=#__codelineno-0-415>415</a></span>
 <span class=normal><a href=#__codelineno-0-416>416</a></span>
 <span class=normal><a href=#__codelineno-0-417>417</a></span>
-<span class=normal><a href=#__codelineno-0-418>418</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-406 name=__codelineno-0-406></a><span class=k>def</span> <span class=nf>on_broker_shutdown</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-418>418</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-406 name=__codelineno-0-406></a><span class=k>def</span><span class=w> </span><span class=nf>on_broker_shutdown</span><span class=p>(</span>
 <a id=__codelineno-0-407 name=__codelineno-0-407></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-408 name=__codelineno-0-408></a>    <span class=n>func</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span>
 <a id=__codelineno-0-409 name=__codelineno-0-409></a>        <span class=n>Callable</span><span class=p>[[</span><span class=s2>&quot;AppType&quot;</span><span class=p>],</span> <span class=kc>None</span><span class=p>],</span>
@@ -8699,7 +8699,7 @@
 <span class=normal><a href=#__codelineno-0-719>719</a></span>
 <span class=normal><a href=#__codelineno-0-720>720</a></span>
 <span class=normal><a href=#__codelineno-0-721>721</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-478 name=__codelineno-0-478></a><span class=nd>@override</span>
-<a id=__codelineno-0-479 name=__codelineno-0-479></a><span class=k>def</span> <span class=nf>subscriber</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<a id=__codelineno-0-479 name=__codelineno-0-479></a><span class=k>def</span><span class=w> </span><span class=nf>subscriber</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-480 name=__codelineno-0-480></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-481 name=__codelineno-0-481></a>    <span class=n>queue</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-482 name=__codelineno-0-482></a>        <span class=n>Union</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>RabbitQueue</span><span class=p>],</span>
@@ -9096,7 +9096,7 @@
 <span class=normal><a href=#__codelineno-0-851>851</a></span>
 <span class=normal><a href=#__codelineno-0-852>852</a></span>
 <span class=normal><a href=#__codelineno-0-853>853</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-723 name=__codelineno-0-723></a><span class=nd>@override</span>
-<a id=__codelineno-0-724 name=__codelineno-0-724></a><span class=k>def</span> <span class=nf>publisher</span><span class=p>(</span>
+<a id=__codelineno-0-724 name=__codelineno-0-724></a><span class=k>def</span><span class=w> </span><span class=nf>publisher</span><span class=p>(</span>
 <a id=__codelineno-0-725 name=__codelineno-0-725></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-726 name=__codelineno-0-726></a>    <span class=n>queue</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-727 name=__codelineno-0-727></a>        <span class=n>Union</span><span class=p>[</span><span class=n>RabbitQueue</span><span class=p>,</span> <span class=nb>str</span><span class=p>],</span>

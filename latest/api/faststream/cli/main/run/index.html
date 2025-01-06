@@ -174,7 +174,7 @@
 <span class=normal><a href=#__codelineno-0-176>176</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-57 name=__codelineno-0-57></a><span class=nd>@cli</span><span class=o>.</span><span class=n>command</span><span class=p>(</span>
 <a id=__codelineno-0-58 name=__codelineno-0-58></a>    <span class=n>context_settings</span><span class=o>=</span><span class=p>{</span><span class=s2>&quot;allow_extra_args&quot;</span><span class=p>:</span> <span class=kc>True</span><span class=p>,</span> <span class=s2>&quot;ignore_unknown_options&quot;</span><span class=p>:</span> <span class=kc>True</span><span class=p>}</span>
 <a id=__codelineno-0-59 name=__codelineno-0-59></a><span class=p>)</span>
-<a id=__codelineno-0-60 name=__codelineno-0-60></a><span class=k>def</span> <span class=nf>run</span><span class=p>(</span>
+<a id=__codelineno-0-60 name=__codelineno-0-60></a><span class=k>def</span><span class=w> </span><span class=nf>run</span><span class=p>(</span>
 <a id=__codelineno-0-61 name=__codelineno-0-61></a>    <span class=n>ctx</span><span class=p>:</span> <span class=n>typer</span><span class=o>.</span><span class=n>Context</span><span class=p>,</span>
 <a id=__codelineno-0-62 name=__codelineno-0-62></a>    <span class=n>app</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>typer</span><span class=o>.</span><span class=n>Argument</span><span class=p>(</span>
 <a id=__codelineno-0-63 name=__codelineno-0-63></a>        <span class=o>...</span><span class=p>,</span>
@@ -245,7 +245,7 @@
 <a id=__codelineno-0-128 name=__codelineno-0-128></a>
 <a id=__codelineno-0-129 name=__codelineno-0-129></a>    <span class=k>if</span> <span class=n>reload</span><span class=p>:</span>
 <a id=__codelineno-0-130 name=__codelineno-0-130></a>        <span class=k>try</span><span class=p>:</span>
-<a id=__codelineno-0-131 name=__codelineno-0-131></a>            <span class=kn>from</span> <span class=nn>faststream.cli.supervisors.watchfiles</span> <span class=kn>import</span> <span class=n>WatchReloader</span>
+<a id=__codelineno-0-131 name=__codelineno-0-131></a>            <span class=kn>from</span><span class=w> </span><span class=nn>faststream.cli.supervisors.watchfiles</span><span class=w> </span><span class=kn>import</span> <span class=n>WatchReloader</span>
 <a id=__codelineno-0-132 name=__codelineno-0-132></a>        <span class=k>except</span> <span class=ne>ImportError</span><span class=p>:</span>
 <a id=__codelineno-0-133 name=__codelineno-0-133></a>            <span class=n>warnings</span><span class=o>.</span><span class=n>warn</span><span class=p>(</span><span class=n>INSTALL_WATCHFILES</span><span class=p>,</span> <span class=n>category</span><span class=o>=</span><span class=ne>ImportWarning</span><span class=p>,</span> <span class=n>stacklevel</span><span class=o>=</span><span class=mi>1</span><span class=p>)</span>
 <a id=__codelineno-0-134 name=__codelineno-0-134></a>            <span class=n>_run</span><span class=p>(</span><span class=o>*</span><span class=n>args</span><span class=p>)</span>
@@ -265,7 +265,7 @@
 <a id=__codelineno-0-148 name=__codelineno-0-148></a>
 <a id=__codelineno-0-149 name=__codelineno-0-149></a>    <span class=k>elif</span> <span class=n>workers</span> <span class=o>&gt;</span> <span class=mi>1</span><span class=p>:</span>
 <a id=__codelineno-0-150 name=__codelineno-0-150></a>        <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>app_obj</span><span class=p>,</span> <span class=n>FastStream</span><span class=p>):</span>
-<a id=__codelineno-0-151 name=__codelineno-0-151></a>            <span class=kn>from</span> <span class=nn>faststream.cli.supervisors.multiprocess</span> <span class=kn>import</span> <span class=n>Multiprocess</span>
+<a id=__codelineno-0-151 name=__codelineno-0-151></a>            <span class=kn>from</span><span class=w> </span><span class=nn>faststream.cli.supervisors.multiprocess</span><span class=w> </span><span class=kn>import</span> <span class=n>Multiprocess</span>
 <a id=__codelineno-0-152 name=__codelineno-0-152></a>
 <a id=__codelineno-0-153 name=__codelineno-0-153></a>            <span class=n>Multiprocess</span><span class=p>(</span>
 <a id=__codelineno-0-154 name=__codelineno-0-154></a>                <span class=n>target</span><span class=o>=</span><span class=n>_run</span><span class=p>,</span>
@@ -273,7 +273,7 @@
 <a id=__codelineno-0-156 name=__codelineno-0-156></a>                <span class=n>workers</span><span class=o>=</span><span class=n>workers</span><span class=p>,</span>
 <a id=__codelineno-0-157 name=__codelineno-0-157></a>            <span class=p>)</span><span class=o>.</span><span class=n>run</span><span class=p>()</span>
 <a id=__codelineno-0-158 name=__codelineno-0-158></a>        <span class=k>elif</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>app_obj</span><span class=p>,</span> <span class=n>AsgiFastStream</span><span class=p>):</span>
-<a id=__codelineno-0-159 name=__codelineno-0-159></a>            <span class=kn>from</span> <span class=nn>faststream.cli.supervisors.asgi_multiprocess</span> <span class=kn>import</span> <span class=n>ASGIMultiprocess</span>
+<a id=__codelineno-0-159 name=__codelineno-0-159></a>            <span class=kn>from</span><span class=w> </span><span class=nn>faststream.cli.supervisors.asgi_multiprocess</span><span class=w> </span><span class=kn>import</span> <span class=n>ASGIMultiprocess</span>
 <a id=__codelineno-0-160 name=__codelineno-0-160></a>
 <a id=__codelineno-0-161 name=__codelineno-0-161></a>            <span class=n>ASGIMultiprocess</span><span class=p>(</span>
 <a id=__codelineno-0-162 name=__codelineno-0-162></a>                <span class=n>target</span><span class=o>=</span><span class=n>app</span><span class=p>,</span>

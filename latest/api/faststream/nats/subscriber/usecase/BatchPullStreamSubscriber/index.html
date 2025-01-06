@@ -65,7 +65,7 @@
 <span class=normal><a href=#__codelineno-0-889>889</a></span>
 <span class=normal><a href=#__codelineno-0-890>890</a></span>
 <span class=normal><a href=#__codelineno-0-891>891</a></span>
-<span class=normal><a href=#__codelineno-0-892>892</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-850 name=__codelineno-0-850></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-892>892</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-850 name=__codelineno-0-850></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-851 name=__codelineno-0-851></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-852 name=__codelineno-0-852></a>    <span class=o>*</span><span class=p>,</span>
 <a id=__codelineno-0-853 name=__codelineno-0-853></a>    <span class=c1># default args</span>
@@ -176,7 +176,7 @@
 <span class=normal><a href=#__codelineno-0-152>152</a></span>
 <span class=normal><a href=#__codelineno-0-153>153</a></span>
 <span class=normal><a href=#__codelineno-0-154>154</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-122 name=__codelineno-0-122></a><span class=nd>@override</span>
-<a id=__codelineno-0-123 name=__codelineno-0-123></a><span class=k>def</span> <span class=nf>setup</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<a id=__codelineno-0-123 name=__codelineno-0-123></a><span class=k>def</span><span class=w> </span><span class=nf>setup</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-124 name=__codelineno-0-124></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-125 name=__codelineno-0-125></a>    <span class=o>*</span><span class=p>,</span>
 <a id=__codelineno-0-126 name=__codelineno-0-126></a>    <span class=n>connection</span><span class=p>:</span> <span class=n>ConnectionType</span><span class=p>,</span>
@@ -217,7 +217,7 @@
 <span class=normal><a href=#__codelineno-0-225>225</a></span>
 <span class=normal><a href=#__codelineno-0-226>226</a></span>
 <span class=normal><a href=#__codelineno-0-227>227</a></span>
-<span class=normal><a href=#__codelineno-0-228>228</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-220 name=__codelineno-0-220></a><span class=k>def</span> <span class=nf>add_prefix</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>prefix</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-228>228</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-220 name=__codelineno-0-220></a><span class=k>def</span><span class=w> </span><span class=nf>add_prefix</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>prefix</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-221 name=__codelineno-0-221></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Include Subscriber in router.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-222 name=__codelineno-0-222></a>    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>subject</span><span class=p>:</span>
 <a id=__codelineno-0-223 name=__codelineno-0-223></a>        <span class=bp>self</span><span class=o>.</span><span class=n>subject</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=o>.</span><span class=n>join</span><span class=p>((</span><span class=n>prefix</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>subject</span><span class=p>))</span>
@@ -232,7 +232,7 @@
 <span class=normal><a href=#__codelineno-0-32>32</a></span>
 <span class=normal><a href=#__codelineno-0-33>33</a></span>
 <span class=normal><a href=#__codelineno-0-34>34</a></span>
-<span class=normal><a href=#__codelineno-0-35>35</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-30 name=__codelineno-0-30></a><span class=k>def</span> <span class=nf>schema</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Channel</span><span class=p>]:</span>
+<span class=normal><a href=#__codelineno-0-35>35</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-30 name=__codelineno-0-30></a><span class=k>def</span><span class=w> </span><span class=nf>schema</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Channel</span><span class=p>]:</span>
 <a id=__codelineno-0-31 name=__codelineno-0-31></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Returns the schema of the API operation as a dictionary of channel names and channel objects.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-32 name=__codelineno-0-32></a>    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>include_in_schema</span><span class=p>:</span>
 <a id=__codelineno-0-33 name=__codelineno-0-33></a>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_schema</span><span class=p>()</span>
@@ -240,7 +240,7 @@
 <a id=__codelineno-0-35 name=__codelineno-0-35></a>        <span class=k>return</span> <span class=p>{}</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.add_middleware class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">add_middleware</span> <a href=#faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.add_middleware class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>add_middleware</span><span class=p>(</span><span class=n>middleware</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-140>140</a></span>
-<span class=normal><a href=#__codelineno-0-141>141</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-140 name=__codelineno-0-140></a><span class=k>def</span> <span class=nf>add_middleware</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>middleware</span><span class=p>:</span> <span class=s2>&quot;BrokerMiddleware[MsgType]&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-141>141</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-140 name=__codelineno-0-140></a><span class=k>def</span><span class=w> </span><span class=nf>add_middleware</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>middleware</span><span class=p>:</span> <span class=s2>&quot;BrokerMiddleware[MsgType]&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-141 name=__codelineno-0-141></a>    <span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span> <span class=o>=</span> <span class=p>(</span><span class=o>*</span><span class=bp>self</span><span class=o>.</span><span class=n>_broker_middlewares</span><span class=p>,</span> <span class=n>middleware</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.get_log_context class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_log_context</span> <a href=#faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.get_log_context class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_log_context</span><span class=p>(</span><span class=n>message</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <p>Log context factory using in <code>self.consume</code> scope.</p> <details class=quote> <summary>Source code in <code>faststream/nats/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-308>308</a></span>
@@ -254,7 +254,7 @@
 <span class=normal><a href=#__codelineno-0-316>316</a></span>
 <span class=normal><a href=#__codelineno-0-317>317</a></span>
 <span class=normal><a href=#__codelineno-0-318>318</a></span>
-<span class=normal><a href=#__codelineno-0-319>319</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-308 name=__codelineno-0-308></a><span class=k>def</span> <span class=nf>get_log_context</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-319>319</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-308 name=__codelineno-0-308></a><span class=k>def</span><span class=w> </span><span class=nf>get_log_context</span><span class=p>(</span>
 <a id=__codelineno-0-309 name=__codelineno-0-309></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-310 name=__codelineno-0-310></a>    <span class=n>message</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-311 name=__codelineno-0-311></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;StreamMessage[MsgType]&quot;</span><span class=p>],</span>
@@ -274,7 +274,7 @@
 <span class=normal><a href=#__codelineno-0-166>166</a></span>
 <span class=normal><a href=#__codelineno-0-167>167</a></span>
 <span class=normal><a href=#__codelineno-0-168>168</a></span>
-<span class=normal><a href=#__codelineno-0-169>169</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-162 name=__codelineno-0-162></a><span class=k>async</span> <span class=k>def</span> <span class=nf>start</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-169>169</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-162 name=__codelineno-0-162></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>start</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-163 name=__codelineno-0-163></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Create NATS subscription and start consume tasks.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-164 name=__codelineno-0-164></a>    <span class=k>assert</span> <span class=bp>self</span><span class=o>.</span><span class=n>_connection</span><span class=p>,</span> <span class=n>NOT_CONNECTED_YET</span>  <span class=c1># nosec B101</span>
 <a id=__codelineno-0-165 name=__codelineno-0-165></a>
@@ -291,7 +291,7 @@
 <span class=normal><a href=#__codelineno-0-33>33</a></span>
 <span class=normal><a href=#__codelineno-0-34>34</a></span>
 <span class=normal><a href=#__codelineno-0-35>35</a></span>
-<span class=normal><a href=#__codelineno-0-36>36</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-28 name=__codelineno-0-28></a><span class=k>async</span> <span class=k>def</span> <span class=nf>close</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-36>36</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-28 name=__codelineno-0-28></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>close</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-29 name=__codelineno-0-29></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Clean up handler subscription, cancel consume task in graceful mode.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-30 name=__codelineno-0-30></a>    <span class=k>await</span> <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
 <a id=__codelineno-0-31 name=__codelineno-0-31></a>
@@ -322,7 +322,7 @@
 <span class=normal><a href=#__codelineno-0-316>316</a></span>
 <span class=normal><a href=#__codelineno-0-317>317</a></span>
 <span class=normal><a href=#__codelineno-0-318>318</a></span>
-<span class=normal><a href=#__codelineno-0-319>319</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-298 name=__codelineno-0-298></a><span class=k>async</span> <span class=k>def</span> <span class=nf>consume</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>MsgType</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-319>319</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-298 name=__codelineno-0-298></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>consume</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>MsgType</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
 <a id=__codelineno-0-299 name=__codelineno-0-299></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Consume a message asynchronously.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-300 name=__codelineno-0-300></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>running</span><span class=p>:</span>
 <a id=__codelineno-0-301 name=__codelineno-0-301></a>        <span class=k>return</span> <span class=kc>None</span>
@@ -432,7 +432,7 @@
 <span class=normal><a href=#__codelineno-0-405>405</a></span>
 <span class=normal><a href=#__codelineno-0-406>406</a></span>
 <span class=normal><a href=#__codelineno-0-407>407</a></span>
-<span class=normal><a href=#__codelineno-0-408>408</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-321 name=__codelineno-0-321></a><span class=k>async</span> <span class=k>def</span> <span class=nf>process_message</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>MsgType</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Response&quot;</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-408>408</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-321 name=__codelineno-0-321></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>process_message</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>MsgType</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Response&quot;</span><span class=p>:</span>
 <a id=__codelineno-0-322 name=__codelineno-0-322></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Execute all message processing stages.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-323 name=__codelineno-0-323></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>AsyncExitStack</span><span class=p>()</span> <span class=k>as</span> <span class=n>stack</span><span class=p>:</span>
 <a id=__codelineno-0-324 name=__codelineno-0-324></a>        <span class=n>stack</span><span class=o>.</span><span class=n>enter_context</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>lock</span><span class=p>)</span>
@@ -544,7 +544,7 @@
 <span class=normal><a href=#__codelineno-0-222>222</a></span>
 <span class=normal><a href=#__codelineno-0-223>223</a></span>
 <span class=normal><a href=#__codelineno-0-224>224</a></span>
-<span class=normal><a href=#__codelineno-0-225>225</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-209 name=__codelineno-0-209></a><span class=k>def</span> <span class=nf>add_call</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-225>225</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-209 name=__codelineno-0-209></a><span class=k>def</span><span class=w> </span><span class=nf>add_call</span><span class=p>(</span>
 <a id=__codelineno-0-210 name=__codelineno-0-210></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-211 name=__codelineno-0-211></a>    <span class=o>*</span><span class=p>,</span>
 <a id=__codelineno-0-212 name=__codelineno-0-212></a>    <span class=n>filter_</span><span class=p>:</span> <span class=s2>&quot;Filter[Any]&quot;</span><span class=p>,</span>
@@ -566,7 +566,7 @@
 <span class=normal><a href=#__codelineno-0-17>17</a></span>
 <span class=normal><a href=#__codelineno-0-18>18</a></span>
 <span class=normal><a href=#__codelineno-0-19>19</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-16 name=__codelineno-0-16></a><span class=nd>@abstractmethod</span>
-<a id=__codelineno-0-17 name=__codelineno-0-17></a><span class=k>def</span> <span class=nf>get_name</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
+<a id=__codelineno-0-17 name=__codelineno-0-17></a><span class=k>def</span><span class=w> </span><span class=nf>get_name</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
 <a id=__codelineno-0-18 name=__codelineno-0-18></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Name property fallback.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-19 name=__codelineno-0-19></a>    <span class=k>raise</span> <span class=ne>NotImplementedError</span><span class=p>()</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.get_description class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_description</span> <a href=#faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.get_description class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_description</span><span class=p>()</span>
@@ -576,7 +576,7 @@
 <span class=normal><a href=#__codelineno-0-442>442</a></span>
 <span class=normal><a href=#__codelineno-0-443>443</a></span>
 <span class=normal><a href=#__codelineno-0-444>444</a></span>
-<span class=normal><a href=#__codelineno-0-445>445</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-439 name=__codelineno-0-439></a><span class=k>def</span> <span class=nf>get_description</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]:</span>
+<span class=normal><a href=#__codelineno-0-445>445</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-439 name=__codelineno-0-439></a><span class=k>def</span><span class=w> </span><span class=nf>get_description</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]:</span>
 <a id=__codelineno-0-440 name=__codelineno-0-440></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Returns the description of the handler.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-441 name=__codelineno-0-441></a>    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>calls</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
 <a id=__codelineno-0-442 name=__codelineno-0-442></a>        <span class=k>return</span> <span class=kc>None</span>
@@ -588,7 +588,7 @@
 <span class=normal><a href=#__codelineno-0-38>38</a></span>
 <span class=normal><a href=#__codelineno-0-39>39</a></span>
 <span class=normal><a href=#__codelineno-0-40>40</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-37 name=__codelineno-0-37></a><span class=nd>@abstractmethod</span>
-<a id=__codelineno-0-38 name=__codelineno-0-38></a><span class=k>def</span> <span class=nf>get_schema</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Channel</span><span class=p>]:</span>
+<a id=__codelineno-0-38 name=__codelineno-0-38></a><span class=k>def</span><span class=w> </span><span class=nf>get_schema</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Channel</span><span class=p>]:</span>
 <a id=__codelineno-0-39 name=__codelineno-0-39></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Generate AsyncAPI schema.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-40 name=__codelineno-0-40></a>    <span class=k>raise</span> <span class=ne>NotImplementedError</span><span class=p>()</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.get_payloads class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_payloads</span> <a href=#faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.get_payloads class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_payloads</span><span class=p>()</span>
@@ -617,7 +617,7 @@
 <span class=normal><a href=#__codelineno-0-469>469</a></span>
 <span class=normal><a href=#__codelineno-0-470>470</a></span>
 <span class=normal><a href=#__codelineno-0-471>471</a></span>
-<span class=normal><a href=#__codelineno-0-472>472</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-447 name=__codelineno-0-447></a><span class=k>def</span> <span class=nf>get_payloads</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>List</span><span class=p>[</span><span class=n>Tuple</span><span class=p>[</span><span class=s2>&quot;AnyDict&quot;</span><span class=p>,</span> <span class=nb>str</span><span class=p>]]:</span>
+<span class=normal><a href=#__codelineno-0-472>472</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-447 name=__codelineno-0-447></a><span class=k>def</span><span class=w> </span><span class=nf>get_payloads</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>List</span><span class=p>[</span><span class=n>Tuple</span><span class=p>[</span><span class=s2>&quot;AnyDict&quot;</span><span class=p>,</span> <span class=nb>str</span><span class=p>]]:</span>
 <a id=__codelineno-0-448 name=__codelineno-0-448></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Get the payloads of the handler.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-449 name=__codelineno-0-449></a>    <span class=n>payloads</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>Tuple</span><span class=p>[</span><span class=n>AnyDict</span><span class=p>,</span> <span class=nb>str</span><span class=p>]]</span> <span class=o>=</span> <span class=p>[]</span>
 <a id=__codelineno-0-450 name=__codelineno-0-450></a>
@@ -671,7 +671,7 @@
 <span class=normal><a href=#__codelineno-0-216>216</a></span>
 <span class=normal><a href=#__codelineno-0-217>217</a></span>
 <span class=normal><a href=#__codelineno-0-218>218</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-192 name=__codelineno-0-192></a><span class=nd>@staticmethod</span>
-<a id=__codelineno-0-193 name=__codelineno-0-193></a><span class=k>def</span> <span class=nf>build_log_context</span><span class=p>(</span>
+<a id=__codelineno-0-193 name=__codelineno-0-193></a><span class=k>def</span><span class=w> </span><span class=nf>build_log_context</span><span class=p>(</span>
 <a id=__codelineno-0-194 name=__codelineno-0-194></a>    <span class=n>message</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-195 name=__codelineno-0-195></a>        <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;StreamMessage[MsgType]&quot;</span><span class=p>],</span>
 <a id=__codelineno-0-196 name=__codelineno-0-196></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;Message which we are building context for&quot;</span><span class=p>),</span>
@@ -710,7 +710,7 @@
 <span class=normal><a href=#__codelineno-0-246>246</a></span>
 <span class=normal><a href=#__codelineno-0-247>247</a></span>
 <span class=normal><a href=#__codelineno-0-248>248</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-237 name=__codelineno-0-237></a><span class=nd>@staticmethod</span>
-<a id=__codelineno-0-238 name=__codelineno-0-238></a><span class=k>def</span> <span class=nf>get_routing_hash</span><span class=p>(</span>
+<a id=__codelineno-0-238 name=__codelineno-0-238></a><span class=k>def</span><span class=w> </span><span class=nf>get_routing_hash</span><span class=p>(</span>
 <a id=__codelineno-0-239 name=__codelineno-0-239></a>    <span class=n>subject</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-0-240 name=__codelineno-0-240></a>        <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-0-241 name=__codelineno-0-241></a>        <span class=n>Doc</span><span class=p>(</span><span class=s2>&quot;NATS subject to consume messages&quot;</span><span class=p>),</span>
@@ -723,7 +723,7 @@
 <a id=__codelineno-0-248 name=__codelineno-0-248></a>    <span class=k>return</span> <span class=nb>hash</span><span class=p>(</span><span class=n>subject</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.add_task class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">add_task</span> <a href=#faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.add_task class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>add_task</span><span class=p>(</span><span class=n>coro</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/broker/subscriber/mixins.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-25>25</a></span>
-<span class=normal><a href=#__codelineno-0-26>26</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-25 name=__codelineno-0-25></a><span class=k>def</span> <span class=nf>add_task</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>coro</span><span class=p>:</span> <span class=n>Coroutine</span><span class=p>[</span><span class=n>Any</span><span class=p>,</span> <span class=n>Any</span><span class=p>,</span> <span class=n>Any</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-26>26</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-25 name=__codelineno-0-25></a><span class=k>def</span><span class=w> </span><span class=nf>add_task</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>coro</span><span class=p>:</span> <span class=n>Coroutine</span><span class=p>[</span><span class=n>Any</span><span class=p>,</span> <span class=n>Any</span><span class=p>,</span> <span class=n>Any</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-26 name=__codelineno-0-26></a>    <span class=bp>self</span><span class=o>.</span><span class=n>tasks</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>asyncio</span><span class=o>.</span><span class=n>create_task</span><span class=p>(</span><span class=n>coro</span><span class=p>))</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.get_one class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">get_one</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.nats.subscriber.usecase.BatchPullStreamSubscriber.get_one class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>get_one</span><span class=p>(</span><span class=o>*</span><span class=p>,</span> <span class=n>timeout</span><span class=o>=</span><span class=mi>5</span><span class=p>)</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/nats/subscriber/usecase.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-894>894</a></span>
@@ -764,7 +764,7 @@
 <span class=normal><a href=#__codelineno-0-929>929</a></span>
 <span class=normal><a href=#__codelineno-0-930>930</a></span>
 <span class=normal><a href=#__codelineno-0-931>931</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-894 name=__codelineno-0-894></a><span class=nd>@override</span>
-<a id=__codelineno-0-895 name=__codelineno-0-895></a><span class=k>async</span> <span class=k>def</span> <span class=nf>get_one</span><span class=p>(</span>
+<a id=__codelineno-0-895 name=__codelineno-0-895></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>get_one</span><span class=p>(</span>
 <a id=__codelineno-0-896 name=__codelineno-0-896></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-897 name=__codelineno-0-897></a>    <span class=o>*</span><span class=p>,</span>
 <a id=__codelineno-0-898 name=__codelineno-0-898></a>    <span class=n>timeout</span><span class=p>:</span> <span class=nb>float</span> <span class=o>=</span> <span class=mi>5</span><span class=p>,</span>

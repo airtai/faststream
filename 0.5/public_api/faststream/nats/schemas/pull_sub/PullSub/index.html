@@ -16,7 +16,7 @@
 <span class=normal><a href=#__codelineno-0-25>25</a></span>
 <span class=normal><a href=#__codelineno-0-26>26</a></span>
 <span class=normal><a href=#__codelineno-0-27>27</a></span>
-<span class=normal><a href=#__codelineno-0-28>28</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-20 name=__codelineno-0-20></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-28>28</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-20 name=__codelineno-0-20></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-21 name=__codelineno-0-21></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-22 name=__codelineno-0-22></a>    <span class=n>batch_size</span><span class=p>:</span> <span class=nb>int</span> <span class=o>=</span> <span class=mi>1</span><span class=p>,</span>
 <a id=__codelineno-0-23 name=__codelineno-0-23></a>    <span class=n>timeout</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>float</span><span class=p>]</span> <span class=o>=</span> <span class=mf>5.0</span><span class=p>,</span>
@@ -41,7 +41,7 @@
 <span class=normal><a href=#__codelineno-0-51>51</a></span>
 <span class=normal><a href=#__codelineno-0-52>52</a></span>
 <span class=normal><a href=#__codelineno-0-53>53</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-46 name=__codelineno-0-46></a><span class=nd>@classmethod</span>
-<a id=__codelineno-0-47 name=__codelineno-0-47></a><span class=k>def</span> <span class=nf>validate</span><span class=p>(</span><span class=bp>cls</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=nb>bool</span><span class=p>,</span> <span class=s2>&quot;PullSub&quot;</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;PullSub&quot;</span><span class=p>]:</span>
+<a id=__codelineno-0-47 name=__codelineno-0-47></a><span class=k>def</span><span class=w> </span><span class=nf>validate</span><span class=p>(</span><span class=bp>cls</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=nb>bool</span><span class=p>,</span> <span class=s2>&quot;PullSub&quot;</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;PullSub&quot;</span><span class=p>]:</span>
 <a id=__codelineno-0-48 name=__codelineno-0-48></a>    <span class=k>if</span> <span class=n>value</span> <span class=ow>is</span> <span class=kc>True</span><span class=p>:</span>
 <a id=__codelineno-0-49 name=__codelineno-0-49></a>        <span class=k>return</span> <span class=n>PullSub</span><span class=p>()</span>
 <a id=__codelineno-0-50 name=__codelineno-0-50></a>    <span class=k>elif</span> <span class=n>value</span> <span class=ow>is</span> <span class=kc>False</span><span class=p>:</span>

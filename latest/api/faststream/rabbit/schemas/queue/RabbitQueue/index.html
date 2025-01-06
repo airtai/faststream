@@ -119,7 +119,7 @@
 <span class=normal><a href=#__codelineno-0-169>169</a></span>
 <span class=normal><a href=#__codelineno-0-170>170</a></span>
 <span class=normal><a href=#__codelineno-0-171>171</a></span>
-<span class=normal><a href=#__codelineno-0-172>172</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-112 name=__codelineno-0-112></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-172>172</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-112 name=__codelineno-0-112></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-113 name=__codelineno-0-113></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-114 name=__codelineno-0-114></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-0-115 name=__codelineno-0-115></a>    <span class=n>queue_type</span><span class=p>:</span> <span class=n>QueueType</span> <span class=o>=</span> <span class=n>QueueType</span><span class=o>.</span><span class=n>CLASSIC</span><span class=p>,</span>
@@ -207,7 +207,7 @@
 <span class=normal><a href=#__codelineno-0-45>45</a></span>
 <span class=normal><a href=#__codelineno-0-46>46</a></span>
 <span class=normal><a href=#__codelineno-0-47>47</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-38 name=__codelineno-0-38></a><span class=nd>@classmethod</span>
-<a id=__codelineno-0-39 name=__codelineno-0-39></a><span class=k>def</span> <span class=nf>validate</span><span class=p>(</span>
+<a id=__codelineno-0-39 name=__codelineno-0-39></a><span class=k>def</span><span class=w> </span><span class=nf>validate</span><span class=p>(</span>
 <a id=__codelineno-0-40 name=__codelineno-0-40></a>    <span class=bp>cls</span><span class=p>:</span> <span class=n>Type</span><span class=p>[</span><span class=n>NameRequiredCls</span><span class=p>],</span>
 <a id=__codelineno-0-41 name=__codelineno-0-41></a>    <span class=n>value</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>NameRequiredCls</span><span class=p>,</span> <span class=kc>None</span><span class=p>],</span>
 <a id=__codelineno-0-42 name=__codelineno-0-42></a>    <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span>
@@ -225,7 +225,7 @@
 <span class=normal><a href=#__codelineno-0-179>179</a></span>
 <span class=normal><a href=#__codelineno-0-180>180</a></span>
 <span class=normal><a href=#__codelineno-0-181>181</a></span>
-<span class=normal><a href=#__codelineno-0-182>182</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-174 name=__codelineno-0-174></a><span class=k>def</span> <span class=nf>add_prefix</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>prefix</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;RabbitQueue&quot;</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-182>182</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-174 name=__codelineno-0-174></a><span class=k>def</span><span class=w> </span><span class=nf>add_prefix</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>prefix</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;RabbitQueue&quot;</span><span class=p>:</span>
 <a id=__codelineno-0-175 name=__codelineno-0-175></a>    <span class=n>new_q</span><span class=p>:</span> <span class=n>RabbitQueue</span> <span class=o>=</span> <span class=n>deepcopy</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span>
 <a id=__codelineno-0-176 name=__codelineno-0-176></a>
 <a id=__codelineno-0-177 name=__codelineno-0-177></a>    <span class=n>new_q</span><span class=o>.</span><span class=n>name</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span><span class=o>.</span><span class=n>join</span><span class=p>((</span><span class=n>prefix</span><span class=p>,</span> <span class=n>new_q</span><span class=o>.</span><span class=n>name</span><span class=p>))</span>

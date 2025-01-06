@@ -15,14 +15,14 @@
 <span class=normal><a href=#__codelineno-0-6>6</a></span>
 <span class=normal><a href=#__codelineno-0-7>7</a></span>
 <span class=normal><a href=#__codelineno-0-8>8</a></span>
-<span class=normal><a href=#__codelineno-0-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span>
-<a id=__codelineno-0-2 name=__codelineno-0-2></a><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>KafkaBroker</span>
+<span class=normal><a href=#__codelineno-0-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span>
+<a id=__codelineno-0-2 name=__codelineno-0-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span>
 <a id=__codelineno-0-3 name=__codelineno-0-3></a>
 <a id=__codelineno-0-4 name=__codelineno-0-4></a><span class=n>broker</span> <span class=o>=</span> <span class=n>KafkaBroker</span><span class=p>()</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-0-6 name=__codelineno-0-6></a>
 <a id=__codelineno-0-7 name=__codelineno-0-7></a><span class=hll><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;echo-topic&quot;</span><span class=p>)</span>
-</span><a id=__codelineno-0-8 name=__codelineno-0-8></a><span class=hll><span class=k>async</span> <span class=k>def</span> <span class=nf>echo_handler</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
+</span><a id=__codelineno-0-8 name=__codelineno-0-8></a><span class=hll><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>echo_handler</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
 </span><a id=__codelineno-0-9 name=__codelineno-0-9></a><span class=hll>    <span class=k>return</span> <span class=n>msg</span>
 </span></code></pre></div></td></tr></table></div> <p>It does nothing but publishes responses to all messages with the <code>reply_to</code> header.</p> <p>Now, we want to send a message and consume the echo callback. For this reason, we need to create a <em>reply consumer</em> in our producer service. It can look like the following:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-1-1> 1</a></span>
 <span class=normal><a href=#__codelineno-1-2> 2</a></span>
@@ -42,17 +42,17 @@
 <span class=normal><a href=#__codelineno-1-16>16</a></span>
 <span class=normal><a href=#__codelineno-1-17>17</a></span>
 <span class=normal><a href=#__codelineno-1-18>18</a></span>
-<span class=normal><a href=#__codelineno-1-19>19</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-1-1 name=__codelineno-1-1></a><span class=kn>from</span> <span class=nn>asyncio</span> <span class=kn>import</span> <span class=n>Future</span>
-<a id=__codelineno-1-2 name=__codelineno-1-2></a><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>Annotated</span>
+<span class=normal><a href=#__codelineno-1-19>19</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-1-1 name=__codelineno-1-1></a><span class=kn>from</span><span class=w> </span><span class=nn>asyncio</span><span class=w> </span><span class=kn>import</span> <span class=n>Future</span>
+<a id=__codelineno-1-2 name=__codelineno-1-2></a><span class=kn>from</span><span class=w> </span><span class=nn>typing</span><span class=w> </span><span class=kn>import</span> <span class=n>Annotated</span>
 <a id=__codelineno-1-3 name=__codelineno-1-3></a>
-<a id=__codelineno-1-4 name=__codelineno-1-4></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>Context</span>
-<a id=__codelineno-1-5 name=__codelineno-1-5></a><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>KafkaBroker</span><span class=p>,</span> <span class=n>KafkaMessage</span>
+<a id=__codelineno-1-4 name=__codelineno-1-4></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>Context</span>
+<a id=__codelineno-1-5 name=__codelineno-1-5></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span><span class=p>,</span> <span class=n>KafkaMessage</span>
 <a id=__codelineno-1-6 name=__codelineno-1-6></a>
 <a id=__codelineno-1-7 name=__codelineno-1-7></a><span class=n>broker</span> <span class=o>=</span> <span class=n>KafkaBroker</span><span class=p>()</span>
 <a id=__codelineno-1-8 name=__codelineno-1-8></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-1-9 name=__codelineno-1-9></a>
 <a id=__codelineno-1-10 name=__codelineno-1-10></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;responses&quot;</span><span class=p>)</span>
-<a id=__codelineno-1-11 name=__codelineno-1-11></a><span class=k>async</span> <span class=k>def</span> <span class=nf>response_handler</span><span class=p>(</span>
+<a id=__codelineno-1-11 name=__codelineno-1-11></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>response_handler</span><span class=p>(</span>
 <a id=__codelineno-1-12 name=__codelineno-1-12></a>    <span class=n>msg</span><span class=p>:</span> <span class=n>KafkaMessage</span><span class=p>,</span>
 <a id=__codelineno-1-13 name=__codelineno-1-13></a><span class=hll>    <span class=n>responses</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 </span><a id=__codelineno-1-14 name=__codelineno-1-14></a><span class=hll>        <span class=nb>dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Future</span><span class=p>[</span><span class=nb>bytes</span><span class=p>]],</span>
@@ -79,7 +79,7 @@
 <span class=normal><a href=#__codelineno-2-16>16</a></span>
 <span class=normal><a href=#__codelineno-2-17>17</a></span>
 <span class=normal><a href=#__codelineno-2-18>18</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-2-1 name=__codelineno-2-1></a><span class=nd>@app</span><span class=o>.</span><span class=n>after_startup</span>
-<a id=__codelineno-2-2 name=__codelineno-2-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>send_request</span><span class=p>(</span>
+<a id=__codelineno-2-2 name=__codelineno-2-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>send_request</span><span class=p>(</span>
 <a id=__codelineno-2-3 name=__codelineno-2-3></a>    <span class=n>responses</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-2-4 name=__codelineno-2-4></a>        <span class=nb>dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Future</span><span class=p>[</span><span class=nb>bytes</span><span class=p>]],</span>
 <a id=__codelineno-2-5 name=__codelineno-2-5></a>        <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;responses&quot;</span><span class=p>,</span> <span class=n>initial</span><span class=o>=</span><span class=nb>dict</span><span class=p>),</span>
@@ -139,22 +139,22 @@
 <span class=normal><a href=#__codelineno-3-41>41</a></span>
 <span class=normal><a href=#__codelineno-3-42>42</a></span>
 <span class=normal><a href=#__codelineno-3-43>43</a></span>
-<span class=normal><a href=#__codelineno-3-44>44</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-3-1 name=__codelineno-3-1></a><span class=kn>from</span> <span class=nn>asyncio</span> <span class=kn>import</span> <span class=n>Future</span><span class=p>,</span> <span class=n>wait_for</span>
-<a id=__codelineno-3-2 name=__codelineno-3-2></a><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>Annotated</span><span class=p>,</span> <span class=n>Any</span>
-<a id=__codelineno-3-3 name=__codelineno-3-3></a><span class=kn>from</span> <span class=nn>uuid</span> <span class=kn>import</span> <span class=n>uuid4</span>
+<span class=normal><a href=#__codelineno-3-44>44</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-3-1 name=__codelineno-3-1></a><span class=kn>from</span><span class=w> </span><span class=nn>asyncio</span><span class=w> </span><span class=kn>import</span> <span class=n>Future</span><span class=p>,</span> <span class=n>wait_for</span>
+<a id=__codelineno-3-2 name=__codelineno-3-2></a><span class=kn>from</span><span class=w> </span><span class=nn>typing</span><span class=w> </span><span class=kn>import</span> <span class=n>Annotated</span><span class=p>,</span> <span class=n>Any</span>
+<a id=__codelineno-3-3 name=__codelineno-3-3></a><span class=kn>from</span><span class=w> </span><span class=nn>uuid</span><span class=w> </span><span class=kn>import</span> <span class=n>uuid4</span>
 <a id=__codelineno-3-4 name=__codelineno-3-4></a>
-<a id=__codelineno-3-5 name=__codelineno-3-5></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>Context</span>
-<a id=__codelineno-3-6 name=__codelineno-3-6></a><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>KafkaBroker</span><span class=p>,</span> <span class=n>KafkaMessage</span>
+<a id=__codelineno-3-5 name=__codelineno-3-5></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>Context</span>
+<a id=__codelineno-3-6 name=__codelineno-3-6></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span><span class=p>,</span> <span class=n>KafkaMessage</span>
 <a id=__codelineno-3-7 name=__codelineno-3-7></a>
 <a id=__codelineno-3-8 name=__codelineno-3-8></a><span class=n>broker</span> <span class=o>=</span> <span class=n>KafkaBroker</span><span class=p>()</span>
 <a id=__codelineno-3-9 name=__codelineno-3-9></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-3-10 name=__codelineno-3-10></a>
 <a id=__codelineno-3-11 name=__codelineno-3-11></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;echo-topic&quot;</span><span class=p>)</span>
-<a id=__codelineno-3-12 name=__codelineno-3-12></a><span class=k>async</span> <span class=k>def</span> <span class=nf>echo_handler</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
+<a id=__codelineno-3-12 name=__codelineno-3-12></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>echo_handler</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Any</span><span class=p>:</span>
 <a id=__codelineno-3-13 name=__codelineno-3-13></a>    <span class=k>return</span> <span class=n>msg</span>
 <a id=__codelineno-3-14 name=__codelineno-3-14></a>
 <a id=__codelineno-3-15 name=__codelineno-3-15></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;responses&quot;</span><span class=p>)</span>
-<a id=__codelineno-3-16 name=__codelineno-3-16></a><span class=k>async</span> <span class=k>def</span> <span class=nf>response_handler</span><span class=p>(</span>
+<a id=__codelineno-3-16 name=__codelineno-3-16></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>response_handler</span><span class=p>(</span>
 <a id=__codelineno-3-17 name=__codelineno-3-17></a>    <span class=n>msg</span><span class=p>:</span> <span class=n>KafkaMessage</span><span class=p>,</span>
 <a id=__codelineno-3-18 name=__codelineno-3-18></a>    <span class=n>responses</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-3-19 name=__codelineno-3-19></a>        <span class=nb>dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Future</span><span class=p>[</span><span class=nb>bytes</span><span class=p>]],</span>
@@ -165,7 +165,7 @@
 <a id=__codelineno-3-24 name=__codelineno-3-24></a>        <span class=n>future</span><span class=o>.</span><span class=n>set_result</span><span class=p>(</span><span class=n>msg</span><span class=o>.</span><span class=n>body</span><span class=p>)</span>
 <a id=__codelineno-3-25 name=__codelineno-3-25></a>
 <a id=__codelineno-3-26 name=__codelineno-3-26></a><span class=nd>@app</span><span class=o>.</span><span class=n>after_startup</span>
-<a id=__codelineno-3-27 name=__codelineno-3-27></a><span class=k>async</span> <span class=k>def</span> <span class=nf>send_request</span><span class=p>(</span>
+<a id=__codelineno-3-27 name=__codelineno-3-27></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>send_request</span><span class=p>(</span>
 <a id=__codelineno-3-28 name=__codelineno-3-28></a>    <span class=n>responses</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span>
 <a id=__codelineno-3-29 name=__codelineno-3-29></a>        <span class=nb>dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Future</span><span class=p>[</span><span class=nb>bytes</span><span class=p>]],</span>
 <a id=__codelineno-3-30 name=__codelineno-3-30></a>        <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;responses&quot;</span><span class=p>,</span> <span class=n>initial</span><span class=o>=</span><span class=nb>dict</span><span class=p>),</span>
@@ -224,14 +224,14 @@
 <span class=normal><a href=#__codelineno-4-39>39</a></span>
 <span class=normal><a href=#__codelineno-4-40>40</a></span>
 <span class=normal><a href=#__codelineno-4-41>41</a></span>
-<span class=normal><a href=#__codelineno-4-42>42</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-4-1 name=__codelineno-4-1></a><span class=kn>from</span> <span class=nn>uuid</span> <span class=kn>import</span> <span class=n>uuid4</span>
-<a id=__codelineno-4-2 name=__codelineno-4-2></a><span class=kn>from</span> <span class=nn>asyncio</span> <span class=kn>import</span> <span class=n>Future</span><span class=p>,</span> <span class=n>wait_for</span>
+<span class=normal><a href=#__codelineno-4-42>42</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-4-1 name=__codelineno-4-1></a><span class=kn>from</span><span class=w> </span><span class=nn>uuid</span><span class=w> </span><span class=kn>import</span> <span class=n>uuid4</span>
+<a id=__codelineno-4-2 name=__codelineno-4-2></a><span class=kn>from</span><span class=w> </span><span class=nn>asyncio</span><span class=w> </span><span class=kn>import</span> <span class=n>Future</span><span class=p>,</span> <span class=n>wait_for</span>
 <a id=__codelineno-4-3 name=__codelineno-4-3></a>
-<a id=__codelineno-4-4 name=__codelineno-4-4></a><span class=kn>from</span> <span class=nn>faststream.types</span> <span class=kn>import</span> <span class=n>SendableMessage</span>
-<a id=__codelineno-4-5 name=__codelineno-4-5></a><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>KafkaMessage</span>
+<a id=__codelineno-4-4 name=__codelineno-4-4></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.types</span><span class=w> </span><span class=kn>import</span> <span class=n>SendableMessage</span>
+<a id=__codelineno-4-5 name=__codelineno-4-5></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaMessage</span>
 <a id=__codelineno-4-6 name=__codelineno-4-6></a>
-<a id=__codelineno-4-7 name=__codelineno-4-7></a><span class=k>class</span> <span class=nc>RPCWorker</span><span class=p>:</span>
-<a id=__codelineno-4-8 name=__codelineno-4-8></a>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>broker</span><span class=p>:</span> <span class=n>KafkaBroker</span><span class=p>,</span> <span class=n>reply_topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-4-7 name=__codelineno-4-7></a><span class=k>class</span><span class=w> </span><span class=nc>RPCWorker</span><span class=p>:</span>
+<a id=__codelineno-4-8 name=__codelineno-4-8></a>    <span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>broker</span><span class=p>:</span> <span class=n>KafkaBroker</span><span class=p>,</span> <span class=n>reply_topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-4-9 name=__codelineno-4-9></a>        <span class=bp>self</span><span class=o>.</span><span class=n>responses</span><span class=p>:</span> <span class=nb>dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Future</span><span class=p>[</span><span class=nb>bytes</span><span class=p>]]</span> <span class=o>=</span> <span class=p>{}</span>
 <a id=__codelineno-4-10 name=__codelineno-4-10></a>        <span class=bp>self</span><span class=o>.</span><span class=n>broker</span> <span class=o>=</span> <span class=n>broker</span>
 <a id=__codelineno-4-11 name=__codelineno-4-11></a>        <span class=bp>self</span><span class=o>.</span><span class=n>reply_topic</span> <span class=o>=</span> <span class=n>reply_topic</span>
@@ -239,12 +239,12 @@
 <a id=__codelineno-4-13 name=__codelineno-4-13></a>        <span class=bp>self</span><span class=o>.</span><span class=n>subscriber</span> <span class=o>=</span> <span class=n>broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=n>reply_topic</span><span class=p>)</span>
 <a id=__codelineno-4-14 name=__codelineno-4-14></a>        <span class=bp>self</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_handle_responses</span><span class=p>)</span>
 <a id=__codelineno-4-15 name=__codelineno-4-15></a>
-<a id=__codelineno-4-16 name=__codelineno-4-16></a>    <span class=k>def</span> <span class=nf>_handle_responses</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>KafkaMessage</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-4-16 name=__codelineno-4-16></a>    <span class=k>def</span><span class=w> </span><span class=nf>_handle_responses</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>KafkaMessage</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-4-17 name=__codelineno-4-17></a><span class=w>        </span><span class=sd>&quot;&quot;&quot;Our replies subscriber.&quot;&quot;&quot;</span>
 <a id=__codelineno-4-18 name=__codelineno-4-18></a>        <span class=k>if</span> <span class=p>(</span><span class=n>future</span> <span class=o>:=</span> <span class=bp>self</span><span class=o>.</span><span class=n>responses</span><span class=o>.</span><span class=n>pop</span><span class=p>(</span><span class=n>msg</span><span class=o>.</span><span class=n>correlation_id</span><span class=p>,</span> <span class=kc>None</span><span class=p>)):</span>
 <a id=__codelineno-4-19 name=__codelineno-4-19></a>            <span class=n>future</span><span class=o>.</span><span class=n>set_result</span><span class=p>(</span><span class=n>msg</span><span class=o>.</span><span class=n>body</span><span class=p>)</span>
 <a id=__codelineno-4-20 name=__codelineno-4-20></a>
-<a id=__codelineno-4-21 name=__codelineno-4-21></a>    <span class=k>async</span> <span class=k>def</span> <span class=nf>request</span><span class=p>(</span>
+<a id=__codelineno-4-21 name=__codelineno-4-21></a>    <span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>request</span><span class=p>(</span>
 <a id=__codelineno-4-22 name=__codelineno-4-22></a>        <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-4-23 name=__codelineno-4-23></a>        <span class=n>data</span><span class=p>:</span> <span class=n>SendableMessage</span><span class=p>,</span>
 <a id=__codelineno-4-24 name=__codelineno-4-24></a>        <span class=n>topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
@@ -276,19 +276,19 @@
 <span class=normal><a href=#__codelineno-5-8> 8</a></span>
 <span class=normal><a href=#__codelineno-5-9> 9</a></span>
 <span class=normal><a href=#__codelineno-5-10>10</a></span>
-<span class=normal><a href=#__codelineno-5-11>11</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-5-1 name=__codelineno-5-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span>
-<a id=__codelineno-5-2 name=__codelineno-5-2></a><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>KafkaBroker</span>
+<span class=normal><a href=#__codelineno-5-11>11</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-5-1 name=__codelineno-5-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span>
+<a id=__codelineno-5-2 name=__codelineno-5-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span>
 <a id=__codelineno-5-3 name=__codelineno-5-3></a>
 <a id=__codelineno-5-4 name=__codelineno-5-4></a><span class=n>broker</span> <span class=o>=</span> <span class=n>KafkaBroker</span><span class=p>()</span>
 <a id=__codelineno-5-5 name=__codelineno-5-5></a><span class=hll><span class=n>worker</span> <span class=o>=</span> <span class=n>RPCWorker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>reply_topic</span><span class=o>=</span><span class=s2>&quot;responses&quot;</span><span class=p>)</span>
 </span><a id=__codelineno-5-6 name=__codelineno-5-6></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-5-7 name=__codelineno-5-7></a>
 <a id=__codelineno-5-8 name=__codelineno-5-8></a><span class=nd>@app</span><span class=o>.</span><span class=n>after_startup</span>
-<a id=__codelineno-5-9 name=__codelineno-5-9></a><span class=k>async</span> <span class=k>def</span> <span class=nf>send_request</span><span class=p>()</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-5-9 name=__codelineno-5-9></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>send_request</span><span class=p>()</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-5-10 name=__codelineno-5-10></a><span class=hll>    <span class=n>data</span> <span class=o>=</span> <span class=k>await</span> <span class=n>worker</span><span class=o>.</span><span class=n>request</span><span class=p>(</span><span class=s2>&quot;echo&quot;</span><span class=p>,</span> <span class=s2>&quot;echo-topic&quot;</span><span class=p>)</span>
 </span><a id=__codelineno-5-11 name=__codelineno-5-11></a><span class=hll>    <span class=k>assert</span> <span class=n>data</span> <span class=o>==</span> <span class=s2>&quot;echo&quot;</span>
-</span></code></pre></div></td></tr></table></div> <p>Or, if you want to make the <code>RPCWorker</code> work after startup, you should add a manual <code>start</code> method to it:</p> <div class=highlight><pre><span></span><code><a id=__codelineno-6-1 name=__codelineno-6-1 href=#__codelineno-6-1></a><span class=k>class</span> <span class=nc>RPCWorker</span><span class=p>:</span>
-<a id=__codelineno-6-2 name=__codelineno-6-2 href=#__codelineno-6-2></a>    <span class=k>async</span> <span class=k>def</span> <span class=nf>start</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+</span></code></pre></div></td></tr></table></div> <p>Or, if you want to make the <code>RPCWorker</code> work after startup, you should add a manual <code>start</code> method to it:</p> <div class=highlight><pre><span></span><code><a id=__codelineno-6-1 name=__codelineno-6-1 href=#__codelineno-6-1></a><span class=k>class</span><span class=w> </span><span class=nc>RPCWorker</span><span class=p>:</span>
+<a id=__codelineno-6-2 name=__codelineno-6-2 href=#__codelineno-6-2></a>    <span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>start</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-6-3 name=__codelineno-6-3 href=#__codelineno-6-3></a>        <span class=bp>self</span><span class=o>.</span><span class=n>broker</span><span class=o>.</span><span class=n>setup_subscriber</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>subscriber</span><span class=p>)</span>
 <a id=__codelineno-6-4 name=__codelineno-6-4 href=#__codelineno-6-4></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>subscriber</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
 </code></pre></div> <p>Now it can be used after the application has started:</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-7-1> 1</a></span>
@@ -303,14 +303,14 @@
 <span class=normal><a href=#__codelineno-7-10>10</a></span>
 <span class=normal><a href=#__codelineno-7-11>11</a></span>
 <span class=normal><a href=#__codelineno-7-12>12</a></span>
-<span class=normal><a href=#__codelineno-7-13>13</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-7-1 name=__codelineno-7-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span>
-<a id=__codelineno-7-2 name=__codelineno-7-2></a><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>KafkaBroker</span>
+<span class=normal><a href=#__codelineno-7-13>13</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-7-1 name=__codelineno-7-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span>
+<a id=__codelineno-7-2 name=__codelineno-7-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span>
 <a id=__codelineno-7-3 name=__codelineno-7-3></a>
 <a id=__codelineno-7-4 name=__codelineno-7-4></a><span class=n>broker</span> <span class=o>=</span> <span class=n>KafkaBroker</span><span class=p>()</span>
 <a id=__codelineno-7-5 name=__codelineno-7-5></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-7-6 name=__codelineno-7-6></a>
 <a id=__codelineno-7-7 name=__codelineno-7-7></a><span class=nd>@app</span><span class=o>.</span><span class=n>after_startup</span>
-<a id=__codelineno-7-8 name=__codelineno-7-8></a><span class=k>async</span> <span class=k>def</span> <span class=nf>send_request</span><span class=p>()</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-7-8 name=__codelineno-7-8></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>send_request</span><span class=p>()</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-7-9 name=__codelineno-7-9></a><span class=hll>    <span class=n>worker</span> <span class=o>=</span> <span class=n>RPCWorker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>reply_topic</span><span class=o>=</span><span class=s2>&quot;responses&quot;</span><span class=p>)</span>
 </span><a id=__codelineno-7-10 name=__codelineno-7-10></a><span class=hll>    <span class=k>await</span> <span class=n>worker</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
 </span><a id=__codelineno-7-11 name=__codelineno-7-11></a>
@@ -365,16 +365,16 @@
 <span class=normal><a href=#__codelineno-8-47>47</a></span>
 <span class=normal><a href=#__codelineno-8-48>48</a></span>
 <span class=normal><a href=#__codelineno-8-49>49</a></span>
-<span class=normal><a href=#__codelineno-8-50>50</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-8-1 name=__codelineno-8-1></a><span class=kn>from</span> <span class=nn>uuid</span> <span class=kn>import</span> <span class=n>uuid4</span>
-<a id=__codelineno-8-2 name=__codelineno-8-2></a><span class=kn>from</span> <span class=nn>asyncio</span> <span class=kn>import</span> <span class=n>Future</span><span class=p>,</span> <span class=n>wait_for</span>
+<span class=normal><a href=#__codelineno-8-50>50</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-8-1 name=__codelineno-8-1></a><span class=kn>from</span><span class=w> </span><span class=nn>uuid</span><span class=w> </span><span class=kn>import</span> <span class=n>uuid4</span>
+<a id=__codelineno-8-2 name=__codelineno-8-2></a><span class=kn>from</span><span class=w> </span><span class=nn>asyncio</span><span class=w> </span><span class=kn>import</span> <span class=n>Future</span><span class=p>,</span> <span class=n>wait_for</span>
 <a id=__codelineno-8-3 name=__codelineno-8-3></a>
-<a id=__codelineno-8-4 name=__codelineno-8-4></a><span class=kn>from</span> <span class=nn>faststream.types</span> <span class=kn>import</span> <span class=n>SendableMessage</span>
-<a id=__codelineno-8-5 name=__codelineno-8-5></a><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>KafkaMessage</span>
+<a id=__codelineno-8-4 name=__codelineno-8-4></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.types</span><span class=w> </span><span class=kn>import</span> <span class=n>SendableMessage</span>
+<a id=__codelineno-8-5 name=__codelineno-8-5></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaMessage</span>
 <a id=__codelineno-8-6 name=__codelineno-8-6></a>
-<a id=__codelineno-8-7 name=__codelineno-8-7></a><span class=k>class</span> <span class=nc>RPCWorker</span><span class=p>:</span>
+<a id=__codelineno-8-7 name=__codelineno-8-7></a><span class=k>class</span><span class=w> </span><span class=nc>RPCWorker</span><span class=p>:</span>
 <a id=__codelineno-8-8 name=__codelineno-8-8></a>    <span class=n>responses</span><span class=p>:</span> <span class=nb>dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Future</span><span class=p>[</span><span class=nb>bytes</span><span class=p>]]</span>
 <a id=__codelineno-8-9 name=__codelineno-8-9></a>
-<a id=__codelineno-8-10 name=__codelineno-8-10></a>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>broker</span><span class=p>:</span> <span class=n>KafkaBroker</span><span class=p>,</span> <span class=n>reply_topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-8-10 name=__codelineno-8-10></a>    <span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>broker</span><span class=p>:</span> <span class=n>KafkaBroker</span><span class=p>,</span> <span class=n>reply_topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-8-11 name=__codelineno-8-11></a>        <span class=bp>self</span><span class=o>.</span><span class=n>responses</span> <span class=o>=</span> <span class=p>{}</span>
 <a id=__codelineno-8-12 name=__codelineno-8-12></a>        <span class=bp>self</span><span class=o>.</span><span class=n>broker</span> <span class=o>=</span> <span class=n>broker</span>
 <a id=__codelineno-8-13 name=__codelineno-8-13></a>        <span class=bp>self</span><span class=o>.</span><span class=n>reply_topic</span> <span class=o>=</span> <span class=n>reply_topic</span>
@@ -382,18 +382,18 @@
 <a id=__codelineno-8-15 name=__codelineno-8-15></a>        <span class=bp>self</span><span class=o>.</span><span class=n>subscriber</span> <span class=o>=</span> <span class=n>broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=n>reply_topic</span><span class=p>)</span>
 <a id=__codelineno-8-16 name=__codelineno-8-16></a>        <span class=bp>self</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_handle_responses</span><span class=p>)</span>
 <a id=__codelineno-8-17 name=__codelineno-8-17></a>
-<a id=__codelineno-8-18 name=__codelineno-8-18></a>    <span class=k>async</span> <span class=k>def</span> <span class=nf>start</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-8-18 name=__codelineno-8-18></a>    <span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>start</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-8-19 name=__codelineno-8-19></a>        <span class=bp>self</span><span class=o>.</span><span class=n>broker</span><span class=o>.</span><span class=n>setup_subscriber</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>subscriber</span><span class=p>)</span>
 <a id=__codelineno-8-20 name=__codelineno-8-20></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>subscriber</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
 <a id=__codelineno-8-21 name=__codelineno-8-21></a>
-<a id=__codelineno-8-22 name=__codelineno-8-22></a>    <span class=k>async</span> <span class=k>def</span> <span class=nf>stop</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-8-22 name=__codelineno-8-22></a>    <span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>stop</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-8-23 name=__codelineno-8-23></a>        <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>subscriber</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
 <a id=__codelineno-8-24 name=__codelineno-8-24></a>
-<a id=__codelineno-8-25 name=__codelineno-8-25></a>    <span class=k>def</span> <span class=nf>_handle_responses</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>KafkaMessage</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<a id=__codelineno-8-25 name=__codelineno-8-25></a>    <span class=k>def</span><span class=w> </span><span class=nf>_handle_responses</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>msg</span><span class=p>:</span> <span class=n>KafkaMessage</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-8-26 name=__codelineno-8-26></a>        <span class=k>if</span> <span class=p>(</span><span class=n>future</span> <span class=o>:=</span> <span class=bp>self</span><span class=o>.</span><span class=n>responses</span><span class=o>.</span><span class=n>pop</span><span class=p>(</span><span class=n>msg</span><span class=o>.</span><span class=n>correlation_id</span><span class=p>,</span> <span class=kc>None</span><span class=p>)):</span>
 <a id=__codelineno-8-27 name=__codelineno-8-27></a>            <span class=n>future</span><span class=o>.</span><span class=n>set_result</span><span class=p>(</span><span class=n>msg</span><span class=o>.</span><span class=n>body</span><span class=p>)</span>
 <a id=__codelineno-8-28 name=__codelineno-8-28></a>
-<a id=__codelineno-8-29 name=__codelineno-8-29></a>    <span class=k>async</span> <span class=k>def</span> <span class=nf>request</span><span class=p>(</span>
+<a id=__codelineno-8-29 name=__codelineno-8-29></a>    <span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>request</span><span class=p>(</span>
 <a id=__codelineno-8-30 name=__codelineno-8-30></a>        <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-8-31 name=__codelineno-8-31></a>        <span class=n>data</span><span class=p>:</span> <span class=n>SendableMessage</span><span class=p>,</span>
 <a id=__codelineno-8-32 name=__codelineno-8-32></a>        <span class=n>topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>

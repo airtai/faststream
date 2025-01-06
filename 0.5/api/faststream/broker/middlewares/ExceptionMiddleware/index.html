@@ -42,7 +42,7 @@
 <span class=normal><a href=#__codelineno-0-145>145</a></span>
 <span class=normal><a href=#__codelineno-0-146>146</a></span>
 <span class=normal><a href=#__codelineno-0-147>147</a></span>
-<span class=normal><a href=#__codelineno-0-148>148</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-114 name=__codelineno-0-114></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-148>148</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-114 name=__codelineno-0-114></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-115 name=__codelineno-0-115></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-116 name=__codelineno-0-116></a>    <span class=n>handlers</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span>
 <a id=__codelineno-0-117 name=__codelineno-0-117></a>        <span class=n>Dict</span><span class=p>[</span>
@@ -124,7 +124,7 @@
 <span class=normal><a href=#__codelineno-0-197>197</a></span>
 <span class=normal><a href=#__codelineno-0-198>198</a></span>
 <span class=normal><a href=#__codelineno-0-199>199</a></span>
-<span class=normal><a href=#__codelineno-0-200>200</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-164 name=__codelineno-0-164></a><span class=k>def</span> <span class=nf>add_handler</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-200>200</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-164 name=__codelineno-0-164></a><span class=k>def</span><span class=w> </span><span class=nf>add_handler</span><span class=p>(</span>
 <a id=__codelineno-0-165 name=__codelineno-0-165></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-166 name=__codelineno-0-166></a>    <span class=n>exc</span><span class=p>:</span> <span class=n>Type</span><span class=p>[</span><span class=ne>Exception</span><span class=p>],</span>
 <a id=__codelineno-0-167 name=__codelineno-0-167></a>    <span class=n>publish</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
@@ -134,7 +134,7 @@
 <a id=__codelineno-0-171 name=__codelineno-0-171></a><span class=p>]:</span>
 <a id=__codelineno-0-172 name=__codelineno-0-172></a>    <span class=k>if</span> <span class=n>publish</span><span class=p>:</span>
 <a id=__codelineno-0-173 name=__codelineno-0-173></a>
-<a id=__codelineno-0-174 name=__codelineno-0-174></a>        <span class=k>def</span> <span class=nf>pub_wrapper</span><span class=p>(</span>
+<a id=__codelineno-0-174 name=__codelineno-0-174></a>        <span class=k>def</span><span class=w> </span><span class=nf>pub_wrapper</span><span class=p>(</span>
 <a id=__codelineno-0-175 name=__codelineno-0-175></a>            <span class=n>func</span><span class=p>:</span> <span class=n>PublishingExceptionHandler</span><span class=p>,</span>
 <a id=__codelineno-0-176 name=__codelineno-0-176></a>        <span class=p>)</span> <span class=o>-&gt;</span> <span class=n>PublishingExceptionHandler</span><span class=p>:</span>
 <a id=__codelineno-0-177 name=__codelineno-0-177></a>            <span class=bp>self</span><span class=o>.</span><span class=n>_publish_handlers</span><span class=o>.</span><span class=n>append</span><span class=p>(</span>
@@ -149,7 +149,7 @@
 <a id=__codelineno-0-186 name=__codelineno-0-186></a>
 <a id=__codelineno-0-187 name=__codelineno-0-187></a>    <span class=k>else</span><span class=p>:</span>
 <a id=__codelineno-0-188 name=__codelineno-0-188></a>
-<a id=__codelineno-0-189 name=__codelineno-0-189></a>        <span class=k>def</span> <span class=nf>default_wrapper</span><span class=p>(</span>
+<a id=__codelineno-0-189 name=__codelineno-0-189></a>        <span class=k>def</span><span class=w> </span><span class=nf>default_wrapper</span><span class=p>(</span>
 <a id=__codelineno-0-190 name=__codelineno-0-190></a>            <span class=n>func</span><span class=p>:</span> <span class=n>GeneralExceptionHandler</span><span class=p>,</span>
 <a id=__codelineno-0-191 name=__codelineno-0-191></a>        <span class=p>)</span> <span class=o>-&gt;</span> <span class=n>GeneralExceptionHandler</span><span class=p>:</span>
 <a id=__codelineno-0-192 name=__codelineno-0-192></a>            <span class=bp>self</span><span class=o>.</span><span class=n>_handlers</span><span class=o>.</span><span class=n>append</span><span class=p>(</span>

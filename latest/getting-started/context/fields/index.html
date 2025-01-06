@@ -22,16 +22,16 @@
 <span class=normal><a href=#__codelineno-0-13>13</a></span>
 <span class=normal><a href=#__codelineno-0-14>14</a></span>
 <span class=normal><a href=#__codelineno-0-15>15</a></span>
-<span class=normal><a href=#__codelineno-0-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span>
-<a id=__codelineno-0-2 name=__codelineno-0-2></a><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>KafkaBroker</span>
-<a id=__codelineno-0-3 name=__codelineno-0-3></a><span class=kn>from</span> <span class=nn>faststream.kafka.message</span> <span class=kn>import</span> <span class=n>KafkaMessage</span>
+<span class=normal><a href=#__codelineno-0-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span>
+<a id=__codelineno-0-2 name=__codelineno-0-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span>
+<a id=__codelineno-0-3 name=__codelineno-0-3></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka.message</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaMessage</span>
 <a id=__codelineno-0-4 name=__codelineno-0-4></a>
 <a id=__codelineno-0-5 name=__codelineno-0-5></a><span class=n>broker</span> <span class=o>=</span> <span class=n>KafkaBroker</span><span class=p>(</span><span class=s2>&quot;localhost:9092&quot;</span><span class=p>)</span>
 <a id=__codelineno-0-6 name=__codelineno-0-6></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-0-7 name=__codelineno-0-7></a>
 <a id=__codelineno-0-8 name=__codelineno-0-8></a>
 <a id=__codelineno-0-9 name=__codelineno-0-9></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-10 name=__codelineno-0-10></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle</span><span class=p>(</span>
+<a id=__codelineno-0-10 name=__codelineno-0-10></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle</span><span class=p>(</span>
 <a id=__codelineno-0-11 name=__codelineno-0-11></a><span class=hll>    <span class=n>msg</span><span class=p>:</span> <span class=n>KafkaMessage</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message&quot;</span><span class=p>),</span>
 </span><a id=__codelineno-0-12 name=__codelineno-0-12></a><span class=hll>    <span class=n>correlation_id</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message.correlation_id&quot;</span><span class=p>),</span>
 </span><a id=__codelineno-0-13 name=__codelineno-0-13></a><span class=hll>    <span class=n>user_header</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message.headers.user&quot;</span><span class=p>),</span>
@@ -54,16 +54,16 @@
 <span class=normal><a href=#__codelineno-2-13>13</a></span>
 <span class=normal><a href=#__codelineno-2-14>14</a></span>
 <span class=normal><a href=#__codelineno-2-15>15</a></span>
-<span class=normal><a href=#__codelineno-2-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-2-1 name=__codelineno-2-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span>
-<a id=__codelineno-2-2 name=__codelineno-2-2></a><span class=kn>from</span> <span class=nn>faststream.confluent</span> <span class=kn>import</span> <span class=n>KafkaBroker</span>
-<a id=__codelineno-2-3 name=__codelineno-2-3></a><span class=kn>from</span> <span class=nn>faststream.confluent.message</span> <span class=kn>import</span> <span class=n>KafkaMessage</span>
+<span class=normal><a href=#__codelineno-2-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-2-1 name=__codelineno-2-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span>
+<a id=__codelineno-2-2 name=__codelineno-2-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.confluent</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span>
+<a id=__codelineno-2-3 name=__codelineno-2-3></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.confluent.message</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaMessage</span>
 <a id=__codelineno-2-4 name=__codelineno-2-4></a>
 <a id=__codelineno-2-5 name=__codelineno-2-5></a><span class=n>broker</span> <span class=o>=</span> <span class=n>KafkaBroker</span><span class=p>(</span><span class=s2>&quot;localhost:9092&quot;</span><span class=p>)</span>
 <a id=__codelineno-2-6 name=__codelineno-2-6></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-2-7 name=__codelineno-2-7></a>
 <a id=__codelineno-2-8 name=__codelineno-2-8></a>
 <a id=__codelineno-2-9 name=__codelineno-2-9></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
-<a id=__codelineno-2-10 name=__codelineno-2-10></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle</span><span class=p>(</span>
+<a id=__codelineno-2-10 name=__codelineno-2-10></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle</span><span class=p>(</span>
 <a id=__codelineno-2-11 name=__codelineno-2-11></a><span class=hll>    <span class=n>msg</span><span class=p>:</span> <span class=n>KafkaMessage</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message&quot;</span><span class=p>),</span>
 </span><a id=__codelineno-2-12 name=__codelineno-2-12></a><span class=hll>    <span class=n>correlation_id</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message.correlation_id&quot;</span><span class=p>),</span>
 </span><a id=__codelineno-2-13 name=__codelineno-2-13></a><span class=hll>    <span class=n>user_header</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message.headers.user&quot;</span><span class=p>),</span>
@@ -86,16 +86,16 @@
 <span class=normal><a href=#__codelineno-4-13>13</a></span>
 <span class=normal><a href=#__codelineno-4-14>14</a></span>
 <span class=normal><a href=#__codelineno-4-15>15</a></span>
-<span class=normal><a href=#__codelineno-4-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-4-1 name=__codelineno-4-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span>
-<a id=__codelineno-4-2 name=__codelineno-4-2></a><span class=kn>from</span> <span class=nn>faststream.rabbit</span> <span class=kn>import</span> <span class=n>RabbitBroker</span>
-<a id=__codelineno-4-3 name=__codelineno-4-3></a><span class=kn>from</span> <span class=nn>faststream.rabbit.message</span> <span class=kn>import</span> <span class=n>RabbitMessage</span>
+<span class=normal><a href=#__codelineno-4-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-4-1 name=__codelineno-4-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span>
+<a id=__codelineno-4-2 name=__codelineno-4-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.rabbit</span><span class=w> </span><span class=kn>import</span> <span class=n>RabbitBroker</span>
+<a id=__codelineno-4-3 name=__codelineno-4-3></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.rabbit.message</span><span class=w> </span><span class=kn>import</span> <span class=n>RabbitMessage</span>
 <a id=__codelineno-4-4 name=__codelineno-4-4></a>
 <a id=__codelineno-4-5 name=__codelineno-4-5></a><span class=n>broker</span> <span class=o>=</span> <span class=n>RabbitBroker</span><span class=p>(</span><span class=s2>&quot;amqp://guest:guest@localhost:5672/&quot;</span><span class=p>)</span>
 <a id=__codelineno-4-6 name=__codelineno-4-6></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-4-7 name=__codelineno-4-7></a>
 <a id=__codelineno-4-8 name=__codelineno-4-8></a>
 <a id=__codelineno-4-9 name=__codelineno-4-9></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;test-queue&quot;</span><span class=p>)</span>
-<a id=__codelineno-4-10 name=__codelineno-4-10></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle</span><span class=p>(</span>
+<a id=__codelineno-4-10 name=__codelineno-4-10></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle</span><span class=p>(</span>
 <a id=__codelineno-4-11 name=__codelineno-4-11></a><span class=hll>    <span class=n>msg</span><span class=p>:</span> <span class=n>RabbitMessage</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message&quot;</span><span class=p>),</span>
 </span><a id=__codelineno-4-12 name=__codelineno-4-12></a><span class=hll>    <span class=n>correlation_id</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message.correlation_id&quot;</span><span class=p>),</span>
 </span><a id=__codelineno-4-13 name=__codelineno-4-13></a><span class=hll>    <span class=n>user_header</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message.headers.user&quot;</span><span class=p>),</span>
@@ -118,16 +118,16 @@
 <span class=normal><a href=#__codelineno-6-13>13</a></span>
 <span class=normal><a href=#__codelineno-6-14>14</a></span>
 <span class=normal><a href=#__codelineno-6-15>15</a></span>
-<span class=normal><a href=#__codelineno-6-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-6-1 name=__codelineno-6-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span>
-<a id=__codelineno-6-2 name=__codelineno-6-2></a><span class=kn>from</span> <span class=nn>faststream.nats</span> <span class=kn>import</span> <span class=n>NatsBroker</span>
-<a id=__codelineno-6-3 name=__codelineno-6-3></a><span class=kn>from</span> <span class=nn>faststream.nats.message</span> <span class=kn>import</span> <span class=n>NatsMessage</span>
+<span class=normal><a href=#__codelineno-6-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-6-1 name=__codelineno-6-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span>
+<a id=__codelineno-6-2 name=__codelineno-6-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.nats</span><span class=w> </span><span class=kn>import</span> <span class=n>NatsBroker</span>
+<a id=__codelineno-6-3 name=__codelineno-6-3></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.nats.message</span><span class=w> </span><span class=kn>import</span> <span class=n>NatsMessage</span>
 <a id=__codelineno-6-4 name=__codelineno-6-4></a>
 <a id=__codelineno-6-5 name=__codelineno-6-5></a><span class=n>broker</span> <span class=o>=</span> <span class=n>NatsBroker</span><span class=p>(</span><span class=s2>&quot;nats://localhost:4222&quot;</span><span class=p>)</span>
 <a id=__codelineno-6-6 name=__codelineno-6-6></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-6-7 name=__codelineno-6-7></a>
 <a id=__codelineno-6-8 name=__codelineno-6-8></a>
 <a id=__codelineno-6-9 name=__codelineno-6-9></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;test-subject&quot;</span><span class=p>)</span>
-<a id=__codelineno-6-10 name=__codelineno-6-10></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle</span><span class=p>(</span>
+<a id=__codelineno-6-10 name=__codelineno-6-10></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle</span><span class=p>(</span>
 <a id=__codelineno-6-11 name=__codelineno-6-11></a><span class=hll>    <span class=n>msg</span><span class=p>:</span> <span class=n>NatsMessage</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message&quot;</span><span class=p>),</span>
 </span><a id=__codelineno-6-12 name=__codelineno-6-12></a><span class=hll>    <span class=n>correlation_id</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message.correlation_id&quot;</span><span class=p>),</span>
 </span><a id=__codelineno-6-13 name=__codelineno-6-13></a><span class=hll>    <span class=n>user_header</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message.headers.user&quot;</span><span class=p>),</span>
@@ -150,16 +150,16 @@
 <span class=normal><a href=#__codelineno-8-13>13</a></span>
 <span class=normal><a href=#__codelineno-8-14>14</a></span>
 <span class=normal><a href=#__codelineno-8-15>15</a></span>
-<span class=normal><a href=#__codelineno-8-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-8-1 name=__codelineno-8-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span>
-<a id=__codelineno-8-2 name=__codelineno-8-2></a><span class=kn>from</span> <span class=nn>faststream.redis</span> <span class=kn>import</span> <span class=n>RedisBroker</span>
-<a id=__codelineno-8-3 name=__codelineno-8-3></a><span class=kn>from</span> <span class=nn>faststream.redis.message</span> <span class=kn>import</span> <span class=n>RedisMessage</span>
+<span class=normal><a href=#__codelineno-8-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-8-1 name=__codelineno-8-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span>
+<a id=__codelineno-8-2 name=__codelineno-8-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.redis</span><span class=w> </span><span class=kn>import</span> <span class=n>RedisBroker</span>
+<a id=__codelineno-8-3 name=__codelineno-8-3></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.redis.message</span><span class=w> </span><span class=kn>import</span> <span class=n>RedisMessage</span>
 <a id=__codelineno-8-4 name=__codelineno-8-4></a>
 <a id=__codelineno-8-5 name=__codelineno-8-5></a><span class=n>broker</span> <span class=o>=</span> <span class=n>RedisBroker</span><span class=p>(</span><span class=s2>&quot;redis://localhost:6379&quot;</span><span class=p>)</span>
 <a id=__codelineno-8-6 name=__codelineno-8-6></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-8-7 name=__codelineno-8-7></a>
 <a id=__codelineno-8-8 name=__codelineno-8-8></a>
 <a id=__codelineno-8-9 name=__codelineno-8-9></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;test-channel&quot;</span><span class=p>)</span>
-<a id=__codelineno-8-10 name=__codelineno-8-10></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle</span><span class=p>(</span>
+<a id=__codelineno-8-10 name=__codelineno-8-10></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle</span><span class=p>(</span>
 <a id=__codelineno-8-11 name=__codelineno-8-11></a><span class=hll>    <span class=n>msg</span><span class=p>:</span> <span class=n>RedisMessage</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message&quot;</span><span class=p>),</span>
 </span><a id=__codelineno-8-12 name=__codelineno-8-12></a><span class=hll>    <span class=n>correlation_id</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message.correlation_id&quot;</span><span class=p>),</span>
 </span><a id=__codelineno-8-13 name=__codelineno-8-13></a><span class=hll>    <span class=n>user_header</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message.headers.user&quot;</span><span class=p>),</span>

@@ -35,7 +35,7 @@
 </code></pre></div> <div class="doc doc-contents "> <p>Serialize the message by lazy decoder.</p> <details class=quote> <summary>Source code in <code>faststream/broker/message.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-86>86</a></span>
 <span class=normal><a href=#__codelineno-0-87>87</a></span>
 <span class=normal><a href=#__codelineno-0-88>88</a></span>
-<span class=normal><a href=#__codelineno-0-89>89</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-86 name=__codelineno-0-86></a><span class=k>async</span> <span class=k>def</span> <span class=nf>decode</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;DecodedMessage&quot;</span><span class=p>]:</span>
+<span class=normal><a href=#__codelineno-0-89>89</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-86 name=__codelineno-0-86></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>decode</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;DecodedMessage&quot;</span><span class=p>]:</span>
 <a id=__codelineno-0-87 name=__codelineno-0-87></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Serialize the message by lazy decoder.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-88 name=__codelineno-0-88></a>    <span class=c1># TODO: make it lazy after `decoded_body` removed</span>
 <a id=__codelineno-0-89 name=__codelineno-0-89></a>    <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_decoded_body</span>
@@ -49,7 +49,7 @@
 <span class=normal><a href=#__codelineno-0-19>19</a></span>
 <span class=normal><a href=#__codelineno-0-20>20</a></span>
 <span class=normal><a href=#__codelineno-0-21>21</a></span>
-<span class=normal><a href=#__codelineno-0-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-13 name=__codelineno-0-13></a><span class=k>async</span> <span class=k>def</span> <span class=nf>ack</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-13 name=__codelineno-0-13></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>ack</span><span class=p>(</span>
 <a id=__codelineno-0-14 name=__codelineno-0-14></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-15 name=__codelineno-0-15></a>    <span class=n>multiple</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
 <a id=__codelineno-0-16 name=__codelineno-0-16></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
@@ -70,7 +70,7 @@
 <span class=normal><a href=#__codelineno-0-31>31</a></span>
 <span class=normal><a href=#__codelineno-0-32>32</a></span>
 <span class=normal><a href=#__codelineno-0-33>33</a></span>
-<span class=normal><a href=#__codelineno-0-34>34</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-24 name=__codelineno-0-24></a><span class=k>async</span> <span class=k>def</span> <span class=nf>nack</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-34>34</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-24 name=__codelineno-0-24></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>nack</span><span class=p>(</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-26 name=__codelineno-0-26></a>    <span class=n>multiple</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
 <a id=__codelineno-0-27 name=__codelineno-0-27></a>    <span class=n>requeue</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
@@ -91,7 +91,7 @@
 <span class=normal><a href=#__codelineno-0-42>42</a></span>
 <span class=normal><a href=#__codelineno-0-43>43</a></span>
 <span class=normal><a href=#__codelineno-0-44>44</a></span>
-<span class=normal><a href=#__codelineno-0-45>45</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-36 name=__codelineno-0-36></a><span class=k>async</span> <span class=k>def</span> <span class=nf>reject</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-45>45</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-36 name=__codelineno-0-36></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>reject</span><span class=p>(</span>
 <a id=__codelineno-0-37 name=__codelineno-0-37></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-38 name=__codelineno-0-38></a>    <span class=n>requeue</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
 <a id=__codelineno-0-39 name=__codelineno-0-39></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>

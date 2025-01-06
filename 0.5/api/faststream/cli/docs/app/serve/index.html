@@ -102,7 +102,7 @@
 <span class=normal><a href=#__codelineno-0-84>84</a></span>
 <span class=normal><a href=#__codelineno-0-85>85</a></span>
 <span class=normal><a href=#__codelineno-0-86>86</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-19 name=__codelineno-0-19></a><span class=nd>@docs_app</span><span class=o>.</span><span class=n>command</span><span class=p>(</span><span class=n>name</span><span class=o>=</span><span class=s2>&quot;serve&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-20 name=__codelineno-0-20></a><span class=k>def</span> <span class=nf>serve</span><span class=p>(</span>
+<a id=__codelineno-0-20 name=__codelineno-0-20></a><span class=k>def</span><span class=w> </span><span class=nf>serve</span><span class=p>(</span>
 <a id=__codelineno-0-21 name=__codelineno-0-21></a>    <span class=n>app</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>typer</span><span class=o>.</span><span class=n>Argument</span><span class=p>(</span>
 <a id=__codelineno-0-22 name=__codelineno-0-22></a>        <span class=o>...</span><span class=p>,</span>
 <a id=__codelineno-0-23 name=__codelineno-0-23></a>        <span class=n>help</span><span class=o>=</span><span class=s2>&quot;[python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation.&quot;</span><span class=p>,</span>
@@ -153,7 +153,7 @@
 <a id=__codelineno-0-68 name=__codelineno-0-68></a>
 <a id=__codelineno-0-69 name=__codelineno-0-69></a>    <span class=k>if</span> <span class=n>reload</span><span class=p>:</span>
 <a id=__codelineno-0-70 name=__codelineno-0-70></a>        <span class=k>try</span><span class=p>:</span>
-<a id=__codelineno-0-71 name=__codelineno-0-71></a>            <span class=kn>from</span> <span class=nn>faststream.cli.supervisors.watchfiles</span> <span class=kn>import</span> <span class=n>WatchReloader</span>
+<a id=__codelineno-0-71 name=__codelineno-0-71></a>            <span class=kn>from</span><span class=w> </span><span class=nn>faststream.cli.supervisors.watchfiles</span><span class=w> </span><span class=kn>import</span> <span class=n>WatchReloader</span>
 <a id=__codelineno-0-72 name=__codelineno-0-72></a>
 <a id=__codelineno-0-73 name=__codelineno-0-73></a>        <span class=k>except</span> <span class=ne>ImportError</span><span class=p>:</span>
 <a id=__codelineno-0-74 name=__codelineno-0-74></a>            <span class=n>warnings</span><span class=o>.</span><span class=n>warn</span><span class=p>(</span><span class=n>INSTALL_WATCHFILES</span><span class=p>,</span> <span class=n>category</span><span class=o>=</span><span class=ne>ImportWarning</span><span class=p>,</span> <span class=n>stacklevel</span><span class=o>=</span><span class=mi>1</span><span class=p>)</span>

@@ -20,7 +20,7 @@
 <span class=normal><a href=#__codelineno-0-21>21</a></span>
 <span class=normal><a href=#__codelineno-0-22>22</a></span>
 <span class=normal><a href=#__codelineno-0-23>23</a></span>
-<span class=normal><a href=#__codelineno-0-24>24</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-12 name=__codelineno-0-12></a><span class=k>def</span> <span class=nf>try_import_app</span><span class=p>(</span><span class=n>module</span><span class=p>:</span> <span class=n>Path</span><span class=p>,</span> <span class=n>app</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Application&quot;</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-24>24</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-12 name=__codelineno-0-12></a><span class=k>def</span><span class=w> </span><span class=nf>try_import_app</span><span class=p>(</span><span class=n>module</span><span class=p>:</span> <span class=n>Path</span><span class=p>,</span> <span class=n>app</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Application&quot;</span><span class=p>:</span>
 <a id=__codelineno-0-13 name=__codelineno-0-13></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Tries to import a FastStream app from a module.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-14 name=__codelineno-0-14></a>    <span class=k>try</span><span class=p>:</span>
 <a id=__codelineno-0-15 name=__codelineno-0-15></a>        <span class=n>app_object</span> <span class=o>=</span> <span class=n>import_object</span><span class=p>(</span><span class=n>module</span><span class=p>,</span> <span class=n>app</span><span class=p>)</span>
@@ -29,7 +29,7 @@
 <a id=__codelineno-0-18 name=__codelineno-0-18></a>        <span class=n>typer</span><span class=o>.</span><span class=n>echo</span><span class=p>(</span><span class=n>e</span><span class=p>,</span> <span class=n>err</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
 <a id=__codelineno-0-19 name=__codelineno-0-19></a>        <span class=k>raise</span> <span class=n>typer</span><span class=o>.</span><span class=n>BadParameter</span><span class=p>(</span>
 <a id=__codelineno-0-20 name=__codelineno-0-20></a>            <span class=s2>&quot;Please, input module like [python_file:faststream_app_name] or [module:attribute]&quot;</span>
-<a id=__codelineno-0-21 name=__codelineno-0-21></a>        <span class=p>)</span> <span class=kn>from</span> <span class=nn>e</span>
+<a id=__codelineno-0-21 name=__codelineno-0-21></a>        <span class=p>)</span> <span class=kn>from</span><span class=w> </span><span class=nn>e</span>
 <a id=__codelineno-0-22 name=__codelineno-0-22></a>
 <a id=__codelineno-0-23 name=__codelineno-0-23></a>    <span class=k>else</span><span class=p>:</span>
 <a id=__codelineno-0-24 name=__codelineno-0-24></a>        <span class=k>return</span> <span class=n>app_object</span>  <span class=c1># type: ignore</span>

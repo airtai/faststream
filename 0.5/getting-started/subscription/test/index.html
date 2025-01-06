@@ -20,15 +20,15 @@
 <span class=normal><a href=#__codelineno-0-11>11</a></span>
 <span class=normal><a href=#__codelineno-0-12>12</a></span>
 <span class=normal><a href=#__codelineno-0-13>13</a></span>
-<span class=normal><a href=#__codelineno-0-14>14</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span>
-<a id=__codelineno-0-2 name=__codelineno-0-2></a><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>KafkaBroker</span>
+<span class=normal><a href=#__codelineno-0-14>14</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span>
+<a id=__codelineno-0-2 name=__codelineno-0-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span>
 <a id=__codelineno-0-3 name=__codelineno-0-3></a>
 <a id=__codelineno-0-4 name=__codelineno-0-4></a><span class=n>broker</span> <span class=o>=</span> <span class=n>KafkaBroker</span><span class=p>(</span><span class=s2>&quot;localhost:9092&quot;</span><span class=p>)</span>
 <a id=__codelineno-0-5 name=__codelineno-0-5></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-0-6 name=__codelineno-0-6></a>
 <a id=__codelineno-0-7 name=__codelineno-0-7></a>
 <a id=__codelineno-0-8 name=__codelineno-0-8></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-9 name=__codelineno-0-9></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle</span><span class=p>(</span>
+<a id=__codelineno-0-9 name=__codelineno-0-9></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle</span><span class=p>(</span>
 <a id=__codelineno-0-10 name=__codelineno-0-10></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-0-11 name=__codelineno-0-11></a>    <span class=n>user_id</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span>
 <a id=__codelineno-0-12 name=__codelineno-0-12></a><span class=p>):</span>
@@ -47,15 +47,15 @@
 <span class=normal><a href=#__codelineno-1-11>11</a></span>
 <span class=normal><a href=#__codelineno-1-12>12</a></span>
 <span class=normal><a href=#__codelineno-1-13>13</a></span>
-<span class=normal><a href=#__codelineno-1-14>14</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-1-1 name=__codelineno-1-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span>
-<a id=__codelineno-1-2 name=__codelineno-1-2></a><span class=kn>from</span> <span class=nn>faststream.confluent</span> <span class=kn>import</span> <span class=n>KafkaBroker</span>
+<span class=normal><a href=#__codelineno-1-14>14</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-1-1 name=__codelineno-1-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span>
+<a id=__codelineno-1-2 name=__codelineno-1-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.confluent</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span>
 <a id=__codelineno-1-3 name=__codelineno-1-3></a>
 <a id=__codelineno-1-4 name=__codelineno-1-4></a><span class=n>broker</span> <span class=o>=</span> <span class=n>KafkaBroker</span><span class=p>(</span><span class=s2>&quot;localhost:9092&quot;</span><span class=p>)</span>
 <a id=__codelineno-1-5 name=__codelineno-1-5></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-1-6 name=__codelineno-1-6></a>
 <a id=__codelineno-1-7 name=__codelineno-1-7></a>
 <a id=__codelineno-1-8 name=__codelineno-1-8></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
-<a id=__codelineno-1-9 name=__codelineno-1-9></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle</span><span class=p>(</span>
+<a id=__codelineno-1-9 name=__codelineno-1-9></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle</span><span class=p>(</span>
 <a id=__codelineno-1-10 name=__codelineno-1-10></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-1-11 name=__codelineno-1-11></a>    <span class=n>user_id</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span>
 <a id=__codelineno-1-12 name=__codelineno-1-12></a><span class=p>):</span>
@@ -74,15 +74,15 @@
 <span class=normal><a href=#__codelineno-2-11>11</a></span>
 <span class=normal><a href=#__codelineno-2-12>12</a></span>
 <span class=normal><a href=#__codelineno-2-13>13</a></span>
-<span class=normal><a href=#__codelineno-2-14>14</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-2-1 name=__codelineno-2-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span>
-<a id=__codelineno-2-2 name=__codelineno-2-2></a><span class=kn>from</span> <span class=nn>faststream.rabbit</span> <span class=kn>import</span> <span class=n>RabbitBroker</span>
+<span class=normal><a href=#__codelineno-2-14>14</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-2-1 name=__codelineno-2-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span>
+<a id=__codelineno-2-2 name=__codelineno-2-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.rabbit</span><span class=w> </span><span class=kn>import</span> <span class=n>RabbitBroker</span>
 <a id=__codelineno-2-3 name=__codelineno-2-3></a>
 <a id=__codelineno-2-4 name=__codelineno-2-4></a><span class=n>broker</span> <span class=o>=</span> <span class=n>RabbitBroker</span><span class=p>(</span><span class=s2>&quot;amqp://guest:guest@localhost:5672/&quot;</span><span class=p>)</span>
 <a id=__codelineno-2-5 name=__codelineno-2-5></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-2-6 name=__codelineno-2-6></a>
 <a id=__codelineno-2-7 name=__codelineno-2-7></a>
 <a id=__codelineno-2-8 name=__codelineno-2-8></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;test-queue&quot;</span><span class=p>)</span>
-<a id=__codelineno-2-9 name=__codelineno-2-9></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle</span><span class=p>(</span>
+<a id=__codelineno-2-9 name=__codelineno-2-9></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle</span><span class=p>(</span>
 <a id=__codelineno-2-10 name=__codelineno-2-10></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-2-11 name=__codelineno-2-11></a>    <span class=n>user_id</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span>
 <a id=__codelineno-2-12 name=__codelineno-2-12></a><span class=p>):</span>
@@ -101,15 +101,15 @@
 <span class=normal><a href=#__codelineno-3-11>11</a></span>
 <span class=normal><a href=#__codelineno-3-12>12</a></span>
 <span class=normal><a href=#__codelineno-3-13>13</a></span>
-<span class=normal><a href=#__codelineno-3-14>14</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-3-1 name=__codelineno-3-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span>
-<a id=__codelineno-3-2 name=__codelineno-3-2></a><span class=kn>from</span> <span class=nn>faststream.nats</span> <span class=kn>import</span> <span class=n>NatsBroker</span>
+<span class=normal><a href=#__codelineno-3-14>14</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-3-1 name=__codelineno-3-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span>
+<a id=__codelineno-3-2 name=__codelineno-3-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.nats</span><span class=w> </span><span class=kn>import</span> <span class=n>NatsBroker</span>
 <a id=__codelineno-3-3 name=__codelineno-3-3></a>
 <a id=__codelineno-3-4 name=__codelineno-3-4></a><span class=n>broker</span> <span class=o>=</span> <span class=n>NatsBroker</span><span class=p>(</span><span class=s2>&quot;nats://localhost:4222&quot;</span><span class=p>)</span>
 <a id=__codelineno-3-5 name=__codelineno-3-5></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-3-6 name=__codelineno-3-6></a>
 <a id=__codelineno-3-7 name=__codelineno-3-7></a>
 <a id=__codelineno-3-8 name=__codelineno-3-8></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;test-subject&quot;</span><span class=p>)</span>
-<a id=__codelineno-3-9 name=__codelineno-3-9></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle</span><span class=p>(</span>
+<a id=__codelineno-3-9 name=__codelineno-3-9></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle</span><span class=p>(</span>
 <a id=__codelineno-3-10 name=__codelineno-3-10></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-3-11 name=__codelineno-3-11></a>    <span class=n>user_id</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span>
 <a id=__codelineno-3-12 name=__codelineno-3-12></a><span class=p>):</span>
@@ -128,22 +128,22 @@
 <span class=normal><a href=#__codelineno-4-11>11</a></span>
 <span class=normal><a href=#__codelineno-4-12>12</a></span>
 <span class=normal><a href=#__codelineno-4-13>13</a></span>
-<span class=normal><a href=#__codelineno-4-14>14</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-4-1 name=__codelineno-4-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span>
-<a id=__codelineno-4-2 name=__codelineno-4-2></a><span class=kn>from</span> <span class=nn>faststream.redis</span> <span class=kn>import</span> <span class=n>RedisBroker</span>
+<span class=normal><a href=#__codelineno-4-14>14</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-4-1 name=__codelineno-4-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span>
+<a id=__codelineno-4-2 name=__codelineno-4-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.redis</span><span class=w> </span><span class=kn>import</span> <span class=n>RedisBroker</span>
 <a id=__codelineno-4-3 name=__codelineno-4-3></a>
 <a id=__codelineno-4-4 name=__codelineno-4-4></a><span class=n>broker</span> <span class=o>=</span> <span class=n>RedisBroker</span><span class=p>(</span><span class=s2>&quot;redis://localhost:6379&quot;</span><span class=p>)</span>
 <a id=__codelineno-4-5 name=__codelineno-4-5></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-4-6 name=__codelineno-4-6></a>
 <a id=__codelineno-4-7 name=__codelineno-4-7></a>
 <a id=__codelineno-4-8 name=__codelineno-4-8></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;test-channel&quot;</span><span class=p>)</span>
-<a id=__codelineno-4-9 name=__codelineno-4-9></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle</span><span class=p>(</span>
+<a id=__codelineno-4-9 name=__codelineno-4-9></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle</span><span class=p>(</span>
 <a id=__codelineno-4-10 name=__codelineno-4-10></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-4-11 name=__codelineno-4-11></a>    <span class=n>user_id</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span>
 <a id=__codelineno-4-12 name=__codelineno-4-12></a><span class=p>):</span>
 <a id=__codelineno-4-13 name=__codelineno-4-13></a>    <span class=k>assert</span> <span class=n>name</span> <span class=o>==</span> <span class=s2>&quot;John&quot;</span>
 <a id=__codelineno-4-14 name=__codelineno-4-14></a>    <span class=k>assert</span> <span class=n>user_id</span> <span class=o>==</span> <span class=mi>1</span>
 </code></pre></div></td></tr></table></div> </div> </div> </div> <p>It consumes <strong>JSON</strong> messages like <code class=highlight><span class=p>{</span><span class=w> </span><span class=nt>&quot;name&quot;</span><span class=p>:</span><span class=w> </span><span class=s2>&quot;username&quot;</span><span class=p>,</span><span class=w> </span><span class=nt>&quot;user_id&quot;</span><span class=p>:</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=p>}</span></code></p> <p>You can test your consume function like a regular one, for sure:</p> <div class=highlight><pre><span></span><code><a id=__codelineno-5-1 name=__codelineno-5-1 href=#__codelineno-5-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-5-2 name=__codelineno-5-2 href=#__codelineno-5-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handler</span><span class=p>():</span>
+<a id=__codelineno-5-2 name=__codelineno-5-2 href=#__codelineno-5-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handler</span><span class=p>():</span>
 <a id=__codelineno-5-3 name=__codelineno-5-3 href=#__codelineno-5-3></a>    <span class=k>await</span> <span class=n>handle</span><span class=p>(</span><span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=mi>1</span><span class=p>)</span>
 </code></pre></div> <p>But if you want to test your function closer to your real runtime, you should use the special <strong>FastStream</strong> test client.</p> <h2 id=in-memory-testing>In-Memory Testing<a class=headerlink href=#in-memory-testing title="Permanent link">#</a></h2> <p>Deploying a whole service with a Message Broker is a bit too much just for testing purposes, especially in your CI environment. Not to mention the possible loss of messages due to network failures when working with real brokers.</p> <p>For this reason, <strong>FastStream</strong> has a special <code>TestClient</code> to make your broker work in <code>InMemory</code> mode.</p> <p>Just use it like a regular async context manager - all published messages will be routed in-memory (without any external dependencies) and consumed by the correct handler.</p> <div class="tabbed-set tabbed-alternate" data-tabs=2:5><input checked=checked id=__tabbed_2_1 name=__tabbed_2 type=radio><input id=__tabbed_2_2 name=__tabbed_2 type=radio><input id=__tabbed_2_3 name=__tabbed_2 type=radio><input id=__tabbed_2_4 name=__tabbed_2 type=radio><input id=__tabbed_2_5 name=__tabbed_2 type=radio><div class=tabbed-labels><label for=__tabbed_2_1>AIOKafka</label><label for=__tabbed_2_2>Confluent</label><label for=__tabbed_2_3>RabbitMQ</label><label for=__tabbed_2_4>NATS</label><label for=__tabbed_2_5>Redis</label></div> <div class=tabbed-content> <div class=tabbed-block> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-6-1>1</a></span>
 <span class=normal><a href=#__codelineno-6-2>2</a></span>
@@ -153,13 +153,13 @@
 <span class=normal><a href=#__codelineno-6-6>6</a></span>
 <span class=normal><a href=#__codelineno-6-7>7</a></span>
 <span class=normal><a href=#__codelineno-6-8>8</a></span>
-<span class=normal><a href=#__codelineno-6-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-6-1 name=__codelineno-6-1></a><span class=kn>import</span> <span class=nn>pytest</span>
-<a id=__codelineno-6-2 name=__codelineno-6-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>ValidationError</span>
+<span class=normal><a href=#__codelineno-6-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-6-1 name=__codelineno-6-1></a><span class=kn>import</span><span class=w> </span><span class=nn>pytest</span>
+<a id=__codelineno-6-2 name=__codelineno-6-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>ValidationError</span>
 <a id=__codelineno-6-3 name=__codelineno-6-3></a>
-<a id=__codelineno-6-4 name=__codelineno-6-4></a><span class=hll><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>TestKafkaBroker</span>
+<a id=__codelineno-6-4 name=__codelineno-6-4></a><span class=hll><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>TestKafkaBroker</span>
 </span><a id=__codelineno-6-5 name=__codelineno-6-5></a>
 <a id=__codelineno-6-6 name=__codelineno-6-6></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-6-7 name=__codelineno-6-7></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-6-7 name=__codelineno-6-7></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-6-8 name=__codelineno-6-8></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-6-9 name=__codelineno-6-9></a><span class=hll>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
 </span></code></pre></div></td></tr></table></div> </div> <div class=tabbed-block> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-7-1>1</a></span>
@@ -170,13 +170,13 @@
 <span class=normal><a href=#__codelineno-7-6>6</a></span>
 <span class=normal><a href=#__codelineno-7-7>7</a></span>
 <span class=normal><a href=#__codelineno-7-8>8</a></span>
-<span class=normal><a href=#__codelineno-7-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-7-1 name=__codelineno-7-1></a><span class=kn>import</span> <span class=nn>pytest</span>
-<a id=__codelineno-7-2 name=__codelineno-7-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>ValidationError</span>
+<span class=normal><a href=#__codelineno-7-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-7-1 name=__codelineno-7-1></a><span class=kn>import</span><span class=w> </span><span class=nn>pytest</span>
+<a id=__codelineno-7-2 name=__codelineno-7-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>ValidationError</span>
 <a id=__codelineno-7-3 name=__codelineno-7-3></a>
-<a id=__codelineno-7-4 name=__codelineno-7-4></a><span class=hll><span class=kn>from</span> <span class=nn>faststream.confluent</span> <span class=kn>import</span> <span class=n>TestKafkaBroker</span>
+<a id=__codelineno-7-4 name=__codelineno-7-4></a><span class=hll><span class=kn>from</span><span class=w> </span><span class=nn>faststream.confluent</span><span class=w> </span><span class=kn>import</span> <span class=n>TestKafkaBroker</span>
 </span><a id=__codelineno-7-5 name=__codelineno-7-5></a>
 <a id=__codelineno-7-6 name=__codelineno-7-6></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-7-7 name=__codelineno-7-7></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-7-7 name=__codelineno-7-7></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-7-8 name=__codelineno-7-8></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-7-9 name=__codelineno-7-9></a><span class=hll>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
 </span></code></pre></div></td></tr></table></div> </div> <div class=tabbed-block> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-8-1>1</a></span>
@@ -187,13 +187,13 @@
 <span class=normal><a href=#__codelineno-8-6>6</a></span>
 <span class=normal><a href=#__codelineno-8-7>7</a></span>
 <span class=normal><a href=#__codelineno-8-8>8</a></span>
-<span class=normal><a href=#__codelineno-8-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-8-1 name=__codelineno-8-1></a><span class=kn>import</span> <span class=nn>pytest</span>
-<a id=__codelineno-8-2 name=__codelineno-8-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>ValidationError</span>
+<span class=normal><a href=#__codelineno-8-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-8-1 name=__codelineno-8-1></a><span class=kn>import</span><span class=w> </span><span class=nn>pytest</span>
+<a id=__codelineno-8-2 name=__codelineno-8-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>ValidationError</span>
 <a id=__codelineno-8-3 name=__codelineno-8-3></a>
-<a id=__codelineno-8-4 name=__codelineno-8-4></a><span class=hll><span class=kn>from</span> <span class=nn>faststream.rabbit</span> <span class=kn>import</span> <span class=n>TestRabbitBroker</span>
+<a id=__codelineno-8-4 name=__codelineno-8-4></a><span class=hll><span class=kn>from</span><span class=w> </span><span class=nn>faststream.rabbit</span><span class=w> </span><span class=kn>import</span> <span class=n>TestRabbitBroker</span>
 </span><a id=__codelineno-8-5 name=__codelineno-8-5></a>
 <a id=__codelineno-8-6 name=__codelineno-8-6></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-8-7 name=__codelineno-8-7></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-8-7 name=__codelineno-8-7></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-8-8 name=__codelineno-8-8></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRabbitBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-8-9 name=__codelineno-8-9></a><span class=hll>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>queue</span><span class=o>=</span><span class=s2>&quot;test-queue&quot;</span><span class=p>)</span>
 </span></code></pre></div></td></tr></table></div> </div> <div class=tabbed-block> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-9-1>1</a></span>
@@ -204,13 +204,13 @@
 <span class=normal><a href=#__codelineno-9-6>6</a></span>
 <span class=normal><a href=#__codelineno-9-7>7</a></span>
 <span class=normal><a href=#__codelineno-9-8>8</a></span>
-<span class=normal><a href=#__codelineno-9-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-9-1 name=__codelineno-9-1></a><span class=kn>import</span> <span class=nn>pytest</span>
-<a id=__codelineno-9-2 name=__codelineno-9-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>ValidationError</span>
+<span class=normal><a href=#__codelineno-9-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-9-1 name=__codelineno-9-1></a><span class=kn>import</span><span class=w> </span><span class=nn>pytest</span>
+<a id=__codelineno-9-2 name=__codelineno-9-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>ValidationError</span>
 <a id=__codelineno-9-3 name=__codelineno-9-3></a>
-<a id=__codelineno-9-4 name=__codelineno-9-4></a><span class=hll><span class=kn>from</span> <span class=nn>faststream.nats</span> <span class=kn>import</span> <span class=n>TestNatsBroker</span>
+<a id=__codelineno-9-4 name=__codelineno-9-4></a><span class=hll><span class=kn>from</span><span class=w> </span><span class=nn>faststream.nats</span><span class=w> </span><span class=kn>import</span> <span class=n>TestNatsBroker</span>
 </span><a id=__codelineno-9-5 name=__codelineno-9-5></a>
 <a id=__codelineno-9-6 name=__codelineno-9-6></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-9-7 name=__codelineno-9-7></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-9-7 name=__codelineno-9-7></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-9-8 name=__codelineno-9-8></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestNatsBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-9-9 name=__codelineno-9-9></a><span class=hll>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>subject</span><span class=o>=</span><span class=s2>&quot;test-subject&quot;</span><span class=p>)</span>
 </span></code></pre></div></td></tr></table></div> </div> <div class=tabbed-block> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-10-1>1</a></span>
@@ -221,13 +221,13 @@
 <span class=normal><a href=#__codelineno-10-6>6</a></span>
 <span class=normal><a href=#__codelineno-10-7>7</a></span>
 <span class=normal><a href=#__codelineno-10-8>8</a></span>
-<span class=normal><a href=#__codelineno-10-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-10-1 name=__codelineno-10-1></a><span class=kn>import</span> <span class=nn>pytest</span>
-<a id=__codelineno-10-2 name=__codelineno-10-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>ValidationError</span>
+<span class=normal><a href=#__codelineno-10-9>9</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-10-1 name=__codelineno-10-1></a><span class=kn>import</span><span class=w> </span><span class=nn>pytest</span>
+<a id=__codelineno-10-2 name=__codelineno-10-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>ValidationError</span>
 <a id=__codelineno-10-3 name=__codelineno-10-3></a>
-<a id=__codelineno-10-4 name=__codelineno-10-4></a><span class=hll><span class=kn>from</span> <span class=nn>faststream.redis</span> <span class=kn>import</span> <span class=n>TestRedisBroker</span>
+<a id=__codelineno-10-4 name=__codelineno-10-4></a><span class=hll><span class=kn>from</span><span class=w> </span><span class=nn>faststream.redis</span><span class=w> </span><span class=kn>import</span> <span class=n>TestRedisBroker</span>
 </span><a id=__codelineno-10-5 name=__codelineno-10-5></a>
 <a id=__codelineno-10-6 name=__codelineno-10-6></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-10-7 name=__codelineno-10-7></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-10-7 name=__codelineno-10-7></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-10-8 name=__codelineno-10-8></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRedisBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-10-9 name=__codelineno-10-9></a><span class=hll>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>channel</span><span class=o>=</span><span class=s2>&quot;test-channel&quot;</span><span class=p>)</span>
 </span></code></pre></div></td></tr></table></div> </div> </div> </div> <h3 id=catching-exceptions>Catching Exceptions<a class=headerlink href=#catching-exceptions title="Permanent link">#</a></h3> <p>This way you can catch any exceptions that occur inside your handler:</p> <div class="tabbed-set tabbed-alternate" data-tabs=3:5><input checked=checked id=__tabbed_3_1 name=__tabbed_3 type=radio><input id=__tabbed_3_2 name=__tabbed_3 type=radio><input id=__tabbed_3_3 name=__tabbed_3 type=radio><input id=__tabbed_3_4 name=__tabbed_3 type=radio><input id=__tabbed_3_5 name=__tabbed_3 type=radio><div class=tabbed-labels><label for=__tabbed_3_1>AIOKafka</label><label for=__tabbed_3_2>Confluent</label><label for=__tabbed_3_3>RabbitMQ</label><label for=__tabbed_3_4>NATS</label><label for=__tabbed_3_5>Redis</label></div> <div class=tabbed-content> <div class=tabbed-block> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-11-1>1</a></span>
@@ -235,7 +235,7 @@
 <span class=normal><a href=#__codelineno-11-3>3</a></span>
 <span class=normal><a href=#__codelineno-11-4>4</a></span>
 <span class=normal><a href=#__codelineno-11-5>5</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-11-1 name=__codelineno-11-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-11-2 name=__codelineno-11-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_validation_error</span><span class=p>():</span>
+<a id=__codelineno-11-2 name=__codelineno-11-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_validation_error</span><span class=p>():</span>
 <a id=__codelineno-11-3 name=__codelineno-11-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-11-4 name=__codelineno-11-4></a><span class=hll>        <span class=k>with</span> <span class=n>pytest</span><span class=o>.</span><span class=n>raises</span><span class=p>(</span><span class=n>ValidationError</span><span class=p>):</span>
 </span><a id=__codelineno-11-5 name=__codelineno-11-5></a>            <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span><span class=s2>&quot;wrong message&quot;</span><span class=p>,</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
@@ -244,7 +244,7 @@
 <span class=normal><a href=#__codelineno-12-3>3</a></span>
 <span class=normal><a href=#__codelineno-12-4>4</a></span>
 <span class=normal><a href=#__codelineno-12-5>5</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-12-1 name=__codelineno-12-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-12-2 name=__codelineno-12-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_validation_error</span><span class=p>():</span>
+<a id=__codelineno-12-2 name=__codelineno-12-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_validation_error</span><span class=p>():</span>
 <a id=__codelineno-12-3 name=__codelineno-12-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-12-4 name=__codelineno-12-4></a><span class=hll>        <span class=k>with</span> <span class=n>pytest</span><span class=o>.</span><span class=n>raises</span><span class=p>(</span><span class=n>ValidationError</span><span class=p>):</span>
 </span><a id=__codelineno-12-5 name=__codelineno-12-5></a>            <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span><span class=s2>&quot;wrong message&quot;</span><span class=p>,</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
@@ -253,7 +253,7 @@
 <span class=normal><a href=#__codelineno-13-3>3</a></span>
 <span class=normal><a href=#__codelineno-13-4>4</a></span>
 <span class=normal><a href=#__codelineno-13-5>5</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-13-1 name=__codelineno-13-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-13-2 name=__codelineno-13-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_validation_error</span><span class=p>():</span>
+<a id=__codelineno-13-2 name=__codelineno-13-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_validation_error</span><span class=p>():</span>
 <a id=__codelineno-13-3 name=__codelineno-13-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRabbitBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-13-4 name=__codelineno-13-4></a><span class=hll>        <span class=k>with</span> <span class=n>pytest</span><span class=o>.</span><span class=n>raises</span><span class=p>(</span><span class=n>ValidationError</span><span class=p>):</span>
 </span><a id=__codelineno-13-5 name=__codelineno-13-5></a>            <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span><span class=s2>&quot;wrong message&quot;</span><span class=p>,</span> <span class=n>queue</span><span class=o>=</span><span class=s2>&quot;test-queue&quot;</span><span class=p>)</span>
@@ -262,7 +262,7 @@
 <span class=normal><a href=#__codelineno-14-3>3</a></span>
 <span class=normal><a href=#__codelineno-14-4>4</a></span>
 <span class=normal><a href=#__codelineno-14-5>5</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-14-1 name=__codelineno-14-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-14-2 name=__codelineno-14-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_validation_error</span><span class=p>():</span>
+<a id=__codelineno-14-2 name=__codelineno-14-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_validation_error</span><span class=p>():</span>
 <a id=__codelineno-14-3 name=__codelineno-14-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestNatsBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-14-4 name=__codelineno-14-4></a><span class=hll>        <span class=k>with</span> <span class=n>pytest</span><span class=o>.</span><span class=n>raises</span><span class=p>(</span><span class=n>ValidationError</span><span class=p>):</span>
 </span><a id=__codelineno-14-5 name=__codelineno-14-5></a>            <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span><span class=s2>&quot;wrong message&quot;</span><span class=p>,</span> <span class=n>subject</span><span class=o>=</span><span class=s2>&quot;test-subject&quot;</span><span class=p>)</span>
@@ -271,7 +271,7 @@
 <span class=normal><a href=#__codelineno-15-3>3</a></span>
 <span class=normal><a href=#__codelineno-15-4>4</a></span>
 <span class=normal><a href=#__codelineno-15-5>5</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-15-1 name=__codelineno-15-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-15-2 name=__codelineno-15-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_validation_error</span><span class=p>():</span>
+<a id=__codelineno-15-2 name=__codelineno-15-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_validation_error</span><span class=p>():</span>
 <a id=__codelineno-15-3 name=__codelineno-15-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRedisBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-15-4 name=__codelineno-15-4></a><span class=hll>        <span class=k>with</span> <span class=n>pytest</span><span class=o>.</span><span class=n>raises</span><span class=p>(</span><span class=n>ValidationError</span><span class=p>):</span>
 </span><a id=__codelineno-15-5 name=__codelineno-15-5></a>            <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span><span class=s2>&quot;wrong message&quot;</span><span class=p>,</span> <span class=n>channel</span><span class=o>=</span><span class=s2>&quot;test-channel&quot;</span><span class=p>)</span>
@@ -281,7 +281,7 @@
 <span class=normal><a href=#__codelineno-16-4>4</a></span>
 <span class=normal><a href=#__codelineno-16-5>5</a></span>
 <span class=normal><a href=#__codelineno-16-6>6</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-16-1 name=__codelineno-16-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-16-2 name=__codelineno-16-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-16-2 name=__codelineno-16-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-16-3 name=__codelineno-16-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-16-4 name=__codelineno-16-4></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
 <a id=__codelineno-16-5 name=__codelineno-16-5></a>
@@ -292,7 +292,7 @@
 <span class=normal><a href=#__codelineno-17-4>4</a></span>
 <span class=normal><a href=#__codelineno-17-5>5</a></span>
 <span class=normal><a href=#__codelineno-17-6>6</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-17-1 name=__codelineno-17-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-17-2 name=__codelineno-17-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-17-2 name=__codelineno-17-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-17-3 name=__codelineno-17-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-17-4 name=__codelineno-17-4></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
 <a id=__codelineno-17-5 name=__codelineno-17-5></a>
@@ -303,7 +303,7 @@
 <span class=normal><a href=#__codelineno-18-4>4</a></span>
 <span class=normal><a href=#__codelineno-18-5>5</a></span>
 <span class=normal><a href=#__codelineno-18-6>6</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-18-1 name=__codelineno-18-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-18-2 name=__codelineno-18-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-18-2 name=__codelineno-18-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-18-3 name=__codelineno-18-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRabbitBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-18-4 name=__codelineno-18-4></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>queue</span><span class=o>=</span><span class=s2>&quot;test-queue&quot;</span><span class=p>)</span>
 <a id=__codelineno-18-5 name=__codelineno-18-5></a>
@@ -314,7 +314,7 @@
 <span class=normal><a href=#__codelineno-19-4>4</a></span>
 <span class=normal><a href=#__codelineno-19-5>5</a></span>
 <span class=normal><a href=#__codelineno-19-6>6</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-19-1 name=__codelineno-19-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-19-2 name=__codelineno-19-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-19-2 name=__codelineno-19-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-19-3 name=__codelineno-19-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestNatsBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-19-4 name=__codelineno-19-4></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>subject</span><span class=o>=</span><span class=s2>&quot;test-subject&quot;</span><span class=p>)</span>
 <a id=__codelineno-19-5 name=__codelineno-19-5></a>
@@ -325,7 +325,7 @@
 <span class=normal><a href=#__codelineno-20-4>4</a></span>
 <span class=normal><a href=#__codelineno-20-5>5</a></span>
 <span class=normal><a href=#__codelineno-20-6>6</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-20-1 name=__codelineno-20-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-20-2 name=__codelineno-20-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-20-2 name=__codelineno-20-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-20-3 name=__codelineno-20-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRedisBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-20-4 name=__codelineno-20-4></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>channel</span><span class=o>=</span><span class=s2>&quot;test-channel&quot;</span><span class=p>)</span>
 <a id=__codelineno-20-5 name=__codelineno-20-5></a>
@@ -338,7 +338,7 @@
 <span class=normal><a href=#__codelineno-21-6>6</a></span>
 <span class=normal><a href=#__codelineno-21-7>7</a></span>
 <span class=normal><a href=#__codelineno-21-8>8</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-21-1 name=__codelineno-21-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-21-2 name=__codelineno-21-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-21-2 name=__codelineno-21-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-21-3 name=__codelineno-21-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-21-4 name=__codelineno-21-4></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
 <a id=__codelineno-21-5 name=__codelineno-21-5></a>
@@ -353,7 +353,7 @@
 <span class=normal><a href=#__codelineno-22-6>6</a></span>
 <span class=normal><a href=#__codelineno-22-7>7</a></span>
 <span class=normal><a href=#__codelineno-22-8>8</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-22-1 name=__codelineno-22-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-22-2 name=__codelineno-22-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-22-2 name=__codelineno-22-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-22-3 name=__codelineno-22-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-22-4 name=__codelineno-22-4></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
 <a id=__codelineno-22-5 name=__codelineno-22-5></a>
@@ -368,7 +368,7 @@
 <span class=normal><a href=#__codelineno-23-6>6</a></span>
 <span class=normal><a href=#__codelineno-23-7>7</a></span>
 <span class=normal><a href=#__codelineno-23-8>8</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-23-1 name=__codelineno-23-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-23-2 name=__codelineno-23-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-23-2 name=__codelineno-23-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-23-3 name=__codelineno-23-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRabbitBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-23-4 name=__codelineno-23-4></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>queue</span><span class=o>=</span><span class=s2>&quot;test-queue&quot;</span><span class=p>)</span>
 <a id=__codelineno-23-5 name=__codelineno-23-5></a>
@@ -383,7 +383,7 @@
 <span class=normal><a href=#__codelineno-24-6>6</a></span>
 <span class=normal><a href=#__codelineno-24-7>7</a></span>
 <span class=normal><a href=#__codelineno-24-8>8</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-24-1 name=__codelineno-24-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-24-2 name=__codelineno-24-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-24-2 name=__codelineno-24-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-24-3 name=__codelineno-24-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestNatsBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-24-4 name=__codelineno-24-4></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>subject</span><span class=o>=</span><span class=s2>&quot;test-subject&quot;</span><span class=p>)</span>
 <a id=__codelineno-24-5 name=__codelineno-24-5></a>
@@ -398,7 +398,7 @@
 <span class=normal><a href=#__codelineno-25-6>6</a></span>
 <span class=normal><a href=#__codelineno-25-7>7</a></span>
 <span class=normal><a href=#__codelineno-25-8>8</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-25-1 name=__codelineno-25-1></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-25-2 name=__codelineno-25-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-25-2 name=__codelineno-25-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-25-3 name=__codelineno-25-3></a>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRedisBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 <a id=__codelineno-25-4 name=__codelineno-25-4></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>channel</span><span class=o>=</span><span class=s2>&quot;test-channel&quot;</span><span class=p>)</span>
 <a id=__codelineno-25-5 name=__codelineno-25-5></a>
@@ -426,13 +426,13 @@
 <span class=normal><a href=#__codelineno-26-19>19</a></span>
 <span class=normal><a href=#__codelineno-26-20>20</a></span>
 <span class=normal><a href=#__codelineno-26-21>21</a></span>
-<span class=normal><a href=#__codelineno-26-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-26-1 name=__codelineno-26-1></a><span class=kn>import</span> <span class=nn>pytest</span>
-<a id=__codelineno-26-2 name=__codelineno-26-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>ValidationError</span>
+<span class=normal><a href=#__codelineno-26-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-26-1 name=__codelineno-26-1></a><span class=kn>import</span><span class=w> </span><span class=nn>pytest</span>
+<a id=__codelineno-26-2 name=__codelineno-26-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>ValidationError</span>
 <a id=__codelineno-26-3 name=__codelineno-26-3></a>
-<a id=__codelineno-26-4 name=__codelineno-26-4></a><span class=hll><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>TestKafkaBroker</span>
+<a id=__codelineno-26-4 name=__codelineno-26-4></a><span class=hll><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>TestKafkaBroker</span>
 </span><a id=__codelineno-26-5 name=__codelineno-26-5></a>
 <a id=__codelineno-26-6 name=__codelineno-26-6></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-26-7 name=__codelineno-26-7></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-26-7 name=__codelineno-26-7></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-26-8 name=__codelineno-26-8></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>with_real</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-26-9 name=__codelineno-26-9></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
 <a id=__codelineno-26-10 name=__codelineno-26-10></a><span class=hll>        <span class=k>await</span> <span class=n>handle</span><span class=o>.</span><span class=n>wait_call</span><span class=p>(</span><span class=n>timeout</span><span class=o>=</span><span class=mi>3</span><span class=p>)</span>
@@ -441,7 +441,7 @@
 <a id=__codelineno-26-13 name=__codelineno-26-13></a>    <span class=k>assert</span> <span class=n>handle</span><span class=o>.</span><span class=n>mock</span> <span class=ow>is</span> <span class=kc>None</span>
 <a id=__codelineno-26-14 name=__codelineno-26-14></a>
 <a id=__codelineno-26-15 name=__codelineno-26-15></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-26-16 name=__codelineno-26-16></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_validation_error</span><span class=p>():</span>
+<a id=__codelineno-26-16 name=__codelineno-26-16></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_validation_error</span><span class=p>():</span>
 <a id=__codelineno-26-17 name=__codelineno-26-17></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>with_real</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-26-18 name=__codelineno-26-18></a>        <span class=k>with</span> <span class=n>pytest</span><span class=o>.</span><span class=n>raises</span><span class=p>(</span><span class=n>ValidationError</span><span class=p>):</span>
 <a id=__codelineno-26-19 name=__codelineno-26-19></a>            <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span><span class=s2>&quot;wrong message&quot;</span><span class=p>,</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-topic&quot;</span><span class=p>)</span>
@@ -469,13 +469,13 @@
 <span class=normal><a href=#__codelineno-27-19>19</a></span>
 <span class=normal><a href=#__codelineno-27-20>20</a></span>
 <span class=normal><a href=#__codelineno-27-21>21</a></span>
-<span class=normal><a href=#__codelineno-27-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-27-1 name=__codelineno-27-1></a><span class=kn>import</span> <span class=nn>pytest</span>
-<a id=__codelineno-27-2 name=__codelineno-27-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>ValidationError</span>
+<span class=normal><a href=#__codelineno-27-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-27-1 name=__codelineno-27-1></a><span class=kn>import</span><span class=w> </span><span class=nn>pytest</span>
+<a id=__codelineno-27-2 name=__codelineno-27-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>ValidationError</span>
 <a id=__codelineno-27-3 name=__codelineno-27-3></a>
-<a id=__codelineno-27-4 name=__codelineno-27-4></a><span class=hll><span class=kn>from</span> <span class=nn>faststream.confluent</span> <span class=kn>import</span> <span class=n>TestKafkaBroker</span>
+<a id=__codelineno-27-4 name=__codelineno-27-4></a><span class=hll><span class=kn>from</span><span class=w> </span><span class=nn>faststream.confluent</span><span class=w> </span><span class=kn>import</span> <span class=n>TestKafkaBroker</span>
 </span><a id=__codelineno-27-5 name=__codelineno-27-5></a>
 <a id=__codelineno-27-6 name=__codelineno-27-6></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-27-7 name=__codelineno-27-7></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-27-7 name=__codelineno-27-7></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-27-8 name=__codelineno-27-8></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>with_real</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-27-9 name=__codelineno-27-9></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-topic-confluent&quot;</span><span class=p>)</span>
 <a id=__codelineno-27-10 name=__codelineno-27-10></a><span class=hll>        <span class=k>await</span> <span class=n>handle</span><span class=o>.</span><span class=n>wait_call</span><span class=p>(</span><span class=n>timeout</span><span class=o>=</span><span class=mi>30</span><span class=p>)</span>
@@ -484,7 +484,7 @@
 <a id=__codelineno-27-13 name=__codelineno-27-13></a>    <span class=k>assert</span> <span class=n>handle</span><span class=o>.</span><span class=n>mock</span> <span class=ow>is</span> <span class=kc>None</span>
 <a id=__codelineno-27-14 name=__codelineno-27-14></a>
 <a id=__codelineno-27-15 name=__codelineno-27-15></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-27-16 name=__codelineno-27-16></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_validation_error</span><span class=p>():</span>
+<a id=__codelineno-27-16 name=__codelineno-27-16></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_validation_error</span><span class=p>():</span>
 <a id=__codelineno-27-17 name=__codelineno-27-17></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestKafkaBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>with_real</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-27-18 name=__codelineno-27-18></a>        <span class=k>with</span> <span class=n>pytest</span><span class=o>.</span><span class=n>raises</span><span class=p>(</span><span class=n>ValidationError</span><span class=p>):</span>
 <a id=__codelineno-27-19 name=__codelineno-27-19></a>            <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span><span class=s2>&quot;wrong message&quot;</span><span class=p>,</span> <span class=n>topic</span><span class=o>=</span><span class=s2>&quot;test-confluent-wrong-fields&quot;</span><span class=p>)</span>
@@ -512,13 +512,13 @@
 <span class=normal><a href=#__codelineno-28-19>19</a></span>
 <span class=normal><a href=#__codelineno-28-20>20</a></span>
 <span class=normal><a href=#__codelineno-28-21>21</a></span>
-<span class=normal><a href=#__codelineno-28-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-28-1 name=__codelineno-28-1></a><span class=kn>import</span> <span class=nn>pytest</span>
-<a id=__codelineno-28-2 name=__codelineno-28-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>ValidationError</span>
+<span class=normal><a href=#__codelineno-28-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-28-1 name=__codelineno-28-1></a><span class=kn>import</span><span class=w> </span><span class=nn>pytest</span>
+<a id=__codelineno-28-2 name=__codelineno-28-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>ValidationError</span>
 <a id=__codelineno-28-3 name=__codelineno-28-3></a>
-<a id=__codelineno-28-4 name=__codelineno-28-4></a><span class=hll><span class=kn>from</span> <span class=nn>faststream.rabbit</span> <span class=kn>import</span> <span class=n>TestRabbitBroker</span>
+<a id=__codelineno-28-4 name=__codelineno-28-4></a><span class=hll><span class=kn>from</span><span class=w> </span><span class=nn>faststream.rabbit</span><span class=w> </span><span class=kn>import</span> <span class=n>TestRabbitBroker</span>
 </span><a id=__codelineno-28-5 name=__codelineno-28-5></a>
 <a id=__codelineno-28-6 name=__codelineno-28-6></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-28-7 name=__codelineno-28-7></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-28-7 name=__codelineno-28-7></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-28-8 name=__codelineno-28-8></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRabbitBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>with_real</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-28-9 name=__codelineno-28-9></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>queue</span><span class=o>=</span><span class=s2>&quot;test-queue&quot;</span><span class=p>)</span>
 <a id=__codelineno-28-10 name=__codelineno-28-10></a><span class=hll>        <span class=k>await</span> <span class=n>handle</span><span class=o>.</span><span class=n>wait_call</span><span class=p>(</span><span class=n>timeout</span><span class=o>=</span><span class=mi>3</span><span class=p>)</span>
@@ -527,7 +527,7 @@
 <a id=__codelineno-28-13 name=__codelineno-28-13></a>    <span class=k>assert</span> <span class=n>handle</span><span class=o>.</span><span class=n>mock</span> <span class=ow>is</span> <span class=kc>None</span>
 <a id=__codelineno-28-14 name=__codelineno-28-14></a>
 <a id=__codelineno-28-15 name=__codelineno-28-15></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-28-16 name=__codelineno-28-16></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_validation_error</span><span class=p>():</span>
+<a id=__codelineno-28-16 name=__codelineno-28-16></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_validation_error</span><span class=p>():</span>
 <a id=__codelineno-28-17 name=__codelineno-28-17></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRabbitBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>with_real</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-28-18 name=__codelineno-28-18></a>        <span class=k>with</span> <span class=n>pytest</span><span class=o>.</span><span class=n>raises</span><span class=p>(</span><span class=n>ValidationError</span><span class=p>):</span>
 <a id=__codelineno-28-19 name=__codelineno-28-19></a>            <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span><span class=s2>&quot;wrong message&quot;</span><span class=p>,</span> <span class=n>queue</span><span class=o>=</span><span class=s2>&quot;test-queue&quot;</span><span class=p>)</span>
@@ -555,13 +555,13 @@
 <span class=normal><a href=#__codelineno-29-19>19</a></span>
 <span class=normal><a href=#__codelineno-29-20>20</a></span>
 <span class=normal><a href=#__codelineno-29-21>21</a></span>
-<span class=normal><a href=#__codelineno-29-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-29-1 name=__codelineno-29-1></a><span class=kn>import</span> <span class=nn>pytest</span>
-<a id=__codelineno-29-2 name=__codelineno-29-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>ValidationError</span>
+<span class=normal><a href=#__codelineno-29-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-29-1 name=__codelineno-29-1></a><span class=kn>import</span><span class=w> </span><span class=nn>pytest</span>
+<a id=__codelineno-29-2 name=__codelineno-29-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>ValidationError</span>
 <a id=__codelineno-29-3 name=__codelineno-29-3></a>
-<a id=__codelineno-29-4 name=__codelineno-29-4></a><span class=hll><span class=kn>from</span> <span class=nn>faststream.nats</span> <span class=kn>import</span> <span class=n>TestNatsBroker</span>
+<a id=__codelineno-29-4 name=__codelineno-29-4></a><span class=hll><span class=kn>from</span><span class=w> </span><span class=nn>faststream.nats</span><span class=w> </span><span class=kn>import</span> <span class=n>TestNatsBroker</span>
 </span><a id=__codelineno-29-5 name=__codelineno-29-5></a>
 <a id=__codelineno-29-6 name=__codelineno-29-6></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-29-7 name=__codelineno-29-7></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-29-7 name=__codelineno-29-7></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-29-8 name=__codelineno-29-8></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestNatsBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>with_real</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-29-9 name=__codelineno-29-9></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>subject</span><span class=o>=</span><span class=s2>&quot;test-subject&quot;</span><span class=p>)</span>
 <a id=__codelineno-29-10 name=__codelineno-29-10></a><span class=hll>        <span class=k>await</span> <span class=n>handle</span><span class=o>.</span><span class=n>wait_call</span><span class=p>(</span><span class=n>timeout</span><span class=o>=</span><span class=mi>3</span><span class=p>)</span>
@@ -570,7 +570,7 @@
 <a id=__codelineno-29-13 name=__codelineno-29-13></a>    <span class=k>assert</span> <span class=n>handle</span><span class=o>.</span><span class=n>mock</span> <span class=ow>is</span> <span class=kc>None</span>
 <a id=__codelineno-29-14 name=__codelineno-29-14></a>
 <a id=__codelineno-29-15 name=__codelineno-29-15></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-29-16 name=__codelineno-29-16></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_validation_error</span><span class=p>():</span>
+<a id=__codelineno-29-16 name=__codelineno-29-16></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_validation_error</span><span class=p>():</span>
 <a id=__codelineno-29-17 name=__codelineno-29-17></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestNatsBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>with_real</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-29-18 name=__codelineno-29-18></a>        <span class=k>with</span> <span class=n>pytest</span><span class=o>.</span><span class=n>raises</span><span class=p>(</span><span class=n>ValidationError</span><span class=p>):</span>
 <a id=__codelineno-29-19 name=__codelineno-29-19></a>            <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span><span class=s2>&quot;wrong message&quot;</span><span class=p>,</span> <span class=n>subject</span><span class=o>=</span><span class=s2>&quot;test-subject&quot;</span><span class=p>)</span>
@@ -598,13 +598,13 @@
 <span class=normal><a href=#__codelineno-30-19>19</a></span>
 <span class=normal><a href=#__codelineno-30-20>20</a></span>
 <span class=normal><a href=#__codelineno-30-21>21</a></span>
-<span class=normal><a href=#__codelineno-30-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-30-1 name=__codelineno-30-1></a><span class=kn>import</span> <span class=nn>pytest</span>
-<a id=__codelineno-30-2 name=__codelineno-30-2></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>ValidationError</span>
+<span class=normal><a href=#__codelineno-30-22>22</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-30-1 name=__codelineno-30-1></a><span class=kn>import</span><span class=w> </span><span class=nn>pytest</span>
+<a id=__codelineno-30-2 name=__codelineno-30-2></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>ValidationError</span>
 <a id=__codelineno-30-3 name=__codelineno-30-3></a>
-<a id=__codelineno-30-4 name=__codelineno-30-4></a><span class=hll><span class=kn>from</span> <span class=nn>faststream.redis</span> <span class=kn>import</span> <span class=n>TestRedisBroker</span>
+<a id=__codelineno-30-4 name=__codelineno-30-4></a><span class=hll><span class=kn>from</span><span class=w> </span><span class=nn>faststream.redis</span><span class=w> </span><span class=kn>import</span> <span class=n>TestRedisBroker</span>
 </span><a id=__codelineno-30-5 name=__codelineno-30-5></a>
 <a id=__codelineno-30-6 name=__codelineno-30-6></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-30-7 name=__codelineno-30-7></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_handle</span><span class=p>():</span>
+<a id=__codelineno-30-7 name=__codelineno-30-7></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_handle</span><span class=p>():</span>
 <a id=__codelineno-30-8 name=__codelineno-30-8></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRedisBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>with_real</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-30-9 name=__codelineno-30-9></a>        <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>({</span><span class=s2>&quot;name&quot;</span><span class=p>:</span> <span class=s2>&quot;John&quot;</span><span class=p>,</span> <span class=s2>&quot;user_id&quot;</span><span class=p>:</span> <span class=mi>1</span><span class=p>},</span> <span class=n>channel</span><span class=o>=</span><span class=s2>&quot;test-channel&quot;</span><span class=p>)</span>
 <a id=__codelineno-30-10 name=__codelineno-30-10></a><span class=hll>        <span class=k>await</span> <span class=n>handle</span><span class=o>.</span><span class=n>wait_call</span><span class=p>(</span><span class=n>timeout</span><span class=o>=</span><span class=mi>3</span><span class=p>)</span>
@@ -613,7 +613,7 @@
 <a id=__codelineno-30-13 name=__codelineno-30-13></a>    <span class=k>assert</span> <span class=n>handle</span><span class=o>.</span><span class=n>mock</span> <span class=ow>is</span> <span class=kc>None</span>
 <a id=__codelineno-30-14 name=__codelineno-30-14></a>
 <a id=__codelineno-30-15 name=__codelineno-30-15></a><span class=nd>@pytest</span><span class=o>.</span><span class=n>mark</span><span class=o>.</span><span class=n>asyncio</span>
-<a id=__codelineno-30-16 name=__codelineno-30-16></a><span class=k>async</span> <span class=k>def</span> <span class=nf>test_validation_error</span><span class=p>():</span>
+<a id=__codelineno-30-16 name=__codelineno-30-16></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>test_validation_error</span><span class=p>():</span>
 <a id=__codelineno-30-17 name=__codelineno-30-17></a><span class=hll>    <span class=k>async</span> <span class=k>with</span> <span class=n>TestRedisBroker</span><span class=p>(</span><span class=n>broker</span><span class=p>,</span> <span class=n>with_real</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span> <span class=k>as</span> <span class=n>br</span><span class=p>:</span>
 </span><a id=__codelineno-30-18 name=__codelineno-30-18></a>        <span class=k>with</span> <span class=n>pytest</span><span class=o>.</span><span class=n>raises</span><span class=p>(</span><span class=n>ValidationError</span><span class=p>):</span>
 <a id=__codelineno-30-19 name=__codelineno-30-19></a>            <span class=k>await</span> <span class=n>br</span><span class=o>.</span><span class=n>publish</span><span class=p>(</span><span class=s2>&quot;wrong message&quot;</span><span class=p>,</span> <span class=n>channel</span><span class=o>=</span><span class=s2>&quot;test-channel&quot;</span><span class=p>)</span>

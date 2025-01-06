@@ -14,7 +14,7 @@
 <span class=normal><a href=#__codelineno-0-23>23</a></span>
 <span class=normal><a href=#__codelineno-0-24>24</a></span>
 <span class=normal><a href=#__codelineno-0-25>25</a></span>
-<span class=normal><a href=#__codelineno-0-26>26</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-20 name=__codelineno-0-20></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-26>26</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-20 name=__codelineno-0-20></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-21 name=__codelineno-0-21></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-22 name=__codelineno-0-22></a>    <span class=n>msg_class</span><span class=p>:</span> <span class=n>Type</span><span class=p>[</span><span class=n>KafkaMessage</span><span class=p>],</span>
 <a id=__codelineno-0-23 name=__codelineno-0-23></a>    <span class=n>regex</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;Pattern[str]&quot;</span><span class=p>],</span>
@@ -42,7 +42,7 @@
 <span class=normal><a href=#__codelineno-0-43>43</a></span>
 <span class=normal><a href=#__codelineno-0-44>44</a></span>
 <span class=normal><a href=#__codelineno-0-45>45</a></span>
-<span class=normal><a href=#__codelineno-0-46>46</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-28 name=__codelineno-0-28></a><span class=k>async</span> <span class=k>def</span> <span class=nf>parse_message</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-46>46</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-28 name=__codelineno-0-28></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>parse_message</span><span class=p>(</span>
 <a id=__codelineno-0-29 name=__codelineno-0-29></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-30 name=__codelineno-0-30></a>    <span class=n>message</span><span class=p>:</span> <span class=s2>&quot;ConsumerRecord&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-31 name=__codelineno-0-31></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;StreamMessage[ConsumerRecord]&quot;</span><span class=p>:</span>
@@ -67,7 +67,7 @@
 <span class=normal><a href=#__codelineno-0-50>50</a></span>
 <span class=normal><a href=#__codelineno-0-51>51</a></span>
 <span class=normal><a href=#__codelineno-0-52>52</a></span>
-<span class=normal><a href=#__codelineno-0-53>53</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-48 name=__codelineno-0-48></a><span class=k>async</span> <span class=k>def</span> <span class=nf>decode_message</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-53>53</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-48 name=__codelineno-0-48></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>decode_message</span><span class=p>(</span>
 <a id=__codelineno-0-49 name=__codelineno-0-49></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-50 name=__codelineno-0-50></a>    <span class=n>msg</span><span class=p>:</span> <span class=s2>&quot;StreamMessage[ConsumerRecord]&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-51 name=__codelineno-0-51></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;DecodedMessage&quot;</span><span class=p>:</span>
@@ -78,7 +78,7 @@
 <span class=normal><a href=#__codelineno-0-56>56</a></span>
 <span class=normal><a href=#__codelineno-0-57>57</a></span>
 <span class=normal><a href=#__codelineno-0-58>58</a></span>
-<span class=normal><a href=#__codelineno-0-59>59</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-55 name=__codelineno-0-55></a><span class=k>def</span> <span class=nf>get_path</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=nb>str</span><span class=p>]:</span>
+<span class=normal><a href=#__codelineno-0-59>59</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-55 name=__codelineno-0-55></a><span class=k>def</span><span class=w> </span><span class=nf>get_path</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=nb>str</span><span class=p>]:</span>
 <a id=__codelineno-0-56 name=__codelineno-0-56></a>    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>regex</span> <span class=ow>and</span> <span class=p>(</span><span class=n>match</span> <span class=o>:=</span> <span class=bp>self</span><span class=o>.</span><span class=n>regex</span><span class=o>.</span><span class=n>match</span><span class=p>(</span><span class=n>topic</span><span class=p>)):</span>
 <a id=__codelineno-0-57 name=__codelineno-0-57></a>        <span class=k>return</span> <span class=n>match</span><span class=o>.</span><span class=n>groupdict</span><span class=p>()</span>
 <a id=__codelineno-0-58 name=__codelineno-0-58></a>    <span class=k>else</span><span class=p>:</span>

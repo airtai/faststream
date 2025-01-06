@@ -24,7 +24,7 @@
 <span class=normal><a href=#__codelineno-0-45>45</a></span>
 <span class=normal><a href=#__codelineno-0-46>46</a></span>
 <span class=normal><a href=#__codelineno-0-47>47</a></span>
-<span class=normal><a href=#__codelineno-0-48>48</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-32 name=__codelineno-0-32></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-48>48</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-32 name=__codelineno-0-32></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-33 name=__codelineno-0-33></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-34 name=__codelineno-0-34></a>    <span class=n>connection</span><span class=p>:</span> <span class=s2>&quot;Redis[bytes]&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-35 name=__codelineno-0-35></a>    <span class=n>parser</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;CustomCallable&quot;</span><span class=p>],</span>
@@ -132,7 +132,7 @@
 <span class=normal><a href=#__codelineno-0-124>124</a></span>
 <span class=normal><a href=#__codelineno-0-125>125</a></span>
 <span class=normal><a href=#__codelineno-0-126>126</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-50 name=__codelineno-0-50></a><span class=nd>@override</span>
-<a id=__codelineno-0-51 name=__codelineno-0-51></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<a id=__codelineno-0-51 name=__codelineno-0-51></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>publish</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-52 name=__codelineno-0-52></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-53 name=__codelineno-0-53></a>    <span class=n>message</span><span class=p>:</span> <span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-54 name=__codelineno-0-54></a>    <span class=o>*</span><span class=p>,</span>
@@ -280,7 +280,7 @@
 <span class=normal><a href=#__codelineno-0-186>186</a></span>
 <span class=normal><a href=#__codelineno-0-187>187</a></span>
 <span class=normal><a href=#__codelineno-0-188>188</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-128 name=__codelineno-0-128></a><span class=nd>@override</span>
-<a id=__codelineno-0-129 name=__codelineno-0-129></a><span class=k>async</span> <span class=k>def</span> <span class=nf>request</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<a id=__codelineno-0-129 name=__codelineno-0-129></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>request</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-130 name=__codelineno-0-130></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-131 name=__codelineno-0-131></a>    <span class=n>message</span><span class=p>:</span> <span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-132 name=__codelineno-0-132></a>    <span class=o>*</span><span class=p>,</span>
@@ -357,7 +357,7 @@
 <span class=normal><a href=#__codelineno-0-203>203</a></span>
 <span class=normal><a href=#__codelineno-0-204>204</a></span>
 <span class=normal><a href=#__codelineno-0-205>205</a></span>
-<span class=normal><a href=#__codelineno-0-206>206</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-190 name=__codelineno-0-190></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish_batch</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-206>206</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-190 name=__codelineno-0-190></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>publish_batch</span><span class=p>(</span>
 <a id=__codelineno-0-191 name=__codelineno-0-191></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-192 name=__codelineno-0-192></a>    <span class=o>*</span><span class=n>msgs</span><span class=p>:</span> <span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-193 name=__codelineno-0-193></a>    <span class=nb>list</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>

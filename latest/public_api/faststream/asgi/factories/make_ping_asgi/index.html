@@ -23,7 +23,7 @@
 <span class=normal><a href=#__codelineno-0-34>34</a></span>
 <span class=normal><a href=#__codelineno-0-35>35</a></span>
 <span class=normal><a href=#__codelineno-0-36>36</a></span>
-<span class=normal><a href=#__codelineno-0-37>37</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-22 name=__codelineno-0-22></a><span class=k>def</span> <span class=nf>make_ping_asgi</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-37>37</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-22 name=__codelineno-0-22></a><span class=k>def</span><span class=w> </span><span class=nf>make_ping_asgi</span><span class=p>(</span>
 <a id=__codelineno-0-23 name=__codelineno-0-23></a>    <span class=n>broker</span><span class=p>:</span> <span class=s2>&quot;BrokerUsecase[Any, Any]&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-24 name=__codelineno-0-24></a>    <span class=o>/</span><span class=p>,</span>
 <a id=__codelineno-0-25 name=__codelineno-0-25></a>    <span class=n>timeout</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>float</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
@@ -32,7 +32,7 @@
 <a id=__codelineno-0-28 name=__codelineno-0-28></a>    <span class=n>unhealthy_response</span> <span class=o>=</span> <span class=n>AsgiResponse</span><span class=p>(</span><span class=sa>b</span><span class=s2>&quot;&quot;</span><span class=p>,</span> <span class=mi>500</span><span class=p>)</span>
 <a id=__codelineno-0-29 name=__codelineno-0-29></a>
 <a id=__codelineno-0-30 name=__codelineno-0-30></a>    <span class=nd>@get</span>
-<a id=__codelineno-0-31 name=__codelineno-0-31></a>    <span class=k>async</span> <span class=k>def</span> <span class=nf>ping</span><span class=p>(</span><span class=n>scope</span><span class=p>:</span> <span class=s2>&quot;Scope&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>AsgiResponse</span><span class=p>:</span>
+<a id=__codelineno-0-31 name=__codelineno-0-31></a>    <span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>ping</span><span class=p>(</span><span class=n>scope</span><span class=p>:</span> <span class=s2>&quot;Scope&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>AsgiResponse</span><span class=p>:</span>
 <a id=__codelineno-0-32 name=__codelineno-0-32></a>        <span class=k>if</span> <span class=k>await</span> <span class=n>broker</span><span class=o>.</span><span class=n>ping</span><span class=p>(</span><span class=n>timeout</span><span class=p>):</span>
 <a id=__codelineno-0-33 name=__codelineno-0-33></a>            <span class=k>return</span> <span class=n>healthy_response</span>
 <a id=__codelineno-0-34 name=__codelineno-0-34></a>        <span class=k>else</span><span class=p>:</span>

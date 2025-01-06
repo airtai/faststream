@@ -33,13 +33,13 @@
 <span class=normal><a href=#__codelineno-2-22>22</a></span>
 <span class=normal><a href=#__codelineno-2-23>23</a></span>
 <span class=normal><a href=#__codelineno-2-24>24</a></span>
-<span class=normal><a href=#__codelineno-2-25>25</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-2-1 name=__codelineno-2-1></a><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>BaseModel</span><span class=p>,</span> <span class=n>Field</span><span class=p>,</span> <span class=n>NonNegativeFloat</span>
+<span class=normal><a href=#__codelineno-2-25>25</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-2-1 name=__codelineno-2-1></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic</span><span class=w> </span><span class=kn>import</span> <span class=n>BaseModel</span><span class=p>,</span> <span class=n>Field</span><span class=p>,</span> <span class=n>NonNegativeFloat</span>
 <a id=__codelineno-2-2 name=__codelineno-2-2></a>
-<a id=__codelineno-2-3 name=__codelineno-2-3></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>Logger</span>
-<a id=__codelineno-2-4 name=__codelineno-2-4></a><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>KafkaBroker</span>
+<a id=__codelineno-2-3 name=__codelineno-2-3></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>Context</span><span class=p>,</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>Logger</span>
+<a id=__codelineno-2-4 name=__codelineno-2-4></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span>
 <a id=__codelineno-2-5 name=__codelineno-2-5></a>
 <a id=__codelineno-2-6 name=__codelineno-2-6></a>
-<a id=__codelineno-2-7 name=__codelineno-2-7></a><span class=k>class</span> <span class=nc>Data</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+<a id=__codelineno-2-7 name=__codelineno-2-7></a><span class=k>class</span><span class=w> </span><span class=nc>Data</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
 <a id=__codelineno-2-8 name=__codelineno-2-8></a>    <span class=n>data</span><span class=p>:</span> <span class=n>NonNegativeFloat</span> <span class=o>=</span> <span class=n>Field</span><span class=p>(</span>
 <a id=__codelineno-2-9 name=__codelineno-2-9></a>        <span class=o>...</span><span class=p>,</span> <span class=n>examples</span><span class=o>=</span><span class=p>[</span><span class=mf>0.5</span><span class=p>],</span> <span class=n>description</span><span class=o>=</span><span class=s2>&quot;Float data example&quot;</span>
 <a id=__codelineno-2-10 name=__codelineno-2-10></a>    <span class=p>)</span>
@@ -53,7 +53,7 @@
 <a id=__codelineno-2-18 name=__codelineno-2-18></a>
 <a id=__codelineno-2-19 name=__codelineno-2-19></a>
 <a id=__codelineno-2-20 name=__codelineno-2-20></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=s2>&quot;input_data&quot;</span><span class=p>)</span>
-<a id=__codelineno-2-21 name=__codelineno-2-21></a><span class=k>async</span> <span class=k>def</span> <span class=nf>on_input_data</span><span class=p>(</span>
+<a id=__codelineno-2-21 name=__codelineno-2-21></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>on_input_data</span><span class=p>(</span>
 <a id=__codelineno-2-22 name=__codelineno-2-22></a>    <span class=n>msg</span><span class=p>:</span> <span class=n>Data</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>,</span> <span class=n>key</span><span class=p>:</span> <span class=nb>bytes</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=s2>&quot;message.raw_message.key&quot;</span><span class=p>)</span>
 <a id=__codelineno-2-23 name=__codelineno-2-23></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-2-24 name=__codelineno-2-24></a>    <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;on_input_data(</span><span class=si>{</span><span class=n>msg</span><span class=si>=}</span><span class=s2>)&quot;</span><span class=p>)</span>

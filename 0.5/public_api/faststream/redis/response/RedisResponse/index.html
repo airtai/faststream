@@ -27,7 +27,7 @@
 <span class=normal><a href=#__codelineno-0-22>22</a></span>
 <span class=normal><a href=#__codelineno-0-23>23</a></span>
 <span class=normal><a href=#__codelineno-0-24>24</a></span>
-<span class=normal><a href=#__codelineno-0-25>25</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-12 name=__codelineno-0-12></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-25>25</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-12 name=__codelineno-0-12></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-13 name=__codelineno-0-13></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-14 name=__codelineno-0-14></a>    <span class=n>body</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;SendableMessage&quot;</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-15 name=__codelineno-0-15></a>    <span class=o>*</span><span class=p>,</span>
@@ -55,7 +55,7 @@
 <span class=normal><a href=#__codelineno-0-26>26</a></span>
 <span class=normal><a href=#__codelineno-0-27>27</a></span>
 <span class=normal><a href=#__codelineno-0-28>28</a></span>
-<span class=normal><a href=#__codelineno-0-29>29</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-20 name=__codelineno-0-20></a><span class=k>def</span> <span class=nf>add_headers</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-29>29</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-20 name=__codelineno-0-20></a><span class=k>def</span><span class=w> </span><span class=nf>add_headers</span><span class=p>(</span>
 <a id=__codelineno-0-21 name=__codelineno-0-21></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-22 name=__codelineno-0-22></a>    <span class=n>extra_headers</span><span class=p>:</span> <span class=s2>&quot;AnyDict&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-23 name=__codelineno-0-23></a>    <span class=o>*</span><span class=p>,</span>
@@ -73,7 +73,7 @@
 <span class=normal><a href=#__codelineno-0-31>31</a></span>
 <span class=normal><a href=#__codelineno-0-32>32</a></span>
 <span class=normal><a href=#__codelineno-0-33>33</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-27 name=__codelineno-0-27></a><span class=nd>@override</span>
-<a id=__codelineno-0-28 name=__codelineno-0-28></a><span class=k>def</span> <span class=nf>as_publish_kwargs</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;AnyDict&quot;</span><span class=p>:</span>
+<a id=__codelineno-0-28 name=__codelineno-0-28></a><span class=k>def</span><span class=w> </span><span class=nf>as_publish_kwargs</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;AnyDict&quot;</span><span class=p>:</span>
 <a id=__codelineno-0-29 name=__codelineno-0-29></a>    <span class=n>publish_options</span> <span class=o>=</span> <span class=p>{</span>
 <a id=__codelineno-0-30 name=__codelineno-0-30></a>        <span class=o>**</span><span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>as_publish_kwargs</span><span class=p>(),</span>
 <a id=__codelineno-0-31 name=__codelineno-0-31></a>        <span class=s2>&quot;maxlen&quot;</span><span class=p>:</span> <span class=bp>self</span><span class=o>.</span><span class=n>maxlen</span><span class=p>,</span>

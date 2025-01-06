@@ -19,7 +19,7 @@
 <span class=normal><a href=#__codelineno-0-28>28</a></span>
 <span class=normal><a href=#__codelineno-0-29>29</a></span>
 <span class=normal><a href=#__codelineno-0-30>30</a></span>
-<span class=normal><a href=#__codelineno-0-31>31</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-20 name=__codelineno-0-20></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-31>31</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-20 name=__codelineno-0-20></a><span class=k>def</span><span class=w> </span><span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-21 name=__codelineno-0-21></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-22 name=__codelineno-0-22></a>    <span class=n>producer</span><span class=p>:</span> <span class=s2>&quot;AsyncConfluentProducer&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-23 name=__codelineno-0-23></a>    <span class=n>parser</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=s2>&quot;CustomCallable&quot;</span><span class=p>],</span>
@@ -81,7 +81,7 @@
 <span class=normal><a href=#__codelineno-0-68>68</a></span>
 <span class=normal><a href=#__codelineno-0-69>69</a></span>
 <span class=normal><a href=#__codelineno-0-70>70</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-33 name=__codelineno-0-33></a><span class=nd>@override</span>
-<a id=__codelineno-0-34 name=__codelineno-0-34></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
+<a id=__codelineno-0-34 name=__codelineno-0-34></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>publish</span><span class=p>(</span>  <span class=c1># type: ignore[override]</span>
 <a id=__codelineno-0-35 name=__codelineno-0-35></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-36 name=__codelineno-0-36></a>    <span class=n>message</span><span class=p>:</span> <span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-37 name=__codelineno-0-37></a>    <span class=n>topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
@@ -120,7 +120,7 @@
 <a id=__codelineno-0-70 name=__codelineno-0-70></a>    <span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.confluent.publisher.producer.AsyncConfluentFastProducer.stop class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">stop</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.confluent.publisher.producer.AsyncConfluentFastProducer.stop class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>stop</span><span class=p>()</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/confluent/publisher/producer.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-72>72</a></span>
-<span class=normal><a href=#__codelineno-0-73>73</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-72 name=__codelineno-0-72></a><span class=k>async</span> <span class=k>def</span> <span class=nf>stop</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-73>73</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-72 name=__codelineno-0-72></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>stop</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
 <a id=__codelineno-0-73 name=__codelineno-0-73></a>    <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>_producer</span><span class=o>.</span><span class=n>stop</span><span class=p>()</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h3 id=faststream.confluent.publisher.producer.AsyncConfluentFastProducer.publish_batch class="doc doc-heading"> <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code> <span class="doc doc-object-name doc-function-name">publish_batch</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#faststream.confluent.publisher.producer.AsyncConfluentFastProducer.publish_batch class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=nf>publish_batch</span><span class=p>(</span>
 <a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a>    <span class=o>*</span><span class=n>msgs</span><span class=p>,</span>
@@ -177,7 +177,7 @@
 <span class=normal><a href=#__codelineno-0-117>117</a></span>
 <span class=normal><a href=#__codelineno-0-118>118</a></span>
 <span class=normal><a href=#__codelineno-0-119>119</a></span>
-<span class=normal><a href=#__codelineno-0-120>120</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-75 name=__codelineno-0-75></a><span class=k>async</span> <span class=k>def</span> <span class=nf>publish_batch</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-120>120</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-75 name=__codelineno-0-75></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>publish_batch</span><span class=p>(</span>
 <a id=__codelineno-0-76 name=__codelineno-0-76></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-77 name=__codelineno-0-77></a>    <span class=o>*</span><span class=n>msgs</span><span class=p>:</span> <span class=s2>&quot;SendableMessage&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-78 name=__codelineno-0-78></a>    <span class=n>topic</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
@@ -229,7 +229,7 @@
 <span class=normal><a href=#__codelineno-0-124>124</a></span>
 <span class=normal><a href=#__codelineno-0-125>125</a></span>
 <span class=normal><a href=#__codelineno-0-126>126</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-122 name=__codelineno-0-122></a><span class=nd>@override</span>
-<a id=__codelineno-0-123 name=__codelineno-0-123></a><span class=k>async</span> <span class=k>def</span> <span class=nf>request</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=o>*</span><span class=n>args</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Any</span><span class=p>]:</span>
+<a id=__codelineno-0-123 name=__codelineno-0-123></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>request</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=o>*</span><span class=n>args</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Any</span><span class=p>]:</span>
 <a id=__codelineno-0-124 name=__codelineno-0-124></a>    <span class=k>raise</span> <span class=n>OperationForbiddenError</span><span class=p>(</span>
 <a id=__codelineno-0-125 name=__codelineno-0-125></a>        <span class=s2>&quot;Kafka doesn&#39;t support `request` method without test client.&quot;</span>
 <a id=__codelineno-0-126 name=__codelineno-0-126></a>    <span class=p>)</span>

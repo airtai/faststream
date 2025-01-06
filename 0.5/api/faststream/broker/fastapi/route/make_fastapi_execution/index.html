@@ -85,7 +85,7 @@
 <span class=normal><a href=#__codelineno-0-240>240</a></span>
 <span class=normal><a href=#__codelineno-0-241>241</a></span>
 <span class=normal><a href=#__codelineno-0-242>242</a></span>
-<span class=normal><a href=#__codelineno-0-243>243</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-177 name=__codelineno-0-177></a><span class=k>def</span> <span class=nf>make_fastapi_execution</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-243>243</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-177 name=__codelineno-0-177></a><span class=k>def</span><span class=w> </span><span class=nf>make_fastapi_execution</span><span class=p>(</span>
 <a id=__codelineno-0-178 name=__codelineno-0-178></a>    <span class=o>*</span><span class=p>,</span>
 <a id=__codelineno-0-179 name=__codelineno-0-179></a>    <span class=n>dependent</span><span class=p>:</span> <span class=s2>&quot;Dependant&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-180 name=__codelineno-0-180></a>    <span class=n>provider_factory</span><span class=p>:</span> <span class=n>Callable</span><span class=p>[[],</span> <span class=n>Any</span><span class=p>],</span>
@@ -103,7 +103,7 @@
 <a id=__codelineno-0-192 name=__codelineno-0-192></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Creates a FastAPI application.&quot;&quot;&quot;</span>
 <a id=__codelineno-0-193 name=__codelineno-0-193></a>    <span class=n>is_coroutine</span> <span class=o>=</span> <span class=n>asyncio</span><span class=o>.</span><span class=n>iscoroutinefunction</span><span class=p>(</span><span class=n>dependent</span><span class=o>.</span><span class=n>call</span><span class=p>)</span>
 <a id=__codelineno-0-194 name=__codelineno-0-194></a>
-<a id=__codelineno-0-195 name=__codelineno-0-195></a>    <span class=k>async</span> <span class=k>def</span> <span class=nf>app</span><span class=p>(</span>
+<a id=__codelineno-0-195 name=__codelineno-0-195></a>    <span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>app</span><span class=p>(</span>
 <a id=__codelineno-0-196 name=__codelineno-0-196></a>        <span class=n>request</span><span class=p>:</span> <span class=s2>&quot;StreamMessage&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-197 name=__codelineno-0-197></a>        <span class=n>raw_message</span><span class=p>:</span> <span class=s2>&quot;NativeMessage[Any]&quot;</span><span class=p>,</span>  <span class=c1># to support BackgroundTasks by middleware</span>
 <a id=__codelineno-0-198 name=__codelineno-0-198></a>    <span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Response</span><span class=p>:</span>

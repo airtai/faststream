@@ -32,7 +32,7 @@
 <span class=normal><a href=#__codelineno-0-59>59</a></span>
 <span class=normal><a href=#__codelineno-0-60>60</a></span>
 <span class=normal><a href=#__codelineno-0-61>61</a></span>
-<span class=normal><a href=#__codelineno-0-62>62</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-38 name=__codelineno-0-38></a><span class=k>async</span> <span class=k>def</span> <span class=nf>process_msg</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-62>62</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-38 name=__codelineno-0-38></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>process_msg</span><span class=p>(</span>
 <a id=__codelineno-0-39 name=__codelineno-0-39></a>    <span class=n>msg</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>MsgType</span><span class=p>],</span>
 <a id=__codelineno-0-40 name=__codelineno-0-40></a>    <span class=n>middlewares</span><span class=p>:</span> <span class=n>Sequence</span><span class=p>[</span><span class=s2>&quot;BrokerMiddleware[MsgType]&quot;</span><span class=p>],</span>
 <a id=__codelineno-0-41 name=__codelineno-0-41></a>    <span class=n>parser</span><span class=p>:</span> <span class=n>Callable</span><span class=p>[[</span><span class=n>MsgType</span><span class=p>],</span> <span class=n>Awaitable</span><span class=p>[</span><span class=s2>&quot;StreamMessage[MsgType]&quot;</span><span class=p>]],</span>

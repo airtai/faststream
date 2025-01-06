@@ -26,19 +26,19 @@
 <span class=normal><a href=#__codelineno-1-14>14</a></span>
 <span class=normal><a href=#__codelineno-1-15>15</a></span>
 <span class=normal><a href=#__codelineno-1-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-1-1 name=__codelineno-1-1></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=n>channel</span><span class=o>=</span><span class=s2>&quot;test-channel&quot;</span><span class=p>)</span>
-<a id=__codelineno-1-2 name=__codelineno-1-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle_channel</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
+<a id=__codelineno-1-2 name=__codelineno-1-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle_channel</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
 <a id=__codelineno-1-3 name=__codelineno-1-3></a>    <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
 <a id=__codelineno-1-4 name=__codelineno-1-4></a>    <span class=k>return</span> <span class=n>msg</span>
 <a id=__codelineno-1-5 name=__codelineno-1-5></a>
 <a id=__codelineno-1-6 name=__codelineno-1-6></a>
 <a id=__codelineno-1-7 name=__codelineno-1-7></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=nb>list</span><span class=o>=</span><span class=s2>&quot;test-list&quot;</span><span class=p>)</span>
-<a id=__codelineno-1-8 name=__codelineno-1-8></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle_list</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
+<a id=__codelineno-1-8 name=__codelineno-1-8></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle_list</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
 <a id=__codelineno-1-9 name=__codelineno-1-9></a>    <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
 <a id=__codelineno-1-10 name=__codelineno-1-10></a>    <span class=k>return</span> <span class=n>msg</span>
 <a id=__codelineno-1-11 name=__codelineno-1-11></a>
 <a id=__codelineno-1-12 name=__codelineno-1-12></a>
 <a id=__codelineno-1-13 name=__codelineno-1-13></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=n>stream</span><span class=o>=</span><span class=s2>&quot;test-stream&quot;</span><span class=p>)</span>
-<a id=__codelineno-1-14 name=__codelineno-1-14></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle_stream</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
+<a id=__codelineno-1-14 name=__codelineno-1-14></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle_stream</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
 <a id=__codelineno-1-15 name=__codelineno-1-15></a>    <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
 <a id=__codelineno-1-16 name=__codelineno-1-16></a>    <span class=k>return</span> <span class=n>msg</span>
 </code></pre></div></td></tr></table></div> </li> <li> <p>Send RPC messages through <code>RedisBroker</code> and await responses on the correct data type.</p> <p>Additionally, you can set a <code>timeout</code> to decide how long the publisher should wait for a response before timing out.</p> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-2-1> 1</a></span>
@@ -65,7 +65,7 @@
 <span class=normal><a href=#__codelineno-2-22>22</a></span>
 <span class=normal><a href=#__codelineno-2-23>23</a></span>
 <span class=normal><a href=#__codelineno-2-24>24</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-2-1 name=__codelineno-2-1></a><span class=nd>@app</span><span class=o>.</span><span class=n>after_startup</span>
-<a id=__codelineno-2-2 name=__codelineno-2-2></a><span class=k>async</span> <span class=k>def</span> <span class=nf>t</span><span class=p>():</span>
+<a id=__codelineno-2-2 name=__codelineno-2-2></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>t</span><span class=p>():</span>
 <a id=__codelineno-2-3 name=__codelineno-2-3></a>    <span class=n>msg</span> <span class=o>=</span> <span class=s2>&quot;Hi!&quot;</span>
 <a id=__codelineno-2-4 name=__codelineno-2-4></a>
 <a id=__codelineno-2-5 name=__codelineno-2-5></a><span class=hll>    <span class=n>response</span><span class=p>:</span> <span class=n>RedisMessage</span> <span class=o>=</span> <span class=k>await</span> <span class=n>broker</span><span class=o>.</span><span class=n>request</span><span class=p>(</span>
@@ -136,33 +136,33 @@
 <span class=normal><a href=#__codelineno-3-46>46</a></span>
 <span class=normal><a href=#__codelineno-3-47>47</a></span>
 <span class=normal><a href=#__codelineno-3-48>48</a></span>
-<span class=normal><a href=#__codelineno-3-49>49</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-3-1 name=__codelineno-3-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>Logger</span>
-<a id=__codelineno-3-2 name=__codelineno-3-2></a><span class=kn>from</span> <span class=nn>faststream.redis</span> <span class=kn>import</span> <span class=n>RedisBroker</span><span class=p>,</span> <span class=n>RedisMessage</span>
+<span class=normal><a href=#__codelineno-3-49>49</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-3-1 name=__codelineno-3-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>Logger</span>
+<a id=__codelineno-3-2 name=__codelineno-3-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.redis</span><span class=w> </span><span class=kn>import</span> <span class=n>RedisBroker</span><span class=p>,</span> <span class=n>RedisMessage</span>
 <a id=__codelineno-3-3 name=__codelineno-3-3></a>
 <a id=__codelineno-3-4 name=__codelineno-3-4></a><span class=n>broker</span> <span class=o>=</span> <span class=n>RedisBroker</span><span class=p>(</span><span class=s2>&quot;redis://localhost:6379&quot;</span><span class=p>)</span>
 <a id=__codelineno-3-5 name=__codelineno-3-5></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-3-6 name=__codelineno-3-6></a>
 <a id=__codelineno-3-7 name=__codelineno-3-7></a>
 <a id=__codelineno-3-8 name=__codelineno-3-8></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=n>channel</span><span class=o>=</span><span class=s2>&quot;test-channel&quot;</span><span class=p>)</span>
-<a id=__codelineno-3-9 name=__codelineno-3-9></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle_channel</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
+<a id=__codelineno-3-9 name=__codelineno-3-9></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle_channel</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
 <a id=__codelineno-3-10 name=__codelineno-3-10></a>    <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
 <a id=__codelineno-3-11 name=__codelineno-3-11></a>    <span class=k>return</span> <span class=n>msg</span>
 <a id=__codelineno-3-12 name=__codelineno-3-12></a>
 <a id=__codelineno-3-13 name=__codelineno-3-13></a>
 <a id=__codelineno-3-14 name=__codelineno-3-14></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=nb>list</span><span class=o>=</span><span class=s2>&quot;test-list&quot;</span><span class=p>)</span>
-<a id=__codelineno-3-15 name=__codelineno-3-15></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle_list</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
+<a id=__codelineno-3-15 name=__codelineno-3-15></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle_list</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
 <a id=__codelineno-3-16 name=__codelineno-3-16></a>    <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
 <a id=__codelineno-3-17 name=__codelineno-3-17></a>    <span class=k>return</span> <span class=n>msg</span>
 <a id=__codelineno-3-18 name=__codelineno-3-18></a>
 <a id=__codelineno-3-19 name=__codelineno-3-19></a>
 <a id=__codelineno-3-20 name=__codelineno-3-20></a><span class=nd>@broker</span><span class=o>.</span><span class=n>subscriber</span><span class=p>(</span><span class=n>stream</span><span class=o>=</span><span class=s2>&quot;test-stream&quot;</span><span class=p>)</span>
-<a id=__codelineno-3-21 name=__codelineno-3-21></a><span class=k>async</span> <span class=k>def</span> <span class=nf>handle_stream</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
+<a id=__codelineno-3-21 name=__codelineno-3-21></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>handle_stream</span><span class=p>(</span><span class=n>msg</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>logger</span><span class=p>:</span> <span class=n>Logger</span><span class=p>):</span>
 <a id=__codelineno-3-22 name=__codelineno-3-22></a>    <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=n>msg</span><span class=p>)</span>
 <a id=__codelineno-3-23 name=__codelineno-3-23></a>    <span class=k>return</span> <span class=n>msg</span>
 <a id=__codelineno-3-24 name=__codelineno-3-24></a>
 <a id=__codelineno-3-25 name=__codelineno-3-25></a>
 <a id=__codelineno-3-26 name=__codelineno-3-26></a><span class=nd>@app</span><span class=o>.</span><span class=n>after_startup</span>
-<a id=__codelineno-3-27 name=__codelineno-3-27></a><span class=k>async</span> <span class=k>def</span> <span class=nf>t</span><span class=p>():</span>
+<a id=__codelineno-3-27 name=__codelineno-3-27></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>t</span><span class=p>():</span>
 <a id=__codelineno-3-28 name=__codelineno-3-28></a>    <span class=n>msg</span> <span class=o>=</span> <span class=s2>&quot;Hi!&quot;</span>
 <a id=__codelineno-3-29 name=__codelineno-3-29></a>
 <a id=__codelineno-3-30 name=__codelineno-3-30></a>    <span class=n>response</span><span class=p>:</span> <span class=n>RedisMessage</span> <span class=o>=</span> <span class=k>await</span> <span class=n>broker</span><span class=o>.</span><span class=n>request</span><span class=p>(</span>

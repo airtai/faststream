@@ -58,19 +58,19 @@
 <span class=normal><a href=#__codelineno-11-13>13</a></span>
 <span class=normal><a href=#__codelineno-11-14>14</a></span>
 <span class=normal><a href=#__codelineno-11-15>15</a></span>
-<span class=normal><a href=#__codelineno-11-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-11-1 name=__codelineno-11-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>ContextRepo</span>
-<a id=__codelineno-11-2 name=__codelineno-11-2></a><span class=kn>from</span> <span class=nn>faststream.kafka</span> <span class=kn>import</span> <span class=n>KafkaBroker</span>
-<a id=__codelineno-11-3 name=__codelineno-11-3></a><span class=kn>from</span> <span class=nn>pydantic_settings</span> <span class=kn>import</span> <span class=n>BaseSettings</span>
+<span class=normal><a href=#__codelineno-11-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-11-1 name=__codelineno-11-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>ContextRepo</span>
+<a id=__codelineno-11-2 name=__codelineno-11-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.kafka</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span>
+<a id=__codelineno-11-3 name=__codelineno-11-3></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic_settings</span><span class=w> </span><span class=kn>import</span> <span class=n>BaseSettings</span>
 <a id=__codelineno-11-4 name=__codelineno-11-4></a>
 <a id=__codelineno-11-5 name=__codelineno-11-5></a><span class=n>broker</span> <span class=o>=</span> <span class=n>KafkaBroker</span><span class=p>()</span>
 <a id=__codelineno-11-6 name=__codelineno-11-6></a>
 <a id=__codelineno-11-7 name=__codelineno-11-7></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-11-8 name=__codelineno-11-8></a>
-<a id=__codelineno-11-9 name=__codelineno-11-9></a><span class=k>class</span> <span class=nc>Settings</span><span class=p>(</span><span class=n>BaseSettings</span><span class=p>):</span>
+<a id=__codelineno-11-9 name=__codelineno-11-9></a><span class=k>class</span><span class=w> </span><span class=nc>Settings</span><span class=p>(</span><span class=n>BaseSettings</span><span class=p>):</span>
 <a id=__codelineno-11-10 name=__codelineno-11-10></a>    <span class=n>host</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=s2>&quot;localhost:9092&quot;</span>
 <a id=__codelineno-11-11 name=__codelineno-11-11></a>
 <a id=__codelineno-11-12 name=__codelineno-11-12></a><span class=nd>@app</span><span class=o>.</span><span class=n>on_startup</span>
-<a id=__codelineno-11-13 name=__codelineno-11-13></a><span class=k>async</span> <span class=k>def</span> <span class=nf>setup</span><span class=p>(</span><span class=n>env</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>context</span><span class=p>:</span> <span class=n>ContextRepo</span><span class=p>):</span>
+<a id=__codelineno-11-13 name=__codelineno-11-13></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>setup</span><span class=p>(</span><span class=n>env</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>context</span><span class=p>:</span> <span class=n>ContextRepo</span><span class=p>):</span>
 <a id=__codelineno-11-14 name=__codelineno-11-14></a><span class=hll>    <span class=n>settings</span> <span class=o>=</span> <span class=n>Settings</span><span class=p>(</span><span class=n>_env_file</span><span class=o>=</span><span class=n>env</span><span class=p>)</span>
 </span><a id=__codelineno-11-15 name=__codelineno-11-15></a><span class=hll>    <span class=k>await</span> <span class=n>broker</span><span class=o>.</span><span class=n>connect</span><span class=p>(</span><span class=n>settings</span><span class=o>.</span><span class=n>host</span><span class=p>)</span>
 </span><a id=__codelineno-11-16 name=__codelineno-11-16></a><span class=hll>    <span class=n>context</span><span class=o>.</span><span class=n>set_global</span><span class=p>(</span><span class=s2>&quot;settings&quot;</span><span class=p>,</span> <span class=n>settings</span><span class=p>)</span>
@@ -89,19 +89,19 @@
 <span class=normal><a href=#__codelineno-12-13>13</a></span>
 <span class=normal><a href=#__codelineno-12-14>14</a></span>
 <span class=normal><a href=#__codelineno-12-15>15</a></span>
-<span class=normal><a href=#__codelineno-12-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-12-1 name=__codelineno-12-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>ContextRepo</span>
-<a id=__codelineno-12-2 name=__codelineno-12-2></a><span class=kn>from</span> <span class=nn>faststream.confluent</span> <span class=kn>import</span> <span class=n>KafkaBroker</span>
-<a id=__codelineno-12-3 name=__codelineno-12-3></a><span class=kn>from</span> <span class=nn>pydantic_settings</span> <span class=kn>import</span> <span class=n>BaseSettings</span>
+<span class=normal><a href=#__codelineno-12-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-12-1 name=__codelineno-12-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>ContextRepo</span>
+<a id=__codelineno-12-2 name=__codelineno-12-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.confluent</span><span class=w> </span><span class=kn>import</span> <span class=n>KafkaBroker</span>
+<a id=__codelineno-12-3 name=__codelineno-12-3></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic_settings</span><span class=w> </span><span class=kn>import</span> <span class=n>BaseSettings</span>
 <a id=__codelineno-12-4 name=__codelineno-12-4></a>
 <a id=__codelineno-12-5 name=__codelineno-12-5></a><span class=n>broker</span> <span class=o>=</span> <span class=n>KafkaBroker</span><span class=p>()</span>
 <a id=__codelineno-12-6 name=__codelineno-12-6></a>
 <a id=__codelineno-12-7 name=__codelineno-12-7></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-12-8 name=__codelineno-12-8></a>
-<a id=__codelineno-12-9 name=__codelineno-12-9></a><span class=k>class</span> <span class=nc>Settings</span><span class=p>(</span><span class=n>BaseSettings</span><span class=p>):</span>
+<a id=__codelineno-12-9 name=__codelineno-12-9></a><span class=k>class</span><span class=w> </span><span class=nc>Settings</span><span class=p>(</span><span class=n>BaseSettings</span><span class=p>):</span>
 <a id=__codelineno-12-10 name=__codelineno-12-10></a>    <span class=n>host</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=s2>&quot;localhost:9092&quot;</span>
 <a id=__codelineno-12-11 name=__codelineno-12-11></a>
 <a id=__codelineno-12-12 name=__codelineno-12-12></a><span class=nd>@app</span><span class=o>.</span><span class=n>on_startup</span>
-<a id=__codelineno-12-13 name=__codelineno-12-13></a><span class=k>async</span> <span class=k>def</span> <span class=nf>setup</span><span class=p>(</span><span class=n>env</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>context</span><span class=p>:</span> <span class=n>ContextRepo</span><span class=p>):</span>
+<a id=__codelineno-12-13 name=__codelineno-12-13></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>setup</span><span class=p>(</span><span class=n>env</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>context</span><span class=p>:</span> <span class=n>ContextRepo</span><span class=p>):</span>
 <a id=__codelineno-12-14 name=__codelineno-12-14></a><span class=hll>    <span class=n>settings</span> <span class=o>=</span> <span class=n>Settings</span><span class=p>(</span><span class=n>_env_file</span><span class=o>=</span><span class=n>env</span><span class=p>)</span>
 </span><a id=__codelineno-12-15 name=__codelineno-12-15></a><span class=hll>    <span class=k>await</span> <span class=n>broker</span><span class=o>.</span><span class=n>connect</span><span class=p>(</span><span class=n>settings</span><span class=o>.</span><span class=n>host</span><span class=p>)</span>
 </span><a id=__codelineno-12-16 name=__codelineno-12-16></a><span class=hll>    <span class=n>context</span><span class=o>.</span><span class=n>set_global</span><span class=p>(</span><span class=s2>&quot;settings&quot;</span><span class=p>,</span> <span class=n>settings</span><span class=p>)</span>
@@ -120,19 +120,19 @@
 <span class=normal><a href=#__codelineno-13-13>13</a></span>
 <span class=normal><a href=#__codelineno-13-14>14</a></span>
 <span class=normal><a href=#__codelineno-13-15>15</a></span>
-<span class=normal><a href=#__codelineno-13-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-13-1 name=__codelineno-13-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>ContextRepo</span>
-<a id=__codelineno-13-2 name=__codelineno-13-2></a><span class=kn>from</span> <span class=nn>faststream.rabbit</span> <span class=kn>import</span> <span class=n>RabbitBroker</span>
-<a id=__codelineno-13-3 name=__codelineno-13-3></a><span class=kn>from</span> <span class=nn>pydantic_settings</span> <span class=kn>import</span> <span class=n>BaseSettings</span>
+<span class=normal><a href=#__codelineno-13-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-13-1 name=__codelineno-13-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>ContextRepo</span>
+<a id=__codelineno-13-2 name=__codelineno-13-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.rabbit</span><span class=w> </span><span class=kn>import</span> <span class=n>RabbitBroker</span>
+<a id=__codelineno-13-3 name=__codelineno-13-3></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic_settings</span><span class=w> </span><span class=kn>import</span> <span class=n>BaseSettings</span>
 <a id=__codelineno-13-4 name=__codelineno-13-4></a>
 <a id=__codelineno-13-5 name=__codelineno-13-5></a><span class=n>broker</span> <span class=o>=</span> <span class=n>RabbitBroker</span><span class=p>()</span>
 <a id=__codelineno-13-6 name=__codelineno-13-6></a>
 <a id=__codelineno-13-7 name=__codelineno-13-7></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-13-8 name=__codelineno-13-8></a>
-<a id=__codelineno-13-9 name=__codelineno-13-9></a><span class=k>class</span> <span class=nc>Settings</span><span class=p>(</span><span class=n>BaseSettings</span><span class=p>):</span>
+<a id=__codelineno-13-9 name=__codelineno-13-9></a><span class=k>class</span><span class=w> </span><span class=nc>Settings</span><span class=p>(</span><span class=n>BaseSettings</span><span class=p>):</span>
 <a id=__codelineno-13-10 name=__codelineno-13-10></a>    <span class=n>host</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=s2>&quot;amqp://guest:guest@localhost:5672/&quot;</span> 
 <a id=__codelineno-13-11 name=__codelineno-13-11></a>
 <a id=__codelineno-13-12 name=__codelineno-13-12></a><span class=nd>@app</span><span class=o>.</span><span class=n>on_startup</span>
-<a id=__codelineno-13-13 name=__codelineno-13-13></a><span class=k>async</span> <span class=k>def</span> <span class=nf>setup</span><span class=p>(</span><span class=n>env</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>context</span><span class=p>:</span> <span class=n>ContextRepo</span><span class=p>):</span>
+<a id=__codelineno-13-13 name=__codelineno-13-13></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>setup</span><span class=p>(</span><span class=n>env</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>context</span><span class=p>:</span> <span class=n>ContextRepo</span><span class=p>):</span>
 <a id=__codelineno-13-14 name=__codelineno-13-14></a><span class=hll>    <span class=n>settings</span> <span class=o>=</span> <span class=n>Settings</span><span class=p>(</span><span class=n>_env_file</span><span class=o>=</span><span class=n>env</span><span class=p>)</span>
 </span><a id=__codelineno-13-15 name=__codelineno-13-15></a><span class=hll>    <span class=k>await</span> <span class=n>broker</span><span class=o>.</span><span class=n>connect</span><span class=p>(</span><span class=n>settings</span><span class=o>.</span><span class=n>host</span><span class=p>)</span>
 </span><a id=__codelineno-13-16 name=__codelineno-13-16></a><span class=hll>    <span class=n>context</span><span class=o>.</span><span class=n>set_global</span><span class=p>(</span><span class=s2>&quot;settings&quot;</span><span class=p>,</span> <span class=n>settings</span><span class=p>)</span>
@@ -151,19 +151,19 @@
 <span class=normal><a href=#__codelineno-14-13>13</a></span>
 <span class=normal><a href=#__codelineno-14-14>14</a></span>
 <span class=normal><a href=#__codelineno-14-15>15</a></span>
-<span class=normal><a href=#__codelineno-14-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-14-1 name=__codelineno-14-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>ContextRepo</span>
-<a id=__codelineno-14-2 name=__codelineno-14-2></a><span class=kn>from</span> <span class=nn>faststream.nats</span> <span class=kn>import</span> <span class=n>NatsBroker</span>
-<a id=__codelineno-14-3 name=__codelineno-14-3></a><span class=kn>from</span> <span class=nn>pydantic_settings</span> <span class=kn>import</span> <span class=n>BaseSettings</span>
+<span class=normal><a href=#__codelineno-14-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-14-1 name=__codelineno-14-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>ContextRepo</span>
+<a id=__codelineno-14-2 name=__codelineno-14-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.nats</span><span class=w> </span><span class=kn>import</span> <span class=n>NatsBroker</span>
+<a id=__codelineno-14-3 name=__codelineno-14-3></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic_settings</span><span class=w> </span><span class=kn>import</span> <span class=n>BaseSettings</span>
 <a id=__codelineno-14-4 name=__codelineno-14-4></a>
 <a id=__codelineno-14-5 name=__codelineno-14-5></a><span class=n>broker</span> <span class=o>=</span> <span class=n>NatsBroker</span><span class=p>()</span>
 <a id=__codelineno-14-6 name=__codelineno-14-6></a>
 <a id=__codelineno-14-7 name=__codelineno-14-7></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-14-8 name=__codelineno-14-8></a>
-<a id=__codelineno-14-9 name=__codelineno-14-9></a><span class=k>class</span> <span class=nc>Settings</span><span class=p>(</span><span class=n>BaseSettings</span><span class=p>):</span>
+<a id=__codelineno-14-9 name=__codelineno-14-9></a><span class=k>class</span><span class=w> </span><span class=nc>Settings</span><span class=p>(</span><span class=n>BaseSettings</span><span class=p>):</span>
 <a id=__codelineno-14-10 name=__codelineno-14-10></a>    <span class=n>host</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=s2>&quot;nats://localhost:4222&quot;</span>
 <a id=__codelineno-14-11 name=__codelineno-14-11></a>
 <a id=__codelineno-14-12 name=__codelineno-14-12></a><span class=nd>@app</span><span class=o>.</span><span class=n>on_startup</span>
-<a id=__codelineno-14-13 name=__codelineno-14-13></a><span class=k>async</span> <span class=k>def</span> <span class=nf>setup</span><span class=p>(</span><span class=n>env</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>context</span><span class=p>:</span> <span class=n>ContextRepo</span><span class=p>):</span>
+<a id=__codelineno-14-13 name=__codelineno-14-13></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>setup</span><span class=p>(</span><span class=n>env</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>context</span><span class=p>:</span> <span class=n>ContextRepo</span><span class=p>):</span>
 <a id=__codelineno-14-14 name=__codelineno-14-14></a><span class=hll>    <span class=n>settings</span> <span class=o>=</span> <span class=n>Settings</span><span class=p>(</span><span class=n>_env_file</span><span class=o>=</span><span class=n>env</span><span class=p>)</span>
 </span><a id=__codelineno-14-15 name=__codelineno-14-15></a><span class=hll>    <span class=k>await</span> <span class=n>broker</span><span class=o>.</span><span class=n>connect</span><span class=p>(</span><span class=n>settings</span><span class=o>.</span><span class=n>host</span><span class=p>)</span>
 </span><a id=__codelineno-14-16 name=__codelineno-14-16></a><span class=hll>    <span class=n>context</span><span class=o>.</span><span class=n>set_global</span><span class=p>(</span><span class=s2>&quot;settings&quot;</span><span class=p>,</span> <span class=n>settings</span><span class=p>)</span>
@@ -182,19 +182,19 @@
 <span class=normal><a href=#__codelineno-15-13>13</a></span>
 <span class=normal><a href=#__codelineno-15-14>14</a></span>
 <span class=normal><a href=#__codelineno-15-15>15</a></span>
-<span class=normal><a href=#__codelineno-15-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-15-1 name=__codelineno-15-1></a><span class=kn>from</span> <span class=nn>faststream</span> <span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>ContextRepo</span>
-<a id=__codelineno-15-2 name=__codelineno-15-2></a><span class=kn>from</span> <span class=nn>faststream.redis</span> <span class=kn>import</span> <span class=n>RedisBroker</span>
-<a id=__codelineno-15-3 name=__codelineno-15-3></a><span class=kn>from</span> <span class=nn>pydantic_settings</span> <span class=kn>import</span> <span class=n>BaseSettings</span>
+<span class=normal><a href=#__codelineno-15-16>16</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-15-1 name=__codelineno-15-1></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream</span><span class=w> </span><span class=kn>import</span> <span class=n>FastStream</span><span class=p>,</span> <span class=n>ContextRepo</span>
+<a id=__codelineno-15-2 name=__codelineno-15-2></a><span class=kn>from</span><span class=w> </span><span class=nn>faststream.redis</span><span class=w> </span><span class=kn>import</span> <span class=n>RedisBroker</span>
+<a id=__codelineno-15-3 name=__codelineno-15-3></a><span class=kn>from</span><span class=w> </span><span class=nn>pydantic_settings</span><span class=w> </span><span class=kn>import</span> <span class=n>BaseSettings</span>
 <a id=__codelineno-15-4 name=__codelineno-15-4></a>
 <a id=__codelineno-15-5 name=__codelineno-15-5></a><span class=n>broker</span> <span class=o>=</span> <span class=n>RedisBroker</span><span class=p>()</span>
 <a id=__codelineno-15-6 name=__codelineno-15-6></a>
 <a id=__codelineno-15-7 name=__codelineno-15-7></a><span class=n>app</span> <span class=o>=</span> <span class=n>FastStream</span><span class=p>(</span><span class=n>broker</span><span class=p>)</span>
 <a id=__codelineno-15-8 name=__codelineno-15-8></a>
-<a id=__codelineno-15-9 name=__codelineno-15-9></a><span class=k>class</span> <span class=nc>Settings</span><span class=p>(</span><span class=n>BaseSettings</span><span class=p>):</span>
+<a id=__codelineno-15-9 name=__codelineno-15-9></a><span class=k>class</span><span class=w> </span><span class=nc>Settings</span><span class=p>(</span><span class=n>BaseSettings</span><span class=p>):</span>
 <a id=__codelineno-15-10 name=__codelineno-15-10></a>    <span class=n>host</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=s2>&quot;redis://localhost:6379&quot;</span>
 <a id=__codelineno-15-11 name=__codelineno-15-11></a>
 <a id=__codelineno-15-12 name=__codelineno-15-12></a><span class=nd>@app</span><span class=o>.</span><span class=n>on_startup</span>
-<a id=__codelineno-15-13 name=__codelineno-15-13></a><span class=k>async</span> <span class=k>def</span> <span class=nf>setup</span><span class=p>(</span><span class=n>env</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>context</span><span class=p>:</span> <span class=n>ContextRepo</span><span class=p>):</span>
+<a id=__codelineno-15-13 name=__codelineno-15-13></a><span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>setup</span><span class=p>(</span><span class=n>env</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>context</span><span class=p>:</span> <span class=n>ContextRepo</span><span class=p>):</span>
 <a id=__codelineno-15-14 name=__codelineno-15-14></a><span class=hll>    <span class=n>settings</span> <span class=o>=</span> <span class=n>Settings</span><span class=p>(</span><span class=n>_env_file</span><span class=o>=</span><span class=n>env</span><span class=p>)</span>
 </span><a id=__codelineno-15-15 name=__codelineno-15-15></a><span class=hll>    <span class=k>await</span> <span class=n>broker</span><span class=o>.</span><span class=n>connect</span><span class=p>(</span><span class=n>settings</span><span class=o>.</span><span class=n>host</span><span class=p>)</span>
 </span><a id=__codelineno-15-16 name=__codelineno-15-16></a><span class=hll>    <span class=n>context</span><span class=o>.</span><span class=n>set_global</span><span class=p>(</span><span class=s2>&quot;settings&quot;</span><span class=p>,</span> <span class=n>settings</span><span class=p>)</span>

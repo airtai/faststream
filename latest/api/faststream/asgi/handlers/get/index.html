@@ -32,14 +32,14 @@
 <span class=normal><a href=#__codelineno-0-34>34</a></span>
 <span class=normal><a href=#__codelineno-0-35>35</a></span>
 <span class=normal><a href=#__codelineno-0-36>36</a></span>
-<span class=normal><a href=#__codelineno-0-37>37</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-13 name=__codelineno-0-13></a><span class=k>def</span> <span class=nf>get</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=s2>&quot;UserApp&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;ASGIApp&quot;</span><span class=p>:</span>
+<span class=normal><a href=#__codelineno-0-37>37</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-13 name=__codelineno-0-13></a><span class=k>def</span><span class=w> </span><span class=nf>get</span><span class=p>(</span><span class=n>func</span><span class=p>:</span> <span class=s2>&quot;UserApp&quot;</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;ASGIApp&quot;</span><span class=p>:</span>
 <a id=__codelineno-0-14 name=__codelineno-0-14></a>    <span class=n>methods</span> <span class=o>=</span> <span class=p>(</span><span class=s2>&quot;GET&quot;</span><span class=p>,</span> <span class=s2>&quot;HEAD&quot;</span><span class=p>)</span>
 <a id=__codelineno-0-15 name=__codelineno-0-15></a>
 <a id=__codelineno-0-16 name=__codelineno-0-16></a>    <span class=n>method_now_allowed_response</span> <span class=o>=</span> <span class=n>_get_method_not_allowed_response</span><span class=p>(</span><span class=n>methods</span><span class=p>)</span>
 <a id=__codelineno-0-17 name=__codelineno-0-17></a>    <span class=n>error_response</span> <span class=o>=</span> <span class=n>AsgiResponse</span><span class=p>(</span><span class=n>body</span><span class=o>=</span><span class=sa>b</span><span class=s2>&quot;Internal Server Error&quot;</span><span class=p>,</span> <span class=n>status_code</span><span class=o>=</span><span class=mi>500</span><span class=p>)</span>
 <a id=__codelineno-0-18 name=__codelineno-0-18></a>
 <a id=__codelineno-0-19 name=__codelineno-0-19></a>    <span class=nd>@wraps</span><span class=p>(</span><span class=n>func</span><span class=p>)</span>
-<a id=__codelineno-0-20 name=__codelineno-0-20></a>    <span class=k>async</span> <span class=k>def</span> <span class=nf>asgi_wrapper</span><span class=p>(</span>
+<a id=__codelineno-0-20 name=__codelineno-0-20></a>    <span class=k>async</span> <span class=k>def</span><span class=w> </span><span class=nf>asgi_wrapper</span><span class=p>(</span>
 <a id=__codelineno-0-21 name=__codelineno-0-21></a>        <span class=n>scope</span><span class=p>:</span> <span class=s2>&quot;Scope&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-22 name=__codelineno-0-22></a>        <span class=n>receive</span><span class=p>:</span> <span class=s2>&quot;Receive&quot;</span><span class=p>,</span>
 <a id=__codelineno-0-23 name=__codelineno-0-23></a>        <span class=n>send</span><span class=p>:</span> <span class=s2>&quot;Send&quot;</span><span class=p>,</span>
