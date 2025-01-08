@@ -58,7 +58,7 @@ class TestConsume(RedisTestcaseConfig, BrokerRealConsumeTestcase):
                 ),
                 timeout=3,
             )
-
+        await event.wait()
         mock.assert_called_once_with("hello")
 
     async def test_pattern_without_path(
