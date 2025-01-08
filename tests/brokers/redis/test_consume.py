@@ -38,7 +38,7 @@ class TestConsume(RedisTestcaseConfig, BrokerRealConsumeTestcase):
                 ),
                 timeout=3,
             )
-            assert result, result==1
+            assert result==1, result
 
         mock.assert_called_once_with(b"hello")
 
