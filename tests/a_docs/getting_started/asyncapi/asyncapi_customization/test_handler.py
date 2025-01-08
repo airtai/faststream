@@ -1,28 +1,25 @@
 from dirty_equals import IsPartialDict
 
 from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_handler import (
-    app,
+    docs_obj,
 )
-from faststream.asyncapi.generate import get_app_schema
 
 
-def test_handler_customization():
-    schema = get_app_schema(app).to_jsonable()
+def test_handler_customization() -> None:
+    schema = docs_obj.to_jsonable()
 
     (subscriber_key, subscriber_value), (publisher_key, publisher_value) = schema[
         "channels"
     ].items()
 
     assert subscriber_key == "input_data:Consume", subscriber_key
-    assert subscriber_value == IsPartialDict(
-        {
-            "servers": ["development"],
-            "bindings": {"kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}},
-            "subscribe": {
-                "message": {"$ref": "#/components/messages/input_data:Consume:Message"}
-            },
-        }
-    ), subscriber_value
+    assert subscriber_value == IsPartialDict({
+        "servers": ["development"],
+        "bindings": {"kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}},
+        "publish": {
+            "message": {"$ref": "#/components/messages/input_data:Consume:Message"},
+        },
+    }), subscriber_value
     desc = subscriber_value["description"]
     assert (  # noqa: PT018
         "Consumer function\n\n" in desc
@@ -35,7 +32,7 @@ def test_handler_customization():
         "description": "My publisher description",
         "servers": ["development"],
         "bindings": {"kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}},
-        "publish": {
+        "subscribe": {
             "message": {"$ref": "#/components/messages/output_data:Produce:Message"}
         },
     }

@@ -1,14 +1,16 @@
-from typing import TYPE_CHECKING, Optional, Sequence
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Optional
 
+from faststream._internal.constants import EMPTY
 from faststream.confluent.prometheus.provider import settings_provider_factory
-from faststream.prometheus.middleware import BasePrometheusMiddleware
-from faststream.types import EMPTY
+from faststream.confluent.response import KafkaPublishCommand
+from faststream.prometheus.middleware import PrometheusMiddleware
 
 if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
 
 
-class KafkaPrometheusMiddleware(BasePrometheusMiddleware):
+class KafkaPrometheusMiddleware(PrometheusMiddleware[KafkaPublishCommand]):
     def __init__(
         self,
         *,
