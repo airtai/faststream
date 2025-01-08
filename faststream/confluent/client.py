@@ -138,7 +138,7 @@ class AsyncConfluentProducer:
         timestamp_ms: Optional[int] = None,
         headers: Optional[list[tuple[str, Union[str, bytes]]]] = None,
         no_confirm: bool = False,
-    ) -> "asyncio.Future":
+    ) -> "Union[asyncio.Future[Optional[Message]], Optional[Message]]":
         """Sends a single message to a Kafka topic."""
         kwargs: _SendKwargs = {
             "value": value,
@@ -152,22 +152,22 @@ class AsyncConfluentProducer:
         if timestamp_ms is not None:
             kwargs["timestamp"] = timestamp_ms
 
-        if not no_confirm:
-            result_future: asyncio.Future[Optional[Message]] = asyncio.Future()
+        loop = asyncio.get_running_loop()
+        result_future: asyncio.Future[Optional[Message]] = loop.create_future()
 
-            def ack_callback(err: Any, msg: Optional[Message]) -> None:
-                if err or (msg is not None and (err := msg.error())):
-                    result_future.set_exception(KafkaException(err))
-                else:
-                    result_future.set_result(msg)
+        def ack_callback(err: Any, msg: Optional[Message]) -> None:
+            if err or (msg is not None and (err := msg.error())):
+                loop.call_soon_threadsafe(result_future.set_exception, KafkaException(err))
+            else:
+                loop.call_soon_threadsafe(result_future.set_result, msg)
 
-            kwargs["on_delivery"] = ack_callback
+        kwargs["on_delivery"] = ack_callback
 
         # should be sync to prevent segfault
         self.producer.produce(topic, **kwargs)
 
         if not no_confirm:
-            await result_future
+            return await result_future
         return result_future
 
     def create_batch(self) -> "BatchBuilder":
