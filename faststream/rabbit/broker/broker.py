@@ -535,7 +535,7 @@ class RabbitBroker(
         if self._max_consumers:
             logger_state.log(f"Set max consumers to {self._max_consumers}")
 
-
+    @override
     async def publish(
             self,
             message: "AioPikaSendableMessage" = None,
