@@ -33,7 +33,7 @@ class TestConsume(RabbitTestcaseConfig, BrokerRealConsumeTestcase):
         async with self.patch_broker(consume_broker) as br:
             await br.start()
             result = await br.publish("hello", queue=queue, exchange=exchange)
-            assert isinstance(result,ConfirmationFrameType), result
+            assert isinstance(result, ConfirmationFrameType), result
 
     @pytest.mark.asyncio()
     async def test_consume_with_get_old(

@@ -75,6 +75,7 @@ class TestConsume(NatsTestcaseConfig, BrokerRealConsumeTestcase):
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
+
             result = await br.publish("hello", queue, stream=stream.name)
             assert isinstance(result, PubAck), result
 
