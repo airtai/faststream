@@ -40,6 +40,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
             await br.start()
             result = await br.publish(1, topic=queue)
             assert isinstance(result, RecordMetadata), result
+        await pattern_event.wait()
         assert pattern_event.is_set()
 
     @pytest.mark.asyncio()
