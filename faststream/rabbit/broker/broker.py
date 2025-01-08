@@ -673,9 +673,10 @@ class RabbitBroker(
     ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
         """Publish message directly.
 
-        This method allows you to publish a message in a non-AsyncAPI-documented way. It can be used in other frameworks or to publish messages at specific intervals.
+        This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
+        applications or to publish messages from time to time.
 
-        Please, use @broker.publisher(...) or broker.publisher(...).publish(...) for the regular method of publishing.
+        Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
 
         Args:
             message:
