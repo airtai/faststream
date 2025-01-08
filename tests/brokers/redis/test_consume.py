@@ -25,23 +25,22 @@ class TestConsume(RedisTestcaseConfig, BrokerRealConsumeTestcase):
 
         @consume_broker.subscriber(queue)
         async def handler(msg) -> None:
-            mock(msg.decode())
+            mock(msg)
             event.set()
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
 
+            result = await br._connection.publish(queue, "hello")
             await asyncio.wait(
                 (
-                    asyncio.create_task(br._connection.publish(queue, "hello")),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
             )
-            result = await br._connection.publish(queue, "hello")
-            assert result==1, result
+            assert result, result==1
 
-        mock.assert_called_once_with("hello")
+        mock.assert_called_once_with(b"hello")
 
     async def test_pattern_with_path(
         self,
