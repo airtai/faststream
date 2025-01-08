@@ -77,7 +77,14 @@ class TestConsume(NatsTestcaseConfig, BrokerRealConsumeTestcase):
             await br.start()
 
             result = await br.publish("hello", queue, stream=stream.name)
+
+            await asyncio.wait(
+                (asyncio.create_task(event.wait()),),
+                timeout=3,
+            )
+
             assert isinstance(result, PubAck), result
+        assert event.is_set()
 
     async def test_consume_with_filter(
         self,

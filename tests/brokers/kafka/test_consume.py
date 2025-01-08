@@ -38,10 +38,20 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
+
             result = await br.publish(1, topic=queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(br.publish(1, topic=queue)),
+                    asyncio.create_task(event.wait()),
+                    asyncio.create_task(pattern_event.wait()),
+                ),
+                timeout=3,
+            )
             assert isinstance(result, RecordMetadata), result
 
-        await pattern_event.wait()
+        assert event.is_set()
         assert pattern_event.is_set()
 
     @pytest.mark.asyncio()
