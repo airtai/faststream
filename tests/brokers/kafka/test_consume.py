@@ -1,5 +1,6 @@
 import asyncio
-from unittest.mock import MagicMock, patch
+import logging
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 from aiokafka import AIOKafkaConsumer
@@ -8,6 +9,7 @@ from aiokafka.admin import AIOKafkaAdminClient, NewTopic
 from faststream.exceptions import AckMessage
 from faststream.kafka import KafkaBroker, TopicPartition
 from faststream.kafka.annotations import KafkaMessage
+from faststream.kafka.subscriber.usecase import ConcurrentBetweenPartitionsSubscriber
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
@@ -456,6 +458,56 @@ class TestConsume(BrokerRealConsumeTestcase):
                 assert mock.mock.call_count == 2
 
             await broker.close()
+
+    @pytest.mark.asyncio
+    @pytest.mark.slow
+    @pytest.mark.parametrize(
+        ("partitions", "warning"),
+        [
+            pytest.param(2, True, id="unassigned consumers"),
+            pytest.param(3, False, id="no unassigned consumers"),
+        ],
+    )
+    async def test_concurrent_consume_between_partitions_assignment_warning(
+        self,
+        queue: str,
+        partitions: int,
+        warning: bool,
+    ):
+        admin_client = AIOKafkaAdminClient()
+        try:
+            await admin_client.start()
+            await admin_client.create_topics([NewTopic(queue, partitions, 1)])
+        finally:
+            await admin_client.close()
+
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(
+            queue,
+            max_workers=3,
+            auto_commit=False,
+            group_id="service_1",
+        )
+        async def handler(msg: str):
+            pass
+
+        with patch.object(
+            ConcurrentBetweenPartitionsSubscriber, "_log", Mock()
+        ) as mock:
+            async with self.patch_broker(consume_broker) as broker:
+                await broker.start()
+                await broker.close()
+            if warning:
+                assert (
+                    len([x for x in mock.call_args_list if x[0][1] == logging.WARNING])
+                    == 1
+                )
+            else:
+                assert (
+                    len([x for x in mock.call_args_list if x[0][1] == logging.WARNING])
+                    == 0
+                )
 
     @pytest.mark.asyncio
     async def test_consume_without_value(
