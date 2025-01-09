@@ -33,9 +33,7 @@ class TestConsume(RedisTestcaseConfig, BrokerRealConsumeTestcase):
 
             result = await br._connection.publish(queue, "hello")
             await asyncio.wait(
-                (
-                    asyncio.create_task(event.wait()),
-                ),
+                (asyncio.create_task(event.wait()),),
                 timeout=3,
             )
             assert result == 1, result

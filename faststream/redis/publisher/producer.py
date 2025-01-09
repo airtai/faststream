@@ -123,7 +123,9 @@ class RedisFastProducer(ProducerProto):
         ]
         return await self._connection.client.rpush(cmd.destination, *batch)
 
-    async def __publish(self, msg: bytes, cmd: "RedisPublishCommand") -> Union[int, bytes]:
+    async def __publish(
+        self, msg: bytes, cmd: "RedisPublishCommand"
+    ) -> Union[int, bytes]:
         if cmd.destination_type is DestinationType.Channel:
             return await self._connection.client.publish(cmd.destination, msg)
 
@@ -131,11 +133,14 @@ class RedisFastProducer(ProducerProto):
             return await self._connection.client.rpush(cmd.destination, msg)
 
         if cmd.destination_type is DestinationType.Stream:
-            return cast("bytes", await self._connection.client.xadd(
-                name=cmd.destination,
-                fields={DATA_KEY: msg},
-                maxlen=cmd.maxlen,
-            ))
+            return cast(
+                "bytes",
+                await self._connection.client.xadd(
+                    name=cmd.destination,
+                    fields={DATA_KEY: msg},
+                    maxlen=cmd.maxlen,
+                ),
+            )
 
         error_msg = "unreachable"
         raise AssertionError(error_msg)

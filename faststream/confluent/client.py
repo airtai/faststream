@@ -157,7 +157,9 @@ class AsyncConfluentProducer:
 
         def ack_callback(err: Any, msg: Optional[Message]) -> None:
             if err or (msg is not None and (err := msg.error())):
-                loop.call_soon_threadsafe(result_future.set_exception, KafkaException(err))
+                loop.call_soon_threadsafe(
+                    result_future.set_exception, KafkaException(err)
+                )
             else:
                 loop.call_soon_threadsafe(result_future.set_result, msg)
 
@@ -357,7 +359,9 @@ class AsyncConfluentConsumer:
 
     async def commit(self, asynchronous: bool = True) -> None:
         """Commits the offsets of all messages returned by the last poll operation."""
-        await run_in_executor(self._thread_pool, self.consumer.commit, asynchronous=asynchronous)
+        await run_in_executor(
+            self._thread_pool, self.consumer.commit, asynchronous=asynchronous
+        )
 
     async def stop(self) -> None:
         """Stops the Kafka consumer and releases all resources."""
@@ -382,7 +386,7 @@ class AsyncConfluentConsumer:
         # Wrap calls to async to make method cancelable by timeout
         # We shouldn't read messages and close consumer concurrently
         # https://github.com/airtai/faststream/issues/1904#issuecomment-2506990895
-        # Now it works withouth lock due `ThreadPoolExecutor(max_workers=1)`
+        # Now it works without lock due `ThreadPoolExecutor(max_workers=1)`
         # that makes all calls to consumer sequential
         await run_in_executor(self._thread_pool, self.consumer.close)
 
@@ -414,7 +418,9 @@ class AsyncConfluentConsumer:
             partition=partition,
             offset=offset,
         )
-        await run_in_executor(self._thread_pool, self.consumer.seek, topic_partition.to_confluent())
+        await run_in_executor(
+            self._thread_pool, self.consumer.seek, topic_partition.to_confluent()
+        )
 
 
 def check_msg_error(msg: Optional[Message]) -> Optional[Message]:

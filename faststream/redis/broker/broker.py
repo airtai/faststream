@@ -369,60 +369,46 @@ class RedisBroker(
         }
 
     @overload
-    async def publish(  # type: ignore[override]
-            self,
-            message: "SendableMessage" = None,
-            channel: None = None,
-            *,
-            reply_to: str = "",
-            headers: Optional["AnyDict"] = None,
-            correlation_id: Optional[str] = None,
-            list: Optional[str] = None,
-            stream: Optional[str] = None,
-            maxlen: Optional[int] = None,
-    ) -> None: ...
-
-    @overload
-    async def publish(  # type: ignore[override]
-            self,
-            message: None = None,
-            channel: Optional[str] = None,
-            *,
-            reply_to: str = "",
-            headers: Optional["AnyDict"] = None,
-            correlation_id: Optional[str] = None,
-            list: Optional[str] = None,
-            stream: Optional[str] = None,
-            maxlen: Optional[int] = None,
-    ) -> None: ...
-
-    @overload
-    async def publish(  # type: ignore[override]
-            self,
-            message: "SendableMessage" = None,
-            channel: Optional[str] = None,
-            *,
-            reply_to: str = "",
-            headers: Optional["AnyDict"] = None,
-            correlation_id: Optional[str] = None,
-            list: Optional[str] = None,
-            stream: Optional[str] = None,
-            maxlen: Optional[int] = None,
+    async def publish(
+        self,
+        message: "SendableMessage" = None,
+        channel: Optional[str] = None,
+        *,
+        reply_to: str = "",
+        headers: Optional["AnyDict"] = None,
+        correlation_id: Optional[str] = None,
+        list: Optional[str] = None,
+        stream: None = None,
+        maxlen: Optional[int] = None,
     ) -> int: ...
 
+    @overload
+    async def publish(
+        self,
+        message: "SendableMessage" = None,
+        channel: Optional[str] = None,
+        *,
+        reply_to: str = "",
+        headers: Optional["AnyDict"] = None,
+        correlation_id: Optional[str] = None,
+        list: Optional[str] = None,
+        stream: str,
+        maxlen: Optional[int] = None,
+    ) -> bytes: ...
+
     @override
-    async def publish(  # type: ignore[override]
-            self,
-            message: "SendableMessage" = None,
-            channel: Optional[str] = None,
-            *,
-            reply_to: str = "",
-            headers: Optional["AnyDict"] = None,
-            correlation_id: Optional[str] = None,
-            list: Optional[str] = None,
-            stream: Optional[str] = None,
-            maxlen: Optional[int] = None,
-    ) -> Optional[int]:
+    async def publish(
+        self,
+        message: "SendableMessage" = None,
+        channel: Optional[str] = None,
+        *,
+        reply_to: str = "",
+        headers: Optional["AnyDict"] = None,
+        correlation_id: Optional[str] = None,
+        list: Optional[str] = None,
+        stream: Optional[str] = None,
+        maxlen: Optional[int] = None,
+    ) -> Union[int, bytes]:
         """Publish message directly.
 
         This method allows you to publish a message in a non-AsyncAPI-documented way.

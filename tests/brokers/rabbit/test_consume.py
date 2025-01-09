@@ -36,9 +36,7 @@ class TestConsume(RabbitTestcaseConfig, BrokerRealConsumeTestcase):
 
             result = await br.publish("hello", queue=queue, exchange=exchange)
             await asyncio.wait(
-                (
-                    asyncio.create_task(event.wait()),
-                ),
+                (asyncio.create_task(event.wait()),),
                 timeout=3,
             )
             assert isinstance(result, ConfirmationFrameType), result
