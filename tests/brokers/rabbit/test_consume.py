@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import pytest
 from aio_pika import IncomingMessage, Message
+from aiormq.abc import ConfirmationFrameType
 
 from faststream import AckPolicy
 from faststream.exceptions import AckMessage, NackMessage, RejectMessage, SkipMessage
@@ -32,15 +33,13 @@ class TestConsume(RabbitTestcaseConfig, BrokerRealConsumeTestcase):
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
+
+            result = await br.publish("hello", queue=queue, exchange=exchange)
             await asyncio.wait(
-                (
-                    asyncio.create_task(
-                        br.publish("hello", queue=queue, exchange=exchange),
-                    ),
-                    asyncio.create_task(event.wait()),
-                ),
+                (asyncio.create_task(event.wait()),),
                 timeout=3,
             )
+            assert isinstance(result, ConfirmationFrameType), result
 
         assert event.is_set()
 

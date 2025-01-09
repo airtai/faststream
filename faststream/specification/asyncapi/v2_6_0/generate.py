@@ -157,6 +157,7 @@ def get_broker_channels(
                     RuntimeWarning,
                     stacklevel=1,
                 )
+
             channels[key] = Channel.from_sub(sub)
 
     for p in broker._publishers:

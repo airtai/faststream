@@ -536,104 +536,30 @@ class RabbitBroker(
             logger_state.log(f"Set max consumers to {self._max_consumers}")
 
     @override
-    async def publish(  # type: ignore[override]
+    async def publish(
         self,
-        message: Annotated[
-            "AioPikaSendableMessage",
-            Doc("Message body to send."),
-        ] = None,
-        queue: Annotated[
-            Union["RabbitQueue", str],
-            Doc("Message routing key to publish with."),
-        ] = "",
-        exchange: Annotated[
-            Union["RabbitExchange", str, None],
-            Doc("Target exchange to publish message to."),
-        ] = None,
+        message: "AioPikaSendableMessage" = None,
+        queue: Union["RabbitQueue", str] = "",
+        exchange: Union["RabbitExchange", str, None] = None,
         *,
-        routing_key: Annotated[
-            str,
-            Doc(
-                "Message routing key to publish with. "
-                "Overrides `queue` option if presented.",
-            ),
-        ] = "",
-        mandatory: Annotated[
-            bool,
-            Doc(
-                "Client waits for confirmation that the message is placed to some queue. "
-                "RabbitMQ returns message to client if there is no suitable queue.",
-            ),
-        ] = True,
-        immediate: Annotated[
-            bool,
-            Doc(
-                "Client expects that there is consumer ready to take the message to work. "
-                "RabbitMQ returns message to client if there is no suitable consumer.",
-            ),
-        ] = False,
-        timeout: Annotated[
-            "TimeoutType",
-            Doc("Send confirmation time from RabbitMQ."),
-        ] = None,
-        persist: Annotated[
-            bool,
-            Doc("Restore the message on RabbitMQ reboot."),
-        ] = False,
-        reply_to: Annotated[
-            Optional[str],
-            Doc(
-                "Reply message routing key to send with (always sending to default exchange).",
-            ),
-        ] = None,
-        # message args
-        correlation_id: Annotated[
-            Optional[str],
-            Doc(
-                "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages.",
-            ),
-        ] = None,
-        headers: Annotated[
-            Optional["HeadersType"],
-            Doc("Message headers to store metainformation."),
-        ] = None,
-        content_type: Annotated[
-            Optional[str],
-            Doc(
-                "Message **content-type** header. "
-                "Used by application, not core RabbitMQ. "
-                "Will be set automatically if not specified.",
-            ),
-        ] = None,
-        content_encoding: Annotated[
-            Optional[str],
-            Doc("Message body content encoding, e.g. **gzip**."),
-        ] = None,
-        expiration: Annotated[
-            Optional["DateType"],
-            Doc("Message expiration (lifetime) in seconds (or datetime or timedelta)."),
-        ] = None,
-        message_id: Annotated[
-            Optional[str],
-            Doc("Arbitrary message id. Generated automatically if not presented."),
-        ] = None,
-        timestamp: Annotated[
-            Optional["DateType"],
-            Doc("Message publish timestamp. Generated automatically if not presented."),
-        ] = None,
-        message_type: Annotated[
-            Optional[str],
-            Doc("Application-specific message type, e.g. **orders.created**."),
-        ] = None,
-        user_id: Annotated[
-            Optional[str],
-            Doc("Publisher connection User ID, validated if set."),
-        ] = None,
-        priority: Annotated[
-            Optional[int],
-            Doc("The message priority (0 by default)."),
-        ] = None,
+        routing_key: str = "",
+        # publish options
+        mandatory: bool = True,
+        immediate: bool = False,
+        timeout: "TimeoutType" = None,
+        persist: bool = False,
+        reply_to: Optional[str] = None,
+        correlation_id: Optional[str] = None,
+        # message options
+        headers: Optional["HeadersType"] = None,
+        content_type: Optional[str] = None,
+        content_encoding: Optional[str] = None,
+        expiration: Optional["DateType"] = None,
+        message_id: Optional[str] = None,
+        timestamp: Optional["DateType"] = None,
+        message_type: Optional[str] = None,
+        user_id: Optional[str] = None,
+        priority: Optional[int] = None,
     ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
         """Publish message directly.
 
@@ -641,6 +567,49 @@ class RabbitBroker(
         applications or to publish messages from time to time.
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
+
+        Args:
+            message:
+                Message body to send.
+            queue:
+                Message routing key to publish with.
+            exchange:
+                Target exchange to publish message to.
+            routing_key:
+                Message routing key to publish with. Overrides `queue` option if presented.
+            mandatory:
+                Client waits for confirmation that the message is placed to some queue. RabbitMQ returns message to client if there is no suitable queue.
+            immediate:
+                Client expects that there is consumer ready to take the message to work. RabbitMQ returns message to client if there is no suitable consumer.
+            timeout:
+                Send confirmation time from RabbitMQ.
+            persist:
+                Restore the message on RabbitMQ reboot.
+            reply_to:
+                Reply message routing key to send with (always sending to default exchange).
+            correlation_id:
+                Manual message **correlation_id** setter. **correlation_id** is a useful option to trace messages.
+            headers:
+                Message headers to store metainformation.
+            content_type:
+                Message **content-type** header. Used by application, not core RabbitMQ. Will be set automatically if not specified.
+            content_encoding:
+                Message body content encoding, e.g. **gzip**.
+            expiration:
+                Message expiration (lifetime) in seconds (or datetime or timedelta).
+            message_id:
+                Arbitrary message id. Generated automatically if not presented.
+            timestamp:
+                Message publish timestamp. Generated automatically if not presented.
+            message_type:
+                Application-specific message type, e.g. **orders.created**.
+            user_id:
+                Publisher connection User ID, validated if set.
+            priority:
+                The message priority (0 by default).
+
+        Returns:
+            An optional `aiormq.abc.ConfirmationFrameType` representing the confirmation frame if RabbitMQ is configured to send confirmations.
         """
         cmd = RabbitPublishCommand(
             message,
