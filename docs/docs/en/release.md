@@ -12,6 +12,30 @@ hide:
 ---
 
 # Release Notes
+## 0.5.34
+
+### What's Changed
+
+* fix: when / present in virtual host name and passing as uri by [@pepellsd](https://github.com/pepellsd){.external-link target="_blank"} in [#1979](https://github.com/airtai/faststream/pull/1979){.external-link target="_blank"}
+* fix (#2013): allow to create publisher in already connected broker by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#2024](https://github.com/airtai/faststream/pull/2024){.external-link target="_blank"}
+* feat: add BatchBufferOverflowException by [@spataphore1337](https://github.com/spataphore1337){.external-link target="_blank"} in [#1990](https://github.com/airtai/faststream/pull/1990){.external-link target="_blank"}
+* feat: add static instrumentation info by [@draincoder](https://github.com/draincoder){.external-link target="_blank"} in [#1996](https://github.com/airtai/faststream/pull/1996){.external-link target="_blank"}
+* docs: remove reference of "faststream.access" by [@rishabhc32](https://github.com/rishabhc32){.external-link target="_blank"} in [#1995](https://github.com/airtai/faststream/pull/1995){.external-link target="_blank"}
+* docs: fixed typo in publishing/test.md by [@AlexPetul](https://github.com/AlexPetul){.external-link target="_blank"} in [#2009](https://github.com/airtai/faststream/pull/2009){.external-link target="_blank"}
+* docs: ability to declare queue/exchange binding by [@MagicAbdel](https://github.com/MagicAbdel){.external-link target="_blank"} in [#2011](https://github.com/airtai/faststream/pull/2011){.external-link target="_blank"}
+* docs: fix spelling mistake of `/health` by [@herotomg](https://github.com/herotomg){.external-link target="_blank"} in [#2023](https://github.com/airtai/faststream/pull/2023){.external-link target="_blank"}
+* docs: update aio-pika external docs URL as it has been moved by [@HybridBit](https://github.com/HybridBit){.external-link target="_blank"} in [#1984](https://github.com/airtai/faststream/pull/1984){.external-link target="_blank"}
+* refactor: add type annotations for RabbitQueue and enum for queue type by [@pepellsd](https://github.com/pepellsd){.external-link target="_blank"} in [#2002](https://github.com/airtai/faststream/pull/2002){.external-link target="_blank"}
+
+### New Contributors
+* [@HybridBit](https://github.com/HybridBit){.external-link target="_blank"} made their first contribution in [#1984](https://github.com/airtai/faststream/pull/1984){.external-link target="_blank"}
+* [@rishabhc32](https://github.com/rishabhc32){.external-link target="_blank"} made their first contribution in [#1995](https://github.com/airtai/faststream/pull/1995){.external-link target="_blank"}
+* [@AlexPetul](https://github.com/AlexPetul){.external-link target="_blank"} made their first contribution in [#2009](https://github.com/airtai/faststream/pull/2009){.external-link target="_blank"}
+* [@MagicAbdel](https://github.com/MagicAbdel){.external-link target="_blank"} made their first contribution in [#2011](https://github.com/airtai/faststream/pull/2011){.external-link target="_blank"}
+* [@herotomg](https://github.com/herotomg){.external-link target="_blank"} made their first contribution in [#2023](https://github.com/airtai/faststream/pull/2023){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.33...0.5.34](https://github.com/airtai/faststream/compare/0.5.33...0.5.34){.external-link target="_blank"}
+
 ## 0.5.33
 
 ### What's Changed
