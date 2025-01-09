@@ -114,6 +114,15 @@ class RedisPublishCommand(PublishCommand):
             return self.extra_bodies
         return (self.body, *self.extra_bodies)
 
+    @batch_bodies.setter
+    def batch_bodies(self, value: Sequence["SendableMessage"]) -> None:
+        if len(value) == 0:
+            self.body = None
+            self.extra_bodies = ()
+        else:
+            self.body = value[0]
+            self.extra_bodies = tuple(value[1:])
+
     @classmethod
     def from_cmd(
         cls,
