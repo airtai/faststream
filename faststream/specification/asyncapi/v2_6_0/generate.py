@@ -158,7 +158,7 @@ def get_broker_channels(
                     stacklevel=1,
                 )
             channels[key] = Channel.from_sub(channel)
-             
+
     for p in broker._publishers:
         for key, channel in p.schema().items():
             if key in channels:

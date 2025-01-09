@@ -78,9 +78,9 @@ def wrap_callable_to_fastapi_compatible(
     response_model_exclude_none: bool,
     state: "DIState",
 ) -> Callable[["NativeMessage[Any]"], Awaitable[Any]]:
-    __magic_attr = "__faststream_consumer__"
+    magic_attr = "__faststream_consumer__"
 
-    if getattr(user_callable, __magic_attr, False):
+    if getattr(user_callable, magic_attr, False):
         return user_callable  # type: ignore[return-value]
 
     if response_model:
@@ -105,7 +105,7 @@ def wrap_callable_to_fastapi_compatible(
         state=state,
     )
 
-    setattr(parsed_callable, __magic_attr, True)
+    setattr(parsed_callable, magic_attr, True)
     return wraps(user_callable)(parsed_callable)
 
 

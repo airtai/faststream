@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 import anyio
 from aio_pika import IncomingMessage, RobustConnection, connect_robust
-from typing_extensions import Doc, override, overload
+from typing_extensions import Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import ABCBroker, BrokerUsecase
@@ -537,30 +537,30 @@ class RabbitBroker(
 
     @override
     async def publish(
-            self,
-            message: "AioPikaSendableMessage" = None,
-            queue: Union["RabbitQueue", str] = "",
-            exchange: Union["RabbitExchange", str, None] = None,
-            *,
-            routing_key: str = "",
-            # ↓ publish kwargs
-            mandatory: bool = True,
-            immediate: bool = False,
-            timeout: "TimeoutType" = None,
-            persist: bool = False,
-            reply_to: Optional[str] = None,
-            correlation_id: Optional[str] = None,
-            # ↓ kwargs for super().init(), super is PublishCommand
-            headers: Optional["HeadersType"] = None,
-            content_type: Optional[str] = None,
-            content_encoding: Optional[str] = None,
-            expiration: Optional["DateType"] = None,
-            message_id: Optional[str] = None,
-            timestamp: Optional["DateType"] = None,
-            message_type: Optional[str] = None,
-            user_id: Optional[str] = None,
-            priority: Optional[int] = None,
-    ) -> "aiormq.abc.ConfirmationFrameType":
+        self,
+        message: "AioPikaSendableMessage" = None,
+        queue: Union["RabbitQueue", str] = "",
+        exchange: Union["RabbitExchange", str, None] = None,
+        *,
+        routing_key: str = "",
+        # publish options
+        mandatory: bool = True,
+        immediate: bool = False,
+        timeout: "TimeoutType" = None,
+        persist: bool = False,
+        reply_to: Optional[str] = None,
+        correlation_id: Optional[str] = None,
+        # message options
+        headers: Optional["HeadersType"] = None,
+        content_type: Optional[str] = None,
+        content_encoding: Optional[str] = None,
+        expiration: Optional["DateType"] = None,
+        message_id: Optional[str] = None,
+        timestamp: Optional["DateType"] = None,
+        message_type: Optional[str] = None,
+        user_id: Optional[str] = None,
+        priority: Optional[int] = None,
+    ) -> Optional["aiormq.abc.ConfirmationFrameType"]:
         """Publish message directly.
 
         This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
@@ -609,7 +609,7 @@ class RabbitBroker(
                 The message priority (0 by default).
 
         Returns:
-            An optional aiormq.abc.ConfirmationFrameType representing the confirmation frame if RabbitMQ is configured to send confirmations.
+            An optional `aiormq.abc.ConfirmationFrameType` representing the confirmation frame if RabbitMQ is configured to send confirmations.
         """
         cmd = RabbitPublishCommand(
             message,

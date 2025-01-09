@@ -21,7 +21,7 @@ from redis.asyncio.connection import (
     parse_url,
 )
 from redis.exceptions import ConnectionError
-from typing_extensions import Doc, TypeAlias, override, overload
+from typing_extensions import Doc, TypeAlias, overload, override
 
 from faststream.__about__ import __version__
 from faststream._internal.broker.broker import BrokerUsecase
@@ -410,7 +410,6 @@ class RedisBroker(
             maxlen: Optional[int] = None,
     ) -> int: ...
 
-
     @override
     async def publish(  # type: ignore[override]
             self,
@@ -424,8 +423,7 @@ class RedisBroker(
             stream: Optional[str] = None,
             maxlen: Optional[int] = None,
     ) -> Optional[int]:
-        """
-        Publish message directly.
+        """Publish message directly.
 
         This method allows you to publish a message in a non-AsyncAPI-documented way.
         It can be used in other frameworks or to publish messages at specific intervals.
