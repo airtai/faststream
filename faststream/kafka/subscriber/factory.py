@@ -6,6 +6,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Type,
     Union,
     overload,
 )
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import BrokerMiddleware
+    from faststream.kafka.listener import DefaultLoggingConsumerRebalanceListener
     from faststream.types import AnyDict
 
 
@@ -36,6 +38,7 @@ def create_subscriber(
     # Kafka information
     group_id: Optional[str],
     listener: Optional["ConsumerRebalanceListener"],
+    listener_factory: Type["DefaultLoggingConsumerRebalanceListener"],
     pattern: Optional[str],
     connection_args: "AnyDict",
     partitions: Collection["TopicPartition"],
@@ -63,6 +66,7 @@ def create_subscriber(
     # Kafka information
     group_id: Optional[str],
     listener: Optional["ConsumerRebalanceListener"],
+    listener_factory: Type["DefaultLoggingConsumerRebalanceListener"],
     pattern: Optional[str],
     connection_args: "AnyDict",
     partitions: Collection["TopicPartition"],
@@ -93,6 +97,7 @@ def create_subscriber(
     # Kafka information
     group_id: Optional[str],
     listener: Optional["ConsumerRebalanceListener"],
+    listener_factory: Type["DefaultLoggingConsumerRebalanceListener"],
     pattern: Optional[str],
     connection_args: "AnyDict",
     partitions: Collection["TopicPartition"],
@@ -125,6 +130,7 @@ def create_subscriber(
     # Kafka information
     group_id: Optional[str],
     listener: Optional["ConsumerRebalanceListener"],
+    listener_factory: Type["DefaultLoggingConsumerRebalanceListener"],
     pattern: Optional[str],
     connection_args: "AnyDict",
     partitions: Collection["TopicPartition"],
@@ -183,6 +189,7 @@ def create_subscriber(
             max_records=max_records,
             group_id=group_id,
             listener=listener,
+            listener_factory=listener_factory,
             pattern=pattern,
             connection_args=connection_args,
             partitions=partitions,
@@ -205,6 +212,7 @@ def create_subscriber(
                     max_workers=max_workers,
                     group_id=group_id,
                     listener=listener,
+                    listener_factory=listener_factory,
                     pattern=pattern,
                     connection_args=connection_args,
                     partitions=partitions,
@@ -224,6 +232,7 @@ def create_subscriber(
                     max_workers=max_workers,
                     group_id=group_id,
                     listener=listener,
+                    listener_factory=listener_factory,
                     pattern=pattern,
                     connection_args=connection_args,
                     partitions=partitions,
@@ -242,6 +251,7 @@ def create_subscriber(
                 *topics,
                 group_id=group_id,
                 listener=listener,
+                listener_factory=listener_factory,
                 pattern=pattern,
                 connection_args=connection_args,
                 partitions=partitions,

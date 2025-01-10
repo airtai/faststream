@@ -9,6 +9,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Type,
     Union,
     cast,
     overload,
@@ -20,6 +21,7 @@ from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
+from faststream.kafka.listener import DefaultLoggingConsumerRebalanceListener
 from faststream.kafka.publisher.asyncapi import AsyncAPIPublisher
 from faststream.kafka.subscriber.factory import create_subscriber
 
@@ -376,6 +378,15 @@ class KafkaRegistrator(
             """
             ),
         ] = None,
+        listener_factory: Annotated[
+            Type["DefaultLoggingConsumerRebalanceListener"],
+            Doc(
+                """
+                Subclass of `DefaultLoggingConsumerRebalanceListener` that will be used to create a
+                consumer rebalance listener if the `listener` argument is `None`.
+            """
+            ),
+        ] = DefaultLoggingConsumerRebalanceListener,
         pattern: Annotated[
             Optional[str],
             Doc(
@@ -757,6 +768,15 @@ class KafkaRegistrator(
             """
             ),
         ] = None,
+        listener_factory: Annotated[
+            Type["DefaultLoggingConsumerRebalanceListener"],
+            Doc(
+                """
+                Subclass of `DefaultLoggingConsumerRebalanceListener` that will be used to create a
+                consumer rebalance listener if the `listener` argument is `None`.
+            """
+            ),
+        ] = DefaultLoggingConsumerRebalanceListener,
         pattern: Annotated[
             Optional[str],
             Doc(
@@ -1138,6 +1158,15 @@ class KafkaRegistrator(
             """
             ),
         ] = None,
+        listener_factory: Annotated[
+            Type["DefaultLoggingConsumerRebalanceListener"],
+            Doc(
+                """
+                Subclass of `DefaultLoggingConsumerRebalanceListener` that will be used to create a
+                consumer rebalance listener if the `listener` argument is `None`.
+            """
+            ),
+        ] = DefaultLoggingConsumerRebalanceListener,
         pattern: Annotated[
             Optional[str],
             Doc(
@@ -1522,6 +1551,15 @@ class KafkaRegistrator(
             """
             ),
         ] = None,
+        listener_factory: Annotated[
+            Type["DefaultLoggingConsumerRebalanceListener"],
+            Doc(
+                """
+                Subclass of `DefaultLoggingConsumerRebalanceListener` that will be used to create a
+                consumer rebalance listener if the `listener` argument is `None`.
+            """
+            ),
+        ] = DefaultLoggingConsumerRebalanceListener,
         pattern: Annotated[
             Optional[str],
             Doc(
@@ -1623,6 +1661,7 @@ class KafkaRegistrator(
                 max_records=max_records,
                 group_id=group_id,
                 listener=listener,
+                listener_factory=listener_factory,
                 pattern=pattern,
                 connection_args={
                     "key_deserializer": key_deserializer,

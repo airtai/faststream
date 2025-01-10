@@ -11,6 +11,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Type,
     cast,
 )
 
@@ -40,6 +41,7 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto
+    from faststream.kafka.listener import DefaultLoggingConsumerRebalanceListener
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
@@ -62,6 +64,7 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
         group_id: Optional[str],
         connection_args: "AnyDict",
         listener: Optional["ConsumerRebalanceListener"],
+        listener_factory: Type["DefaultLoggingConsumerRebalanceListener"],
         pattern: Optional[str],
         partitions: Iterable["TopicPartition"],
         # Subscriber args
@@ -98,6 +101,7 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
 
         self._pattern = pattern
         self._listener = listener
+        self._listener_factory = listener_factory
         self._connection_args = connection_args
 
         # Setup it later
@@ -156,7 +160,8 @@ class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
             consumer.subscribe(
                 topics=self.topics,
                 pattern=self._pattern,
-                listener=self._listener,
+                listener=self._listener
+                or self._listener_factory(consumer=consumer, logger=self.logger),
             )
 
         elif self.partitions:
@@ -302,6 +307,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         # Kafka information
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
+        listener_factory: Type["DefaultLoggingConsumerRebalanceListener"],
         pattern: Optional[str],
         connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
@@ -336,6 +342,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             *topics,
             group_id=group_id,
             listener=listener,
+            listener_factory=listener_factory,
             pattern=pattern,
             connection_args=connection_args,
             partitions=partitions,
@@ -383,6 +390,7 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         # Kafka information
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
+        listener_factory: Type["DefaultLoggingConsumerRebalanceListener"],
         pattern: Optional[str],
         connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
@@ -422,6 +430,7 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             *topics,
             group_id=group_id,
             listener=listener,
+            listener_factory=listener_factory,
             pattern=pattern,
             connection_args=connection_args,
             partitions=partitions,
@@ -479,6 +488,7 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin[ConsumerRecord], DefaultSubscr
         # Kafka information
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
+        listener_factory: Type["DefaultLoggingConsumerRebalanceListener"],
         pattern: Optional[str],
         connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
@@ -499,6 +509,7 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin[ConsumerRecord], DefaultSubscr
             *topics,
             group_id=group_id,
             listener=listener,
+            listener_factory=listener_factory,
             pattern=pattern,
             connection_args=connection_args,
             partitions=partitions,
@@ -533,6 +544,7 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
         # Kafka information
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
+        listener_factory: Type["DefaultLoggingConsumerRebalanceListener"],
         pattern: Optional[str],
         connection_args: "AnyDict",
         partitions: Iterable["TopicPartition"],
@@ -553,6 +565,7 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
             *topics,
             group_id=group_id,
             listener=listener,
+            listener_factory=listener_factory,
             pattern=pattern,
             connection_args=connection_args,
             partitions=partitions,
@@ -586,7 +599,8 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
         [
             consumer.subscribe(
                 topics=self.topics,
-                listener=self._listener,
+                listener=self._listener
+                or self._listener_factory(consumer=consumer, logger=self.logger),
             )
             for consumer in self.consumer_subgroup
         ]
@@ -595,13 +609,6 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
             for consumer in self.consumer_subgroup:
                 tg.start_soon(consumer.start)
 
-        for consumer in self.consumer_subgroup:
-            self._log(
-                logging.INFO,
-                "Consumer %s assigned to partitions: %s",
-                consumer._coordinator.member_id,
-                consumer.assignment(),
-            )
         if any(not consumer.assignment() for consumer in self.consumer_subgroup):
             self._log(
                 logging.WARNING,

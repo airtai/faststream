@@ -103,7 +103,7 @@ class LoggerProto(Protocol):
         level: int,
         msg: Any,
         /,
-        *,
+        *args: Any,
         exc_info: Any = None,
         extra: Optional[Mapping[str, Any]] = None,
     ) -> None: ...

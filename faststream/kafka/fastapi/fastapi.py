@@ -32,6 +32,7 @@ from faststream.__about__ import SERVICE_NAME
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.kafka.broker.broker import KafkaBroker as KB
+from faststream.kafka.listener import DefaultLoggingConsumerRebalanceListener
 from faststream.types import EMPTY
 
 if TYPE_CHECKING:
@@ -916,6 +917,15 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             """
             ),
         ] = None,
+        listener_factory: Annotated[
+            Type["DefaultLoggingConsumerRebalanceListener"],
+            Doc(
+                """
+                Subclass of `DefaultLoggingConsumerRebalanceListener` that will be used to create a
+                consumer rebalance listener if the `listener` argument is `None`.
+            """
+            ),
+        ] = DefaultLoggingConsumerRebalanceListener,
         pattern: Annotated[
             Optional[str],
             Doc(
@@ -1417,6 +1427,15 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             """
             ),
         ] = None,
+        listener_factory: Annotated[
+            Type["DefaultLoggingConsumerRebalanceListener"],
+            Doc(
+                """
+                Subclass of `DefaultLoggingConsumerRebalanceListener` that will be used to create a
+                consumer rebalance listener if the `listener` argument is `None`.
+            """
+            ),
+        ] = DefaultLoggingConsumerRebalanceListener,
         pattern: Annotated[
             Optional[str],
             Doc(
@@ -1918,6 +1937,15 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             """
             ),
         ] = None,
+        listener_factory: Annotated[
+            Type["DefaultLoggingConsumerRebalanceListener"],
+            Doc(
+                """
+                Subclass of `DefaultLoggingConsumerRebalanceListener` that will be used to create a
+                consumer rebalance listener if the `listener` argument is `None`.
+            """
+            ),
+        ] = DefaultLoggingConsumerRebalanceListener,
         pattern: Annotated[
             Optional[str],
             Doc(
@@ -2422,6 +2450,15 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             """
             ),
         ] = None,
+        listener_factory: Annotated[
+            Type["DefaultLoggingConsumerRebalanceListener"],
+            Doc(
+                """
+                Subclass of `DefaultLoggingConsumerRebalanceListener` that will be used to create a
+                consumer rebalance listener if the `listener` argument is `None`.
+            """
+            ),
+        ] = DefaultLoggingConsumerRebalanceListener,
         pattern: Annotated[
             Optional[str],
             Doc(
@@ -2664,6 +2701,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             max_records=max_records,
             batch_timeout_ms=batch_timeout_ms,
             listener=listener,
+            listener_factory=listener_factory,
             pattern=pattern,
             partitions=partitions,
             # broker args

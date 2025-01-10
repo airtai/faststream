@@ -3,12 +3,13 @@ import logging
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-from aiokafka import AIOKafkaConsumer
+from aiokafka import AIOKafkaConsumer, ConsumerRebalanceListener
 from aiokafka.admin import AIOKafkaAdminClient, NewTopic
 
 from faststream.exceptions import AckMessage
 from faststream.kafka import KafkaBroker, TopicPartition
 from faststream.kafka.annotations import KafkaMessage
+from faststream.kafka.listener import DefaultLoggingConsumerRebalanceListener
 from faststream.kafka.subscriber.usecase import ConcurrentBetweenPartitionsSubscriber
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
@@ -562,3 +563,67 @@ class TestConsume(BrokerRealConsumeTestcase):
             )
 
             mock.assert_called_once_with([b""])
+
+    @pytest.mark.asyncio
+    @pytest.mark.slow
+    @pytest.mark.parametrize("max_workers", [1, 2])
+    async def test_listener_instance(self, queue: str, max_workers: int):
+        called = False
+
+        consume_broker = self.get_broker()
+
+        class CustomListener(ConsumerRebalanceListener):
+            def on_partitions_revoked(self, revoked):
+                pass
+
+            def on_partitions_assigned(self, assigned):
+                nonlocal called
+                called = True
+
+        @consume_broker.subscriber(
+            queue,
+            max_workers=max_workers,
+            auto_commit=False,
+            group_id="service_1",
+            listener=CustomListener(),
+        )
+        async def handler(msg: str):
+            pass
+
+        async with self.patch_broker(consume_broker) as broker:
+            await broker.start()
+            await broker.close()
+
+        assert called is True
+
+    @pytest.mark.asyncio
+    @pytest.mark.slow
+    @pytest.mark.parametrize("max_workers", [1, 2])
+    async def test_listener_factory(self, queue: str, max_workers: int):
+        called = False
+
+        consume_broker = self.get_broker()
+
+        class CustomListener(DefaultLoggingConsumerRebalanceListener):
+            def on_partitions_revoked(self, revoked):
+                pass
+
+            def on_partitions_assigned(self, assigned):
+                nonlocal called
+                called = True
+
+        @consume_broker.subscriber(
+            queue,
+            max_workers=max_workers,
+            auto_commit=False,
+            group_id="service_1",
+            listener_factory=CustomListener,
+        )
+        async def handler(msg: str):
+            pass
+
+        async with self.patch_broker(consume_broker) as broker:
+            await broker.start()
+            await broker.close()
+
+        assert called is True
