@@ -53,6 +53,7 @@ class RabbitQueue(NameRequired):
                 int(self.durable),
                 int(self.exclusive),
                 int(self.auto_delete),
+                hash(self.routing_key),
             )
         )
 
