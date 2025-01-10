@@ -500,12 +500,12 @@ class TestConsume(BrokerRealConsumeTestcase):
                 await broker.close()
             if warning:
                 assert (
-                    len([x for x in mock.call_args_list if x[0][1] == logging.WARNING])
+                    len([x for x in mock.call_args_list if x[0][0] == logging.WARNING])
                     == 1
                 )
             else:
                 assert (
-                    len([x for x in mock.call_args_list if x[0][1] == logging.WARNING])
+                    len([x for x in mock.call_args_list if x[0][0] == logging.WARNING])
                     == 0
                 )
 

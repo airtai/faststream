@@ -475,15 +475,19 @@ class SubscriberUsecase(
 
     def _log(
         self,
-        message: str,
         log_level: int,
+        message: str,
+        *args: Any,
         extra: Optional["AnyDict"] = None,
         exc_info: Optional[Exception] = None,
+        **kwargs: Any,
     ) -> None:
         if self.logger is not None:
             self.logger.log(
                 log_level,
                 message,
+                *args,
                 extra=extra,
                 exc_info=exc_info,
+                **kwargs,
             )

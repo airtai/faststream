@@ -597,15 +597,18 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
 
         for consumer in self.consumer_subgroup:
             self._log(
-                f"Consumer {consumer._coordinator.member_id} assigned to partitions: "
-                f"{consumer.assignment()}",
                 logging.INFO,
+                "Consumer %s assigned to partitions: %s",
+                consumer._coordinator.member_id,
+                consumer.assignment(),
             )
         if any(not consumer.assignment() for consumer in self.consumer_subgroup):
             self._log(
-                f"Consumer in group {self.group_id} has no partition assignments - topic "
-                f"{self.topics[0]} may have fewer partitions than consumers",
                 logging.WARNING,
+                "Consumer in group %s has no partition assignments - topic "
+                "%s may have fewer partitions than consumers",
+                self.group_id,
+                self.topics[0],
             )
 
         self.running = True
