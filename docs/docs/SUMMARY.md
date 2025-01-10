@@ -626,6 +626,8 @@ search:
                     - [KafkaRouter](api/faststream/kafka/fastapi/KafkaRouter.md)
                     - fastapi
                         - [KafkaRouter](api/faststream/kafka/fastapi/fastapi/KafkaRouter.md)
+                - listener
+                    - [DefaultLoggingConsumerRebalanceListener](api/faststream/kafka/listener/DefaultLoggingConsumerRebalanceListener.md)
                 - message
                     - [ConsumerProtocol](api/faststream/kafka/message/ConsumerProtocol.md)
                     - [FakeConsumer](api/faststream/kafka/message/FakeConsumer.md)
