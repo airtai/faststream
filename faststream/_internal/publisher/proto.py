@@ -3,6 +3,7 @@ from collections.abc import Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
+    Generic,
     Optional,
     Protocol,
 )
@@ -11,6 +12,7 @@ from faststream._internal.proto import Endpoint
 from faststream._internal.types import (
     MsgType,
 )
+from faststream.middlewares.base import PublishCommandType_co
 from faststream.response.response import PublishCommand
 
 if TYPE_CHECKING:
@@ -93,8 +95,9 @@ class BasePublisherProto(Protocol):
 class PublisherProto(
     Endpoint[MsgType],
     BasePublisherProto,
+    Generic[MsgType, PublishCommandType_co],
 ):
-    _broker_middlewares: Sequence["BrokerMiddleware[MsgType]"]
+    _broker_middlewares: Sequence["BrokerMiddleware[MsgType, PublishCommandType_co]"]
     _middlewares: Sequence["PublisherMiddleware"]
 
     @property
@@ -102,7 +105,7 @@ class PublisherProto(
     def _producer(self) -> "ProducerProto": ...
 
     @abstractmethod
-    def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None: ...
+    def add_middleware(self, middleware: "BrokerMiddleware[MsgType, PublishCommandType_co]") -> None: ...
 
     @abstractmethod
     def _setup(

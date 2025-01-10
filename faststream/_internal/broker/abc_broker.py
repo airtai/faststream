@@ -11,6 +11,7 @@ from faststream._internal.publisher.proto import PublisherProto
 from faststream._internal.state import BrokerState, Pointer
 from faststream._internal.subscriber.proto import SubscriberProto
 from faststream._internal.types import BrokerMiddleware, CustomCallable, MsgType
+from faststream.middlewares.base import PublishCommandType_co
 from faststream.specification.proto import EndpointSpecification
 from faststream.specification.schema import PublisherSpec, SubscriberSpec
 
@@ -35,7 +36,7 @@ class FinalPublisher(
     pass
 
 
-class ABCBroker(Generic[MsgType]):
+class ABCBroker(Generic[MsgType, PublishCommandType_co]):
     _subscribers: list[FinalSubscriber[MsgType]]
     _publishers: list[FinalPublisher[MsgType]]
 
@@ -66,7 +67,7 @@ class ABCBroker(Generic[MsgType]):
 
         self.include_routers(*routers)
 
-    def add_middleware(self, middleware: "BrokerMiddleware[MsgType]") -> None:
+    def add_middleware(self, middleware: "BrokerMiddleware[MsgType, PublishCommandType_co]") -> None:
         """Append BrokerMiddleware to the end of middlewares list.
 
         Current middleware will be used as a most inner of already existed ones.

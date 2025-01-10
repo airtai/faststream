@@ -21,9 +21,15 @@ PublishCommandType = TypeVar313(
     bound=PublishCommand,
     default=PublishCommand,
 )
+PublishCommandType_co = TypeVar313(
+    "PublishCommandType_co",
+    bound=PublishCommand,
+    default=PublishCommand,
+    covariant=True,
+)
 
 
-class BaseMiddleware(Generic[PublishCommandType]):
+class BaseMiddleware(Generic[PublishCommandType_co]):
     """A base middleware class."""
 
     def __init__(
