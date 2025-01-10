@@ -105,7 +105,10 @@ class PublisherProto(
     def _producer(self) -> "ProducerProto": ...
 
     @abstractmethod
-    def add_middleware(self, middleware: "BrokerMiddleware[MsgType, PublishCommandType_co]") -> None: ...
+    def add_middleware(
+        self,
+        middleware: "BrokerMiddleware[MsgType, PublishCommandType_co]",
+    ) -> None: ...
 
     @abstractmethod
     def _setup(

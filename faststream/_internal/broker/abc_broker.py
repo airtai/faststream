@@ -67,7 +67,10 @@ class ABCBroker(Generic[MsgType, PublishCommandType_co]):
 
         self.include_routers(*routers)
 
-    def add_middleware(self, middleware: "BrokerMiddleware[MsgType, PublishCommandType_co]") -> None:
+    def add_middleware(
+        self,
+        middleware: "BrokerMiddleware[MsgType, PublishCommandType_co]",
+    ) -> None:
         """Append BrokerMiddleware to the end of middlewares list.
 
         Current middleware will be used as a most inner of already existed ones.
