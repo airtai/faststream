@@ -208,7 +208,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             Sequence["SubscriberMiddleware[Any]"],
             deprecated(
                 "This option was deprecated in 0.6.0. Use router-level middlewares instead."
-                "Scheduled to remove in 0.6.10"
+                "Scheduled to remove in 0.7.0"
             ),
         ] = (),
         dependencies: Iterable["Dependant"] = (),
@@ -232,7 +232,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             Sequence["SubscriberMiddleware[Any]"],
             deprecated(
                 "This option was deprecated in 0.6.0. Use router-level middlewares instead."
-                "Scheduled to remove in 0.6.10"
+                "Scheduled to remove in 0.7.0"
             ),
         ] = (),
         dependencies: Iterable["Dependant"] = (),
@@ -254,7 +254,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             Sequence["SubscriberMiddleware[Any]"],
             deprecated(
                 "This option was deprecated in 0.6.0. Use router-level middlewares instead."
-                "Scheduled to remove in 0.6.10"
+                "Scheduled to remove in 0.7.0"
             ),
         ] = (),
         dependencies: Iterable["Dependant"] = (),
