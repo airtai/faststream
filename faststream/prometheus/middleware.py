@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable, Generic, Optional
 
 from faststream._internal.constants import EMPTY
 from faststream._internal.middlewares import BaseMiddleware
-from faststream._internal.types import PublishCommandType
+from faststream._internal.types import AnyMsg, PublishCommandType
 from faststream.exceptions import IgnoredException
 from faststream.message import SourceType
 from faststream.prometheus.consts import (
@@ -25,15 +25,15 @@ if TYPE_CHECKING:
     from faststream.message.message import StreamMessage
 
 
-class PrometheusMiddleware(Generic[PublishCommandType]):
+class PrometheusMiddleware(Generic[PublishCommandType, AnyMsg]):
     __slots__ = ("_metrics_container", "_metrics_manager", "_settings_provider_factory")
 
     def __init__(
         self,
         *,
         settings_provider_factory: Callable[
-            [Any],
-            Optional[MetricsSettingsProvider[Any, PublishCommandType]],
+            [Optional[AnyMsg]],
+            Optional[MetricsSettingsProvider[AnyMsg, PublishCommandType]],
         ],
         registry: "CollectorRegistry",
         app_name: str = EMPTY,
@@ -56,7 +56,7 @@ class PrometheusMiddleware(Generic[PublishCommandType]):
 
     def __call__(
         self,
-        msg: Optional[Any],
+        msg: Optional[AnyMsg],
         /,
         *,
         context: "ContextRepo",
@@ -69,15 +69,18 @@ class PrometheusMiddleware(Generic[PublishCommandType]):
         )
 
 
-class BasePrometheusMiddleware(BaseMiddleware[PublishCommandType]):
+class BasePrometheusMiddleware(
+    BaseMiddleware[PublishCommandType, AnyMsg],
+    Generic[PublishCommandType, AnyMsg],
+):
     def __init__(
         self,
-        msg: Optional[Any],
+        msg: Optional[AnyMsg],
         /,
         *,
         settings_provider_factory: Callable[
-            [Any],
-            Optional[MetricsSettingsProvider[Any, PublishCommandType]],
+            [Optional[AnyMsg]],
+            Optional[MetricsSettingsProvider[AnyMsg, PublishCommandType]],
         ],
         metrics_manager: MetricsManager,
         context: "ContextRepo",
@@ -89,7 +92,7 @@ class BasePrometheusMiddleware(BaseMiddleware[PublishCommandType]):
     async def consume_scope(
         self,
         call_next: "AsyncFuncAny",
-        msg: "StreamMessage[Any]",
+        msg: "StreamMessage[AnyMsg]",
     ) -> Any:
         if self._settings_provider is None or msg._source_type is SourceType.RESPONSE:
             return await call_next(msg)

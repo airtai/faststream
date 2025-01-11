@@ -24,6 +24,8 @@ if TYPE_CHECKING:
     from faststream._internal.middlewares import BaseMiddleware
 
 
+AnyMsg = TypeVar313("AnyMsg", default=Any)
+AnyMsg_contra = TypeVar313("AnyMsg_contra", default=Any, contravariant=True)
 MsgType = TypeVar("MsgType")
 Msg_contra = TypeVar("Msg_contra", contravariant=True)
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
@@ -76,12 +78,12 @@ WrappedHandlerCall: TypeAlias = Union[
 ]
 
 
-class BrokerMiddleware(Protocol[Msg_contra, PublishCommandType]):
+class BrokerMiddleware(Protocol[AnyMsg_contra, PublishCommandType]):
     """Middleware builder interface."""
 
     def __call__(
         self,
-        msg: Optional[Msg_contra],
+        msg: Optional[AnyMsg_contra],
         /,
         *,
         context: ContextRepo,
