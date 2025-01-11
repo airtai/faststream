@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.kafka.listener.DefaultLoggingConsumerRebalanceListener
+::: faststream.kafka.listener.LoggingListenerProxy
