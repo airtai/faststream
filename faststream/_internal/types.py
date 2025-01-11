@@ -76,7 +76,7 @@ WrappedHandlerCall: TypeAlias = Union[
 ]
 
 
-class BrokerMiddleware(Protocol[Msg_contra]):
+class BrokerMiddleware(Protocol[Msg_contra, PublishCommandType]):
     """Middleware builder interface."""
 
     def __call__(
@@ -85,7 +85,7 @@ class BrokerMiddleware(Protocol[Msg_contra]):
         /,
         *,
         context: ContextRepo,
-    ) -> "BaseMiddleware": ...
+    ) -> "BaseMiddleware[PublishCommandType]": ...
 
 
 SubscriberMiddleware: TypeAlias = Callable[

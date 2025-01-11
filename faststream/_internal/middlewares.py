@@ -1,7 +1,10 @@
 from collections.abc import Awaitable
 from typing import TYPE_CHECKING, Any, Callable, Generic, Optional
 
-from typing_extensions import Self
+from typing_extensions import (
+    Self,
+    TypeVar as TypeVar313,
+)
 
 from faststream._internal.types import PublishCommandType
 
@@ -13,12 +16,15 @@ if TYPE_CHECKING:
     from faststream.message import StreamMessage
 
 
-class BaseMiddleware(Generic[PublishCommandType]):
+MsgType = TypeVar313("MsgType", default=Any)
+
+
+class BaseMiddleware(Generic[PublishCommandType, MsgType]):
     """A base middleware class."""
 
     def __init__(
         self,
-        msg: Optional[Any],
+        msg: Optional[MsgType],
         /,
         *,
         context: "ContextRepo",
@@ -53,8 +59,8 @@ class BaseMiddleware(Generic[PublishCommandType]):
 
     async def on_consume(
         self,
-        msg: "StreamMessage[Any]",
-    ) -> "StreamMessage[Any]":
+        msg: "StreamMessage[MsgType]",
+    ) -> "StreamMessage[MsgType]":
         """This option was deprecated and will be removed in 0.7.0. Please, use `consume_scope` instead."""
         return msg
 
@@ -66,7 +72,7 @@ class BaseMiddleware(Generic[PublishCommandType]):
     async def consume_scope(
         self,
         call_next: "AsyncFuncAny",
-        msg: "StreamMessage[Any]",
+        msg: "StreamMessage[MsgType]",
     ) -> Any:
         """Asynchronously consumes a message and returns an asynchronous iterator of decoded messages."""
         err: Optional[Exception] = None
