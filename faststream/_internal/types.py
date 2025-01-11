@@ -1,5 +1,6 @@
 from collections.abc import Awaitable
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Optional,
@@ -11,18 +12,27 @@ from typing import (
 from typing_extensions import (
     ParamSpec,
     TypeAlias,
+    TypeVar as TypeVar313,
 )
 
 from faststream._internal.basic_types import AsyncFuncAny
 from faststream._internal.context.repository import ContextRepo
 from faststream.message import StreamMessage
-from faststream.middlewares import BaseMiddleware
 from faststream.response.response import PublishCommand
+
+if TYPE_CHECKING:
+    from faststream._internal.middlewares import BaseMiddleware
+
 
 MsgType = TypeVar("MsgType")
 Msg_contra = TypeVar("Msg_contra", contravariant=True)
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
 ConnectionType = TypeVar("ConnectionType")
+PublishCommandType = TypeVar313(
+    "PublishCommandType",
+    bound=PublishCommand,
+    default=PublishCommand,
+)
 
 SyncFilter: TypeAlias = Callable[[StreamMsg], bool]
 AsyncFilter: TypeAlias = Callable[[StreamMsg], Awaitable[bool]]
@@ -75,7 +85,7 @@ class BrokerMiddleware(Protocol[Msg_contra]):
         /,
         *,
         context: ContextRepo,
-    ) -> BaseMiddleware: ...
+    ) -> "BaseMiddleware": ...
 
 
 SubscriberMiddleware: TypeAlias = Callable[

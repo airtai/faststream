@@ -3,9 +3,10 @@ from collections.abc import Awaitable, Sequence
 from typing import TYPE_CHECKING, Any, Callable, Generic, Optional
 
 from faststream._internal.constants import EMPTY
+from faststream._internal.middlewares import BaseMiddleware
+from faststream._internal.types import PublishCommandType
 from faststream.exceptions import IgnoredException
 from faststream.message import SourceType
-from faststream.middlewares.base import BaseMiddleware, PublishCommandType
 from faststream.prometheus.consts import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,

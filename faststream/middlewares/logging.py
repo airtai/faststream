@@ -1,10 +1,9 @@
 import logging
 from typing import TYPE_CHECKING, Any, Optional
 
+from faststream._internal.middlewares import BaseMiddleware
 from faststream.exceptions import IgnoredException
 from faststream.message.source_type import SourceType
-
-from .base import BaseMiddleware
 
 if TYPE_CHECKING:
     from types import TracebackType
