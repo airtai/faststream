@@ -10,7 +10,6 @@ from faststream.exceptions import AckMessage
 from faststream.kafka import KafkaBroker, TopicPartition
 from faststream.kafka.annotations import KafkaMessage
 from faststream.kafka.listener import DefaultLoggingConsumerRebalanceListener
-from faststream.kafka.subscriber.usecase import ConcurrentBetweenPartitionsSubscriber
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
@@ -493,20 +492,30 @@ class TestConsume(BrokerRealConsumeTestcase):
         async def handler(msg: str):
             pass
 
-        with patch.object(
-            ConcurrentBetweenPartitionsSubscriber, "_log", Mock()
-        ) as mock:
+        with patch.object(consume_broker, "logger", Mock()) as mock:
             async with self.patch_broker(consume_broker) as broker:
                 await broker.start()
                 await broker.close()
             if warning:
                 assert (
-                    len([x for x in mock.call_args_list if x[0][0] == logging.WARNING])
+                    len(
+                        [
+                            x
+                            for x in mock.log.call_args_list
+                            if x[0][0] == logging.WARNING
+                        ]
+                    )
                     == 1
                 )
             else:
                 assert (
-                    len([x for x in mock.call_args_list if x[0][0] == logging.WARNING])
+                    len(
+                        [
+                            x
+                            for x in mock.log.call_args_list
+                            if x[0][0] == logging.WARNING
+                        ]
+                    )
                     == 0
                 )
 

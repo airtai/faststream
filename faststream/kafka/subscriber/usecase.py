@@ -1,4 +1,3 @@
-import logging
 from abc import ABC, abstractmethod
 from itertools import chain
 from typing import (
@@ -608,15 +607,6 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
         async with anyio.create_task_group() as tg:
             for consumer in self.consumer_subgroup:
                 tg.start_soon(consumer.start)
-
-        if any(not consumer.assignment() for consumer in self.consumer_subgroup):
-            self._log(
-                logging.WARNING,
-                "Consumer in group %s has no partition assignments - topic "
-                "%s may have fewer partitions than consumers",
-                self.group_id,
-                self.topics[0],
-            )
 
         self.running = True
 

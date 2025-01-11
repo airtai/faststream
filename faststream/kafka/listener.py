@@ -29,3 +29,11 @@ class DefaultLoggingConsumerRebalanceListener(ConsumerRebalanceListener):  # typ
                 self.consumer._coordinator.member_id,
                 assigned,
             )
+            if not assigned:
+                self.logger.log(
+                    logging.WARNING,
+                    "Consumer in group %s has no partition assignments - topics "
+                    "%s may have fewer partitions than consumers",
+                    self.consumer._group_id,
+                    self.consumer._subscription.topics,
+                )
