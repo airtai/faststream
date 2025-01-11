@@ -208,7 +208,7 @@ def create_subscriber(
         if max_workers > 1:
             if is_manual:
                 return AsyncAPIConcurrentBetweenPartitionsSubscriber(
-                    *topics,
+                    topics[0],
                     max_workers=max_workers,
                     group_id=group_id,
                     listener=listener,

@@ -381,7 +381,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         async def handler(msg: str):
             nonlocal inputs
             inputs.add(msg)
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
 
         async with self.patch_broker(consume_broker) as broker:
             await broker.start()
@@ -393,15 +393,15 @@ class TestConsume(BrokerRealConsumeTestcase):
                     asyncio.create_task(broker.publish("hello2", queue, partition=1)),
                     asyncio.create_task(broker.publish("hello4", queue, partition=1)),
                     asyncio.create_task(broker.publish("hello5", queue, partition=0)),
-                    asyncio.create_task(asyncio.sleep(1)),
+                    asyncio.create_task(asyncio.sleep(0.5)),
                 ),
                 timeout=1,
             )
 
             assert inputs == {"hello1", "hello2"}
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
             assert inputs == {"hello1", "hello2", "hello3", "hello4"}
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
             assert inputs == {"hello1", "hello2", "hello3", "hello4", "hello5"}
 
             await broker.close()
@@ -430,7 +430,7 @@ class TestConsume(BrokerRealConsumeTestcase):
             group_id="service_1",
         )
         async def handler(msg: KafkaMessage):
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.7)
             if with_explicit_commit:
                 await msg.ack()
 
@@ -451,9 +451,9 @@ class TestConsume(BrokerRealConsumeTestcase):
                         asyncio.create_task(
                             broker.publish("hello2", queue, partition=1)
                         ),
-                        asyncio.create_task(asyncio.sleep(1.5)),
+                        asyncio.create_task(asyncio.sleep(1)),
                     ),
-                    timeout=10,
+                    timeout=1,
                 )
                 assert mock.mock.call_count == 2
 

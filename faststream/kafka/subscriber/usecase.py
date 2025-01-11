@@ -536,10 +536,11 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin[ConsumerRecord], DefaultSubscr
 
 class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
     consumer_subgroup: Iterable["AIOKafkaConsumer"]
+    topics: str
 
     def __init__(
         self,
-        *topics: str,
+        topic: str,
         # Kafka information
         group_id: Optional[str],
         listener: Optional["ConsumerRebalanceListener"],
@@ -561,7 +562,7 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
         include_in_schema: bool,
     ) -> None:
         super().__init__(
-            *topics,
+            topic,
             group_id=group_id,
             listener=listener,
             listener_factory=listener_factory,
