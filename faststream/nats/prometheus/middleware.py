@@ -12,7 +12,9 @@ if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
 
 
-class NatsPrometheusMiddleware(PrometheusMiddleware[NatsPublishCommand, Union[Msg, Sequence[Msg]]]):
+class NatsPrometheusMiddleware(
+    PrometheusMiddleware[NatsPublishCommand, Union[Msg, Sequence[Msg]]]
+):
     def __init__(
         self,
         *,

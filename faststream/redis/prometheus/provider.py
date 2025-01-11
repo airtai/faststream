@@ -11,7 +11,9 @@ if TYPE_CHECKING:
     from faststream.message.message import StreamMessage
 
 
-class BaseRedisMetricsSettingsProvider(MetricsSettingsProvider["AnyDict", RedisPublishCommand]):
+class BaseRedisMetricsSettingsProvider(
+    MetricsSettingsProvider["AnyDict", RedisPublishCommand]
+):
     __slots__ = ("messaging_system",)
 
     def __init__(self) -> None:

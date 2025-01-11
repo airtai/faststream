@@ -448,7 +448,9 @@ class KafkaBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Sequence["BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"],
+            Sequence[
+                "BrokerMiddleware[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]]"
+            ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         routers: Annotated[

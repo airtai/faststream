@@ -12,7 +12,9 @@ if TYPE_CHECKING:
     from prometheus_client import CollectorRegistry
 
 
-class RabbitPrometheusMiddleware(PrometheusMiddleware[RabbitPublishCommand, IncomingMessage]):
+class RabbitPrometheusMiddleware(
+    PrometheusMiddleware[RabbitPublishCommand, IncomingMessage]
+):
     def __init__(
         self,
         *,
