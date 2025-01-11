@@ -31,7 +31,7 @@ ConnectionType = TypeVar("ConnectionType")
 PublishCommandType = TypeVar313(
     "PublishCommandType",
     bound=PublishCommand,
-    default=PublishCommand,
+    default=Any,
 )
 
 SyncFilter: TypeAlias = Callable[[StreamMsg], bool]
