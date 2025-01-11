@@ -9,7 +9,6 @@ from aiokafka.admin import AIOKafkaAdminClient, NewTopic
 from faststream.exceptions import AckMessage
 from faststream.kafka import KafkaBroker, TopicPartition
 from faststream.kafka.annotations import KafkaMessage
-from faststream.kafka.listener import DefaultLoggingConsumerRebalanceListener
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
@@ -576,18 +575,20 @@ class TestConsume(BrokerRealConsumeTestcase):
     @pytest.mark.asyncio
     @pytest.mark.slow
     @pytest.mark.parametrize("max_workers", [1, 2])
-    async def test_listener_instance(self, queue: str, max_workers: int):
-        called = False
+    async def test_listener_sync(self, queue: str, max_workers: int):
+        called_assigned = False
+        called_revoked = False
 
         consume_broker = self.get_broker()
 
         class CustomListener(ConsumerRebalanceListener):
             def on_partitions_revoked(self, revoked):
-                pass
+                nonlocal called_revoked
+                called_revoked = True
 
             def on_partitions_assigned(self, assigned):
-                nonlocal called
-                called = True
+                nonlocal called_assigned
+                called_assigned = True
 
         @consume_broker.subscriber(
             queue,
@@ -603,30 +604,33 @@ class TestConsume(BrokerRealConsumeTestcase):
             await broker.start()
             await broker.close()
 
-        assert called is True
+        assert called_assigned is True
+        assert called_revoked is True
 
     @pytest.mark.asyncio
     @pytest.mark.slow
     @pytest.mark.parametrize("max_workers", [1, 2])
-    async def test_listener_factory(self, queue: str, max_workers: int):
-        called = False
+    async def test_listener_async(self, queue: str, max_workers: int):
+        called_assigned = False
+        called_revoked = False
 
         consume_broker = self.get_broker()
 
-        class CustomListener(DefaultLoggingConsumerRebalanceListener):
-            def on_partitions_revoked(self, revoked):
-                pass
+        class CustomListener(ConsumerRebalanceListener):
+            async def on_partitions_revoked(self, revoked):
+                nonlocal called_revoked
+                called_revoked = True
 
-            def on_partitions_assigned(self, assigned):
-                nonlocal called
-                called = True
+            async def on_partitions_assigned(self, assigned):
+                nonlocal called_assigned
+                called_assigned = True
 
         @consume_broker.subscriber(
             queue,
             max_workers=max_workers,
             auto_commit=False,
             group_id="service_1",
-            listener_factory=CustomListener,
+            listener=CustomListener(),
         )
         async def handler(msg: str):
             pass
@@ -635,4 +639,5 @@ class TestConsume(BrokerRealConsumeTestcase):
             await broker.start()
             await broker.close()
 
-        assert called is True
+        assert called_assigned is True
+        assert called_revoked is True
