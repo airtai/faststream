@@ -273,12 +273,7 @@ class KafkaBroker(  # type: ignore[misc]
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Sequence[
-                Union[
-                    "BrokerMiddleware[Message]",
-                    "BrokerMiddleware[tuple[Message, ...]]",
-                ]
-            ],
+            Sequence["BrokerMiddleware[Union[Message, tuple[Message, ...]]]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         routers: Annotated[
