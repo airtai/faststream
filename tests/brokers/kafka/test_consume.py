@@ -1,8 +1,10 @@
 import asyncio
-from unittest.mock import MagicMock, patch
+import logging
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-from aiokafka import AIOKafkaConsumer
+from aiokafka import AIOKafkaConsumer, ConsumerRebalanceListener
+from aiokafka.admin import AIOKafkaAdminClient, NewTopic
 
 from faststream.exceptions import AckMessage
 from faststream.kafka import KafkaBroker, TopicPartition
@@ -353,6 +355,170 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert mock.call_count == 2, mock.call_count
 
     @pytest.mark.asyncio
+    @pytest.mark.slow
+    async def test_concurrent_consume_between_partitions(
+        self,
+        queue: str,
+    ):
+        inputs = set()
+
+        admin_client = AIOKafkaAdminClient()
+        try:
+            await admin_client.start()
+            await admin_client.create_topics([NewTopic(queue, 2, 1)])
+        finally:
+            await admin_client.close()
+
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(
+            queue,
+            max_workers=3,
+            auto_commit=False,
+            group_id="service_1",
+        )
+        async def handler(msg: str):
+            nonlocal inputs
+            inputs.add(msg)
+            await asyncio.sleep(1)
+
+        async with self.patch_broker(consume_broker) as broker:
+            await broker.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("hello1", queue, partition=0)),
+                    asyncio.create_task(broker.publish("hello3", queue, partition=0)),
+                    asyncio.create_task(broker.publish("hello2", queue, partition=1)),
+                    asyncio.create_task(broker.publish("hello4", queue, partition=1)),
+                    asyncio.create_task(broker.publish("hello5", queue, partition=0)),
+                    asyncio.create_task(asyncio.sleep(0.5)),
+                ),
+                timeout=1,
+            )
+
+            assert inputs == {"hello1", "hello2"}
+            await asyncio.sleep(1)
+            assert inputs == {"hello1", "hello2", "hello3", "hello4"}
+            await asyncio.sleep(1)
+            assert inputs == {"hello1", "hello2", "hello3", "hello4", "hello5"}
+
+            await broker.close()
+
+    @pytest.mark.asyncio
+    @pytest.mark.slow
+    @pytest.mark.parametrize("with_explicit_commit", [True, False])
+    async def test_concurrent_consume_between_partitions_commit(
+        self,
+        queue: str,
+        with_explicit_commit: bool,
+    ):
+        admin_client = AIOKafkaAdminClient()
+        try:
+            await admin_client.start()
+            await admin_client.create_topics([NewTopic(queue, 2, 1)])
+        finally:
+            await admin_client.close()
+
+        consume_broker = self.get_broker(apply_types=True)
+
+        @consume_broker.subscriber(
+            queue,
+            max_workers=3,
+            auto_commit=False,
+            group_id="service_1",
+        )
+        async def handler(msg: KafkaMessage):
+            await asyncio.sleep(0.7)
+            if with_explicit_commit:
+                await msg.ack()
+
+        async with self.patch_broker(consume_broker) as broker:
+            await broker.start()
+
+            with patch.object(
+                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+            ) as mock:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(
+                            broker.publish("hello1", queue, partition=0)
+                        ),
+                        asyncio.create_task(
+                            broker.publish("hello3", queue, partition=0)
+                        ),
+                        asyncio.create_task(
+                            broker.publish("hello2", queue, partition=1)
+                        ),
+                        asyncio.create_task(asyncio.sleep(1)),
+                    ),
+                    timeout=1,
+                )
+                assert mock.mock.call_count == 2
+
+            await broker.close()
+
+    @pytest.mark.asyncio
+    @pytest.mark.slow
+    @pytest.mark.parametrize(
+        ("partitions", "warning"),
+        [
+            pytest.param(2, True, id="unassigned consumers"),
+            pytest.param(3, False, id="no unassigned consumers"),
+        ],
+    )
+    async def test_concurrent_consume_between_partitions_assignment_warning(
+        self,
+        queue: str,
+        partitions: int,
+        warning: bool,
+    ):
+        admin_client = AIOKafkaAdminClient()
+        try:
+            await admin_client.start()
+            await admin_client.create_topics([NewTopic(queue, partitions, 1)])
+        finally:
+            await admin_client.close()
+
+        consume_broker = self.get_broker()
+
+        @consume_broker.subscriber(
+            queue,
+            max_workers=3,
+            auto_commit=False,
+            group_id="service_1",
+        )
+        async def handler(msg: str):
+            pass
+
+        with patch.object(consume_broker, "logger", Mock()) as mock:
+            async with self.patch_broker(consume_broker) as broker:
+                await broker.start()
+                await broker.close()
+            if warning:
+                assert (
+                    len(
+                        [
+                            x
+                            for x in mock.log.call_args_list
+                            if x[0][0] == logging.WARNING
+                        ]
+                    )
+                    == 1
+                )
+            else:
+                assert (
+                    len(
+                        [
+                            x
+                            for x in mock.log.call_args_list
+                            if x[0][0] == logging.WARNING
+                        ]
+                    )
+                    == 0
+                )
+
+    @pytest.mark.asyncio
     async def test_consume_without_value(
         self,
         mock: MagicMock,
@@ -405,3 +571,73 @@ class TestConsume(BrokerRealConsumeTestcase):
             )
 
             mock.assert_called_once_with([b""])
+
+    @pytest.mark.asyncio
+    @pytest.mark.slow
+    @pytest.mark.parametrize("max_workers", [1, 2])
+    async def test_listener_sync(self, queue: str, max_workers: int):
+        called_assigned = False
+        called_revoked = False
+
+        consume_broker = self.get_broker()
+
+        class CustomListener(ConsumerRebalanceListener):
+            def on_partitions_revoked(self, revoked):
+                nonlocal called_revoked
+                called_revoked = True
+
+            def on_partitions_assigned(self, assigned):
+                nonlocal called_assigned
+                called_assigned = True
+
+        @consume_broker.subscriber(
+            queue,
+            max_workers=max_workers,
+            auto_commit=False,
+            group_id="service_1",
+            listener=CustomListener(),
+        )
+        async def handler(msg: str):
+            pass
+
+        async with self.patch_broker(consume_broker) as broker:
+            await broker.start()
+            await broker.close()
+
+        assert called_assigned is True
+        assert called_revoked is True
+
+    @pytest.mark.asyncio
+    @pytest.mark.slow
+    @pytest.mark.parametrize("max_workers", [1, 2])
+    async def test_listener_async(self, queue: str, max_workers: int):
+        called_assigned = False
+        called_revoked = False
+
+        consume_broker = self.get_broker()
+
+        class CustomListener(ConsumerRebalanceListener):
+            async def on_partitions_revoked(self, revoked):
+                nonlocal called_revoked
+                called_revoked = True
+
+            async def on_partitions_assigned(self, assigned):
+                nonlocal called_assigned
+                called_assigned = True
+
+        @consume_broker.subscriber(
+            queue,
+            max_workers=max_workers,
+            auto_commit=False,
+            group_id="service_1",
+            listener=CustomListener(),
+        )
+        async def handler(msg: str):
+            pass
+
+        async with self.patch_broker(consume_broker) as broker:
+            await broker.start()
+            await broker.close()
+
+        assert called_assigned is True
+        assert called_revoked is True

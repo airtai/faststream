@@ -60,6 +60,7 @@ if TYPE_CHECKING:
     )
     from faststream.kafka.subscriber.asyncapi import (
         AsyncAPIBatchSubscriber,
+        AsyncAPIConcurrentBetweenPartitionsSubscriber,
         AsyncAPIConcurrentDefaultSubscriber,
         AsyncAPIDefaultSubscriber,
     )
@@ -2621,12 +2622,20 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
         ] = False,
         max_workers: Annotated[
             int,
-            Doc("Number of workers to process messages concurrently."),
+            Doc(
+                "Maximum number of messages being processed concurrently. With "
+                "`auto_commit=False` processing is concurrent between partitions and "
+                "sequential within a partition. With `auto_commit=False` maximum "
+                "concurrency is achieved when total number of workers across all "
+                "application instances running workers in the same consumer group "
+                "is equal to the number of partitions in the topic."
+            ),
         ] = 1,
     ) -> Union[
         "AsyncAPIBatchSubscriber",
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIConcurrentDefaultSubscriber",
+        "AsyncAPIConcurrentBetweenPartitionsSubscriber",
     ]:
         subscriber = super().subscriber(
             *topics,
@@ -2683,7 +2692,12 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             return cast("AsyncAPIBatchSubscriber", subscriber)
         else:
             if max_workers > 1:
-                return cast("AsyncAPIConcurrentDefaultSubscriber", subscriber)
+                if not auto_commit:
+                    return cast(
+                        "AsyncAPIConcurrentBetweenPartitionsSubscriber", subscriber
+                    )
+                else:
+                    return cast("AsyncAPIConcurrentDefaultSubscriber", subscriber)
             else:
                 return cast("AsyncAPIDefaultSubscriber", subscriber)
 

@@ -626,11 +626,14 @@ search:
                     - [KafkaRouter](api/faststream/kafka/fastapi/KafkaRouter.md)
                     - fastapi
                         - [KafkaRouter](api/faststream/kafka/fastapi/fastapi/KafkaRouter.md)
+                - listener
+                    - [LoggingListenerProxy](api/faststream/kafka/listener/LoggingListenerProxy.md)
                 - message
                     - [ConsumerProtocol](api/faststream/kafka/message/ConsumerProtocol.md)
                     - [FakeConsumer](api/faststream/kafka/message/FakeConsumer.md)
                     - [KafkaAckableMessage](api/faststream/kafka/message/KafkaAckableMessage.md)
                     - [KafkaMessage](api/faststream/kafka/message/KafkaMessage.md)
+                    - [KafkaRawMessage](api/faststream/kafka/message/KafkaRawMessage.md)
                 - opentelemetry
                     - [KafkaTelemetryMiddleware](api/faststream/kafka/opentelemetry/KafkaTelemetryMiddleware.md)
                     - middleware
@@ -677,6 +680,7 @@ search:
                 - subscriber
                     - asyncapi
                         - [AsyncAPIBatchSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIBatchSubscriber.md)
+                        - [AsyncAPIConcurrentBetweenPartitionsSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIConcurrentBetweenPartitionsSubscriber.md)
                         - [AsyncAPIConcurrentDefaultSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIConcurrentDefaultSubscriber.md)
                         - [AsyncAPIDefaultSubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPIDefaultSubscriber.md)
                         - [AsyncAPISubscriber](api/faststream/kafka/subscriber/asyncapi/AsyncAPISubscriber.md)
@@ -684,6 +688,7 @@ search:
                         - [create_subscriber](api/faststream/kafka/subscriber/factory/create_subscriber.md)
                     - usecase
                         - [BatchSubscriber](api/faststream/kafka/subscriber/usecase/BatchSubscriber.md)
+                        - [ConcurrentBetweenPartitionsSubscriber](api/faststream/kafka/subscriber/usecase/ConcurrentBetweenPartitionsSubscriber.md)
                         - [ConcurrentDefaultSubscriber](api/faststream/kafka/subscriber/usecase/ConcurrentDefaultSubscriber.md)
                         - [DefaultSubscriber](api/faststream/kafka/subscriber/usecase/DefaultSubscriber.md)
                         - [LogicSubscriber](api/faststream/kafka/subscriber/usecase/LogicSubscriber.md)

@@ -87,6 +87,7 @@ class SubscriberUsecase(
     extra_watcher_options: "AnyDict"
     extra_context: "AnyDict"
     graceful_timeout: Optional[float]
+    logger: Optional["LoggerProto"]
 
     _broker_dependencies: Iterable["Depends"]
     _call_options: Optional["_CallOptions"]
@@ -162,6 +163,7 @@ class SubscriberUsecase(
         self._producer = producer
         self.graceful_timeout = graceful_timeout
         self.extra_context = extra_context
+        self.logger = logger
 
         self.watcher = get_watcher_context(logger, self._no_ack, self._retry)
 
@@ -470,3 +472,18 @@ class SubscriberUsecase(
             )
 
         return payloads
+
+    def _log(
+        self,
+        log_level: int,
+        message: str,
+        extra: Optional["AnyDict"] = None,
+        exc_info: Optional[Exception] = None,
+    ) -> None:
+        if self.logger is not None:
+            self.logger.log(
+                log_level,
+                message,
+                extra=extra,
+                exc_info=exc_info,
+            )
