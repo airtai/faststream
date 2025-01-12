@@ -285,7 +285,7 @@ class BrokerUsecase(
 
     def publisher(self, *args: Any, **kwargs: Any) -> "PublisherProto[MsgType]":
         pub = super().publisher(*args, **kwargs)
-        if self.running:
+        if self.running or self._connection is not None:
             self.setup_publisher(pub)
         return pub
 
