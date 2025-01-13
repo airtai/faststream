@@ -426,6 +426,7 @@ class TestConsume(RabbitTestcaseConfig, BrokerRealConsumeTestcase):
 
     @pytest.mark.asyncio()
     async def test_iteration(self, queue: str, exchange: RabbitExchange) -> None:
+        expected_messages = ("test_message_1", "test_message_2")
         consume_broker = self.get_broker(apply_types=True)
 
         subscirber = consume_broker.subscriber(
@@ -435,17 +436,22 @@ class TestConsume(RabbitTestcaseConfig, BrokerRealConsumeTestcase):
         )
 
         async def publish_test_message():
-            await br.publish("test_message_1", queue=queue, exchange=exchange)
-            await br.publish("test_message_2", queue=queue, exchange=exchange)
+            for msg in expected_messages:
+                await br.publish(msg, queue=queue, exchange=exchange)
 
         async with self.patch_broker(consume_broker) as br:
             await br.start()
-            asyncio.create_task(publish_test_message())
+            _ = await asyncio.create_task(publish_test_message())
 
-            sub_iterator = aiter(subscirber)
-            msg = await anext(sub_iterator)
-            msg1 = await anext(sub_iterator)
+            index_message = 0
+            async for msg in subscirber:
 
-            assert msg is not None and msg1 is not None
-            assert await msg.decode() == "test_message_1"
-            assert await msg1.decode() == "test_message_2"
+                assert msg is not None
+
+                result_message = await msg.decode()
+
+                assert result_message == expected_messages[index_message]
+
+                index_message += 1
+                if index_message >= len(expected_messages):
+                    break
