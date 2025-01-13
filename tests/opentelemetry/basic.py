@@ -115,9 +115,9 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
             ]
 
         if action == Action.PROCESS:
-            assert attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES] == len(
-                msg
-            ), attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES]
+            assert attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES] == len(msg), (
+                attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES]
+            )
             assert attrs[SpanAttr.MESSAGING_OPERATION] == action, attrs[
                 SpanAttr.MESSAGING_OPERATION
             ]
