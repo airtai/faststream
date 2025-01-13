@@ -1,11 +1,7 @@
 import asyncio
 import contextlib
-from collections.abc import Iterable, Sequence
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Optional,
-)
+from collections.abc import AsyncIterator, Iterable, Sequence
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import anyio
 from typing_extensions import override
@@ -183,6 +179,29 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
             decoder=self._decoder,
         )
         return msg
+
+    async def __aiter__(self) -> AsyncIterator["RabbitMessage | None"]:
+        assert self._queue_obj, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use iterator method if subscriber has registered handlers."
+
+        context = self._state.get().di_state.context
+
+        async with self._queue_obj.iterator() as queue_iter:
+            async for raw_message in queue_iter:
+                raw_message = cast("IncomingMessage", raw_message)
+
+                msg: RabbitMessage | None = await process_msg(  # type: ignore[assignment]
+                    msg=raw_message,
+                    middlewares=(
+                        m(raw_message, context=context)
+                        for m in self._broker_middlewares
+                    ),
+                    parser=self._parser,
+                    decoder=self._decoder,
+                )
+                yield msg
 
     def _make_response_publisher(
         self,
