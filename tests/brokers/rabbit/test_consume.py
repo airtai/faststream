@@ -423,3 +423,29 @@ class TestConsume(RabbitTestcaseConfig, BrokerRealConsumeTestcase):
                 m.mock.assert_not_called()
 
             assert event.is_set()
+
+    @pytest.mark.asyncio()
+    async def test_iteration(self, queue: str, exchange: RabbitExchange) -> None:
+        consume_broker = self.get_broker(apply_types=True)
+
+        subscirber = consume_broker.subscriber(
+            queue,
+            exchange=exchange,
+            ack_policy=AckPolicy.DO_NOTHING,
+        )
+
+        async def publish_test_message():
+            await br.publish("test_message_1", queue=queue, exchange=exchange)
+            await br.publish("test_message_2", queue=queue, exchange=exchange)
+
+        async with self.patch_broker(consume_broker) as br:
+            await br.start()
+            asyncio.create_task(publish_test_message())
+
+            sub_iterator = aiter(subscirber)
+            msg = await anext(sub_iterator)
+            msg1 = await anext(sub_iterator)
+
+            assert msg is not None and msg1 is not None
+            assert await msg.decode() == "test_message_1"
+            assert await msg1.decode() == "test_message_2"
