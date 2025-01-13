@@ -33,7 +33,9 @@ def create_subscriber(
     include_in_schema: bool,
 ) -> SpecificationSubscriber:
     _validate_input_for_misconfigure(ack_policy=ack_policy, no_ack=no_ack)
-
+    # this need create dto
+    # need two dto, for logic subscriber and specific
+    # dto шt should be generalized, and everything else should be passed as separate parameters
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
