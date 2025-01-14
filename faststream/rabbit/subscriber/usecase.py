@@ -1,6 +1,6 @@
 import asyncio
 import contextlib
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -15,17 +15,16 @@ from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.fake import RabbitFakePublisher
+from faststream.rabbit.schemas.subscribers import LogicOptions
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
-    from fast_depends.dependencies import Dependant
 
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import BasePublisherProto
     from faststream._internal.state import BrokerState
-    from faststream._internal.types import BrokerMiddleware, CustomCallable
+    from faststream._internal.types import CustomCallable
     from faststream.message import StreamMessage
-    from faststream.middlewares import AckPolicy
     from faststream.rabbit.helpers.declarer import RabbitDeclarer
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
@@ -48,29 +47,18 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
     def __init__(
         self,
         *,
-        queue: "RabbitQueue",
-        consume_args: Optional["AnyDict"],
-        # Subscriber args
-        ack_policy: "AckPolicy",
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Sequence["BrokerMiddleware[IncomingMessage]"],
+        init_options: LogicOptions,
     ) -> None:
-        self.queue = queue
+        self.queue = init_options.queue
 
-        parser = AioPikaParser(pattern=queue.path_regex)
-
+        parser = AioPikaParser(pattern=init_options.queue.path_regex)
+        init_options.internal_options.default_parser = parser.parse_message
+        init_options.internal_options.default_decoder = parser.decode_message
         super().__init__(
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
-            # Propagated options
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
+            init_options=init_options.internal_options
         )
 
-        self.consume_args = consume_args or {}
+        self.consume_args = init_options.consume_args or {}
 
         self._consumer_tag = None
         self._queue_obj = None

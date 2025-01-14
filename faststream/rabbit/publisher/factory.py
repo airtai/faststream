@@ -27,6 +27,7 @@ def create_publisher(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> SpecificationPublisher:
+
     return SpecificationPublisher(
         routing_key=routing_key,
         queue=queue,

@@ -15,6 +15,7 @@ from typing_extensions import Self, deprecated, overload, override
 
 from faststream._internal.subscriber.call_item import HandlerItem
 from faststream._internal.subscriber.proto import SubscriberProto
+from faststream._internal.subscriber.schemas import InternalOptions
 from faststream._internal.subscriber.utils import (
     MultiLock,
     default_filter,
@@ -42,7 +43,6 @@ if TYPE_CHECKING:
     from faststream._internal.state import BrokerState, Pointer
     from faststream._internal.subscriber.call_wrapper import HandlerCallWrapper
     from faststream._internal.types import (
-        AsyncCallable,
         AsyncFilter,
         BrokerMiddleware,
         CustomCallable,
@@ -91,20 +91,15 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     def __init__(
         self,
         *,
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
-        default_parser: "AsyncCallable",
-        default_decoder: "AsyncCallable",
-        ack_policy: AckPolicy,
+        init_options: InternalOptions
     ) -> None:
         """Initialize a new instance of the class."""
         self.calls = []
 
-        self._parser = default_parser
-        self._decoder = default_decoder
-        self._no_reply = no_reply
-        self.ack_policy = ack_policy
+        self._parser = init_options.default_parser
+        self._decoder = init_options.default_decoder
+        self._no_reply = init_options.no_reply
+        self.ack_policy = init_options.ack_policy
 
         self._call_options = None
         self._call_decorators = ()
@@ -113,8 +108,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self.lock = sync_fake_context()
 
         # Setup in include
-        self._broker_dependencies = broker_dependencies
-        self._broker_middlewares = broker_middlewares
+        self._broker_dependencies = init_options.broker_dependencies
+        self._broker_middlewares = init_options.broker_middlewares
 
         # register in setup later
         self.extra_context = {}

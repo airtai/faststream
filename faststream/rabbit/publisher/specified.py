@@ -1,14 +1,10 @@
-from collections.abc import Iterable
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Optional,
-)
 
 from faststream._internal.publisher.specified import (
     SpecificationPublisher as SpecificationPublisherMixin,
 )
 from faststream.rabbit.schemas.proto import BaseRMQInformation as RMQSpecificationMixin
+from faststream.rabbit.schemas.publishers import LogicOptions, SpecificationOptions
+from faststream.rabbit.schemas.subscribers import BaseOptions
 from faststream.rabbit.utils import is_routing_exchange
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema import Message, Operation, PublisherSpec
@@ -18,13 +14,7 @@ from faststream.specification.schema.bindings import (
     amqp,
 )
 
-from .usecase import LogicPublisher, PublishKwargs
-
-if TYPE_CHECKING:
-    from aio_pika import IncomingMessage
-
-    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
-    from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
+from .usecase import LogicPublisher
 
 
 class SpecificationPublisher(
@@ -37,38 +27,22 @@ class SpecificationPublisher(
     def __init__(
         self,
         *,
-        routing_key: str,
-        queue: "RabbitQueue",
-        exchange: "RabbitExchange",
-        # PublishCommand options
-        message_kwargs: "PublishKwargs",
-        # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
-        middlewares: Iterable["PublisherMiddleware"],
-        # AsyncAPI args
-        schema_: Optional[Any],
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
+        logic_options: LogicOptions,
+        specification_options: SpecificationOptions
     ) -> None:
+        base_options = BaseOptions(
+            queue=logic_options.queue,
+            exchange=logic_options.exchange
+        )
         super().__init__(
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-            schema_=schema_,
+            init_options=specification_options,
             # propagate to RMQSpecificationMixin
-            queue=queue,
-            exchange=exchange,
+            base_init_options=base_options
         )
 
         LogicPublisher.__init__(
             self,
-            queue=queue,
-            exchange=exchange,
-            routing_key=routing_key,
-            message_kwargs=message_kwargs,
-            middlewares=middlewares,
-            broker_middlewares=broker_middlewares,
+            logic_options=logic_options
         )
 
     def get_default_name(self) -> str:

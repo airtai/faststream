@@ -1,5 +1,5 @@
 from inspect import Parameter, unwrap
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Union
 
 from fast_depends.core import build_call_model
 from fast_depends.pydantic._compat import create_model, get_config_base
@@ -9,10 +9,12 @@ from faststream._internal.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
+from faststream.rabbit.schemas.publishers import SpecificationOptions
 from faststream.specification.asyncapi.message import get_model_schema
 from faststream.specification.asyncapi.utils import to_camelcase
 from faststream.specification.proto import EndpointSpecification
 from faststream.specification.schema import PublisherSpec
+from faststream.specification.schema.subscriber import AsyncAPIParams
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyCallable, AnyDict
@@ -28,14 +30,19 @@ class SpecificationPublisher(EndpointSpecification[MsgType, PublisherSpec]):
     def __init__(
         self,
         *args: Any,
-        schema_: Optional[Any],
+        init_options: SpecificationOptions,
         **kwargs: Any,
     ) -> None:
         self.calls: list[AnyCallable] = []
 
-        self.schema_ = schema_
-
-        super().__init__(*args, **kwargs)
+        self.schema_ = init_options.schema_
+        params = AsyncAPIParams(
+            include_in_schema=init_options.include_in_schema,
+            title_=init_options.title_,
+            description_=init_options.description_,
+        )
+        # Call next base class parent init
+        super().__init__(*args, init_options=params, **kwargs)
 
     def __call__(
         self,

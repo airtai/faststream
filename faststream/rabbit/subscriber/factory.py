@@ -3,8 +3,13 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.constants import EMPTY
+from faststream._internal.subscriber.schemas import InternalOptions
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
+from faststream.rabbit.schemas.subscribers import (
+    LogicOptions,
+    SpecificationOptions,
+)
 from faststream.rabbit.subscriber.specified import SpecificationSubscriber
 
 if TYPE_CHECKING:
@@ -33,23 +38,32 @@ def create_subscriber(
     include_in_schema: bool,
 ) -> SpecificationSubscriber:
     _validate_input_for_misconfigure(ack_policy=ack_policy, no_ack=no_ack)
-    # this need create dto
-    # need two dto, for logic subscriber and specific
-    # dto шt should be generalized, and everything else should be passed as separate parameters
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
-    return SpecificationSubscriber(
-        queue=queue,
-        exchange=exchange,
-        consume_args=consume_args,
+    internal_options = InternalOptions(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,
+        default_decoder=EMPTY,
+        default_parser=EMPTY
+    )
+    logic_options = LogicOptions(
+        queue=queue,
+        consume_args=consume_args,
+        internal_options=internal_options
+    )
+    specification_options = SpecificationOptions(
+        queue=queue,
+        exchange=exchange,
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
+    )
+    return SpecificationSubscriber(
+        logic_options=logic_options,
+        specification_options=specification_options
     )
 
 
