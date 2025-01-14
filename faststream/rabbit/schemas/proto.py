@@ -15,11 +15,7 @@ class BaseRMQInformation:
     exchange: "RabbitExchange"
     app_id: Optional[str]
 
-    def __init__(
-        self,
-        *,
-        base_init_options: BaseOptions
-    ) -> None:
+    def __init__(self, *, base_init_options: BaseOptions) -> None:
         self.queue = base_init_options.queue
         self.exchange = base_init_options.exchange
 

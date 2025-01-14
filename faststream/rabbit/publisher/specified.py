@@ -1,4 +1,3 @@
-
 from faststream._internal.publisher.specified import (
     SpecificationPublisher as SpecificationPublisherMixin,
 )
@@ -28,22 +27,18 @@ class SpecificationPublisher(
         self,
         *,
         logic_options: LogicOptions,
-        specification_options: SpecificationOptions
+        specification_options: SpecificationOptions,
     ) -> None:
         base_options = BaseOptions(
-            queue=logic_options.queue,
-            exchange=logic_options.exchange
+            queue=logic_options.queue, exchange=logic_options.exchange
         )
         super().__init__(
             init_options=specification_options,
             # propagate to RMQSpecificationMixin
-            base_init_options=base_options
+            base_init_options=base_options,
         )
 
-        LogicPublisher.__init__(
-            self,
-            logic_options=logic_options
-        )
+        LogicPublisher.__init__(self, logic_options=logic_options)
 
     def get_default_name(self) -> str:
         routing = (

@@ -68,10 +68,14 @@ class LogicPublisher(PublisherUsecase[IncomingMessage]):
         self.reply_to: str = logic_options.message_kwargs.pop("reply_to", None) or ""
         self.timeout = logic_options.message_kwargs.pop("timeout", None)
 
-        message_options, _ = filter_by_dict(MessageOptions, dict(logic_options.message_kwargs))
+        message_options, _ = filter_by_dict(
+            MessageOptions, dict(logic_options.message_kwargs)
+        )
         self.message_options = message_options
 
-        publish_options, _ = filter_by_dict(PublishOptions, dict(logic_options.message_kwargs))
+        publish_options, _ = filter_by_dict(
+            PublishOptions, dict(logic_options.message_kwargs)
+        )
         self.publish_options = publish_options
 
         self.app_id = None

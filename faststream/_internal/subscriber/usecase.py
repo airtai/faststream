@@ -88,11 +88,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     _call_options: Optional["_CallOptions"]
     _call_decorators: Iterable["Decorator"]
 
-    def __init__(
-        self,
-        *,
-        init_options: InternalOptions
-    ) -> None:
+    def __init__(self, *, init_options: InternalOptions) -> None:
         """Initialize a new instance of the class."""
         self.calls = []
 

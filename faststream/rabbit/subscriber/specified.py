@@ -1,4 +1,3 @@
-
 from faststream._internal.subscriber.specified import (
     SpecificationSubscriber as SpecificationSubscriberMixin,
 )
@@ -30,12 +29,10 @@ class SpecificationSubscriber(
         self,
         *,
         logic_options: LogicOptions,
-        specification_options: SpecificationOptions
+        specification_options: SpecificationOptions,
     ) -> None:
-
         base_options = BaseOptions(
-            queue=specification_options.queue,
-            exchange=specification_options.exchange
+            queue=specification_options.queue, exchange=specification_options.exchange
         )
         async_api_options = AsyncAPIParams(
             title_=specification_options.title_,
@@ -45,13 +42,10 @@ class SpecificationSubscriber(
         super().__init__(
             init_options=async_api_options,
             # propagate to RMQSpecificationMixin
-            base_init_options=base_options
+            base_init_options=base_options,
         )
 
-        LogicSubscriber.__init__(
-            self,
-            init_options=logic_options
-        )
+        LogicSubscriber.__init__(self, init_options=logic_options)
 
     def get_default_name(self) -> str:
         return f"{self.queue.name}:{getattr(self.exchange, 'name', None) or '_'}:{self.call_name}"

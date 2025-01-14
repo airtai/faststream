@@ -47,12 +47,10 @@ def create_subscriber(
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,
         default_decoder=EMPTY,
-        default_parser=EMPTY
+        default_parser=EMPTY,
     )
     logic_options = LogicOptions(
-        queue=queue,
-        consume_args=consume_args,
-        internal_options=internal_options
+        queue=queue, consume_args=consume_args, internal_options=internal_options
     )
     specification_options = SpecificationOptions(
         queue=queue,
@@ -62,8 +60,7 @@ def create_subscriber(
         include_in_schema=include_in_schema,
     )
     return SpecificationSubscriber(
-        logic_options=logic_options,
-        specification_options=specification_options
+        logic_options=logic_options, specification_options=specification_options
     )
 
 

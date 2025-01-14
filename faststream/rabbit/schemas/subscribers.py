@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Optional
 from faststream._internal.subscriber.schemas import InternalOptions
 
 if TYPE_CHECKING:
-
     from faststream._internal.basic_types import AnyDict
     from faststream.rabbit.schemas.exchange import RabbitExchange
     from faststream.rabbit.schemas.queue import RabbitQueue
