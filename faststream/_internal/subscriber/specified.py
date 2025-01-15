@@ -9,8 +9,7 @@ from faststream.exceptions import SetupError
 from faststream.specification.asyncapi.message import parse_handler_params
 from faststream.specification.asyncapi.utils import to_camelcase
 from faststream.specification.proto import EndpointSpecification
-from faststream.specification.schema import SubscriberSpec
-from faststream.specification.schema.subscriber import AsyncAPIParams
+from faststream.specification.schema import AsyncAPIOptions, SubscriberSpec
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
@@ -24,7 +23,7 @@ class SpecificationSubscriber(EndpointSpecification[MsgType, SubscriberSpec]):
     def __init__(
         self,
         *args: Any,
-        async_api_options: AsyncAPIParams,
+        async_api_options: AsyncAPIOptions,
         **kwargs: Any,
     ) -> None:
         self.calls = []

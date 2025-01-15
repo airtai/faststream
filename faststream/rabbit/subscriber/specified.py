@@ -9,13 +9,17 @@ from faststream.rabbit.schemas.subscribers import (
 )
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.specification.asyncapi.utils import resolve_payloads
-from faststream.specification.schema import Message, Operation, SubscriberSpec
+from faststream.specification.schema import (
+    AsyncAPIOptions,
+    Message,
+    Operation,
+    SubscriberSpec,
+)
 from faststream.specification.schema.bindings import (
     ChannelBinding,
     OperationBinding,
     amqp,
 )
-from faststream.specification.schema.subscriber import AsyncAPIParams
 
 
 class SpecificationSubscriber(
@@ -34,13 +38,13 @@ class SpecificationSubscriber(
         base_options = BaseOptions(
             queue=specification_options.queue, exchange=specification_options.exchange
         )
-        async_api_options = AsyncAPIParams(
+        async_api_options = AsyncAPIOptions(
             title_=specification_options.title_,
             description_=specification_options.description_,
             include_in_schema=specification_options.include_in_schema,
         )
         super().__init__(
-            init_options=async_api_options,
+            async_api_options=async_api_options,
             # propagate to RMQSpecificationMixin
             base_init_options=base_options,
         )

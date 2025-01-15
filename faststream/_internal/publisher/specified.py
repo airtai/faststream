@@ -13,8 +13,7 @@ from faststream.rabbit.schemas.publishers import SpecificationOptions
 from faststream.specification.asyncapi.message import get_model_schema
 from faststream.specification.asyncapi.utils import to_camelcase
 from faststream.specification.proto import EndpointSpecification
-from faststream.specification.schema import PublisherSpec
-from faststream.specification.schema.subscriber import AsyncAPIParams
+from faststream.specification.schema import AsyncAPIOptions, PublisherSpec
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyCallable, AnyDict
@@ -36,7 +35,7 @@ class SpecificationPublisher(EndpointSpecification[MsgType, PublisherSpec]):
         self.calls: list[AnyCallable] = []
 
         self.schema_ = init_options.schema_
-        params = AsyncAPIParams(
+        params = AsyncAPIOptions(
             include_in_schema=init_options.include_in_schema,
             title_=init_options.title_,
             description_=init_options.description_,
