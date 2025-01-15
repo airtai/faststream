@@ -17,7 +17,7 @@ from faststream.confluent.subscriber.specified import (
 )
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
-
+from faststream.confluent.schemas.subscribers import SpecificationOptions
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
     from fast_depends.dependencies import Dependant
@@ -164,48 +164,7 @@ def create_subscriber(
         connection_data["enable_auto_commit"] = True
         ack_policy = AckPolicy.DO_NOTHING
 
-    if batch:
-        return SpecificationBatchSubscriber(
-            *topics,
-            partitions=partitions,
-            polling_interval=polling_interval,
-            max_records=max_records,
-            group_id=group_id,
-            connection_data=connection_data,
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=cast(
-                "Sequence[BrokerMiddleware[tuple[ConfluentMsg, ...]]]",
-                broker_middlewares,
-            ),
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
-
-    if max_workers > 1:
-        return SpecificationConcurrentDefaultSubscriber(
-            *topics,
-            partitions=partitions,
-            polling_interval=polling_interval,
-            group_id=group_id,
-            connection_data=connection_data,
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=cast(
-                "Sequence[BrokerMiddleware[ConfluentMsg]]",
-                broker_middlewares,
-            ),
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-            # concurrent arg
-            max_workers=max_workers,
-        )
-
-    return SpecificationDefaultSubscriber(
+    init_options = SpecificationOptions(
         *topics,
         partitions=partitions,
         polling_interval=polling_interval,
@@ -221,6 +180,23 @@ def create_subscriber(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
+    )
+
+    if batch:
+        return SpecificationBatchSubscriber(
+            init_options=init_options,
+            max_records=max_records,
+        )
+
+    if max_workers > 1:
+        return SpecificationConcurrentDefaultSubscriber(
+            init_options=init_options,
+            # concurrent arg
+            max_workers=max_workers,
+        )
+
+    return SpecificationDefaultSubscriber(
+        init_options=init_options,
     )
 
 
