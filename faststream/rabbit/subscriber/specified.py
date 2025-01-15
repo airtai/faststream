@@ -3,7 +3,6 @@ from faststream._internal.subscriber.specified import (
 )
 from faststream.rabbit.schemas.proto import BaseRMQInformation as RMQSpecificationMixin
 from faststream.rabbit.schemas.subscribers import (
-    BaseOptions,
     LogicOptions,
     SpecificationOptions,
 )
@@ -35,9 +34,6 @@ class SpecificationSubscriber(
         logic_options: LogicOptions,
         specification_options: SpecificationOptions,
     ) -> None:
-        base_options = BaseOptions(
-            queue=specification_options.queue, exchange=specification_options.exchange
-        )
         async_api_options = AsyncAPIOptions(
             title_=specification_options.title_,
             description_=specification_options.description_,
@@ -46,7 +42,8 @@ class SpecificationSubscriber(
         super().__init__(
             async_api_options=async_api_options,
             # propagate to RMQSpecificationMixin
-            base_init_options=base_options,
+            queue=specification_options.queue,
+            exchange=specification_options.exchange,
         )
 
         LogicSubscriber.__init__(self, init_options=logic_options)

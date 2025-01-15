@@ -23,9 +23,3 @@ class SpecificationOptions:
     description_: Optional[str]
     include_in_schema: bool
     exchange: "RabbitExchange"
-
-
-@dataclass
-class BaseOptions:
-    queue: "RabbitQueue"
-    exchange: "RabbitExchange"
