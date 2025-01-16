@@ -3,7 +3,7 @@ from typing import Optional
 
 
 @dataclass
-class AsyncAPIOptions:
+class SpecificationOptions:
     title_: Optional[str]
     description_: Optional[str]
     include_in_schema: bool

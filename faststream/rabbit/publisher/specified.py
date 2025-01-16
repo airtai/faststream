@@ -1,8 +1,12 @@
+from faststream._internal.publisher.schemas import SpecificationPublisherOptions
 from faststream._internal.publisher.specified import (
     SpecificationPublisher as SpecificationPublisherMixin,
 )
+from faststream.rabbit.schemas.base import RabbitBaseOptions
 from faststream.rabbit.schemas.proto import BaseRMQInformation as RMQSpecificationMixin
-from faststream.rabbit.schemas.publishers import LogicOptions, SpecificationOptions
+from faststream.rabbit.schemas.publishers import (
+    RabbitLogicPublisherOptions,
+)
 from faststream.rabbit.utils import is_routing_exchange
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema import Message, Operation, PublisherSpec
@@ -25,14 +29,14 @@ class SpecificationPublisher(
     def __init__(
         self,
         *,
-        logic_options: LogicOptions,
-        specification_options: SpecificationOptions,
+        logic_options: RabbitLogicPublisherOptions,
+        rabbit_mq_base_options: RabbitBaseOptions,
+        specification_options: SpecificationPublisherOptions,
     ) -> None:
         super().__init__(
-            init_options=specification_options,
+            specification_options=specification_options,
             # propagate to RMQSpecificationMixin
-            queue=logic_options.queue,
-            exchange=logic_options.exchange,
+            rabbit_mq_options=rabbit_mq_base_options,
         )
 
         LogicPublisher.__init__(self, logic_options=logic_options)

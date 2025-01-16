@@ -10,6 +10,7 @@ from typing import (
 )
 
 from faststream._internal.constants import EMPTY
+from faststream.confluent.schemas.subscribers import SpecificationOptions
 from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationConcurrentDefaultSubscriber,
@@ -17,7 +18,7 @@ from faststream.confluent.subscriber.specified import (
 )
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
-from faststream.confluent.schemas.subscribers import SpecificationOptions
+
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
     from fast_depends.dependencies import Dependant
@@ -164,7 +165,7 @@ def create_subscriber(
         connection_data["enable_auto_commit"] = True
         ack_policy = AckPolicy.DO_NOTHING
 
-    init_options = SpecificationOptions(
+    options = SpecificationOptions(
         *topics,
         partitions=partitions,
         polling_interval=polling_interval,
@@ -184,19 +185,19 @@ def create_subscriber(
 
     if batch:
         return SpecificationBatchSubscriber(
-            init_options=init_options,
+            options=options,
             max_records=max_records,
         )
 
     if max_workers > 1:
         return SpecificationConcurrentDefaultSubscriber(
-            init_options=init_options,
+            options=options,
             # concurrent arg
             max_workers=max_workers,
         )
 
     return SpecificationDefaultSubscriber(
-        init_options=init_options,
+        options=options,
     )
 
 

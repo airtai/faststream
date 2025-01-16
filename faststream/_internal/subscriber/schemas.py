@@ -16,10 +16,17 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class InternalOptions:
+class SubscriberUsecaseOptions:
     no_reply: bool
     broker_dependencies: Iterable["Dependant"]
     broker_middlewares: Sequence["BrokerMiddleware[MsgType]"]
     ack_policy: AckPolicy
     default_parser: Optional["AsyncCallable"] = field(default_factory=EMPTY)
     default_decoder: Optional["AsyncCallable"] = field(default_factory=EMPTY)
+
+
+@dataclass
+class SpecificationSubscriberOptions:
+    title_: Optional[str]
+    description_: Optional[str]
+    include_in_schema: bool

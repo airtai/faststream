@@ -3,7 +3,7 @@ from typing import Any, Generic, Optional, TypeVar
 
 from faststream._internal.proto import EndpointWrapper
 from faststream._internal.types import MsgType
-from faststream.specification.schema import AsyncAPIOptions
+from faststream.specification.schema.base import SpecificationOptions
 
 T = TypeVar("T")
 
@@ -18,12 +18,12 @@ class EndpointSpecification(EndpointWrapper[MsgType], Generic[MsgType, T]):
     def __init__(
         self,
         *args: Any,
-        init_options: AsyncAPIOptions,
+        specification_options: SpecificationOptions,
         **kwargs: Any,
     ) -> None:
-        self.title_ = init_options.title_
-        self.description_ = init_options.description_
-        self.include_in_schema = init_options.include_in_schema
+        self.title_ = specification_options.title_
+        self.description_ = specification_options.description_
+        self.include_in_schema = specification_options.include_in_schema
 
         # Call next base class parent init
         super().__init__(*args, **kwargs)

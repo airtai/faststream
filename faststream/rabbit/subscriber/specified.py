@@ -1,19 +1,19 @@
 from faststream._internal.subscriber.specified import (
     SpecificationSubscriber as SpecificationSubscriberMixin,
 )
+from faststream.rabbit.schemas.base import RabbitBaseOptions
 from faststream.rabbit.schemas.proto import BaseRMQInformation as RMQSpecificationMixin
 from faststream.rabbit.schemas.subscribers import (
-    LogicOptions,
-    SpecificationOptions,
+    RabbitLogicSubscriberOptions,
 )
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema import (
-    AsyncAPIOptions,
     Message,
     Operation,
     SubscriberSpec,
 )
+from faststream.specification.schema.base import SpecificationOptions
 from faststream.specification.schema.bindings import (
     ChannelBinding,
     OperationBinding,
@@ -31,22 +31,17 @@ class SpecificationSubscriber(
     def __init__(
         self,
         *,
-        logic_options: LogicOptions,
+        logic_options: RabbitLogicSubscriberOptions,
+        rabbit_mq_base_options: RabbitBaseOptions,
         specification_options: SpecificationOptions,
     ) -> None:
-        async_api_options = AsyncAPIOptions(
-            title_=specification_options.title_,
-            description_=specification_options.description_,
-            include_in_schema=specification_options.include_in_schema,
-        )
         super().__init__(
-            async_api_options=async_api_options,
+            specification_options=specification_options,
             # propagate to RMQSpecificationMixin
-            queue=specification_options.queue,
-            exchange=specification_options.exchange,
+            rabbit_mq_options=rabbit_mq_base_options,
         )
 
-        LogicSubscriber.__init__(self, init_options=logic_options)
+        LogicSubscriber.__init__(self, options=logic_options)
 
     def get_default_name(self) -> str:
         return f"{self.queue.name}:{getattr(self.exchange, 'name', None) or '_'}:{self.call_name}"

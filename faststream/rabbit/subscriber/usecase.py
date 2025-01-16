@@ -15,7 +15,9 @@ from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.fake import RabbitFakePublisher
-from faststream.rabbit.schemas.subscribers import LogicOptions
+from faststream.rabbit.schemas.subscribers import (
+    RabbitLogicSubscriberOptions,
+)
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
@@ -47,16 +49,16 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
     def __init__(
         self,
         *,
-        init_options: LogicOptions,
+        options: RabbitLogicSubscriberOptions,
     ) -> None:
-        self.queue = init_options.queue
+        self.queue = options.queue
 
-        parser = AioPikaParser(pattern=init_options.queue.path_regex)
-        init_options.internal_options.default_parser = parser.parse_message
-        init_options.internal_options.default_decoder = parser.decode_message
-        super().__init__(init_options=init_options.internal_options)
+        parser = AioPikaParser(pattern=options.queue.path_regex)
+        options.internal_options.default_decoder = parser.decode_message
+        options.internal_options.default_parser = parser.parse_message
+        super().__init__(options=options.internal_options)
 
-        self.consume_args = init_options.consume_args or {}
+        self.consume_args = options.consume_args or {}
 
         self._consumer_tag = None
         self._queue_obj = None

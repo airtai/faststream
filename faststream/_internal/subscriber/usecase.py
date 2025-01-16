@@ -15,7 +15,7 @@ from typing_extensions import Self, deprecated, overload, override
 
 from faststream._internal.subscriber.call_item import HandlerItem
 from faststream._internal.subscriber.proto import SubscriberProto
-from faststream._internal.subscriber.schemas import InternalOptions
+from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
 from faststream._internal.subscriber.utils import (
     MultiLock,
     default_filter,
@@ -88,14 +88,14 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     _call_options: Optional["_CallOptions"]
     _call_decorators: Iterable["Decorator"]
 
-    def __init__(self, *, init_options: InternalOptions) -> None:
+    def __init__(self, *, options: SubscriberUsecaseOptions) -> None:
         """Initialize a new instance of the class."""
         self.calls = []
 
-        self._parser = init_options.default_parser
-        self._decoder = init_options.default_decoder
-        self._no_reply = init_options.no_reply
-        self.ack_policy = init_options.ack_policy
+        self._parser = options.default_parser
+        self._decoder = options.default_decoder
+        self._no_reply = options.no_reply
+        self.ack_policy = options.ack_policy
 
         self._call_options = None
         self._call_decorators = ()
@@ -104,8 +104,8 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self.lock = sync_fake_context()
 
         # Setup in include
-        self._broker_dependencies = init_options.broker_dependencies
-        self._broker_middlewares = init_options.broker_middlewares
+        self._broker_dependencies = options.broker_dependencies
+        self._broker_middlewares = options.broker_middlewares
 
         # register in setup later
         self.extra_context = {}

@@ -1,4 +1,4 @@
-from collections.abc import Awaitable, Iterable, Sequence
+from collections.abc import Awaitable, Iterable
 from functools import partial
 from itertools import chain
 from typing import (
@@ -13,6 +13,9 @@ from unittest.mock import MagicMock
 from typing_extensions import override
 
 from faststream._internal.publisher.proto import PublisherProto
+from faststream._internal.publisher.schemas import (
+    PublisherUsecaseOptions,
+)
 from faststream._internal.state import BrokerState, EmptyBrokerState, Pointer
 from faststream._internal.state.producer import ProducerUnset
 from faststream._internal.subscriber.call_wrapper import (
@@ -38,14 +41,9 @@ if TYPE_CHECKING:
 class PublisherUsecase(PublisherProto[MsgType]):
     """A base class for publishers in an asynchronous API."""
 
-    def __init__(
-        self,
-        *,
-        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
-        middlewares: Sequence["PublisherMiddleware"],
-    ) -> None:
-        self.middlewares = middlewares
-        self._broker_middlewares = broker_middlewares
+    def __init__(self, *, publisher_options: PublisherUsecaseOptions) -> None:
+        self.middlewares = publisher_options.middlewares
+        self._broker_middlewares = publisher_options.broker_middlewares
 
         self.__producer: Optional[ProducerProto] = ProducerUnset()
 
