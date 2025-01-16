@@ -5,7 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
     guruScript.id = "guru-widget-id";
 
     const widgetSettings = {
-        "data-widget-id": "TSM1_f2Ese6iwdKflPk7_ItbjXoRBi5CxL_BEYM2s_4",
+        // This token is binded to `faststream.airt.ai` domain,
+        // so its publication is not a problem
+        "data-widget-id": "TSM1_f2Ese6iwdKflPk7_ItbjXoRBi5CxL_BEYM2s_4",  // pragma: allowlist secrets
         "data-text": "Ask AI",
         "data-margins": JSON.stringify({ bottom: "20px", right: "20px" }),
         "data-light-mode": "false",
