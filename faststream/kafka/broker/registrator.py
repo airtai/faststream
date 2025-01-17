@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Sequence
+from collections.abc import Collection, Iterable, Sequence
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     )
     from faststream.kafka.subscriber.specified import (
         SpecificationBatchSubscriber,
+        SpecificationConcurrentBetweenPartitionsSubscriber,
         SpecificationConcurrentDefaultSubscriber,
         SpecificationDefaultSubscriber,
     )
@@ -59,6 +60,7 @@ class KafkaRegistrator(
             "SpecificationBatchSubscriber",
             "SpecificationDefaultSubscriber",
             "SpecificationConcurrentDefaultSubscriber",
+            "SpecificationConcurrentBetweenPartitionsSubscriber",
         ]
     ]
     _publishers: list[
@@ -384,7 +386,7 @@ class KafkaRegistrator(
             ),
         ] = None,
         partitions: Annotated[
-            Iterable["TopicPartition"],
+            Collection["TopicPartition"],
             Doc(
                 """
             An explicit partitions list to assign.
@@ -765,7 +767,7 @@ class KafkaRegistrator(
             ),
         ] = None,
         partitions: Annotated[
-            Iterable["TopicPartition"],
+            Collection["TopicPartition"],
             Doc(
                 """
             An explicit partitions list to assign.
@@ -1146,7 +1148,7 @@ class KafkaRegistrator(
             ),
         ] = None,
         partitions: Annotated[
-            Iterable["TopicPartition"],
+            Collection["TopicPartition"],
             Doc(
                 """
             An explicit partitions list to assign.
@@ -1530,7 +1532,7 @@ class KafkaRegistrator(
             ),
         ] = None,
         partitions: Annotated[
-            Iterable["TopicPartition"],
+            Collection["TopicPartition"],
             Doc(
                 """
             An explicit partitions list to assign.
@@ -1561,7 +1563,14 @@ class KafkaRegistrator(
         ] = (),
         max_workers: Annotated[
             int,
-            Doc("Number of workers to process messages concurrently."),
+            Doc(
+                "Maximum number of messages being processed concurrently. With "
+                "`auto_commit=False` processing is concurrent between partitions and "
+                "sequential within a partition. With `auto_commit=False` maximum "
+                "concurrency is achieved when total number of workers across all "
+                "application instances running workers in the same consumer group "
+                "is equal to the number of partitions in the topic."
+            ),
         ] = 1,
         no_ack: Annotated[
             bool,
@@ -1598,6 +1607,7 @@ class KafkaRegistrator(
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
         "SpecificationConcurrentDefaultSubscriber",
+        "SpecificationConcurrentBetweenPartitionsSubscriber",
     ]:
         sub = create_subscriber(
             *topics,
@@ -1648,7 +1658,14 @@ class KafkaRegistrator(
         if batch:
             subscriber = cast("SpecificationBatchSubscriber", subscriber)
         elif max_workers > 1:
-            subscriber = cast("SpecificationConcurrentDefaultSubscriber", subscriber)
+            if auto_commit:
+                subscriber = cast(
+                    "SpecificationConcurrentDefaultSubscriber", subscriber
+                )
+            else:
+                subscriber = cast(
+                    "SpecificationConcurrentBetweenPartitionsSubscriber", subscriber
+                )
         else:
             subscriber = cast("SpecificationDefaultSubscriber", subscriber)
 

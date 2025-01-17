@@ -7,6 +7,7 @@ from typing import (
     Annotated,
     Any,
     Callable,
+    NamedTuple,
     Optional,
     Union,
 )
@@ -34,7 +35,7 @@ from faststream.response import ensure_response
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, Decorator
+    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
     from faststream._internal.context.repository import ContextRepo
     from faststream._internal.publisher.proto import (
         BasePublisherProto,
@@ -54,26 +55,11 @@ if TYPE_CHECKING:
     from faststream.response import Response
 
 
-class _CallOptions:
-    __slots__ = (
-        "decoder",
-        "dependencies",
-        "middlewares",
-        "parser",
-    )
-
-    def __init__(
-        self,
-        *,
-        parser: Optional["CustomCallable"],
-        decoder: Optional["CustomCallable"],
-        middlewares: Sequence["SubscriberMiddleware[Any]"],
-        dependencies: Iterable["Dependant"],
-    ) -> None:
-        self.parser = parser
-        self.decoder = decoder
-        self.middlewares = middlewares
-        self.dependencies = dependencies
+class _CallOptions(NamedTuple):
+    parser: Optional["CustomCallable"]
+    decoder: Optional["CustomCallable"]
+    middlewares: Sequence["SubscriberMiddleware[Any]"]
+    dependencies: Iterable["Dependant"]
 
 
 class SubscriberUsecase(SubscriberProto[MsgType]):
@@ -83,6 +69,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     extra_watcher_options: "AnyDict"
     extra_context: "AnyDict"
     graceful_timeout: Optional[float]
+    logger: Optional["LoggerProto"]
 
     _broker_dependencies: Iterable["Dependant"]
     _call_options: Optional["_CallOptions"]
@@ -138,6 +125,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._state = state
 
         self.extra_context = extra_context
+        self.logger = state.get().logger_state.logger
 
         for call in self.calls:
             if parser := call.item_parser or broker_parser:
@@ -445,3 +433,18 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         return {
             "message_id": getattr(message, "message_id", ""),
         }
+
+    def _log(
+        self,
+        log_level: int,
+        message: str,
+        extra: Optional["AnyDict"] = None,
+        exc_info: Optional[Exception] = None,
+    ) -> None:
+        if self.logger is not None:
+            self.logger.log(
+                log_level,
+                message,
+                extra=extra,
+                exc_info=exc_info,
+            )
