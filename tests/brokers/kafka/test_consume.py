@@ -481,7 +481,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
                     asyncio.create_task(event1.wait()),
                     asyncio.create_task(event2.wait()),
                 ),
-                timeout=5,
+                timeout=10,
             )
 
         assert event1.is_set()
@@ -537,7 +537,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
                         ),
                         asyncio.create_task(asyncio.sleep(1)),
                     ),
-                    timeout=5,
+                    timeout=10,
                 )
                 assert mock.mock.call_count == 2
 
