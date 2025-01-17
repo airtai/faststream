@@ -604,82 +604,61 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
             mock.assert_called_once_with([b""])
 
-    @pytest.mark.asyncio()
-    @pytest.mark.slow()
-    @pytest.mark.parametrize(
-        "max_workers",
-        (
-            pytest.param(1),
-            pytest.param(2),
-        ),
-    )
-    async def test_sync_listener(self, queue: str, max_workers: int) -> None:
-        called_assigned = False
-        called_revoked = False
 
+@pytest.mark.asyncio()
+@pytest.mark.slow()
+class TestListener(KafkaTestcaseConfig):
+    async def test_sync_listener(
+        self,
+        queue: str,
+        mock: MagicMock,
+        event: asyncio.Event,
+    ) -> None:
         consume_broker = self.get_broker()
 
         class CustomListener(ConsumerRebalanceListener):
-            def on_partitions_revoked(self, revoked):
-                nonlocal called_revoked
-                called_revoked = True
+            def on_partitions_revoked(self, revoked: set[str]) -> None:
+                mock.on_partitions_revoked()
 
-            def on_partitions_assigned(self, assigned):
-                nonlocal called_assigned
-                called_assigned = True
+            def on_partitions_assigned(self, assigned: set[str]) -> None:
+                mock.on_partitions_assigned()
+                event.set()
 
-        @consume_broker.subscriber(
+        consume_broker.subscriber(
             queue,
-            max_workers=max_workers,
             auto_commit=AckPolicy.DO_NOTHING,
             group_id="service_1",
             listener=CustomListener(),
         )
-        async def handler(msg: str):
-            pass
 
         async with self.patch_broker(consume_broker) as broker:
             await broker.start()
 
-        assert called_assigned is True
-        assert called_revoked is True
+            await asyncio.wait((asyncio.create_task(event.wait()),), timeout=3.0)
 
-    @pytest.mark.asyncio()
-    @pytest.mark.slow()
-    @pytest.mark.parametrize(
-        "max_workers",
-        (
-            pytest.param(1),
-            pytest.param(2),
-        ),
-    )
-    async def test_listener_async(self, queue: str, max_workers: int) -> None:
-        called_assigned = False
-        called_revoked = False
+        assert event.is_set()
+        mock.on_partitions_assigned.assert_called_once()
+        mock.on_partitions_revoked.assert_called_once()
 
+    async def test_listener_async(self, queue: str, mock: MagicMock) -> None:
         consume_broker = self.get_broker()
 
         class CustomListener(ConsumerRebalanceListener):
-            async def on_partitions_revoked(self, revoked):
-                nonlocal called_revoked
-                called_revoked = True
+            async def on_partitions_revoked(self, revoked: set[str]) -> None:
+                mock.on_partitions_revoked()
 
-            async def on_partitions_assigned(self, assigned):
-                nonlocal called_assigned
-                called_assigned = True
+            async def on_partitions_assigned(self, assigned: set[str]) -> None:
+                mock.on_partitions_assigned()
 
-        @consume_broker.subscriber(
+        consume_broker.subscriber(
             queue,
-            max_workers=max_workers,
             auto_commit=AckPolicy.DO_NOTHING,
             group_id="service_1",
             listener=CustomListener(),
         )
-        async def handler(msg: str):
-            pass
 
         async with self.patch_broker(consume_broker) as broker:
             await broker.start()
 
-        assert called_assigned is True
-        assert called_revoked is True
+        mock.on_partitions_assigned.assert_called_once()
+        mock.on_partitions_revoked.assert_called_once()

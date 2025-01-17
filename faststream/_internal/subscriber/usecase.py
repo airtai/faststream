@@ -69,7 +69,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     extra_watcher_options: "AnyDict"
     extra_context: "AnyDict"
     graceful_timeout: Optional[float]
-    logger: Optional["LoggerProto"]
 
     _broker_dependencies: Iterable["Dependant"]
     _call_options: Optional["_CallOptions"]
@@ -125,7 +124,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._state = state
 
         self.extra_context = extra_context
-        self.logger = state.get().logger_state.logger
 
         for call in self.calls:
             if parser := call.item_parser or broker_parser:
@@ -441,10 +439,10 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         extra: Optional["AnyDict"] = None,
         exc_info: Optional[Exception] = None,
     ) -> None:
-        if self.logger is not None:
-            self.logger.log(
-                log_level,
-                message,
-                extra=extra,
-                exc_info=exc_info,
-            )
+        state = self._state.get()
+        state.logger_state.logger.log(
+            log_level,
+            message,
+            extra=extra,
+            exc_info=exc_info,
+        )

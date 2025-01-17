@@ -126,14 +126,16 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
         self.parser._setup(consumer)
 
         if self.topics or self._pattern:
+            listener = LoggingListenerProxy(
+                consumer=consumer,
+                logger=self._state.get().logger_state.logger.logger,
+                listener=self._listener,
+            )
+
             consumer.subscribe(
                 topics=self.topics,
                 pattern=self._pattern,
-                listener=LoggingListenerProxy(
-                    consumer=consumer,
-                    logger=self.logger,
-                    listener=self._listener,
-                ),
+                listener=listener,
             )
 
         elif self.partitions:
@@ -480,7 +482,7 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber, TasksMixin):
                         topics=self.topics,
                         listener=LoggingListenerProxy(
                             consumer=consumer,
-                            logger=self.logger,
+                            logger=self._state.get().logger_state.logger.logger,
                             listener=self._listener,
                         ),
                     )
