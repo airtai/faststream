@@ -428,7 +428,7 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin["ConsumerRecord"], DefaultSubs
         await self._put_msg(msg)
 
 
-class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber, TasksMixin):
+class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
     consumer_subgroup: list["AIOKafkaConsumer"]
 
     def __init__(
@@ -488,20 +488,24 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber, TasksMixin):
             )
             self.consumer_subgroup = [self.consumer]
 
-        for c in self.consumer_subgroup:
-            c.subscribe(
-                topics=self.topics,
-                listener=LoggingListenerProxy(
-                    consumer=c,
-                    logger=self._state.get().logger_state.logger.logger,
-                    log_extra=self.get_log_context(None),
-                    listener=self._listener,
-                ),
-            )
+        # Subscribers starting should be called concurrently
+        # to balance them correctly
+        async with anyio.create_task_group() as tg:
+            for c in self.consumer_subgroup:
+                c.subscribe(
+                    topics=self.topics,
+                    listener=LoggingListenerProxy(
+                        consumer=c,
+                        logger=self._state.get().logger_state.logger.logger,
+                        log_extra=self.get_log_context(None),
+                        listener=self._listener,
+                    ),
+                )
 
-            await c.start()
+                tg.start_soon(c.start)
 
-        self.running = True
+        # call SubscriberUsecase method
+        await super(LogicSubscriber, self).start()
 
         if self.calls:
             for c in self.consumer_subgroup:

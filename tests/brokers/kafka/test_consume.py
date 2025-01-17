@@ -450,9 +450,11 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
     ) -> None:
         await create_topic(queue, 3)
 
-        consume_broker = self.get_broker()
+        consume_broker = self.get_broker(apply_types=True)
 
         event1, event2 = asyncio.Event(), asyncio.Event()
+
+        consumers = set()
 
         @consume_broker.subscriber(
             queue,
@@ -460,19 +462,19 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
             ack_policy=AckPolicy.ACK,
             group_id="service_1",
         )
-        async def handler(msg: str) -> None:
+        async def handler(message: KafkaMessage) -> None:
+            nonlocal consumers
+            consumers.add(getattr(message.raw_message, "consumer", None))
             if event1.is_set():
                 event2.set()
             else:
                 event1.set()
-            # sleep gt waiter time to prevent sequence consuming
-            await asyncio.sleep(10)
 
         async with self.patch_broker(consume_broker) as broker:
             await broker.start()
 
             await broker.publish("hello1", queue, partition=0)
-            await broker.publish("hello2", queue, partition=0)
+            await broker.publish("hello2", queue, partition=1)
 
             await asyncio.wait(
                 (
@@ -482,8 +484,10 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
                 timeout=5,
             )
 
-            assert event1.is_set()
-            assert event2.is_set()
+        assert event1.is_set()
+        assert event2.is_set()
+
+        assert len(consumers) == 2
 
     @pytest.mark.asyncio()
     @pytest.mark.slow()
@@ -540,6 +544,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
 @pytest.mark.asyncio()
 @pytest.mark.slow()
+@pytest.mark.kafka()
 class TestListener(KafkaTestcaseConfig):
     async def test_sync_listener(
         self,
@@ -599,6 +604,7 @@ class TestListener(KafkaTestcaseConfig):
 
 @pytest.mark.asyncio()
 @pytest.mark.slow()
+@pytest.mark.kafka()
 @pytest.mark.parametrize(
     ("overflow_workers"),
     (

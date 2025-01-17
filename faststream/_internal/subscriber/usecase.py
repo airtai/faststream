@@ -35,7 +35,7 @@ from faststream.response import ensure_response
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
 
-    from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
+    from faststream._internal.basic_types import AnyDict, Decorator
     from faststream._internal.context.repository import ContextRepo
     from faststream._internal.publisher.proto import (
         BasePublisherProto,
