@@ -8,19 +8,24 @@ from faststream._internal.utils.functions import call_or_await
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer, TopicPartition
 
-    from faststream._internal.basic_types import LoggerProto
+    from faststream._internal.basic_types import AnyDict, LoggerProto
 
 
 def LoggingListenerProxy(  # noqa: N802
     *,
     consumer: "AIOKafkaConsumer",
     logger: Optional["LoggerProto"],
+    log_extra: "AnyDict",
     listener: Optional["ConsumerRebalanceListener"],
 ) -> Optional["ConsumerRebalanceListener"]:
     if logger is None:
         return listener
 
-    logging_listener = _LoggingListener(consumer=consumer, logger=logger)
+    logging_listener = _LoggingListener(
+        consumer=consumer,
+        logger=logger,
+        log_extra=log_extra,
+    )
     if listener is None:
         return logging_listener
 
@@ -33,9 +38,11 @@ class _LoggingListener(ConsumerRebalanceListener):
         *,
         consumer: "AIOKafkaConsumer",
         logger: "LoggerProto",
+        log_extra: "AnyDict",
     ) -> None:
         self.consumer = consumer
         self.logger = logger
+        self.log_extra = log_extra
 
     async def on_partitions_revoked(self, revoked: set["TopicPartition"]) -> None:
         pass
@@ -47,6 +54,7 @@ class _LoggingListener(ConsumerRebalanceListener):
                 f"Consumer {self.consumer._coordinator.member_id} assigned to partitions: "
                 f"{assigned}"
             ),
+            extra=self.log_extra,
         )
         if not assigned:
             self.logger.log(
@@ -55,6 +63,7 @@ class _LoggingListener(ConsumerRebalanceListener):
                     f"Consumer in group {self.consumer._group_id} has no partition assignments - topics "
                     f"{self.consumer._subscription.topics} may have fewer partitions than consumers"
                 ),
+                extra=self.log_extra,
             )
 
 

@@ -126,16 +126,15 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
         self.parser._setup(consumer)
 
         if self.topics or self._pattern:
-            listener = LoggingListenerProxy(
-                consumer=consumer,
-                logger=self._state.get().logger_state.logger.logger,
-                listener=self._listener,
-            )
-
             consumer.subscribe(
                 topics=self.topics,
                 pattern=self._pattern,
-                listener=listener,
+                listener=LoggingListenerProxy(
+                    consumer=consumer,
+                    logger=self._state.get().logger_state.logger.logger,
+                    log_extra=self.get_log_context(None),
+                    listener=self._listener,
+                ),
             )
 
         elif self.partitions:
@@ -160,10 +159,11 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
         *,
         timeout: float = 5.0,
     ) -> "Optional[StreamMessage[MsgType]]":
-        assert self.consumer, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
             not self.calls
         ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        assert self.consumer, "You should start subscriber at first."  # nosec B101
 
         raw_messages = await self.consumer.getmany(
             timeout_ms=timeout * 1000,
@@ -469,29 +469,44 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber, TasksMixin):
         assert self.builder, "You should setup subscriber at first."  # nosec B101
 
         if self.calls:
-            async with anyio.create_task_group() as tg:
-                for _ in range(self.max_workers):
-                    consumer = self.builder(
-                        group_id=self.group_id,
-                        client_id=self.client_id,
-                        **self._connection_args,
-                    )
-                    self.consumer_subgroup.append(consumer)
+            self.consumer_subgroup = [
+                self.builder(
+                    group_id=self.group_id,
+                    client_id=self.client_id,
+                    **self._connection_args,
+                )
+                for _ in range(self.max_workers)
+            ]
 
-                    consumer.subscribe(
-                        topics=self.topics,
-                        listener=LoggingListenerProxy(
-                            consumer=consumer,
-                            logger=self._state.get().logger_state.logger.logger,
-                            listener=self._listener,
-                        ),
-                    )
+        else:
+            # We should create single consumer to support
+            # `get_one()` and `__aiter__` methods
+            self.consumer = self.builder(
+                group_id=self.group_id,
+                client_id=self.client_id,
+                **self._connection_args,
+            )
+            self.consumer_subgroup = [self.consumer]
 
-                    tg.start_soon(consumer.start)
+        async with anyio.create_task_group() as tg:
+            for c in self.consumer_subgroup:
+                c.subscribe(
+                    topics=self.topics,
+                    listener=LoggingListenerProxy(
+                        consumer=c,
+                        logger=self._state.get().logger_state.logger.logger,
+                        log_extra=self.get_log_context(None),
+                        listener=self._listener,
+                    ),
+                )
 
-                    self.add_task(self._run_consume_loop(consumer))
+                tg.start_soon(c.start)
 
         self.running = True
+
+        if self.calls:
+            for c in self.consumer_subgroup:
+                self.add_task(self._run_consume_loop(c))
 
     async def close(self) -> None:
         if self.consumer_subgroup:
