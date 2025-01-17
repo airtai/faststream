@@ -488,19 +488,18 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber, TasksMixin):
             )
             self.consumer_subgroup = [self.consumer]
 
-        async with anyio.create_task_group() as tg:
-            for c in self.consumer_subgroup:
-                c.subscribe(
-                    topics=self.topics,
-                    listener=LoggingListenerProxy(
-                        consumer=c,
-                        logger=self._state.get().logger_state.logger.logger,
-                        log_extra=self.get_log_context(None),
-                        listener=self._listener,
-                    ),
-                )
+        for c in self.consumer_subgroup:
+            c.subscribe(
+                topics=self.topics,
+                listener=LoggingListenerProxy(
+                    consumer=c,
+                    logger=self._state.get().logger_state.logger.logger,
+                    log_extra=self.get_log_context(None),
+                    listener=self._listener,
+                ),
+            )
 
-                tg.start_soon(c.start)
+            await c.start()
 
         self.running = True
 
