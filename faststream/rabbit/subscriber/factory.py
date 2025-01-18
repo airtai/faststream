@@ -42,7 +42,7 @@ def create_subscriber(
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
-    test = SubscriberUsecaseOptions(
+    internal_options = SubscriberUsecaseOptions(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
@@ -52,7 +52,7 @@ def create_subscriber(
     )
 
     logic_options = RabbitLogicSubscriberOptions(
-        internal_options=test,
+        internal_options=internal_options,
         consume_args=consume_args,
         queue=queue,
     )

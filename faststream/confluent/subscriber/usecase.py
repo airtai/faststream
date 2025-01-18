@@ -12,21 +12,20 @@ from confluent_kafka import KafkaException, Message
 from typing_extensions import override
 
 from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
-from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
 from faststream._internal.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.fake import KafkaFakePublisher
 from faststream.confluent.schemas import TopicPartition
-from faststream.confluent.schemas.subscribers import DefaultOptions
+from faststream.confluent.schemas.subscribers import SubscriberLogicOptions
 from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import BasePublisherProto
     from faststream._internal.state import BrokerState
-    from faststream._internal.types import AsyncCallable, CustomCallable
+    from faststream._internal.types import CustomCallable
     from faststream.confluent.client import AsyncConfluentConsumer
     from faststream.message import StreamMessage
 
@@ -45,20 +44,9 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
     def __init__(
         self,
-        options: DefaultOptions,
-        default_parser: "AsyncCallable",
-        default_decoder: "AsyncCallable",
+        options: SubscriberLogicOptions,
     ) -> None:
-        internal_init_options = SubscriberUsecaseOptions(
-            default_parser=default_parser,
-            default_decoder=default_decoder,
-            # Propagated args
-            ack_policy=options.ack_policy,
-            no_reply=options.no_reply,
-            broker_middlewares=options.broker_middlewares,
-            broker_dependencies=options.broker_dependencies,
-        )
-        super().__init__(options=internal_init_options)
+        super().__init__(options=options.internal_options)
 
         self.__connection_data = options.connection_data
 
@@ -219,15 +207,14 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
 
 class DefaultSubscriber(LogicSubscriber[Message]):
-    def __init__(self, options: DefaultOptions) -> None:
+    def __init__(self, options: SubscriberLogicOptions) -> None:
         self.parser = AsyncConfluentParser(
-            is_manual=options.ack_policy is not AckPolicy.ACK_FIRST
+            is_manual=options.internal_options.ack_policy is not AckPolicy.ACK_FIRST
         )
-
+        options.internal_options.default_decoder = self.parser.decode_message
+        options.internal_options.default_parser = self.parser.parse_message
         super().__init__(
             options=options,
-            default_parser=self.parser.parse_message,
-            default_decoder=self.parser.decode_message,
         )
 
     async def get_msg(self) -> Optional["Message"]:
@@ -263,18 +250,17 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
     def __init__(
         self,
         max_records: Optional[int],
-        options: DefaultOptions,
+        options: SubscriberLogicOptions,
     ) -> None:
         self.max_records = max_records
 
         self.parser = AsyncConfluentParser(
-            is_manual=options.ack_policy is not AckPolicy.ACK_FIRST
+            is_manual=options.internal_options.ack_policy is not AckPolicy.ACK_FIRST
         )
-
+        options.internal_options.default_decoder = self.parser.decode_message
+        options.internal_options.default_parser = self.parser.parse_message
         super().__init__(
             options=options,
-            default_parser=self.parser.parse_message,
-            default_decoder=self.parser.decode_message,
         )
 
     async def get_msg(self) -> Optional[tuple["Message", ...]]:

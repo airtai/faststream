@@ -35,7 +35,7 @@ class SpecificationPublisher(EndpointSpecification[MsgType, PublisherSpec]):
         self.calls: list[AnyCallable] = []
         self.schema_ = specification_options.schema_
         # Call next base class parent init
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, specification_options=specification_options, **kwargs)
 
     def __call__(
         self,

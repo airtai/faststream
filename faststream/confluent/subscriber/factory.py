@@ -5,12 +5,12 @@ from typing import (
     Literal,
     Optional,
     Union,
-    cast,
     overload,
 )
 
 from faststream._internal.constants import EMPTY
-from faststream.confluent.schemas.subscribers import SpecificationOptions
+from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
+from faststream.confluent.schemas.subscribers import SubscriberLogicOptions
 from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationConcurrentDefaultSubscriber,
@@ -18,6 +18,7 @@ from faststream.confluent.subscriber.specified import (
 )
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
+from faststream.specification.schema.base import SpecificationOptions
 
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
@@ -165,19 +166,25 @@ def create_subscriber(
         connection_data["enable_auto_commit"] = True
         ack_policy = AckPolicy.DO_NOTHING
 
-    options = SpecificationOptions(
-        *topics,
+    internal_options = SubscriberUsecaseOptions(
+        ack_policy=ack_policy,
+        no_reply=no_reply,
+        broker_dependencies=broker_dependencies,
+        broker_middlewares=broker_middlewares,
+        default_decoder=EMPTY,
+        default_parser=EMPTY,
+    )
+
+    options = SubscriberLogicOptions(
+        topics=topics,
         partitions=partitions,
         polling_interval=polling_interval,
         group_id=group_id,
         connection_data=connection_data,
-        ack_policy=ack_policy,
-        no_reply=no_reply,
-        broker_dependencies=broker_dependencies,
-        broker_middlewares=cast(
-            "Sequence[BrokerMiddleware[ConfluentMsg]]",
-            broker_middlewares,
-        ),
+        internal_options=internal_options,
+    )
+
+    specification_options = SpecificationOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
@@ -185,18 +192,21 @@ def create_subscriber(
 
     if batch:
         return SpecificationBatchSubscriber(
+            specification_options=specification_options,
             options=options,
             max_records=max_records,
         )
 
     if max_workers > 1:
         return SpecificationConcurrentDefaultSubscriber(
+            specification_options=specification_options,
             options=options,
             # concurrent arg
             max_workers=max_workers,
         )
 
     return SpecificationDefaultSubscriber(
+        specification_options=specification_options,
         options=options,
     )
 

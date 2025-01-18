@@ -5,10 +5,14 @@ from typing import (
     Literal,
     Optional,
     Union,
-    cast,
     overload,
 )
 
+from faststream._internal.publisher.schemas import (
+    PublisherUsecaseOptions,
+    SpecificationPublisherOptions,
+)
+from faststream.confluent.schemas.publisher import PublisherLogicOptions
 from faststream.exceptions import SetupError
 
 from .specified import SpecificationBatchPublisher, SpecificationDefaultPublisher
@@ -108,41 +112,33 @@ def create_publisher(
     "SpecificationBatchPublisher",
     "SpecificationDefaultPublisher",
 ]:
+    internal_options = PublisherUsecaseOptions(
+        broker_middlewares=broker_middlewares, middlewares=middlewares
+    )
+    logic_options = PublisherLogicOptions(
+        key=key,
+        topic=topic,
+        partition=partition,
+        headers=headers,
+        reply_to=reply_to,
+        internal_options=internal_options,
+    )
+    specification_options = SpecificationPublisherOptions(
+        title_=title_,
+        description_=description_,
+        include_in_schema=include_in_schema,
+        schema_=schema_,
+    )
+
     if batch:
         if key:
             msg = "You can't setup `key` with batch publisher"
             raise SetupError(msg)
 
         return SpecificationBatchPublisher(
-            topic=topic,
-            partition=partition,
-            headers=headers,
-            reply_to=reply_to,
-            broker_middlewares=cast(
-                "Sequence[BrokerMiddleware[tuple[ConfluentMsg, ...]]]",
-                broker_middlewares,
-            ),
-            middlewares=middlewares,
-            schema_=schema_,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
+            specification_options=specification_options, options=logic_options
         )
 
     return SpecificationDefaultPublisher(
-        key=key,
-        # basic args
-        topic=topic,
-        partition=partition,
-        headers=headers,
-        reply_to=reply_to,
-        broker_middlewares=cast(
-            "Sequence[BrokerMiddleware[ConfluentMsg]]",
-            broker_middlewares,
-        ),
-        middlewares=middlewares,
-        schema_=schema_,
-        title_=title_,
-        description_=description_,
-        include_in_schema=include_in_schema,
+        specification_options=specification_options, options=logic_options
     )
