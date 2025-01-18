@@ -1,28 +1,24 @@
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Optional
-
 from faststream._internal.subscriber.specified import (
     SpecificationSubscriber as SpecificationSubscriberMixin,
 )
+from faststream.rabbit.schemas.base import RabbitBaseOptions
 from faststream.rabbit.schemas.proto import BaseRMQInformation as RMQSpecificationMixin
+from faststream.rabbit.schemas.subscribers import (
+    RabbitLogicSubscriberOptions,
+)
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.specification.asyncapi.utils import resolve_payloads
-from faststream.specification.schema import Message, Operation, SubscriberSpec
+from faststream.specification.schema import (
+    Message,
+    Operation,
+    SubscriberSpec,
+)
+from faststream.specification.schema.base import SpecificationOptions
 from faststream.specification.schema.bindings import (
     ChannelBinding,
     OperationBinding,
     amqp,
 )
-
-if TYPE_CHECKING:
-    from aio_pika import IncomingMessage
-    from fast_depends.dependencies import Dependant
-
-    from faststream._internal.basic_types import AnyDict
-    from faststream._internal.types import BrokerMiddleware
-    from faststream.middlewares import AckPolicy
-    from faststream.rabbit.schemas.exchange import RabbitExchange
-    from faststream.rabbit.schemas.queue import RabbitQueue
 
 
 class SpecificationSubscriber(
@@ -35,37 +31,17 @@ class SpecificationSubscriber(
     def __init__(
         self,
         *,
-        queue: "RabbitQueue",
-        exchange: "RabbitExchange",
-        consume_args: Optional["AnyDict"],
-        # Subscriber args
-        ack_policy: "AckPolicy",
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
+        logic_options: RabbitLogicSubscriberOptions,
+        rabbit_mq_base_options: RabbitBaseOptions,
+        specification_options: SpecificationOptions,
     ) -> None:
         super().__init__(
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
+            specification_options=specification_options,
             # propagate to RMQSpecificationMixin
-            queue=queue,
-            exchange=exchange,
+            rabbit_mq_options=rabbit_mq_base_options,
         )
 
-        LogicSubscriber.__init__(
-            self,
-            queue=queue,
-            consume_args=consume_args,
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-        )
+        LogicSubscriber.__init__(self, options=logic_options)
 
     def get_default_name(self) -> str:
         return f"{self.queue.name}:{getattr(self.exchange, 'name', None) or '_'}:{self.call_name}"

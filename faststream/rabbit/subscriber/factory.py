@@ -3,9 +3,15 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.constants import EMPTY
+from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
+from faststream.rabbit.schemas.base import RabbitBaseOptions
+from faststream.rabbit.schemas.subscribers import (
+    RabbitLogicSubscriberOptions,
+)
 from faststream.rabbit.subscriber.specified import SpecificationSubscriber
+from faststream.specification.schema.base import SpecificationOptions
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage
@@ -33,21 +39,34 @@ def create_subscriber(
     include_in_schema: bool,
 ) -> SpecificationSubscriber:
     _validate_input_for_misconfigure(ack_policy=ack_policy, no_ack=no_ack)
-
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
-    return SpecificationSubscriber(
-        queue=queue,
-        exchange=exchange,
-        consume_args=consume_args,
+    internal_options = SubscriberUsecaseOptions(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,
+        default_decoder=EMPTY,
+        default_parser=EMPTY,
+    )
+
+    logic_options = RabbitLogicSubscriberOptions(
+        internal_options=internal_options,
+        consume_args=consume_args,
+        queue=queue,
+    )
+    specification_options = SpecificationOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
+    )
+
+    rabbit_mq_base_options = RabbitBaseOptions(queue=queue, exchange=exchange)
+    return SpecificationSubscriber(
+        logic_options=logic_options,
+        specification_options=specification_options,
+        rabbit_mq_base_options=rabbit_mq_base_options,
     )
 
 

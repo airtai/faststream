@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -18,19 +18,14 @@ from faststream._internal.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.fake import KafkaFakePublisher
 from faststream.confluent.schemas import TopicPartition
+from faststream.confluent.schemas.subscribers import SubscriberLogicOptions
 from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Dependant
-
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.publisher.proto import BasePublisherProto
     from faststream._internal.state import BrokerState
-    from faststream._internal.types import (
-        AsyncCallable,
-        BrokerMiddleware,
-        CustomCallable,
-    )
+    from faststream._internal.types import CustomCallable
     from faststream.confluent.client import AsyncConfluentConsumer
     from faststream.message import StreamMessage
 
@@ -49,38 +44,18 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
     def __init__(
         self,
-        *topics: str,
-        partitions: Sequence["TopicPartition"],
-        polling_interval: float,
-        # Kafka information
-        group_id: Optional[str],
-        connection_data: "AnyDict",
-        # Subscriber args
-        default_parser: "AsyncCallable",
-        default_decoder: "AsyncCallable",
-        ack_policy: "AckPolicy",
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
+        options: SubscriberLogicOptions,
     ) -> None:
-        super().__init__(
-            default_parser=default_parser,
-            default_decoder=default_decoder,
-            # Propagated args
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-        )
+        super().__init__(options=options.internal_options)
 
-        self.__connection_data = connection_data
+        self.__connection_data = options.connection_data
 
-        self.group_id = group_id
-        self.topics = topics
-        self.partitions = partitions
+        self.group_id = options.group_id
+        self.topics = options.topics
+        self.partitions = options.partitions
 
         self.consumer = None
-        self.polling_interval = polling_interval
+        self.polling_interval = options.polling_interval
 
         # Setup it later
         self.client_id = ""
@@ -232,38 +207,14 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
 
 class DefaultSubscriber(LogicSubscriber[Message]):
-    def __init__(
-        self,
-        *topics: str,
-        # Kafka information
-        partitions: Sequence["TopicPartition"],
-        polling_interval: float,
-        group_id: Optional[str],
-        connection_data: "AnyDict",
-        # Subscriber args
-        ack_policy: "AckPolicy",
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Sequence["BrokerMiddleware[Message]"],
-    ) -> None:
+    def __init__(self, options: SubscriberLogicOptions) -> None:
         self.parser = AsyncConfluentParser(
-            is_manual=ack_policy is not AckPolicy.ACK_FIRST
+            is_manual=options.internal_options.ack_policy is not AckPolicy.ACK_FIRST
         )
-
+        options.internal_options.default_decoder = self.parser.decode_message
+        options.internal_options.default_parser = self.parser.parse_message
         super().__init__(
-            *topics,
-            partitions=partitions,
-            polling_interval=polling_interval,
-            group_id=group_id,
-            connection_data=connection_data,
-            # subscriber args
-            default_parser=self.parser.parse_message,
-            default_decoder=self.parser.decode_message,
-            # Propagated args
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
+            options=options,
         )
 
     async def get_msg(self) -> Optional["Message"]:
@@ -298,39 +249,18 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin["Message"], DefaultSubscriber)
 class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
     def __init__(
         self,
-        *topics: str,
-        partitions: Sequence["TopicPartition"],
-        polling_interval: float,
         max_records: Optional[int],
-        # Kafka information
-        group_id: Optional[str],
-        connection_data: "AnyDict",
-        # Subscriber args
-        ack_policy: "AckPolicy",
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Sequence["BrokerMiddleware[tuple[Message, ...]]"],
+        options: SubscriberLogicOptions,
     ) -> None:
         self.max_records = max_records
 
         self.parser = AsyncConfluentParser(
-            is_manual=ack_policy is not AckPolicy.ACK_FIRST
+            is_manual=options.internal_options.ack_policy is not AckPolicy.ACK_FIRST
         )
-
+        options.internal_options.default_decoder = self.parser.decode_message
+        options.internal_options.default_parser = self.parser.parse_message
         super().__init__(
-            *topics,
-            partitions=partitions,
-            polling_interval=polling_interval,
-            group_id=group_id,
-            connection_data=connection_data,
-            # subscriber args
-            default_parser=self.parser.parse_message_batch,
-            default_decoder=self.parser.decode_message_batch,
-            # Propagated args
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
+            options=options,
         )
 
     async def get_msg(self) -> Optional[tuple["Message", ...]]:
