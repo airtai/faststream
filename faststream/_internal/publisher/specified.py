@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 class SpecificationPublisher(EndpointSpecification[MsgType, PublisherSpec]):
     """A base class for publishers in an asynchronous API."""
 
+    # test
     _state: "Pointer[BrokerState]"  # should be set in next parent
 
     def __init__(

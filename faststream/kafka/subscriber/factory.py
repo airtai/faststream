@@ -3,13 +3,16 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Literal, Optional, Union, overload
 
 from faststream._internal.constants import EMPTY
+from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
 from faststream.exceptions import SetupError
+from faststream.kafka.schemas.subscribers import SubscriberLogicOptions
 from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationConcurrentDefaultSubscriber,
     SpecificationDefaultSubscriber,
 )
 from faststream.middlewares import AckPolicy
+from faststream.specification.schema.base import SpecificationOptions
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord, TopicPartition
@@ -169,57 +172,48 @@ def create_subscriber(
         connection_args["enable_auto_commit"] = True
         ack_policy = AckPolicy.DO_NOTHING
 
-    if batch:
-        return SpecificationBatchSubscriber(
-            *topics,
-            batch_timeout_ms=batch_timeout_ms,
-            max_records=max_records,
-            group_id=group_id,
-            listener=listener,
-            pattern=pattern,
-            connection_args=connection_args,
-            partitions=partitions,
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
-
-    if max_workers > 1:
-        return SpecificationConcurrentDefaultSubscriber(
-            *topics,
-            max_workers=max_workers,
-            group_id=group_id,
-            listener=listener,
-            pattern=pattern,
-            connection_args=connection_args,
-            partitions=partitions,
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
-
-    return SpecificationDefaultSubscriber(
-        *topics,
-        group_id=group_id,
-        listener=listener,
-        pattern=pattern,
-        connection_args=connection_args,
-        partitions=partitions,
+    internal_options = SubscriberUsecaseOptions(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,
+        default_decoder=EMPTY,
+        default_parser=EMPTY,
+    )
+
+    options = SubscriberLogicOptions(
+        topics=topics,
+        partitions=partitions,
+        connection_args=connection_args,
+        group_id=group_id,
+        listener=listener,
+        pattern=pattern,
+        internal_options=internal_options,
+    )
+
+    specification_options = SpecificationOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
+    )
+
+    if batch:
+        return SpecificationBatchSubscriber(
+            specification_options=specification_options,
+            options=options,
+            batch_timeout_ms=batch_timeout_ms,
+            max_records=max_records,
+        )
+
+    if max_workers > 1:
+        return SpecificationConcurrentDefaultSubscriber(
+            specification_options=specification_options,
+            options=options,
+            max_workers=max_workers,
+        )
+
+    return SpecificationDefaultSubscriber(
+        specification_options=specification_options, options=options
     )
 
 
