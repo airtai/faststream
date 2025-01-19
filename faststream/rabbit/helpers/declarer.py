@@ -12,8 +12,8 @@ class RabbitDeclarer:
     """An utility class to declare RabbitMQ queues and exchanges."""
 
     def __init__(self) -> None:
-        self.__queues: dict[RabbitQueue, aio_pika.RobustQueue] = {}
-        self.__exchanges: dict[RabbitExchange, aio_pika.RobustExchange] = {}
+        self.__queues: dict[RabbitQueue.name, aio_pika.RobustQueue] = {}
+        self.__exchanges: dict[RabbitExchange.name, aio_pika.RobustExchange] = {}
 
         self.__connection: ConnectionState = EmptyConnectionState()
 
@@ -36,8 +36,8 @@ class RabbitDeclarer:
         passive: bool = False,
     ) -> "aio_pika.RobustQueue":
         """Declare a queue."""
-        if (q := self.__queues.get(queue)) is None:
-            self.__queues[queue] = q = cast(
+        if (q := self.__queues.get(queue.name)) is None:
+            self.__queues[queue.name] = q = cast(
                 "aio_pika.RobustQueue",
                 await self.__connection.channel.declare_queue(
                     name=queue.name,
@@ -50,8 +50,10 @@ class RabbitDeclarer:
                     robust=queue.robust,
                 ),
             )
-
-        return q
+        if self.__queues[queue.name]==q:
+            return q
+        else:
+            raise ValueError("Queue mismatch")
 
     async def declare_exchange(
         self,
@@ -62,8 +64,8 @@ class RabbitDeclarer:
         if not exchange.name:
             return self.__connection.channel.default_exchange
 
-        if (exch := self.__exchanges.get(exchange)) is None:
-            self.__exchanges[exchange] = exch = cast(
+        if (exch := self.__exchanges.get(exchange.name)) is None:
+            self.__exchanges[exchange.name] = exch = cast(
                 "aio_pika.RobustExchange",
                 await self.__connection.channel.declare_exchange(
                     name=exchange.name,
@@ -87,5 +89,7 @@ class RabbitDeclarer:
                     timeout=exchange.timeout,
                     robust=exchange.robust,
                 )
-
-        return exch
+        if self.__exchanges[exchange.name]==exch:
+            return exch
+        else:
+            raise ValueError("Exchange mismatch")
