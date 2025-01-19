@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from copy import deepcopy
 from typing import TYPE_CHECKING, Annotated, Optional, Union
 
@@ -9,11 +9,12 @@ from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.response import RedisPublishCommand
+from faststream.redis.schemas.publishers import RedisLogicPublisherOptions
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, SendableMessage
-    from faststream._internal.types import BrokerMiddleware, PublisherMiddleware
+    from faststream._internal.types import PublisherMiddleware
     from faststream.redis.message import RedisMessage
     from faststream.redis.publisher.producer import RedisFastProducer
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
@@ -25,22 +26,11 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
 
     _producer: "RedisFastProducer"
 
-    def __init__(
-        self,
-        *,
-        reply_to: str,
-        headers: Optional["AnyDict"],
-        # Publisher args
-        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Sequence["PublisherMiddleware"],
-    ) -> None:
-        super().__init__(
-            broker_middlewares=broker_middlewares,
-            middlewares=middlewares,
-        )
+    def __init__(self, *, base_options: RedisLogicPublisherOptions) -> None:
+        super().__init__(publisher_options=base_options.internal_options)
 
-        self.reply_to = reply_to
-        self.headers = headers or {}
+        self.reply_to = base_options.reply_to
+        self.headers = base_options.headers or {}
 
     @abstractmethod
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":
@@ -49,21 +39,9 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
 
 class ChannelPublisher(LogicPublisher):
     def __init__(
-        self,
-        *,
-        channel: "PubSub",
-        reply_to: str,
-        headers: Optional["AnyDict"],
-        # Regular publisher options
-        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Sequence["PublisherMiddleware"],
+        self, *, channel: "PubSub", base_options: RedisLogicPublisherOptions
     ) -> None:
-        super().__init__(
-            reply_to=reply_to,
-            headers=headers,
-            broker_middlewares=broker_middlewares,
-            middlewares=middlewares,
-        )
+        super().__init__(base_options=base_options)
 
         self.channel = channel
 
@@ -177,21 +155,9 @@ class ChannelPublisher(LogicPublisher):
 
 class ListPublisher(LogicPublisher):
     def __init__(
-        self,
-        *,
-        list: "ListSub",
-        reply_to: str,
-        headers: Optional["AnyDict"],
-        # Regular publisher options
-        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Sequence["PublisherMiddleware"],
+        self, *, list: "ListSub", base_options: RedisLogicPublisherOptions
     ) -> None:
-        super().__init__(
-            reply_to=reply_to,
-            headers=headers,
-            broker_middlewares=broker_middlewares,
-            middlewares=middlewares,
-        )
+        super().__init__(base_options=base_options)
 
         self.list = list
 
@@ -363,21 +329,9 @@ class ListBatchPublisher(ListPublisher):
 
 class StreamPublisher(LogicPublisher):
     def __init__(
-        self,
-        *,
-        stream: "StreamSub",
-        reply_to: str,
-        headers: Optional["AnyDict"],
-        # Regular publisher options
-        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        middlewares: Sequence["PublisherMiddleware"],
+        self, *, stream: "StreamSub", base_options: RedisLogicPublisherOptions
     ) -> None:
-        super().__init__(
-            reply_to=reply_to,
-            headers=headers,
-            broker_middlewares=broker_middlewares,
-            middlewares=middlewares,
-        )
+        super().__init__(base_options=base_options)
 
         self.stream = stream
 

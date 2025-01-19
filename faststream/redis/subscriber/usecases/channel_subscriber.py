@@ -1,4 +1,3 @@
-from collections.abc import Iterable, Sequence
 from copy import deepcopy
 from typing import (
     TYPE_CHECKING,
@@ -18,20 +17,16 @@ from faststream.middlewares import AckPolicy
 from faststream.redis.message import (
     PubSubMessage,
     RedisMessage,
-    UnifyRedisDict,
 )
 from faststream.redis.parser import (
     RedisPubSubParser,
 )
+from faststream.redis.schemas.subscribers import RedisLogicSubscriberOptions
+from faststream.specification.schema.base import SpecificationOptions
 
 from .basic import LogicSubscriber
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Dependant
-
-    from faststream._internal.types import (
-        BrokerMiddleware,
-    )
     from faststream.message import StreamMessage as BrokerStreamMessage
     from faststream.redis.schemas import PubSub
 
@@ -47,21 +42,13 @@ class ChannelSubscriber(LogicSubscriber):
         self,
         *,
         channel: "PubSub",
-        # Subscriber args
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
+        base_options: RedisLogicSubscriberOptions,
     ) -> None:
         parser = RedisPubSubParser(pattern=channel.path_regex)
-        super().__init__(
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
-            # Propagated options
-            ack_policy=AckPolicy.DO_NOTHING,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-        )
+        base_options.internal_options.default_decoder = parser.decode_message
+        base_options.internal_options.default_parser = parser.parse_message
+        base_options.internal_options.ack_policy = AckPolicy.DO_NOTHING
+        super().__init__(base_options=base_options)
 
         self.channel = channel
         self.subscription = None
@@ -162,28 +149,16 @@ class ConcurrentChannelSubscriber(
     def __init__(
         self,
         *,
+        base_options: RedisLogicSubscriberOptions,
+        specification_options: SpecificationOptions,
         channel: "PubSub",
-        # Subscriber args
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
-        # AsyncAPI args
-        title_: Optional[str],
-        description_: Optional[str],
-        include_in_schema: bool,
         max_workers: int,
     ) -> None:
         super().__init__(
-            # Propagated options
+            base_options=base_options,
+            specification_options=specification_options,
             channel=channel,
-            no_reply=no_reply,
             max_workers=max_workers,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-            # AsyncAPI
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
         )
 
     async def start(self) -> None:

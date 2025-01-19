@@ -5,10 +5,12 @@ from typing import TYPE_CHECKING, Optional, Union
 from typing_extensions import TypeAlias
 
 from faststream._internal.constants import EMPTY
+from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
+from faststream.redis.schemas.subscribers import RedisLogicSubscriberOptions
 from faststream.redis.subscriber.specified import (
     SpecificationChannelConcurrentSubscriber,
     SpecificationChannelSubscriber,
@@ -19,6 +21,7 @@ from faststream.redis.subscriber.specified import (
     SpecificationStreamConcurrentSubscriber,
     SpecificationStreamSubscriber,
 )
+from faststream.specification.schema.base import SpecificationOptions
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
@@ -67,109 +70,75 @@ def create_subscriber(
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
+    internal_options = SubscriberUsecaseOptions(
+        no_reply=no_reply,
+        broker_dependencies=broker_dependencies,
+        broker_middlewares=broker_middlewares,
+        ack_policy=ack_policy,
+        default_parser=EMPTY,
+        default_decoder=EMPTY,
+    )
+
+    base_options = RedisLogicSubscriberOptions(internal_options=internal_options)
+
+    specification_options = SpecificationOptions(
+        title_=title_,
+        description_=description_,
+        include_in_schema=include_in_schema,
+    )
+
     if (channel_sub := PubSub.validate(channel)) is not None:
         if max_workers > 1:
             return SpecificationChannelConcurrentSubscriber(
                 channel=channel_sub,
-                # basic args
-                no_reply=no_reply,
-                broker_dependencies=broker_dependencies,
-                broker_middlewares=broker_middlewares,
                 max_workers=max_workers,
-                # AsyncAPI args
-                title_=title_,
-                description_=description_,
-                include_in_schema=include_in_schema,
+                base_options=base_options,
+                specification_options=specification_options,
             )
         return SpecificationChannelSubscriber(
             channel=channel_sub,
-            # basic args
-            no_reply=no_reply,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
+            base_options=base_options,
+            specification_options=specification_options,
         )
 
     if (stream_sub := StreamSub.validate(stream)) is not None:
         if stream_sub.batch:
             return SpecificationStreamBatchSubscriber(
                 stream=stream_sub,
-                # basic args
-                ack_policy=ack_policy,
-                no_reply=no_reply,
-                broker_dependencies=broker_dependencies,
-                broker_middlewares=broker_middlewares,
-                # AsyncAPI args
-                title_=title_,
-                description_=description_,
-                include_in_schema=include_in_schema,
+                base_options=base_options,
+                specification_options=specification_options,
             )
         if max_workers > 1:
             return SpecificationStreamConcurrentSubscriber(
                 stream=stream_sub,
-                # basic args
-                ack_policy=ack_policy,
-                no_reply=no_reply,
-                broker_dependencies=broker_dependencies,
-                broker_middlewares=broker_middlewares,
                 max_workers=max_workers,
-                # AsyncAPI args
-                title_=title_,
-                description_=description_,
-                include_in_schema=include_in_schema,
+                base_options=base_options,
+                specification_options=specification_options,
             )
         return SpecificationStreamSubscriber(
             stream=stream_sub,
-            # basic args
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
+            base_options=base_options,
+            specification_options=specification_options,
         )
 
     if (list_sub := ListSub.validate(list)) is not None:
         if list_sub.batch:
             return SpecificationListBatchSubscriber(
                 list=list_sub,
-                # basic args
-                no_reply=no_reply,
-                broker_dependencies=broker_dependencies,
-                broker_middlewares=broker_middlewares,
-                # AsyncAPI args
-                title_=title_,
-                description_=description_,
-                include_in_schema=include_in_schema,
+                base_options=base_options,
+                specification_options=specification_options,
             )
         if max_workers > 1:
             return SpecificationListConcurrentSubscriber(
                 list=list_sub,
-                # basic args
-                no_reply=no_reply,
-                broker_dependencies=broker_dependencies,
-                broker_middlewares=broker_middlewares,
                 max_workers=max_workers,
-                # AsyncAPI args
-                title_=title_,
-                description_=description_,
-                include_in_schema=include_in_schema,
+                base_options=base_options,
+                specification_options=specification_options,
             )
         return SpecificationListSubscriber(
             list=list_sub,
-            # basic args
-            no_reply=no_reply,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            # AsyncAPI args
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
+            base_options=base_options,
+            specification_options=specification_options,
         )
 
     raise SetupError(INCORRECT_SETUP_MSG)
