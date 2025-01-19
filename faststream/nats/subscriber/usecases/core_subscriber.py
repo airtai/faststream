@@ -1,4 +1,3 @@
-from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -12,17 +11,14 @@ from faststream._internal.subscriber.mixins import ConcurrentMixin
 from faststream._internal.subscriber.utils import process_msg
 from faststream.middlewares import AckPolicy
 from faststream.nats.parser import NatsParser
+from faststream.nats.schemas.subscribers import NatsLogicSubscriberOptions
 
 from .basic import DefaultSubscriber
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Dependant
     from nats.aio.msg import Msg
     from nats.aio.subscription import Subscription
-    from nats.js.api import ConsumerConfig
 
-    from faststream._internal.basic_types import AnyDict
-    from faststream._internal.types import BrokerMiddleware
     from faststream.message import StreamMessage
     from faststream.nats.message import NatsMessage
 
@@ -35,36 +31,19 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
         self,
         *,
         # default args
-        subject: str,
-        config: "ConsumerConfig",
         queue: str,
-        extra_options: Optional["AnyDict"],
-        ack_policy: AckPolicy,
-        # Subscriber args
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        core_options: NatsLogicSubscriberOptions,
     ) -> None:
         parser_ = NatsParser(
-            pattern=subject,
-            is_ack_disabled=ack_policy is not AckPolicy.DO_NOTHING,
+            pattern=core_options.subject,
+            is_ack_disabled=core_options.internal_options.ack_policy
+            is not AckPolicy.DO_NOTHING,
         )
 
         self.queue = queue
-
-        super().__init__(
-            subject=subject,
-            config=config,
-            extra_options=extra_options,
-            # subscriber args
-            default_parser=parser_.parse_message,
-            default_decoder=parser_.decode_message,
-            # Propagated args
-            ack_policy=AckPolicy.DO_NOTHING,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-        )
+        core_options.internal_options.default_parser = parser_.parse_message
+        core_options.internal_options.default_decoder = parser_.decode_message
+        super().__init__(logic_options=core_options)
 
     @override
     async def get_one(

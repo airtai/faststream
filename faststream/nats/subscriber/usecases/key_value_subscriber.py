@@ -13,10 +13,10 @@ from typing_extensions import Doc, override
 
 from faststream._internal.subscriber.mixins import TasksMixin
 from faststream._internal.subscriber.utils import process_msg
-from faststream.middlewares import AckPolicy
 from faststream.nats.parser import (
     KvParser,
 )
+from faststream.nats.schemas.subscribers import NatsLogicSubscriberOptions
 from faststream.nats.subscriber.adapters import (
     UnsubscribeAdapter,
 )
@@ -24,14 +24,9 @@ from faststream.nats.subscriber.adapters import (
 from .basic import LogicSubscriber
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Dependant
-    from nats.js.api import ConsumerConfig
     from nats.js.kv import KeyValue
 
     from faststream._internal.publisher.proto import BasePublisherProto
-    from faststream._internal.types import (
-        BrokerMiddleware,
-    )
     from faststream.message import StreamMessage
     from faststream.nats.message import NatsKvMessage
     from faststream.nats.schemas import KvWatch
@@ -45,28 +40,13 @@ class KeyValueWatchSubscriber(
     _fetch_sub: Optional[UnsubscribeAdapter["KeyValue.KeyWatcher"]]
 
     def __init__(
-        self,
-        *,
-        subject: str,
-        config: "ConsumerConfig",
-        kv_watch: "KvWatch",
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[KeyValue.Entry]"],
+        self, *, kv_watch: "KvWatch", key_value_options: NatsLogicSubscriberOptions
     ) -> None:
-        parser = KvParser(pattern=subject)
+        parser = KvParser(pattern=key_value_options.subject)
         self.kv_watch = kv_watch
-
-        super().__init__(
-            subject=subject,
-            config=config,
-            extra_options=None,
-            ack_policy=AckPolicy.DO_NOTHING,
-            no_reply=True,
-            default_parser=parser.parse_message,
-            default_decoder=parser.decode_message,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-        )
+        key_value_options.internal_options.default_decoder = parser.decode_message
+        key_value_options.internal_options.default_parser = parser.parse_message
+        super().__init__(logic_options=key_value_options.internal_options)
 
     @override
     async def get_one(

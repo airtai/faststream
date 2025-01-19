@@ -13,6 +13,7 @@ from faststream._internal.types import MsgType
 from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.fake import NatsFakePublisher
 from faststream.nats.schemas.js_stream import compile_nats_wildcard
+from faststream.nats.schemas.subscribers import NatsLogicSubscriberOptions
 from faststream.nats.subscriber.adapters import (
     Unsubscriptable,
 )
@@ -23,9 +24,6 @@ from faststream.nats.subscriber.state import (
 )
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Dependant
-    from nats.js.api import ConsumerConfig
-
     from faststream._internal.basic_types import (
         AnyDict,
     )
@@ -35,12 +33,9 @@ if TYPE_CHECKING:
         Pointer,
     )
     from faststream._internal.types import (
-        AsyncCallable,
-        BrokerMiddleware,
         CustomCallable,
     )
     from faststream.message import StreamMessage
-    from faststream.middlewares import AckPolicy
     from faststream.nats.broker.state import BrokerState
     from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 
@@ -55,31 +50,14 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
     def __init__(
         self,
         *,
-        subject: str,
-        config: "ConsumerConfig",
-        extra_options: Optional["AnyDict"],
-        # Subscriber args
-        default_parser: "AsyncCallable",
-        default_decoder: "AsyncCallable",
-        ack_policy: "AckPolicy",
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        logic_options: NatsLogicSubscriberOptions,
     ) -> None:
-        self.subject = subject
-        self.config = config
+        self.subject = logic_options.subject
+        self.config = logic_options.config
 
-        self.extra_options = extra_options or {}
+        self.extra_options = logic_options.extra_options or {}
 
-        super().__init__(
-            default_parser=default_parser,
-            default_decoder=default_decoder,
-            # Propagated args
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-        )
+        super().__init__(options=logic_options.internal_options)
 
         self._fetch_sub = None
         self.subscription = None
@@ -181,31 +159,9 @@ class DefaultSubscriber(LogicSubscriber[MsgType]):
     def __init__(
         self,
         *,
-        subject: str,
-        config: "ConsumerConfig",
-        # default args
-        extra_options: Optional["AnyDict"],
-        # Subscriber args
-        default_parser: "AsyncCallable",
-        default_decoder: "AsyncCallable",
-        ack_policy: "AckPolicy",
-        no_reply: bool,
-        broker_dependencies: Iterable["Dependant"],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        logic_options: NatsLogicSubscriberOptions,
     ) -> None:
-        super().__init__(
-            subject=subject,
-            config=config,
-            extra_options=extra_options,
-            # subscriber args
-            default_parser=default_parser,
-            default_decoder=default_decoder,
-            # Propagated args
-            ack_policy=ack_policy,
-            no_reply=no_reply,
-            broker_middlewares=broker_middlewares,
-            broker_dependencies=broker_dependencies,
-        )
+        super().__init__(logic_options=logic_options)
 
     def _make_response_publisher(
         self,

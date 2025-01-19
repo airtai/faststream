@@ -1,6 +1,12 @@
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Optional
 
+from faststream._internal.publisher.schemas import (
+    PublisherUsecaseOptions,
+    SpecificationPublisherOptions,
+)
+from faststream.nats.schemas.publishers import NatsLogicPublisherOptions
+
 from .specified import SpecificationPublisher
 
 if TYPE_CHECKING:
@@ -26,18 +32,27 @@ def create_publisher(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> SpecificationPublisher:
-    return SpecificationPublisher(
+    internal_options = PublisherUsecaseOptions(
+        broker_middlewares=broker_middlewares, middlewares=middlewares
+    )
+
+    logic_options = NatsLogicPublisherOptions(
         subject=subject,
+        stream=stream,
         reply_to=reply_to,
         headers=headers,
-        stream=stream,
         timeout=timeout,
-        # Publisher args
-        broker_middlewares=broker_middlewares,
-        middlewares=middlewares,
-        # AsyncAPI args
+        internal_options=internal_options,
+    )
+
+    specification_options = SpecificationPublisherOptions(
         schema_=schema_,
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
+    )
+
+    return SpecificationPublisher(
+        logic_options=logic_options,
+        specification_options=specification_options,
     )
