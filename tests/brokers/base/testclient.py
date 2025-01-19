@@ -187,8 +187,6 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         async def m(msg) -> None:
             await publisher.publish(f"response: {msg}")
 
-        await test_broker.start()
-
         async with self.patch_broker(test_broker, with_real=True) as br:
             await br.publish("hello", queue)
 
