@@ -458,7 +458,7 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 
         @consume_broker.subscriber(
             queue,
-            max_workers=2,
+            max_workers=3,
             ack_policy=AckPolicy.ACK,
             group_id="service_1",
         )
