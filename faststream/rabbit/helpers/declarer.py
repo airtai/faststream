@@ -50,7 +50,8 @@ class RabbitDeclarer:
                     robust=queue.robust,
                 ),
             )
-        if self.__queues[queue.name]==q:
+        if all([getattr(queue, attr)==getattr(q, attr) for attr in ["name", "durable", "exclusive", "passive",
+                                                                    "auto_delete", "arguments"]]):
             return q
         else:
             raise ValueError("Queue mismatch")
