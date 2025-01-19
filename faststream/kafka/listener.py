@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict, LoggerProto
 
 
-def LoggingListenerProxy(  # noqa: N802
+def make_logging_listener(
     *,
     consumer: "AIOKafkaConsumer",
     logger: Optional["LoggerProto"],
@@ -29,7 +29,10 @@ def LoggingListenerProxy(  # noqa: N802
     if listener is None:
         return logging_listener
 
-    return _ListenerAggregate(logging_listener, listener)
+    return _LoggingListenerFacade(
+        logging_listener=logging_listener,
+        listener=listener,
+    )
 
 
 class _LoggingListener(ConsumerRebalanceListener):
@@ -67,17 +70,19 @@ class _LoggingListener(ConsumerRebalanceListener):
             )
 
 
-class _ListenerAggregate(ConsumerRebalanceListener):
+class _LoggingListenerFacade(ConsumerRebalanceListener):
     def __init__(
         self,
-        *listeners: "ConsumerRebalanceListener",
+        *,
+        logging_listener: _LoggingListener,
+        listener: ConsumerRebalanceListener,
     ) -> None:
-        self.listeners = listeners
+        self.logging_listener = logging_listener
+        self.listener = listener
 
     async def on_partitions_revoked(self, revoked: set["TopicPartition"]) -> None:
-        for listener in self.listeners:
-            await call_or_await(listener.on_partitions_revoked, revoked)
+        await call_or_await(self.listener.on_partitions_revoked, revoked)
 
     async def on_partitions_assigned(self, assigned: set["TopicPartition"]) -> None:
-        for listener in self.listeners:
-            await call_or_await(listener.on_partitions_assigned, assigned)
+        await self.logging_listener.on_partitions_revoked(assigned)
+        await call_or_await(self.listener.on_partitions_assigned, assigned)

@@ -18,7 +18,7 @@ from faststream._internal.types import (
     MsgType,
 )
 from faststream._internal.utils.path import compile_path
-from faststream.kafka.listener import LoggingListenerProxy
+from faststream.kafka.listener import make_logging_listener
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage, KafkaRawMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 from faststream.kafka.publisher.fake import KafkaFakePublisher
@@ -129,7 +129,7 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
             consumer.subscribe(
                 topics=self.topics,
                 pattern=self._pattern,
-                listener=LoggingListenerProxy(
+                listener=make_logging_listener(
                     consumer=consumer,
                     logger=self._state.get().logger_state.logger.logger,
                     log_extra=self.get_log_context(None),
@@ -494,7 +494,7 @@ class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
             for c in self.consumer_subgroup:
                 c.subscribe(
                     topics=self.topics,
-                    listener=LoggingListenerProxy(
+                    listener=make_logging_listener(
                         consumer=c,
                         logger=self._state.get().logger_state.logger.logger,
                         log_extra=self.get_log_context(None),
