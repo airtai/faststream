@@ -16,7 +16,7 @@ from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
-from faststream.nats.schemas.subscribers import NatsLogicSubscriberOptions
+from faststream.nats.schemas.subscribers import NatsSubscriberBaseOptions
 from faststream.nats.subscriber.specified import (
     SpecificationBatchPullStreamSubscriber,
     SpecificationConcurrentCoreSubscriber,
@@ -179,7 +179,7 @@ def create_subscriber(
         default_parser=EMPTY,
     )
 
-    logic_options = NatsLogicSubscriberOptions(
+    base_options = NatsSubscriberBaseOptions(
         subject=subject,
         config=config,
         extra_options=extra_options,
@@ -195,14 +195,14 @@ def create_subscriber(
     if obj_watch is not None:
         return SpecificationObjStoreWatchSubscriber(
             obj_watch=obj_watch,
-            obj_store_options=logic_options,
+            base_options=base_options,
             specification_options=specification_options,
         )
 
     if kv_watch is not None:
         return SpecificationKeyValueWatchSubscriber(
             kv_watch=kv_watch,
-            key_value_options=logic_options,
+            base_options=base_options,
             specification_options=specification_options,
         )
 
@@ -211,28 +211,29 @@ def create_subscriber(
             return SpecificationConcurrentCoreSubscriber(
                 max_workers=max_workers,
                 queue=queue,
-                core_options=logic_options,
+                base_options=base_options,
                 specification_options=specification_options,
             )
 
         return SpecificationCoreSubscriber(
             queue=queue,
-            core_options=logic_options,
+            base_options=base_options,
             specification_options=specification_options,
         )
 
     if max_workers > 1:
         if pull_sub is not None:
             return SpecificationConcurrentPullStreamSubscriber(
+                queue=queue,
                 max_workers=max_workers,
                 pull_sub=pull_sub,
-                pull_stream_options=logic_options,
+                base_options=base_options,
                 specification_options=specification_options,
             )
 
         return SpecificationConcurrentPushStreamSubscriber(
             max_workers=max_workers,
-            stream_options=logic_options,
+            base_options=base_options,
             specification_options=specification_options,
         )
 
@@ -241,20 +242,22 @@ def create_subscriber(
             return SpecificationBatchPullStreamSubscriber(
                 pull_sub=pull_sub,
                 stream=stream,
-                pull_stream_options=logic_options,
+                base_options=base_options,
                 specification_options=specification_options,
             )
 
         return SpecificationPullStreamSubscriber(
+            queue=queue,
             pull_sub=pull_sub,
             stream=stream,
-            pull_stream_options=logic_options,
+            base_options=base_options,
             specification_options=specification_options,
         )
 
     return SpecificationPushStreamSubscriber(
         queue=queue,
-        stream_options=logic_options,
+        stream=stream,
+        base_options=base_options,
         specification_options=specification_options,
     )
 

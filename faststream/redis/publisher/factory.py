@@ -10,7 +10,7 @@ from faststream._internal.publisher.schemas import (
 from faststream.exceptions import SetupError
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
-from faststream.redis.schemas.publishers import RedisLogicPublisherOptions
+from faststream.redis.schemas.publishers import RedisPublisherBaseOptions
 
 from .specified import (
     SpecificationChannelPublisher,
@@ -54,7 +54,7 @@ def create_publisher(
         broker_middlewares=broker_middlewares, middlewares=middlewares
     )
 
-    base_options = RedisLogicPublisherOptions(
+    base_options = RedisPublisherBaseOptions(
         reply_to=reply_to, headers=headers, internal_options=internal_options
     )
 

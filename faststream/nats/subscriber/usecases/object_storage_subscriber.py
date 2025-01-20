@@ -17,7 +17,7 @@ from faststream._internal.subscriber.utils import process_msg
 from faststream.nats.parser import (
     ObjParser,
 )
-from faststream.nats.schemas.subscribers import NatsLogicSubscriberOptions
+from faststream.nats.schemas.subscribers import NatsSubscriberBaseOptions
 from faststream.nats.subscriber.adapters import (
     UnsubscribeAdapter,
 )
@@ -44,15 +44,15 @@ class ObjStoreWatchSubscriber(
     _fetch_sub: Optional[UnsubscribeAdapter["ObjectStore.ObjectWatcher"]]
 
     def __init__(
-        self, *, obj_watch: "ObjWatch", obj_store_options: NatsLogicSubscriberOptions
+        self, *, obj_watch: "ObjWatch", base_options: NatsSubscriberBaseOptions
     ) -> None:
         parser = ObjParser(pattern="")
 
         self.obj_watch = obj_watch
         self.obj_watch_conn = None
-        obj_store_options.internal_options.default_parser = parser.parse_message
-        obj_store_options.internal_options.default_decoder = parser.decode_message
-        super().__init__(logic_options=obj_store_options)
+        base_options.internal_options.default_parser = parser.parse_message
+        base_options.internal_options.default_decoder = parser.decode_message
+        super().__init__(base_options=base_options)
 
     @override
     async def get_one(

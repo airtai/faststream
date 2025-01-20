@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class RabbitLogicSubscriberOptions:
+class RabbitSubscriberBaseOptions:
     internal_options: SubscriberUsecaseOptions
     queue: "RabbitQueue"
     consume_args: Optional["AnyDict"]

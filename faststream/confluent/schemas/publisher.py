@@ -17,5 +17,5 @@ class PublisherDefaultOptions:
 
 
 @dataclass
-class PublisherLogicOptions(PublisherDefaultOptions):
+class ConfluentPublisherBaseOptions(PublisherDefaultOptions):
     internal_options: PublisherUsecaseOptions

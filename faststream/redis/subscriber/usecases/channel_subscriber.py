@@ -21,7 +21,7 @@ from faststream.redis.message import (
 from faststream.redis.parser import (
     RedisPubSubParser,
 )
-from faststream.redis.schemas.subscribers import RedisLogicSubscriberOptions
+from faststream.redis.schemas.subscribers import RedisSubscriberBaseOptions
 from faststream.specification.schema.base import SpecificationOptions
 
 from .basic import LogicSubscriber
@@ -42,7 +42,7 @@ class ChannelSubscriber(LogicSubscriber):
         self,
         *,
         channel: "PubSub",
-        base_options: RedisLogicSubscriberOptions,
+        base_options: RedisSubscriberBaseOptions,
     ) -> None:
         parser = RedisPubSubParser(pattern=channel.path_regex)
         base_options.internal_options.default_decoder = parser.decode_message
@@ -149,7 +149,7 @@ class ConcurrentChannelSubscriber(
     def __init__(
         self,
         *,
-        base_options: RedisLogicSubscriberOptions,
+        base_options: RedisSubscriberBaseOptions,
         specification_options: SpecificationOptions,
         channel: "PubSub",
         max_workers: int,

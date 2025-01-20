@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 import anyio
 from aiokafka import ConsumerRecord, TopicPartition
 from aiokafka.errors import ConsumerStoppedError, KafkaError
+from faststream.middlewares.acknowledgement.conf import AckPolicy
 from typing_extensions import override
 
 from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
@@ -19,7 +20,7 @@ from faststream._internal.utils.path import compile_path
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 from faststream.kafka.publisher.fake import KafkaFakePublisher
-from faststream.kafka.schemas.subscribers import SubscriberLogicOptions
+from faststream.kafka.schemas.subscribers import KafkaSubscriberBaseOptions
 
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer
@@ -43,16 +44,16 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
     batch: bool
     parser: AioKafkaParser
 
-    def __init__(self, options: SubscriberLogicOptions) -> None:
-        super().__init__(options=options.internal_options)
+    def __init__(self, base_options: KafkaSubscriberBaseOptions) -> None:
+        super().__init__(options=base_options.internal_options)
 
-        self.topics = options.topics
-        self.partitions = options.partitions
-        self.group_id = options.group_id
+        self.topics = base_options.topics
+        self.partitions = base_options.partitions
+        self.group_id = base_options.group_id
 
-        self._pattern = options.pattern
-        self.__listener = options.listener
-        self.__connection_args = options.connection_args
+        self._pattern = base_options.pattern
+        self.__listener = base_options.listener
+        self.__connection_args = base_options.connection_args
 
         # Setup it later
         self.client_id = ""
@@ -68,7 +69,7 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
         builder: Callable[..., "AIOKafkaConsumer"],
         # basic args
         extra_context: "AnyDict",
-        # broker options
+        # broker base_options
         broker_parser: Optional["CustomCallable"],
         broker_decoder: Optional["CustomCallable"],
         # dependant args
@@ -226,28 +227,28 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
 
 class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
-    def __init__(self, options: SubscriberLogicOptions) -> None:
-        if options.pattern:
+    def __init__(self, base_options: KafkaSubscriberBaseOptions) -> None:
+        if base_options.pattern:
             reg, pattern = compile_path(
-                options.pattern,
+                base_options.pattern,
                 replace_symbol=".*",
                 patch_regex=lambda x: x.replace(r"\*", ".*"),
             )
-            options.pattern = pattern
+            base_options.pattern = pattern
 
         else:
             reg = None
 
         self.parser = AioKafkaParser(
             msg_class=KafkaMessage
-            if options.internal_options.ack_policy
-            is options.internal_options.ack_policy.ACK_FIRST
+            if base_options.internal_options.ack_policy
+            is base_options.internal_options.ack_policy.ACK_FIRST
             else KafkaAckableMessage,
             regex=reg,
         )
-        options.internal_options.default_parser = self.parser.parse_message
-        options.internal_options.default_decoder = self.parser.decode_message
-        super().__init__(options=options)
+        base_options.internal_options.default_parser = self.parser.parse_message
+        base_options.internal_options.default_decoder = self.parser.decode_message
+        super().__init__(base_options=base_options)
 
     async def get_msg(self) -> "ConsumerRecord":
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
@@ -281,34 +282,34 @@ class ConcurrentDefaultSubscriber(ConcurrentMixin["ConsumerRecord"], DefaultSubs
 class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
     def __init__(
         self,
-        options: SubscriberLogicOptions,
+        base_options: KafkaSubscriberBaseOptions,
         batch_timeout_ms: int,
         max_records: Optional[int],
     ) -> None:
         self.batch_timeout_ms = batch_timeout_ms
         self.max_records = max_records
 
-        if options.pattern:
+        if base_options.pattern:
             reg, pattern = compile_path(
-                options.pattern,
+                base_options.pattern,
                 replace_symbol=".*",
                 patch_regex=lambda x: x.replace(r"\*", ".*"),
             )
-            options.pattern = pattern
+            base_options.pattern = pattern
 
         else:
             reg = None
 
         self.parser = AioKafkaBatchParser(
             msg_class=KafkaMessage
-            if options.internal_options.ack_policy
-            is options.internal_options.ack_policy.ACK_FIRST
+            if base_options.internal_options.ack_policy
+            is AckPolicy.ACK_FIRST
             else KafkaAckableMessage,
             regex=reg,
         )
-        options.internal_options.default_decoder = self.parser.decode_message
-        options.internal_options.default_decoder = self.parser.decode_message
-        super().__init__(options=options)
+        base_options.internal_options.default_decoder = self.parser.decode_message
+        base_options.internal_options.default_parser = self.parser.parse_message
+        super().__init__(base_options=base_options)
 
     async def get_msg(self) -> tuple["ConsumerRecord", ...]:
         assert self.consumer, "You should setup subscriber at first."  # nosec B101

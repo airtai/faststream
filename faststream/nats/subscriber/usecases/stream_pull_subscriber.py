@@ -16,7 +16,7 @@ from faststream._internal.subscriber.utils import process_msg
 from faststream.nats.parser import (
     BatchParser,
 )
-from faststream.nats.schemas.subscribers import NatsLogicSubscriberOptions
+from faststream.nats.schemas.subscribers import NatsSubscriberBaseOptions
 
 from .basic import DefaultSubscriber
 from .stream_basic import StreamSubscriber
@@ -41,16 +41,18 @@ class PullStreamSubscriber(
     def __init__(
         self,
         *,
+        queue: str,
         pull_sub: "PullSub",
         stream: "JStream",
-        pull_stream_options: NatsLogicSubscriberOptions,
+        base_options: NatsSubscriberBaseOptions,
     ) -> None:
         self.pull_sub = pull_sub
 
         super().__init__(
             # basic args
+            queue=queue,
             stream=stream,
-            stream_options=pull_stream_options,
+            base_options=base_options,
         )
 
     @override
@@ -118,15 +120,15 @@ class BatchPullStreamSubscriber(
         *,
         stream: "JStream",
         pull_sub: "PullSub",
-        pull_stream_options: NatsLogicSubscriberOptions,
+        base_options: NatsSubscriberBaseOptions,
     ) -> None:
-        parser = BatchParser(pattern=pull_stream_options.subject)
+        parser = BatchParser(pattern=base_options.subject)
 
         self.stream = stream
         self.pull_sub = pull_sub
-        pull_stream_options.internal_options.default_decoder = parser.decode_batch
-        pull_stream_options.internal_options.default_parser = parser.parse_batch
-        super().__init__(options=pull_stream_options.internal_options)
+        base_options.internal_options.default_decoder = parser.decode_batch
+        base_options.internal_options.default_parser = parser.parse_batch
+        super().__init__(base_options=base_options)
 
     @override
     async def get_one(

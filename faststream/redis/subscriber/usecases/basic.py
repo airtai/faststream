@@ -16,7 +16,7 @@ from faststream.redis.message import (
     UnifyRedisDict,
 )
 from faststream.redis.publisher.fake import RedisFakePublisher
-from faststream.redis.schemas.subscribers import RedisLogicSubscriberOptions
+from faststream.redis.schemas.subscribers import RedisSubscriberBaseOptions
 
 if TYPE_CHECKING:
     from redis.asyncio.client import Redis
@@ -39,7 +39,7 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[UnifyRedisDict]):
 
     _client: Optional["Redis[bytes]"]
 
-    def __init__(self, *, base_options: RedisLogicSubscriberOptions) -> None:
+    def __init__(self, *, base_options: RedisSubscriberBaseOptions) -> None:
         super().__init__(options=base_options.internal_options)
 
         self._client = None
@@ -139,7 +139,7 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[UnifyRedisDict]):
 
 class ConcurrentSubscriber(ConcurrentMixin["BrokerStreamMessage"], LogicSubscriber):
     def __init__(
-        self, *, base_options: RedisLogicSubscriberOptions, max_workers: int
+        self, *, base_options: RedisSubscriberBaseOptions, max_workers: int
     ) -> None:
         super().__init__(
             max_workers=max_workers, base_options=base_options.internal_options

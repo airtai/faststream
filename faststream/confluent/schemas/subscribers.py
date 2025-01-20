@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class SubscriberDefaultOptions:
+class ConfluentSubscriberDefaultOptions:
     topics: Sequence[str]
     partitions: Sequence["TopicPartition"]
     polling_interval: float
@@ -22,5 +22,5 @@ class SubscriberDefaultOptions:
 
 
 @dataclass
-class SubscriberLogicOptions(SubscriberDefaultOptions):
+class ConfluentSubscriberBaseOptions(ConfluentSubscriberDefaultOptions):
     internal_options: SubscriberUsecaseOptions

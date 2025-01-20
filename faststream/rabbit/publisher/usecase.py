@@ -10,7 +10,7 @@ from faststream._internal.utils.data import filter_by_dict
 from faststream.message import gen_cor_id
 from faststream.rabbit.response import RabbitPublishCommand
 from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
-from faststream.rabbit.schemas.publishers import RabbitLogicPublisherOptions
+from faststream.rabbit.schemas.publishers import RabbitPublisherBaseOptions
 from faststream.response.publish_type import PublishType
 
 from .options import MessageOptions, PublishOptions
@@ -52,26 +52,26 @@ class LogicPublisher(PublisherUsecase[IncomingMessage]):
     def __init__(
         self,
         *,
-        logic_options: RabbitLogicPublisherOptions,
+        base_options: RabbitPublisherBaseOptions,
     ) -> None:
-        self.queue = logic_options.queue
-        self.routing_key = logic_options.routing_key
+        self.queue = base_options.queue
+        self.routing_key = base_options.routing_key
 
-        self.exchange = logic_options.exchange
+        self.exchange = base_options.exchange
 
-        super().__init__(publisher_options=logic_options.internal_options)
+        super().__init__(publisher_options=base_options.internal_options)
 
-        self.headers = logic_options.message_kwargs.pop("headers") or {}
-        self.reply_to: str = logic_options.message_kwargs.pop("reply_to", None) or ""
-        self.timeout = logic_options.message_kwargs.pop("timeout", None)
+        self.headers = base_options.message_kwargs.pop("headers") or {}
+        self.reply_to: str = base_options.message_kwargs.pop("reply_to", None) or ""
+        self.timeout = base_options.message_kwargs.pop("timeout", None)
 
         message_options, _ = filter_by_dict(
-            MessageOptions, dict(logic_options.message_kwargs)
+            MessageOptions, dict(base_options.message_kwargs)
         )
         self.message_options = message_options
 
         publish_options, _ = filter_by_dict(
-            PublishOptions, dict(logic_options.message_kwargs)
+            PublishOptions, dict(base_options.message_kwargs)
         )
         self.publish_options = publish_options
 

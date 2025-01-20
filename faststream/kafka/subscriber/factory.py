@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Literal, Optional, Union, overload
 from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
 from faststream.exceptions import SetupError
-from faststream.kafka.schemas.subscribers import SubscriberLogicOptions
+from faststream.kafka.schemas.subscribers import KafkaSubscriberBaseOptions
 from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationConcurrentDefaultSubscriber,
@@ -181,7 +181,7 @@ def create_subscriber(
         default_parser=EMPTY,
     )
 
-    options = SubscriberLogicOptions(
+    base_options = KafkaSubscriberBaseOptions(
         topics=topics,
         partitions=partitions,
         connection_args=connection_args,
@@ -200,7 +200,7 @@ def create_subscriber(
     if batch:
         return SpecificationBatchSubscriber(
             specification_options=specification_options,
-            options=options,
+            base_options=base_options,
             batch_timeout_ms=batch_timeout_ms,
             max_records=max_records,
         )
@@ -208,12 +208,12 @@ def create_subscriber(
     if max_workers > 1:
         return SpecificationConcurrentDefaultSubscriber(
             specification_options=specification_options,
-            options=options,
+            base_options=base_options,
             max_workers=max_workers,
         )
 
     return SpecificationDefaultSubscriber(
-        specification_options=specification_options, options=options
+        specification_options=specification_options, base_options=base_options
     )
 
 

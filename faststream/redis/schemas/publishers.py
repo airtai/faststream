@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class RedisLogicPublisherOptions:
+class RedisPublisherBaseOptions:
     reply_to: str
     headers: Optional["AnyDict"]
     internal_options: PublisherUsecaseOptions

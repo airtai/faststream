@@ -5,7 +5,7 @@ from faststream._internal.publisher.specified import (
 from faststream.rabbit.schemas.base import RabbitBaseOptions
 from faststream.rabbit.schemas.proto import BaseRMQInformation as RMQSpecificationMixin
 from faststream.rabbit.schemas.publishers import (
-    RabbitLogicPublisherOptions,
+    RabbitPublisherBaseOptions,
 )
 from faststream.rabbit.utils import is_routing_exchange
 from faststream.specification.asyncapi.utils import resolve_payloads
@@ -29,7 +29,7 @@ class SpecificationPublisher(
     def __init__(
         self,
         *,
-        logic_options: RabbitLogicPublisherOptions,
+        base_options: RabbitPublisherBaseOptions,
         rabbit_mq_base_options: RabbitBaseOptions,
         specification_options: SpecificationPublisherOptions,
     ) -> None:
@@ -39,7 +39,7 @@ class SpecificationPublisher(
             rabbit_mq_options=rabbit_mq_base_options,
         )
 
-        LogicPublisher.__init__(self, logic_options=logic_options)
+        LogicPublisher.__init__(self, base_options=base_options)
 
     def get_default_name(self) -> str:
         routing = (

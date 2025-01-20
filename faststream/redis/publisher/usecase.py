@@ -9,7 +9,7 @@ from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
 from faststream.redis.response import RedisPublishCommand
-from faststream.redis.schemas.publishers import RedisLogicPublisherOptions
+from faststream.redis.schemas.publishers import RedisPublisherBaseOptions
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
@@ -26,7 +26,7 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
 
     _producer: "RedisFastProducer"
 
-    def __init__(self, *, base_options: RedisLogicPublisherOptions) -> None:
+    def __init__(self, *, base_options: RedisPublisherBaseOptions) -> None:
         super().__init__(publisher_options=base_options.internal_options)
 
         self.reply_to = base_options.reply_to
@@ -39,7 +39,7 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
 
 class ChannelPublisher(LogicPublisher):
     def __init__(
-        self, *, channel: "PubSub", base_options: RedisLogicPublisherOptions
+        self, *, channel: "PubSub", base_options: RedisPublisherBaseOptions
     ) -> None:
         super().__init__(base_options=base_options)
 
@@ -155,7 +155,7 @@ class ChannelPublisher(LogicPublisher):
 
 class ListPublisher(LogicPublisher):
     def __init__(
-        self, *, list: "ListSub", base_options: RedisLogicPublisherOptions
+        self, *, list: "ListSub", base_options: RedisPublisherBaseOptions
     ) -> None:
         super().__init__(base_options=base_options)
 
@@ -329,7 +329,7 @@ class ListBatchPublisher(ListPublisher):
 
 class StreamPublisher(LogicPublisher):
     def __init__(
-        self, *, stream: "StreamSub", base_options: RedisLogicPublisherOptions
+        self, *, stream: "StreamSub", base_options: RedisPublisherBaseOptions
     ) -> None:
         super().__init__(base_options=base_options)
 

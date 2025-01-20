@@ -10,7 +10,7 @@ from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
-from faststream.redis.schemas.subscribers import RedisLogicSubscriberOptions
+from faststream.redis.schemas.subscribers import RedisSubscriberBaseOptions
 from faststream.redis.subscriber.specified import (
     SpecificationChannelConcurrentSubscriber,
     SpecificationChannelSubscriber,
@@ -79,7 +79,7 @@ def create_subscriber(
         default_decoder=EMPTY,
     )
 
-    base_options = RedisLogicSubscriberOptions(internal_options=internal_options)
+    base_options = RedisSubscriberBaseOptions(internal_options=internal_options)
 
     specification_options = SpecificationOptions(
         title_=title_,

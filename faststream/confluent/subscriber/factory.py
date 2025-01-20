@@ -6,11 +6,12 @@ from typing import (
     Optional,
     Union,
     overload,
+    cast
 )
 
 from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
-from faststream.confluent.schemas.subscribers import SubscriberLogicOptions
+from faststream.confluent.schemas.subscribers import ConfluentSubscriberBaseOptions
 from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationConcurrentDefaultSubscriber,
@@ -170,12 +171,15 @@ def create_subscriber(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
-        broker_middlewares=broker_middlewares,
+        broker_middlewares=cast(
+            "Sequence[BrokerMiddleware[tuple[ConfluentMsg, ...]]]",
+            broker_middlewares,
+        ),
         default_decoder=EMPTY,
         default_parser=EMPTY,
     )
 
-    options = SubscriberLogicOptions(
+    base_options = ConfluentSubscriberBaseOptions(
         topics=topics,
         partitions=partitions,
         polling_interval=polling_interval,
@@ -193,21 +197,21 @@ def create_subscriber(
     if batch:
         return SpecificationBatchSubscriber(
             specification_options=specification_options,
-            options=options,
+            base_options=base_options,
             max_records=max_records,
         )
 
     if max_workers > 1:
         return SpecificationConcurrentDefaultSubscriber(
             specification_options=specification_options,
-            options=options,
+            base_options=base_options,
             # concurrent arg
             max_workers=max_workers,
         )
 
     return SpecificationDefaultSubscriber(
         specification_options=specification_options,
-        options=options,
+        base_options=base_options,
     )
 
 

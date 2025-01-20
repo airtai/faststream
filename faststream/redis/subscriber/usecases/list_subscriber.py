@@ -21,7 +21,7 @@ from faststream.redis.parser import (
     RedisListParser,
 )
 from faststream.redis.schemas import ListSub
-from faststream.redis.schemas.subscribers import RedisLogicSubscriberOptions
+from faststream.redis.schemas.subscribers import RedisSubscriberBaseOptions
 from faststream.specification.schema.base import SpecificationOptions
 
 from .basic import LogicSubscriber
@@ -40,7 +40,7 @@ class _ListHandlerMixin(LogicSubscriber):
     def __init__(
         self,
         *,
-        base_options: RedisLogicSubscriberOptions,
+        base_options: RedisSubscriberBaseOptions,
         list: ListSub,
     ) -> None:
         super().__init__(base_options=base_options)
@@ -124,7 +124,7 @@ class _ListHandlerMixin(LogicSubscriber):
 
 class ListSubscriber(_ListHandlerMixin):
     def __init__(
-        self, *, list: ListSub, base_options: RedisLogicSubscriberOptions
+        self, *, list: ListSub, base_options: RedisSubscriberBaseOptions
     ) -> None:
         parser = RedisListParser()
         base_options.internal_options.default_parser = parser.parse_message
@@ -154,7 +154,7 @@ class BatchListSubscriber(_ListHandlerMixin):
     def __init__(
         self,
         *,
-        base_options: RedisLogicSubscriberOptions,
+        base_options: RedisSubscriberBaseOptions,
         list: ListSub,
     ) -> None:
         parser = RedisBatchListParser()
@@ -186,7 +186,7 @@ class ConcurrentListSubscriber(ConcurrentMixin["BrokerStreamMessage"], ListSubsc
     def __init__(
         self,
         *,
-        base_options: RedisLogicSubscriberOptions,
+        base_options: RedisSubscriberBaseOptions,
         specification_options: SpecificationOptions,
         list: ListSub,
         max_workers: int,

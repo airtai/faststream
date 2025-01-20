@@ -6,7 +6,7 @@ from faststream._internal.publisher.schemas import (
     SpecificationPublisherOptions,
 )
 from faststream.rabbit.schemas.base import RabbitBaseOptions
-from faststream.rabbit.schemas.publishers import RabbitLogicPublisherOptions
+from faststream.rabbit.schemas.publishers import RabbitPublisherBaseOptions
 
 from .specified import SpecificationPublisher
 
@@ -38,7 +38,7 @@ def create_publisher(
         broker_middlewares=broker_middlewares, middlewares=middlewares
     )
 
-    logic_options = RabbitLogicPublisherOptions(
+    base_options = RabbitPublisherBaseOptions(
         routing_key=routing_key,
         queue=queue,
         exchange=exchange,
@@ -58,7 +58,7 @@ def create_publisher(
         include_in_schema=include_in_schema,
     )
     return SpecificationPublisher(
-        logic_options=logic_options,
+        base_options=base_options,
         rabbit_mq_base_options=rabbit_mq_base_options,
         specification_options=specification_options,
     )

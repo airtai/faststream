@@ -4,7 +4,7 @@ from faststream._internal.subscriber.specified import (
 from faststream.rabbit.schemas.base import RabbitBaseOptions
 from faststream.rabbit.schemas.proto import BaseRMQInformation as RMQSpecificationMixin
 from faststream.rabbit.schemas.subscribers import (
-    RabbitLogicSubscriberOptions,
+    RabbitSubscriberBaseOptions,
 )
 from faststream.rabbit.subscriber.usecase import LogicSubscriber
 from faststream.specification.asyncapi.utils import resolve_payloads
@@ -31,7 +31,7 @@ class SpecificationSubscriber(
     def __init__(
         self,
         *,
-        logic_options: RabbitLogicSubscriberOptions,
+        base_options: RabbitSubscriberBaseOptions,
         rabbit_mq_base_options: RabbitBaseOptions,
         specification_options: SpecificationOptions,
     ) -> None:
@@ -41,7 +41,7 @@ class SpecificationSubscriber(
             rabbit_mq_options=rabbit_mq_base_options,
         )
 
-        LogicSubscriber.__init__(self, options=logic_options)
+        LogicSubscriber.__init__(self, base_options=base_options)
 
     def get_default_name(self) -> str:
         return f"{self.queue.name}:{getattr(self.exchange, 'name', None) or '_'}:{self.call_name}"

@@ -23,7 +23,7 @@ from faststream.redis.parser import (
     RedisStreamParser,
 )
 from faststream.redis.schemas import StreamSub
-from faststream.redis.schemas.subscribers import RedisLogicSubscriberOptions
+from faststream.redis.schemas.subscribers import RedisSubscriberBaseOptions
 from faststream.specification.schema.base import SpecificationOptions
 
 from .basic import LogicSubscriber
@@ -38,7 +38,7 @@ Offset: TypeAlias = bytes
 
 class _StreamHandlerMixin(LogicSubscriber):
     def __init__(
-        self, *, stream: StreamSub, base_options: RedisLogicSubscriberOptions
+        self, *, stream: StreamSub, base_options: RedisSubscriberBaseOptions
     ) -> None:
         super().__init__(base_options=base_options)
 
@@ -205,7 +205,7 @@ class _StreamHandlerMixin(LogicSubscriber):
 
 class StreamSubscriber(_StreamHandlerMixin):
     def __init__(
-        self, *, stream: StreamSub, base_options: RedisLogicSubscriberOptions
+        self, *, stream: StreamSub, base_options: RedisSubscriberBaseOptions
     ) -> None:
         parser = RedisStreamParser()
         base_options.internal_options.default_decoder = parser.decode_message
@@ -250,7 +250,7 @@ class StreamSubscriber(_StreamHandlerMixin):
 
 class StreamBatchSubscriber(_StreamHandlerMixin):
     def __init__(
-        self, *, stream: StreamSub, base_options: RedisLogicSubscriberOptions
+        self, *, stream: StreamSub, base_options: RedisSubscriberBaseOptions
     ) -> None:
         parser = RedisBatchStreamParser()
         base_options.internal_options.default_decoder = parser.decode_message
@@ -292,7 +292,7 @@ class ConcurrentStreamSubscriber(
     def __init__(
         self,
         *,
-        base_options: RedisLogicSubscriberOptions,
+        base_options: RedisSubscriberBaseOptions,
         specification_options: SpecificationOptions,
         stream: StreamSub,
         max_workers: int,

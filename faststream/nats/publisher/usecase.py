@@ -7,7 +7,7 @@ from typing_extensions import overload, override
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream.message import gen_cor_id
 from faststream.nats.response import NatsPublishCommand
-from faststream.nats.schemas.publishers import NatsLogicPublisherOptions
+from faststream.nats.schemas.publishers import NatsPublisherBaseOptions
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
@@ -24,15 +24,15 @@ class LogicPublisher(PublisherUsecase[Msg]):
 
     _producer: Union["NatsFastProducer", "NatsJSFastProducer"]
 
-    def __init__(self, *, logic_options: NatsLogicPublisherOptions) -> None:
+    def __init__(self, *, base_options: NatsPublisherBaseOptions) -> None:
         """Initialize NATS publisher object."""
-        super().__init__(publisher_options=logic_options.internal_options)
+        super().__init__(publisher_options=base_options.internal_options)
 
-        self.subject = logic_options.subject
-        self.stream = logic_options.stream
-        self.timeout = logic_options.timeout
-        self.headers = logic_options.headers or {}
-        self.reply_to = logic_options.reply_to
+        self.subject = base_options.subject
+        self.stream = base_options.stream
+        self.timeout = base_options.timeout
+        self.headers = base_options.headers or {}
+        self.reply_to = base_options.reply_to
 
     @overload
     async def publish(

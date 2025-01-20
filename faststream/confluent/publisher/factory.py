@@ -6,13 +6,14 @@ from typing import (
     Optional,
     Union,
     overload,
+    cast
 )
 
 from faststream._internal.publisher.schemas import (
     PublisherUsecaseOptions,
     SpecificationPublisherOptions,
 )
-from faststream.confluent.schemas.publisher import PublisherLogicOptions
+from faststream.confluent.schemas.publisher import ConfluentPublisherBaseOptions
 from faststream.exceptions import SetupError
 
 from .specified import SpecificationBatchPublisher, SpecificationDefaultPublisher
@@ -113,9 +114,13 @@ def create_publisher(
     "SpecificationDefaultPublisher",
 ]:
     internal_options = PublisherUsecaseOptions(
-        broker_middlewares=broker_middlewares, middlewares=middlewares
+        broker_middlewares=cast(
+            "Sequence[BrokerMiddleware[tuple[ConfluentMsg, ...]]]",
+            broker_middlewares,
+        ),
+        middlewares=middlewares
     )
-    logic_options = PublisherLogicOptions(
+    base_options = ConfluentPublisherBaseOptions(
         key=key,
         topic=topic,
         partition=partition,
@@ -136,9 +141,9 @@ def create_publisher(
             raise SetupError(msg)
 
         return SpecificationBatchPublisher(
-            specification_options=specification_options, options=logic_options
+            specification_options=specification_options, base_options=base_options
         )
 
     return SpecificationDefaultPublisher(
-        specification_options=specification_options, options=logic_options
+        specification_options=specification_options, base_options=base_options
     )

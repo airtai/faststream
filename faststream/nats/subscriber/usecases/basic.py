@@ -13,7 +13,7 @@ from faststream._internal.types import MsgType
 from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.fake import NatsFakePublisher
 from faststream.nats.schemas.js_stream import compile_nats_wildcard
-from faststream.nats.schemas.subscribers import NatsLogicSubscriberOptions
+from faststream.nats.schemas.subscribers import NatsSubscriberBaseOptions
 from faststream.nats.subscriber.adapters import (
     Unsubscriptable,
 )
@@ -50,14 +50,14 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
     def __init__(
         self,
         *,
-        logic_options: NatsLogicSubscriberOptions,
+        base_options: NatsSubscriberBaseOptions,
     ) -> None:
-        self.subject = logic_options.subject
-        self.config = logic_options.config
+        self.subject = base_options.subject
+        self.config = base_options.config
 
-        self.extra_options = logic_options.extra_options or {}
+        self.extra_options = base_options.extra_options or {}
 
-        super().__init__(options=logic_options.internal_options)
+        super().__init__(options=base_options.internal_options)
 
         self._fetch_sub = None
         self.subscription = None
@@ -159,9 +159,9 @@ class DefaultSubscriber(LogicSubscriber[MsgType]):
     def __init__(
         self,
         *,
-        logic_options: NatsLogicSubscriberOptions,
+        base_options: NatsSubscriberBaseOptions,
     ) -> None:
-        super().__init__(logic_options=logic_options)
+        super().__init__(base_options=base_options)
 
     def _make_response_publisher(
         self,

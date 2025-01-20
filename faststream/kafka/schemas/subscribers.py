@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class SubscriberDefaultOptions:
+class KafkaSubscriberDefaultOptions:
     topics: Sequence[str]
     group_id: Optional[str]
     connection_args: "AnyDict"
@@ -25,5 +25,5 @@ class SubscriberDefaultOptions:
 
 
 @dataclass
-class SubscriberLogicOptions(SubscriberDefaultOptions):
+class KafkaSubscriberBaseOptions(KafkaSubscriberDefaultOptions):
     internal_options: SubscriberUsecaseOptions

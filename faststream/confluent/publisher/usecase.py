@@ -7,7 +7,7 @@ from typing_extensions import override
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.types import MsgType
 from faststream.confluent.response import KafkaPublishCommand
-from faststream.confluent.schemas.publisher import PublisherLogicOptions
+from faststream.confluent.schemas.publisher import ConfluentPublisherBaseOptions
 from faststream.message import gen_cor_id
 from faststream.response.publish_type import PublishType
 
@@ -26,13 +26,13 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
     _producer: "AsyncConfluentFastProducer"
 
-    def __init__(self, *, options: PublisherLogicOptions) -> None:
-        super().__init__(publisher_options=options.internal_options)
+    def __init__(self, *, base_options: ConfluentPublisherBaseOptions) -> None:
+        super().__init__(publisher_options=base_options.internal_options)
 
-        self.topic = options.topic
-        self.partition = options.partition
-        self.reply_to = options.reply_to
-        self.headers = options.headers or {}
+        self.topic = base_options.topic
+        self.partition = base_options.partition
+        self.reply_to = base_options.reply_to
+        self.headers = base_options.headers or {}
 
     def add_prefix(self, prefix: str) -> None:
         self.topic = f"{prefix}{self.topic}"
@@ -67,10 +67,10 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
 
 class DefaultPublisher(LogicPublisher[Message]):
-    def __init__(self, *, options: PublisherLogicOptions) -> None:
-        super().__init__(options=options)
+    def __init__(self, *, base_options: ConfluentPublisherBaseOptions) -> None:
+        super().__init__(base_options=base_options)
 
-        self.key = options.key
+        self.key = base_options.key
 
     @override
     async def publish(
@@ -149,18 +149,21 @@ class BatchPublisher(LogicPublisher[tuple[Message, ...]]):
     async def publish(
         self,
         *messages: "SendableMessage",
+        topic: str = "",
+        partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
+        reply_to: str = "",
         no_confirm: bool = False,
-        options: PublisherLogicOptions,
     ) -> None:
         cmd = KafkaPublishCommand(
             *messages,
             key=None,
-            topic=options.topic or self.topic,
-            partition=options.partition or self.partition,
-            reply_to=options.reply_to or self.reply_to,
-            headers=self.headers | (options.headers or {}),
+            topic=topic or self.topic,
+            partition=partition or self.partition,
+            reply_to=reply_to or self.reply_to,
+            headers=self.headers | (headers or {}),
             correlation_id=correlation_id or gen_cor_id(),
             timestamp_ms=timestamp_ms,
             no_confirm=no_confirm,

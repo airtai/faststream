@@ -4,5 +4,5 @@ from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
 
 
 @dataclass
-class RedisLogicSubscriberOptions:
+class RedisSubscriberBaseOptions:
     internal_options: SubscriberUsecaseOptions

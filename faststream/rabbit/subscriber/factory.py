@@ -8,7 +8,7 @@ from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 from faststream.rabbit.schemas.base import RabbitBaseOptions
 from faststream.rabbit.schemas.subscribers import (
-    RabbitLogicSubscriberOptions,
+    RabbitSubscriberBaseOptions,
 )
 from faststream.rabbit.subscriber.specified import SpecificationSubscriber
 from faststream.specification.schema.base import SpecificationOptions
@@ -51,7 +51,7 @@ def create_subscriber(
         default_parser=EMPTY,
     )
 
-    logic_options = RabbitLogicSubscriberOptions(
+    base_options = RabbitSubscriberBaseOptions(
         internal_options=internal_options,
         consume_args=consume_args,
         queue=queue,
@@ -64,7 +64,7 @@ def create_subscriber(
 
     rabbit_mq_base_options = RabbitBaseOptions(queue=queue, exchange=exchange)
     return SpecificationSubscriber(
-        logic_options=logic_options,
+        base_options=base_options,
         specification_options=specification_options,
         rabbit_mq_base_options=rabbit_mq_base_options,
     )

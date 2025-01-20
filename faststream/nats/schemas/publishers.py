@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class NatsLogicPublisherOptions:
+class NatsPublisherBaseOptions:
     subject: str
     reply_to: str
     headers: Optional[dict[str, str]]

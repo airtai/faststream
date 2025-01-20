@@ -5,7 +5,7 @@ from faststream._internal.publisher.schemas import (
     PublisherUsecaseOptions,
     SpecificationPublisherOptions,
 )
-from faststream.nats.schemas.publishers import NatsLogicPublisherOptions
+from faststream.nats.schemas.publishers import NatsPublisherBaseOptions
 
 from .specified import SpecificationPublisher
 
@@ -36,7 +36,7 @@ def create_publisher(
         broker_middlewares=broker_middlewares, middlewares=middlewares
     )
 
-    logic_options = NatsLogicPublisherOptions(
+    base_options = NatsPublisherBaseOptions(
         subject=subject,
         stream=stream,
         reply_to=reply_to,
@@ -53,6 +53,6 @@ def create_publisher(
     )
 
     return SpecificationPublisher(
-        logic_options=logic_options,
+        base_options=base_options,
         specification_options=specification_options,
     )

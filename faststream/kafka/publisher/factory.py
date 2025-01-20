@@ -13,7 +13,7 @@ from faststream._internal.publisher.schemas import (
     SpecificationPublisherOptions,
 )
 from faststream.exceptions import SetupError
-from faststream.kafka.schemas.publishers import PublisherLogicOptions
+from faststream.kafka.schemas.publishers import KafkaPublisherBaseOptions
 
 from .specified import SpecificationBatchPublisher, SpecificationDefaultPublisher
 
@@ -113,7 +113,7 @@ def create_publisher(
     internal_options = PublisherUsecaseOptions(
         broker_middlewares=broker_middlewares, middlewares=middlewares
     )
-    logic_options = PublisherLogicOptions(
+    base_options = KafkaPublisherBaseOptions(
         key=key,
         topic=topic,
         partition=partition,
@@ -134,8 +134,8 @@ def create_publisher(
             raise SetupError(msg)
 
         return SpecificationBatchPublisher(
-            options=logic_options, specification_options=specification_options
+            base_options=base_options, specification_options=specification_options
         )
     return SpecificationDefaultPublisher(
-        options=logic_options, specification_options=specification_options
+        base_options=base_options, specification_options=specification_options
     )

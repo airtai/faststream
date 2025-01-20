@@ -22,5 +22,5 @@ class DefaultNatsSubscriberOptions:
 
 
 @dataclass
-class NatsLogicSubscriberOptions(DefaultNatsSubscriberOptions):
+class NatsSubscriberBaseOptions(DefaultNatsSubscriberOptions):
     internal_options: SubscriberUsecaseOptions

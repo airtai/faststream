@@ -11,7 +11,7 @@ from faststream._internal.subscriber.utils import process_msg
 from faststream.nats.parser import (
     JsParser,
 )
-from faststream.nats.schemas.subscribers import NatsLogicSubscriberOptions
+from faststream.nats.schemas.subscribers import NatsSubscriberBaseOptions
 
 from .basic import DefaultSubscriber
 
@@ -32,15 +32,15 @@ class StreamSubscriber(DefaultSubscriber["Msg"]):
         *,
         stream: "JStream",
         queue: str,
-        stream_options: NatsLogicSubscriberOptions,
+        base_options: NatsSubscriberBaseOptions,
     ) -> None:
-        parser_ = JsParser(pattern=stream_options.subject)
+        parser_ = JsParser(pattern=base_options.subject)
 
         self.queue = queue
         self.stream = stream
-        stream_options.internal_options.default_decoder = parser_.decode_message
-        stream_options.internal_options.default_parser = parser_.parse_message
-        super().__init__(logic_options=stream_options.internal_options)
+        base_options.internal_options.default_decoder = parser_.decode_message
+        base_options.internal_options.default_parser = parser_.parse_message
+        super().__init__(base_options=base_options)
 
     def get_log_context(
         self,

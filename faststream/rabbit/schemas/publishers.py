@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class RabbitLogicPublisherOptions:
+class RabbitPublisherBaseOptions:
     routing_key: str
     queue: "RabbitQueue"
     exchange: "RabbitExchange"
