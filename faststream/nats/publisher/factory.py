@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from faststream._internal.publisher.schemas import (
     PublisherUsecaseOptions,
-    SpecificationPublisherOptions,
 )
 from faststream.nats.schemas.publishers import NatsPublisherBaseOptions
+from faststream.specification.schema.base import SpecificationOptions
 
 from .specified import SpecificationPublisher
 
@@ -45,8 +45,7 @@ def create_publisher(
         internal_options=internal_options,
     )
 
-    specification_options = SpecificationPublisherOptions(
-        schema_=schema_,
+    specification_options = SpecificationOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
@@ -55,4 +54,5 @@ def create_publisher(
     return SpecificationPublisher(
         base_options=base_options,
         specification_options=specification_options,
+        schema_=schema_
     )

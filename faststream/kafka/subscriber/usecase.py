@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 import anyio
 from aiokafka import ConsumerRecord, TopicPartition
 from aiokafka.errors import ConsumerStoppedError, KafkaError
-from faststream.middlewares.acknowledgement.conf import AckPolicy
 from typing_extensions import override
 
 from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
@@ -21,6 +20,7 @@ from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 from faststream.kafka.publisher.fake import KafkaFakePublisher
 from faststream.kafka.schemas.subscribers import KafkaSubscriberBaseOptions
+from faststream.middlewares.acknowledgement.conf import AckPolicy
 
 if TYPE_CHECKING:
     from aiokafka import AIOKafkaConsumer

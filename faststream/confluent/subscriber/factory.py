@@ -1,13 +1,6 @@
 import warnings
 from collections.abc import Iterable, Sequence
-from typing import (
-    TYPE_CHECKING,
-    Literal,
-    Optional,
-    Union,
-    overload,
-    cast
-)
+from typing import TYPE_CHECKING, Literal, Optional, Union, cast, overload
 
 from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions

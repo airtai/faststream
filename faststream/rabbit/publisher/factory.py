@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from faststream._internal.publisher.schemas import (
     PublisherUsecaseOptions,
-    SpecificationPublisherOptions,
 )
 from faststream.rabbit.schemas.base import RabbitBaseOptions
 from faststream.rabbit.schemas.publishers import RabbitPublisherBaseOptions
+from faststream.specification.schema.base import SpecificationOptions
 
 from .specified import SpecificationPublisher
 
@@ -50,9 +50,8 @@ def create_publisher(
         queue=queue,
         exchange=exchange,
     )
-    # AsyncAPI options
-    specification_options = SpecificationPublisherOptions(
-        schema_=schema_,
+
+    specification_options = SpecificationOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
@@ -61,4 +60,5 @@ def create_publisher(
         base_options=base_options,
         rabbit_mq_base_options=rabbit_mq_base_options,
         specification_options=specification_options,
+        schema_=schema_,
     )
