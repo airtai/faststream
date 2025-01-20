@@ -135,10 +135,10 @@ def create_publisher(
         return SpecificationBatchPublisher(
             base_options=base_options,
             specification_options=specification_options,
-            schema_=schema_
+            schema_=schema_,
         )
     return SpecificationDefaultPublisher(
         base_options=base_options,
         specification_options=specification_options,
-        schema_=schema_
+        schema_=schema_,
     )

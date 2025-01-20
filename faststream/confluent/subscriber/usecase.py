@@ -209,7 +209,8 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 class DefaultSubscriber(LogicSubscriber[Message]):
     def __init__(self, base_options: ConfluentSubscriberBaseOptions) -> None:
         self.parser = AsyncConfluentParser(
-            is_manual=base_options.internal_options.ack_policy is not AckPolicy.ACK_FIRST
+            is_manual=base_options.internal_options.ack_policy
+            is not AckPolicy.ACK_FIRST
         )
         base_options.internal_options.default_decoder = self.parser.decode_message
         base_options.internal_options.default_parser = self.parser.parse_message
@@ -255,7 +256,8 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
         self.max_records = max_records
 
         self.parser = AsyncConfluentParser(
-            is_manual=base_options.internal_options.ack_policy is not AckPolicy.ACK_FIRST
+            is_manual=base_options.internal_options.ack_policy
+            is not AckPolicy.ACK_FIRST
         )
         base_options.internal_options.default_decoder = self.parser.decode_message_batch
         base_options.internal_options.default_parser = self.parser.parse_message_batch

@@ -54,5 +54,5 @@ def create_publisher(
     return SpecificationPublisher(
         base_options=base_options,
         specification_options=specification_options,
-        schema_=schema_
+        schema_=schema_,
     )

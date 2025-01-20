@@ -302,8 +302,7 @@ class BatchSubscriber(LogicSubscriber[tuple["ConsumerRecord", ...]]):
 
         self.parser = AioKafkaBatchParser(
             msg_class=KafkaMessage
-            if base_options.internal_options.ack_policy
-            is AckPolicy.ACK_FIRST
+            if base_options.internal_options.ack_policy is AckPolicy.ACK_FIRST
             else KafkaAckableMessage,
             regex=reg,
         )

@@ -110,7 +110,7 @@ def create_publisher(
             "Sequence[BrokerMiddleware[tuple[ConfluentMsg, ...]]]",
             broker_middlewares,
         ),
-        middlewares=middlewares
+        middlewares=middlewares,
     )
     base_options = ConfluentPublisherBaseOptions(
         key=key,
@@ -134,11 +134,11 @@ def create_publisher(
         return SpecificationBatchPublisher(
             specification_options=specification_options,
             base_options=base_options,
-            schema_=schema_
+            schema_=schema_,
         )
 
     return SpecificationDefaultPublisher(
         specification_options=specification_options,
         base_options=base_options,
-        schema_=schema_
+        schema_=schema_,
     )
