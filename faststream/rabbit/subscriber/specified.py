@@ -11,9 +11,9 @@ from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema import (
     Message,
     Operation,
+    SpecificationOptions,
     SubscriberSpec,
 )
-from faststream.specification.schema.base import SpecificationOptions
 from faststream.specification.schema.bindings import (
     ChannelBinding,
     OperationBinding,

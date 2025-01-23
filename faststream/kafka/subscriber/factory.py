@@ -3,7 +3,10 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Literal, Optional, Union, overload
 
 from faststream._internal.constants import EMPTY
-from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
+from faststream._internal.subscriber.schemas import (
+    SpecificationSubscriberOptions,
+    SubscriberUsecaseOptions,
+)
 from faststream.exceptions import SetupError
 from faststream.kafka.schemas.subscribers import KafkaSubscriberBaseOptions
 from faststream.kafka.subscriber.specified import (
@@ -12,7 +15,6 @@ from faststream.kafka.subscriber.specified import (
     SpecificationDefaultSubscriber,
 )
 from faststream.middlewares import AckPolicy
-from faststream.specification.schema.base import SpecificationOptions
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord, TopicPartition
@@ -191,7 +193,7 @@ def create_subscriber(
         internal_options=internal_options,
     )
 
-    specification_options = SpecificationOptions(
+    specification_options = SpecificationSubscriberOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,

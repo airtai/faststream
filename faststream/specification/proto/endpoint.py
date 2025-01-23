@@ -3,7 +3,7 @@ from typing import Any, Generic, Optional, TypeVar
 
 from faststream._internal.proto import EndpointWrapper
 from faststream._internal.types import MsgType
-from faststream.specification.schema.base import SpecificationOptions
+from faststream.specification.schema import SpecificationOptions
 
 T = TypeVar("T")
 

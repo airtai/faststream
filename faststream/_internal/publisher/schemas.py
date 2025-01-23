@@ -2,12 +2,10 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional
 
-from faststream.specification.schema.base import SpecificationOptions
+from faststream.specification.schema import SpecificationOptions, UseCaseOptions
 
 if TYPE_CHECKING:
     from faststream._internal.types import (
-        BrokerMiddleware,
-        MsgType,
         PublisherMiddleware,
     )
 
@@ -18,6 +16,5 @@ class SpecificationPublisherOptions(SpecificationOptions):
 
 
 @dataclass
-class PublisherUsecaseOptions:
-    broker_middlewares: Sequence["BrokerMiddleware[MsgType]"]
+class PublisherUsecaseOptions(UseCaseOptions):
     middlewares: Sequence["PublisherMiddleware"]

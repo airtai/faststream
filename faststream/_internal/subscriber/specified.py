@@ -4,14 +4,13 @@ from typing import (
     Optional,
 )
 
+from faststream._internal.subscriber.schemas import SpecificationSubscriberOptions
 from faststream._internal.types import MsgType
 from faststream.exceptions import SetupError
 from faststream.specification.asyncapi.message import parse_handler_params
 from faststream.specification.asyncapi.utils import to_camelcase
 from faststream.specification.proto import EndpointSpecification
-from faststream.specification.schema import (
-    SubscriberSpec,
-)
+from faststream.specification.schema import SubscriberSpec
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
@@ -25,11 +24,12 @@ class SpecificationSubscriber(EndpointSpecification[MsgType, SubscriberSpec]):
     def __init__(
         self,
         *args: Any,
+        specification_options: SpecificationSubscriberOptions,
         **kwargs: Any,
     ) -> None:
         self.calls = []
         # Call next base class parent init
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, specification_options=specification_options, **kwargs)
 
     @property
     def call_name(self) -> str:

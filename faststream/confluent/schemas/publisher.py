@@ -8,14 +8,10 @@ from faststream._internal.publisher.schemas import PublisherUsecaseOptions
 
 
 @dataclass
-class PublisherDefaultOptions:
+class ConfluentPublisherBaseOptions:
     key: Union[bytes, str, None]
     topic: str
     partition: Optional[int]
     headers: Optional[dict[str, str]]
     reply_to: Optional[str]
-
-
-@dataclass
-class ConfluentPublisherBaseOptions(PublisherDefaultOptions):
     internal_options: PublisherUsecaseOptions

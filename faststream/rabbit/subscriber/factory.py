@@ -3,7 +3,10 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.constants import EMPTY
-from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
+from faststream._internal.subscriber.schemas import (
+    SpecificationSubscriberOptions,
+    SubscriberUsecaseOptions,
+)
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 from faststream.rabbit.schemas.base import RabbitBaseOptions
@@ -11,7 +14,6 @@ from faststream.rabbit.schemas.subscribers import (
     RabbitSubscriberBaseOptions,
 )
 from faststream.rabbit.subscriber.specified import SpecificationSubscriber
-from faststream.specification.schema.base import SpecificationOptions
 
 if TYPE_CHECKING:
     from aio_pika import IncomingMessage
@@ -56,7 +58,7 @@ def create_subscriber(
         consume_args=consume_args,
         queue=queue,
     )
-    specification_options = SpecificationOptions(
+    specification_options = SpecificationSubscriberOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,

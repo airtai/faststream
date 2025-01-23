@@ -5,12 +5,12 @@ from typing_extensions import TypeAlias
 
 from faststream._internal.publisher.schemas import (
     PublisherUsecaseOptions,
+    SpecificationPublisherOptions,
 )
 from faststream.exceptions import SetupError
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
 from faststream.redis.schemas.publishers import RedisPublisherBaseOptions
-from faststream.specification.schema.base import SpecificationOptions
 
 from .specified import (
     SpecificationChannelPublisher,
@@ -58,7 +58,8 @@ def create_publisher(
         reply_to=reply_to, headers=headers, internal_options=internal_options
     )
 
-    specification_options = SpecificationOptions(
+    specification_options = SpecificationPublisherOptions(
+        schema_=schema_,
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
@@ -69,7 +70,6 @@ def create_publisher(
             channel=channel,
             base_options=base_options,
             specification_options=specification_options,
-            schema_=schema_,
         )
 
     if (stream := StreamSub.validate(stream)) is not None:
@@ -77,7 +77,6 @@ def create_publisher(
             stream=stream,
             base_options=base_options,
             specification_options=specification_options,
-            schema_=schema_,
         )
 
     if (list := ListSub.validate(list)) is not None:
@@ -86,13 +85,11 @@ def create_publisher(
                 list=list,
                 base_options=base_options,
                 specification_options=specification_options,
-                schema_=schema_,
             )
         return SpecificationListPublisher(
             list=list,
             base_options=base_options,
             specification_options=specification_options,
-            schema_=schema_,
         )
 
     raise SetupError(INCORRECT_SETUP_MSG)

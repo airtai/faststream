@@ -3,7 +3,10 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Literal, Optional, Union, cast, overload
 
 from faststream._internal.constants import EMPTY
-from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
+from faststream._internal.subscriber.schemas import (
+    SpecificationSubscriberOptions,
+    SubscriberUsecaseOptions,
+)
 from faststream.confluent.schemas.subscribers import ConfluentSubscriberBaseOptions
 from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
@@ -12,7 +15,6 @@ from faststream.confluent.subscriber.specified import (
 )
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
-from faststream.specification.schema.base import SpecificationOptions
 
 if TYPE_CHECKING:
     from confluent_kafka import Message as ConfluentMsg
@@ -181,7 +183,7 @@ def create_subscriber(
         internal_options=internal_options,
     )
 
-    specification_options = SpecificationOptions(
+    specification_options = SpecificationSubscriberOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,

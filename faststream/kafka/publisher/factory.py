@@ -10,10 +10,10 @@ from typing import (
 
 from faststream._internal.publisher.schemas import (
     PublisherUsecaseOptions,
+    SpecificationPublisherOptions,
 )
 from faststream.exceptions import SetupError
 from faststream.kafka.schemas.publishers import KafkaPublisherBaseOptions
-from faststream.specification.schema.base import SpecificationOptions
 
 from .specified import SpecificationBatchPublisher, SpecificationDefaultPublisher
 
@@ -121,7 +121,9 @@ def create_publisher(
         reply_to=reply_to,
         internal_options=internal_options,
     )
-    specification_options = SpecificationOptions(
+
+    specification_options = SpecificationPublisherOptions(
+        schema_=schema_,
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
@@ -135,10 +137,8 @@ def create_publisher(
         return SpecificationBatchPublisher(
             base_options=base_options,
             specification_options=specification_options,
-            schema_=schema_,
         )
     return SpecificationDefaultPublisher(
         base_options=base_options,
         specification_options=specification_options,
-        schema_=schema_,
     )

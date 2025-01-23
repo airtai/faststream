@@ -1,3 +1,4 @@
+from .base import SpecificationOptions, UseCaseOptions
 from .extra import (
     Contact,
     ContactDict,
@@ -23,7 +24,9 @@ __all__ = (
     "Message",
     "Operation",
     "PublisherSpec",
+    "SpecificationOptions",
     "SubscriberSpec",
     "Tag",
     "TagDict",
+    "UseCaseOptions",
 )

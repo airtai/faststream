@@ -15,12 +15,8 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class DefaultNatsSubscriberOptions:
+class NatsSubscriberBaseOptions:
     subject: str
     config: "ConsumerConfig"
-    extra_options: Optional["AnyDict"]  # вот тут возможно добавить EMPTY
-
-
-@dataclass
-class NatsSubscriberBaseOptions(DefaultNatsSubscriberOptions):
+    extra_options: Optional["AnyDict"]
     internal_options: SubscriberUsecaseOptions

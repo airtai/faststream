@@ -5,7 +5,10 @@ from typing import TYPE_CHECKING, Optional, Union
 from typing_extensions import TypeAlias
 
 from faststream._internal.constants import EMPTY
-from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
+from faststream._internal.subscriber.schemas import (
+    SpecificationSubscriberOptions,
+    SubscriberUsecaseOptions,
+)
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
@@ -21,7 +24,6 @@ from faststream.redis.subscriber.specified import (
     SpecificationStreamConcurrentSubscriber,
     SpecificationStreamSubscriber,
 )
-from faststream.specification.schema.base import SpecificationOptions
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
@@ -81,7 +83,7 @@ def create_subscriber(
 
     base_options = RedisSubscriberBaseOptions(internal_options=internal_options)
 
-    specification_options = SpecificationOptions(
+    specification_options = SpecificationSubscriberOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,

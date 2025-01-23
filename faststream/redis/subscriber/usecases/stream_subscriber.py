@@ -24,7 +24,7 @@ from faststream.redis.parser import (
 )
 from faststream.redis.schemas import StreamSub
 from faststream.redis.schemas.subscribers import RedisSubscriberBaseOptions
-from faststream.specification.schema.base import SpecificationOptions
+from faststream.specification.schema import SpecificationOptions
 
 from .basic import LogicSubscriber
 

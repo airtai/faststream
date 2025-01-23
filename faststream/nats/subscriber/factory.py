@@ -13,7 +13,10 @@ from nats.js.client import (
 )
 
 from faststream._internal.constants import EMPTY
-from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
+from faststream._internal.subscriber.schemas import (
+    SpecificationSubscriberOptions,
+    SubscriberUsecaseOptions,
+)
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 from faststream.nats.schemas.subscribers import NatsSubscriberBaseOptions
@@ -28,7 +31,6 @@ from faststream.nats.subscriber.specified import (
     SpecificationPullStreamSubscriber,
     SpecificationPushStreamSubscriber,
 )
-from faststream.specification.schema.base import SpecificationOptions
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Dependant
@@ -186,7 +188,7 @@ def create_subscriber(
         internal_options=internal_options,
     )
 
-    specification_options = SpecificationOptions(
+    specification_options = SpecificationSubscriberOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
