@@ -126,7 +126,7 @@ lint = [
     "bandit==1.8.2; python_version >= '3.9'",
     "bandit==1.7.10; python_version < '3.9'",
     "semgrep==1.104.0; python_version >= '3.9'",
-    "semgrep==1.102.0; python_version < '3.9'",
+    "semgrep==1.99.0; python_version < '3.9'",
     "codespell==2.4.0",
 ]
 
