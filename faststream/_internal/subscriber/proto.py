@@ -91,3 +91,7 @@ class SubscriberProto(Endpoint[MsgType]):
         middlewares_: Sequence["SubscriberMiddleware[Any]"],
         dependencies_: Iterable["Dependant"],
     ) -> Self: ...
+
+    @abstractmethod
+    def __aiter__(self) -> StreamMessage[MsgType]:
+        ...
