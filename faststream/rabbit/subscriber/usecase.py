@@ -180,7 +180,8 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
         )
         return msg
 
-    async def __aiter__(self) -> AsyncIterator["RabbitMessage | None"]:
+    @override
+    async def __aiter__(self) -> AsyncIterator[RabbitMessage]: # type: ignore[override]
         assert self._queue_obj, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
             not self.calls
@@ -192,7 +193,7 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
             async for raw_message in queue_iter:
                 raw_message = cast("IncomingMessage", raw_message)
 
-                msg: RabbitMessage | None = await process_msg(  # type: ignore[assignment]
+                msg: RabbitMessage = await process_msg(  # type: ignore[assignment]
                     msg=raw_message,
                     middlewares=(
                         m(raw_message, context=context)
