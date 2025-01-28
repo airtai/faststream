@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from collections.abc import Iterable, Sequence
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, Optional
 
 import anyio
 from aiokafka import ConsumerRecord, TopicPartition
@@ -178,6 +178,25 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
             parser=self._parser,
             decoder=self._decoder,
         )
+
+    @override
+    async def __aiter__(self) -> AsyncIterator["StreamMessage[MsgType]"]: # type: ignore[override]
+        assert self.consumer, "You should start subscriber at first."  # nosec B101
+        assert (  # nosec B101
+            not self.calls
+        ), "You can't use `get_one` method if subscriber has registered handlers."
+
+        async for raw_message in self.consumer:
+            context = self._state.get().di_state.context
+            msg: StreamMessage[MsgType] = await process_msg( # type: ignore[assignment]
+                msg=raw_message,
+                middlewares=(
+                    m(raw_message, context=context) for m in self._broker_middlewares
+                ),
+                parser=self._parser,
+                decoder=self._decoder,
+            )
+            yield msg
 
     def _make_response_publisher(
         self,
