@@ -14,8 +14,8 @@ from typing import (
 from typing_extensions import Self, deprecated, overload, override
 
 from faststream._internal.subscriber.call_item import HandlerItem
+from faststream._internal.subscriber.configs import SubscriberUsecaseOptions
 from faststream._internal.subscriber.proto import SubscriberProto
-from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
 from faststream._internal.subscriber.utils import (
     MultiLock,
     default_filter,

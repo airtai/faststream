@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from faststream._internal.publisher.schemas import PublisherUsecaseOptions
+from faststream._internal.publisher.configs import PublisherUsecaseOptions
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict

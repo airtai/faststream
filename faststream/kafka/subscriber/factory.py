@@ -3,12 +3,12 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Literal, Optional, Union, overload
 
 from faststream._internal.constants import EMPTY
-from faststream._internal.subscriber.schemas import (
+from faststream._internal.subscriber.configs import (
     SpecificationSubscriberOptions,
     SubscriberUsecaseOptions,
 )
 from faststream.exceptions import SetupError
-from faststream.kafka.schemas.subscribers import KafkaSubscriberBaseOptions
+from faststream.kafka.subscriber.configs import KafkaSubscriberBaseOptions
 from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationConcurrentDefaultSubscriber,

@@ -4,7 +4,7 @@ from typing import (
     Union,
 )
 
-from faststream._internal.publisher.schemas import PublisherUsecaseOptions
+from faststream._internal.publisher.configs import PublisherUsecaseOptions
 
 
 @dataclass

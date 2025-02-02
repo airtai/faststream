@@ -12,10 +12,10 @@ from unittest.mock import MagicMock
 
 from typing_extensions import override
 
-from faststream._internal.publisher.proto import PublisherProto
-from faststream._internal.publisher.schemas import (
+from faststream._internal.publisher.configs import (
     PublisherUsecaseOptions,
 )
+from faststream._internal.publisher.proto import PublisherProto
 from faststream._internal.state import BrokerState, EmptyBrokerState, Pointer
 from faststream._internal.state.producer import ProducerUnset
 from faststream._internal.subscriber.call_wrapper import (

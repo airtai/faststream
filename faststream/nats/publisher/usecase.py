@@ -6,8 +6,8 @@ from typing_extensions import overload, override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream.message import gen_cor_id
+from faststream.nats.publisher.configs import NatsPublisherBaseOptions
 from faststream.nats.response import NatsPublishCommand
-from faststream.nats.schemas.publishers import NatsPublisherBaseOptions
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:

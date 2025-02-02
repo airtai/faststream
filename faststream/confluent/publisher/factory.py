@@ -1,11 +1,11 @@
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
 
-from faststream._internal.publisher.schemas import (
+from faststream._internal.publisher.configs import (
     PublisherUsecaseOptions,
     SpecificationPublisherOptions,
 )
-from faststream.confluent.schemas.publisher import ConfluentPublisherBaseOptions
+from faststream.confluent.publisher.configs import ConfluentPublisherBaseOptions
 from faststream.exceptions import SetupError
 
 from .specified import SpecificationBatchPublisher, SpecificationDefaultPublisher

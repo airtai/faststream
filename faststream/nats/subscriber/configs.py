@@ -4,7 +4,7 @@ from typing import (
     Optional,
 )
 
-from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
+from faststream._internal.subscriber.configs import SubscriberUsecaseOptions
 
 if TYPE_CHECKING:
     from nats.js.api import ConsumerConfig

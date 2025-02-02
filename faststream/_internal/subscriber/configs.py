@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
 from faststream.specification.schema import (
-    SpecificationOptions as SpecificationSubscriberOptions,  # noqa: F401.
+    SpecificationOptions as SpecificationSubscriberOptions,
     UseCaseOptions,
 )
 
@@ -15,6 +15,8 @@ if TYPE_CHECKING:
     from faststream._internal.types import (
         AsyncCallable,
     )
+
+__all__ = ("SpecificationSubscriberOptions",)
 
 
 @dataclass

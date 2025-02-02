@@ -4,7 +4,7 @@ from typing import (
     Optional,
 )
 
-from faststream._internal.subscriber.schemas import SpecificationSubscriberOptions
+from faststream._internal.subscriber.configs import SpecificationSubscriberOptions
 from faststream._internal.types import MsgType
 from faststream.exceptions import SetupError
 from faststream.specification.asyncapi.message import parse_handler_params

@@ -1,12 +1,12 @@
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Optional
 
-from faststream._internal.publisher.schemas import (
+from faststream._internal.publisher.configs import (
     PublisherUsecaseOptions,
     SpecificationPublisherOptions,
 )
+from faststream.rabbit.publisher.configs import RabbitPublisherBaseOptions
 from faststream.rabbit.schemas.base import RabbitBaseOptions
-from faststream.rabbit.schemas.publishers import RabbitPublisherBaseOptions
 
 from .specified import SpecificationPublisher
 

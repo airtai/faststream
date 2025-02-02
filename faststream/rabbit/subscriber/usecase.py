@@ -15,7 +15,7 @@ from faststream._internal.subscriber.utils import process_msg
 from faststream.exceptions import SetupError
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.publisher.fake import RabbitFakePublisher
-from faststream.rabbit.schemas.subscribers import (
+from faststream.rabbit.subscriber.configs import (
     RabbitSubscriberBaseOptions,
 )
 

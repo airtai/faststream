@@ -3,14 +3,14 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.constants import EMPTY
-from faststream._internal.subscriber.schemas import (
+from faststream._internal.subscriber.configs import (
     SpecificationSubscriberOptions,
     SubscriberUsecaseOptions,
 )
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 from faststream.rabbit.schemas.base import RabbitBaseOptions
-from faststream.rabbit.schemas.subscribers import (
+from faststream.rabbit.subscriber.configs import (
     RabbitSubscriberBaseOptions,
 )
 from faststream.rabbit.subscriber.specified import SpecificationSubscriber

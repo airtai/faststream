@@ -16,7 +16,7 @@ from faststream._internal.subscriber.utils import process_msg
 from faststream.nats.parser import (
     BatchParser,
 )
-from faststream.nats.schemas.subscribers import NatsSubscriberBaseOptions
+from faststream.nats.subscriber.configs import NatsSubscriberBaseOptions
 
 from .basic import DefaultSubscriber
 from .stream_basic import StreamSubscriber

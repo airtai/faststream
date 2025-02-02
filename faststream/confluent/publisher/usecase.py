@@ -6,8 +6,8 @@ from typing_extensions import override
 
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.types import MsgType
+from faststream.confluent.publisher.configs import ConfluentPublisherBaseOptions
 from faststream.confluent.response import KafkaPublishCommand
-from faststream.confluent.schemas.publisher import ConfluentPublisherBaseOptions
 from faststream.message import gen_cor_id
 from faststream.response.publish_type import PublishType
 

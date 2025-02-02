@@ -1,11 +1,11 @@
 from faststream._internal.publisher.specified import (
     SpecificationPublisher as SpecificationPublisherMixin,
 )
-from faststream.rabbit.schemas.base import RabbitBaseOptions
-from faststream.rabbit.schemas.proto import BaseRMQInformation as RMQSpecificationMixin
-from faststream.rabbit.schemas.publishers import (
+from faststream.rabbit.publisher.configs import (
     RabbitPublisherBaseOptions,
 )
+from faststream.rabbit.schemas.base import RabbitBaseOptions
+from faststream.rabbit.schemas.proto import BaseRMQInformation as RMQSpecificationMixin
 from faststream.rabbit.utils import is_routing_exchange
 from faststream.specification.asyncapi.utils import resolve_payloads
 from faststream.specification.schema import (

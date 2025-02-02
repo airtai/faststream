@@ -13,10 +13,10 @@ from faststream._internal.types import MsgType
 from faststream.nats.helpers import KVBucketDeclarer, OSBucketDeclarer
 from faststream.nats.publisher.fake import NatsFakePublisher
 from faststream.nats.schemas.js_stream import compile_nats_wildcard
-from faststream.nats.schemas.subscribers import NatsSubscriberBaseOptions
 from faststream.nats.subscriber.adapters import (
     Unsubscriptable,
 )
+from faststream.nats.subscriber.configs import NatsSubscriberBaseOptions
 from faststream.nats.subscriber.state import (
     ConnectedSubscriberState,
     EmptySubscriberState,

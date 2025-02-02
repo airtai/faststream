@@ -3,14 +3,14 @@ from typing import TYPE_CHECKING, Any, Optional, Union
 
 from typing_extensions import TypeAlias
 
-from faststream._internal.publisher.schemas import (
+from faststream._internal.publisher.configs import (
     PublisherUsecaseOptions,
     SpecificationPublisherOptions,
 )
 from faststream.exceptions import SetupError
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
-from faststream.redis.schemas.publishers import RedisPublisherBaseOptions
+from faststream.redis.publisher.configs import RedisPublisherBaseOptions
 
 from .specified import (
     SpecificationChannelPublisher,

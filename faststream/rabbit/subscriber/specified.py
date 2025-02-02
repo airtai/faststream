@@ -3,7 +3,7 @@ from faststream._internal.subscriber.specified import (
 )
 from faststream.rabbit.schemas.base import RabbitBaseOptions
 from faststream.rabbit.schemas.proto import BaseRMQInformation as RMQSpecificationMixin
-from faststream.rabbit.schemas.subscribers import (
+from faststream.rabbit.subscriber.configs import (
     RabbitSubscriberBaseOptions,
 )
 from faststream.rabbit.subscriber.usecase import LogicSubscriber

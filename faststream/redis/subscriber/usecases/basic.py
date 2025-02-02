@@ -16,7 +16,7 @@ from faststream.redis.message import (
     UnifyRedisDict,
 )
 from faststream.redis.publisher.fake import RedisFakePublisher
-from faststream.redis.schemas.subscribers import RedisSubscriberBaseOptions
+from faststream.redis.subscriber.configs import RedisSubscriberBaseOptions
 
 if TYPE_CHECKING:
     from redis.asyncio.client import Redis

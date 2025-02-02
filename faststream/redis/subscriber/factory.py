@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional, Union
 from typing_extensions import TypeAlias
 
 from faststream._internal.constants import EMPTY
-from faststream._internal.subscriber.schemas import (
+from faststream._internal.subscriber.configs import (
     SpecificationSubscriberOptions,
     SubscriberUsecaseOptions,
 )
@@ -13,7 +13,7 @@ from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
-from faststream.redis.schemas.subscribers import RedisSubscriberBaseOptions
+from faststream.redis.subscriber.configs import RedisSubscriberBaseOptions
 from faststream.redis.subscriber.specified import (
     SpecificationChannelConcurrentSubscriber,
     SpecificationChannelSubscriber,

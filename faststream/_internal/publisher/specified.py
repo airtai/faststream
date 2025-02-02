@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable, Union
 from fast_depends.core import build_call_model
 from fast_depends.pydantic._compat import create_model, get_config_base
 
-from faststream._internal.publisher.schemas import SpecificationPublisherOptions
+from faststream._internal.publisher.configs import SpecificationPublisherOptions
 from faststream._internal.types import (
     MsgType,
     P_HandlerParams,

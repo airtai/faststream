@@ -1,11 +1,11 @@
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Optional
 
-from faststream._internal.publisher.schemas import (
+from faststream._internal.publisher.configs import (
     PublisherUsecaseOptions,
     SpecificationPublisherOptions,
 )
-from faststream.nats.schemas.publishers import NatsPublisherBaseOptions
+from faststream.nats.publisher.configs import NatsPublisherBaseOptions
 
 from .specified import SpecificationPublisher
 

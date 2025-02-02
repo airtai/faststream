@@ -17,10 +17,10 @@ from faststream._internal.subscriber.utils import process_msg
 from faststream.nats.parser import (
     ObjParser,
 )
-from faststream.nats.schemas.subscribers import NatsSubscriberBaseOptions
 from faststream.nats.subscriber.adapters import (
     UnsubscribeAdapter,
 )
+from faststream.nats.subscriber.configs import NatsSubscriberBaseOptions
 
 from .basic import LogicSubscriber
 

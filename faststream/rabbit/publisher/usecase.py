@@ -8,9 +8,9 @@ from typing_extensions import Doc, Unpack, override
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.utils.data import filter_by_dict
 from faststream.message import gen_cor_id
+from faststream.rabbit.publisher.configs import RabbitPublisherBaseOptions
 from faststream.rabbit.response import RabbitPublishCommand
 from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
-from faststream.rabbit.schemas.publishers import RabbitPublisherBaseOptions
 from faststream.response.publish_type import PublishType
 
 from .options import MessageOptions, PublishOptions

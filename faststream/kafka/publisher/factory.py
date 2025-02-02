@@ -8,12 +8,12 @@ from typing import (
     overload,
 )
 
-from faststream._internal.publisher.schemas import (
+from faststream._internal.publisher.configs import (
     PublisherUsecaseOptions,
     SpecificationPublisherOptions,
 )
 from faststream.exceptions import SetupError
-from faststream.kafka.schemas.publishers import KafkaPublisherBaseOptions
+from faststream.kafka.publisher.configs import KafkaPublisherBaseOptions
 
 from .specified import SpecificationBatchPublisher, SpecificationDefaultPublisher
 

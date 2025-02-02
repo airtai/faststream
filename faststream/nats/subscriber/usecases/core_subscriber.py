@@ -11,7 +11,7 @@ from faststream._internal.subscriber.mixins import ConcurrentMixin
 from faststream._internal.subscriber.utils import process_msg
 from faststream.middlewares import AckPolicy
 from faststream.nats.parser import NatsParser
-from faststream.nats.schemas.subscribers import NatsSubscriberBaseOptions
+from faststream.nats.subscriber.configs import NatsSubscriberBaseOptions
 
 from .basic import DefaultSubscriber
 

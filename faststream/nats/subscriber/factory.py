@@ -13,13 +13,13 @@ from nats.js.client import (
 )
 
 from faststream._internal.constants import EMPTY
-from faststream._internal.subscriber.schemas import (
+from faststream._internal.subscriber.configs import (
     SpecificationSubscriberOptions,
     SubscriberUsecaseOptions,
 )
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
-from faststream.nats.schemas.subscribers import NatsSubscriberBaseOptions
+from faststream.nats.subscriber.configs import NatsSubscriberBaseOptions
 from faststream.nats.subscriber.specified import (
     SpecificationBatchPullStreamSubscriber,
     SpecificationConcurrentCoreSubscriber,

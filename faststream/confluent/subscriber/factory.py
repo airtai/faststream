@@ -3,11 +3,11 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Literal, Optional, Union, cast, overload
 
 from faststream._internal.constants import EMPTY
-from faststream._internal.subscriber.schemas import (
+from faststream._internal.subscriber.configs import (
     SpecificationSubscriberOptions,
     SubscriberUsecaseOptions,
 )
-from faststream.confluent.schemas.subscribers import ConfluentSubscriberBaseOptions
+from faststream.confluent.subscriber.configs import ConfluentSubscriberBaseOptions
 from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationConcurrentDefaultSubscriber,

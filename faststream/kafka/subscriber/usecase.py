@@ -19,7 +19,7 @@ from faststream._internal.utils.path import compile_path
 from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 from faststream.kafka.publisher.fake import KafkaFakePublisher
-from faststream.kafka.schemas.subscribers import KafkaSubscriberBaseOptions
+from faststream.kafka.subscriber.configs import KafkaSubscriberBaseOptions
 from faststream.middlewares.acknowledgement.conf import AckPolicy
 
 if TYPE_CHECKING:

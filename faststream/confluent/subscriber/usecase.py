@@ -18,7 +18,7 @@ from faststream._internal.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.fake import KafkaFakePublisher
 from faststream.confluent.schemas import TopicPartition
-from faststream.confluent.schemas.subscribers import ConfluentSubscriberBaseOptions
+from faststream.confluent.subscriber.configs import ConfluentSubscriberBaseOptions
 from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:

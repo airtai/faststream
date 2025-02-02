@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from faststream._internal.subscriber.schemas import SubscriberUsecaseOptions
+from faststream._internal.subscriber.configs import SubscriberUsecaseOptions
 
 
 @dataclass
