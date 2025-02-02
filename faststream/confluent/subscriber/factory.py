@@ -7,7 +7,7 @@ from faststream._internal.subscriber.configs import (
     SpecificationSubscriberOptions,
     SubscriberUsecaseOptions,
 )
-from faststream.confluent.subscriber.configs import ConfluentSubscriberBaseOptions
+from faststream.confluent.subscriber.configs import ConfluentSubscriberBaseConfigs
 from faststream.confluent.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationConcurrentDefaultSubscriber,
@@ -162,7 +162,7 @@ def create_subscriber(
         connection_data["enable_auto_commit"] = True
         ack_policy = AckPolicy.DO_NOTHING
 
-    internal_options = SubscriberUsecaseOptions(
+    internal_configs = SubscriberUsecaseOptions(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
@@ -174,16 +174,16 @@ def create_subscriber(
         default_parser=EMPTY,
     )
 
-    base_options = ConfluentSubscriberBaseOptions(
+    base_configs = ConfluentSubscriberBaseConfigs(
         topics=topics,
         partitions=partitions,
         polling_interval=polling_interval,
         group_id=group_id,
         connection_data=connection_data,
-        internal_options=internal_options,
+        internal_configs=internal_configs,
     )
 
-    specification_options = SpecificationSubscriberOptions(
+    specification_configs = SpecificationSubscriberOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
@@ -191,22 +191,22 @@ def create_subscriber(
 
     if batch:
         return SpecificationBatchSubscriber(
-            specification_options=specification_options,
-            base_options=base_options,
+            specification_configs=specification_configs,
+            base_configs=base_configs,
             max_records=max_records,
         )
 
     if max_workers > 1:
         return SpecificationConcurrentDefaultSubscriber(
-            specification_options=specification_options,
-            base_options=base_options,
+            specification_configs=specification_configs,
+            base_configs=base_configs,
             # concurrent arg
             max_workers=max_workers,
         )
 
     return SpecificationDefaultSubscriber(
-        specification_options=specification_options,
-        base_options=base_options,
+        specification_configs=specification_configs,
+        base_configs=base_configs,
     )
 
 

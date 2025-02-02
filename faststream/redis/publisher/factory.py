@@ -8,9 +8,9 @@ from faststream._internal.publisher.configs import (
     SpecificationPublisherOptions,
 )
 from faststream.exceptions import SetupError
+from faststream.redis.publisher.configs import RedisPublisherBaseConfigs
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
-from faststream.redis.publisher.configs import RedisPublisherBaseOptions
 
 from .specified import (
     SpecificationChannelPublisher,
@@ -50,15 +50,15 @@ def create_publisher(
 ) -> PublisherType:
     validate_options(channel=channel, list=list, stream=stream)
 
-    internal_options = PublisherUsecaseOptions(
+    internal_configs = PublisherUsecaseOptions(
         broker_middlewares=broker_middlewares, middlewares=middlewares
     )
 
-    base_options = RedisPublisherBaseOptions(
-        reply_to=reply_to, headers=headers, internal_options=internal_options
+    base_configs = RedisPublisherBaseConfigs(
+        reply_to=reply_to, headers=headers, internal_configs=internal_configs
     )
 
-    specification_options = SpecificationPublisherOptions(
+    specification_configs = SpecificationPublisherOptions(
         schema_=schema_,
         title_=title_,
         description_=description_,
@@ -68,28 +68,28 @@ def create_publisher(
     if (channel := PubSub.validate(channel)) is not None:
         return SpecificationChannelPublisher(
             channel=channel,
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
         )
 
     if (stream := StreamSub.validate(stream)) is not None:
         return SpecificationStreamPublisher(
             stream=stream,
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
         )
 
     if (list := ListSub.validate(list)) is not None:
         if list.batch:
             return SpecificationListBatchPublisher(
                 list=list,
-                base_options=base_options,
-                specification_options=specification_options,
+                base_configs=base_configs,
+                specification_configs=specification_configs,
             )
         return SpecificationListPublisher(
             list=list,
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
         )
 
     raise SetupError(INCORRECT_SETUP_MSG)

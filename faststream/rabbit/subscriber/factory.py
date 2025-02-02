@@ -9,9 +9,9 @@ from faststream._internal.subscriber.configs import (
 )
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
-from faststream.rabbit.schemas.base import RabbitBaseOptions
+from faststream.rabbit.schemas.base import RabbitBaseConfigs
 from faststream.rabbit.subscriber.configs import (
-    RabbitSubscriberBaseOptions,
+    RabbitSubscriberBaseConfigs,
 )
 from faststream.rabbit.subscriber.specified import SpecificationSubscriber
 
@@ -44,7 +44,7 @@ def create_subscriber(
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
-    internal_options = SubscriberUsecaseOptions(
+    internal_configs = SubscriberUsecaseOptions(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
@@ -53,22 +53,22 @@ def create_subscriber(
         default_parser=EMPTY,
     )
 
-    base_options = RabbitSubscriberBaseOptions(
-        internal_options=internal_options,
+    base_configs = RabbitSubscriberBaseConfigs(
+        internal_configs=internal_configs,
         consume_args=consume_args,
         queue=queue,
     )
-    specification_options = SpecificationSubscriberOptions(
+    specification_configs = SpecificationSubscriberOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
     )
 
-    rabbit_mq_base_options = RabbitBaseOptions(queue=queue, exchange=exchange)
+    rabbit_mq_base_configs = RabbitBaseConfigs(queue=queue, exchange=exchange)
     return SpecificationSubscriber(
-        base_options=base_options,
-        specification_options=specification_options,
-        rabbit_mq_base_options=rabbit_mq_base_options,
+        base_configs=base_configs,
+        specification_configs=specification_configs,
+        rabbit_mq_base_configs=rabbit_mq_base_configs,
     )
 
 

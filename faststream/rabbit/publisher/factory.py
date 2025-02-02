@@ -5,8 +5,8 @@ from faststream._internal.publisher.configs import (
     PublisherUsecaseOptions,
     SpecificationPublisherOptions,
 )
-from faststream.rabbit.publisher.configs import RabbitPublisherBaseOptions
-from faststream.rabbit.schemas.base import RabbitBaseOptions
+from faststream.rabbit.publisher.configs import RabbitPublisherBaseConfigs
+from faststream.rabbit.schemas.base import RabbitBaseConfigs
 
 from .specified import SpecificationPublisher
 
@@ -34,24 +34,24 @@ def create_publisher(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> SpecificationPublisher:
-    internal_options = PublisherUsecaseOptions(
+    internal_configs = PublisherUsecaseOptions(
         broker_middlewares=broker_middlewares, middlewares=middlewares
     )
 
-    base_options = RabbitPublisherBaseOptions(
+    base_configs = RabbitPublisherBaseConfigs(
         routing_key=routing_key,
         queue=queue,
         exchange=exchange,
         message_kwargs=message_kwargs,
-        internal_options=internal_options,
+        internal_configs=internal_configs,
     )
 
-    rabbit_mq_base_options = RabbitBaseOptions(
+    rabbit_mq_base_configs = RabbitBaseConfigs(
         queue=queue,
         exchange=exchange,
     )
 
-    specification_options = SpecificationPublisherOptions(
+    specification_configs = SpecificationPublisherOptions(
         schema_=schema_,
         title_=title_,
         description_=description_,
@@ -59,7 +59,7 @@ def create_publisher(
     )
 
     return SpecificationPublisher(
-        base_options=base_options,
-        rabbit_mq_base_options=rabbit_mq_base_options,
-        specification_options=specification_options,
+        base_configs=base_configs,
+        rabbit_mq_base_configs=rabbit_mq_base_configs,
+        specification_configs=specification_configs,
     )

@@ -11,7 +11,7 @@ from faststream._internal.subscriber.mixins import ConcurrentMixin
 from faststream._internal.subscriber.utils import process_msg
 from faststream.middlewares import AckPolicy
 from faststream.nats.parser import NatsParser
-from faststream.nats.subscriber.configs import NatsSubscriberBaseOptions
+from faststream.nats.subscriber.configs import NatsSubscriberBaseConfigs
 
 from .basic import DefaultSubscriber
 
@@ -32,18 +32,18 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
         *,
         # default args
         queue: str,
-        base_options: NatsSubscriberBaseOptions,
+        base_configs: NatsSubscriberBaseConfigs,
     ) -> None:
         parser_ = NatsParser(
-            pattern=base_options.subject,
-            is_ack_disabled=base_options.internal_options.ack_policy
+            pattern=base_configs.subject,
+            is_ack_disabled=base_configs.internal_configs.ack_policy
             is not AckPolicy.DO_NOTHING,
         )
 
         self.queue = queue
-        base_options.internal_options.default_parser = parser_.parse_message
-        base_options.internal_options.default_decoder = parser_.decode_message
-        super().__init__(base_options=base_options)
+        base_configs.internal_configs.default_parser = parser_.parse_message
+        base_configs.internal_configs.default_decoder = parser_.decode_message
+        super().__init__(base_configs=base_configs)
 
     @override
     async def get_one(

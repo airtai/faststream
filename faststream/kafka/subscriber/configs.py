@@ -15,11 +15,11 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class KafkaSubscriberBaseOptions:
+class KafkaSubscriberBaseConfigs:
     topics: Sequence[str]
     group_id: Optional[str]
     connection_args: "AnyDict"
     listener: Optional["ConsumerRebalanceListener"]
     pattern: Optional[str]
     partitions: Iterable["TopicPartition"]
-    internal_options: SubscriberUsecaseOptions
+    internal_configs: SubscriberUsecaseOptions

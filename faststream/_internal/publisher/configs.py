@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional
 
-from faststream.specification.schema import SpecificationOptions, UseCaseOptions
+from faststream._internal.configs import SpecificationConfigs, UseCaseOptions
 
 if TYPE_CHECKING:
     from faststream._internal.types import (
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class SpecificationPublisherOptions(SpecificationOptions):
+class SpecificationPublisherOptions(SpecificationConfigs):
     schema_: Optional[Any]
 
 

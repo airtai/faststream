@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any, Optional
 
-from faststream.rabbit.schemas.base import RabbitBaseOptions
+from faststream.rabbit.schemas.base import RabbitBaseConfigs
 
 if TYPE_CHECKING:
     from faststream.rabbit.schemas.exchange import RabbitExchange
@@ -15,7 +15,7 @@ class BaseRMQInformation:
     exchange: "RabbitExchange"
     app_id: Optional[str]
 
-    def __init__(self, *, rabbit_mq_options: RabbitBaseOptions) -> None:
+    def __init__(self, *, rabbit_mq_options: RabbitBaseConfigs) -> None:
         self.queue = rabbit_mq_options.queue
         self.exchange = rabbit_mq_options.exchange
 

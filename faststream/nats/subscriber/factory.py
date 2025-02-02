@@ -19,7 +19,7 @@ from faststream._internal.subscriber.configs import (
 )
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
-from faststream.nats.subscriber.configs import NatsSubscriberBaseOptions
+from faststream.nats.subscriber.configs import NatsSubscriberBaseConfigs
 from faststream.nats.subscriber.specified import (
     SpecificationBatchPullStreamSubscriber,
     SpecificationConcurrentCoreSubscriber,
@@ -172,7 +172,7 @@ def create_subscriber(
             "max_msgs": max_msgs,
         }
 
-    internal_options = SubscriberUsecaseOptions(
+    internal_configs = SubscriberUsecaseOptions(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
@@ -181,14 +181,14 @@ def create_subscriber(
         default_parser=EMPTY,
     )
 
-    base_options = NatsSubscriberBaseOptions(
+    base_configs = NatsSubscriberBaseConfigs(
         subject=subject,
         config=config,
         extra_options=extra_options,
-        internal_options=internal_options,
+        internal_configs=internal_configs,
     )
 
-    specification_options = SpecificationSubscriberOptions(
+    specification_configs = SpecificationSubscriberOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
@@ -197,15 +197,15 @@ def create_subscriber(
     if obj_watch is not None:
         return SpecificationObjStoreWatchSubscriber(
             obj_watch=obj_watch,
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
         )
 
     if kv_watch is not None:
         return SpecificationKeyValueWatchSubscriber(
             kv_watch=kv_watch,
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
         )
 
     if stream is None:
@@ -213,14 +213,14 @@ def create_subscriber(
             return SpecificationConcurrentCoreSubscriber(
                 max_workers=max_workers,
                 queue=queue,
-                base_options=base_options,
-                specification_options=specification_options,
+                base_configs=base_configs,
+                specification_configs=specification_configs,
             )
 
         return SpecificationCoreSubscriber(
             queue=queue,
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
         )
 
     if max_workers > 1:
@@ -229,14 +229,14 @@ def create_subscriber(
                 queue=queue,
                 max_workers=max_workers,
                 pull_sub=pull_sub,
-                base_options=base_options,
-                specification_options=specification_options,
+                base_configs=base_configs,
+                specification_configs=specification_configs,
             )
 
         return SpecificationConcurrentPushStreamSubscriber(
             max_workers=max_workers,
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
         )
 
     if pull_sub is not None:
@@ -244,23 +244,23 @@ def create_subscriber(
             return SpecificationBatchPullStreamSubscriber(
                 pull_sub=pull_sub,
                 stream=stream,
-                base_options=base_options,
-                specification_options=specification_options,
+                base_configs=base_configs,
+                specification_configs=specification_configs,
             )
 
         return SpecificationPullStreamSubscriber(
             queue=queue,
             pull_sub=pull_sub,
             stream=stream,
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
         )
 
     return SpecificationPushStreamSubscriber(
         queue=queue,
         stream=stream,
-        base_options=base_options,
-        specification_options=specification_options,
+        base_configs=base_configs,
+        specification_configs=specification_configs,
     )
 
 

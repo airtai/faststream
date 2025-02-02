@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class NatsSubscriberBaseOptions:
+class NatsSubscriberBaseConfigs:
     subject: str
     config: "ConsumerConfig"
     extra_options: Optional["AnyDict"]
-    internal_options: SubscriberUsecaseOptions
+    internal_configs: SubscriberUsecaseOptions

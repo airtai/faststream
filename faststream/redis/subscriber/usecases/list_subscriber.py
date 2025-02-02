@@ -8,6 +8,7 @@ from typing import (
 import anyio
 from typing_extensions import TypeAlias, override
 
+from faststream._internal.configs import SpecificationConfigs
 from faststream._internal.subscriber.mixins import ConcurrentMixin
 from faststream._internal.subscriber.utils import process_msg
 from faststream.middlewares import AckPolicy
@@ -21,8 +22,7 @@ from faststream.redis.parser import (
     RedisListParser,
 )
 from faststream.redis.schemas import ListSub
-from faststream.redis.subscriber.configs import RedisSubscriberBaseOptions
-from faststream.specification.schema import SpecificationOptions
+from faststream.redis.subscriber.configs import RedisSubscriberBaseConfigs
 
 from .basic import LogicSubscriber
 
@@ -40,10 +40,10 @@ class _ListHandlerMixin(LogicSubscriber):
     def __init__(
         self,
         *,
-        base_options: RedisSubscriberBaseOptions,
+        base_configs: RedisSubscriberBaseConfigs,
         list: ListSub,
     ) -> None:
-        super().__init__(base_options=base_options)
+        super().__init__(base_configs=base_configs)
 
         self.list_sub = list
 
@@ -124,13 +124,13 @@ class _ListHandlerMixin(LogicSubscriber):
 
 class ListSubscriber(_ListHandlerMixin):
     def __init__(
-        self, *, list: ListSub, base_options: RedisSubscriberBaseOptions
+        self, *, list: ListSub, base_configs: RedisSubscriberBaseConfigs
     ) -> None:
         parser = RedisListParser()
-        base_options.internal_options.default_parser = parser.parse_message
-        base_options.internal_options.default_decoder = parser.decode_message
-        base_options.internal_options.ack_policy = AckPolicy.DO_NOTHING
-        super().__init__(list=list, base_options=base_options)
+        base_configs.internal_configs.default_parser = parser.parse_message
+        base_configs.internal_configs.default_decoder = parser.decode_message
+        base_configs.internal_configs.ack_policy = AckPolicy.DO_NOTHING
+        super().__init__(list=list, base_configs=base_configs)
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
         raw_msg = await client.blpop(
@@ -154,14 +154,14 @@ class BatchListSubscriber(_ListHandlerMixin):
     def __init__(
         self,
         *,
-        base_options: RedisSubscriberBaseOptions,
+        base_configs: RedisSubscriberBaseConfigs,
         list: ListSub,
     ) -> None:
         parser = RedisBatchListParser()
-        base_options.internal_options.default_parser = parser.parse_message
-        base_options.internal_options.default_decoder = parser.decode_message
-        base_options.internal_options.ack_policy = AckPolicy.DO_NOTHING
-        super().__init__(list=list, base_options=base_options)
+        base_configs.internal_configs.default_parser = parser.parse_message
+        base_configs.internal_configs.default_decoder = parser.decode_message
+        base_configs.internal_configs.ack_policy = AckPolicy.DO_NOTHING
+        super().__init__(list=list, base_configs=base_configs)
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
         raw_msgs = await client.lpop(
@@ -186,14 +186,14 @@ class ConcurrentListSubscriber(ConcurrentMixin["BrokerStreamMessage"], ListSubsc
     def __init__(
         self,
         *,
-        base_options: RedisSubscriberBaseOptions,
-        specification_options: SpecificationOptions,
+        base_configs: RedisSubscriberBaseConfigs,
+        specification_configs: SpecificationConfigs,
         list: ListSub,
         max_workers: int,
     ) -> None:
         super().__init__(
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
             list=list,
             max_workers=max_workers,
         )

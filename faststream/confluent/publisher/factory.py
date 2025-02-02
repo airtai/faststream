@@ -5,7 +5,7 @@ from faststream._internal.publisher.configs import (
     PublisherUsecaseOptions,
     SpecificationPublisherOptions,
 )
-from faststream.confluent.publisher.configs import ConfluentPublisherBaseOptions
+from faststream.confluent.publisher.configs import ConfluentPublisherBaseConfigs
 from faststream.exceptions import SetupError
 
 from .specified import SpecificationBatchPublisher, SpecificationDefaultPublisher
@@ -105,22 +105,22 @@ def create_publisher(
     "SpecificationBatchPublisher",
     "SpecificationDefaultPublisher",
 ]:
-    internal_options = PublisherUsecaseOptions(
+    internal_configs = PublisherUsecaseOptions(
         broker_middlewares=cast(
             "Sequence[BrokerMiddleware[tuple[ConfluentMsg, ...]]]",
             broker_middlewares,
         ),
         middlewares=middlewares,
     )
-    base_options = ConfluentPublisherBaseOptions(
+    base_configs = ConfluentPublisherBaseConfigs(
         key=key,
         topic=topic,
         partition=partition,
         headers=headers,
         reply_to=reply_to,
-        internal_options=internal_options,
+        internal_configs=internal_configs,
     )
-    specification_options = SpecificationPublisherOptions(
+    specification_configs = SpecificationPublisherOptions(
         schema_=schema_,
         title_=title_,
         description_=description_,
@@ -133,11 +133,11 @@ def create_publisher(
             raise SetupError(msg)
 
         return SpecificationBatchPublisher(
-            specification_options=specification_options,
-            base_options=base_options,
+            specification_configs=specification_configs,
+            base_configs=base_configs,
         )
 
     return SpecificationDefaultPublisher(
-        specification_options=specification_options,
-        base_options=base_options,
+        specification_configs=specification_configs,
+        base_configs=base_configs,
     )

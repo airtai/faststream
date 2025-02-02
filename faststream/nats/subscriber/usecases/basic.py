@@ -16,7 +16,7 @@ from faststream.nats.schemas.js_stream import compile_nats_wildcard
 from faststream.nats.subscriber.adapters import (
     Unsubscriptable,
 )
-from faststream.nats.subscriber.configs import NatsSubscriberBaseOptions
+from faststream.nats.subscriber.configs import NatsSubscriberBaseConfigs
 from faststream.nats.subscriber.state import (
     ConnectedSubscriberState,
     EmptySubscriberState,
@@ -50,14 +50,14 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
     def __init__(
         self,
         *,
-        base_options: NatsSubscriberBaseOptions,
+        base_configs: NatsSubscriberBaseConfigs,
     ) -> None:
-        self.subject = base_options.subject
-        self.config = base_options.config
+        self.subject = base_configs.subject
+        self.config = base_configs.config
 
-        self.extra_options = base_options.extra_options or {}
+        self.extra_options = base_configs.extra_options or {}
 
-        super().__init__(options=base_options.internal_options)
+        super().__init__(options=base_configs.internal_configs)
 
         self._fetch_sub = None
         self.subscription = None
@@ -159,9 +159,9 @@ class DefaultSubscriber(LogicSubscriber[MsgType]):
     def __init__(
         self,
         *,
-        base_options: NatsSubscriberBaseOptions,
+        base_configs: NatsSubscriberBaseConfigs,
     ) -> None:
-        super().__init__(base_options=base_options)
+        super().__init__(base_configs=base_configs)
 
     def _make_response_publisher(
         self,

@@ -8,7 +8,7 @@ from faststream._internal.subscriber.configs import (
     SubscriberUsecaseOptions,
 )
 from faststream.exceptions import SetupError
-from faststream.kafka.subscriber.configs import KafkaSubscriberBaseOptions
+from faststream.kafka.subscriber.configs import KafkaSubscriberBaseConfigs
 from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationConcurrentDefaultSubscriber,
@@ -174,7 +174,7 @@ def create_subscriber(
         connection_args["enable_auto_commit"] = True
         ack_policy = AckPolicy.DO_NOTHING
 
-    internal_options = SubscriberUsecaseOptions(
+    internal_configs = SubscriberUsecaseOptions(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
@@ -183,17 +183,17 @@ def create_subscriber(
         default_parser=EMPTY,
     )
 
-    base_options = KafkaSubscriberBaseOptions(
+    base_configs = KafkaSubscriberBaseConfigs(
         topics=topics,
         partitions=partitions,
         connection_args=connection_args,
         group_id=group_id,
         listener=listener,
         pattern=pattern,
-        internal_options=internal_options,
+        internal_configs=internal_configs,
     )
 
-    specification_options = SpecificationSubscriberOptions(
+    specification_configs = SpecificationSubscriberOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
@@ -201,21 +201,21 @@ def create_subscriber(
 
     if batch:
         return SpecificationBatchSubscriber(
-            specification_options=specification_options,
-            base_options=base_options,
+            specification_configs=specification_configs,
+            base_configs=base_configs,
             batch_timeout_ms=batch_timeout_ms,
             max_records=max_records,
         )
 
     if max_workers > 1:
         return SpecificationConcurrentDefaultSubscriber(
-            specification_options=specification_options,
-            base_options=base_options,
+            specification_configs=specification_configs,
+            base_configs=base_configs,
             max_workers=max_workers,
         )
 
     return SpecificationDefaultSubscriber(
-        specification_options=specification_options, base_options=base_options
+        specification_configs=specification_configs, base_configs=base_configs
     )
 
 

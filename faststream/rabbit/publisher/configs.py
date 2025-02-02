@@ -12,11 +12,11 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class RabbitPublisherBaseOptions:
+class RabbitPublisherBaseConfigs:
     routing_key: str
     queue: "RabbitQueue"
     exchange: "RabbitExchange"
     # PublishCommand options
     message_kwargs: "PublishKwargs"
     # Publisher args
-    internal_options: PublisherUsecaseOptions
+    internal_configs: PublisherUsecaseOptions

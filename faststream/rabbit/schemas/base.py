@@ -7,6 +7,6 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class RabbitBaseOptions:
+class RabbitBaseConfigs:
     queue: "RabbitQueue"
     exchange: "RabbitExchange"

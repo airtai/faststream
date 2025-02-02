@@ -8,8 +8,8 @@ from typing_extensions import Doc, override
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream.message import gen_cor_id
 from faststream.redis.message import UnifyRedisDict
+from faststream.redis.publisher.configs import RedisPublisherBaseConfigs
 from faststream.redis.response import RedisPublishCommand
-from faststream.redis.publisher.configs import RedisPublisherBaseOptions
 from faststream.response.publish_type import PublishType
 
 if TYPE_CHECKING:
@@ -26,11 +26,11 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
 
     _producer: "RedisFastProducer"
 
-    def __init__(self, *, base_options: RedisPublisherBaseOptions) -> None:
-        super().__init__(publisher_options=base_options.internal_options)
+    def __init__(self, *, base_configs: RedisPublisherBaseConfigs) -> None:
+        super().__init__(publisher_options=base_configs.internal_configs)
 
-        self.reply_to = base_options.reply_to
-        self.headers = base_options.headers or {}
+        self.reply_to = base_configs.reply_to
+        self.headers = base_configs.headers or {}
 
     @abstractmethod
     def subscriber_property(self, *, name_only: bool) -> "AnyDict":
@@ -39,9 +39,9 @@ class LogicPublisher(PublisherUsecase[UnifyRedisDict]):
 
 class ChannelPublisher(LogicPublisher):
     def __init__(
-        self, *, channel: "PubSub", base_options: RedisPublisherBaseOptions
+        self, *, channel: "PubSub", base_configs: RedisPublisherBaseConfigs
     ) -> None:
-        super().__init__(base_options=base_options)
+        super().__init__(base_configs=base_configs)
 
         self.channel = channel
 
@@ -155,9 +155,9 @@ class ChannelPublisher(LogicPublisher):
 
 class ListPublisher(LogicPublisher):
     def __init__(
-        self, *, list: "ListSub", base_options: RedisPublisherBaseOptions
+        self, *, list: "ListSub", base_configs: RedisPublisherBaseConfigs
     ) -> None:
-        super().__init__(base_options=base_options)
+        super().__init__(base_configs=base_configs)
 
         self.list = list
 
@@ -329,9 +329,9 @@ class ListBatchPublisher(ListPublisher):
 
 class StreamPublisher(LogicPublisher):
     def __init__(
-        self, *, stream: "StreamSub", base_options: RedisPublisherBaseOptions
+        self, *, stream: "StreamSub", base_configs: RedisPublisherBaseConfigs
     ) -> None:
-        super().__init__(base_options=base_options)
+        super().__init__(base_configs=base_configs)
 
         self.stream = stream
 

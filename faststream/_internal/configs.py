@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class SpecificationOptions:
+class SpecificationConfigs:
     title_: Optional[str]
     description_: Optional[str]
     include_in_schema: bool

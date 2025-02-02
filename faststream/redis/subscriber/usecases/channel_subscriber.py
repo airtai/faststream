@@ -11,6 +11,7 @@ from redis.asyncio.client import (
 )
 from typing_extensions import TypeAlias, override
 
+from faststream._internal.configs import SpecificationConfigs
 from faststream._internal.subscriber.mixins import ConcurrentMixin
 from faststream._internal.subscriber.utils import process_msg
 from faststream.middlewares import AckPolicy
@@ -21,8 +22,7 @@ from faststream.redis.message import (
 from faststream.redis.parser import (
     RedisPubSubParser,
 )
-from faststream.redis.subscriber.configs import RedisSubscriberBaseOptions
-from faststream.specification.schema import SpecificationOptions
+from faststream.redis.subscriber.configs import RedisSubscriberBaseConfigs
 
 from .basic import LogicSubscriber
 
@@ -42,13 +42,13 @@ class ChannelSubscriber(LogicSubscriber):
         self,
         *,
         channel: "PubSub",
-        base_options: RedisSubscriberBaseOptions,
+        base_configs: RedisSubscriberBaseConfigs,
     ) -> None:
         parser = RedisPubSubParser(pattern=channel.path_regex)
-        base_options.internal_options.default_decoder = parser.decode_message
-        base_options.internal_options.default_parser = parser.parse_message
-        base_options.internal_options.ack_policy = AckPolicy.DO_NOTHING
-        super().__init__(base_options=base_options)
+        base_configs.internal_configs.default_decoder = parser.decode_message
+        base_configs.internal_configs.default_parser = parser.parse_message
+        base_configs.internal_configs.ack_policy = AckPolicy.DO_NOTHING
+        super().__init__(base_configs=base_configs)
 
         self.channel = channel
         self.subscription = None
@@ -149,14 +149,14 @@ class ConcurrentChannelSubscriber(
     def __init__(
         self,
         *,
-        base_options: RedisSubscriberBaseOptions,
-        specification_options: SpecificationOptions,
+        base_configs: RedisSubscriberBaseConfigs,
+        specification_configs: SpecificationConfigs,
         channel: "PubSub",
         max_workers: int,
     ) -> None:
         super().__init__(
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
             channel=channel,
             max_workers=max_workers,
         )

@@ -5,7 +5,7 @@ from faststream._internal.publisher.configs import (
     PublisherUsecaseOptions,
     SpecificationPublisherOptions,
 )
-from faststream.nats.publisher.configs import NatsPublisherBaseOptions
+from faststream.nats.publisher.configs import NatsPublisherBaseConfigs
 
 from .specified import SpecificationPublisher
 
@@ -32,20 +32,20 @@ def create_publisher(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> SpecificationPublisher:
-    internal_options = PublisherUsecaseOptions(
+    internal_configs = PublisherUsecaseOptions(
         broker_middlewares=broker_middlewares, middlewares=middlewares
     )
 
-    base_options = NatsPublisherBaseOptions(
+    base_configs = NatsPublisherBaseConfigs(
         subject=subject,
         stream=stream,
         reply_to=reply_to,
         headers=headers,
         timeout=timeout,
-        internal_options=internal_options,
+        internal_configs=internal_configs,
     )
 
-    specification_options = SpecificationPublisherOptions(
+    specification_configs = SpecificationPublisherOptions(
         schema_=schema_,
         title_=title_,
         description_=description_,
@@ -53,6 +53,6 @@ def create_publisher(
     )
 
     return SpecificationPublisher(
-        base_options=base_options,
-        specification_options=specification_options,
+        base_configs=base_configs,
+        specification_configs=specification_configs,
     )

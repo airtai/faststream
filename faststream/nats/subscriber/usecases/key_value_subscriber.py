@@ -19,7 +19,7 @@ from faststream.nats.parser import (
 from faststream.nats.subscriber.adapters import (
     UnsubscribeAdapter,
 )
-from faststream.nats.subscriber.configs import NatsSubscriberBaseOptions
+from faststream.nats.subscriber.configs import NatsSubscriberBaseConfigs
 
 from .basic import LogicSubscriber
 
@@ -40,13 +40,13 @@ class KeyValueWatchSubscriber(
     _fetch_sub: Optional[UnsubscribeAdapter["KeyValue.KeyWatcher"]]
 
     def __init__(
-        self, *, kv_watch: "KvWatch", base_options: NatsSubscriberBaseOptions
+        self, *, kv_watch: "KvWatch", base_configs: NatsSubscriberBaseConfigs
     ) -> None:
-        parser = KvParser(pattern=base_options.subject)
+        parser = KvParser(pattern=base_configs.subject)
         self.kv_watch = kv_watch
-        base_options.internal_options.default_decoder = parser.decode_message
-        base_options.internal_options.default_parser = parser.parse_message
-        super().__init__(base_options=base_options)
+        base_configs.internal_configs.default_decoder = parser.decode_message
+        base_configs.internal_configs.default_parser = parser.parse_message
+        super().__init__(base_configs=base_configs)
 
     @override
     async def get_one(

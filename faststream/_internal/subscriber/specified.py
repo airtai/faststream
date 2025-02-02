@@ -24,12 +24,12 @@ class SpecificationSubscriber(EndpointSpecification[MsgType, SubscriberSpec]):
     def __init__(
         self,
         *args: Any,
-        specification_options: SpecificationSubscriberOptions,
+        specification_configs: SpecificationSubscriberOptions,
         **kwargs: Any,
     ) -> None:
         self.calls = []
         # Call next base class parent init
-        super().__init__(*args, specification_options=specification_options, **kwargs)
+        super().__init__(*args, specification_configs=specification_configs, **kwargs)
 
     @property
     def call_name(self) -> str:

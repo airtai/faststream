@@ -13,10 +13,10 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class ConfluentSubscriberBaseOptions:
+class ConfluentSubscriberBaseConfigs:
     topics: Sequence[str]
     partitions: Sequence["TopicPartition"]
     polling_interval: float
     group_id: Optional[str]
     connection_data: "AnyDict"
-    internal_options: SubscriberUsecaseOptions
+    internal_configs: SubscriberUsecaseOptions

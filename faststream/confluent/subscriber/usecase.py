@@ -18,7 +18,7 @@ from faststream._internal.types import MsgType
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.publisher.fake import KafkaFakePublisher
 from faststream.confluent.schemas import TopicPartition
-from faststream.confluent.subscriber.configs import ConfluentSubscriberBaseOptions
+from faststream.confluent.subscriber.configs import ConfluentSubscriberBaseConfigs
 from faststream.middlewares import AckPolicy
 
 if TYPE_CHECKING:
@@ -44,18 +44,18 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
     def __init__(
         self,
-        base_options: ConfluentSubscriberBaseOptions,
+        base_configs: ConfluentSubscriberBaseConfigs,
     ) -> None:
-        super().__init__(options=base_options.internal_options)
+        super().__init__(options=base_configs.internal_configs)
 
-        self.__connection_data = base_options.connection_data
+        self.__connection_data = base_configs.connection_data
 
-        self.group_id = base_options.group_id
-        self.topics = base_options.topics
-        self.partitions = base_options.partitions
+        self.group_id = base_configs.group_id
+        self.topics = base_configs.topics
+        self.partitions = base_configs.partitions
 
         self.consumer = None
-        self.polling_interval = base_options.polling_interval
+        self.polling_interval = base_configs.polling_interval
 
         # Setup it later
         self.client_id = ""
@@ -207,15 +207,15 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 
 
 class DefaultSubscriber(LogicSubscriber[Message]):
-    def __init__(self, base_options: ConfluentSubscriberBaseOptions) -> None:
+    def __init__(self, base_configs: ConfluentSubscriberBaseConfigs) -> None:
         self.parser = AsyncConfluentParser(
-            is_manual=base_options.internal_options.ack_policy
+            is_manual=base_configs.internal_configs.ack_policy
             is not AckPolicy.ACK_FIRST
         )
-        base_options.internal_options.default_decoder = self.parser.decode_message
-        base_options.internal_options.default_parser = self.parser.parse_message
+        base_configs.internal_configs.default_decoder = self.parser.decode_message
+        base_configs.internal_configs.default_parser = self.parser.parse_message
         super().__init__(
-            base_options=base_options,
+            base_configs=base_configs,
         )
 
     async def get_msg(self) -> Optional["Message"]:
@@ -251,18 +251,18 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
     def __init__(
         self,
         max_records: Optional[int],
-        base_options: ConfluentSubscriberBaseOptions,
+        base_configs: ConfluentSubscriberBaseConfigs,
     ) -> None:
         self.max_records = max_records
 
         self.parser = AsyncConfluentParser(
-            is_manual=base_options.internal_options.ack_policy
+            is_manual=base_configs.internal_configs.ack_policy
             is not AckPolicy.ACK_FIRST
         )
-        base_options.internal_options.default_decoder = self.parser.decode_message_batch
-        base_options.internal_options.default_parser = self.parser.parse_message_batch
+        base_configs.internal_configs.default_decoder = self.parser.decode_message_batch
+        base_configs.internal_configs.default_parser = self.parser.parse_message_batch
         super().__init__(
-            base_options=base_options,
+            base_configs=base_configs,
         )
 
     async def get_msg(self) -> Optional[tuple["Message", ...]]:

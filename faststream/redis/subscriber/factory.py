@@ -13,7 +13,7 @@ from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import validate_options
-from faststream.redis.subscriber.configs import RedisSubscriberBaseOptions
+from faststream.redis.subscriber.configs import RedisSubscriberBaseConfigs
 from faststream.redis.subscriber.specified import (
     SpecificationChannelConcurrentSubscriber,
     SpecificationChannelSubscriber,
@@ -72,7 +72,7 @@ def create_subscriber(
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
-    internal_options = SubscriberUsecaseOptions(
+    internal_configs = SubscriberUsecaseOptions(
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,
@@ -81,9 +81,9 @@ def create_subscriber(
         default_decoder=EMPTY,
     )
 
-    base_options = RedisSubscriberBaseOptions(internal_options=internal_options)
+    base_configs = RedisSubscriberBaseConfigs(internal_configs=internal_configs)
 
-    specification_options = SpecificationSubscriberOptions(
+    specification_configs = SpecificationSubscriberOptions(
         title_=title_,
         description_=description_,
         include_in_schema=include_in_schema,
@@ -94,53 +94,53 @@ def create_subscriber(
             return SpecificationChannelConcurrentSubscriber(
                 channel=channel_sub,
                 max_workers=max_workers,
-                base_options=base_options,
-                specification_options=specification_options,
+                base_configs=base_configs,
+                specification_configs=specification_configs,
             )
         return SpecificationChannelSubscriber(
             channel=channel_sub,
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
         )
 
     if (stream_sub := StreamSub.validate(stream)) is not None:
         if stream_sub.batch:
             return SpecificationStreamBatchSubscriber(
                 stream=stream_sub,
-                base_options=base_options,
-                specification_options=specification_options,
+                base_configs=base_configs,
+                specification_configs=specification_configs,
             )
         if max_workers > 1:
             return SpecificationStreamConcurrentSubscriber(
                 stream=stream_sub,
                 max_workers=max_workers,
-                base_options=base_options,
-                specification_options=specification_options,
+                base_configs=base_configs,
+                specification_configs=specification_configs,
             )
         return SpecificationStreamSubscriber(
             stream=stream_sub,
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
         )
 
     if (list_sub := ListSub.validate(list)) is not None:
         if list_sub.batch:
             return SpecificationListBatchSubscriber(
                 list=list_sub,
-                base_options=base_options,
-                specification_options=specification_options,
+                base_configs=base_configs,
+                specification_configs=specification_configs,
             )
         if max_workers > 1:
             return SpecificationListConcurrentSubscriber(
                 list=list_sub,
                 max_workers=max_workers,
-                base_options=base_options,
-                specification_options=specification_options,
+                base_configs=base_configs,
+                specification_configs=specification_configs,
             )
         return SpecificationListSubscriber(
             list=list_sub,
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
         )
 
     raise SetupError(INCORRECT_SETUP_MSG)

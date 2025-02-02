@@ -11,6 +11,7 @@ from typing import (
 from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
+from faststream._internal.configs import SpecificationConfigs
 from faststream._internal.subscriber.mixins import ConcurrentMixin
 from faststream._internal.subscriber.utils import process_msg
 from faststream.redis.message import (
@@ -23,8 +24,7 @@ from faststream.redis.parser import (
     RedisStreamParser,
 )
 from faststream.redis.schemas import StreamSub
-from faststream.redis.subscriber.configs import RedisSubscriberBaseOptions
-from faststream.specification.schema import SpecificationOptions
+from faststream.redis.subscriber.configs import RedisSubscriberBaseConfigs
 
 from .basic import LogicSubscriber
 
@@ -38,9 +38,9 @@ Offset: TypeAlias = bytes
 
 class _StreamHandlerMixin(LogicSubscriber):
     def __init__(
-        self, *, stream: StreamSub, base_options: RedisSubscriberBaseOptions
+        self, *, stream: StreamSub, base_configs: RedisSubscriberBaseConfigs
     ) -> None:
-        super().__init__(base_options=base_options)
+        super().__init__(base_configs=base_configs)
 
         self.stream_sub = stream
         self.last_id = stream.last_id
@@ -205,12 +205,12 @@ class _StreamHandlerMixin(LogicSubscriber):
 
 class StreamSubscriber(_StreamHandlerMixin):
     def __init__(
-        self, *, stream: StreamSub, base_options: RedisSubscriberBaseOptions
+        self, *, stream: StreamSub, base_configs: RedisSubscriberBaseConfigs
     ) -> None:
         parser = RedisStreamParser()
-        base_options.internal_options.default_decoder = parser.decode_message
-        base_options.internal_options.default_parser = parser.parse_message
-        super().__init__(stream=stream, base_options=base_options)
+        base_configs.internal_configs.default_decoder = parser.decode_message
+        base_configs.internal_configs.default_parser = parser.parse_message
+        super().__init__(stream=stream, base_configs=base_configs)
 
     async def _get_msgs(
         self,
@@ -250,12 +250,12 @@ class StreamSubscriber(_StreamHandlerMixin):
 
 class StreamBatchSubscriber(_StreamHandlerMixin):
     def __init__(
-        self, *, stream: StreamSub, base_options: RedisSubscriberBaseOptions
+        self, *, stream: StreamSub, base_configs: RedisSubscriberBaseConfigs
     ) -> None:
         parser = RedisBatchStreamParser()
-        base_options.internal_options.default_decoder = parser.decode_message
-        base_options.internal_options.default_parser = parser.parse_message
-        super().__init__(stream=stream, base_options=base_options)
+        base_configs.internal_configs.default_decoder = parser.decode_message
+        base_configs.internal_configs.default_parser = parser.parse_message
+        super().__init__(stream=stream, base_configs=base_configs)
 
     async def _get_msgs(
         self,
@@ -292,14 +292,14 @@ class ConcurrentStreamSubscriber(
     def __init__(
         self,
         *,
-        base_options: RedisSubscriberBaseOptions,
-        specification_options: SpecificationOptions,
+        base_configs: RedisSubscriberBaseConfigs,
+        specification_configs: SpecificationConfigs,
         stream: StreamSub,
         max_workers: int,
     ) -> None:
         super().__init__(
-            base_options=base_options,
-            specification_options=specification_options,
+            base_configs=base_configs,
+            specification_configs=specification_configs,
             stream=stream,
             max_workers=max_workers,
         )

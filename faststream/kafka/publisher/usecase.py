@@ -7,7 +7,7 @@ from typing_extensions import Doc, override
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.types import MsgType
 from faststream.kafka.message import KafkaMessage
-from faststream.kafka.publisher.configs import KafkaPublisherBaseOptions
+from faststream.kafka.publisher.configs import KafkaPublisherBaseConfigs
 from faststream.kafka.response import KafkaPublishCommand
 from faststream.message import gen_cor_id
 from faststream.response.publish_type import PublishType
@@ -29,13 +29,13 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
     _producer: "AioKafkaFastProducer"
 
-    def __init__(self, *, base_options: KafkaPublisherBaseOptions) -> None:
-        super().__init__(publisher_options=base_options.internal_options)
+    def __init__(self, *, base_configs: KafkaPublisherBaseConfigs) -> None:
+        super().__init__(publisher_options=base_configs.internal_configs)
 
-        self.topic = base_options.topic
-        self.partition = base_options.partition
-        self.reply_to = base_options.reply_to
-        self.headers = base_options.headers or {}
+        self.topic = base_configs.topic
+        self.partition = base_configs.partition
+        self.reply_to = base_configs.reply_to
+        self.headers = base_configs.headers or {}
 
     def add_prefix(self, prefix: str) -> None:
         self.topic = f"{prefix}{self.topic}"
@@ -117,10 +117,10 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
 
 class DefaultPublisher(LogicPublisher[ConsumerRecord]):
-    def __init__(self, *, base_options: KafkaPublisherBaseOptions) -> None:
-        super().__init__(base_options=base_options)
+    def __init__(self, *, base_configs: KafkaPublisherBaseConfigs) -> None:
+        super().__init__(base_configs=base_configs)
 
-        self.key = base_options.key
+        self.key = base_configs.key
 
     @overload
     async def publish(

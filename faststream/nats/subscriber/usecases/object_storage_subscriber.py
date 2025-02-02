@@ -20,7 +20,7 @@ from faststream.nats.parser import (
 from faststream.nats.subscriber.adapters import (
     UnsubscribeAdapter,
 )
-from faststream.nats.subscriber.configs import NatsSubscriberBaseOptions
+from faststream.nats.subscriber.configs import NatsSubscriberBaseConfigs
 
 from .basic import LogicSubscriber
 
@@ -44,15 +44,15 @@ class ObjStoreWatchSubscriber(
     _fetch_sub: Optional[UnsubscribeAdapter["ObjectStore.ObjectWatcher"]]
 
     def __init__(
-        self, *, obj_watch: "ObjWatch", base_options: NatsSubscriberBaseOptions
+        self, *, obj_watch: "ObjWatch", base_configs: NatsSubscriberBaseConfigs
     ) -> None:
         parser = ObjParser(pattern="")
 
         self.obj_watch = obj_watch
         self.obj_watch_conn = None
-        base_options.internal_options.default_parser = parser.parse_message
-        base_options.internal_options.default_decoder = parser.decode_message
-        super().__init__(base_options=base_options)
+        base_configs.internal_configs.default_parser = parser.parse_message
+        base_configs.internal_configs.default_decoder = parser.decode_message
+        super().__init__(base_configs=base_configs)
 
     @override
     async def get_one(
