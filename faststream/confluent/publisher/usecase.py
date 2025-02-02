@@ -27,7 +27,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
     _producer: "AsyncConfluentFastProducer"
 
     def __init__(self, *, base_configs: ConfluentPublisherBaseConfigs) -> None:
-        super().__init__(publisher_options=base_configs.internal_configs)
+        super().__init__(publisher_configs=base_configs.internal_configs)
 
         self.topic = base_configs.topic
         self.partition = base_configs.partition

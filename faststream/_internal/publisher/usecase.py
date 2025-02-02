@@ -41,9 +41,9 @@ if TYPE_CHECKING:
 class PublisherUsecase(PublisherProto[MsgType]):
     """A base class for publishers in an asynchronous API."""
 
-    def __init__(self, *, publisher_options: PublisherUsecaseOptions) -> None:
-        self.middlewares = publisher_options.middlewares
-        self._broker_middlewares = publisher_options.broker_middlewares
+    def __init__(self, *, publisher_configs: PublisherUsecaseOptions) -> None:
+        self.middlewares = publisher_configs.middlewares
+        self._broker_middlewares = publisher_configs.broker_middlewares
 
         self.__producer: Optional[ProducerProto] = ProducerUnset()
 
