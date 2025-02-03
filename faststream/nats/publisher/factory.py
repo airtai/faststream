@@ -2,8 +2,8 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Optional
 
 from faststream._internal.publisher.configs import (
-    PublisherUsecaseOptions,
-    SpecificationPublisherOptions,
+    PublisherUseCaseConfigs,
+    SpecificationPublisherConfigs,
 )
 from faststream.nats.publisher.configs import NatsPublisherBaseConfigs
 
@@ -32,7 +32,7 @@ def create_publisher(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> SpecificationPublisher:
-    internal_configs = PublisherUsecaseOptions(
+    internal_configs = PublisherUseCaseConfigs(
         broker_middlewares=broker_middlewares, middlewares=middlewares
     )
 
@@ -45,7 +45,7 @@ def create_publisher(
         internal_configs=internal_configs,
     )
 
-    specification_configs = SpecificationPublisherOptions(
+    specification_configs = SpecificationPublisherConfigs(
         schema_=schema_,
         title_=title_,
         description_=description_,

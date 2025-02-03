@@ -5,7 +5,7 @@ from typing import (
     Optional,
 )
 
-from faststream._internal.subscriber.configs import SubscriberUsecaseOptions
+from faststream._internal.subscriber.configs import SubscriberUseCaseConfigs
 
 if TYPE_CHECKING:
     from aiokafka import TopicPartition
@@ -22,4 +22,4 @@ class KafkaSubscriberBaseConfigs:
     listener: Optional["ConsumerRebalanceListener"]
     pattern: Optional[str]
     partitions: Iterable["TopicPartition"]
-    internal_configs: SubscriberUsecaseOptions
+    internal_configs: SubscriberUseCaseConfigs

@@ -2,8 +2,8 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Optional
 
 from faststream._internal.publisher.configs import (
-    PublisherUsecaseOptions,
-    SpecificationPublisherOptions,
+    PublisherUseCaseConfigs,
+    SpecificationPublisherConfigs,
 )
 from faststream.rabbit.publisher.configs import RabbitPublisherBaseConfigs
 from faststream.rabbit.schemas.base import RabbitBaseConfigs
@@ -34,7 +34,7 @@ def create_publisher(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> SpecificationPublisher:
-    internal_configs = PublisherUsecaseOptions(
+    internal_configs = PublisherUseCaseConfigs(
         broker_middlewares=broker_middlewares, middlewares=middlewares
     )
 
@@ -51,7 +51,7 @@ def create_publisher(
         exchange=exchange,
     )
 
-    specification_configs = SpecificationPublisherOptions(
+    specification_configs = SpecificationPublisherConfigs(
         schema_=schema_,
         title_=title_,
         description_=description_,

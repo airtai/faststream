@@ -15,7 +15,7 @@ from nats.js.client import (
 from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.configs import (
     SpecificationSubscriberOptions,
-    SubscriberUsecaseOptions,
+    SubscriberUseCaseConfigs,
 )
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
@@ -172,7 +172,7 @@ def create_subscriber(
             "max_msgs": max_msgs,
         }
 
-    internal_configs = SubscriberUsecaseOptions(
+    internal_configs = SubscriberUseCaseConfigs(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,

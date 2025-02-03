@@ -14,5 +14,5 @@ class SpecificationConfigs:
 
 
 @dataclass
-class UseCaseOptions:
+class UseCaseConfigs:
     broker_middlewares: Sequence["BrokerMiddleware[MsgType]"]

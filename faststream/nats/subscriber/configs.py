@@ -4,7 +4,7 @@ from typing import (
     Optional,
 )
 
-from faststream._internal.subscriber.configs import SubscriberUsecaseOptions
+from faststream._internal.subscriber.configs import SubscriberUseCaseConfigs
 
 if TYPE_CHECKING:
     from nats.js.api import ConsumerConfig
@@ -19,4 +19,4 @@ class NatsSubscriberBaseConfigs:
     subject: str
     config: "ConsumerConfig"
     extra_options: Optional["AnyDict"]
-    internal_configs: SubscriberUsecaseOptions
+    internal_configs: SubscriberUseCaseConfigs

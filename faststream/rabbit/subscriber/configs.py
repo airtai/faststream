@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from faststream._internal.subscriber.configs import SubscriberUsecaseOptions
+from faststream._internal.subscriber.configs import SubscriberUseCaseConfigs
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
@@ -10,6 +10,6 @@ if TYPE_CHECKING:
 
 @dataclass
 class RabbitSubscriberBaseConfigs:
-    internal_configs: SubscriberUsecaseOptions
+    internal_configs: SubscriberUseCaseConfigs
     queue: "RabbitQueue"
     consume_args: Optional["AnyDict"]

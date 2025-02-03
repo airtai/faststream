@@ -13,7 +13,7 @@ from unittest.mock import MagicMock
 from typing_extensions import override
 
 from faststream._internal.publisher.configs import (
-    PublisherUsecaseOptions,
+    PublisherUseCaseConfigs,
 )
 from faststream._internal.publisher.proto import PublisherProto
 from faststream._internal.state import BrokerState, EmptyBrokerState, Pointer
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 class PublisherUsecase(PublisherProto[MsgType]):
     """A base class for publishers in an asynchronous API."""
 
-    def __init__(self, *, publisher_configs: PublisherUsecaseOptions) -> None:
+    def __init__(self, *, publisher_configs: PublisherUseCaseConfigs) -> None:
         self.middlewares = publisher_configs.middlewares
         self._broker_middlewares = publisher_configs.broker_middlewares
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from faststream._internal.publisher.configs import (
-    PublisherUsecaseOptions,
+    PublisherUseCaseConfigs,
 )
 
 if TYPE_CHECKING:
@@ -19,4 +19,4 @@ class RabbitPublisherBaseConfigs:
     # PublishCommand options
     message_kwargs: "PublishKwargs"
     # Publisher args
-    internal_configs: PublisherUsecaseOptions
+    internal_configs: PublisherUseCaseConfigs

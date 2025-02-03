@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional
 
-from faststream._internal.configs import SpecificationConfigs, UseCaseOptions
+from faststream._internal.configs import SpecificationConfigs, UseCaseConfigs
 
 if TYPE_CHECKING:
     from faststream._internal.types import (
@@ -11,10 +11,10 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class SpecificationPublisherOptions(SpecificationConfigs):
+class SpecificationPublisherConfigs(SpecificationConfigs):
     schema_: Optional[Any]
 
 
 @dataclass
-class PublisherUsecaseOptions(UseCaseOptions):
+class PublisherUseCaseConfigs(UseCaseConfigs):
     middlewares: Sequence["PublisherMiddleware"]

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from faststream._internal.publisher.configs import PublisherUsecaseOptions
+from faststream._internal.publisher.configs import PublisherUseCaseConfigs
 
 if TYPE_CHECKING:
     from faststream._internal.basic_types import AnyDict
@@ -11,4 +11,4 @@ if TYPE_CHECKING:
 class RedisPublisherBaseConfigs:
     reply_to: str
     headers: Optional["AnyDict"]
-    internal_configs: PublisherUsecaseOptions
+    internal_configs: PublisherUseCaseConfigs

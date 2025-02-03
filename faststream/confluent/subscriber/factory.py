@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Literal, Optional, Union, cast, overload
 from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.configs import (
     SpecificationSubscriberOptions,
-    SubscriberUsecaseOptions,
+    SubscriberUseCaseConfigs,
 )
 from faststream.confluent.subscriber.configs import ConfluentSubscriberBaseConfigs
 from faststream.confluent.subscriber.specified import (
@@ -162,7 +162,7 @@ def create_subscriber(
         connection_data["enable_auto_commit"] = True
         ack_policy = AckPolicy.DO_NOTHING
 
-    internal_configs = SubscriberUsecaseOptions(
+    internal_configs = SubscriberUseCaseConfigs(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.configs import (
     SpecificationSubscriberOptions,
-    SubscriberUsecaseOptions,
+    SubscriberUseCaseConfigs,
 )
 from faststream.exceptions import SetupError
 from faststream.middlewares import AckPolicy
@@ -44,7 +44,7 @@ def create_subscriber(
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
-    internal_configs = SubscriberUsecaseOptions(
+    internal_configs = SubscriberUseCaseConfigs(
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,

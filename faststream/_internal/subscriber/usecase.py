@@ -14,7 +14,7 @@ from typing import (
 from typing_extensions import Self, deprecated, overload, override
 
 from faststream._internal.subscriber.call_item import HandlerItem
-from faststream._internal.subscriber.configs import SubscriberUsecaseOptions
+from faststream._internal.subscriber.configs import SubscriberUseCaseConfigs
 from faststream._internal.subscriber.proto import SubscriberProto
 from faststream._internal.subscriber.utils import (
     MultiLock,
@@ -88,7 +88,7 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     _call_options: Optional["_CallOptions"]
     _call_decorators: Iterable["Decorator"]
 
-    def __init__(self, *, options: SubscriberUsecaseOptions) -> None:
+    def __init__(self, *, options: SubscriberUseCaseConfigs) -> None:
         """Initialize a new instance of the class."""
         self.calls = []
 

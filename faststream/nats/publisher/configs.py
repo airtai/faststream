@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.publisher.configs import (
-    PublisherUsecaseOptions,
+    PublisherUseCaseConfigs,
 )
 
 if TYPE_CHECKING:
@@ -16,4 +16,4 @@ class NatsPublisherBaseConfigs:
     headers: Optional[dict[str, str]]
     stream: Optional["JStream"]
     timeout: Optional[float]
-    internal_configs: PublisherUsecaseOptions
+    internal_configs: PublisherUseCaseConfigs

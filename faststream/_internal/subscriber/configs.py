@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from faststream._internal.configs import (
     SpecificationConfigs as SpecificationSubscriberOptions,
-    UseCaseOptions,
+    UseCaseConfigs,
 )
 from faststream._internal.constants import EMPTY
 from faststream.middlewares import AckPolicy
@@ -20,7 +20,7 @@ __all__ = ("SpecificationSubscriberOptions",)
 
 
 @dataclass
-class SubscriberUsecaseOptions(UseCaseOptions):
+class SubscriberUseCaseConfigs(UseCaseConfigs):
     no_reply: bool
     broker_dependencies: Iterable["Dependant"]
     ack_policy: AckPolicy

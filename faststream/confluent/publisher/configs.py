@@ -4,7 +4,7 @@ from typing import (
     Union,
 )
 
-from faststream._internal.publisher.configs import PublisherUsecaseOptions
+from faststream._internal.publisher.configs import PublisherUseCaseConfigs
 
 
 @dataclass
@@ -14,4 +14,4 @@ class ConfluentPublisherBaseConfigs:
     partition: Optional[int]
     headers: Optional[dict[str, str]]
     reply_to: Optional[str]
-    internal_configs: PublisherUsecaseOptions
+    internal_configs: PublisherUseCaseConfigs
