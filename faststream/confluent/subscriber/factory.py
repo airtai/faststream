@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Literal, Optional, Union, cast, overload
 from faststream._internal.constants import EMPTY
 from faststream._internal.subscriber.configs import (
     SpecificationSubscriberOptions,
-    SubscriberUseCaseConfigs,
 )
 from faststream.confluent.subscriber.configs import ConfluentSubscriberBaseConfigs
 from faststream.confluent.subscriber.specified import (
@@ -140,12 +139,9 @@ def create_subscriber(
     "SpecificationConcurrentDefaultSubscriber",
 ]:
     _validate_input_for_misconfigure(
-        *topics,
-        partitions=partitions,
         ack_policy=ack_policy,
         no_ack=no_ack,
         auto_commit=auto_commit,
-        group_id=group_id,
         max_workers=max_workers,
     )
 
@@ -162,7 +158,12 @@ def create_subscriber(
         connection_data["enable_auto_commit"] = True
         ack_policy = AckPolicy.DO_NOTHING
 
-    internal_configs = SubscriberUseCaseConfigs(
+    base_configs = ConfluentSubscriberBaseConfigs(
+        topics=topics,
+        partitions=partitions,
+        polling_interval=polling_interval,
+        group_id=group_id,
+        connection_data=connection_data,
         ack_policy=ack_policy,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
@@ -171,16 +172,7 @@ def create_subscriber(
             broker_middlewares,
         ),
         default_decoder=EMPTY,
-        default_parser=EMPTY,
-    )
-
-    base_configs = ConfluentSubscriberBaseConfigs(
-        topics=topics,
-        partitions=partitions,
-        polling_interval=polling_interval,
-        group_id=group_id,
-        connection_data=connection_data,
-        internal_configs=internal_configs,
+        default_parser=EMPTY
     )
 
     specification_configs = SpecificationSubscriberOptions(
@@ -211,12 +203,9 @@ def create_subscriber(
 
 
 def _validate_input_for_misconfigure(
-    *topics: str,
-    partitions: Sequence["TopicPartition"],
     ack_policy: "AckPolicy",
     auto_commit: bool,
     no_ack: bool,
-    group_id: Optional[str],
     max_workers: int,
 ) -> None:
     if auto_commit is not EMPTY:
@@ -250,15 +239,4 @@ def _validate_input_for_misconfigure(
 
     if AckPolicy.ACK_FIRST is not AckPolicy.ACK_FIRST and max_workers > 1:
         msg = "Max workers not work with manual commit mode."
-        raise SetupError(msg)
-
-    if not group_id and ack_policy is not AckPolicy.ACK_FIRST:
-        msg = "You must use `group_id` with manual commit mode."
-        raise SetupError(msg)
-
-    if not topics and not partitions:
-        msg = "You should provide either `topics` or `partitions`."
-        raise SetupError(msg)
-    if topics and partitions:
-        msg = "You can't provide both `topics` and `partitions`."
         raise SetupError(msg)

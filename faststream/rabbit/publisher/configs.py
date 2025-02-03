@@ -12,11 +12,8 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class RabbitPublisherBaseConfigs:
+class RabbitPublisherBaseConfigs(PublisherUseCaseConfigs):
     routing_key: str
     queue: "RabbitQueue"
     exchange: "RabbitExchange"
-    # PublishCommand options
     message_kwargs: "PublishKwargs"
-    # Publisher args
-    internal_configs: PublisherUseCaseConfigs

@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class RabbitSubscriberBaseConfigs:
-    internal_configs: SubscriberUseCaseConfigs
+class RabbitSubscriberBaseConfigs(SubscriberUseCaseConfigs):
     queue: "RabbitQueue"
     consume_args: Optional["AnyDict"]

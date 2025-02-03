@@ -5,6 +5,7 @@ from typing import (
 )
 
 from faststream._internal.subscriber.configs import SubscriberUseCaseConfigs
+from faststream.exceptions import SetupError
 
 if TYPE_CHECKING:
     from nats.js.api import ConsumerConfig
@@ -15,8 +16,12 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class NatsSubscriberBaseConfigs:
+class NatsSubscriberBaseConfigs(SubscriberUseCaseConfigs):
     subject: str
     config: "ConsumerConfig"
     extra_options: Optional["AnyDict"]
-    internal_configs: SubscriberUseCaseConfigs
+
+    def __post_init__(self) -> None:
+        if not self.subject and not self.config:
+            msg = "You must provide either the `subject` or `config` option."
+            raise SetupError(msg)

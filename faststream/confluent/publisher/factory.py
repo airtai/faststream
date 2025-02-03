@@ -2,7 +2,6 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
 
 from faststream._internal.publisher.configs import (
-    PublisherUseCaseConfigs,
     SpecificationPublisherConfigs,
 )
 from faststream.confluent.publisher.configs import ConfluentPublisherBaseConfigs
@@ -105,20 +104,18 @@ def create_publisher(
     "SpecificationBatchPublisher",
     "SpecificationDefaultPublisher",
 ]:
-    internal_configs = PublisherUseCaseConfigs(
-        broker_middlewares=cast(
-            "Sequence[BrokerMiddleware[tuple[ConfluentMsg, ...]]]",
-            broker_middlewares,
-        ),
-        middlewares=middlewares,
-    )
+
     base_configs = ConfluentPublisherBaseConfigs(
         key=key,
         topic=topic,
         partition=partition,
         headers=headers,
         reply_to=reply_to,
-        internal_configs=internal_configs,
+        broker_middlewares=cast(
+            "Sequence[BrokerMiddleware[tuple[ConfluentMsg, ...]]]",
+            broker_middlewares,
+        ),
+        middlewares=middlewares,
     )
     specification_configs = SpecificationPublisherConfigs(
         schema_=schema_,

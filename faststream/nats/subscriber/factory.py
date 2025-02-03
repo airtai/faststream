@@ -265,7 +265,6 @@ def create_subscriber(
 
 
 def _validate_input_for_misconfigure(  # noqa: PLR0915
-    subject: str,
     queue: str,  # default ""
     pending_msgs_limit: Optional[int],
     pending_bytes_limit: Optional[int],
@@ -346,10 +345,6 @@ def _validate_input_for_misconfigure(  # noqa: PLR0915
 
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.REJECT_ON_ERROR
-
-    if not subject and not config:
-        msg = "You must provide either the `subject` or `config` option."
-        raise SetupError(msg)
 
     if stream and kv_watch:
         msg = "You can't use both the `stream` and `kv_watch` options simultaneously."

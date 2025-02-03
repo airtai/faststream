@@ -60,6 +60,7 @@ def create_subscriber(
     include_in_schema: bool = True,
     max_workers: int = 1,
 ) -> SubsciberType:
+
     _validate_input_for_misconfigure(
         channel=channel,
         list=list,

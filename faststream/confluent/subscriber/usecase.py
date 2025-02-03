@@ -11,6 +11,7 @@ import anyio
 from confluent_kafka import KafkaException, Message
 from typing_extensions import override
 
+from faststream._internal.subscriber.configs import SubscriberUseCaseConfigs
 from faststream._internal.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream._internal.subscriber.usecase import SubscriberUsecase
 from faststream._internal.subscriber.utils import process_msg
@@ -46,7 +47,15 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
         self,
         base_configs: ConfluentSubscriberBaseConfigs,
     ) -> None:
-        super().__init__(options=base_configs.internal_configs)
+        options = SubscriberUseCaseConfigs(
+            broker_middlewares=base_configs.broker_middlewares,
+            no_reply=base_configs.no_reply,
+            broker_dependencies=base_configs.broker_dependencies,
+            ack_policy=base_configs.ack_policy,
+            default_decoder=base_configs.default_decoder,
+            default_parser=base_configs.default_parser
+        )
+        super().__init__(options=options)
 
         self.__connection_data = base_configs.connection_data
 
@@ -209,11 +218,11 @@ class LogicSubscriber(TasksMixin, SubscriberUsecase[MsgType]):
 class DefaultSubscriber(LogicSubscriber[Message]):
     def __init__(self, base_configs: ConfluentSubscriberBaseConfigs) -> None:
         self.parser = AsyncConfluentParser(
-            is_manual=base_configs.internal_configs.ack_policy
+            is_manual=base_configs.ack_policy
             is not AckPolicy.ACK_FIRST
         )
-        base_configs.internal_configs.default_decoder = self.parser.decode_message
-        base_configs.internal_configs.default_parser = self.parser.parse_message
+        base_configs.default_decoder = self.parser.decode_message
+        base_configs.default_parser = self.parser.parse_message
         super().__init__(
             base_configs=base_configs,
         )
@@ -256,11 +265,11 @@ class BatchSubscriber(LogicSubscriber[tuple[Message, ...]]):
         self.max_records = max_records
 
         self.parser = AsyncConfluentParser(
-            is_manual=base_configs.internal_configs.ack_policy
+            is_manual=base_configs.ack_policy
             is not AckPolicy.ACK_FIRST
         )
-        base_configs.internal_configs.default_decoder = self.parser.decode_message_batch
-        base_configs.internal_configs.default_parser = self.parser.parse_message_batch
+        base_configs.default_decoder = self.parser.decode_message_batch
+        base_configs.default_parser = self.parser.parse_message_batch
         super().__init__(
             base_configs=base_configs,
         )

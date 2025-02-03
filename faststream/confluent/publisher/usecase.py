@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional, Union
 from confluent_kafka import Message
 from typing_extensions import override
 
+from faststream._internal.publisher.configs import PublisherUseCaseConfigs
 from faststream._internal.publisher.usecase import PublisherUsecase
 from faststream._internal.types import MsgType
 from faststream.confluent.publisher.configs import ConfluentPublisherBaseConfigs
@@ -27,7 +28,11 @@ class LogicPublisher(PublisherUsecase[MsgType]):
     _producer: "AsyncConfluentFastProducer"
 
     def __init__(self, *, base_configs: ConfluentPublisherBaseConfigs) -> None:
-        super().__init__(publisher_configs=base_configs.internal_configs)
+        publisher_configs = PublisherUseCaseConfigs(
+            broker_middlewares=base_configs.broker_middlewares,
+            middlewares=base_configs.middlewares
+        )
+        super().__init__(publisher_configs=publisher_configs)
 
         self.topic = base_configs.topic
         self.partition = base_configs.partition

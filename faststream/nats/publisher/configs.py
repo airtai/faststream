@@ -10,10 +10,9 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class NatsPublisherBaseConfigs:
+class NatsPublisherBaseConfigs(PublisherUseCaseConfigs):
     subject: str
     reply_to: str
     headers: Optional[dict[str, str]]
     stream: Optional["JStream"]
     timeout: Optional[float]
-    internal_configs: PublisherUseCaseConfigs

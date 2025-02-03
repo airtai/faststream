@@ -220,13 +220,9 @@ def create_subscriber(
 
 
 def _validate_input_for_misconfigure(
-    *topics: str,
-    partitions: Iterable["TopicPartition"],
-    pattern: Optional[str],
     ack_policy: "AckPolicy",
     auto_commit: bool,
     no_ack: bool,
-    group_id: Optional[str],
     max_workers: int,
 ) -> None:
     if auto_commit is not EMPTY:
@@ -260,21 +256,4 @@ def _validate_input_for_misconfigure(
 
     if max_workers > 1 and ack_policy is not AckPolicy.ACK_FIRST:
         msg = "You can't use `max_workers` option with manual commit mode."
-        raise SetupError(msg)
-
-    if not group_id and ack_policy is not AckPolicy.ACK_FIRST:
-        msg = "You must use `group_id` with manual commit mode."
-        raise SetupError(msg)
-
-    if not topics and not partitions and not pattern:
-        msg = "You should provide either `topics` or `partitions` or `pattern`."
-        raise SetupError(msg)
-    if topics and partitions:
-        msg = "You can't provide both `topics` and `partitions`."
-        raise SetupError(msg)
-    if topics and pattern:
-        msg = "You can't provide both `topics` and `pattern`."
-        raise SetupError(msg)
-    if partitions and pattern:
-        msg = "You can't provide both `partitions` and `pattern`."
         raise SetupError(msg)
