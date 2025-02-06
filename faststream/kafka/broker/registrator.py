@@ -410,6 +410,17 @@ class KafkaRegistrator(
             Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
+        max_workers: Annotated[
+            int,
+            Doc(
+                "Maximum number of messages being processed concurrently. With "
+                "`auto_commit=False` processing is concurrent between partitions and "
+                "sequential within a partition. With `auto_commit=False` maximum "
+                "concurrency is achieved when total number of workers across all "
+                "application instances running workers in the same consumer group "
+                "is equal to the number of partitions in the topic."
+            ),
+        ] = 1,
         filter: Annotated[
             "Filter[KafkaMessage]",
             Doc(
@@ -791,6 +802,17 @@ class KafkaRegistrator(
             Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
+        max_workers: Annotated[
+            int,
+            Doc(
+                "Maximum number of messages being processed concurrently. With "
+                "`auto_commit=False` processing is concurrent between partitions and "
+                "sequential within a partition. With `auto_commit=False` maximum "
+                "concurrency is achieved when total number of workers across all "
+                "application instances running workers in the same consumer group "
+                "is equal to the number of partitions in the topic."
+            ),
+        ] = 1,
         filter: Annotated[
             "Filter[KafkaMessage]",
             Doc(
@@ -1172,6 +1194,17 @@ class KafkaRegistrator(
             Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
+        max_workers: Annotated[
+            int,
+            Doc(
+                "Maximum number of messages being processed concurrently. With "
+                "`auto_commit=False` processing is concurrent between partitions and "
+                "sequential within a partition. With `auto_commit=False` maximum "
+                "concurrency is achieved when total number of workers across all "
+                "application instances running workers in the same consumer group "
+                "is equal to the number of partitions in the topic."
+            ),
+        ] = 1,
         filter: Annotated[
             "Filter[KafkaMessage]",
             Doc(
