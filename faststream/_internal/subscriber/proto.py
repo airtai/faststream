@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, AsyncIterator, Optional
 
 from typing_extensions import Self
 
@@ -93,4 +93,4 @@ class SubscriberProto(Endpoint[MsgType]):
     ) -> Self: ...
 
     @abstractmethod
-    def __aiter__(self) -> "StreamMessage[MsgType]": ...
+    def __aiter__(self) -> AsyncIterator["StreamMessage[MsgType]"]: ...
