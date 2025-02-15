@@ -137,7 +137,7 @@ class _ListHandlerMixin(LogicSubscriber):
         return msg
 
     @override
-    async def __aiter__(self) -> AsyncIterator["RedisListMessage"]: # type: ignore[override]
+    async def __aiter__(self) -> AsyncIterator["RedisListMessage"]:  # type: ignore[override]
         assert self._client, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
             not self.calls
@@ -168,7 +168,8 @@ class _ListHandlerMixin(LogicSubscriber):
             msg: RedisListMessage = await process_msg(  # type: ignore[assignment]
                 msg=redis_incoming_msg,
                 middlewares=(
-                    m(redis_incoming_msg, context=context) for m in self._broker_middlewares
+                    m(redis_incoming_msg, context=context)
+                    for m in self._broker_middlewares
                 ),
                 parser=self._parser,
                 decoder=self._decoder,

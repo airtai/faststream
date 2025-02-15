@@ -124,7 +124,7 @@ class ObjStoreWatchSubscriber(
         return msg
 
     @override
-    async def __aiter__(self) -> AsyncIterator["NatsObjMessage"]: # type: ignore[override]
+    async def __aiter__(self) -> AsyncIterator["NatsObjMessage"]:  # type: ignore[override]
         assert (  # nosec B101
             not self.calls
         ), "You can't use iterator if subscriber has registered handlers."
@@ -156,13 +156,13 @@ class ObjStoreWatchSubscriber(
                     raw_message := await fetch_sub.obj.updates(timeout)
                 ) is None:
                     await anyio.sleep(sleep_interval)
-            
+
             if raw_message is None:
                 continue
 
             context = self._state.get().di_state.context
 
-            msg: NatsObjMessage = await process_msg( # type: ignore[assignment]
+            msg: NatsObjMessage = await process_msg(  # type: ignore[assignment]
                 msg=raw_message,
                 middlewares=(
                     m(raw_message, context=context) for m in self._broker_middlewares

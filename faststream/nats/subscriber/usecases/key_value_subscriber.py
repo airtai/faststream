@@ -119,7 +119,7 @@ class KeyValueWatchSubscriber(
         return msg
 
     @override
-    async def __aiter__(self) -> AsyncIterator["NatsKvMessage"]: # type: ignore[override]
+    async def __aiter__(self) -> AsyncIterator["NatsKvMessage"]:  # type: ignore[override]
         assert (  # nosec B101
             not self.calls
         ), "You can't use iterator if subscriber has registered handlers."
@@ -159,7 +159,7 @@ class KeyValueWatchSubscriber(
 
             context = self._state.get().di_state.context
 
-            msg: NatsKvMessage = await process_msg( # type: ignore[assignment]
+            msg: NatsKvMessage = await process_msg(  # type: ignore[assignment]
                 msg=raw_message,
                 middlewares=(
                     m(raw_message, context=context) for m in self._broker_middlewares

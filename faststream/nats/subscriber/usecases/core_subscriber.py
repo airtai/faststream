@@ -103,7 +103,7 @@ class CoreSubscriber(DefaultSubscriber["Msg"]):
         return msg
 
     @override
-    async def __aiter__(self) -> AsyncIterator[NatsMessage]: # type: ignore[override]
+    async def __aiter__(self) -> AsyncIterator["NatsMessage"]:  # type: ignore[override]
         assert (  # nosec B101
             not self.calls
         ), "You can't use iterator if subscriber has registered handlers."

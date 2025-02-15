@@ -137,7 +137,7 @@ class ChannelSubscriber(LogicSubscriber):
         assert (  # nosec B101
             not self.calls
         ), "You can't use iterator if subscriber has registered handlers."
-        
+
         timeout = 5
         sleep_interval = timeout / 10
 
@@ -149,6 +149,9 @@ class ChannelSubscriber(LogicSubscriber):
                     await anyio.sleep(sleep_interval)
 
             context = self._state.get().di_state.context
+
+            if raw_message is None:
+                continue
 
             msg: RedisMessage = await process_msg(  # type: ignore[assignment]
                 msg=raw_message,

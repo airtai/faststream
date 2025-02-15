@@ -181,7 +181,7 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
         return msg
 
     @override
-    async def __aiter__(self) -> AsyncIterator[RabbitMessage]: # type: ignore[override]
+    async def __aiter__(self) -> AsyncIterator["RabbitMessage"]:  # type: ignore[override]
         assert self._queue_obj, "You should start subscriber at first."  # nosec B101
         assert (  # nosec B101
             not self.calls
