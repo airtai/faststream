@@ -377,7 +377,7 @@ class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
         broker = self.get_broker(apply_types=True)
 
         args, kwargs = self.get_subscriber_params(queue)
-        subscirber = broker.subscriber(*args, **kwargs)
+        subscriber = broker.subscriber(*args, **kwargs)
 
         async with self.patch_broker(broker) as br:
             await br.start()
@@ -388,7 +388,7 @@ class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
 
             async def consume():
                 index_message = 0
-                async for msg in subscirber:
+                async for msg in subscriber:
                     result_message = await msg.decode()
 
                     mock(result_message)
