@@ -12,8 +12,8 @@ class RabbitDeclarer:
     """An utility class to declare RabbitMQ queues and exchanges."""
 
     def __init__(self) -> None:
-        self.__queues: dict[RabbitQueue.name, aio_pika.RobustQueue] = {}
-        self.__exchanges: dict[RabbitExchange.name, aio_pika.RobustExchange] = {}
+        self.__queues: dict[str, aio_pika.RobustQueue] = {}
+        self.__exchanges: dict[str, aio_pika.RobustExchange] = {}
 
         self.__connection: ConnectionState = EmptyConnectionState()
 
