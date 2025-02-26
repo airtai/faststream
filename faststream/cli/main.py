@@ -1,5 +1,6 @@
 import logging
 import sys
+import warnings
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
@@ -129,7 +130,8 @@ def run(
         try:
             from faststream.cli.supervisors.watchfiles import WatchReloader
         except ImportError:
-            raise ImportError(INSTALL_WATCHFILES)
+            warnings.warn(INSTALL_WATCHFILES, category=ImportWarning, stacklevel=1)
+            _run(*args)
 
         else:
             if app_dir != ".":
