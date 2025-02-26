@@ -138,7 +138,7 @@ class AioPikaFastProducer(ProducerProto):
 
         exchange_obj = await self.declarer.declare_exchange(
             exchange=exchange,
-            passive=True,
+            declare=False,
         )
 
         return await exchange_obj.publish(

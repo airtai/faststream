@@ -111,7 +111,7 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
 
         if (
             self.exchange is not None
-            and not queue.passive  # queue just getted from RMQ
+            and queue.declare  # queue just getted from RMQ
             and self.exchange.name  # check Exchange is not default
         ):
             exchange = await self.declarer.declare_exchange(self.exchange)

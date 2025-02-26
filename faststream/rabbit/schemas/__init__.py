@@ -12,4 +12,4 @@ __all__ = (
     "RabbitQueue",
 )
 
-RABBIT_REPLY = RabbitQueue("amq.rabbitmq.reply-to", passive=True)
+RABBIT_REPLY = RabbitQueue("amq.rabbitmq.reply-to", declare=False)

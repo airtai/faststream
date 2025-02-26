@@ -1,6 +1,16 @@
 from copy import deepcopy
 from enum import Enum
-from typing import TYPE_CHECKING, Literal, Optional, TypedDict, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Annotated,
+    Literal,
+    Optional,
+    TypedDict,
+    Union,
+    overload,
+)
+
+from typing_extensions import deprecated
 
 from faststream._internal.constants import EMPTY
 from faststream._internal.proto import NameRequired
@@ -47,10 +57,10 @@ class RabbitQueue(NameRequired):
     )
 
     def __repr__(self) -> str:
-        if self.passive:
-            body = ""
-        else:
+        if self.declare:
             body = f", robust={self.robust}, durable={self.durable}, exclusive={self.exclusive}, auto_delete={self.auto_delete})"
+        else:
+            body = ""
 
         return f"{self.__class__.__name__}({self.name}, routing_key='{self.routing}'{body})"
 
@@ -77,6 +87,7 @@ class RabbitQueue(NameRequired):
         queue_type: Literal[QueueType.CLASSIC] = QueueType.CLASSIC,
         durable: bool = EMPTY,
         exclusive: bool = False,
+        declare: bool = EMPTY,
         passive: bool = False,
         auto_delete: bool = False,
         arguments: Optional["ClassicQueueArgs"] = None,
@@ -93,6 +104,7 @@ class RabbitQueue(NameRequired):
         queue_type: Literal[QueueType.QUORUM],
         durable: Literal[True],
         exclusive: bool = False,
+        declare: bool = EMPTY,
         passive: bool = False,
         auto_delete: bool = False,
         arguments: Optional["QuorumQueueArgs"] = None,
@@ -109,6 +121,7 @@ class RabbitQueue(NameRequired):
         queue_type: Literal[QueueType.STREAM],
         durable: Literal[True],
         exclusive: bool = False,
+        declare: bool = EMPTY,
         passive: bool = False,
         auto_delete: bool = False,
         arguments: Optional["StreamQueueArgs"] = None,
@@ -124,7 +137,11 @@ class RabbitQueue(NameRequired):
         queue_type: QueueType = QueueType.CLASSIC,
         durable: bool = EMPTY,
         exclusive: bool = False,
-        passive: bool = False,
+        declare: bool = EMPTY,
+        passive: Annotated[
+            bool,
+            deprecated("Use `declare` instead. Will be removed in the 0.7.0 release."),
+        ] = False,
         auto_delete: bool = False,
         arguments: Union[
             "QuorumQueueArgs",
@@ -143,6 +160,9 @@ class RabbitQueue(NameRequired):
         :param name: RabbitMQ queue name.
         :param durable: Whether the object is durable.
         :param exclusive: The queue can be used only in the current connection and will be deleted after connection closed.
+        :param declare: Whether to queue automatically or just connect to it.
+                        If you want to connect to an existing queue, set this to `False`.
+                        Copy of `passive` aio-pike option.
         :param passive: Do not create queue automatically.
         :param auto_delete: The queue will be deleted after connection closed.
         :param arguments: Queue declaration arguments.
@@ -176,10 +196,14 @@ class RabbitQueue(NameRequired):
         self.bind_arguments = bind_arguments
         self.routing_key = routing_key
         self.robust = robust
-        self.passive = passive
         self.auto_delete = auto_delete
         self.arguments = {"x-queue-type": queue_type.value, **(arguments or {})}
         self.timeout = timeout
+
+        if declare is EMPTY:
+            self.declare = not passive
+        else:
+            self.declare = declare
 
     def add_prefix(self, prefix: str) -> "RabbitQueue":
         new_q: RabbitQueue = deepcopy(self)
