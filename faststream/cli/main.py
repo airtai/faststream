@@ -1,6 +1,5 @@
 import logging
 import sys
-import warnings
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 

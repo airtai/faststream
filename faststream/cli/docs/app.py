@@ -1,6 +1,5 @@
 import json
 import sys
-import warnings
 from pathlib import Path
 from typing import Optional, Sequence
 
