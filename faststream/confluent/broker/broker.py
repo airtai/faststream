@@ -14,7 +14,7 @@ from typing import (
 
 import anyio
 import confluent_kafka
-from typing_extensions import Doc, override
+from typing_extensions import Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream._internal.broker.broker import BrokerUsecase
@@ -318,6 +318,7 @@ class KafkaBroker(  # type: ignore[misc]
         ] = logging.INFO,
         log_fmt: Annotated[
             Optional[str],
+            deprecated("Use `logger` instead. Will be removed in the 0.7.0 release."),
             Doc("Default logger log format."),
         ] = None,
         # FastDepends args
