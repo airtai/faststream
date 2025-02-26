@@ -2,7 +2,6 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
-from faststream.exceptions import INSTALL_YAML
 from faststream._compat import PYDANTIC_V2, model_to_json, model_to_jsonable
 from faststream.asyncapi.schema.channels import Channel
 from faststream.asyncapi.schema.info import Info
@@ -14,6 +13,7 @@ from faststream.asyncapi.schema.utils import (
     Tag,
     TagDict,
 )
+from faststream.exceptions import INSTALL_YAML
 
 ASYNC_API_VERSION = "2.6.0"
 
