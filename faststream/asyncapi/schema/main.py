@@ -116,6 +116,8 @@ class Schema(BaseModel):
 
     def to_yaml(self) -> str:
         """Convert the schema to a YAML string."""
+        from io import StringIO
+
         try:
             import yaml
         except ImportError:
