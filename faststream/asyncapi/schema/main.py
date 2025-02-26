@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
+from faststream.exceptions import INSTALL_YAML
 from faststream._compat import PYDANTIC_V2, model_to_json, model_to_jsonable
 from faststream.asyncapi.schema.channels import Channel
 from faststream.asyncapi.schema.info import Info
@@ -115,9 +116,10 @@ class Schema(BaseModel):
 
     def to_yaml(self) -> str:
         """Convert the schema to a YAML string."""
-        from io import StringIO
-
-        import yaml
+        try:
+            import yaml
+        except ImportError:
+            raise ModuleNotFoundError(INSTALL_YAML)
 
         io = StringIO(initial_value="", newline="\n")
         yaml.dump(self.to_jsonable(), io, sort_keys=False)
