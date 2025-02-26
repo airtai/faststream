@@ -120,8 +120,8 @@ class Schema(BaseModel):
 
         try:
             import yaml
-        except ImportError:
-            raise ImportError(INSTALL_YAML)
+        except ImportError as e:
+            raise ImportError(INSTALL_YAML) from e
 
         io = StringIO(initial_value="", newline="\n")
         yaml.dump(self.to_jsonable(), io, sort_keys=False)
