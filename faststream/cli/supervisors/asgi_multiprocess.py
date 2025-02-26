@@ -19,7 +19,7 @@ class ASGIMultiprocess:
         try:
             import uvicorn
         except ImportError as e:
-            raise RuntimeError(
+            raise ImportError(
                 "You need uvicorn to run FastStream ASGI App via CLI. pip install uvicorn"
             ) from e
 

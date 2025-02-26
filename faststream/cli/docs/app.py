@@ -71,8 +71,7 @@ def serve(
             from faststream.cli.supervisors.watchfiles import WatchReloader
 
         except ImportError:
-            warnings.warn(INSTALL_WATCHFILES, category=ImportWarning, stacklevel=1)
-            _parse_and_serve(app, host, port, is_factory)
+            raise ImportError(INSTALL_WATCHFILES)
 
         else:
             WatchReloader(

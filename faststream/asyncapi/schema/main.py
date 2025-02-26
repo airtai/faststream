@@ -119,7 +119,7 @@ class Schema(BaseModel):
         try:
             import yaml
         except ImportError:
-            raise ModuleNotFoundError(INSTALL_YAML)
+            raise ImportError(INSTALL_YAML)
 
         io = StringIO(initial_value="", newline="\n")
         yaml.dump(self.to_jsonable(), io, sort_keys=False)

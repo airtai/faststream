@@ -130,8 +130,7 @@ def run(
         try:
             from faststream.cli.supervisors.watchfiles import WatchReloader
         except ImportError:
-            warnings.warn(INSTALL_WATCHFILES, category=ImportWarning, stacklevel=1)
-            _run(*args)
+            raise ImportError(INSTALL_WATCHFILES)
 
         else:
             if app_dir != ".":
