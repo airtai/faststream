@@ -76,7 +76,7 @@ taskiq_broker = AppWrapper(app)
 It allows you to use `taskiq_broker` the same way with the previous example, but saves all original **FastStream** features.
 
 !!! tip
-    Creating a separated *Scheduler* service is a best way to make really distributed and sustainable system. In this case, you can just create an empty **FastStream** broker and use **Taskiq-FastStream** integration to publish your messages (consuming by another services).
+    Creating a separated *Scheduler* service is the best way to make a really distributed and sustainable system. In this case, you can just create an empty **FastStream** broker and use **Taskiq-FastStream** integration to publish your messages (consuming by another services).
 
 ### Generate message payload
 
