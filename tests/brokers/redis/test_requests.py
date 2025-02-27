@@ -1,6 +1,5 @@
-import json
-
 import pytest
+from msgpack import packb, unpackb
 
 from faststream import BaseMiddleware
 from faststream.redis import RedisBroker, RedisRouter, TestRedisBroker
@@ -9,9 +8,9 @@ from tests.brokers.base.requests import RequestsTestcase
 
 class Mid(BaseMiddleware):
     async def on_receive(self) -> None:
-        data = json.loads(self.msg["data"])
+        data = unpackb(self.msg["data"])
         data["data"] *= 2
-        self.msg["data"] = json.dumps(data)
+        self.msg["data"] = packb(data)
 
     async def consume_scope(self, call_next, msg):
         msg._decoded_body = msg._decoded_body * 2

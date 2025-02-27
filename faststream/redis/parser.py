@@ -11,6 +11,8 @@ from typing import (
     Union,
 )
 
+from msgpack import packb, unpackb
+
 from faststream._compat import dump_json, json_loads
 from faststream.broker.message import (
     decode_message,
@@ -98,7 +100,7 @@ class RawMessage:
             correlation_id=correlation_id,
         )
 
-        return dump_json(
+        return packb(  # type: ignore[no-any-return]
             {
                 "data": msg.data,
                 "headers": msg.headers,
@@ -111,8 +113,8 @@ class RawMessage:
 
         try:
             # FastStream message format
-            parsed_data = json_loads(data)
-            data = parsed_data["data"].encode()
+            parsed_data = unpackb(data)
+            data = parsed_data["data"]
             headers = parsed_data["headers"]
 
         except Exception:
