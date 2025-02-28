@@ -91,6 +91,15 @@ class RawMessage:
         headers: Optional["AnyDict"],
         correlation_id: str,
     ) -> bytes:
+        """Returns binary encoded message.
+
+        `[faststream,<header_length>]<headers_json><body>`
+
+        faststream - is just 'magic' key, which helps to decide whether it's faststream message or not.
+        header_length - the length of bytes with headers in json format.
+        headers_json - headers in json format.
+        body - body, which can contain any bytes.
+        """
         msg = cls.build(
             message=message,
             reply_to=reply_to,
@@ -98,12 +107,12 @@ class RawMessage:
             correlation_id=correlation_id,
         )
 
-        return dump_json(
-            {
-                "data": msg.data,
-                "headers": msg.headers,
-            }
+        header_bytes = dump_json(msg.headers)
+
+        bytes_msg = (
+            f"[faststream,{len(header_bytes)}]".encode() + header_bytes + msg.data
         )
+        return bytes_msg
 
     @staticmethod
     def parse(data: bytes) -> Tuple[bytes, "AnyDict"]:
@@ -111,9 +120,14 @@ class RawMessage:
 
         try:
             # FastStream message format
-            parsed_data = json_loads(data)
-            data = parsed_data["data"].encode()
-            headers = parsed_data["headers"]
+            meta, msg_data = data.split(b"]", 1)
+            fs_magic_flag, headers_length_bytes = meta.lstrip(b"[").split(b",")
+            if fs_magic_flag != b"faststream":
+                # this is not faststream encoded message
+                raise Exception
+            headers_length = int(headers_length_bytes)
+            headers = json_loads(msg_data[:headers_length])
+            data = msg_data[headers_length:]
 
         except Exception:
             # Raw Redis message format

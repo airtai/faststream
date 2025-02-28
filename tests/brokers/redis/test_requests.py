@@ -1,17 +1,21 @@
-import json
-
 import pytest
 
 from faststream import BaseMiddleware
 from faststream.redis import RedisBroker, RedisRouter, TestRedisBroker
+from faststream.redis.parser import RawMessage
 from tests.brokers.base.requests import RequestsTestcase
 
 
 class Mid(BaseMiddleware):
     async def on_receive(self) -> None:
-        data = json.loads(self.msg["data"])
-        data["data"] *= 2
-        self.msg["data"] = json.dumps(data)
+        raw_data, headers = RawMessage.parse(self.msg["data"])
+        raw_data *= 2
+        self.msg["data"] = RawMessage.encode(
+            message=raw_data,
+            reply_to=headers.get("reply_to"),
+            headers=headers,
+            correlation_id=headers.get("correlation_id"),
+        )
 
     async def consume_scope(self, call_next, msg):
         msg._decoded_body = msg._decoded_body * 2
