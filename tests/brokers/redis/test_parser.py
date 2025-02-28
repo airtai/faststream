@@ -24,6 +24,9 @@ class TestCustomParser(CustomParserTestcase):
             b"\x82\xa2",
             b"\x82\xa2",
         ),
+        ("]", b"]"),
+        ("]]]]", b"]]]]"),
+        ("check[blabla]123", b"check[blabla]123"),
         (True, b"true"),
         ([True, False, True], b"[true, false, true]"),
     ],
@@ -36,7 +39,6 @@ def test_raw_message(
     msg_bytes = RawMessage.encode(
         message=data, reply_to=None, headers=None, correlation_id="cor_id"
     )
-
     raw_data_result, _ = RawMessage.parse(msg_bytes)
 
     assert raw_data_result == expected_data
