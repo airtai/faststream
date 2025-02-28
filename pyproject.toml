@@ -68,8 +68,8 @@ rabbit = ["aio-pika>=9,<10"]
 kafka = ["aiokafka>=0.9,<0.13"]
 
 confluent = [
-    "confluent-kafka>=2,<3; python_version < '3.13'",
-    "confluent-kafka>=2.6,<3; python_version >= '3.13'",
+    "confluent-kafka>=2,!=2.8.1,<3; python_version < '3.13'",
+    "confluent-kafka>=2.6,!=2.8.1,<3; python_version >= '3.13'",
 ]
 
 nats = ["nats-py>=2.7.0,<=3.0.0"]
