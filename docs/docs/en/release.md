@@ -12,6 +12,28 @@ hide:
 ---
 
 # Release Notes
+## 0.5.35
+
+### What's Changed
+
+* Add concurrent-between-partitions kafka subscriber by @Arseniy-Popov in [#2017](https://github.com/airtai/faststream/pull/2017){.external-link target="_blank"}
+* chore: make uv sync working by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#2041](https://github.com/airtai/faststream/pull/2041){.external-link target="_blank"}
+* docs: add Ask AI button with Gurubase widget by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#2042](https://github.com/airtai/faststream/pull/2042){.external-link target="_blank"}
+* docs: create FastStream image shield by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#2062](https://github.com/airtai/faststream/pull/2062){.external-link target="_blank"}
+* Close #2060 by [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} in [#2063](https://github.com/airtai/faststream/pull/2063){.external-link target="_blank"}
+* feat: allow broker setting in on_startup hook by @Yakov-Varnaev in [#2073](https://github.com/airtai/faststream/pull/2073){.external-link target="_blank"}
+* ImportError raises change by [@0xWEBMILK](https://github.com/0xWEBMILK){.external-link target="_blank"} in [#2080](https://github.com/airtai/faststream/pull/2080){.external-link target="_blank"}
+* docs: Fix distributed spelling error in task scheduling page by [@Sandldan](https://github.com/Sandldan){.external-link target="_blank"} in [#2081](https://github.com/airtai/faststream/pull/2081){.external-link target="_blank"}
+* Exclude confluent-kafka 2.8.1 by @Yakov-Varnaev in [#2084](https://github.com/airtai/faststream/pull/2084){.external-link target="_blank"}
+
+### New Contributors
+* @Arseniy-Popov made their first contribution in [#2017](https://github.com/airtai/faststream/pull/2017){.external-link target="_blank"}
+* @Yakov-Varnaev made their first contribution in [#2073](https://github.com/airtai/faststream/pull/2073){.external-link target="_blank"}
+* [@0xWEBMILK](https://github.com/0xWEBMILK){.external-link target="_blank"} made their first contribution in [#2080](https://github.com/airtai/faststream/pull/2080){.external-link target="_blank"}
+* [@Sandldan](https://github.com/Sandldan){.external-link target="_blank"} made their first contribution in [#2081](https://github.com/airtai/faststream/pull/2081){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.34...0.5.35](https://github.com/airtai/faststream/compare/0.5.34...0.5.35){.external-link target="_blank"}
+
 ## 0.5.34
 
 ### What's Changed
