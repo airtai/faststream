@@ -349,7 +349,57 @@ class Application(StartAbleApplication):
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
         """Add hook running AFTER broker disconnected."""
+<<<<<<< HEAD
         self._after_shutdown_calling.append(
             apply_types(to_async(func), context__=self.context)
+=======
+        self._after_shutdown_calling.append(apply_types(to_async(func)))
+        return func
+
+    def exit(self) -> None:
+        """Stop application manually."""
+        self._should_exit = True
+
+    async def _main_loop(self, sleep_time: float) -> None:
+        """Run loop till exit signal."""
+        while not self._should_exit:  # noqa: ASYNC110 (requested by creator)
+            await anyio.sleep(sleep_time)
+
+    async def start(
+        self,
+        **run_extra_options: "SettingField",
+    ) -> None:
+        """Executes startup hooks and start broker."""
+        for func in self._on_startup_calling:
+            await func(**run_extra_options)
+
+        if self.broker is not None:
+            await self.broker.start()
+
+        for func in self._after_startup_calling:
+            await func()
+
+    async def stop(self) -> None:
+        """Executes shutdown hooks and stop broker."""
+        for func in self._on_shutdown_calling:
+            await func()
+
+        if self.broker is not None:
+            await self.broker.close()
+
+        for func in self._after_shutdown_calling:
+            await func()
+
+    async def _startup(
+        self,
+        log_level: int = logging.INFO,
+        run_extra_options: Optional[Dict[str, "SettingField"]] = None,
+    ) -> None:
+        self._log(log_level, "FastStream app starting...")
+        await self.start(**(run_extra_options or {}))
+        assert self.broker, "You should setup a broker"  # nosec B101
+        self._log(
+            log_level, "FastStream app started successfully! To exit, press CTRL+C"
+>>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
         )
         return func

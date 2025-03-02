@@ -12,7 +12,7 @@ search:
 
 Often, you need not only to run your application to consume messages but also to make it a part of your service ecosystem with *Prometheus metrics*, K8S *liveness* and *readiness probes*, *traces*, and other observability features.
 
-Unfortunately, such functionalilty can't be implemented by broker features alone, and you have to provide several **HTTP** endpoints in your app.
+Unfortunately, such functionality can't be implemented by broker features alone, and you have to provide several **HTTP** endpoints in your app.
 
 Of course, you can use **FastStream** as a part of any **ASGI** frameworks ([integrations](./integrations/frameworks/index.md){.internal-link}), but fewer the dependencies, the better, right?
 

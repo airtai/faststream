@@ -187,7 +187,11 @@ class BrokerTestclientTestcase(BrokerPublishTestcase, BrokerConsumeTestcase):
         async def m(msg) -> None:
             await publisher.publish(f"response: {msg}")
 
+<<<<<<< HEAD
         async with self.patch_broker(test_broker, with_real=True) as br:
+=======
+        async with self.test_class(test_broker, with_real=True) as br:
+>>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
             await br.publish("hello", queue)
 
             await m.wait_call(self.timeout)

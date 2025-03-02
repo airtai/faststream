@@ -344,7 +344,15 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+<<<<<<< HEAD
     ) -> "SpecificationBatchSubscriber": ...
+=======
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
+    ) -> "AsyncAPIBatchSubscriber": ...
+>>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
 
     @overload
     def subscriber(
@@ -626,10 +634,18 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+<<<<<<< HEAD
     ) -> Union[
         "SpecificationDefaultSubscriber",
         "SpecificationConcurrentDefaultSubscriber",
     ]: ...
+=======
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
+    ) -> "AsyncAPIDefaultSubscriber": ...
+>>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
 
     @overload
     def subscriber(
@@ -911,6 +927,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> Union[
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",

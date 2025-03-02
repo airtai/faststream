@@ -1,6 +1,7 @@
 from typing import Any
 
 import pytest
+from aiokafka import TopicPartition
 
 from faststream import AckPolicy
 from faststream.exceptions import SetupError
@@ -11,6 +12,7 @@ from faststream.kafka.subscriber.specified import (
 )
 
 
+<<<<<<< HEAD
 @pytest.mark.parametrize(
     ("args", "kwargs"),
     (
@@ -45,6 +47,9 @@ def test_wrong_destination(args: list[str], kwargs: dict[str, Any]) -> None:
 
 
 def test_deprecated_options(queue: str) -> None:
+=======
+def test_max_workers_with_manual_commit_with_multiple_queues() -> None:
+>>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
     broker = KafkaBroker()
 
     with pytest.warns(DeprecationWarning):
@@ -82,6 +87,7 @@ def test_max_workers_configuration(queue: str) -> None:
 
 def test_max_workers_manual_commit_multi_topics_forbidden() -> None:
     with pytest.raises(SetupError):
+<<<<<<< HEAD
         KafkaBroker().subscriber(
             "queue1",
             "queue2",
@@ -102,6 +108,23 @@ def test_max_workers_manual_commit_pattern_forbidden() -> None:
 def test_max_workers_manual_commit_partitions_forbidden() -> None:
     with pytest.raises(SetupError):
         KafkaBroker().subscriber(
+=======
+        broker.subscriber(["queue1", "queue2"], max_workers=3, auto_commit=False)
+
+
+def test_max_workers_with_manual_commit_with_pattern() -> None:
+    broker = KafkaBroker()
+
+    with pytest.raises(SetupError):
+        broker.subscriber(pattern="pattern", max_workers=3, auto_commit=False)
+
+
+def test_max_workers_with_manual_commit_partitions() -> None:
+    broker = KafkaBroker()
+
+    with pytest.raises(SetupError):
+        broker.subscriber(
+>>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
             partitions=[TopicPartition(topic="topic", partition=1)],
             max_workers=3,
             auto_commit=False,
