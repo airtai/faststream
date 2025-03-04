@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 class LoggingListenerProxy(ConsumerRebalanceListener):  # type: ignore[misc]
     """Logs partition assignments and passes calls to user-supplied listener."""
 
+    _log_unassigned_consumer_delay_seconds = 60 * 5
+
     def __init__(
         self,
         consumer: "AIOKafkaConsumer",
@@ -22,6 +24,17 @@ class LoggingListenerProxy(ConsumerRebalanceListener):  # type: ignore[misc]
         self.consumer = consumer
         self.logger = logger
         self.listener = listener
+        self._log_unassigned_consumer_task: Optional[asyncio.Task[None]] = None
+
+    async def log_unassigned_consumer(self) -> None:
+        await asyncio.sleep(self._log_unassigned_consumer_delay_seconds)
+        self._log(
+            logging.WARNING,
+            f"Consumer in group {self.consumer._group_id} has had no partition assignments "
+            f"for {self._log_unassigned_consumer_delay_seconds} seconds - topics "
+            f"{self.consumer._subscription.topics} may have fewer partitions "
+            f"than consumers",
+        )
 
     async def on_partitions_revoked(self, revoked: Set["TopicPartition"]) -> None:
         if self.listener:
@@ -36,11 +49,12 @@ class LoggingListenerProxy(ConsumerRebalanceListener):  # type: ignore[misc]
             f"{assigned}",
         )
         if not assigned:
-            self._log(
-                logging.WARNING,
-                f"Consumer in group {self.consumer._group_id} has no partition assignments - topics "
-                f"{self.consumer._subscription.topics} may have fewer partitions than consumers",
+            self._log_unassigned_consumer_task = asyncio.create_task(
+                self.log_unassigned_consumer()
             )
+        elif self._log_unassigned_consumer_task:
+            self._log_unassigned_consumer_task.cancel()
+            self._log_unassigned_consumer_task = None
 
         if self.listener:
             call_result = self.listener.on_partitions_assigned(assigned)
