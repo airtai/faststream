@@ -21,6 +21,7 @@ from confluent_kafka.admin import AdminClient, NewTopic
 
 from faststream.confluent import config as config_module
 from faststream.confluent.schemas import TopicPartition
+from faststream.confluent.schemas.params import SecurityOptions
 from faststream.exceptions import SetupError
 from faststream.log import logger as faststream_logger
 from faststream.types import EMPTY
@@ -64,7 +65,7 @@ class AsyncConfluentProducer:
         transactional_id: Optional[Union[str, int]] = None,
         transaction_timeout_ms: int = 60000,
         allow_auto_create_topics: bool = True,
-        security_config: Optional["AnyDict"] = None,
+        security_config: Optional["SecurityOptions"] = None,
     ) -> None:
         self.logger = logger
 
@@ -102,7 +103,7 @@ class AsyncConfluentProducer:
         final_config = {
             **config.as_config_dict(),
             **config_from_params,
-            **(security_config or {}),
+            **dict(security_config or {}),
         }
 
         self.producer = Producer(final_config, logger=self.logger)  # type: ignore[call-arg]
@@ -240,7 +241,7 @@ class AsyncConfluentConsumer:
         connections_max_idle_ms: int = 540000,
         isolation_level: str = "read_uncommitted",
         allow_auto_create_topics: bool = True,
-        security_config: Optional["AnyDict"] = None,
+        security_config: Optional["SecurityOptions"] = None,
     ) -> None:
         self.logger = logger
 
@@ -291,7 +292,7 @@ class AsyncConfluentConsumer:
         }
         self.allow_auto_create_topics = allow_auto_create_topics
         final_config.update(config_from_params)
-        final_config.update(**(security_config or {}))
+        final_config.update(**dict(security_config or {}))
 
         self.config = final_config
         self.consumer = Consumer(final_config, logger=self.logger)  # type: ignore[call-arg]
