@@ -21,7 +21,6 @@ from confluent_kafka.admin import AdminClient, NewTopic
 
 from faststream.confluent import config as config_module
 from faststream.confluent.schemas import TopicPartition
-from faststream.confluent.schemas.params import SecurityOptions
 from faststream.exceptions import SetupError
 from faststream.log import logger as faststream_logger
 from faststream.types import EMPTY
@@ -30,6 +29,7 @@ from faststream.utils.functions import call_or_await
 if TYPE_CHECKING:
     from typing_extensions import NotRequired, TypedDict
 
+    from faststream.confluent.schemas.params import SecurityOptions
     from faststream.types import AnyDict, LoggerProto
 
     class _SendKwargs(TypedDict):
