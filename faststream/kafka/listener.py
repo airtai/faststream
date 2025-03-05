@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class LoggingListenerProxy(ConsumerRebalanceListener):  # type: ignore[misc]
     """Logs partition assignments and passes calls to user-supplied listener."""
 
-    _log_unassigned_consumer_delay_seconds = 60 * 5
+    _log_unassigned_consumer_delay_seconds = 60 * 2
 
     def __init__(
         self,
@@ -30,10 +30,10 @@ class LoggingListenerProxy(ConsumerRebalanceListener):  # type: ignore[misc]
         await asyncio.sleep(self._log_unassigned_consumer_delay_seconds)
         self._log(
             logging.WARNING,
-            f"Consumer in group {self.consumer._group_id} has had no partition assignments "
-            f"for {self._log_unassigned_consumer_delay_seconds} seconds - topics "
-            f"{self.consumer._subscription.topics} may have fewer partitions "
-            f"than consumers",
+            f"Consumer in group {self.consumer._group_id} has had no partition "
+            f"assignments for {self._log_unassigned_consumer_delay_seconds} seconds: "
+            f"topics {self.consumer._subscription.topics} may have fewer partitions "
+            f"than consumers.",
         )
 
     async def on_partitions_revoked(self, revoked: Set["TopicPartition"]) -> None:
@@ -49,6 +49,12 @@ class LoggingListenerProxy(ConsumerRebalanceListener):  # type: ignore[misc]
             f"{assigned}",
         )
         if not assigned:
+            self._log(
+                logging.WARNING,
+                f"Consumer in group {self.consumer._group_id} has no partition assignments - this "
+                f"could be temporary, e.g. during a rolling update. A separate warning will be logged if "
+                f"this condition persists for {self._log_unassigned_consumer_delay_seconds} seconds.",
+            )
             self._log_unassigned_consumer_task = asyncio.create_task(
                 self.log_unassigned_consumer()
             )

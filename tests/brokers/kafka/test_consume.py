@@ -510,7 +510,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             if x[0][0] == logging.WARNING
                         ]
                     )
-                    == 1
+                    == 2
                 )
             else:
                 assert (
