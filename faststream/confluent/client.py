@@ -103,12 +103,19 @@ class AsyncConfluentProducer:
 
         final_config = {**config.as_config_dict(), **config_from_params}
 
-        if sasl_mechanism in ["PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512"]:
+        if sasl_mechanism in ("PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512"):
             final_config.update(
                 {
                     "sasl.mechanism": sasl_mechanism,
                     "sasl.username": sasl_plain_username,
                     "sasl.password": sasl_plain_password,
+                }
+            )
+
+        elif sasl_mechanism in ("OAUTHBEARER", "GSSAPI"):
+            final_config.update(
+                {
+                    "sasl.mechanism": sasl_mechanism,
                 }
             )
 
