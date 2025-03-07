@@ -9,6 +9,7 @@ from aiokafka.admin import AIOKafkaAdminClient, NewTopic
 from faststream.exceptions import AckMessage
 from faststream.kafka import KafkaBroker, TopicPartition
 from faststream.kafka.annotations import KafkaMessage
+from faststream.kafka.listener import LoggingListenerProxy
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
@@ -472,7 +473,12 @@ class TestConsume(BrokerRealConsumeTestcase):
         queue: str,
         partitions: int,
         warning: bool,
+        monkeypatch: pytest.MonkeyPatch,
     ):
+        monkeypatch.setattr(
+            LoggingListenerProxy, "_log_unassigned_consumer_delay_seconds", 0
+        )
+
         admin_client = AIOKafkaAdminClient()
         try:
             await admin_client.start()
@@ -504,7 +510,7 @@ class TestConsume(BrokerRealConsumeTestcase):
                             if x[0][0] == logging.WARNING
                         ]
                     )
-                    == 1
+                    == 2
                 )
             else:
                 assert (
