@@ -2,7 +2,7 @@ import pytest
 
 from faststream.nats.fastapi import NatsRouter as StreamRouter
 from faststream.nats.router import NatsRouter
-from tests.brokers.base.future import FastapiTestCase
+from tests.brokers.base.future.fastapi import FastapiTestCase
 
 
 @pytest.mark.nats

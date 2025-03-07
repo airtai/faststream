@@ -2,7 +2,7 @@ import pytest
 
 from faststream.redis.fastapi import RedisRouter as StreamRouter
 from faststream.redis.router import RedisRouter
-from tests.brokers.base.future import FastapiTestCase
+from tests.brokers.base.future.fastapi import FastapiTestCase
 
 
 @pytest.mark.redis
