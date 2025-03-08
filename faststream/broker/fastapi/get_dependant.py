@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
 
+from fast_depends.utils import get_typed_annotation
 from fastapi.dependencies.utils import get_dependant, get_parameterless_sub_dependant
 
 from faststream._compat import PYDANTIC_V2
@@ -55,6 +56,12 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
         params.extend(d.query_params + d.body_params)
 
     params_unique = {}
+
+    call = dependant.call
+    if is_faststream_decorated(call):
+        call = getattr(call, "__wrapped__", call)
+    globalns = getattr(call, "__globals__", {})
+
     for p in params:
         if p.name not in params_unique:
             info: Any = p.field_info if PYDANTIC_V2 else p
@@ -112,15 +119,26 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
                 f = Field(**field_data)  # type: ignore[pydantic-field,unused-ignore]
 
             params_unique[p.name] = (
-                info.annotation,
+                get_typed_annotation(info.annotation, globalns, {}),
                 f,
             )
 
     dependant.model = create_model(  # type: ignore[attr-defined]
-        getattr(dependant.call, "__name__", type(dependant.call).__name__)
+        getattr(call, "__name__", type(call).__name__)
     )
 
     dependant.custom_fields = {}  # type: ignore[attr-defined]
     dependant.flat_params = params_unique  # type: ignore[attr-defined]
 
     return dependant
+
+
+FASTSTREAM_FASTAPI_PLUGIN_DECORATOR_MARKER = "__faststream_consumer__"
+
+
+def is_faststream_decorated(func: object) -> bool:
+    return getattr(func, FASTSTREAM_FASTAPI_PLUGIN_DECORATOR_MARKER, False)
+
+
+def mark_faststream_decorated(func: object) -> None:
+    setattr(func, FASTSTREAM_FASTAPI_PLUGIN_DECORATOR_MARKER, True)
