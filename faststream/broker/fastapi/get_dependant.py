@@ -1,4 +1,3 @@
-from inspect import unwrap
 from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
 
 from fastapi.dependencies.utils import get_dependant, get_parameterless_sub_dependant
@@ -16,7 +15,7 @@ def get_fastapi_dependant(
 ) -> Any:
     """Generate FastStream-Compatible FastAPI Dependant object."""
     dependent = get_fastapi_native_dependant(
-        orig_call=unwrap(orig_call),
+        orig_call=orig_call,
         dependencies=dependencies,
     )
 
