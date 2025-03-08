@@ -369,6 +369,8 @@ search:
                     - get_dependant
                         - [get_fastapi_dependant](api/faststream/broker/fastapi/get_dependant/get_fastapi_dependant.md)
                         - [get_fastapi_native_dependant](api/faststream/broker/fastapi/get_dependant/get_fastapi_native_dependant.md)
+                        - [is_faststream_decorated](api/faststream/broker/fastapi/get_dependant/is_faststream_decorated.md)
+                        - [mark_faststream_decorated](api/faststream/broker/fastapi/get_dependant/mark_faststream_decorated.md)
                     - route
                         - [StreamMessage](api/faststream/broker/fastapi/route/StreamMessage.md)
                         - [build_faststream_to_fastapi_parser](api/faststream/broker/fastapi/route/build_faststream_to_fastapi_parser.md)
