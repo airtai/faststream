@@ -16,13 +16,13 @@ In the **FastStream** project, this call is not represented in the **AsyncAPI** 
 
 ---
 
-- :material-checkbox-marked:{.checked_mark} Easy to use
+:material-checkbox-marked:{.checked_mark} Easy to use  
 
-- :material-checkbox-marked:{.checked_mark} Availability from ```Context```
+:material-checkbox-marked:{.checked_mark} Availability from ```Context```  
 
-- :fontawesome-solid-square-xmark:{.x_mark} ```AsyncAPI``` support
+:fontawesome-solid-square-xmark:{.x_mark} ```AsyncAPI``` support  
 
-- :fontawesome-solid-square-xmark:{.x_mark} Testing support
+:fontawesome-solid-square-xmark:{.x_mark} Testing support  
 
 ---
 
