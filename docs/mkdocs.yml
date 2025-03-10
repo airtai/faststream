@@ -145,16 +145,19 @@ markdown_extensions:
       base_path: .
       line_slice_separator: []
   - extra
-  - admonition                   # !!! note blocks support
-  - pymdownx.details             # admonition collapsible
-  - pymdownx.superfences         # highlight code syntax
+  - admonition                                                        # !!! note blocks support
+  - pymdownx.details                                                  # admonition collapsible
+  - pymdownx.superfences                                              # highlight code syntax
   - pymdownx.highlight:
-      anchor_linenums: true      # allows link to codeline
-  - pymdownx.inlinehilite        # inline code highlighting `#!python <code>`
+      anchor_linenums: true                                           # allows link to codeline
+  - pymdownx.inlinehilite                                             # inline code highlighting `#!python <code>`
   - pymdownx.tabbed:
-      alternate_style: true      # create tabs group
-  - attr_list                    # specify html attrs in markdown
-  - md_in_html                   # render md wrapped to html tags
+      alternate_style: true                                           # create tabs group
+  - attr_list                                                         # specify html attrs in markdown
+  - md_in_html                                                        # render md wrapped to html tags
+  - pymdownx.emoji:                                                   # render material emoji
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 extra:
   analytics:
