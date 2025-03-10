@@ -17,6 +17,20 @@ Additionally, this object can be used as a decorator. The order of Subscriber an
 !!! note
     It uses the handler function's return type annotation to cast the function's return value before sending, so be accurate with it.
 
+---
+
+- :material-checkbox-marked:{.checked_mark} ```AsyncAPI``` support
+
+- :material-checkbox-marked:{.checked_mark} Testing support
+
+- :material-checkbox-marked:{.checked_mark} Can be reused
+
+- :fontawesome-solid-triangle-exclamation:{.warning_mark} More verbose way
+
+- :fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published
+
+---
+
 {! includes/getting_started/publishing/object/1.md !}
 
 ## Message Broadcasting

@@ -17,6 +17,22 @@ It creates a structured DataPipeline unit with an input and output. The order of
 !!! note
     It uses the handler function's return type annotation to cast the function's return value before sending, so be accurate with it.
 
+---
+
+- :material-checkbox-marked:{.checked_mark} Easy to use
+
+- :material-checkbox-marked:{.checked_mark} Availability from ```Context```
+
+- :fontawesome-solid-square-xmark:{.x_mark} ```AsyncAPI``` support
+
+- :fontawesome-solid-square-xmark:{.x_mark} Testing support
+
+- :fontawesome-solid-square-xmark:{.x_mark} Can be reused
+
+- :fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published
+
+---
+
 {! includes/getting_started/publishing/decorator/1.md !}
 
 ## Message Broadcasting
