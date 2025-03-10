@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, Type, Union
+from typing import List, Optional, Type, Union
 
 import pydantic
 from dirty_equals import IsDict, IsPartialDict, IsStr
@@ -253,7 +253,7 @@ class FastAPICompatible:
         @dataclass
         class Order:
             id: int
-            products: list[Product] = field(default_factory=list)
+            products: List[Product] = field(default_factory=list)
 
         broker = self.broker_class()
 
