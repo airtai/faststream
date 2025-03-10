@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, Type, Union
 
@@ -243,6 +243,51 @@ class FastAPICompatible:
                 "title": key,
                 "type": "object",
             }
+
+    def test_dataclasses_nested(self):
+        @dataclass
+        class Product:
+            id: int
+            name: str = ""
+
+        @dataclass
+        class Order:
+            id: int
+            products: list[Product] = field(default_factory=list)
+
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle(order: Order): ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        assert payload == {
+            "Product": {
+                "properties": {
+                    "id": {"title": "Id", "type": "integer"},
+                    "name": {"default": "", "title": "Name", "type": "string"},
+                },
+                "required": ["id"],
+                "title": "Product",
+                "type": "object",
+            },
+            "Order": {
+                "properties": {
+                    "id": {"title": "Id", "type": "integer"},
+                    "products": {
+                        "items": {"$ref": "#/components/schemas/Product"},
+                        "title": "Products",
+                        "type": "array",
+                    },
+                },
+                "required": ["id"],
+                "title": "Order",
+                "type": "object",
+            },
+        }
 
     def test_pydantic_model(self):
         class User(pydantic.BaseModel):
