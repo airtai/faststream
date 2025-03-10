@@ -85,3 +85,15 @@ a.internal-link::after {
         */
     content: "\00A0↪";
 }
+
+.checked_mark {
+    color: #00c753;
+}
+
+.x_mark {
+    color: #ce242d;
+}
+
+.warning_mark {
+    color: #d19d00;
+}
