@@ -16,19 +16,19 @@ This method creates a reusable Publisher object that can be used directly to pub
 
 ---
 
-:material-checkbox-marked:{.checked_mark} Availability from ```Context```  
+:material-checkbox-marked:{.checked_mark} Availability from ```Context```
 
-:material-checkbox-marked:{.checked_mark} ```AsyncAPI``` support  
+:material-checkbox-marked:{.checked_mark} ```AsyncAPI``` support
 
-:material-checkbox-marked:{.checked_mark} Testing support  
+:material-checkbox-marked:{.checked_mark} Testing support
 
-:material-checkbox-marked:{.checked_mark} Optional publication  
+:material-checkbox-marked:{.checked_mark} Optional publication
 
-:material-checkbox-marked:{.checked_mark} Can be reused  
+:material-checkbox-marked:{.checked_mark} Can be reused
 
-:fontawesome-solid-triangle-exclamation:{.warning_mark} Most verbose way  
+:fontawesome-solid-triangle-exclamation:{.warning_mark} Most verbose way
 
-:fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published  
+:fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published
 
 ---
 

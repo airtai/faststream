@@ -19,17 +19,17 @@ It creates a structured DataPipeline unit with an input and output. The order of
 
 ---
 
-:material-checkbox-marked:{.checked_mark} Easy to use  
+:material-checkbox-marked:{.checked_mark} Easy to use
 
-:material-checkbox-marked:{.checked_mark} Availability from ```Context```  
+:material-checkbox-marked:{.checked_mark} Availability from ```Context```
 
-:fontawesome-solid-square-xmark:{.x_mark} ```AsyncAPI``` support  
+:fontawesome-solid-square-xmark:{.x_mark} ```AsyncAPI``` support
 
-:fontawesome-solid-square-xmark:{.x_mark} Testing support  
+:fontawesome-solid-square-xmark:{.x_mark} Testing support
 
-:fontawesome-solid-square-xmark:{.x_mark} Can be reused  
+:fontawesome-solid-square-xmark:{.x_mark} Can be reused
 
-:fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published  
+:fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published
 
 ---
 

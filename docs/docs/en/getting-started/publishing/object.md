@@ -19,15 +19,15 @@ Additionally, this object can be used as a decorator. The order of Subscriber an
 
 ---
 
-:material-checkbox-marked:{.checked_mark} ```AsyncAPI``` support  
+:material-checkbox-marked:{.checked_mark} ```AsyncAPI``` support
 
-:material-checkbox-marked:{.checked_mark} Testing support  
+:material-checkbox-marked:{.checked_mark} Testing support
 
-:material-checkbox-marked:{.checked_mark} Can be reused  
+:material-checkbox-marked:{.checked_mark} Can be reused
 
-:fontawesome-solid-triangle-exclamation:{.warning_mark} More verbose way  
+:fontawesome-solid-triangle-exclamation:{.warning_mark} More verbose way
 
-:fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published  
+:fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published
 
 ---
 
