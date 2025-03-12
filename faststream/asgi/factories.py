@@ -23,11 +23,12 @@ def make_ping_asgi(
     broker: "BrokerUsecase[Any, Any]",
     /,
     timeout: Optional[float] = None,
+    include_in_schema: bool = True, # TODO: Is this default?
 ) -> "ASGIApp":
     healthy_response = AsgiResponse(b"", 204)
     unhealthy_response = AsgiResponse(b"", 500)
 
-    @get
+    @get(include_in_schema=include_in_schema)
     async def ping(scope: "Scope") -> AsgiResponse:
         if await broker.ping(timeout):
             return healthy_response
@@ -50,7 +51,7 @@ def make_asyncapi_asgi(
     title: str = "FastStream",
     asyncapi_js_url: str = ASYNCAPI_JS_DEFAULT_URL,
     asyncapi_css_url: str = ASYNCAPI_CSS_DEFAULT_URL,
-) -> "ASGIApp":
+) -> "ASGIApp": # Make endpoint for docs
     return AsgiResponse(
         get_asyncapi_html(
             get_app_schema(app),

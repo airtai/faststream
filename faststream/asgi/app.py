@@ -57,7 +57,7 @@ class AsgiFastStream(Application):
         self,
         broker: Optional["BrokerUsecase[Any, Any]"] = None,
         /,
-        asgi_routes: Sequence[Tuple[str, "ASGIApp"]] = (),
+        asgi_routes: Sequence[Tuple[str, "ASGIApp"]] = (), # Here. These will take in include_in_schema
         asyncapi_path: Optional[str] = None,
         # regular broker args
         logger: Optional["LoggerProto"] = logger,

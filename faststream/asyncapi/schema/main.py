@@ -67,7 +67,7 @@ class Components(BaseModel):
             extra = "allow"
 
 
-class Schema(BaseModel):
+class Schema(BaseModel): # TODO: Needs to accept HTTP routes
     """A class to represent a schema.
 
     Attributes:
@@ -77,6 +77,7 @@ class Schema(BaseModel):
         info : information about the schema
         servers : optional dictionary of servers
         channels : dictionary of channels
+        routes : optional dictionary of asgi routes
         components : optional components of the schema
         tags : optional list of tags
         externalDocs : optional external documentation
@@ -93,6 +94,7 @@ class Schema(BaseModel):
     defaultContentType: Optional[str] = None
     info: Info
     servers: Optional[Dict[str, Server]] = None
+    routes: Optional[Dict[str, Any]] = None
     channels: Dict[str, Channel]
     components: Optional[Components] = None
     tags: Optional[List[Union[Tag, TagDict, Dict[str, Any]]]] = None
