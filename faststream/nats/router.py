@@ -6,6 +6,7 @@ from typing import (
     Dict,
     Iterable,
     Optional,
+    Sequence,
     Union,
 )
 
@@ -71,7 +72,7 @@ class NatsPublisher(ArgsContainer):
         ] = None,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information
@@ -184,9 +185,9 @@ class NatsRoute(SubscriberRoute):
             Doc("Enable Heartbeats for a consumer to detect failures."),
         ] = None,
         flow_control: Annotated[
-            bool,
+            Optional[bool],
             Doc("Enable Flow Control for a consumer."),
-        ] = False,
+        ] = None,
         deliver_policy: Annotated[
             Optional["api.DeliverPolicy"],
             Doc("Deliver Policy to be used for subscription."),
@@ -242,7 +243,7 @@ class NatsRoute(SubscriberRoute):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[NatsMessage]"],
+            Sequence["SubscriberMiddleware[NatsMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -354,7 +355,7 @@ class NatsRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[Msg]"],
+            Sequence["BrokerMiddleware[Msg]"],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[

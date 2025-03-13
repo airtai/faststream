@@ -55,6 +55,7 @@ if TYPE_CHECKING:
     from faststream.confluent.schemas import TopicPartition
     from faststream.confluent.subscriber.asyncapi import (
         AsyncAPIBatchSubscriber,
+        AsyncAPIConcurrentDefaultSubscriber,
         AsyncAPIDefaultSubscriber,
     )
     from faststream.security import BaseSecurity
@@ -267,7 +268,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
-            Iterable[
+            Sequence[
                 Union[
                     "BrokerMiddleware[Message]",
                     "BrokerMiddleware[Tuple[Message, ...]]",
@@ -564,7 +565,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             graceful_timeout=graceful_timeout,
             decoder=decoder,
             parser=parser,
-            middlewares=middlewares,
+            middlewares=middlewares,  # type: ignore[arg-type]
             schema_url=schema_url,
             setup_state=setup_state,
             # logger options
@@ -834,7 +835,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -1239,7 +1240,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -1630,7 +1631,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -2038,7 +2039,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -2205,13 +2206,19 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
                 """
             ),
         ] = False,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> Union[
         "AsyncAPIBatchSubscriber",
         "AsyncAPIDefaultSubscriber",
+        "AsyncAPIConcurrentDefaultSubscriber",
     ]:
         subscriber = super().subscriber(
             *topics,
             polling_interval=polling_interval,
+            max_workers=max_workers,
             partitions=partitions,
             group_id=group_id,
             group_instance_id=group_instance_id,
@@ -2255,7 +2262,10 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         if batch:
             return cast("AsyncAPIBatchSubscriber", subscriber)
         else:
-            return cast("AsyncAPIDefaultSubscriber", subscriber)
+            if max_workers > 1:
+                return cast("AsyncAPIConcurrentDefaultSubscriber", subscriber)
+            else:
+                return cast("AsyncAPIDefaultSubscriber", subscriber)
 
     @overload  # type: ignore[override]
     def publisher(
@@ -2306,7 +2316,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -2380,7 +2390,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ],
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -2454,7 +2464,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -2531,7 +2541,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args

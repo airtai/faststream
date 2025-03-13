@@ -9,6 +9,7 @@ from typing import (
     List,
     Literal,
     Optional,
+    Sequence,
     Tuple,
     Type,
     TypeVar,
@@ -440,7 +441,7 @@ class KafkaBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable[
+            Sequence[
                 Union[
                     "BrokerMiddleware[ConsumerRecord]",
                     "BrokerMiddleware[Tuple[ConsumerRecord, ...]]",
@@ -877,7 +878,7 @@ class KafkaBroker(
 
         call: AsyncFunc = self._producer.publish_batch
 
-        for m in self._middlewares:
+        for m in self._middlewares[::-1]:
             call = partial(m(None).publish_scope, call)
 
         await call(

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Sequence, Union, cast
 
 from nats.js import api
 from typing_extensions import Annotated, Doc, deprecated, override
@@ -95,9 +95,9 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Doc("Enable Heartbeats for a consumer to detect failures."),
         ] = None,
         flow_control: Annotated[
-            bool,
+            Optional[bool],
             Doc("Enable Flow Control for a consumer."),
-        ] = False,
+        ] = None,
         deliver_policy: Annotated[
             Optional["api.DeliverPolicy"],
             Doc("Deliver Policy to be used for subscription."),
@@ -153,7 +153,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[NatsMessage]"],
+            Sequence["SubscriberMiddleware[NatsMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -294,7 +294,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         ] = None,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information
@@ -362,7 +362,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         *,
         prefix: str = "",
         dependencies: Iterable["Depends"] = (),
-        middlewares: Iterable["BrokerMiddleware[Msg]"] = (),
+        middlewares: Sequence["BrokerMiddleware[Msg]"] = (),
         include_in_schema: Optional[bool] = None,
     ) -> None:
         sub_streams = router._stream_builder.objects.copy()

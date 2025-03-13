@@ -9,6 +9,7 @@ from typing import (
     Dict,
     Iterable,
     Optional,
+    Sequence,
     Tuple,
     Union,
     cast,
@@ -43,8 +44,8 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -105,11 +106,11 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         request: AsyncFunc = self._producer.request
 
         for pub_m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
         ):
             request = partial(pub_m, request)
 
@@ -117,7 +118,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
         async with AsyncExitStack() as stack:
             return_msg: Callable[[KafkaMessage], Awaitable[KafkaMessage]] = return_input
-            for m in self._broker_middlewares:
+            for m in self._broker_middlewares[::-1]:
                 mid = m(published_msg)
                 await stack.enter_async_context(mid)
                 return_msg = partial(mid.consume_scope, return_msg)
@@ -140,8 +141,8 @@ class DefaultPublisher(LogicPublisher[Message]):
         headers: Optional[Dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[Message]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[Message]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -198,11 +199,11 @@ class DefaultPublisher(LogicPublisher[Message]):
         call: AsyncFunc = self._producer.publish
 
         for m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
         ):
             call = partial(m, call)
 
@@ -273,11 +274,11 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
         call: AsyncFunc = self._producer.publish_batch
 
         for m in chain(
+            self._middlewares[::-1],
             (
                 _extra_middlewares
-                or (m(None).publish_scope for m in self._broker_middlewares)
+                or (m(None).publish_scope for m in self._broker_middlewares[::-1])
             ),
-            self._middlewares,
         ):
             call = partial(m, call)
 

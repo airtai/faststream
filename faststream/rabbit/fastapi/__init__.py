@@ -12,10 +12,10 @@ RabbitProducer = Annotated[AioPikaFastProducer, Context("broker._producer")]
 
 __all__ = (
     "Context",
-    "Logger",
     "ContextRepo",
-    "RabbitMessage",
+    "Logger",
     "RabbitBroker",
+    "RabbitMessage",
     "RabbitProducer",
     "RabbitRouter",
 )

@@ -3,21 +3,23 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Coroutine,
+    Generic,
     List,
 )
 
 import anyio
 
+from faststream.broker.types import MsgType
+
 from .usecase import SubscriberUsecase
 
 if TYPE_CHECKING:
     from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
-    from nats.aio.msg import Msg
 
 
 class TasksMixin(SubscriberUsecase[Any]):
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
         self.tasks: List[asyncio.Task[Any]] = []
 
     def add_task(self, coro: Coroutine[Any, Any, Any]) -> None:
@@ -34,13 +36,13 @@ class TasksMixin(SubscriberUsecase[Any]):
         self.tasks = []
 
 
-class ConcurrentMixin(TasksMixin):
-    send_stream: "MemoryObjectSendStream[Msg]"
-    receive_stream: "MemoryObjectReceiveStream[Msg]"
+class ConcurrentMixin(TasksMixin, Generic[MsgType]):
+    send_stream: "MemoryObjectSendStream[MsgType]"
+    receive_stream: "MemoryObjectReceiveStream[MsgType]"
 
     def __init__(
         self,
-        *,
+        *args: Any,
         max_workers: int,
         **kwargs: Any,
     ) -> None:
@@ -51,7 +53,7 @@ class ConcurrentMixin(TasksMixin):
         )
         self.limiter = anyio.Semaphore(max_workers)
 
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
     def start_consume_task(self) -> None:
         self.add_task(self._serve_consume_queue())
@@ -69,13 +71,13 @@ class ConcurrentMixin(TasksMixin):
 
     async def _consume_msg(
         self,
-        msg: "Msg",
+        msg: "MsgType",
     ) -> None:
         """Proxy method to call `self.consume` with semaphore block."""
         async with self.limiter:
             await self.consume(msg)
 
-    async def _put_msg(self, msg: "Msg") -> None:
+    async def _put_msg(self, msg: "MsgType") -> None:
         """Proxy method to put msg into in-memory queue with semaphore block."""
         async with self.limiter:
             await self.send_stream.send(msg)

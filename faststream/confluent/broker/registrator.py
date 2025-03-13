@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     from faststream.confluent.schemas import TopicPartition
     from faststream.confluent.subscriber.asyncapi import (
         AsyncAPIBatchSubscriber,
+        AsyncAPIConcurrentDefaultSubscriber,
         AsyncAPIDefaultSubscriber,
     )
 
@@ -53,9 +54,16 @@ class KafkaRegistrator(
     """Includable to KafkaBroker router."""
 
     _subscribers: Dict[
-        int, Union["AsyncAPIBatchSubscriber", "AsyncAPIDefaultSubscriber"]
+        int,
+        Union[
+            "AsyncAPIBatchSubscriber",
+            "AsyncAPIDefaultSubscriber",
+            "AsyncAPIConcurrentDefaultSubscriber",
+        ],
     ]
-    _publishers: Dict[int, Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"]]
+    _publishers: Dict[  # type: ignore[assignment]
+        int, Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"]
+    ]
 
     @overload  # type: ignore[override]
     def subscriber(
@@ -293,7 +301,7 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -337,6 +345,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> "AsyncAPIBatchSubscriber": ...
 
     @overload
@@ -575,7 +587,7 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -619,6 +631,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> "AsyncAPIDefaultSubscriber": ...
 
     @overload
@@ -857,7 +873,7 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -901,6 +917,10 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> Union[
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIBatchSubscriber",
@@ -1142,7 +1162,7 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -1186,67 +1206,72 @@ class KafkaRegistrator(
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
     ) -> Union[
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIBatchSubscriber",
+        "AsyncAPIConcurrentDefaultSubscriber",
     ]:
         if not auto_commit and not group_id:
             raise SetupError("You should install `group_id` with manual commit mode")
 
-        subscriber = super().subscriber(
-            create_subscriber(
-                *topics,
-                polling_interval=polling_interval,
-                partitions=partitions,
-                batch=batch,
-                max_records=max_records,
-                group_id=group_id,
-                connection_data={
-                    "group_instance_id": group_instance_id,
-                    "fetch_max_wait_ms": fetch_max_wait_ms,
-                    "fetch_max_bytes": fetch_max_bytes,
-                    "fetch_min_bytes": fetch_min_bytes,
-                    "max_partition_fetch_bytes": max_partition_fetch_bytes,
-                    "auto_offset_reset": auto_offset_reset,
-                    "enable_auto_commit": auto_commit,
-                    "auto_commit_interval_ms": auto_commit_interval_ms,
-                    "check_crcs": check_crcs,
-                    "partition_assignment_strategy": partition_assignment_strategy,
-                    "max_poll_interval_ms": max_poll_interval_ms,
-                    "session_timeout_ms": session_timeout_ms,
-                    "heartbeat_interval_ms": heartbeat_interval_ms,
-                    "isolation_level": isolation_level,
-                },
-                is_manual=not auto_commit,
-                # subscriber args
-                no_ack=no_ack,
-                no_reply=no_reply,
-                retry=retry,
-                broker_middlewares=self._middlewares,
-                broker_dependencies=self._dependencies,
-                # AsyncAPI
-                title_=title,
-                description_=description,
-                include_in_schema=self._solve_include_in_schema(include_in_schema),
-            )
+        subscriber = create_subscriber(
+            *topics,
+            max_workers=max_workers,
+            polling_interval=polling_interval,
+            partitions=partitions,
+            batch=batch,
+            max_records=max_records,
+            group_id=group_id,
+            connection_data={
+                "group_instance_id": group_instance_id,
+                "fetch_max_wait_ms": fetch_max_wait_ms,
+                "fetch_max_bytes": fetch_max_bytes,
+                "fetch_min_bytes": fetch_min_bytes,
+                "max_partition_fetch_bytes": max_partition_fetch_bytes,
+                "auto_offset_reset": auto_offset_reset,
+                "enable_auto_commit": auto_commit,
+                "auto_commit_interval_ms": auto_commit_interval_ms,
+                "check_crcs": check_crcs,
+                "partition_assignment_strategy": partition_assignment_strategy,
+                "max_poll_interval_ms": max_poll_interval_ms,
+                "session_timeout_ms": session_timeout_ms,
+                "heartbeat_interval_ms": heartbeat_interval_ms,
+                "isolation_level": isolation_level,
+            },
+            is_manual=not auto_commit,
+            # subscriber args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_middlewares=self._middlewares,
+            broker_dependencies=self._dependencies,
+            # AsyncAPI
+            title_=title,
+            description_=description,
+            include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
 
         if batch:
-            return cast("AsyncAPIBatchSubscriber", subscriber).add_call(
-                filter_=filter,
-                parser_=parser or self._parser,
-                decoder_=decoder or self._decoder,
-                dependencies_=dependencies,
-                middlewares_=middlewares,
-            )
+            subscriber = cast("AsyncAPIBatchSubscriber", subscriber)
         else:
-            return cast("AsyncAPIDefaultSubscriber", subscriber).add_call(
-                filter_=filter,
-                parser_=parser or self._parser,
-                decoder_=decoder or self._decoder,
-                dependencies_=dependencies,
-                middlewares_=middlewares,
-            )
+            if max_workers > 1:
+                subscriber = cast("AsyncAPIConcurrentDefaultSubscriber", subscriber)
+            else:
+                subscriber = cast("AsyncAPIDefaultSubscriber", subscriber)
+
+        subscriber = super().subscriber(subscriber)  # type: ignore[assignment]
+
+        return subscriber.add_call(
+            filter_=filter,
+            parser_=parser or self._parser,
+            decoder_=decoder or self._decoder,
+            dependencies_=dependencies,
+            middlewares_=middlewares,
+        )
 
     @overload  # type: ignore[override]
     def publisher(
@@ -1297,7 +1322,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -1371,7 +1396,7 @@ class KafkaRegistrator(
         ],
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -1445,7 +1470,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -1522,7 +1547,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -1577,6 +1602,8 @@ class KafkaRegistrator(
         )
 
         if batch:
-            return cast("AsyncAPIBatchPublisher", super().publisher(publisher))
+            publisher = cast("AsyncAPIBatchPublisher", publisher)
         else:
-            return cast("AsyncAPIDefaultPublisher", super().publisher(publisher))
+            publisher = cast("AsyncAPIDefaultPublisher", publisher)
+
+        return super().publisher(publisher)  # type: ignore[return-value,arg-type]

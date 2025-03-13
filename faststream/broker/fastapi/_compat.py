@@ -12,17 +12,35 @@ if TYPE_CHECKING:
     from fastapi.dependencies.models import Dependant
     from fastapi.requests import Request
 
-major, minor, patch, *_ = map(int, FASTAPI_VERSION.split("."))
-FASTAPI_V2 = major > 0 or minor > 100
-FASTAPI_V106 = major > 0 or minor >= 106
-FASTAPI_v102_3 = major > 0 or minor > 112 or (minor == 112 and patch > 2)
-FASTAPI_v102_4 = major > 0 or minor > 112 or (minor == 112 and patch > 3)
+major, minor, patch, *_ = FASTAPI_VERSION.split(".")
+
+_FASTAPI_MAJOR, _FASTAPI_MINOR = int(major), int(minor)
+
+FASTAPI_V2 = _FASTAPI_MAJOR > 0 or _FASTAPI_MINOR > 100
+FASTAPI_V106 = _FASTAPI_MAJOR > 0 or _FASTAPI_MINOR >= 106
+
+try:
+    _FASTAPI_PATCH = int(patch)
+except ValueError:
+    FASTAPI_v102_3 = True
+    FASTAPI_v102_4 = True
+else:
+    FASTAPI_v102_3 = (
+        _FASTAPI_MAJOR > 0
+        or _FASTAPI_MINOR > 112
+        or (_FASTAPI_MINOR == 112 and _FASTAPI_PATCH > 2)
+    )
+    FASTAPI_v102_4 = (
+        _FASTAPI_MAJOR > 0
+        or _FASTAPI_MINOR > 112
+        or (_FASTAPI_MINOR == 112 and _FASTAPI_PATCH > 3)
+    )
 
 __all__ = (
-    "create_response_field",
-    "solve_faststream_dependency",
-    "raise_fastapi_validation_error",
     "RequestValidationError",
+    "create_response_field",
+    "raise_fastapi_validation_error",
+    "solve_faststream_dependency",
 )
 
 

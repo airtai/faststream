@@ -1,3 +1,4 @@
+from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Dict,
@@ -16,6 +17,7 @@ from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import MsgType
 from faststream.confluent.subscriber.usecase import (
     BatchSubscriber,
+    ConcurrentDefaultSubscriber,
     DefaultSubscriber,
     LogicSubscriber,
 )
@@ -28,13 +30,16 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
     """A class to handle logic and async API operations."""
 
     def get_name(self) -> str:
-        return f'{",".join(self.topics)}:{self.call_name}'
+        return f"{','.join(self.topics)}:{self.call_name}"
 
     def get_schema(self) -> Dict[str, Channel]:
         channels = {}
 
         payloads = self.get_payloads()
-        for t in self.topics:
+
+        topics = chain(self.topics, {part.topic for part in self.partitions})
+
+        for t in topics:
             handler_name = self.title_ or f"{t}:{self.call_name}"
 
             channels[handler_name] = Channel(
@@ -66,5 +71,12 @@ class AsyncAPIDefaultSubscriber(
 class AsyncAPIBatchSubscriber(
     BatchSubscriber,
     AsyncAPISubscriber[Tuple["ConfluentMsg", ...]],
+):
+    pass
+
+
+class AsyncAPIConcurrentDefaultSubscriber(
+    ConcurrentDefaultSubscriber,
+    AsyncAPISubscriber["ConfluentMsg"],
 ):
     pass

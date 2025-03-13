@@ -12,7 +12,7 @@ search:
 
 Often, you need not only to run your application to consume messages but also to make it a part of your service ecosystem with *Prometheus metrics*, K8S *liveness* and *readiness probes*, *traces*, and other observability features.
 
-Unfortunately, such functionalilty can't be implemented by broker features alone, and you have to provide several **HTTP** endpoints in your app.
+Unfortunately, such functionality can't be implemented by broker features alone, and you have to provide several **HTTP** endpoints in your app.
 
 Of course, you can use **FastStream** as a part of any **ASGI** frameworks ([integrations](./integrations/frameworks/index.md){.internal-link}), but fewer the dependencies, the better, right?
 
@@ -37,6 +37,22 @@ uvicorn main:app
 ```
 
 It does nothing but launch the app itself as an **ASGI lifespan**.
+
+!!! note
+    If you want to run your app using several workers, you need to use something else than `uvicorn`.
+    ```shell
+    faststream run main:app --workers 4
+    ```
+    ```shell
+    gunicorn -k uvicorn.workers.UvicornWorker main:app --workers=4
+    ```
+    ```shell
+    granian --interface asgi main:app --workers 4
+    ```
+    ```shell
+    hypercorn main:app --workers 4
+    ```
+
 
 ### ASGI Routes
 
@@ -85,7 +101,7 @@ app = AsgiFastStream(
 
 !!! tip
     You do not need to setup all routes using the `asgi_routes=[]` parameter.<br/>
-    You can use the `#!python app.mount("/healh", asgi_endpoint)` method also.
+    You can use the `#!python app.mount("/health", asgi_endpoint)` method also.
 
 ### AsyncAPI Documentation
 
@@ -137,6 +153,8 @@ app = FastStream(broker).as_asgi(
     ```shell
     faststream run main:app --host 0.0.0.0 --port 8000 --workers 4
     ```
+    This possibility built on gunicorn + uvicorn, you need install them to run FastStream ASGI app via CLI.
+    We send all args directly to gunicorn, you can learn more about it [here](https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py).
 
 ## Other ASGI Compatibility
 
@@ -166,3 +184,17 @@ app = FastAPI(lifespan=start_broker)
 app.mount("/health", make_ping_asgi(broker, timeout=5.0))
 app.mount("/asyncapi", make_asyncapi_asgi(FastStream(broker)))
 ```
+
+!!! tip
+    You can also bind to unix domain or a file descriptor. FastStream will bind to “127.0.0.1:8000” by default
+
+    ```shell
+    faststream run main:app --bind unix:/tmp/socket.sock
+    ```
+    ```shell
+    faststream run main:app --bind fd://2
+    ```
+    You can use multiple binds if you want
+    ```shell
+    faststream run main:app --bind 0.0.0.0:8000 '[::]:8000'
+    ```

@@ -7,9 +7,9 @@ class PubSub(NameRequired):
 
     __slots__ = (
         "name",
-        "polling_interval",
-        "pattern",
         "path_regex",
+        "pattern",
+        "polling_interval",
     )
 
     def __init__(

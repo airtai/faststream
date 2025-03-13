@@ -4,6 +4,8 @@ from unittest.mock import Mock
 
 import pytest
 from dirty_equals import IsFloat, IsUUID
+from opentelemetry import baggage, context
+from opentelemetry.baggage.propagation import W3CBaggagePropagator
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics._internal.point import Metric
 from opentelemetry.sdk.metrics.export import InMemoryMetricReader
@@ -113,9 +115,9 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
             ]
 
         if action == Action.PROCESS:
-            assert attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES] == len(
-                msg
-            ), attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES]
+            assert attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES] == len(msg), (
+                attrs[SpanAttr.MESSAGING_MESSAGE_PAYLOAD_SIZE_BYTES]
+            )
             assert attrs[SpanAttr.MESSAGING_OPERATION] == action, attrs[
                 SpanAttr.MESSAGING_OPERATION
             ]
@@ -535,3 +537,43 @@ class LocalTelemetryTestcase(BaseTestcaseConfig):
 
         assert event.is_set()
         mock.assert_called_once_with(msg)
+
+    async def test_get_baggage_from_headers(
+        self,
+        event: asyncio.Event,
+        queue: str,
+    ):
+        mid = self.telemetry_middleware_class()
+        broker = self.broker_class(middlewares=(mid,))
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        expected_baggage = {"foo": "bar", "bar": "baz"}
+
+        ctx = context.Context()
+        for key, value in expected_baggage.items():
+            ctx = baggage.set_baggage(key, value, context=ctx)
+
+        propagator = W3CBaggagePropagator()
+        headers = {}
+        propagator.inject(headers, context=ctx)
+
+        @broker.subscriber(*args, **kwargs)
+        async def handler():
+            baggage_instance = Baggage.from_headers(headers)
+            extracted_baggage = baggage_instance.get_all()
+            assert extracted_baggage == expected_baggage
+            event.set()
+
+        broker = self.patch_broker(broker)
+        msg = "start"
+
+        async with broker:
+            await broker.start()
+            tasks = (
+                asyncio.create_task(broker.publish(msg, queue, headers=headers)),
+                asyncio.create_task(event.wait()),
+            )
+            await asyncio.wait(tasks, timeout=self.timeout)
+
+        assert event.is_set()

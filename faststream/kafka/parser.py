@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 from faststream.broker.message import decode_message, gen_cor_id
-from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
+from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage, KafkaRawMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
@@ -27,14 +27,14 @@ class AioKafkaParser:
 
     async def parse_message(
         self,
-        message: "ConsumerRecord",
+        message: Union["ConsumerRecord", "KafkaRawMessage"],
     ) -> "StreamMessage[ConsumerRecord]":
         """Parses a Kafka message."""
         headers = {i: j.decode() for i, j in message.headers}
         handler: Optional[LogicSubscriber[Any]] = context.get_local("handler_")
 
         return self.msg_class(
-            body=message.value,
+            body=message.value or b"",
             headers=headers,
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
@@ -42,7 +42,9 @@ class AioKafkaParser:
             correlation_id=headers.get("correlation_id", gen_cor_id()),
             raw_message=message,
             path=self.get_path(message.topic),
-            consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
+            consumer=getattr(message, "consumer", None)
+            or getattr(handler, "consumer", None)
+            or FAKE_CONSUMER,
         )
 
     async def decode_message(
@@ -72,7 +74,7 @@ class AioKafkaBatchParser(AioKafkaParser):
         last = message[-1]
 
         for m in message:
-            body.append(m.value)
+            body.append(m.value or b"")
             batch_headers.append({i: j.decode() for i, j in m.headers})
 
         headers = next(iter(batch_headers), {})

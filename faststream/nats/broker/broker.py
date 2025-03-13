@@ -8,6 +8,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Sequence,
     Type,
     Union,
 )
@@ -195,6 +196,10 @@ if TYPE_CHECKING:
         ]
         nkeys_seed: Annotated[
             Optional[str],
+            Doc("Path-like object containing nkeys seed that will be used."),
+        ]
+        nkeys_seed_str: Annotated[
+            Optional[str],
             Doc("Nkeys seed to be used."),
         ]
         inbox_prefix: Annotated[
@@ -350,7 +355,11 @@ class NatsBroker(
         ] = None,
         nkeys_seed: Annotated[
             Optional[str],
-            Doc("Nkeys seed to be used."),
+            Doc("Path-like object containing nkeys seed that will be used."),
+        ] = None,
+        nkeys_seed_str: Annotated[
+            Optional[str],
+            Doc("Raw nkeys seed to be used."),
         ] = None,
         inbox_prefix: Annotated[
             Union[str, bytes],
@@ -386,7 +395,7 @@ class NatsBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[Msg]"],
+            Sequence["BrokerMiddleware[Msg]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -509,6 +518,7 @@ class NatsBroker(
             token=token,
             user_credentials=user_credentials,
             nkeys_seed=nkeys_seed,
+            nkeys_seed_str=nkeys_seed_str,
             **secure_kwargs,
             # callbacks
             error_cb=self._log_connection_broken(error_cb),

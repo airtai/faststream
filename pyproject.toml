@@ -65,11 +65,11 @@ dependencies = [
 # public distributions
 rabbit = ["aio-pika>=9,<10"]
 
-kafka = ["aiokafka>=0.9,<0.12"]
+kafka = ["aiokafka>=0.9,<0.13"]
 
 confluent = [
-    "confluent-kafka>=2,<3; python_version < '3.13'",
-    "confluent-kafka>=2.6,<3; python_version >= '3.13'",
+    "confluent-kafka>=2,!=2.8.1,<3; python_version < '3.13'",
+    "confluent-kafka>=2.6,!=2.8.1,<3; python_version >= '3.13'",
 ]
 
 nats = ["nats-py>=2.7.0,<=3.0.0"]
@@ -79,8 +79,8 @@ redis = ["redis>=5.0.0,<6.0.0"]
 otel = ["opentelemetry-sdk>=1.24.0,<2.0.0"]
 
 cli = [
-    "typer>=0.9,!=0.12,<1",
-    "watchfiles>=0.15.0,<0.25.0"
+    "typer>=0.9,!=0.12,<=0.15.2",
+    "watchfiles>=0.15.0,<1.1.0"
 ]
 
 prometheus = ["prometheus-client>=0.20.0,<0.30.0"]
@@ -89,15 +89,16 @@ prometheus = ["prometheus-client>=0.20.0,<0.30.0"]
 optionals = ["faststream[rabbit,kafka,confluent,nats,redis,otel,cli,prometheus]"]
 
 devdocs = [
-    "mkdocs-material==9.5.42",
-    "mkdocs-static-i18n==1.2.3",
+    "mkdocs-material==9.6.7",
+    "mkdocs-static-i18n==1.3.0",
     "mdx-include==1.4.2",
-    "mkdocstrings[python]==0.26.2",
+    "mkdocstrings[python]==0.28.3; python_version >= '3.9'",
+    "mkdocstrings[python]==0.26.1; python_version < '3.9'",
     "mkdocs-literate-nav==0.6.1",
-    "mkdocs-git-revision-date-localized-plugin==1.2.9",
+    "mkdocs-git-revision-date-localized-plugin==1.4.4",
     "mike==2.1.3",                                      # versioning
     "mkdocs-minify-plugin==0.8.0",
-    "mkdocs-macros-plugin==1.3.6",                      # includes with variables
+    "mkdocs-macros-plugin==1.3.7",                      # includes with variables
     "mkdocs-glightbox==0.4.0",                          # img zoom
     "pillow",                                           # required for mkdocs-glightbo
     "cairosvg",                                         # required for mkdocs-glightbo
@@ -106,7 +107,7 @@ devdocs = [
 
 types = [
     "faststream[optionals]",
-    "mypy==1.12.1",
+    "mypy==1.15.0",
     # mypy extensions
     "types-Deprecated",
     "types-PyYAML",
@@ -121,26 +122,29 @@ types = [
 
 lint = [
     "faststream[types]",
-    "ruff==0.7.0",
-    "bandit==1.7.10",
-    "semgrep==1.92.0",
-    "codespell==2.3.0",
+    "ruff==0.9.10",
+    "bandit==1.8.3; python_version >= '3.9'",
+    "bandit==1.7.10; python_version < '3.9'",
+    "semgrep==1.111.0; python_version >= '3.9'",
+    "semgrep==1.99.0; python_version < '3.9'",
+    "codespell==2.4.1",
 ]
 
 test-core = [
-    "coverage[toml]==7.6.1; python_version == '3.8'",
-    "coverage[toml]==7.6.4; python_version >= '3.9'",
-    "pytest==8.3.3",
-    "pytest-asyncio==0.24.0",
-    "dirty-equals==0.8.0",
+    "coverage[toml]==7.6.12; python_version >= '3.9'",
+    "coverage[toml]==7.6.1; python_version < '3.9'",
+    "pytest==8.3.5",
+    "pytest-asyncio==0.25.3; python_version >= '3.9'",
+    "pytest-asyncio==0.24.0; python_version < '3.9'",
+    "dirty-equals==0.9.0",
     "typing-extensions>=4.8.0,<4.12.1; python_version < '3.9'",  # to fix dirty-equals
 ]
 
 testing = [
     "faststream[test-core]",
-    "fastapi==0.115.2",
+    "fastapi==0.115.11",
     "pydantic-settings>=2.0.0,<3.0.0",
-    "httpx==0.27.2",
+    "httpx==0.28.1",
     "PyYAML==6.0.2",
     "email-validator==2.2.0",
 ]
@@ -148,7 +152,7 @@ testing = [
 dev = [
     "faststream[optionals,lint,testing,devdocs]",
     "pre-commit==3.5.0; python_version < '3.9'",
-    "pre-commit==4.0.1; python_version >= '3.9'",
+    "pre-commit==4.1.0; python_version >= '3.9'",
     "detect-secrets==1.5.0",
 ]
 

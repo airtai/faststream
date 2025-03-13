@@ -18,6 +18,7 @@ from typing import (
 
 import anyio
 from fast_depends.dependencies import Depends
+from nats.aio.msg import Msg
 from nats.errors import ConnectionClosedError, TimeoutError
 from nats.js.api import ConsumerConfig, ObjectInfo
 from typing_extensions import Annotated, Doc, override
@@ -45,7 +46,6 @@ from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
     from nats.aio.client import Client
-    from nats.aio.msg import Msg
     from nats.aio.subscription import Subscription
     from nats.js import JetStreamContext
     from nats.js.kv import KeyValue
@@ -88,7 +88,7 @@ class LogicSubscriber(Generic[ConnectionType, MsgType], SubscriberUsecase[MsgTyp
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -263,7 +263,7 @@ class _DefaultSubscriber(LogicSubscriber[ConnectionType, MsgType]):
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -336,7 +336,7 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -431,7 +431,7 @@ class CoreSubscriber(_DefaultSubscriber["Client", "Msg"]):
 
 
 class ConcurrentCoreSubscriber(
-    ConcurrentMixin,
+    ConcurrentMixin[Msg],
     CoreSubscriber,
 ):
     def __init__(
@@ -448,7 +448,7 @@ class ConcurrentCoreSubscriber(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -510,7 +510,7 @@ class _StreamSubscriber(_DefaultSubscriber["JetStreamContext", "Msg"]):
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -624,7 +624,7 @@ class PushStreamSubscription(_StreamSubscriber):
 
 
 class ConcurrentPushStreamSubscriber(
-    ConcurrentMixin,
+    ConcurrentMixin[Msg],
     _StreamSubscriber,
 ):
     subscription: Optional["JetStreamContext.PushSubscription"]
@@ -644,7 +644,7 @@ class ConcurrentPushStreamSubscriber(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -691,10 +691,7 @@ class ConcurrentPushStreamSubscriber(
         )
 
 
-class PullStreamSubscriber(
-    TasksMixin,
-    _StreamSubscriber,
-):
+class PullStreamSubscriber(TasksMixin, _StreamSubscriber):
     subscription: Optional["JetStreamContext.PullSubscription"]
 
     def __init__(
@@ -711,7 +708,7 @@ class PullStreamSubscriber(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -777,7 +774,7 @@ class PullStreamSubscriber(
 
 
 class ConcurrentPullStreamSubscriber(
-    ConcurrentMixin,
+    ConcurrentMixin[Msg],
     PullStreamSubscriber,
 ):
     def __init__(
@@ -795,7 +792,7 @@ class ConcurrentPullStreamSubscriber(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -864,7 +861,7 @@ class BatchPullStreamSubscriber(
         no_reply: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[List[Msg]]"],
+        broker_middlewares: Sequence["BrokerMiddleware[List[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -979,7 +976,7 @@ class KeyValueWatchSubscriber(
         config: "ConsumerConfig",
         kv_watch: "KvWatch",
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[KeyValue.Entry]"],
+        broker_middlewares: Sequence["BrokerMiddleware[KeyValue.Entry]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -1034,7 +1031,7 @@ class KeyValueWatchSubscriber(
         else:
             fetch_sub = self._fetch_sub
 
-        raw_message = None
+        raw_message: Optional[KeyValue.Entry] = None
         sleep_interval = timeout / 10
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
@@ -1042,13 +1039,12 @@ class KeyValueWatchSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
-        msg: NatsKvMessage = await process_msg(
+        return await process_msg(  # type: ignore[return-value]
             msg=raw_message,
             middlewares=self._broker_middlewares,
             parser=self._parser,
             decoder=self._decoder,
         )
-        return msg
 
     @override
     async def _create_subscription(
@@ -1136,7 +1132,7 @@ class ObjStoreWatchSubscriber(
         config: "ConsumerConfig",
         obj_watch: "ObjWatch",
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable["BrokerMiddleware[List[Msg]]"],
+        broker_middlewares: Sequence["BrokerMiddleware[List[Msg]]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -1192,7 +1188,7 @@ class ObjStoreWatchSubscriber(
         else:
             fetch_sub = self._fetch_sub
 
-        raw_message = None
+        raw_message: Optional[ObjectInfo] = None
         sleep_interval = timeout / 10
         with anyio.move_on_after(timeout):
             while (  # noqa: ASYNC110
@@ -1200,13 +1196,12 @@ class ObjStoreWatchSubscriber(
             ) is None:
                 await anyio.sleep(sleep_interval)
 
-        msg: NatsObjMessage = await process_msg(
+        return await process_msg(  # type: ignore[return-value]
             msg=raw_message,
             middlewares=self._broker_middlewares,
             parser=self._parser,
             decoder=self._decoder,
         )
-        return msg
 
     @override
     async def _create_subscription(

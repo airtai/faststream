@@ -15,6 +15,8 @@ from faststream import context as fs_context
 from faststream.opentelemetry.baggage import Baggage
 from faststream.opentelemetry.consts import (
     ERROR_TYPE,
+    INSTRUMENTING_LIBRARY_VERSION,
+    INSTRUMENTING_MODULE_NAME,
     MESSAGING_DESTINATION_PUBLISH_NAME,
     OTEL_SCHEMA,
     WITH_BATCH,
@@ -41,10 +43,10 @@ _TRACE_PROPAGATOR = TraceContextTextMapPropagator()
 class _MetricsContainer:
     __slots__ = (
         "include_messages_counters",
-        "publish_duration",
-        "publish_counter",
-        "process_duration",
         "process_counter",
+        "process_duration",
+        "publish_counter",
+        "publish_duration",
     )
 
     def __init__(self, meter: "Meter", include_messages_counters: bool) -> None:
@@ -284,10 +286,10 @@ class BaseTelemetryMiddleware(BaseMiddleware):
 class TelemetryMiddleware:
     # NOTE: should it be class or function?
     __slots__ = (
-        "_tracer",
         "_meter",
         "_metrics",
         "_settings_provider_factory",
+        "_tracer",
     )
 
     def __init__(
@@ -330,7 +332,8 @@ def _get_meter(
 
 def _get_tracer(tracer_provider: Optional["TracerProvider"] = None) -> "Tracer":
     return trace.get_tracer(
-        __name__,
+        instrumenting_module_name=INSTRUMENTING_MODULE_NAME,
+        instrumenting_library_version=INSTRUMENTING_LIBRARY_VERSION,
         tracer_provider=tracer_provider,
         schema_url=OTEL_SCHEMA,
     )

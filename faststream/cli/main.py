@@ -12,6 +12,7 @@ from typer.core import TyperOption
 from faststream import FastStream
 from faststream.__about__ import __version__
 from faststream._internal.application import Application
+from faststream.asgi.app import AsgiFastStream
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
@@ -146,20 +147,33 @@ def run(
             ).run()
 
     elif workers > 1:
-        from faststream.cli.supervisors.multiprocess import Multiprocess
-
         if isinstance(app_obj, FastStream):
+            from faststream.cli.supervisors.multiprocess import Multiprocess
+
             Multiprocess(
                 target=_run,
                 args=(*args, logging.DEBUG),
                 workers=workers,
             ).run()
+        elif isinstance(app_obj, AsgiFastStream):
+            from faststream.cli.supervisors.asgi_multiprocess import ASGIMultiprocess
+
+            ASGIMultiprocess(
+                target=app,
+                args=args,  # type: ignore[arg-type]
+                workers=workers,
+            ).run()
         else:
-            args[1]["workers"] = workers
-            _run(*args)
+            raise typer.BadParameter(
+                f"Unexpected app type, expected FastStream or AsgiFastStream, got: {type(app_obj)}."
+            )
 
     else:
-        _run(*args)
+        _run_imported_app(
+            app_obj,
+            extra_options=extra,
+            log_level=casted_log_level,
+        )
 
 
 def _run(
@@ -168,11 +182,24 @@ def _run(
     extra_options: Dict[str, "SettingField"],
     is_factory: bool,
     log_level: int = logging.NOTSET,
-    app_level: int = logging.INFO,
+    app_level: int = logging.INFO,  # option for reloader only
 ) -> None:
     """Runs the specified application."""
     _, app_obj = import_from_string(app, is_factory=is_factory)
+    _run_imported_app(
+        app_obj,
+        extra_options=extra_options,
+        log_level=log_level,
+        app_level=app_level,
+    )
 
+
+def _run_imported_app(
+    app_obj: "Application",
+    extra_options: Dict[str, "SettingField"],
+    log_level: int = logging.NOTSET,
+    app_level: int = logging.INFO,  # option for reloader only
+) -> None:
     if not isinstance(app_obj, Application):
         raise typer.BadParameter(
             f'Imported object "{app_obj}" must be "Application" type.',

@@ -16,14 +16,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.9"
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
 
       - run: |
           uv pip install --system smokeshow
 
-      - uses: dawidd6/action-download-artifact@v6  # nosemgrep
+      - uses: dawidd6/action-download-artifact@v9  # nosemgrep
         with:
           workflow: pr_tests.yaml
           workflow_conclusion: success

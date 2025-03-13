@@ -47,10 +47,10 @@ class SASLPlaintext(BaseSecurity):
 
     # TODO: mv to SecretStr
     __slots__ = (
-        "use_ssl",
-        "ssl_context",
-        "username",
         "password",
+        "ssl_context",
+        "use_ssl",
+        "username",
     )
 
     def __init__(
@@ -85,10 +85,10 @@ class SASLScram256(BaseSecurity):
 
     # TODO: mv to SecretStr
     __slots__ = (
-        "use_ssl",
-        "ssl_context",
-        "username",
         "password",
+        "ssl_context",
+        "use_ssl",
+        "username",
     )
 
     def __init__(
@@ -123,10 +123,10 @@ class SASLScram512(BaseSecurity):
 
     # TODO: mv to SecretStr
     __slots__ = (
-        "use_ssl",
-        "ssl_context",
-        "username",
         "password",
+        "ssl_context",
+        "use_ssl",
+        "username",
     )
 
     def __init__(
@@ -159,7 +159,7 @@ class SASLOAuthBearer(BaseSecurity):
     This class defines basic security configuration for SASL/OAUTHBEARER authentication.
     """
 
-    __slots__ = ("use_ssl", "ssl_context")
+    __slots__ = ("ssl_context", "use_ssl")
 
     def get_requirement(self) -> List["AnyDict"]:
         """Get the security requirements for SASL/OAUTHBEARER authentication."""
@@ -167,7 +167,7 @@ class SASLOAuthBearer(BaseSecurity):
 
     def get_schema(self) -> Dict[str, Dict[str, str]]:
         """Get the security schema for SASL/OAUTHBEARER authentication."""
-        return {"oauthbearer": {"type": "oauthBearer"}}
+        return {"oauthbearer": {"type": "oauth2", "$ref": ""}}
 
 
 class SASLGSSAPI(BaseSecurity):
@@ -176,7 +176,7 @@ class SASLGSSAPI(BaseSecurity):
     This class defines security configuration for SASL/GSSAPI authentication.
     """
 
-    __slots__ = ("use_ssl", "ssl_context")
+    __slots__ = ("ssl_context", "use_ssl")
 
     def get_requirement(self) -> List["AnyDict"]:
         """Get the security requirements for SASL/GSSAPI authentication."""

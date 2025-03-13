@@ -7,10 +7,11 @@ from prometheus_client import CollectorRegistry
 
 from faststream import Context
 from faststream.broker.message import AckStatus
-from faststream.exceptions import RejectMessage
+from faststream.exceptions import IgnoredException, RejectMessage
 from faststream.prometheus.middleware import (
     PROCESSING_STATUS_BY_ACK_STATUS,
     PROCESSING_STATUS_BY_HANDLER_EXCEPTION_MAP,
+    BasePrometheusMiddleware,
 )
 from faststream.prometheus.types import ProcessingStatus
 from tests.brokers.base.basic import BaseTestcaseConfig
@@ -21,7 +22,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
     def get_broker(self, apply_types=False, **kwargs):
         raise NotImplementedError
 
-    def get_middleware(self, **kwargs):
+    def get_middleware(self, **kwargs) -> BasePrometheusMiddleware:
         raise NotImplementedError
 
     @staticmethod
@@ -52,6 +53,11 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             pytest.param(AckStatus.nacked, None, id="nacked status without exception"),
             pytest.param(
                 AckStatus.rejected, None, id="rejected status without exception"
+            ),
+            pytest.param(
+                AckStatus.acked,
+                IgnoredException,
+                id="acked status with ignore exception",
             ),
         ],
     )
@@ -175,7 +181,7 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
             ),
         ]
 
-        if status == ProcessingStatus.error:
+        if exception_class and not issubclass(exception_class, IgnoredException):
             assert (
                 metrics_manager.add_received_processed_message_exception.mock_calls
                 == [
@@ -185,6 +191,11 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                         exception_type=exception_class.__name__,
                     ),
                 ]
+            )
+        else:
+            assert (
+                metrics_manager.add_received_processed_message_exception.mock_calls
+                == []
             )
 
     def assert_publish_metrics(self, metrics_manager: Any):
@@ -202,3 +213,18 @@ class LocalPrometheusTestcase(BaseTestcaseConfig):
                 status="success",
             ),
         ]
+
+    async def test_one_registry_for_some_middlewares(
+        self, event: asyncio.Event, queue: str
+    ) -> None:
+        registry = CollectorRegistry()
+
+        middleware_1 = self.get_middleware(registry=registry)
+        middleware_2 = self.get_middleware(registry=registry)
+        self.get_broker(middlewares=(middleware_1,))
+        self.get_broker(middlewares=(middleware_2,))
+
+        assert (
+            middleware_1._metrics_container.received_messages_total
+            is middleware_2._metrics_container.received_messages_total
+        )

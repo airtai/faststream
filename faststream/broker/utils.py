@@ -8,15 +8,15 @@ from typing import (
     AsyncContextManager,
     Awaitable,
     Callable,
-    Iterable,
     Optional,
+    Sequence,
     Type,
     Union,
     cast,
 )
 
 import anyio
-from typing_extensions import Literal, Self, overload
+from typing_extensions import Self
 
 from faststream.broker.acknowledgement_watcher import WatcherContext, get_watcher
 from faststream.broker.types import MsgType
@@ -35,27 +35,9 @@ if TYPE_CHECKING:
     from faststream.types import LoggerProto
 
 
-@overload
-async def process_msg(
-    msg: Literal[None],
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
-    parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
-    decoder: Callable[["StreamMessage[MsgType]"], "Any"],
-) -> None: ...
-
-
-@overload
-async def process_msg(
-    msg: MsgType,
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
-    parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
-    decoder: Callable[["StreamMessage[MsgType]"], "Any"],
-) -> "StreamMessage[MsgType]": ...
-
-
 async def process_msg(
     msg: Optional[MsgType],
-    middlewares: Iterable["BrokerMiddleware[MsgType]"],
+    middlewares: Sequence["BrokerMiddleware[MsgType]"],
     parser: Callable[[MsgType], Awaitable["StreamMessage[MsgType]"]],
     decoder: Callable[["StreamMessage[MsgType]"], "Any"],
 ) -> Optional["StreamMessage[MsgType]"]:
@@ -68,7 +50,7 @@ async def process_msg(
             Awaitable[StreamMessage[MsgType]],
         ] = return_input
 
-        for m in middlewares:
+        for m in middlewares[::-1]:
             mid = m(msg)
             await stack.enter_async_context(mid)
             return_msg = partial(mid.consume_scope, return_msg)

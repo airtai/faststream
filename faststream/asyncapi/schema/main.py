@@ -13,6 +13,7 @@ from faststream.asyncapi.schema.utils import (
     Tag,
     TagDict,
 )
+from faststream.exceptions import INSTALL_YAML
 
 ASYNC_API_VERSION = "2.6.0"
 
@@ -117,7 +118,10 @@ class Schema(BaseModel):
         """Convert the schema to a YAML string."""
         from io import StringIO
 
-        import yaml
+        try:
+            import yaml
+        except ImportError as e:
+            raise ImportError(INSTALL_YAML) from e
 
         io = StringIO(initial_value="", newline="\n")
         yaml.dump(self.to_jsonable(), io, sort_keys=False)

@@ -7,6 +7,7 @@ from typing import (
     Iterable,
     Mapping,
     Optional,
+    Sequence,
     Type,
     Union,
 )
@@ -134,7 +135,7 @@ class RedisBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[BaseMessage]"],
+            Sequence["BrokerMiddleware[BaseMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -509,7 +510,7 @@ class RedisBroker(
 
         call: AsyncFunc = self._producer.publish_batch
 
-        for m in self._middlewares:
+        for m in self._middlewares[::-1]:
             call = partial(m(None).publish_scope, call)
 
         await call(

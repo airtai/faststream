@@ -77,7 +77,7 @@ class LogicSubscriber(SubscriberUsecase[UnifyRedisDict]):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -229,7 +229,7 @@ class ChannelSubscriber(LogicSubscriber):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -355,7 +355,7 @@ class _ListHandlerMixin(LogicSubscriber):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -460,7 +460,7 @@ class ListSubscriber(_ListHandlerMixin):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -509,7 +509,7 @@ class BatchListSubscriber(_ListHandlerMixin):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -563,7 +563,7 @@ class _StreamHandlerMixin(LogicSubscriber):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -752,7 +752,7 @@ class StreamSubscriber(_StreamHandlerMixin):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -821,7 +821,7 @@ class BatchStreamSubscriber(_StreamHandlerMixin):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
+        broker_middlewares: Sequence["BrokerMiddleware[UnifyRedisDict]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],

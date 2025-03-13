@@ -4,12 +4,17 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from typer.testing import CliRunner
 
+from faststream._internal.application import Application
+from faststream.app import FastStream
 from faststream.asgi import AsgiFastStream
 from faststream.cli.main import cli as faststream_app
+from faststream.cli.utils.logs import get_log_level
 
 
-def test_run_as_asgi(runner: CliRunner):
-    app = AsgiFastStream()
+@pytest.mark.parametrize(
+    "app", [pytest.param(FastStream()), pytest.param(AsgiFastStream())]
+)
+def test_run(runner: CliRunner, app: Application):
     app.run = AsyncMock()
 
     with patch(
@@ -32,9 +37,8 @@ def test_run_as_asgi(runner: CliRunner):
         assert result.exit_code == 0
 
 
-@pytest.mark.parametrize("workers", [1, 2, 5])
-def test_run_as_asgi_with_workers(runner: CliRunner, workers: int):
-    app = AsgiFastStream()
+@pytest.mark.parametrize("app", [pytest.param(AsgiFastStream())])
+def test_run_as_asgi_with_single_worker(runner: CliRunner, app: Application):
     app.run = AsyncMock()
 
     with patch(
@@ -50,19 +54,99 @@ def test_run_as_asgi_with_workers(runner: CliRunner, workers: int):
                 "--port",
                 "8000",
                 "--workers",
-                str(workers),
+                "1",
             ],
         )
-        extra = {"workers": workers} if workers > 1 else {}
-
         app.run.assert_awaited_once_with(
-            logging.INFO, {"host": "0.0.0.0", "port": "8000", **extra}
+            logging.INFO, {"host": "0.0.0.0", "port": "8000"}
         )
         assert result.exit_code == 0
 
 
-def test_run_as_asgi_callable(runner: CliRunner):
-    app = AsgiFastStream()
+@pytest.mark.parametrize("workers", [3, 5, 7])
+@pytest.mark.parametrize("app", [pytest.param(AsgiFastStream())])
+def test_run_as_asgi_with_many_workers(
+    runner: CliRunner, workers: int, app: Application
+):
+    asgi_multiprocess = "faststream.cli.supervisors.asgi_multiprocess.ASGIMultiprocess"
+    _import_obj_or_factory = "faststream.cli.utils.imports._import_obj_or_factory"
+
+    with patch(asgi_multiprocess) as asgi_runner, patch(
+        _import_obj_or_factory, return_value=(None, app)
+    ):
+        result = runner.invoke(
+            faststream_app,
+            [
+                "run",
+                "faststream:app",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000",
+                "--workers",
+                str(workers),
+            ],
+        )
+        assert result.exit_code == 0
+
+        asgi_runner.assert_called_once()
+        asgi_runner.assert_called_once_with(
+            target="faststream:app",
+            args=("faststream:app", {"host": "0.0.0.0", "port": "8000"}, False, 0),
+            workers=workers,
+        )
+        asgi_runner().run.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "log_level",
+    ["critical", "fatal", "error", "warning", "warn", "info", "debug", "notset"],
+)
+@pytest.mark.parametrize("app", [pytest.param(AsgiFastStream())])
+def test_run_as_asgi_mp_with_log_level(
+    runner: CliRunner, app: Application, log_level: str
+):
+    asgi_multiprocess = "faststream.cli.supervisors.asgi_multiprocess.ASGIMultiprocess"
+    _import_obj_or_factory = "faststream.cli.utils.imports._import_obj_or_factory"
+
+    with patch(asgi_multiprocess) as asgi_runner, patch(
+        _import_obj_or_factory, return_value=(None, app)
+    ):
+        result = runner.invoke(
+            faststream_app,
+            [
+                "run",
+                "faststream:app",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000",
+                "--workers",
+                "3",
+                "--log-level",
+                log_level,
+            ],
+        )
+        assert result.exit_code == 0
+
+        asgi_runner.assert_called_once()
+        asgi_runner.assert_called_once_with(
+            target="faststream:app",
+            args=(
+                "faststream:app",
+                {"host": "0.0.0.0", "port": "8000"},
+                False,
+                get_log_level(log_level),
+            ),
+            workers=3,
+        )
+        asgi_runner().run.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "app", [pytest.param(FastStream()), pytest.param(AsgiFastStream())]
+)
+def test_run_as_factory(runner: CliRunner, app: Application):
     app.run = AsyncMock()
 
     app_factory = Mock(return_value=app)
@@ -88,3 +172,29 @@ def test_run_as_asgi_callable(runner: CliRunner):
             logging.INFO, {"host": "0.0.0.0", "port": "8000"}
         )
         assert result.exit_code == 0
+
+
+@pytest.mark.parametrize(
+    "app", [pytest.param(FastStream()), pytest.param(AsgiFastStream())]
+)
+def test_run_app_like_factory_but_its_fake(runner: CliRunner, app: Application):
+    app.run = AsyncMock()
+
+    with patch(
+        "faststream.cli.utils.imports._import_obj_or_factory",
+        return_value=(None, app),
+    ):
+        result = runner.invoke(
+            faststream_app,
+            [
+                "run",
+                "faststream:app",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000",
+                "--factory",
+            ],
+        )
+        app.run.assert_not_called()
+        assert result.exit_code != 0

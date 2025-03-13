@@ -103,7 +103,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[UnifyRedisDict]"],
+            Sequence["BrokerMiddleware[UnifyRedisDict]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -464,7 +464,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[UnifyRedisMessage]"],
+            Sequence["SubscriberMiddleware[UnifyRedisMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
@@ -687,7 +687,7 @@ class RedisRouter(StreamRouter[UnifyRedisDict]):
             Doc("Reply message destination PubSub object name."),
         ] = "",
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

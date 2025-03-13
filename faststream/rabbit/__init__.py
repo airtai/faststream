@@ -4,6 +4,7 @@ from faststream.rabbit.response import RabbitResponse
 from faststream.rabbit.router import RabbitPublisher, RabbitRoute, RabbitRouter
 from faststream.rabbit.schemas import (
     ExchangeType,
+    QueueType,
     RabbitExchange,
     RabbitQueue,
     ReplyConfig,
@@ -12,17 +13,18 @@ from faststream.rabbit.testing import TestRabbitBroker
 from faststream.testing.app import TestApp
 
 __all__ = (
-    "RabbitBroker",
-    "TestApp",
-    "TestRabbitBroker",
-    "RabbitRouter",
-    "RabbitRoute",
-    "RabbitPublisher",
-    "RabbitResponse",
     "ExchangeType",
-    "ReplyConfig",
+    "QueueType",
+    "RabbitBroker",
     "RabbitExchange",
-    "RabbitQueue",
     # Annotations
     "RabbitMessage",
+    "RabbitPublisher",
+    "RabbitQueue",
+    "RabbitResponse",
+    "RabbitRoute",
+    "RabbitRouter",
+    "ReplyConfig",
+    "TestApp",
+    "TestRabbitBroker",
 )

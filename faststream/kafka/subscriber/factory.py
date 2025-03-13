@@ -1,8 +1,10 @@
 from typing import (
     TYPE_CHECKING,
+    Collection,
     Iterable,
     Literal,
     Optional,
+    Sequence,
     Tuple,
     Union,
     overload,
@@ -11,6 +13,8 @@ from typing import (
 from faststream.exceptions import SetupError
 from faststream.kafka.subscriber.asyncapi import (
     AsyncAPIBatchSubscriber,
+    AsyncAPIConcurrentBetweenPartitionsSubscriber,
+    AsyncAPIConcurrentDefaultSubscriber,
     AsyncAPIDefaultSubscriber,
 )
 
@@ -34,14 +38,15 @@ def create_subscriber(
     listener: Optional["ConsumerRebalanceListener"],
     pattern: Optional[str],
     connection_args: "AnyDict",
-    partitions: Iterable["TopicPartition"],
+    partitions: Collection["TopicPartition"],
     is_manual: bool,
     # Subscriber args
+    max_workers: int,
     no_ack: bool,
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
+    broker_middlewares: Sequence["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
     # AsyncAPI args
     title_: Optional[str],
     description_: Optional[str],
@@ -60,19 +65,23 @@ def create_subscriber(
     listener: Optional["ConsumerRebalanceListener"],
     pattern: Optional[str],
     connection_args: "AnyDict",
-    partitions: Iterable["TopicPartition"],
+    partitions: Collection["TopicPartition"],
     is_manual: bool,
     # Subscriber args
+    max_workers: int,
     no_ack: bool,
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
+    broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
     # AsyncAPI args
     title_: Optional[str],
     description_: Optional[str],
     include_in_schema: bool,
-) -> "AsyncAPIDefaultSubscriber": ...
+) -> Union[
+    "AsyncAPIDefaultSubscriber",
+    "AsyncAPIConcurrentDefaultSubscriber",
+]: ...
 
 
 @overload
@@ -86,14 +95,15 @@ def create_subscriber(
     listener: Optional["ConsumerRebalanceListener"],
     pattern: Optional[str],
     connection_args: "AnyDict",
-    partitions: Iterable["TopicPartition"],
+    partitions: Collection["TopicPartition"],
     is_manual: bool,
     # Subscriber args
+    max_workers: int,
     no_ack: bool,
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable[
+    broker_middlewares: Sequence[
         "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
     ],
     # AsyncAPI args
@@ -103,6 +113,7 @@ def create_subscriber(
 ) -> Union[
     "AsyncAPIDefaultSubscriber",
     "AsyncAPIBatchSubscriber",
+    "AsyncAPIConcurrentDefaultSubscriber",
 ]: ...
 
 
@@ -116,14 +127,15 @@ def create_subscriber(
     listener: Optional["ConsumerRebalanceListener"],
     pattern: Optional[str],
     connection_args: "AnyDict",
-    partitions: Iterable["TopicPartition"],
+    partitions: Collection["TopicPartition"],
     is_manual: bool,
     # Subscriber args
+    max_workers: int,
     no_ack: bool,
     no_reply: bool,
     retry: bool,
     broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Iterable[
+    broker_middlewares: Sequence[
         "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
     ],
     # AsyncAPI args
@@ -133,9 +145,25 @@ def create_subscriber(
 ) -> Union[
     "AsyncAPIDefaultSubscriber",
     "AsyncAPIBatchSubscriber",
+    "AsyncAPIConcurrentDefaultSubscriber",
+    "AsyncAPIConcurrentBetweenPartitionsSubscriber",
 ]:
     if is_manual and not group_id:
         raise SetupError("You must use `group_id` with manual commit mode.")
+
+    if is_manual and max_workers > 1:
+        if len(topics) > 1:
+            raise SetupError(
+                "You must use a single topic with concurrent manual commit mode."
+            )
+        if pattern is not None:
+            raise SetupError(
+                "You can not use a pattern with concurrent manual commit mode."
+            )
+        if partitions:
+            raise SetupError(
+                "Manual partition assignment is not supported with concurrent manual commit mode."
+            )
 
     if not topics and not partitions and not pattern:
         raise SetupError(
@@ -170,20 +198,60 @@ def create_subscriber(
         )
 
     else:
-        return AsyncAPIDefaultSubscriber(
-            *topics,
-            group_id=group_id,
-            listener=listener,
-            pattern=pattern,
-            connection_args=connection_args,
-            partitions=partitions,
-            is_manual=is_manual,
-            no_ack=no_ack,
-            no_reply=no_reply,
-            retry=retry,
-            broker_dependencies=broker_dependencies,
-            broker_middlewares=broker_middlewares,
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
+        if max_workers > 1:
+            if is_manual:
+                return AsyncAPIConcurrentBetweenPartitionsSubscriber(
+                    topics[0],
+                    max_workers=max_workers,
+                    group_id=group_id,
+                    listener=listener,
+                    pattern=pattern,
+                    connection_args=connection_args,
+                    partitions=partitions,
+                    is_manual=is_manual,
+                    no_ack=no_ack,
+                    no_reply=no_reply,
+                    retry=retry,
+                    broker_dependencies=broker_dependencies,
+                    broker_middlewares=broker_middlewares,
+                    title_=title_,
+                    description_=description_,
+                    include_in_schema=include_in_schema,
+                )
+            else:
+                return AsyncAPIConcurrentDefaultSubscriber(
+                    *topics,
+                    max_workers=max_workers,
+                    group_id=group_id,
+                    listener=listener,
+                    pattern=pattern,
+                    connection_args=connection_args,
+                    partitions=partitions,
+                    is_manual=is_manual,
+                    no_ack=no_ack,
+                    no_reply=no_reply,
+                    retry=retry,
+                    broker_dependencies=broker_dependencies,
+                    broker_middlewares=broker_middlewares,
+                    title_=title_,
+                    description_=description_,
+                    include_in_schema=include_in_schema,
+                )
+        else:
+            return AsyncAPIDefaultSubscriber(
+                *topics,
+                group_id=group_id,
+                listener=listener,
+                pattern=pattern,
+                connection_args=connection_args,
+                partitions=partitions,
+                is_manual=is_manual,
+                no_ack=no_ack,
+                no_reply=no_reply,
+                retry=retry,
+                broker_dependencies=broker_dependencies,
+                broker_middlewares=broker_middlewares,
+                title_=title_,
+                description_=description_,
+                include_in_schema=include_in_schema,
+            )

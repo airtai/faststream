@@ -1,3 +1,4 @@
+import inspect
 import logging
 import traceback
 from contextlib import asynccontextmanager
@@ -41,6 +42,14 @@ if TYPE_CHECKING:
         LoggerProto,
         SettingField,
     )
+
+
+def cast_uvicorn_params(params: Dict[str, Any]) -> Dict[str, Any]:
+    if port := params.get("port"):
+        params["port"] = int(port)
+    if fd := params.get("fd"):
+        params["fd"] = int(fd)
+    return params
 
 
 class AsgiFastStream(Application):
@@ -146,21 +155,27 @@ class AsgiFastStream(Application):
         run_extra_options: Optional[Dict[str, "SettingField"]] = None,
         sleep_time: float = 0.1,
     ) -> None:
-        import uvicorn
+        try:
+            import uvicorn
+        except ImportError as e:
+            raise ImportError(
+                "You need uvicorn to run FastStream ASGI App via CLI. pip install uvicorn"
+            ) from e
 
-        if not run_extra_options:
-            run_extra_options = {}
-        port = int(run_extra_options.pop("port", 8000))  # type: ignore[arg-type]
-        workers = int(run_extra_options.pop("workers", 1))  # type: ignore[arg-type]
-        host = str(run_extra_options.pop("host", "localhost"))
+        run_extra_options = cast_uvicorn_params(run_extra_options or {})
+
+        uvicorn_config_params = set(inspect.signature(uvicorn.Config).parameters.keys())
+
         config = uvicorn.Config(
-            self,
-            host=host,
-            port=port,
+            app=self,
             log_level=log_level,
-            workers=workers,
-            **run_extra_options,
+            **{
+                key: v
+                for key, v in run_extra_options.items()
+                if key in uvicorn_config_params
+            },
         )
+
         server = uvicorn.Server(config)
         await server.serve()
 

@@ -12,6 +12,174 @@ hide:
 ---
 
 # Release Notes
+## 0.5.35
+
+### What's Changed
+
+* Add concurrent-between-partitions kafka subscriber by @Arseniy-Popov in [#2017](https://github.com/airtai/faststream/pull/2017){.external-link target="_blank"}
+* chore: make uv sync working by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#2041](https://github.com/airtai/faststream/pull/2041){.external-link target="_blank"}
+* docs: add Ask AI button with Gurubase widget by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#2042](https://github.com/airtai/faststream/pull/2042){.external-link target="_blank"}
+* docs: create FastStream image shield by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#2062](https://github.com/airtai/faststream/pull/2062){.external-link target="_blank"}
+* Close #2060 by [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} in [#2063](https://github.com/airtai/faststream/pull/2063){.external-link target="_blank"}
+* feat: allow broker setting in on_startup hook by @Yakov-Varnaev in [#2073](https://github.com/airtai/faststream/pull/2073){.external-link target="_blank"}
+* ImportError raises change by [@0xWEBMILK](https://github.com/0xWEBMILK){.external-link target="_blank"} in [#2080](https://github.com/airtai/faststream/pull/2080){.external-link target="_blank"}
+* docs: Fix distributed spelling error in task scheduling page by [@Sandldan](https://github.com/Sandldan){.external-link target="_blank"} in [#2081](https://github.com/airtai/faststream/pull/2081){.external-link target="_blank"}
+* Exclude confluent-kafka 2.8.1 by @Yakov-Varnaev in [#2084](https://github.com/airtai/faststream/pull/2084){.external-link target="_blank"}
+
+### New Contributors
+* @Arseniy-Popov made their first contribution in [#2017](https://github.com/airtai/faststream/pull/2017){.external-link target="_blank"}
+* @Yakov-Varnaev made their first contribution in [#2073](https://github.com/airtai/faststream/pull/2073){.external-link target="_blank"}
+* [@0xWEBMILK](https://github.com/0xWEBMILK){.external-link target="_blank"} made their first contribution in [#2080](https://github.com/airtai/faststream/pull/2080){.external-link target="_blank"}
+* [@Sandldan](https://github.com/Sandldan){.external-link target="_blank"} made their first contribution in [#2081](https://github.com/airtai/faststream/pull/2081){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.34...0.5.35](https://github.com/airtai/faststream/compare/0.5.34...0.5.35){.external-link target="_blank"}
+
+## 0.5.34
+
+### What's Changed
+
+* fix: when / present in virtual host name and passing as uri by [@pepellsd](https://github.com/pepellsd){.external-link target="_blank"} in [#1979](https://github.com/airtai/faststream/pull/1979){.external-link target="_blank"}
+* fix (#2013): allow to create publisher in already connected broker by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#2024](https://github.com/airtai/faststream/pull/2024){.external-link target="_blank"}
+* feat: add BatchBufferOverflowException by [@spataphore1337](https://github.com/spataphore1337){.external-link target="_blank"} in [#1990](https://github.com/airtai/faststream/pull/1990){.external-link target="_blank"}
+* feat: add static instrumentation info by [@draincoder](https://github.com/draincoder){.external-link target="_blank"} in [#1996](https://github.com/airtai/faststream/pull/1996){.external-link target="_blank"}
+* docs: remove reference of "faststream.access" by [@rishabhc32](https://github.com/rishabhc32){.external-link target="_blank"} in [#1995](https://github.com/airtai/faststream/pull/1995){.external-link target="_blank"}
+* docs: fixed typo in publishing/test.md by [@AlexPetul](https://github.com/AlexPetul){.external-link target="_blank"} in [#2009](https://github.com/airtai/faststream/pull/2009){.external-link target="_blank"}
+* docs: ability to declare queue/exchange binding by [@MagicAbdel](https://github.com/MagicAbdel){.external-link target="_blank"} in [#2011](https://github.com/airtai/faststream/pull/2011){.external-link target="_blank"}
+* docs: fix spelling mistake of `/health` by [@herotomg](https://github.com/herotomg){.external-link target="_blank"} in [#2023](https://github.com/airtai/faststream/pull/2023){.external-link target="_blank"}
+* docs: update aio-pika external docs URL as it has been moved by [@HybridBit](https://github.com/HybridBit){.external-link target="_blank"} in [#1984](https://github.com/airtai/faststream/pull/1984){.external-link target="_blank"}
+* refactor: add type annotations for RabbitQueue and enum for queue type by [@pepellsd](https://github.com/pepellsd){.external-link target="_blank"} in [#2002](https://github.com/airtai/faststream/pull/2002){.external-link target="_blank"}
+
+### New Contributors
+* [@HybridBit](https://github.com/HybridBit){.external-link target="_blank"} made their first contribution in [#1984](https://github.com/airtai/faststream/pull/1984){.external-link target="_blank"}
+* [@rishabhc32](https://github.com/rishabhc32){.external-link target="_blank"} made their first contribution in [#1995](https://github.com/airtai/faststream/pull/1995){.external-link target="_blank"}
+* [@AlexPetul](https://github.com/AlexPetul){.external-link target="_blank"} made their first contribution in [#2009](https://github.com/airtai/faststream/pull/2009){.external-link target="_blank"}
+* [@MagicAbdel](https://github.com/MagicAbdel){.external-link target="_blank"} made their first contribution in [#2011](https://github.com/airtai/faststream/pull/2011){.external-link target="_blank"}
+* [@herotomg](https://github.com/herotomg){.external-link target="_blank"} made their first contribution in [#2023](https://github.com/airtai/faststream/pull/2023){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.33...0.5.34](https://github.com/airtai/faststream/compare/0.5.33...0.5.34){.external-link target="_blank"}
+
+## 0.5.33
+
+### What's Changed
+
+Just a Confluent & Kafka hotfix. Messages without body (with key only) parsing correctly now.
+
+* fix: Confluent, read messages under lock by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1963](https://github.com/airtai/faststream/pull/1963){.external-link target="_blank"}
+* fix #1967: correct empty kafka message body processing by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1968](https://github.com/airtai/faststream/pull/1968){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.32...0.5.33](https://github.com/airtai/faststream/compare/0.5.32...0.5.33){.external-link target="_blank"}
+
+## 0.5.32
+
+### What's Changed
+
+Thanks to [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} one more time for a new release! Now you have an ability to consume Confluent messages (in autocommit mode) concurrently!
+
+```python
+from faststream.confluent import KafkaBroker
+
+broker = KafkaBroker()
+
+@broker.subscriber("topic", max_workers=10)
+async def handler():
+    """Using `max_workers` option you can process up to 10 messages by one subscriber concurrently"""
+```
+
+Also, thanks to [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} for his ASGI CLI support bugfixes
+
+* fix #1959: propagate logger to Confluent by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1960](https://github.com/airtai/faststream/pull/1960){.external-link target="_blank"}
+* Concurrent confluent kafka by [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} in [#1961](https://github.com/airtai/faststream/pull/1961){.external-link target="_blank"}
+* fix: extend validation for --factory param by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1964](https://github.com/airtai/faststream/pull/1964){.external-link target="_blank"}
+* fix: support only uvicorn ASGI Runner by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1965](https://github.com/airtai/faststream/pull/1965){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.31...0.5.32](https://github.com/airtai/faststream/compare/0.5.31...0.5.32){.external-link target="_blank"}
+
+## 0.5.31
+
+### What's Changed
+
+Well, you (community) made a new breathtaken release for us!
+Thanks to all of this release contributors.
+
+Special thanks to [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"}. He promores a new perfect feature - concurrent Kafka subscriber (with autocommit mode)
+
+```python
+from faststream.kafka import KafkaBroker
+
+broker = KafkaBroker()
+
+@broker.subscriber("topic", max_workers=10)
+async def handler():
+    """Using `max_workers` option you can process up to 10 messages by one subscriber concurrently"""
+```
+
+Also, thanks to [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} with his ASGI CLI start fixins - now you can use FastStream CLI to scale your AsgiFastStream application by workers
+
+```bash
+faststream run main:asgi --workers 2
+```
+
+There are a lot of other incredible changes you made:
+
+* feat: add NatsMessage ack_sync method #1906 by [@wpn10](https://github.com/wpn10){.external-link target="_blank"} in [#1909](https://github.com/airtai/faststream/pull/1909){.external-link target="_blank"}
+* feat: support running ASGI app with Uvicorn using file descriptor by [@minhyeoky](https://github.com/minhyeoky){.external-link target="_blank"} in [#1923](https://github.com/airtai/faststream/pull/1923){.external-link target="_blank"}
+* feat: Add kafka concurrent subscriber by [@Flosckow](https://github.com/Flosckow){.external-link target="_blank"} in [#1912](https://github.com/airtai/faststream/pull/1912){.external-link target="_blank"}
+* fix: bug when using one register for several middleware by @roma-frolov in [#1921](https://github.com/airtai/faststream/pull/1921){.external-link target="_blank"}
+* fix: change oauth type in asyncapi schema by [@spataphore1337](https://github.com/spataphore1337){.external-link target="_blank"} in [#1926](https://github.com/airtai/faststream/pull/1926){.external-link target="_blank"}
+* fix: HandlerException ignored by @roma-frolov in [#1928](https://github.com/airtai/faststream/pull/1928){.external-link target="_blank"}
+* fix: Pomo/nats router by [@Drakorgaur](https://github.com/Drakorgaur){.external-link target="_blank"} in [#1932](https://github.com/airtai/faststream/pull/1932){.external-link target="_blank"}
+* fix: RabbitBroker's ping is more objective by @roma-frolov in [#1933](https://github.com/airtai/faststream/pull/1933){.external-link target="_blank"}
+* fix: AsyncAPI 2.6.0 fix empty channels for KafkaSubscriber and ConfluentSubscriber if partitions provided by [@KrySeyt](https://github.com/KrySeyt){.external-link target="_blank"} in [#1930](https://github.com/airtai/faststream/pull/1930){.external-link target="_blank"}
+* fix: #1874 support workers for ASGI FastStream by [@Sehat1137](https://github.com/Sehat1137){.external-link target="_blank"} in [#1936](https://github.com/airtai/faststream/pull/1936){.external-link target="_blank"}
+* fix: correct middlewares order by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [#1935](https://github.com/airtai/faststream/pull/1935){.external-link target="_blank"}
+* chore: run PR altering automated check in same CI job by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1942](https://github.com/airtai/faststream/pull/1942){.external-link target="_blank"}
+* chore: pin typer version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1947](https://github.com/airtai/faststream/pull/1947){.external-link target="_blank"}
+
+### New Contributors
+
+* [@wpn10](https://github.com/wpn10){.external-link target="_blank"} made their first contribution in [#1909](https://github.com/airtai/faststream/pull/1909){.external-link target="_blank"}
+* [@minhyeoky](https://github.com/minhyeoky){.external-link target="_blank"} made their first contribution in [#1923](https://github.com/airtai/faststream/pull/1923){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.30...0.5.31](https://github.com/airtai/faststream/compare/0.5.30...0.5.31){.external-link target="_blank"}
+
+## 0.5.30
+
+### What's Changed
+* Introducing FastStream Guru on Gurubase.io by [@kursataktas](https://github.com/kursataktas){.external-link target="_blank"} in [#1903](https://github.com/airtai/faststream/pull/1903){.external-link target="_blank"}
+* docs: add gurubase badge to the doc by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1905](https://github.com/airtai/faststream/pull/1905){.external-link target="_blank"}
+* fix: allow users to pass `nkeys_seed_str` as argument for NATS broker. by [@Drakorgaur](https://github.com/Drakorgaur){.external-link target="_blank"} in [#1908](https://github.com/airtai/faststream/pull/1908){.external-link target="_blank"}
+* Add more warning's to nats subscription factory by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [#1907](https://github.com/airtai/faststream/pull/1907){.external-link target="_blank"}
+* fix: correct working with dependencies versions by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1918](https://github.com/airtai/faststream/pull/1918){.external-link target="_blank"}
+
+### New Contributors
+* [@kursataktas](https://github.com/kursataktas){.external-link target="_blank"} made their first contribution in [#1903](https://github.com/airtai/faststream/pull/1903){.external-link target="_blank"}
+* [@Drakorgaur](https://github.com/Drakorgaur){.external-link target="_blank"} made their first contribution in [#1908](https://github.com/airtai/faststream/pull/1908){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.29...0.5.30](https://github.com/airtai/faststream/compare/0.5.29...0.5.30){.external-link target="_blank"}
+
+## 0.5.29
+
+### What's Changed
+
+* feat: add explicit message source enum by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1866](https://github.com/airtai/faststream/pull/1866){.external-link target="_blank"}
+* Change uv manual installation to setup-uv in CI by [@pavelepanov](https://github.com/pavelepanov){.external-link target="_blank"} in [#1871](https://github.com/airtai/faststream/pull/1871){.external-link target="_blank"}
+* refactor: make Task and Concurrent mixins broker-agnostic by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1873](https://github.com/airtai/faststream/pull/1873){.external-link target="_blank"}
+* Add support for environment variables in faststream run command by [@ulbwa](https://github.com/ulbwa){.external-link target="_blank"} in [#1876](https://github.com/airtai/faststream/pull/1876){.external-link target="_blank"}
+* fastapi example update by [@xodiumx](https://github.com/xodiumx){.external-link target="_blank"} in [#1875](https://github.com/airtai/faststream/pull/1875){.external-link target="_blank"}
+* Do not import `fake_context` if not needed by [@sobolevn](https://github.com/sobolevn){.external-link target="_blank"} in [#1877](https://github.com/airtai/faststream/pull/1877){.external-link target="_blank"}
+* build: add warning about manual lifespan_context by [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} in [#1878](https://github.com/airtai/faststream/pull/1878){.external-link target="_blank"}
+* Add trending badge by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1882](https://github.com/airtai/faststream/pull/1882){.external-link target="_blank"}
+* feat: add class method to create a baggage instance from headers by [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} in [#1885](https://github.com/airtai/faststream/pull/1885){.external-link target="_blank"}
+* ops: update docker compose commands to compose V2 in scripts by [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} in [#1889](https://github.com/airtai/faststream/pull/1889){.external-link target="_blank"}
+
+### New Contributors
+* [@pavelepanov](https://github.com/pavelepanov){.external-link target="_blank"} made their first contribution in [#1871](https://github.com/airtai/faststream/pull/1871){.external-link target="_blank"}
+* [@xodiumx](https://github.com/xodiumx){.external-link target="_blank"} made their first contribution in [#1875](https://github.com/airtai/faststream/pull/1875){.external-link target="_blank"}
+* [@sobolevn](https://github.com/sobolevn){.external-link target="_blank"} made their first contribution in [#1877](https://github.com/airtai/faststream/pull/1877){.external-link target="_blank"}
+* [@vectorvp](https://github.com/vectorvp){.external-link target="_blank"} made their first contribution in [#1878](https://github.com/airtai/faststream/pull/1878){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.28...0.5.29](https://github.com/airtai/faststream/compare/0.5.28...0.5.29){.external-link target="_blank"}
+
 ## 0.5.28
 
 ### What's Changed

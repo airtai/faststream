@@ -46,12 +46,12 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     _publishers: List["PublisherProto[MsgType]"]
 
     __slots__ = (
-        "mock",
-        "future",
-        "is_test",
-        "_wrapped_call",
         "_original_call",
         "_publishers",
+        "_wrapped_call",
+        "future",
+        "is_test",
+        "mock",
     )
 
     def __new__(

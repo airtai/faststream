@@ -58,7 +58,7 @@ if TYPE_CHECKING:
 Partition = TypeVar("Partition")
 
 
-class KafkaBroker(
+class KafkaBroker(  # type: ignore[misc]
     KafkaRegistrator,
     KafkaLoggingBroker,
 ):
@@ -544,7 +544,7 @@ class KafkaBroker(
         correlation_id = correlation_id or gen_cor_id()
 
         call: AsyncFunc = self._producer.publish_batch
-        for m in self._middlewares:
+        for m in self._middlewares[::-1]:
             call = partial(m(None).publish_scope, call)
 
         await call(

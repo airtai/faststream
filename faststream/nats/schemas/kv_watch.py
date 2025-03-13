@@ -19,13 +19,13 @@ class KvWatch(NameRequired):
 
     __slots__ = (
         "bucket",
-        "headers_only",
-        "include_history",
-        "ignore_deletes",
-        "meta_only",
-        "inactive_threshold",
-        "timeout",
         "declare",
+        "headers_only",
+        "ignore_deletes",
+        "inactive_threshold",
+        "include_history",
+        "meta_only",
+        "timeout",
     )
 
     def __init__(

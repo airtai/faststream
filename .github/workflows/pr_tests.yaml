@@ -30,24 +30,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: |
-            3.8
-            3.9
-            3.10
+          python-version: "3.12"
       - name: Set $PY environment variable
         run: echo "PY=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
       - uses: actions/cache@v4
         with:
           path: ~/.cache/pre-commit
           key: pre-commit|${{ hashFiles('.pre-commit-config.yaml') }}
-      - uses: pre-commit/action@v3.0.1
-        continue-on-error: true
-        with:
-          extra_args: --hook-stage manual --all-files
-      - name: Commit
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "fix: add missing pre-commit changes"
       - uses: pre-commit/action@v3.0.1
 
   test-basic:
@@ -61,7 +50,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -82,7 +71,7 @@ jobs:
         run: uv pip install --system "pydantic>=1.10.0,<2.0.0"
       - name: Install Pydantic v2
         if: matrix.pydantic-version == 'pydantic-v2'
-        run: uv pip install --system --pre "pydantic>=2.0.0b2,<3.0.0"
+        run: uv pip install --system --prerelease=disallow "pydantic>=2.0.0,<3.0.0"
       - run: mkdir coverage
       - name: Test
         run: >
@@ -104,7 +93,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -125,7 +114,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -146,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -187,7 +176,7 @@ jobs:
           ALLOW_PLAINTEXT_LISTENER: "true"
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -219,7 +208,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -260,7 +249,7 @@ jobs:
           ALLOW_PLAINTEXT_LISTENER: "true"
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -292,7 +281,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -322,7 +311,7 @@ jobs:
           - 5672:5672
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -354,7 +343,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -384,7 +373,7 @@ jobs:
           - 4222:4222
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -416,7 +405,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -446,7 +435,7 @@ jobs:
           - 6379:6379
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - name: Set up Python
@@ -486,7 +475,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
       - uses: actions/setup-python@v5

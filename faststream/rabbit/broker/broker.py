@@ -5,6 +5,7 @@ from typing import (
     Callable,
     Iterable,
     Optional,
+    Sequence,
     Type,
     Union,
     cast,
@@ -165,7 +166,7 @@ class RabbitBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[IncomingMessage]"],
+            Sequence["BrokerMiddleware[IncomingMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -244,10 +245,10 @@ class RabbitBroker(
             asyncapi_url = str(amqp_url)
 
         # respect ascynapi_url argument scheme
-        builded_asyncapi_url = urlparse(asyncapi_url)
-        self.virtual_host = builded_asyncapi_url.path
+        built_asyncapi_url = urlparse(asyncapi_url)
+        self.virtual_host = built_asyncapi_url.path
         if protocol is None:
-            protocol = builded_asyncapi_url.scheme
+            protocol = built_asyncapi_url.scheme
 
         super().__init__(
             url=str(amqp_url),
@@ -268,7 +269,7 @@ class RabbitBroker(
             # AsyncAPI args
             description=description,
             asyncapi_url=asyncapi_url,
-            protocol=protocol or builded_asyncapi_url.scheme,
+            protocol=protocol or built_asyncapi_url.scheme,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
@@ -839,7 +840,7 @@ class RabbitBroker(
                 if cancel_scope.cancel_called:
                     return False
 
-                if not self._connection.is_closed:
+                if self._connection.connected.is_set():
                     return True
 
                 await anyio.sleep(sleep_time)

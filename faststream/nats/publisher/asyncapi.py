@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, Sequence
 
 from typing_extensions import override
 
@@ -60,8 +60,8 @@ class AsyncAPIPublisher(LogicPublisher):
         stream: Optional["JStream"],
         timeout: Optional[float],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
-        middlewares: Iterable["PublisherMiddleware"],
+        broker_middlewares: Sequence["BrokerMiddleware[Msg]"],
+        middlewares: Sequence["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],

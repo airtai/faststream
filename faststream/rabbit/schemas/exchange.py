@@ -15,17 +15,17 @@ class RabbitExchange(NameRequired):
     """A class to represent a RabbitMQ exchange."""
 
     __slots__ = (
-        "name",
-        "type",
-        "durable",
-        "auto_delete",
-        "passive",
         "arguments",
-        "timeout",
-        "robust",
-        "bind_to",
+        "auto_delete",
         "bind_arguments",
+        "bind_to",
+        "durable",
+        "name",
+        "passive",
+        "robust",
         "routing_key",
+        "timeout",
+        "type",
     )
 
     def __hash__(self) -> int:

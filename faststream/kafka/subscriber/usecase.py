@@ -1,4 +1,3 @@
-import asyncio
 from abc import ABC, abstractmethod
 from itertools import chain
 from typing import (
@@ -11,14 +10,16 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    cast,
 )
 
 import anyio
-from aiokafka import TopicPartition
+from aiokafka import ConsumerRecord, TopicPartition
 from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
+from faststream.broker.subscriber.mixins import ConcurrentMixin, TasksMixin
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import (
     AsyncCallable,
@@ -27,12 +28,13 @@ from faststream.broker.types import (
     MsgType,
 )
 from faststream.broker.utils import process_msg
-from faststream.kafka.message import KafkaAckableMessage, KafkaMessage
+from faststream.kafka.listener import LoggingListenerProxy
+from faststream.kafka.message import KafkaAckableMessage, KafkaMessage, KafkaRawMessage
 from faststream.kafka.parser import AioKafkaBatchParser, AioKafkaParser
 from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
-    from aiokafka import AIOKafkaConsumer, ConsumerRecord
+    from aiokafka import AIOKafkaConsumer
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Depends
 
@@ -41,7 +43,7 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict, Decorator, LoggerProto
 
 
-class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
+class LogicSubscriber(ABC, TasksMixin, SubscriberUsecase[MsgType]):
     """A class to handle logic for consuming messages from Kafka."""
 
     topics: Sequence[str]
@@ -50,7 +52,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     builder: Optional[Callable[..., "AIOKafkaConsumer"]]
     consumer: Optional["AIOKafkaConsumer"]
 
-    task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
     batch: bool
 
@@ -70,7 +71,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        broker_middlewares: Sequence["BrokerMiddleware[MsgType]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -96,15 +97,14 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.group_id = group_id
 
         self._pattern = pattern
-        self.__listener = listener
-        self.__connection_args = connection_args
+        self._listener = listener
+        self._connection_args = connection_args
 
         # Setup it later
         self.client_id = ""
         self.builder = None
 
         self.consumer = None
-        self.task = None
 
     @override
     def setup(  # type: ignore[override]
@@ -149,14 +149,16 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         self.consumer = consumer = self.builder(
             group_id=self.group_id,
             client_id=self.client_id,
-            **self.__connection_args,
+            **self._connection_args,
         )
 
         if self.topics or self._pattern:
             consumer.subscribe(
                 topics=self.topics,
                 pattern=self._pattern,
-                listener=self.__listener,
+                listener=LoggingListenerProxy(
+                    consumer=consumer, logger=self.logger, listener=self._listener
+                ),
             )
 
         elif self.partitions:
@@ -166,7 +168,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         await super().start()
 
         if self.calls:
-            self.task = asyncio.create_task(self._consume())
+            self.add_task(self._run_consume_loop(self.consumer))
 
     async def close(self) -> None:
         await super().close()
@@ -174,11 +176,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         if self.consumer is not None:
             await self.consumer.stop()
             self.consumer = None
-
-        if self.task is not None and not self.task.done():
-            self.task.cancel()
-
-        self.task = None
 
     @override
     async def get_one(
@@ -200,13 +197,12 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         ((raw_message,),) = raw_messages.values()
 
-        msg: StreamMessage[MsgType] = await process_msg(
+        return await process_msg(
             msg=raw_message,
             middlewares=self._broker_middlewares,
             parser=self._parser,
             decoder=self._decoder,
         )
-        return msg
 
     def _make_response_publisher(
         self,
@@ -225,16 +221,16 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         )
 
     @abstractmethod
-    async def get_msg(self) -> MsgType:
+    async def get_msg(self, consumer: "AIOKafkaConsumer") -> MsgType:
         raise NotImplementedError()
 
-    async def _consume(self) -> None:
-        assert self.consumer, "You should start subscriber at first."  # nosec B101
+    async def _run_consume_loop(self, consumer: "AIOKafkaConsumer") -> None:
+        assert consumer, "You should start subscriber at first."  # nosec B101
 
         connected = True
         while self.running:
             try:
-                msg = await self.get_msg()
+                msg = await self.get_msg(consumer)
 
             # pragma: no cover
             except KafkaError:  # noqa: PERF203
@@ -250,7 +246,10 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
                     connected = True
 
                 if msg:
-                    await self.consume(msg)
+                    await self.consume_one(msg)
+
+    async def consume_one(self, msg: MsgType) -> None:
+        await self.consume(msg)
 
     @staticmethod
     def get_routing_hash(
@@ -314,7 +313,7 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
+        broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -357,9 +356,9 @@ class DefaultSubscriber(LogicSubscriber["ConsumerRecord"]):
             include_in_schema=include_in_schema,
         )
 
-    async def get_msg(self) -> "ConsumerRecord":
-        assert self.consumer, "You should setup subscriber at first."  # nosec B101
-        return await self.consumer.getone()
+    async def get_msg(self, consumer: "AIOKafkaConsumer") -> "ConsumerRecord":
+        assert consumer, "You should setup subscriber at first."  # nosec B101
+        return await consumer.getone()
 
     def get_log_context(
         self,
@@ -395,7 +394,7 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
         no_reply: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
-        broker_middlewares: Iterable[
+        broker_middlewares: Sequence[
             "BrokerMiddleware[Sequence[Tuple[ConsumerRecord, ...]]]"
         ],
         # AsyncAPI args
@@ -443,10 +442,12 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             include_in_schema=include_in_schema,
         )
 
-    async def get_msg(self) -> Tuple["ConsumerRecord", ...]:
-        assert self.consumer, "You should setup subscriber at first."  # nosec B101
+    async def get_msg(
+        self, consumer: "AIOKafkaConsumer"
+    ) -> Tuple["ConsumerRecord", ...]:
+        assert consumer, "You should setup subscriber at first."  # nosec B101
 
-        messages = await self.consumer.getmany(
+        messages = await consumer.getmany(
             timeout_ms=self.batch_timeout_ms,
             max_records=self.max_records,
         )
@@ -471,3 +472,152 @@ class BatchSubscriber(LogicSubscriber[Tuple["ConsumerRecord", ...]]):
             topic=topic,
             group_id=self.group_id,
         )
+
+
+class ConcurrentDefaultSubscriber(ConcurrentMixin[ConsumerRecord], DefaultSubscriber):
+    def __init__(
+        self,
+        *topics: str,
+        # Kafka information
+        group_id: Optional[str],
+        listener: Optional["ConsumerRebalanceListener"],
+        pattern: Optional[str],
+        connection_args: "AnyDict",
+        partitions: Iterable["TopicPartition"],
+        is_manual: bool,
+        # Subscriber args
+        max_workers: int,
+        no_ack: bool,
+        no_reply: bool,
+        retry: bool,
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            *topics,
+            group_id=group_id,
+            listener=listener,
+            pattern=pattern,
+            connection_args=connection_args,
+            partitions=partitions,
+            is_manual=is_manual,
+            # Propagated args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            # AsyncAPI args
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+            max_workers=max_workers,
+        )
+
+    async def start(self) -> None:
+        await super().start()
+        self.start_consume_task()
+
+    async def consume_one(self, msg: "ConsumerRecord") -> None:
+        await self._put_msg(msg)
+
+
+class ConcurrentBetweenPartitionsSubscriber(DefaultSubscriber):
+    consumer_subgroup: Iterable["AIOKafkaConsumer"]
+    topics: str
+
+    def __init__(
+        self,
+        topic: str,
+        # Kafka information
+        group_id: Optional[str],
+        listener: Optional["ConsumerRebalanceListener"],
+        pattern: Optional[str],
+        connection_args: "AnyDict",
+        partitions: Iterable["TopicPartition"],
+        is_manual: bool,
+        # Subscriber args
+        max_workers: int,
+        no_ack: bool,
+        no_reply: bool,
+        retry: bool,
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            topic,
+            group_id=group_id,
+            listener=listener,
+            pattern=pattern,
+            connection_args=connection_args,
+            partitions=partitions,
+            is_manual=is_manual,
+            # Propagated args
+            no_ack=no_ack,
+            no_reply=no_reply,
+            retry=retry,
+            broker_middlewares=broker_middlewares,
+            broker_dependencies=broker_dependencies,
+            # AsyncAPI args
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+        self.max_workers = max_workers
+
+    async def start(self) -> None:
+        """Start the consumer subgroup."""
+        assert self.builder, "You should setup subscriber at first."  # nosec B101
+
+        self.consumer_subgroup = [
+            self.builder(
+                group_id=self.group_id,
+                client_id=self.client_id,
+                **self._connection_args,
+            )
+            for _ in range(self.max_workers)
+        ]
+
+        [
+            consumer.subscribe(
+                topics=self.topics,
+                listener=LoggingListenerProxy(
+                    consumer=consumer, logger=self.logger, listener=self._listener
+                ),
+            )
+            for consumer in self.consumer_subgroup
+        ]
+
+        async with anyio.create_task_group() as tg:
+            for consumer in self.consumer_subgroup:
+                tg.start_soon(consumer.start)
+
+        self.running = True
+
+        if self.calls:
+            for consumer in self.consumer_subgroup:
+                self.add_task(self._run_consume_loop(consumer))
+
+    async def close(self) -> None:
+        if self.consumer_subgroup:
+            async with anyio.create_task_group() as tg:
+                for consumer in self.consumer_subgroup:
+                    tg.start_soon(consumer.stop)
+
+            self.consumer_subgroup = []
+
+        await super().close()
+
+    async def get_msg(self, consumer: "AIOKafkaConsumer") -> "KafkaRawMessage":
+        assert consumer, "You should setup subscriber at first."  # nosec B101
+        message = await consumer.getone()
+        message.consumer = consumer
+        return cast(KafkaRawMessage, message)

@@ -2,6 +2,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Collection,
     Dict,
     Iterable,
     Literal,
@@ -41,6 +42,8 @@ if TYPE_CHECKING:
     )
     from faststream.kafka.subscriber.asyncapi import (
         AsyncAPIBatchSubscriber,
+        AsyncAPIConcurrentBetweenPartitionsSubscriber,
+        AsyncAPIConcurrentDefaultSubscriber,
         AsyncAPIDefaultSubscriber,
     )
 
@@ -57,7 +60,12 @@ class KafkaRegistrator(
 
     _subscribers: Dict[
         int,
-        Union["AsyncAPIBatchSubscriber", "AsyncAPIDefaultSubscriber"],
+        Union[
+            "AsyncAPIBatchSubscriber",
+            "AsyncAPIDefaultSubscriber",
+            "AsyncAPIConcurrentDefaultSubscriber",
+            "AsyncAPIConcurrentBetweenPartitionsSubscriber",
+        ],
     ]
     _publishers: Dict[
         int,
@@ -377,7 +385,7 @@ class KafkaRegistrator(
             ),
         ] = None,
         partitions: Annotated[
-            Iterable["TopicPartition"],
+            Collection["TopicPartition"],
             Doc(
                 """
             An explicit partitions list to assign.
@@ -399,9 +407,20 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
+        max_workers: Annotated[
+            int,
+            Doc(
+                "Maximum number of messages being processed concurrently. With "
+                "`auto_commit=False` processing is concurrent between partitions and "
+                "sequential within a partition. With `auto_commit=False` maximum "
+                "concurrency is achieved when total number of workers across all "
+                "application instances running workers in the same consumer group "
+                "is equal to the number of partitions in the topic."
+            ),
+        ] = 1,
         filter: Annotated[
             "Filter[KafkaMessage]",
             Doc(
@@ -758,7 +777,7 @@ class KafkaRegistrator(
             ),
         ] = None,
         partitions: Annotated[
-            Iterable["TopicPartition"],
+            Collection["TopicPartition"],
             Doc(
                 """
             An explicit partitions list to assign.
@@ -780,9 +799,20 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
+        max_workers: Annotated[
+            int,
+            Doc(
+                "Maximum number of messages being processed concurrently. With "
+                "`auto_commit=False` processing is concurrent between partitions and "
+                "sequential within a partition. With `auto_commit=False` maximum "
+                "concurrency is achieved when total number of workers across all "
+                "application instances running workers in the same consumer group "
+                "is equal to the number of partitions in the topic."
+            ),
+        ] = 1,
         filter: Annotated[
             "Filter[KafkaMessage]",
             Doc(
@@ -1139,7 +1169,7 @@ class KafkaRegistrator(
             ),
         ] = None,
         partitions: Annotated[
-            Iterable["TopicPartition"],
+            Collection["TopicPartition"],
             Doc(
                 """
             An explicit partitions list to assign.
@@ -1161,9 +1191,20 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
+        max_workers: Annotated[
+            int,
+            Doc(
+                "Maximum number of messages being processed concurrently. With "
+                "`auto_commit=False` processing is concurrent between partitions and "
+                "sequential within a partition. With `auto_commit=False` maximum "
+                "concurrency is achieved when total number of workers across all "
+                "application instances running workers in the same consumer group "
+                "is equal to the number of partitions in the topic."
+            ),
+        ] = 1,
         filter: Annotated[
             "Filter[KafkaMessage]",
             Doc(
@@ -1523,7 +1564,7 @@ class KafkaRegistrator(
             ),
         ] = None,
         partitions: Annotated[
-            Iterable["TopicPartition"],
+            Collection["TopicPartition"],
             Doc(
                 """
             An explicit partitions list to assign.
@@ -1545,9 +1586,20 @@ class KafkaRegistrator(
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
-            Iterable["SubscriberMiddleware[KafkaMessage]"],
+            Sequence["SubscriberMiddleware[KafkaMessage]"],
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
+        max_workers: Annotated[
+            int,
+            Doc(
+                "Maximum number of messages being processed concurrently. With "
+                "`auto_commit=False` processing is concurrent between partitions and "
+                "sequential within a partition. With `auto_commit=False` maximum "
+                "concurrency is achieved when total number of workers across all "
+                "application instances running workers in the same consumer group "
+                "is equal to the number of partitions in the topic."
+            ),
+        ] = 1,
         filter: Annotated[
             "Filter[KafkaMessage]",
             Doc(
@@ -1592,11 +1644,14 @@ class KafkaRegistrator(
     ) -> Union[
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIBatchSubscriber",
+        "AsyncAPIConcurrentDefaultSubscriber",
+        "AsyncAPIConcurrentBetweenPartitionsSubscriber",
     ]:
         subscriber = super().subscriber(
             create_subscriber(
                 *topics,
                 batch=batch,
+                max_workers=max_workers,
                 batch_timeout_ms=batch_timeout_ms,
                 max_records=max_records,
                 group_id=group_id,
@@ -1648,13 +1703,35 @@ class KafkaRegistrator(
             )
 
         else:
-            return cast("AsyncAPIDefaultSubscriber", subscriber).add_call(
-                filter_=filter,
-                parser_=parser or self._parser,
-                decoder_=decoder or self._decoder,
-                dependencies_=dependencies,
-                middlewares_=middlewares,
-            )
+            if max_workers > 1:
+                if not auto_commit:
+                    return cast(
+                        "AsyncAPIConcurrentBetweenPartitionsSubscriber", subscriber
+                    ).add_call(
+                        filter_=filter,
+                        parser_=parser or self._parser,
+                        decoder_=decoder or self._decoder,
+                        dependencies_=dependencies,
+                        middlewares_=middlewares,
+                    )
+                else:
+                    return cast(
+                        "AsyncAPIConcurrentDefaultSubscriber", subscriber
+                    ).add_call(
+                        filter_=filter,
+                        parser_=parser or self._parser,
+                        decoder_=decoder or self._decoder,
+                        dependencies_=dependencies,
+                        middlewares_=middlewares,
+                    )
+            else:
+                return cast("AsyncAPIDefaultSubscriber", subscriber).add_call(
+                    filter_=filter,
+                    parser_=parser or self._parser,
+                    decoder_=decoder or self._decoder,
+                    dependencies_=dependencies,
+                    middlewares_=middlewares,
+                )
 
     @overload  # type: ignore[override]
     def publisher(
@@ -1705,7 +1782,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -1779,7 +1856,7 @@ class KafkaRegistrator(
         ],
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -1853,7 +1930,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
@@ -1930,7 +2007,7 @@ class KafkaRegistrator(
         ] = False,
         # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Sequence["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI args
