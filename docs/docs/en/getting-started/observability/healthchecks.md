@@ -10,18 +10,18 @@ search:
 
 # Healthchecks
 
-A common pattern for healthchecks is a low-cost HTTP endpoint, 
+A common pattern for healthchecks is a low-cost HTTP endpoint,
 FastStream implements this feature and allows you to create liveness and readiness probes.
 
 ### Liveness Probe
 
-Liveness probes determine when to restart a container. 
+Liveness probes determine when to restart a container.
 For example: liveness probes could catch a deadlock when an application is running but unable to make progress.
 
 
 ### Readiness Probe
 
-Readiness probes determine when a container is ready to start accepting traffic. 
+Readiness probes determine when a container is ready to start accepting traffic.
 This is useful when waiting for an application to perform time-consuming initial tasks, such as establishing network connections, loading files, and warming caches.
 
 
@@ -36,7 +36,7 @@ dummy
 ├── main.py
 ```
 
-This example shows how to implement liveness and readiness probes in FastStream. 
+This example shows how to implement liveness and readiness probes in FastStream.
 Readiness probe checks connection to Redis, RabbitMQ and Postgres. Liveness probe checks that app just works.
 
 ```python
@@ -122,7 +122,7 @@ RUN pip install faststream[rabbit] uvicorn redis asyncpg
 COPY main.py /app
 ```
 
-docker-compose doesn't allow you to realize the full power of trials, but it's enough to increase the stability of your application. 
+docker-compose doesn't allow you to realize the full power of trials, but it's enough to increase the stability of your application.
 
 ```yaml
 services:
