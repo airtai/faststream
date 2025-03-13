@@ -10,18 +10,18 @@ search:
 
 # Healthchecks
 
-A common pattern for healthchecks is a low-cost **HTTP** endpoint, 
+A common pattern for healthchecks is a low-cost **HTTP** endpoint,
 **FastStream** implements this feature and allows you to create liveness and readiness probes using [ASGI](../asgi.md) feature.
 
 ### Liveness Probe
 
-Liveness probes determine when to restart a container. 
+Liveness probes determine when to restart a container.
 For example: liveness probes could catch a deadlock when an application is running but unable to make progress.
 
 
 ### Readiness Probe
 
-Readiness probes determine when a container is ready to start accepting traffic. 
+Readiness probes determine when a container is ready to start accepting traffic.
 This is useful when waiting for an application to perform time-consuming initial tasks, such as establishing network connections, loading files, and warming caches.
 
 
@@ -35,7 +35,7 @@ dummy
 ├── main.py
 ```
 
-This example shows how to implement liveness and readiness probes in **FastStream**. 
+This example shows how to implement liveness and readiness probes in **FastStream**.
 Readiness probe checks connection to **Redis**, **RabbitMQ** and **Postgres**. Liveness probe checks that app just works.
 
 ```python linenums="1" hl_lines="13-15 23 24 32 38 44 46 61-64 67" title="main.py"
@@ -133,7 +133,7 @@ COPY main.py /app
 
 ### Docker-compose with healtcheck
 
-**Docker-compose** doesn't allow you to realize the full power of trials, but it's enough to increase the stability of your application. 
+**Docker-compose** doesn't allow you to realize the full power of trials, but it's enough to increase the stability of your application.
 
 ```yaml linenums="1" hl_lines="37"
 services:
