@@ -81,7 +81,12 @@ faststream run serve:app --reload
 ```
 
 !!! tip
-    {!> includes/en/watchfiles.md !}
+    Please, install [`watchfiles`](https://github.com/samuelcolvin/watchfiles){.external-link target="_blank"} if you want to use `--reload` feature
+
+    ```shell
+    pip install watchfiles
+    ```
+
 
 ```{ .shell .no-copy }
 INFO     - Started reloader process [7902] using WatchFiles
