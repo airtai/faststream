@@ -1,7 +1,6 @@
 ---
 search:
   boost: 10
-nested: A nested dependency is called here
 ---
 
 # Dependencies
@@ -181,35 +180,35 @@ Dependencies can also contain other dependencies. This works in a very predictab
     {!> docs_src/getting_started/dependencies/basic/kafka/nested_depends.py !}
     ```
 
-    1. {{ nested }}
+    1. A nested dependency is called here
 
 === "Confluent"
     ```python linenums="1" hl_lines="7-8 10-11 16-17"
     {!> docs_src/getting_started/dependencies/basic/confluent/nested_depends.py !}
     ```
 
-    1. {{ nested }}
+    1. A nested dependency is called here
 
 === "RabbitMQ"
     ```python linenums="1" hl_lines="7-8 10-11 16-17"
     {!> docs_src/getting_started/dependencies/basic/rabbit/nested_depends.py !}
     ```
 
-    1. {{ nested }}
+    1. A nested dependency is called here
 
 === "NATS"
     ```python linenums="1" hl_lines="7-8 10-11 16-17"
     {!> docs_src/getting_started/dependencies/basic/nats/nested_depends.py !}
     ```
 
-    1. {{ nested }}
+    1. A nested dependency is called here
 
 === "Redis"
     ```python linenums="1" hl_lines="7-8 10-11 16-17"
     {!> docs_src/getting_started/dependencies/basic/redis/nested_depends.py !}
     ```
 
-    1. {{ nested }}
+    1. A nested dependency is called here
 
 !!! Tip "Caching"
     In the example above, the `another_dependency` function will be called at **ONCE**!
