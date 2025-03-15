@@ -17,21 +17,19 @@ It creates a structured DataPipeline unit with an input and output. The order of
 !!! note
     It uses the handler function's return type annotation to cast the function's return value before sending, so be accurate with it.
 
----
+!!! tip "Pros and Cons"
 
-:material-checkbox-marked:{.checked_mark} Easy to use
-
-:material-checkbox-marked:{.checked_mark} Availability from ```Context```
-
-:fontawesome-solid-square-xmark:{.x_mark} ```AsyncAPI``` support
-
-:fontawesome-solid-square-xmark:{.x_mark} Testing support
-
-:fontawesome-solid-square-xmark:{.x_mark} Can be reused
-
-:fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published
-
----
+    :material-checkbox-marked:{.checked_mark} **Easy to use** - Message publishing in **FastStream** is intuitive and requires minimal effort.
+    
+    :material-checkbox-marked:{.checked_mark} **AsyncAPI support** - [```AsyncAPI```](../asyncapi/export.md#section{.css-styles}) is a specification for describing asynchronous APIs used in messaging applications. This method does not currently support this standard.
+    
+    :fontawesome-solid-square-xmark:{.x_mark} **No testing support** - This method lacks full [```Testing```](./test.md#section{.css-styles}) support.
+    
+    :fontawesome-solid-square-xmark:{.x_mark} **Broker availability from Context** - You can't leverage **FastStream's** [```Context```](../context/index.md#section{.css-styles}), built-in Dependency Injection (DI) container to work with brokers or other external services.
+    
+    :fontawesome-solid-square-xmark:{.x_mark} **Can't be reused** - This method is not reusable.
+    
+    :fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published.
 
 {! includes/getting_started/publishing/decorator/1.md !}
 
