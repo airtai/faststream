@@ -28,7 +28,30 @@ To add a metrics to your broker, you need to:
 
 2. Add `PrometheusMiddleware` to your broker
 
-{!> includes/getting_started/prometheus/1.md !}
+=== "AIOKafka"
+    ```python linenums="1" hl_lines="6 10"
+    {!> docs_src/getting_started/prometheus/kafka.py!}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="6 10"
+    {!> docs_src/getting_started/prometheus/confluent.py!}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="6 10"
+    {!> docs_src/getting_started/prometheus/rabbit.py!}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="6 10"
+    {!> docs_src/getting_started/prometheus/nats.py!}
+    ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="6 10"
+    {!> docs_src/getting_started/prometheus/redis.py!}
+    ```
 
 ### Exposing the `/metrics` endpoint
 The way Prometheus works requires the service to expose an HTTP endpoint for analysis.
@@ -39,7 +62,30 @@ FastStream's built-in **ASGI** support allows you to expose endpoints in your ap
 A convenient way to serve this endpoint is to use `make_asgi_app` from `prometheus_client`,
 passing in the registry that was passed to `PrometheusMiddleware`.
 
-{!> includes/getting_started/prometheus/2.md !}
+=== "AIOKafka"
+    ```python linenums="1" hl_lines="6 10 13 16"
+    {!> docs_src/getting_started/prometheus/kafka_asgi.py!}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="6 10 13 16"
+    {!> docs_src/getting_started/prometheus/confluent_asgi.py!}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="6 10 13 16"
+    {!> docs_src/getting_started/prometheus/rabbit_asgi.py!}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="6 10 13 16"
+    {!> docs_src/getting_started/prometheus/nats_asgi.py!}
+    ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="6 10 13 16"
+    {!> docs_src/getting_started/prometheus/redis_asgi.py!}
+    ```
 
 ---
 
