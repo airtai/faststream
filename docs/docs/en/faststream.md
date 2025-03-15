@@ -114,7 +114,31 @@ That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you
 **FastStream** works on **Linux**, **macOS**, **Windows** and most **Unix**-style operating systems.
 You can install it with `pip` as usual:
 
-{! includes/index/1.md !}
+=== "AIOKafka"
+    ```sh
+    pip install faststream[kafka]
+    ```
+
+=== "Confluent"
+    ```sh
+    pip install faststream[confluent]
+    ```
+
+=== "RabbitMQ"
+    ```sh
+    pip install faststream[rabbit]
+    ```
+
+=== "NATS"
+    ```sh
+    pip install faststream[nats]
+    ```
+
+=== "Redis"
+    ```sh
+    pip install faststream[redis]
+    ```
+
 
 !!! tip ""
     By default **FastStream** uses **PydanticV2** written in **Rust**, but you can downgrade it manually, if your platform has no **Rust** support - **FastStream** will work correctly with **PydanticV1** as well.
@@ -137,12 +161,58 @@ JSON-encoded data into Python objects, making it easy to work with structured da
 
 Here is an example Python app using **FastStream** that consumes data from an incoming data stream and outputs the data to another one:
 
-{! includes/index/2.md !}
+=== "AIOKafka"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/index/kafka/basic.py!}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/index/confluent/basic.py!}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/index/rabbit/basic.py!}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/index/nats/basic.py!}
+    ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/index/redis/basic.py!}
+    ```
 
 Also, **Pydantic**’s [`BaseModel`](https://docs.pydantic.dev/usage/models/){.external-link target="_blank"} class allows you
 to define messages using a declarative syntax, making it easy to specify the fields and types of your messages.
 
-{! includes/index/3.md !}
+=== "AIOKafka"
+    ```python linenums="1" hl_lines="1 8 14"
+    {!> docs_src/index/kafka/pydantic.py !}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="1 8 14"
+    {!> docs_src/index/confluent/pydantic.py !}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="1 8 14"
+    {!> docs_src/index/rabbit/pydantic.py !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="1 8 14"
+    {!> docs_src/index/nats/pydantic.py !}
+    ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="1 8 14"
+    {!> docs_src/index/redis/pydantic.py !}
+    ```
 
 ---
 
@@ -154,7 +224,41 @@ The Tester will redirect your `subscriber` and `publisher` decorated functions t
 
 Using pytest, the test for our service would look like this:
 
-{! includes/index/4.md !}
+=== "AIOKafka"
+    ```python linenums="1" hl_lines="5 10 18-19"
+    # Code above omitted 👆
+
+    {!> docs_src/index/kafka/test.py [ln:3-21] !}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="5 10 18-19"
+    # Code above omitted 👆
+
+    {!> docs_src/index/confluent/test.py [ln:3-21] !}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="5 10 18-19"
+    # Code above omitted 👆
+
+    {!> docs_src/index/rabbit/test.py [ln:3-21] !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="5 10 18-19"
+    # Code above omitted 👆
+
+    {!> docs_src/index/nats/test.py [ln:3-21] !}
+    ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="5 10 18-19"
+    # Code above omitted 👆
+
+    {!> docs_src/index/redis/test.py [ln:3-21] !}
+    ```
+
 
 ## Running the application
 
@@ -224,7 +328,35 @@ The availability of such documentation significantly simplifies the integration 
 You can use **FastStream** `MQBrokers` without a `FastStream` application.
 Just *start* and *stop* them according to your application's lifespan.
 
-{! includes/index/integrations.md !}
+=== "Litestar"
+    ```python linenums="1" hl_lines="2 4 16 17"
+    {!> docs_src/integrations/http_frameworks_integrations/litestar.py !}
+    ```
+
+=== "Aiohttp"
+    ```python linenums="1" hl_lines="3 5 8-10 13-14 17-18 27-28"
+    {!> docs_src/integrations/http_frameworks_integrations/aiohttp.py !}
+    ```
+
+=== "Blacksheep"
+    ```python linenums="1" hl_lines="3 5 10-12 15-17 20-22"
+    {!> docs_src/integrations/http_frameworks_integrations/blacksheep.py !}
+    ```
+
+=== "Falcon"
+    ```python linenums="1" hl_lines="4 6 9-11 26-31 35"
+    {!> docs_src/integrations/http_frameworks_integrations/falcon.py !}
+    ```
+
+=== "Quart"
+    ```python linenums="1" hl_lines="3 5 10-12 15-17 20-22"
+    {!> docs_src/integrations/http_frameworks_integrations/quart.py !}
+    ```
+
+=== "Sanic"
+    ```python linenums="1" hl_lines="4 6 11-13 16-18 21-23"
+    {!> docs_src/integrations/http_frameworks_integrations/sanic.py !}
+    ```
 
 ### **FastAPI** Plugin
 
@@ -236,7 +368,30 @@ Just import a **StreamRouter** you need and declare the message handler with the
     When used this way, **FastStream** does not utilize its own dependency and serialization system but integrates seamlessly into **FastAPI**.
     This means you can use `Depends`, `BackgroundTasks`, and other **FastAPI** tools as if it were a regular HTTP endpoint.
 
-{! includes/getting_started/integrations/fastapi/1.md !}
+=== "AIOKafka"
+    ```python linenums="1" hl_lines="4 6 14-18 24-25"
+    {!> docs_src/integrations/fastapi/kafka/base.py !}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="4 6 14-18 24-25"
+    {!> docs_src/integrations/fastapi/confluent/base.py !}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="4 6 14-18 24-25"
+    {!> docs_src/integrations/fastapi/rabbit/base.py !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="4 6 14-18 24-25"
+    {!> docs_src/integrations/fastapi/nats/base.py !}
+    ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="4 6 14-18 24-25"
+    {!> docs_src/integrations/fastapi/redis/base.py !}
+    ```
 
 !!! note
     More integration features can be found [here](./getting-started/integrations/fastapi/index.md){.internal-link}
