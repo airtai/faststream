@@ -139,31 +139,26 @@ def main(request: Request):
 The `FastStream` application has the `#!python @after_startup` hook, which allows you to perform operations with your message broker after the connection is established. This can be extremely convenient for managing your brokers' objects and/or sending messages. This hook is also available for your **FastAPI StreamRouter**
 
 === "AIOKafka"
-
     ```python linenums="1" hl_lines="13-15"
     {!> docs_src/integrations/fastapi/kafka/startup.py !}
     ```
 
 === "Confluent"
-
     ```python linenums="1" hl_lines="13-15"
     {!> docs_src/integrations/fastapi/confluent/startup.py !}
     ```
 
 === "RabbitMQ"
-
     ```python linenums="1" hl_lines="13-15"
     {!> docs_src/integrations/fastapi/rabbit/startup.py !}
     ```
 
 === "NATS"
-
     ```python linenums="1" hl_lines="13-15"
     {!> docs_src/integrations/fastapi/nats/startup.py !}
     ```
 
 === "Redis"
-
     ```python linenums="1" hl_lines="13-15"
     {!> docs_src/integrations/fastapi/redis/startup.py !}
     ```
@@ -173,6 +168,7 @@ The `FastStream` application has the `#!python @after_startup` hook, which allow
 When using **FastStream** as a router for **FastAPI**, the framework automatically registers endpoints for hosting **AsyncAPI** documentation into your application with the following default values:
 
 === "AIOKafka"
+
     ```python
     from faststream.kafka.fastapi import KafkaRouter
 
@@ -184,6 +180,7 @@ When using **FastStream** as a router for **FastAPI**, the framework automatical
     ```
 
 === "Confluent"
+
     ```python
     from faststream.confluent.fastapi import KafkaRouter
 
@@ -195,6 +192,7 @@ When using **FastStream** as a router for **FastAPI**, the framework automatical
     ```
 
 === "RabbitMQ"
+
     ```python
     from faststream.rabbit.fastapi import RabbitRouter
 
@@ -206,6 +204,7 @@ When using **FastStream** as a router for **FastAPI**, the framework automatical
     ```
 
 === "NATS"
+
     ```python
     from faststream.nats.fastapi import NatsRouter
 
@@ -217,6 +216,7 @@ When using **FastStream** as a router for **FastAPI**, the framework automatical
     ```
 
 === "Redis"
+
     ```python
     from faststream.redis.fastapi import RedisRouter
 
@@ -238,31 +238,26 @@ This way, you will have three routes to interact with your application's **Async
 To test your **FastAPI StreamRouter**, you can still use it with the *TestClient*:
 
 === "AIOKafka"
-
     ```python linenums="1" hl_lines="3 5 13-16"
     {!> docs_src/integrations/fastapi/kafka/test.py !}
     ```
 
 === "Confluent"
-
     ```python linenums="1" hl_lines="3 5 13-16"
     {!> docs_src/integrations/fastapi/confluent/test.py !}
     ```
 
 === "RabbitMQ"
-
     ```python linenums="1" hl_lines="3 5 13-16"
     {!> docs_src/integrations/fastapi/rabbit/test.py !}
     ```
 
 === "NATS"
-
     ```python linenums="1" hl_lines="3 5 13-16"
     {!> docs_src/integrations/fastapi/nats/test.py !}
     ```
 
 === "Redis"
-
     ```python linenums="1" hl_lines="3 5 13-16"
     {!> docs_src/integrations/fastapi/redis/test.py !}
     ```
@@ -274,31 +269,26 @@ Using **FastStream** as a **FastAPI** plugin you are still able to separate mess
 Fortunately, you can use regular **FastStream** routers and include them to the **FastAPI** integration one like in the regular broker object. Also, it can be helpful to reuse your endpoints between **FastAPI** integration and regular **FastStream** app.
 
 === "AIOKafka"
-
     ```python linenums="1" hl_lines="2-3 6 12-14 16"
     {!> docs_src/integrations/fastapi/kafka/router.py !}
     ```
 
 === "Confluent"
-
     ```python linenums="1" hl_lines="2-3 6 12-14 16"
     {!> docs_src/integrations/fastapi/confluent/router.py !}
     ```
 
 === "RabbitMQ"
-
     ```python linenums="1" hl_lines="2-3 6 12-14 16"
     {!> docs_src/integrations/fastapi/rabbit/router.py !}
     ```
 
 === "NATS"
-
     ```python linenums="1" hl_lines="2-3 6 12-14 16"
     {!> docs_src/integrations/fastapi/nats/router.py !}
     ```
 
 === "Redis"
-
     ```python linenums="1" hl_lines="2-3 6 12-14 16"
     {!> docs_src/integrations/fastapi/redis/router.py !}
     ```
