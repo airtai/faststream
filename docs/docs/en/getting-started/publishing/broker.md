@@ -14,4 +14,27 @@ The easiest way to publish a message is to use a Broker, which allows you to use
 
 In the **FastStream** project, this call is not represented in the **AsyncAPI** scheme. You can use it to send rarely-publishing messages, such as startup or shutdown events.
 
-{! includes/getting_started/publishing/broker/1.md !}
+=== "AIOKafka"
+    ```python linenums="1" hl_lines="10 20"
+    {!> docs_src/getting_started/publishing/kafka/broker.py !}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="10 20"
+    {!> docs_src/getting_started/publishing/confluent/broker.py !}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="10 20"
+    {!> docs_src/getting_started/publishing/rabbit/broker.py !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="10 20"
+    {!> docs_src/getting_started/publishing/nats/broker.py !}
+    ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="10 20"
+    {!> docs_src/getting_started/publishing/redis/broker.py !}
+    ```
