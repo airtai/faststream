@@ -71,4 +71,3 @@ Most HTTP frameworks have built-in lifecycle hooks for this.
     ```python linenums="1" hl_lines="6 10 12-14 30-31"
     {!> docs_src/integrations/no_http_frameworks_integrations/aiogram.py !}
     ```
-
