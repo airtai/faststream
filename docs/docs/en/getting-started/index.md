@@ -8,7 +8,6 @@ search:
   boost: 10
 hide:
   - toc
-run_docker: To start a new project, we need a test broker container
 ---
 
 # QUICK START
@@ -21,7 +20,7 @@ Install using `pip`:
     ```
 
     !!! tip
-        {{ run_docker }}
+        To start a new project, we need a test broker container
         ```bash
         docker run -d --rm -p 9092:9092 --name test-mq \
         -e KAFKA_ENABLE_KRAFT=yes \
@@ -43,7 +42,7 @@ Install using `pip`:
     ```
 
     !!! tip
-        {{ run_docker }}
+        To start a new project, we need a test broker container
         ```bash
         docker run -d --rm -p 9092:9092 --name test-mq \
         -e KAFKA_ENABLE_KRAFT=yes \
@@ -65,7 +64,7 @@ Install using `pip`:
     ```
 
     !!! tip
-        {{ run_docker }}
+        To start a new project, we need a test broker container
         ```bash
         docker run -d --rm -p 5672:5672 --name test-mq rabbitmq:alpine
         ```
@@ -77,7 +76,7 @@ Install using `pip`:
     ```
 
     !!! tip
-        {{ run_docker }}
+        To start a new project, we need a test broker container
         ```bash
         bash docker run -d --rm -p 4222:4222 --name test-mq nats -js
         ```
@@ -88,7 +87,7 @@ Install using `pip`:
     ```
 
     !!! tip
-        {{ run_docker }}
+        To start a new project, we need a test broker container
         ```bash
         bash docker run -d --rm -p 6379:6379 --name test-mq redis
         ```
