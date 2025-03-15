@@ -67,7 +67,30 @@ To add a trace to your broker, you need to:
 
 3. Add `TelemetryMiddleware` to your broker
 
-    {!> includes/getting_started/opentelemetry/1.md !}
+    === "AIOKafka"
+        ```python linenums="1" hl_lines="7"
+        {!> docs_src/getting_started/opentelemetry/kafka_telemetry.py!}
+        ```
+
+    === "Confluent"
+        ```python linenums="1" hl_lines="7"
+        {!> docs_src/getting_started/opentelemetry/confluent_telemetry.py!}
+        ```
+
+    === "RabbitMQ"
+        ```python linenums="1" hl_lines="7"
+        {!> docs_src/getting_started/opentelemetry/rabbit_telemetry.py!}
+        ```
+
+    === "NATS"
+        ```python linenums="1" hl_lines="7"
+        {!> docs_src/getting_started/opentelemetry/nats_telemetry.py!}
+        ```
+
+    === "Redis"
+        ```python linenums="1" hl_lines="7"
+        {!> docs_src/getting_started/opentelemetry/redis_telemetry.py!}
+        ```
 
 ### Exporting
 
