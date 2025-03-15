@@ -6,10 +6,6 @@
 # 10 - Default
 search:
   boost: 10
-# template variables
-fastapi_plugin: If you want to use **FastStream** in conjunction with **FastAPI**, perhaps you should use a special [plugin](../fastapi/index.md){.internal-link}
-no_hook: However, even if such a hook is not provided, you can do it yourself.
-and_not_only_http: And not only HTTP frameworks.
 ---
 
 # INTEGRATIONS
@@ -22,8 +18,7 @@ Most HTTP frameworks have built-in lifecycle hooks for this.
 
 === "FastAPI"
     !!! tip
-        {{ fastapi_plugin }}
-
+        If you want to use **FastStream** in conjunction with **FastAPI**, perhaps you should use a special [plugin](../fastapi/index.md){.internal-link}
     ```python linenums="1" hl_lines="5 7 9-11 15 17 19"
     {!> docs_src/integrations/http_frameworks_integrations/fastapi.py !}
     ```
@@ -58,14 +53,14 @@ Most HTTP frameworks have built-in lifecycle hooks for this.
     {!> docs_src/integrations/http_frameworks_integrations/sanic.py !}
     ```
 
-{{ no_hook }}
+However, even if such a hook is not provided, you can do it yourself.
 
 === "Tornado"
     ```python linenums="1" hl_lines="5 7 10-12 32-36"
     {!> docs_src/integrations/http_frameworks_integrations/tornado.py !}
     ```
 
-{{ and_not_only_http }}
+And not only HTTP frameworks.
 
 === "Aiogram"
     ```python linenums="1" hl_lines="6 10 12-14 30-31"
