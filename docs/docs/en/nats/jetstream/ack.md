@@ -67,4 +67,7 @@ If you want to interrupt message processing at any call stack, you can raise `fa
 
 This way, **FastStream** interrupts the current message processing and acknowledges it immediately. Also, you can raise `NackMessage` and `RejectMessage` too.
 
-{! includes/en/no_ack.md !}
+!!! tip
+    If you want to disable **FastStream** Acknowledgement logic at all, you can use
+    `#!python @broker.subscriber(..., no_ack=True)` option. This way you should always process a message (ack/nack/terminate/etc) by yourself.
+

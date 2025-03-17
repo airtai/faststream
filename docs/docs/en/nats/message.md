@@ -18,7 +18,15 @@ You can get it in a simple way: just access the message object in the [Context](
 
 It contains the required information such as:
 
-{! includes/message/attrs.md !}
+* `#!python body: bytes`
+* `#!python decoded_body: Any`
+* `#!python content_type: str`
+* `#!python reply_to: str`
+* `#!python headers: dict[str, Any]`
+* `#!python path: dict[str, Any]`
+* `#!python message_id: str`
+* `#!python correlation_id: str`
+
 
 It is a **FastStream** wrapper around a native broker library message (`nats.aio.msg.Msg` in the *NATS*' case) that you can access with `raw_message`.
 
@@ -77,9 +85,65 @@ async def base_handler(
 
 But this code is too long to reuse everywhere. In this case, you can use a Python [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-link target="_blank"} feature:
 
-{! includes/message/annotated.md !}
+=== "python 3.9+"
+    ```python hl_lines="4 9"
+    from types import Annotated
+    from faststream import Context
 
-{! includes/message/headers.md !}
+    CorrelationId = Annotated[str, Context("message.correlation_id")]
+
+    @broker.subscriber("test")
+    async def base_handler(
+        body: str,
+        cor_id: CorrelationId,
+    ):
+        print(cor_id)
+    ```
+
+=== "python 3.6+"
+    ```python hl_lines="4 9"
+    from typing_extensions import Annotated
+    from faststream import Context
+
+    CorrelationId = Annotated[str, Context("message.correlation_id")]
+
+    @broker.subscriber("test")
+    async def base_handler(
+        body: str,
+        cor_id: CorrelationId,
+    ):
+        print(cor_id)
+    ```
+
+
+## Headers Access
+
+Sure, you can get access to a raw message and get the headers dict itself, but more often you just need a single header field. So, you can easily access it using the `Context`:
+
+```python hl_lines="6"
+from faststream import Context
+
+@broker.subscriber("test")
+async def base_handler(
+    body: str,
+    user: str = Context("message.headers.user"),
+):
+    ...
+```
+
+Using the special `Header` class is more convenient, as it also validates the header value using Pydantic. It works the same way as `Context`, but it is just a shortcut to `Context` with a default setup. So, you already know how to use it:
+
+```python hl_lines="6"
+from faststream import Header
+
+@broker.subscriber("test")
+async def base_handler(
+    body: str,
+    user: str = Header(),
+):
+    ...
+```
+
 
 ## Subject Pattern Access
 

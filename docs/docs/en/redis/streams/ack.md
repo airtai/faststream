@@ -47,4 +47,7 @@ If the need arises to instantly interrupt message processing at any point in the
 
 By raising `AckMessage`, **FastStream** will halt the current message processing routine and immediately acknowledge it. Analogously, raising `NackMessage` would prevent the message from being acknowledged and could lead to its subsequent reprocessing by the same or a different consumer.
 
-{! includes/en/no_ack.md !}
+!!! tip
+    If you want to disable **FastStream** Acknowledgement logic at all, you can use
+    `#!python @broker.subscriber(..., no_ack=True)` option. This way you should always process a message (ack/nack/terminate/etc) by yourself.
+
