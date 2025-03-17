@@ -259,7 +259,7 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
         if extra_messages:
             msgs = (cast("SendableMessage", message), *extra_messages)
         else:
-            msgs = cast(Iterable["SendableMessage"], message)
+            msgs = cast("Iterable[SendableMessage]", message)
 
         kwargs: AnyDict = {
             "topic": topic or self.topic,

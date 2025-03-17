@@ -692,7 +692,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         ] = False,
     ) -> AsyncAPISubscriber:
         return cast(
-            AsyncAPISubscriber,
+            "AsyncAPISubscriber",
             super().subscriber(
                 queue=queue,
                 exchange=exchange,
