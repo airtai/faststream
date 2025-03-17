@@ -26,8 +26,30 @@ This method creates a reusable Publisher object that can be used directly to pub
 
     :material-checkbox-marked:{.checked_mark} **Can be reused** - This method is reusable.
 
+=== "AIOKafka"
+    ```python linenums="1" hl_lines="7 11"
+    {!> docs_src/getting_started/publishing/kafka/direct.py !}
+    ```
 
-{! includes/getting_started/publishing/direct/1.md !}
+=== "Confluent"
+    ```python linenums="1" hl_lines="7 11"
+    {!> docs_src/getting_started/publishing/confluent/direct.py !}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="7 11"
+    {!> docs_src/getting_started/publishing/rabbit/direct.py !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="7 11"
+    {!> docs_src/getting_started/publishing/nats/direct.py !}
+    ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="7 11"
+    {!> docs_src/getting_started/publishing/redis/direct.py !}
+    ```
 
 It is something in the middle between [broker publish](./broker.md){.internal-link} and [object decorator](./object.md){.internal-link}. It has an **AsyncAPI** representation and *testability* features (like the **object decorator**), but allows you to send different messages to different outputs (like the **broker publish**).
 

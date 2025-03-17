@@ -31,7 +31,30 @@ It creates a structured DataPipeline unit with an input and output. The order of
 
     :fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published.
 
-{! includes/getting_started/publishing/decorator/1.md !}
+=== "AIOKafka"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/getting_started/publishing/kafka/decorator.py !}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/getting_started/publishing/confluent/decorator.py !}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/getting_started/publishing/rabbit/decorator.py !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/getting_started/publishing/nats/decorator.py !}
+    ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/getting_started/publishing/redis/decorator.py !}
+    ```
 
 ## Message Broadcasting
 

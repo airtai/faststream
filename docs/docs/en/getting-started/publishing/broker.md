@@ -25,5 +25,27 @@ In the **FastStream** project, this call is not represented in the **AsyncAPI** 
     :fontawesome-solid-square-xmark:{.x_mark} **No testing support** - This method lacks full [```Testing```](./test.md#section{.css-styles}) support.
 
 
+=== "AIOKafka"
+    ```python linenums="1" hl_lines="10 20"
+    {!> docs_src/getting_started/publishing/kafka/broker.py !}
+    ```
 
-{! includes/getting_started/publishing/broker/1.md !}
+=== "Confluent"
+    ```python linenums="1" hl_lines="10 20"
+    {!> docs_src/getting_started/publishing/confluent/broker.py !}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="10 20"
+    {!> docs_src/getting_started/publishing/rabbit/broker.py !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="10 20"
+    {!> docs_src/getting_started/publishing/nats/broker.py !}
+    ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="10 20"
+    {!> docs_src/getting_started/publishing/redis/broker.py !}
+    ```

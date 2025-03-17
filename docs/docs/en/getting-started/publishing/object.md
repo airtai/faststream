@@ -29,7 +29,30 @@ Additionally, this object can be used as a decorator. The order of Subscriber an
 
     :fontawesome-solid-triangle-exclamation:{.warning_mark} The message will **always** be published.
 
-{! includes/getting_started/publishing/object/1.md !}
+=== "AIOKafka"
+    ```python linenums="1" hl_lines="7 9"
+    {!> docs_src/getting_started/publishing/kafka/object.py !}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="7 9"
+    {!> docs_src/getting_started/publishing/confluent/object.py !}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="7 9"
+    {!> docs_src/getting_started/publishing/rabbit/object.py !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="7 9"
+    {!> docs_src/getting_started/publishing/nats/object.py !}
+    ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="7 9"
+    {!> docs_src/getting_started/publishing/redis/object.py !}
+    ```
 
 ## Message Broadcasting
 
