@@ -212,7 +212,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         stream = self._stream_builder.create(stream)
 
         subscriber = cast(
-            AsyncAPISubscriber,
+            "AsyncAPISubscriber",
             super().subscriber(
                 create_subscriber(
                     subject=subject,
@@ -328,7 +328,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         stream = self._stream_builder.create(stream)
 
         publisher = cast(
-            AsyncAPIPublisher,
+            "AsyncAPIPublisher",
             super().publisher(
                 publisher=AsyncAPIPublisher.create(
                     subject=subject,

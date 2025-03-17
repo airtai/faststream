@@ -108,7 +108,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         ] = True,
     ) -> AsyncAPISubscriber:
         subscriber = cast(
-            AsyncAPISubscriber,
+            "AsyncAPISubscriber",
             super().subscriber(
                 create_subscriber(
                     channel=channel,
@@ -196,7 +196,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
         return cast(
-            AsyncAPIPublisher,
+            "AsyncAPIPublisher",
             super().publisher(
                 AsyncAPIPublisher.create(
                     channel=channel,
