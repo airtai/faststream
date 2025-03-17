@@ -100,54 +100,7 @@ pytest -m 'not rabbit and not kafka and not nats and not redis and not confluent
 To run tests based on RabbitMQ, Kafka, or other dependencies, the following dependencies are needed to be started as docker containers:
 
 ```yaml
-version: "3"
-services:
-  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
-  rabbitmq:
-    image: rabbitmq:alpine
-    ports:
-      - "5672:5672"
-    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
-    security_opt:
-      - no-new-privileges:true
-  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
-  kafka:
-    image: bitnami/kafka:3.5.0
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_ENABLE_KRAFT: "true"
-      KAFKA_CFG_NODE_ID: "1"
-      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
-      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://127.0.0.1:9092"
-      KAFKA_BROKER_ID: "1"
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
-      ALLOW_PLAINTEXT_LISTENER: "true"
-    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
-    security_opt:
-      - no-new-privileges:true
-  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
-  nats:
-    image: nats
-    command: -js
-    ports:
-      - 4222:4222
-      - 8222:8222  # management
-    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
-    security_opt:
-      - no-new-privileges:true
-  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
-  redis:
-    image: redis:alpine
-    ports:
-      - 6379:6379
-    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
-    security_opt:
-      - no-new-privileges:true
-
+{! includes/docker-compose.yaml !}
 ```
 
 You can start the dependencies easily using provided script by running:
