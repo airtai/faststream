@@ -14,6 +14,18 @@ The Publisher Object provides a full-featured way to publish messages. It has an
 
 This method creates a reusable Publisher object that can be used directly to publish a message:
 
+!!! tip "Pros and Cons"
+
+    :material-checkbox-marked:{.checked_mark} **AsyncAPI support** - [**```AsyncAPI```**](../asyncapi/export.md#section{.css-styles}) is a specification for describing asynchronous APIs used in messaging applications. This method currently does not support this standard.
+
+    :material-checkbox-marked:{.checked_mark} **Testing support** - This method has full [**```Testing```**](./test.md#section{.css-styles}) support.
+
+    :material-checkbox-marked:{.checked_mark} **Broker availability from Context** - You can leverage **FastStream's** [**```Context```**](../context/index.md#section{.css-styles}), a built-in Dependency Injection (DI) container, to work with brokers or other external services.
+
+    :material-checkbox-marked:{.checked_mark} **Optional publication** - You can create optional publications.
+
+    :material-checkbox-marked:{.checked_mark} **Reusable** - This method is reusable.
+
 === "AIOKafka"
     ```python linenums="1" hl_lines="7 11"
     {!> docs_src/getting_started/publishing/kafka/direct.py !}

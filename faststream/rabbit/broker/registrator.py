@@ -127,7 +127,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         ] = True,
     ) -> AsyncAPISubscriber:
         subscriber = cast(
-            AsyncAPISubscriber,
+            "AsyncAPISubscriber",
             super().subscriber(
                 create_subscriber(
                     queue=RabbitQueue.validate(queue),
@@ -288,7 +288,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         )
 
         publisher = cast(
-            AsyncAPIPublisher,
+            "AsyncAPIPublisher",
             super().publisher(
                 AsyncAPIPublisher.create(
                     routing_key=routing_key,

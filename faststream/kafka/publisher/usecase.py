@@ -463,7 +463,7 @@ class BatchPublisher(LogicPublisher[Tuple["ConsumerRecord", ...]]):
         if extra_messages:
             msgs = (cast("SendableMessage", message), *extra_messages)
         else:
-            msgs = cast(Iterable["SendableMessage"], message)
+            msgs = cast("Iterable[SendableMessage]", message)
 
         topic = topic or self.topic
         partition = partition or self.partition
