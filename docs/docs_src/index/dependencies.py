@@ -11,4 +11,4 @@ async def base_handler(user: str,
                        logger: Logger,
                        dep: bool = Depends(base_dep)):
     assert dep is True
-    logger.info(user)
+    logger.info("%s", user)

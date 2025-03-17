@@ -7,4 +7,4 @@ app = FastStream(broker)
 
 @broker.subscriber(channel=PubSub("test.*", pattern=True))
 async def handle_test(msg: str, logger: Logger):
-    logger.info(msg)
+    logger.info("%s", msg)

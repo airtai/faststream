@@ -13,4 +13,4 @@ async def handler(body):
 
 @apply_types
 def nested_func(body, logger=Context()):
-    logger.info(body)
+    logger.info("%s", body)

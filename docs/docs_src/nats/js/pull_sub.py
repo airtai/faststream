@@ -11,4 +11,4 @@ app = FastStream(broker)
     pull_sub=PullSub(batch_size=10),
 )
 async def handle(msg, logger: Logger):
-    logger.info(msg)
+    logger.info("%s", msg)

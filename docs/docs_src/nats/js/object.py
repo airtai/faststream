@@ -17,7 +17,7 @@ async def handler(
 ):
     assert filename == "file.txt"
     file = await storage.get(filename)
-    logger.info(file.data)
+    logger.info("%s", file.data)
 
 
 @app.after_startup

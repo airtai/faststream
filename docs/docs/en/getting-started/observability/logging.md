@@ -110,7 +110,7 @@ async def handler(
     msg,
     logger: Logger,  # <-- YOUR logger here
 ):
-    logger.info(msg)
+    logger.info("%s", msg)
 ```
 
 ### Structlog Example

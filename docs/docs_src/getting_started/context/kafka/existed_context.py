@@ -19,7 +19,7 @@ async def handle(
     broker=Context(),
     context=Context(),
 ):
-    logger.info(message)
+    logger.info("%s", message)
     await broker.publish("test", "response")
 
 
@@ -31,5 +31,5 @@ async def handle_response(
     context: ContextRepo,
     broker: BrokerAnnotation,
 ):
-    logger.info(message)
+    logger.info("%s", message)
     await broker.publish("test", "response")

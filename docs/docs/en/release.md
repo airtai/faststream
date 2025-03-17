@@ -740,7 +740,7 @@ This is the time for a new **NATS** features! **FastStream** supports **NATS Key
 
     @broker.subscriber("some-key", kv_watch="bucket")
     async def handler(msg: int, logger: Logger):
-        logger.info(msg)
+        logger.info("%s", msg)
 
     @app.after_startup
     async def test():
@@ -759,7 +759,7 @@ This is the time for a new **NATS** features! **FastStream** supports **NATS Key
 
     @broker.subscriber("file-bucket", obj_watch=True)
     async def handler(filename: str, logger: Logger):
-        logger.info(filename)
+        logger.info("%s", filename)
 
     @app.after_startup
     async def test():
@@ -778,7 +778,7 @@ This is the time for a new **NATS** features! **FastStream** supports **NATS Key
 
     @broker.subscriber("test", stream="stream", pull_sub=True)
     async def handler(msg, logger: Logger):
-        logger.info(msg)
+        logger.info("%s", msg)
     ```
 
 Finally, we have a new feature, related to all brokers: special flag to suppress automatic RPC and reply_to responses:
@@ -1618,7 +1618,7 @@ router = RedisRouter()
 
 @router.subscriber("test")
 async def handler(msg, logger: Logger):
-    logger.info(msg)
+    logger.info("%s", msg)
 
 app = FastAPI(lifespan=router.lifespan_context)
 app.include_router(router)
@@ -1762,7 +1762,7 @@ app = FastStream(broker)
     # stream="test",
 )
 async def handle(msg: str, logger: Logger):
-    logger.info(msg)
+    logger.info("%s", msg)
 ```
 
 #### Other features

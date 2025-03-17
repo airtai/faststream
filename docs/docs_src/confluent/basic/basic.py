@@ -17,5 +17,5 @@ app = FastStream(broker)
 @broker.publisher("output_data")
 @broker.subscriber("input_data")
 async def on_input_data(msg: DataBasic, logger: Logger) -> DataBasic:
-    logger.info(msg)
+    logger.info("%s", msg)
     return DataBasic(data=msg.data + 1.0)
