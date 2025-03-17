@@ -15,7 +15,7 @@ async def decode_message(msg: RabbitMessage) -> Person:
 
 @broker.subscriber("test", decoder=decode_message)
 async def consume(body: NoCast[Person], logger: Logger):
-    logger.info(body)
+    logger.info("%s", body)
 
 
 @app.after_startup

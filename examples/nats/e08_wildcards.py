@@ -7,12 +7,12 @@ app = FastStream(broker)
 
 @broker.subscriber("subject.*")
 async def handler(msg: str, logger: Logger):
-    logger.info(msg)
+    logger.info("%s", msg)
 
 
 @broker.subscriber("subject.>")
 async def handler_match(msg: str, logger: Logger):
-    logger.info(msg)
+    logger.info("%s", msg)
 
 
 @app.after_startup

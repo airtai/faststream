@@ -6,7 +6,7 @@ router = KafkaRouter("prefix_")
 
 @router.subscriber("in")
 async def handle(msg: str, logger: Logger) -> None:
-    logger.info(msg)
+    logger.info("%s", msg)
 
 
 broker = KafkaBroker("localhost:9092")

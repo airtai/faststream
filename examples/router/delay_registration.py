@@ -3,7 +3,7 @@ from faststream.kafka import KafkaBroker, KafkaRoute, KafkaRouter
 
 
 async def handle(msg: str, logger: Logger) -> None:
-    logger.info(msg)
+    logger.info("%s", msg)
 
 
 router = KafkaRouter(

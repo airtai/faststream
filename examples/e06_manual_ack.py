@@ -13,7 +13,7 @@ async def handle(
     message: RabbitMessage,
 ):
     await message.ack()  # ack first
-    logger.info(body)
+    logger.info("%s", body)
 
 
 @app.after_startup

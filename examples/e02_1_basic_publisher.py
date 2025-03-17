@@ -9,13 +9,13 @@ app = FastStream(broker)
 @broker.subscriber("test-queue")
 @broker.publisher("response-queue")
 async def handle(msg, logger: Logger):
-    logger.info(msg)
+    logger.info("%s", msg)
     return "Response"
 
 
 @broker.subscriber("response-queue")
 async def handle_response(msg, logger: Logger):
-    logger.info(f"Process response: {msg}")
+    logger.info("Process response: %s", msg)
 
 
 @app.after_startup

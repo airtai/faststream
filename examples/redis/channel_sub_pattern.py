@@ -7,12 +7,12 @@ app = FastStream(broker)
 
 @broker.subscriber("logs.{level}")
 async def handle_logs(msg: str, logger: Logger, level: str = Path()):
-    logger.info(f"{level}: {msg}")
+    logger.info("%s: %s", level, msg)
 
 
 @broker.subscriber(channel=PubSub("test.*", pattern=True))
 async def handle_test(msg: str, logger: Logger):
-    logger.info(msg)
+    logger.info("%s", msg)
 
 
 @app.after_startup

@@ -7,7 +7,7 @@ app = FastStream(broker)
 
 @broker.subscriber("subject")
 async def handler(msg: str, logger: Logger):
-    logger.info(msg)
+    logger.info("%s", msg)
     return "Response"
 
 

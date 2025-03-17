@@ -15,7 +15,7 @@ async def handle():
 
 @broker.subscriber("response", batch=True)
 async def handle_response(msg: List[str], logger: Logger):
-    logger.info(msg)
+    logger.info("%s", msg)
 
 
 @app.after_startup
