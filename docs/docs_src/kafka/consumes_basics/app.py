@@ -18,4 +18,4 @@ app = FastStream(broker)
 
 @broker.subscriber("hello_world")
 async def on_hello_world(msg: HelloWorld, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)

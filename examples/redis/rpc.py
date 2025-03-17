@@ -7,19 +7,19 @@ app = FastStream(broker)
 
 @broker.subscriber(channel="test-channel")
 async def handle_channel(msg: str, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
     return msg
 
 
 @broker.subscriber(list="test-list")
 async def handle_list(msg: str, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
     return msg
 
 
 @broker.subscriber(stream="test-stream")
 async def handle_stream(msg: str, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
     return msg
 
 

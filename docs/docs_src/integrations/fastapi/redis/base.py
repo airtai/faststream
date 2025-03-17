@@ -14,7 +14,7 @@ def call():
 @router.subscriber("test")
 @router.publisher("response")
 async def hello(m: Incoming, logger: Logger, d=Depends(call)):
-    logger.info("%s", m)
+    logger.info(m)
     return {"response": "Hello, Redis!"}
 
 @router.get("/")

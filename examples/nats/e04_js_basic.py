@@ -13,7 +13,7 @@ stream = JStream(name="stream")
     deliver_policy="new",
 )
 async def handler(msg: str, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
 
 
 @app.after_startup

@@ -11,7 +11,7 @@ publisher = broker.publisher("response-queue")
 @broker.subscriber("test-queue")
 async def handle(msg, logger: Logger):
     await publisher.publish("Response")
-    logger.info("%s", msg)
+    logger.info(msg)
 
 
 @broker.subscriber("response-queue")

@@ -8,13 +8,13 @@ app = FastStream(broker)
 @broker.subscriber("subject")
 @broker.publisher("response-subject")
 async def handler(msg: str, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
     return "Response"
 
 
 @broker.subscriber("response-subject")
 async def response_handler(msg: str, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
     assert msg == "Response"
 
 

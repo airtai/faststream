@@ -9,12 +9,12 @@ stream = JStream(name="stream")
 
 @broker.subscriber("core-subject")
 async def core_handler(msg: str, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
 
 
 @broker.subscriber("js-subject", stream=stream)
 async def js_handler(msg: str, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
 
 
 @app.after_startup

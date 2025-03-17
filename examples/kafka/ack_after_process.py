@@ -11,7 +11,7 @@ app = FastStream(broker)
     auto_commit=False,
 )
 async def handler(msg: str, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
 
 
 @app.after_startup

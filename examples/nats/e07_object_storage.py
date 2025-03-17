@@ -12,7 +12,7 @@ app = FastStream(broker)
 async def handler(filename: str, storage: ObjectStorage, logger: Logger):
     assert filename == "file.txt"
     file = await storage.get(filename)
-    logger.info("%s", file.data)
+    logger.info(file.data)
 
 
 @app.after_startup

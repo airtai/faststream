@@ -7,4 +7,4 @@ app = FastStream(broker)
 
 @broker.subscriber(list=ListSub("test-list", batch=True))
 async def handle(msg: list[str], logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)

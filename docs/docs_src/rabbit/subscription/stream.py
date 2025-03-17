@@ -16,7 +16,7 @@ queue = RabbitQueue(
     consume_args={"x-stream-offset": "first"},
 )
 async def handle(msg, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
 
 
 @app.after_startup

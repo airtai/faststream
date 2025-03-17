@@ -8,7 +8,7 @@ app = FastStream(broker)
 
 @broker.subscriber("test-queue")
 async def handle(msg, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
 
 
 @app.after_startup

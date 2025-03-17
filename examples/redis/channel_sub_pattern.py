@@ -12,7 +12,7 @@ async def handle_logs(msg: str, logger: Logger, level: str = Path()):
 
 @broker.subscriber(channel=PubSub("test.*", pattern=True))
 async def handle_test(msg: str, logger: Logger):
-    logger.info("%s", msg)
+    logger.info(msg)
 
 
 @app.after_startup
