@@ -23,7 +23,7 @@ def make_ping_asgi(
     broker: "BrokerUsecase[Any, Any]",
     /,
     timeout: Optional[float] = None,
-    include_in_schema: bool = True, # TODO: Is this default?
+    include_in_schema: bool = True,
 ) -> "ASGIApp":
     healthy_response = AsgiResponse(b"", 204)
     unhealthy_response = AsgiResponse(b"", 500)
@@ -51,7 +51,7 @@ def make_asyncapi_asgi(
     title: str = "FastStream",
     asyncapi_js_url: str = ASYNCAPI_JS_DEFAULT_URL,
     asyncapi_css_url: str = ASYNCAPI_CSS_DEFAULT_URL,
-) -> "ASGIApp": # Make endpoint for docs
+) -> "ASGIApp":
     return AsgiResponse(
         get_asyncapi_html(
             get_app_schema(app),

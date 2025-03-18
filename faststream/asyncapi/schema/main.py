@@ -67,7 +67,7 @@ class Components(BaseModel):
             extra = "allow"
 
 
-class Schema(BaseModel): # TODO: Needs to accept HTTP routes
+class Schema(BaseModel):
     """A class to represent a schema.
 
     Attributes:

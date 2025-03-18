@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from faststream.asgi.types import ASGIApp, Receive, Scope, Send, UserApp
 
 
-def get(func: "UserApp", include_in_schema: bool = True) -> "ASGIApp": # TODO: Default for `include_in_schema`?
+def get(func: "UserApp", include_in_schema: bool = True) -> "ASGIApp":
     methods = ("GET", "HEAD")
 
     method_now_allowed_response = _get_method_not_allowed_response(methods)

@@ -17,22 +17,6 @@ if TYPE_CHECKING:
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.types import ConnectionType, MsgType
 
-"""
-Accepts any AsyncAPIApplication... Which I guess includes an ASGI app?
-
-Where is this called currently? Where can I add it or something like this to ASGI App?
-Docs are generated from cli. Need to make sure everything works as it does currently
-
-ASGI app has
-asgi_routes: Sequence[Tuple[str, "ASGIApp"]] = (), # Here
-
-Steps:
-1. Parse include_in_schema for ASGI routes
-2. Catch em in here, parse em
-3. Generate schema
-
-
-"""
 def get_app_schema(app: "AsyncAPIApplication") -> Schema: # Generate the schema!
     """Get the application schema."""
 
@@ -45,7 +29,6 @@ def get_app_schema(app: "AsyncAPIApplication") -> Schema: # Generate the schema!
 
     servers = get_broker_server(broker)
     channels = get_broker_channels(broker)
-    # Can we grab HTTP routes here. If the app is faststreamASGI, pull out the routes, generate schema for em
 
     messages: Dict[str, Message] = {}
     payloads: Dict[str, Dict[str, Any]] = {}
