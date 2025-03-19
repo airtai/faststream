@@ -95,3 +95,14 @@ class AsgiTestcase:
                 response = client.get("/test")
                 assert response.status_code == 200
                 assert response.text == "test"
+
+    @pytest.mark.asyncio
+    async def test_get_decorator_with_include_in_schema(self):
+        @get(include_in_schema=True)
+        async def some_handler(scope):
+            return AsgiResponse(body=b"test", status_code=200)
+
+        broker = self.get_broker()
+        app = AsgiFastStream(broker, asgi_routes=[("/test", some_handler)])
+
+        assert app.routes[0][1].include_in_schema is True

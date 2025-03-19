@@ -7,6 +7,7 @@ from faststream.asyncapi.schema.channels import Channel
 from faststream.asyncapi.schema.info import Info
 from faststream.asyncapi.schema.message import Message
 from faststream.asyncapi.schema.servers import Server
+from faststream.asyncapi.schema.routes import Route
 from faststream.asyncapi.schema.utils import (
     ExternalDocs,
     ExternalDocsDict,
@@ -95,7 +96,7 @@ class Schema(BaseModel):
     info: Info
     servers: Optional[Dict[str, Server]] = None
     channels: Dict[str, Channel]
-    routes: Optional[List[Any]] = None
+    routes: Optional[List[Route]] = None
     components: Optional[Components] = None
     tags: Optional[List[Union[Tag, TagDict, Dict[str, Any]]]] = None
     externalDocs: Optional[Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]] = None

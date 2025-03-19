@@ -2,6 +2,7 @@ from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Sequence,
+    Optional
 )
 
 from faststream.asgi.response import AsgiResponse
@@ -10,8 +11,13 @@ if TYPE_CHECKING:
     from faststream.asgi.types import ASGIApp, Receive, Scope, Send, UserApp
 
 
-def get(func: "UserApp", include_in_schema: bool = True) -> "ASGIApp":
+def get(func: Optional["UserApp"] = None, *, include_in_schema: bool = True) -> "ASGIApp":
     methods = ("GET", "HEAD")
+
+    if func is None:
+        def decorator(func: "UserApp") -> "ASGIApp":
+            return get(func, include_in_schema=include_in_schema)
+        return decorator
 
     method_now_allowed_response = _get_method_not_allowed_response(methods)
     error_response = AsgiResponse(body=b"Internal Server Error", status_code=500)

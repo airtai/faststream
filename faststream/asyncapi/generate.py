@@ -9,6 +9,7 @@ from faststream.asyncapi.schema import (
     Reference,
     Schema,
     Server,
+    Route
 )
 from faststream.constants import ContentTypes
 
@@ -25,10 +26,9 @@ def get_app_schema(app: "AsyncAPIApplication") -> Schema: # Generate the schema!
         raise RuntimeError()
     broker.setup()
 
-    asgi_routes: List[Dict[str, Any]] = []
-
     servers = get_broker_server(broker)
     channels = get_broker_channels(broker)
+    asgi_routes = get_asgi_routes(app)
 
     messages: Dict[str, Message] = {}
     payloads: Dict[str, Dict[str, Any]] = {}
@@ -56,12 +56,6 @@ def get_app_schema(app: "AsyncAPIApplication") -> Schema: # Generate the schema!
                     payloads,
                     messages,
                 )
-
-    if app.isinstance("AsgiFastStream"):
-        for route in app.asgi_routes:
-            path, asgi_app = route
-            if hasattr(asgi_app, "include_in_schema") and asgi_app.include_in_schema:
-                asgi_routes.append(route)
     
     schema = Schema(
         info=Info(
@@ -77,8 +71,8 @@ def get_app_schema(app: "AsyncAPIApplication") -> Schema: # Generate the schema!
         tags=list(app.asyncapi_tags) if app.asyncapi_tags else None,
         externalDocs=app.external_docs,
         servers=servers,
-        routes=asgi_routes,
         channels=channels,
+        routes=asgi_routes,
         components=Components(
             messages=messages,
             schemas=payloads,
@@ -145,6 +139,25 @@ def get_broker_channels(
 
     return channels
 
+def get_asgi_routes(
+    app: "AsyncAPIApplication",
+) -> List[Route]:
+    """Get the ASGI routes for an application."""
+
+    # TODO: Get this outputting a schema!
+
+    routes = []
+
+    if hasattr(app, "asgi_routes"):
+        for route in app.asgi_routes: # Get working
+            _, asgi_app = route
+            if hasattr(asgi_app, "include_in_schema") and asgi_app.include_in_schema:
+                routes.append(
+                    Route(
+                        path=route[0],
+                        method=route[1].scope["method"],
+                    )
+                )
 
 def _resolve_msg_payloads(
     m: Message,
