@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Tuple
 
 from pydantic import BaseModel
 
@@ -77,7 +77,7 @@ class Schema(BaseModel):
         info : information about the schema
         servers : optional dictionary of servers
         channels : dictionary of channels
-        routes : optional dictionary of asgi routes
+        routes : optional list of asgi routes
         components : optional components of the schema
         tags : optional list of tags
         externalDocs : optional external documentation
@@ -94,8 +94,8 @@ class Schema(BaseModel):
     defaultContentType: Optional[str] = None
     info: Info
     servers: Optional[Dict[str, Server]] = None
-    routes: Optional[Dict[str, Any]] = None
     channels: Dict[str, Channel]
+    routes: Optional[List[Any]] = None
     components: Optional[Components] = None
     tags: Optional[List[Union[Tag, TagDict, Dict[str, Any]]]] = None
     externalDocs: Optional[Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]] = None

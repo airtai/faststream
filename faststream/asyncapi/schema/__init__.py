@@ -25,6 +25,7 @@ from faststream.asyncapi.schema.utils import (
     Tag,
     TagDict,
 )
+from faststream.asyncapi.schema.routes import Route
 
 __all__ = (
     # main
@@ -53,6 +54,8 @@ __all__ = (
     "SecuritySchemaComponent",
     # servers
     "Server",
+    # routes
+    "Route",
     # bindings
     "ServerBinding",
     # utils
