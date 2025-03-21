@@ -12,6 +12,15 @@ hide:
 ---
 
 # Release Notes
+## 0.5.37
+
+### What's Changed
+
+* fix: correct Confluent options name mapping by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#2137](https://github.com/airtai/faststream/pull/2137){.external-link target="_blank"}
+* fix: correct call_decorators wrapping order by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#2138](https://github.com/airtai/faststream/pull/2138){.external-link target="_blank"}
+
+**Full Changelog**: [#0.5.36...0.5.37](https://github.com/airtai/faststream/compare/0.5.36...0.5.37){.external-link target="_blank"}
+
 ## 0.5.36
 
 ### What's Changed
