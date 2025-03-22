@@ -5,8 +5,8 @@ import pytest
 from starlette.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 
-from faststream.asyncapi.generate import get_app_schema
 from faststream.asgi import AsgiFastStream, AsgiResponse, get, make_ping_asgi
+from faststream.asyncapi.generate import get_app_schema
 
 
 class AsgiTestcase:
@@ -113,24 +113,22 @@ class AsgiTestcase:
 
         @get(include_in_schema=True)
         async def liveness_ping(scope):
-            """Liveness ping"""
+            """Liveness ping."""
             return AsgiResponse(b"", status_code=200)
-        
+
         routes = [
             ("/liveness", liveness_ping),
             ("/readiness", make_ping_asgi(broker, timeout=5.0, include_in_schema=True)),
         ]
 
-
-        schema = get_app_schema(AsgiFastStream(broker, asgi_routes=routes)).to_jsonable()
+        schema = get_app_schema(
+            AsgiFastStream(broker, asgi_routes=routes)
+        ).to_jsonable()
 
         assert schema["routes"][0] == {
-            'path': '/liveness',
-            'methods': ['GET', 'HEAD'],
-            'description': 'Liveness ping'
+            "path": "/liveness",
+            "methods": ["GET", "HEAD"],
+            "description": "Liveness ping",
         }
 
-        assert schema["routes"][1] == {
-            'path': '/readiness',
-            'methods': ['GET', 'HEAD']
-        }
+        assert schema["routes"][1] == {"path": "/readiness", "methods": ["GET", "HEAD"]}

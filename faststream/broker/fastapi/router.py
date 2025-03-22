@@ -307,7 +307,6 @@ class StreamRouter(
 
                 self.schema = get_app_schema(self)
 
-
                 app.include_router(self.docs_router)
 
             if not len(self.weak_dependencies_provider):

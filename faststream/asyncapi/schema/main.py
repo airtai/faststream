@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -6,8 +6,8 @@ from faststream._compat import PYDANTIC_V2, model_to_json, model_to_jsonable
 from faststream.asyncapi.schema.channels import Channel
 from faststream.asyncapi.schema.info import Info
 from faststream.asyncapi.schema.message import Message
-from faststream.asyncapi.schema.servers import Server
 from faststream.asyncapi.schema.routes import Route
+from faststream.asyncapi.schema.servers import Server
 from faststream.asyncapi.schema.utils import (
     ExternalDocs,
     ExternalDocsDict,

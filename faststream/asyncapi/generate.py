@@ -7,9 +7,9 @@ from faststream.asyncapi.schema import (
     Info,
     Message,
     Reference,
+    Route,
     Schema,
     Server,
-    Route
 )
 from faststream.constants import ContentTypes
 
@@ -18,9 +18,9 @@ if TYPE_CHECKING:
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.types import ConnectionType, MsgType
 
-def get_app_schema(app: "AsyncAPIApplication") -> Schema: # Generate the schema!
-    """Get the application schema."""
 
+def get_app_schema(app: "AsyncAPIApplication") -> Schema:  # Generate the schema!
+    """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
         raise RuntimeError()
@@ -56,7 +56,7 @@ def get_app_schema(app: "AsyncAPIApplication") -> Schema: # Generate the schema!
                     payloads,
                     messages,
                 )
-    
+
     schema = Schema(
         info=Info(
             title=app.title,
@@ -139,18 +139,18 @@ def get_broker_channels(
 
     return channels
 
+
 def get_asgi_routes(
     app: "AsyncAPIApplication",
 ) -> List[Route]:
     """Get the ASGI routes for an application."""
-
     routes: Optional[List[Route]] = None
 
     if hasattr(app, "routes"):
         routes = []
-        for route in app.routes: # Get working
+        for route in app.routes:  # Get working
             path, asgi_app = route
-            
+
             if hasattr(asgi_app, "include_in_schema") and asgi_app.include_in_schema:
                 routes.append(
                     Route(
@@ -161,6 +161,7 @@ def get_asgi_routes(
                 )
 
     return routes
+
 
 def _resolve_msg_payloads(
     m: Message,
