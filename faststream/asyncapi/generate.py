@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from faststream._compat import DEF_KEY
 from faststream.asyncapi.schema import (
@@ -144,20 +144,23 @@ def get_asgi_routes(
 ) -> List[Route]:
     """Get the ASGI routes for an application."""
 
-    # TODO: Get this outputting a schema!
+    routes: Optional[List[Route]] = None
 
-    routes = []
-
-    if hasattr(app, "asgi_routes"):
-        for route in app.asgi_routes: # Get working
-            _, asgi_app = route
+    if hasattr(app, "routes"):
+        routes = []
+        for route in app.routes: # Get working
+            path, asgi_app = route
+            
             if hasattr(asgi_app, "include_in_schema") and asgi_app.include_in_schema:
                 routes.append(
                     Route(
-                        path=route[0],
-                        method=route[1].scope["method"],
+                        path=path,
+                        methods=["GET", "HEAD"],
+                        description=asgi_app.__doc__,
                     )
                 )
+
+    return routes
 
 def _resolve_msg_payloads(
     m: Message,

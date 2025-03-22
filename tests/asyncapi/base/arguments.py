@@ -649,7 +649,6 @@ class FastAPICompatible:
         assert "Handle:Message:Payload" in list(payload.keys())
         assert "HandleDefault:Message:Payload" in list(payload.keys())
 
-
 class ArgumentsTestcase(FastAPICompatible):
     dependency_builder = staticmethod(Depends)
 
