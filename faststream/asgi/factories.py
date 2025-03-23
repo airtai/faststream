@@ -35,7 +35,7 @@ def make_ping_asgi(
         else:
             return unhealthy_response
 
-    return ping
+    return ping # type: ignore[return-value]
 
 
 def make_asyncapi_asgi(

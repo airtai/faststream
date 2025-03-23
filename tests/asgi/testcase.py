@@ -128,7 +128,7 @@ class AsgiTestcase:
         assert schema["routes"][0] == {
             "path": "/liveness",
             "methods": ["GET", "HEAD"],
-            "description": "Liveness ping",
+            "description": "Liveness ping.",
         }
 
         assert schema["routes"][1] == {"path": "/readiness", "methods": ["GET", "HEAD"]}

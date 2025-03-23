@@ -142,7 +142,7 @@ def get_broker_channels(
 
 def get_asgi_routes(
     app: "AsyncAPIApplication",
-) -> List[Route]:
+) -> Optional[List[Route]]:
     """Get the ASGI routes for an application."""
     routes: Optional[List[Route]] = None
 
