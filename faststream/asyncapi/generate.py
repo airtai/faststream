@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from faststream.broker.types import ConnectionType, MsgType
 
 
-def get_app_schema(app: "AsyncAPIApplication") -> Schema:  # Generate the schema!
+def get_app_schema(app: "AsyncAPIApplication") -> Schema:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
