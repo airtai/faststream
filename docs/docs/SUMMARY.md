@@ -956,15 +956,15 @@ search:
                         - [BaseRMQInformation](api/faststream/rabbit/schemas/proto/BaseRMQInformation.md)
                     - queue
                         - [ClassicQueueArgs](api/faststream/rabbit/schemas/queue/ClassicQueueArgs.md)
+                        - [ClassicQueueSpecificArgs](api/faststream/rabbit/schemas/queue/ClassicQueueSpecificArgs.md)
                         - [CommonQueueArgs](api/faststream/rabbit/schemas/queue/CommonQueueArgs.md)
-                        - [QueueClassicTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueClassicTypeSpecificArgs.md)
-                        - [QueueQuorumTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueQuorumTypeSpecificArgs.md)
-                        - [QueueStreamTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueStreamTypeSpecificArgs.md)
                         - [QueueType](api/faststream/rabbit/schemas/queue/QueueType.md)
                         - [QuorumQueueArgs](api/faststream/rabbit/schemas/queue/QuorumQueueArgs.md)
+                        - [QuorumQueueSpecificArgs](api/faststream/rabbit/schemas/queue/QuorumQueueSpecificArgs.md)
                         - [RabbitQueue](api/faststream/rabbit/schemas/queue/RabbitQueue.md)
-                        - [SharedQueueClassicAndQuorumArgs](api/faststream/rabbit/schemas/queue/SharedQueueClassicAndQuorumArgs.md)
+                        - [SharedClassicAndQuorumQueueArgs](api/faststream/rabbit/schemas/queue/SharedClassicAndQuorumQueueArgs.md)
                         - [StreamQueueArgs](api/faststream/rabbit/schemas/queue/StreamQueueArgs.md)
+                        - [StreamQueueSpecificArgs](api/faststream/rabbit/schemas/queue/StreamQueueSpecificArgs.md)
                     - reply
                         - [ReplyConfig](api/faststream/rabbit/schemas/reply/ReplyConfig.md)
                 - security
