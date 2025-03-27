@@ -64,6 +64,7 @@ class FastAPITestCase:
                         }
                     },
                     "channels": {},
+                    "routes": [],
                     "components": {"messages": {}, "schemas": {}},
                 }
 
