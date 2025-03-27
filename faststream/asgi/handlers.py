@@ -1,19 +1,25 @@
 from functools import wraps
-from typing import TYPE_CHECKING, Optional, Sequence, Callable, Union
+from typing import TYPE_CHECKING, Optional, Sequence, Callable, Union, overload
 
 from faststream.asgi.response import AsgiResponse
 
 if TYPE_CHECKING:
     from faststream.asgi.types import ASGIApp, Receive, Scope, Send, UserApp
 
+@overload
+def get(func: "UserApp") -> "ASGIApp": ...
+
+@overload
+def get(*, include_in_schema: bool = True) -> Callable[["UserApp"], "ASGIApp"]: ...
+
 def get(
     func: Optional["UserApp"] = None, *, include_in_schema: bool = True
-) -> Union[Callable[["UserApp", bool], "ASGIApp"], "ASGIApp"]:
+) -> Union[Callable[["UserApp"], "ASGIApp"], "ASGIApp"]:
     methods = ("GET", "HEAD")
 
     if func is None:
         def decorator(inner_func: "UserApp") -> "ASGIApp":
-            return get(inner_func, include_in_schema=include_in_schema)  # type: ignore
+            return get(inner_func, include_in_schema=include_in_schema) # type: ignore
         return decorator
 
     method_now_allowed_response = _get_method_not_allowed_response(methods)

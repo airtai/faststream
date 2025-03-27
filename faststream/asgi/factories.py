@@ -32,10 +32,9 @@ def make_ping_asgi(
     async def ping(scope: "Scope") -> AsgiResponse:
         if await broker.ping(timeout):
             return healthy_response
-        else:
-            return unhealthy_response
+        return unhealthy_response
 
-    return ping # type: ignore[return-value]
+    return ping
 
 
 def make_asyncapi_asgi(
