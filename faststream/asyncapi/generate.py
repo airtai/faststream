@@ -148,7 +148,7 @@ def get_asgi_routes(
 
     if hasattr(app, "routes"):
         routes = []
-        for route in app.routes:  # Get working
+        for route in app.routes:
             path, asgi_app = route
 
             if hasattr(asgi_app, "include_in_schema") and asgi_app.include_in_schema:
