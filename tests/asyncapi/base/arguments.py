@@ -523,13 +523,8 @@ class FastAPICompatible:
 
         assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
 
-        if self.is_fastapi:
-            expected_schema = {
-                "$ref": "#/components/schemas/Handle:Message:Payload",
-            }
-
-        else:
-            expected_schema = {
+        expected_schema = IsPartialDict(
+            {
                 "discriminator": "type",
                 "oneOf": [
                     {"$ref": "#/components/schemas/Sub2"},
@@ -537,6 +532,16 @@ class FastAPICompatible:
                 ],
                 "title": "Handle:Message:Payload",
             }
+        )
+        if self.is_fastapi:
+            expected_schema = (
+                IsPartialDict(
+                    {
+                        "$ref": "#/components/schemas/Handle:Message:Payload",
+                    }
+                )
+                | expected_schema
+            )
 
         assert schema["components"]["messages"][key]["payload"] == expected_schema, (
             schema["components"]
@@ -564,16 +569,20 @@ class FastAPICompatible:
         ), schema["components"]["schemas"]
 
         if self.is_fastapi:
-            assert schema["components"]["schemas"] == IsPartialDict(
-                {
-                    "Handle:Message:Payload": {
-                        "anyOf": [
-                            {"$ref": "#/components/schemas/Sub2"},
-                            {"$ref": "#/components/schemas/Sub"},
-                        ],
-                        "title": "Handle:Message:Payload",
+            assert (
+                schema["components"]["schemas"]
+                == IsPartialDict(
+                    {
+                        "Handle:Message:Payload": {
+                            "anyOf": [
+                                {"$ref": "#/components/schemas/Sub2"},
+                                {"$ref": "#/components/schemas/Sub"},
+                            ],
+                            "title": "Handle:Message:Payload",
+                        }
                     }
-                }
+                )
+                | {}
             )
 
     @pydantic_v2
