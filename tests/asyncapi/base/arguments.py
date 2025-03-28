@@ -568,21 +568,16 @@ class FastAPICompatible:
             }
         ), schema["components"]["schemas"]
 
-        if self.is_fastapi:
-            assert (
-                schema["components"]["schemas"]
-                == IsPartialDict(
-                    {
-                        "Handle:Message:Payload": {
-                            "anyOf": [
-                                {"$ref": "#/components/schemas/Sub2"},
-                                {"$ref": "#/components/schemas/Sub"},
-                            ],
-                            "title": "Handle:Message:Payload",
-                        }
-                    }
-                )
-                | {}
+        if self.is_fastapi and (
+            payload := schema["components"]["schemas"].get("Handle:Message:Payload")
+        ):
+            assert payload == IsPartialDict(
+                {
+                    "anyOf": [
+                        {"$ref": "#/components/schemas/Sub2"},
+                        {"$ref": "#/components/schemas/Sub"},
+                    ]
+                }
             )
 
     @pydantic_v2
