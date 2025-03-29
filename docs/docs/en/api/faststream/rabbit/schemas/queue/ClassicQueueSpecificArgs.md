@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.rabbit.schemas.queue.QueueClassicTypeSpecificArgs
+::: faststream.rabbit.schemas.queue.ClassicQueueSpecificArgs
