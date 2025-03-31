@@ -37,11 +37,14 @@ def create_subscriber(
     if ack_policy is EMPTY:
         ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
+    consumer_no_ack = ack_policy is AckPolicy.ACK_FIRST
+
     return SpecificationSubscriber(
         queue=queue,
         exchange=exchange,
         consume_args=consume_args,
         ack_policy=ack_policy,
+        no_ack=consumer_no_ack,
         no_reply=no_reply,
         broker_dependencies=broker_dependencies,
         broker_middlewares=broker_middlewares,

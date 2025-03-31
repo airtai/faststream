@@ -53,6 +53,7 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
         # Subscriber args
         ack_policy: "AckPolicy",
         no_reply: bool,
+        no_ack: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Sequence["BrokerMiddleware[IncomingMessage]"],
     ) -> None:
@@ -71,6 +72,7 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
         )
 
         self.consume_args = consume_args or {}
+        self.__no_ack = no_ack
 
         self._consumer_tag = None
         self._queue_obj = None
@@ -128,6 +130,7 @@ class LogicSubscriber(SubscriberUsecase["IncomingMessage"]):
             self._consumer_tag = await self._queue_obj.consume(
                 # NOTE: aio-pika expects AbstractIncomingMessage, not IncomingMessage
                 self.consume,  # type: ignore[arg-type]
+                no_ack=self.__no_ack,
                 arguments=self.consume_args,
             )
 

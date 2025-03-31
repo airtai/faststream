@@ -40,6 +40,7 @@ class SpecificationSubscriber(
         consume_args: Optional["AnyDict"],
         # Subscriber args
         ack_policy: "AckPolicy",
+        no_ack: bool,
         no_reply: bool,
         broker_dependencies: Iterable["Dependant"],
         broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
@@ -62,6 +63,7 @@ class SpecificationSubscriber(
             queue=queue,
             consume_args=consume_args,
             ack_policy=ack_policy,
+            no_ack=no_ack,
             no_reply=no_reply,
             broker_dependencies=broker_dependencies,
             broker_middlewares=broker_middlewares,
