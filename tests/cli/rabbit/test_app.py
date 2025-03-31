@@ -8,14 +8,9 @@ import anyio
 import pytest
 
 from faststream import FastStream, TestApp
-<<<<<<< HEAD
 from faststream._internal._compat import IS_WINDOWS
 from faststream._internal.log import logger
-=======
-from faststream._compat import IS_WINDOWS
-from faststream.log import logger
-from faststream.rabbit.testing import TestRabbitBroker
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
+from faststream.rabbit import TestRabbitBroker
 
 
 def test_init(app: FastStream, broker) -> None:
@@ -23,25 +18,24 @@ def test_init(app: FastStream, broker) -> None:
     assert app.logger is logger
 
 
-<<<<<<< HEAD
-def test_log(app: FastStream, app_without_logger: FastStream) -> None:
-=======
-def test_init_without_broker(app_without_broker: FastStream):
+def test_init_without_broker(app_without_broker: FastStream) -> None:
     assert app_without_broker.broker is None
 
 
-def test_init_without_logger(app_without_logger: FastStream):
+def test_init_without_logger(app_without_logger: FastStream) -> None:
     assert app_without_logger.logger is None
 
 
-def test_set_broker(broker, app_without_broker: FastStream):
+def test_set_broker(broker, app_without_broker: FastStream) -> None:
     assert app_without_broker.broker is None
     app_without_broker.set_broker(broker)
     assert app_without_broker.broker is broker
 
 
-@pytest.mark.asyncio
-async def test_set_broker_in_on_startup_hook(app_without_broker: FastStream, broker):
+@pytest.mark.asyncio()
+async def test_set_broker_in_on_startup_hook(
+    app_without_broker: FastStream, broker
+) -> None:
     def add_broker():
         app_without_broker.set_broker(broker)
 
@@ -51,14 +45,15 @@ async def test_set_broker_in_on_startup_hook(app_without_broker: FastStream, bro
         await app_without_broker._startup()
 
 
-@pytest.mark.asyncio
-async def test_startup_fails_if_no_broker_was_provided(app_without_broker: FastStream):
+@pytest.mark.asyncio()
+async def test_startup_fails_if_no_broker_was_provided(
+    app_without_broker: FastStream,
+) -> None:
     with pytest.raises(AssertionError):
         await app_without_broker._startup()
 
 
 def test_log(app: FastStream, app_without_logger: FastStream):
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
     app._log(logging.INFO, "test")
     app_without_logger._log(logging.INFO, "test")
 

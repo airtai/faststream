@@ -69,7 +69,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
     extra_watcher_options: "AnyDict"
     extra_context: "AnyDict"
     graceful_timeout: Optional[float]
-    logger: Optional["LoggerProto"]
 
     _broker_dependencies: Iterable["Dependant"]
     _call_options: Optional["_CallOptions"]
@@ -125,7 +124,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         self._state = state
 
         self.extra_context = extra_context
-        self.logger = logger
 
         for call in self.calls:
             if parser := call.item_parser or broker_parser:
@@ -434,54 +432,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             "message_id": getattr(message, "message_id", ""),
         }
 
-<<<<<<< HEAD:faststream/_internal/subscriber/usecase.py
-=======
-    # AsyncAPI methods
-
-    @property
-    def call_name(self) -> str:
-        """Returns the name of the handler call."""
-        if not self.calls:
-            return "Subscriber"
-
-        return to_camelcase(self.calls[0].call_name)
-
-    def get_description(self) -> Optional[str]:
-        """Returns the description of the handler."""
-        if not self.calls:  # pragma: no cover
-            return None
-
-        else:
-            return self.calls[0].description
-
-    def get_payloads(self) -> List[Tuple["AnyDict", str]]:
-        """Get the payloads of the handler."""
-        payloads: List[Tuple[AnyDict, str]] = []
-
-        for h in self.calls:
-            if h.dependant is None:
-                raise SetupError("You should setup `Handler` at first.")
-
-            body = parse_handler_params(
-                h.dependant,
-                prefix=f"{self.title_ or self.call_name}:Message",
-            )
-
-            payloads.append((body, to_camelcase(h.call_name)))
-
-        if not self.calls:
-            payloads.append(
-                (
-                    {
-                        "title": f"{self.title_ or self.call_name}:Message:Payload",
-                    },
-                    to_camelcase(self.call_name),
-                )
-            )
-
-        return payloads
-
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b:faststream/broker/subscriber/usecase.py
     def _log(
         self,
         log_level: int,
@@ -489,7 +439,6 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
         extra: Optional["AnyDict"] = None,
         exc_info: Optional[Exception] = None,
     ) -> None:
-<<<<<<< HEAD:faststream/_internal/subscriber/usecase.py
         state = self._state.get()
         state.logger_state.logger.log(
             log_level,
@@ -497,12 +446,3 @@ class SubscriberUsecase(SubscriberProto[MsgType]):
             extra=extra,
             exc_info=exc_info,
         )
-=======
-        if self.logger is not None:
-            self.logger.log(
-                log_level,
-                message,
-                extra=extra,
-                exc_info=exc_info,
-            )
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b:faststream/broker/subscriber/usecase.py

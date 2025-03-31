@@ -38,6 +38,8 @@ def create_subscriber(
         ack_policy = AckPolicy.DO_NOTHING if no_ack else AckPolicy.REJECT_ON_ERROR
 
     consumer_no_ack = ack_policy is AckPolicy.ACK_FIRST
+    if consumer_no_ack:
+        ack_policy = AckPolicy.DO_NOTHING
 
     return SpecificationSubscriber(
         queue=queue,
