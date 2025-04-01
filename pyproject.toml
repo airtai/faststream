@@ -7,8 +7,8 @@ name = "faststream"
 description = "FastStream: the simplest way to work with a messaging queues"
 readme = "README.md"
 authors = [
-    { name = "airt", email = "info@airt.ai" },
-    { name = "Nikita Pastukhov", email = "nikita@pastukhov-dev.ru" },
+    { name = "AG2AI", email = "support@ag2.ai" },
+    { name = "Nikita Pastukhov", email = "diementros@yandex.com" },
 ]
 
 keywords = [
@@ -159,8 +159,8 @@ dev = [
 [project.urls]
 Homepage = "https://faststream.airt.ai/latest/"
 Documentation = "https://faststream.airt.ai/latest/getting-started/"
-Tracker = "https://github.com/airtai/FastStream/issues"
-Source = "https://github.com/airtai/FastStream"
+Tracker = "https://github.com/ag2ai/FastStream/issues"
+Source = "https://github.com/ag2ai/FastStream"
 Discord = "https://discord.gg/qFm6aSqq59"
 
 [project.scripts]
