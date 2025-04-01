@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 from faststream.kafka.message import (
@@ -8,13 +7,6 @@ from faststream.kafka.message import (
     KafkaRawMessage,
 )
 from faststream.message import decode_message
-=======
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union, cast
-
-from faststream.broker.message import decode_message, gen_cor_id
-from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage, KafkaRawMessage
-from faststream.utils.context.repository import context
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
 
 if TYPE_CHECKING:
     from re import Pattern
@@ -57,13 +49,7 @@ class AioKafkaParser:
             correlation_id=headers.get("correlation_id"),
             raw_message=message,
             path=self.get_path(message.topic),
-<<<<<<< HEAD
             consumer=getattr(message, "consumer", self._consumer),
-=======
-            consumer=getattr(message, "consumer", None)
-            or getattr(handler, "consumer", None)
-            or FAKE_CONSUMER,
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
         )
 
     async def decode_message(

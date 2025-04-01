@@ -4,12 +4,6 @@ from typing import (
     Annotated,
     Any,
     Callable,
-<<<<<<< HEAD
-=======
-    Collection,
-    Dict,
-    Iterable,
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
     Literal,
     Optional,
     Union,
@@ -43,19 +37,11 @@ if TYPE_CHECKING:
         SpecificationBatchPublisher,
         SpecificationDefaultPublisher,
     )
-<<<<<<< HEAD
     from faststream.kafka.subscriber.specified import (
         SpecificationBatchSubscriber,
         SpecificationConcurrentBetweenPartitionsSubscriber,
         SpecificationConcurrentDefaultSubscriber,
         SpecificationDefaultSubscriber,
-=======
-    from faststream.kafka.subscriber.asyncapi import (
-        AsyncAPIBatchSubscriber,
-        AsyncAPIConcurrentBetweenPartitionsSubscriber,
-        AsyncAPIConcurrentDefaultSubscriber,
-        AsyncAPIDefaultSubscriber,
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
     )
 
 
@@ -71,19 +57,11 @@ class KafkaRegistrator(
 
     _subscribers: list[
         Union[
-<<<<<<< HEAD
             "SpecificationBatchSubscriber",
             "SpecificationDefaultSubscriber",
             "SpecificationConcurrentDefaultSubscriber",
             "SpecificationConcurrentBetweenPartitionsSubscriber",
         ]
-=======
-            "AsyncAPIBatchSubscriber",
-            "AsyncAPIDefaultSubscriber",
-            "AsyncAPIConcurrentDefaultSubscriber",
-            "AsyncAPIConcurrentBetweenPartitionsSubscriber",
-        ],
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
     ]
     _publishers: list[
         Union["SpecificationBatchPublisher", "SpecificationDefaultPublisher"],
@@ -437,35 +415,6 @@ class KafkaRegistrator(
             ),
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-<<<<<<< HEAD
-=======
-        max_workers: Annotated[
-            int,
-            Doc(
-                "Maximum number of messages being processed concurrently. With "
-                "`auto_commit=False` processing is concurrent between partitions and "
-                "sequential within a partition. With `auto_commit=False` maximum "
-                "concurrency is achieved when total number of workers across all "
-                "application instances running workers in the same consumer group "
-                "is equal to the number of partitions in the topic."
-            ),
-        ] = 1,
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
         no_ack: Annotated[
             bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
@@ -847,35 +796,6 @@ class KafkaRegistrator(
             ),
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-<<<<<<< HEAD
-=======
-        max_workers: Annotated[
-            int,
-            Doc(
-                "Maximum number of messages being processed concurrently. With "
-                "`auto_commit=False` processing is concurrent between partitions and "
-                "sequential within a partition. With `auto_commit=False` maximum "
-                "concurrency is achieved when total number of workers across all "
-                "application instances running workers in the same consumer group "
-                "is equal to the number of partitions in the topic."
-            ),
-        ] = 1,
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
         no_ack: Annotated[
             bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
@@ -1257,35 +1177,6 @@ class KafkaRegistrator(
             ),
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
-<<<<<<< HEAD
-=======
-        max_workers: Annotated[
-            int,
-            Doc(
-                "Maximum number of messages being processed concurrently. With "
-                "`auto_commit=False` processing is concurrent between partitions and "
-                "sequential within a partition. With `auto_commit=False` maximum "
-                "concurrency is achieved when total number of workers across all "
-                "application instances running workers in the same consumer group "
-                "is equal to the number of partitions in the topic."
-            ),
-        ] = 1,
-        filter: Annotated[
-            "Filter[KafkaMessage]",
-            Doc(
-                "Overload subscriber to consume various messages from the same source."
-            ),
-            deprecated(
-                "Deprecated in **FastStream 0.5.0**. "
-                "Please, create `subscriber` object and use it explicitly instead. "
-                "Argument will be removed in **FastStream 0.6.0**."
-            ),
-        ] = default_filter,
-        retry: Annotated[
-            bool,
-            Doc("Whether to `nack` message at processing exception."),
-        ] = False,
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
         no_ack: Annotated[
             bool,
             Doc("Whether to disable **FastStream** auto acknowledgement logic or not."),
@@ -1672,20 +1563,6 @@ class KafkaRegistrator(
         ] = (),
         max_workers: Annotated[
             int,
-<<<<<<< HEAD
-=======
-            Doc(
-                "Maximum number of messages being processed concurrently. With "
-                "`auto_commit=False` processing is concurrent between partitions and "
-                "sequential within a partition. With `auto_commit=False` maximum "
-                "concurrency is achieved when total number of workers across all "
-                "application instances running workers in the same consumer group "
-                "is equal to the number of partitions in the topic."
-            ),
-        ] = 1,
-        filter: Annotated[
-            "Filter[KafkaMessage]",
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
             Doc(
                 "Maximum number of messages being processed concurrently. With "
                 "`auto_commit=False` processing is concurrent between partitions and "
@@ -1727,17 +1604,10 @@ class KafkaRegistrator(
             Doc("Whetever to include operation in Specification schema or not."),
         ] = True,
     ) -> Union[
-<<<<<<< HEAD
         "SpecificationDefaultSubscriber",
         "SpecificationBatchSubscriber",
         "SpecificationConcurrentDefaultSubscriber",
         "SpecificationConcurrentBetweenPartitionsSubscriber",
-=======
-        "AsyncAPIDefaultSubscriber",
-        "AsyncAPIBatchSubscriber",
-        "AsyncAPIConcurrentDefaultSubscriber",
-        "AsyncAPIConcurrentBetweenPartitionsSubscriber",
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
     ]:
         sub = create_subscriber(
             *topics,
@@ -1785,38 +1655,14 @@ class KafkaRegistrator(
 
         subscriber = super().subscriber(sub)
 
-<<<<<<< HEAD
         if batch:
             subscriber = cast("SpecificationBatchSubscriber", subscriber)
+
         elif max_workers > 1:
             if auto_commit:
                 subscriber = cast(
                     "SpecificationConcurrentDefaultSubscriber", subscriber
                 )
-=======
-        else:
-            if max_workers > 1:
-                if not auto_commit:
-                    return cast(
-                        "AsyncAPIConcurrentBetweenPartitionsSubscriber", subscriber
-                    ).add_call(
-                        filter_=filter,
-                        parser_=parser or self._parser,
-                        decoder_=decoder or self._decoder,
-                        dependencies_=dependencies,
-                        middlewares_=middlewares,
-                    )
-                else:
-                    return cast(
-                        "AsyncAPIConcurrentDefaultSubscriber", subscriber
-                    ).add_call(
-                        filter_=filter,
-                        parser_=parser or self._parser,
-                        decoder_=decoder or self._decoder,
-                        dependencies_=dependencies,
-                        middlewares_=middlewares,
-                    )
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
             else:
                 subscriber = cast(
                     "SpecificationConcurrentBetweenPartitionsSubscriber", subscriber

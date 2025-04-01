@@ -1,36 +1,14 @@
-<<<<<<< HEAD
 import warnings
 from collections.abc import Collection, Iterable
 from typing import TYPE_CHECKING, Optional, Union
-=======
-from typing import (
-    TYPE_CHECKING,
-    Collection,
-    Iterable,
-    Literal,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-    overload,
-)
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
 
 from faststream._internal.constants import EMPTY
 from faststream.exceptions import SetupError
-<<<<<<< HEAD
 from faststream.kafka.subscriber.specified import (
     SpecificationBatchSubscriber,
     SpecificationConcurrentBetweenPartitionsSubscriber,
     SpecificationConcurrentDefaultSubscriber,
     SpecificationDefaultSubscriber,
-=======
-from faststream.kafka.subscriber.asyncapi import (
-    AsyncAPIBatchSubscriber,
-    AsyncAPIConcurrentBetweenPartitionsSubscriber,
-    AsyncAPIConcurrentDefaultSubscriber,
-    AsyncAPIDefaultSubscriber,
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
 )
 from faststream.middlewares import AckPolicy
 
@@ -39,103 +17,8 @@ if TYPE_CHECKING:
     from aiokafka.abc import ConsumerRebalanceListener
     from fast_depends.dependencies import Dependant
 
-<<<<<<< HEAD
     from faststream._internal.basic_types import AnyDict
     from faststream._internal.types import BrokerMiddleware
-=======
-    from faststream.broker.types import BrokerMiddleware
-    from faststream.types import AnyDict
-
-
-@overload
-def create_subscriber(
-    *topics: str,
-    batch: Literal[True],
-    batch_timeout_ms: int,
-    max_records: Optional[int],
-    # Kafka information
-    group_id: Optional[str],
-    listener: Optional["ConsumerRebalanceListener"],
-    pattern: Optional[str],
-    connection_args: "AnyDict",
-    partitions: Collection["TopicPartition"],
-    is_manual: bool,
-    # Subscriber args
-    max_workers: int,
-    no_ack: bool,
-    no_reply: bool,
-    retry: bool,
-    broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Sequence["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
-    # AsyncAPI args
-    title_: Optional[str],
-    description_: Optional[str],
-    include_in_schema: bool,
-) -> "AsyncAPIBatchSubscriber": ...
-
-
-@overload
-def create_subscriber(
-    *topics: str,
-    batch: Literal[False],
-    batch_timeout_ms: int,
-    max_records: Optional[int],
-    # Kafka information
-    group_id: Optional[str],
-    listener: Optional["ConsumerRebalanceListener"],
-    pattern: Optional[str],
-    connection_args: "AnyDict",
-    partitions: Collection["TopicPartition"],
-    is_manual: bool,
-    # Subscriber args
-    max_workers: int,
-    no_ack: bool,
-    no_reply: bool,
-    retry: bool,
-    broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Sequence["BrokerMiddleware[ConsumerRecord]"],
-    # AsyncAPI args
-    title_: Optional[str],
-    description_: Optional[str],
-    include_in_schema: bool,
-) -> Union[
-    "AsyncAPIDefaultSubscriber",
-    "AsyncAPIConcurrentDefaultSubscriber",
-]: ...
-
-
-@overload
-def create_subscriber(
-    *topics: str,
-    batch: bool,
-    batch_timeout_ms: int,
-    max_records: Optional[int],
-    # Kafka information
-    group_id: Optional[str],
-    listener: Optional["ConsumerRebalanceListener"],
-    pattern: Optional[str],
-    connection_args: "AnyDict",
-    partitions: Collection["TopicPartition"],
-    is_manual: bool,
-    # Subscriber args
-    max_workers: int,
-    no_ack: bool,
-    no_reply: bool,
-    retry: bool,
-    broker_dependencies: Iterable["Depends"],
-    broker_middlewares: Sequence[
-        "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
-    ],
-    # AsyncAPI args
-    title_: Optional[str],
-    description_: Optional[str],
-    include_in_schema: bool,
-) -> Union[
-    "AsyncAPIDefaultSubscriber",
-    "AsyncAPIBatchSubscriber",
-    "AsyncAPIConcurrentDefaultSubscriber",
-]: ...
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
 
 
 def create_subscriber(
@@ -149,11 +32,7 @@ def create_subscriber(
     pattern: Optional[str],
     connection_args: "AnyDict",
     partitions: Collection["TopicPartition"],
-<<<<<<< HEAD
     auto_commit: bool,
-=======
-    is_manual: bool,
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
     # Subscriber args
     ack_policy: "AckPolicy",
     max_workers: int,
@@ -168,17 +47,10 @@ def create_subscriber(
     description_: Optional[str],
     include_in_schema: bool,
 ) -> Union[
-<<<<<<< HEAD
     "SpecificationDefaultSubscriber",
     "SpecificationBatchSubscriber",
     "SpecificationConcurrentDefaultSubscriber",
     "SpecificationConcurrentBetweenPartitionsSubscriber",
-=======
-    "AsyncAPIDefaultSubscriber",
-    "AsyncAPIBatchSubscriber",
-    "AsyncAPIConcurrentDefaultSubscriber",
-    "AsyncAPIConcurrentBetweenPartitionsSubscriber",
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
 ]:
     _validate_input_for_misconfigure(
         *topics,
@@ -191,24 +63,8 @@ def create_subscriber(
         group_id=group_id,
     )
 
-<<<<<<< HEAD
     if auto_commit is not EMPTY:
         ack_policy = AckPolicy.ACK_FIRST if auto_commit else AckPolicy.REJECT_ON_ERROR
-=======
-    if is_manual and max_workers > 1:
-        if len(topics) > 1:
-            raise SetupError(
-                "You must use a single topic with concurrent manual commit mode."
-            )
-        if pattern is not None:
-            raise SetupError(
-                "You can not use a pattern with concurrent manual commit mode."
-            )
-        if partitions:
-            raise SetupError(
-                "Manual partition assignment is not supported with concurrent manual commit mode."
-            )
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
 
     if no_ack is not EMPTY:
         ack_policy = AckPolicy.DO_NOTHING if no_ack else EMPTY
@@ -242,71 +98,18 @@ def create_subscriber(
             include_in_schema=include_in_schema,
         )
 
-<<<<<<< HEAD
     if max_workers > 1:
         if ack_first:
             return SpecificationConcurrentDefaultSubscriber(
                 *topics,
                 max_workers=max_workers,
-=======
-    else:
-        if max_workers > 1:
-            if is_manual:
-                return AsyncAPIConcurrentBetweenPartitionsSubscriber(
-                    topics[0],
-                    max_workers=max_workers,
-                    group_id=group_id,
-                    listener=listener,
-                    pattern=pattern,
-                    connection_args=connection_args,
-                    partitions=partitions,
-                    is_manual=is_manual,
-                    no_ack=no_ack,
-                    no_reply=no_reply,
-                    retry=retry,
-                    broker_dependencies=broker_dependencies,
-                    broker_middlewares=broker_middlewares,
-                    title_=title_,
-                    description_=description_,
-                    include_in_schema=include_in_schema,
-                )
-            else:
-                return AsyncAPIConcurrentDefaultSubscriber(
-                    *topics,
-                    max_workers=max_workers,
-                    group_id=group_id,
-                    listener=listener,
-                    pattern=pattern,
-                    connection_args=connection_args,
-                    partitions=partitions,
-                    is_manual=is_manual,
-                    no_ack=no_ack,
-                    no_reply=no_reply,
-                    retry=retry,
-                    broker_dependencies=broker_dependencies,
-                    broker_middlewares=broker_middlewares,
-                    title_=title_,
-                    description_=description_,
-                    include_in_schema=include_in_schema,
-                )
-        else:
-            return AsyncAPIDefaultSubscriber(
-                *topics,
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
                 group_id=group_id,
                 listener=listener,
                 pattern=pattern,
                 connection_args=connection_args,
                 partitions=partitions,
-<<<<<<< HEAD
                 ack_policy=ack_policy,
                 no_reply=no_reply,
-=======
-                is_manual=is_manual,
-                no_ack=no_ack,
-                no_reply=no_reply,
-                retry=retry,
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
                 broker_dependencies=broker_dependencies,
                 broker_middlewares=broker_middlewares,
                 title_=title_,

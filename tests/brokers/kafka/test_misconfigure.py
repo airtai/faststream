@@ -1,7 +1,6 @@
 from typing import Any
 
 import pytest
-from aiokafka import TopicPartition
 
 from faststream import AckPolicy
 from faststream.exceptions import SetupError
@@ -12,7 +11,6 @@ from faststream.kafka.subscriber.specified import (
 )
 
 
-<<<<<<< HEAD
 @pytest.mark.parametrize(
     ("args", "kwargs"),
     (
@@ -39,6 +37,29 @@ from faststream.kafka.subscriber.specified import (
             },
             id="partitions and pattern",
         ),
+        pytest.param(
+            ("queue1", "queue2"),
+            {"max_workers": 3, "ack_policy": AckPolicy.ACK},
+            id="multiple topics with manual commit",
+        ),
+        pytest.param(
+            (),
+            {
+                "pattern": "pattern",
+                "max_workers": 3,
+                "ack_policy": AckPolicy.ACK,
+            },
+            id="pattern with manual commit",
+        ),
+        pytest.param(
+            (),
+            {
+                "partitions": [TopicPartition(topic="topic", partition=1)],
+                "max_workers": 3,
+                "ack_policy": AckPolicy.ACK,
+            },
+            id="partitions with manual commit",
+        ),
     ),
 )
 def test_wrong_destination(args: list[str], kwargs: dict[str, Any]) -> None:
@@ -47,9 +68,6 @@ def test_wrong_destination(args: list[str], kwargs: dict[str, Any]) -> None:
 
 
 def test_deprecated_options(queue: str) -> None:
-=======
-def test_max_workers_with_manual_commit_with_multiple_queues() -> None:
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
     broker = KafkaBroker()
 
     with pytest.warns(DeprecationWarning):
@@ -83,49 +101,3 @@ def test_max_workers_configuration(queue: str) -> None:
 
     sub = broker.subscriber(queue, max_workers=3, ack_policy=AckPolicy.REJECT_ON_ERROR)
     assert isinstance(sub, SpecificationConcurrentBetweenPartitionsSubscriber)
-
-
-def test_max_workers_manual_commit_multi_topics_forbidden() -> None:
-    with pytest.raises(SetupError):
-<<<<<<< HEAD
-        KafkaBroker().subscriber(
-            "queue1",
-            "queue2",
-            max_workers=3,
-            auto_commit=False,
-        )
-
-
-def test_max_workers_manual_commit_pattern_forbidden() -> None:
-    with pytest.raises(SetupError):
-        KafkaBroker().subscriber(
-            pattern="pattern",
-            max_workers=3,
-            auto_commit=False,
-        )
-
-
-def test_max_workers_manual_commit_partitions_forbidden() -> None:
-    with pytest.raises(SetupError):
-        KafkaBroker().subscriber(
-=======
-        broker.subscriber(["queue1", "queue2"], max_workers=3, auto_commit=False)
-
-
-def test_max_workers_with_manual_commit_with_pattern() -> None:
-    broker = KafkaBroker()
-
-    with pytest.raises(SetupError):
-        broker.subscriber(pattern="pattern", max_workers=3, auto_commit=False)
-
-
-def test_max_workers_with_manual_commit_partitions() -> None:
-    broker = KafkaBroker()
-
-    with pytest.raises(SetupError):
-        broker.subscriber(
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
-            partitions=[TopicPartition(topic="topic", partition=1)],
-            max_workers=3,
-            auto_commit=False,
-        )

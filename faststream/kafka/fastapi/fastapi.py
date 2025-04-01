@@ -53,19 +53,11 @@ if TYPE_CHECKING:
         SpecificationBatchPublisher,
         SpecificationDefaultPublisher,
     )
-<<<<<<< HEAD
     from faststream.kafka.subscriber.specified import (
         SpecificationBatchSubscriber,
         SpecificationConcurrentBetweenPartitionsSubscriber,
         SpecificationConcurrentDefaultSubscriber,
         SpecificationDefaultSubscriber,
-=======
-    from faststream.kafka.subscriber.asyncapi import (
-        AsyncAPIBatchSubscriber,
-        AsyncAPIConcurrentBetweenPartitionsSubscriber,
-        AsyncAPIConcurrentDefaultSubscriber,
-        AsyncAPIDefaultSubscriber,
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
     )
     from faststream.security import BaseSecurity
     from faststream.specification.schema.extra import Tag, TagDict
@@ -2638,17 +2630,10 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
             ),
         ] = 1,
     ) -> Union[
-<<<<<<< HEAD
         "SpecificationBatchSubscriber",
         "SpecificationDefaultSubscriber",
         "SpecificationConcurrentDefaultSubscriber",
         "SpecificationConcurrentBetweenPartitionsSubscriber",
-=======
-        "AsyncAPIBatchSubscriber",
-        "AsyncAPIDefaultSubscriber",
-        "AsyncAPIConcurrentDefaultSubscriber",
-        "AsyncAPIConcurrentBetweenPartitionsSubscriber",
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
     ]:
         subscriber = super().subscriber(
             *topics,
@@ -2701,7 +2686,6 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
         )
 
         if batch:
-<<<<<<< HEAD
             return cast("SpecificationBatchSubscriber", subscriber)
         if max_workers > 1:
             if auto_commit:
@@ -2710,19 +2694,6 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, tuple[ConsumerRecord, ...]]
                 "SpecificationConcurrentBetweenPartitionsSubscriber", subscriber
             )
         return cast("SpecificationDefaultSubscriber", subscriber)
-=======
-            return cast("AsyncAPIBatchSubscriber", subscriber)
-        else:
-            if max_workers > 1:
-                if not auto_commit:
-                    return cast(
-                        "AsyncAPIConcurrentBetweenPartitionsSubscriber", subscriber
-                    )
-                else:
-                    return cast("AsyncAPIConcurrentDefaultSubscriber", subscriber)
-            else:
-                return cast("AsyncAPIDefaultSubscriber", subscriber)
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
 
     @overload  # type: ignore[override]
     def publisher(

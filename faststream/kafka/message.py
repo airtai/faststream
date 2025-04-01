@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from typing import Any, Protocol, Union
 
 from aiokafka import (
@@ -8,15 +7,6 @@ from aiokafka import (
 )
 
 from faststream.message import AckStatus, StreamMessage
-=======
-from dataclasses import dataclass
-from typing import Any, Protocol, Tuple, Union
-
-from aiokafka import AIOKafkaConsumer, ConsumerRecord
-from aiokafka import TopicPartition as AIOKafkaTopicPartition
-
-from faststream.broker.message import StreamMessage
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
 
 
 class ConsumerProtocol(Protocol):
@@ -49,10 +39,6 @@ class FakeConsumer:
 FAKE_CONSUMER = FakeConsumer()
 
 
-<<<<<<< HEAD
-=======
-@dataclass
->>>>>>> 60c04eb6d5ecdeef8d958c197adaf2ffef193e2b
 class KafkaRawMessage(ConsumerRecord):  # type: ignore[misc]
     consumer: AIOKafkaConsumer
 
