@@ -76,14 +76,12 @@ class _LoggingMiddleware(BaseMiddleware):
                 # TODO: move critical logging to `subscriber.consume()` method
                 if issubclass(exc_type, IgnoredException):
                     self.logger.log(
-                        log_level=logging.INFO,
                         message=str(exc_val),
                         extra=c,
                     )
 
                 else:
                     self.logger.log(
-                        log_level=logging.ERROR,
                         message=f"{exc_type.__name__}: {exc_val}",
                         exc_info=exc_val,
                         extra=c,

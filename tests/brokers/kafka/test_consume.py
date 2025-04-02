@@ -10,7 +10,8 @@ from aiokafka.structs import RecordMetadata
 
 from faststream import AckPolicy
 from faststream.exceptions import AckMessage
-from faststream.kafka import KafkaBroker, KafkaMessage, TopicPartition
+from faststream.kafka import KafkaBroker, KafkaMessage, TestKafkaBroker, TopicPartition
+from faststream.kafka.listener import _LoggingListener
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
@@ -545,6 +546,58 @@ class TestConsume(KafkaTestcaseConfig, BrokerRealConsumeTestcase):
 @pytest.mark.asyncio()
 @pytest.mark.slow()
 @pytest.mark.kafka()
+@pytest.mark.parametrize(
+    ("partitions", "warning"),
+    (
+        pytest.param(2, True, id="unassigned consumers"),
+        pytest.param(3, False, id="no unassigned consumers"),
+    ),
+)
+async def test_concurrent_consume_between_partitions_assignment_warning(
+    queue: str,
+    partitions: int,
+    warning: bool,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(_LoggingListener, "_log_unassigned_consumer_delay_seconds", 0)
+
+    admin_client = AIOKafkaAdminClient()
+    try:
+        await admin_client.start()
+        await admin_client.create_topics([NewTopic(queue, partitions, 1)])
+    finally:
+        await admin_client.close()
+
+    consume_broker = KafkaBroker()
+
+    @consume_broker.subscriber(
+        queue,
+        max_workers=3,
+        auto_commit=False,
+        group_id="service_1",
+    )
+    async def handler(msg: str) -> None:
+        pass
+
+    with patch.object(consume_broker, "logger", MagicMock(handlers=[])) as mock:
+        async with TestKafkaBroker(consume_broker) as broker:
+            await broker.start()
+            await broker.close()
+        if warning:
+            assert (
+                len([x for x in mock.log.call_args_list if x[0][0] == logging.WARNING])
+                == 2
+            )
+        else:
+            assert (
+                len([x for x in mock.log.call_args_list if x[0][0] == logging.WARNING])
+                == 0
+            )
+
+
+@pytest.mark.asyncio()
+@pytest.mark.slow()
+@pytest.mark.kafka()
 class TestListener(KafkaTestcaseConfig):
     async def test_sync_listener(
         self,
@@ -600,51 +653,6 @@ class TestListener(KafkaTestcaseConfig):
 
         mock.on_partitions_assigned.assert_called_once()
         mock.on_partitions_revoked.assert_called_once()
-
-
-@pytest.mark.asyncio()
-@pytest.mark.slow()
-@pytest.mark.kafka()
-@pytest.mark.parametrize(
-    ("overflow_workers"),
-    (
-        pytest.param(True, id="workers > partitions"),
-        pytest.param(False, id="workers == partitions"),
-    ),
-)
-async def test_concurrent_consume_between_partitions_assignment_warning(
-    queue: str,
-    overflow_workers: bool,
-    mock: MagicMock,
-) -> None:
-    max_workers = partitions = 2
-    if overflow_workers:
-        max_workers += 1
-
-    await create_topic(queue, partitions)
-
-    # arrange broker setup
-    broker = KafkaBroker(logger=mock, apply_types=False)
-
-    @broker.subscriber(
-        queue,
-        max_workers=max_workers,
-        ack_policy=AckPolicy.DO_NOTHING,
-        group_id="service_1",
-    )
-    async def handler(msg: Any) -> None:
-        pass
-
-    # act
-    async with broker:
-        await broker.start()
-
-    # assert
-    warning_calls = [x for x in mock.log.call_args_list if x[0][0] == logging.WARNING]
-    if overflow_workers:
-        assert len(warning_calls) == 1
-    else:
-        assert len(warning_calls) == 0
 
 
 async def create_topic(topic: str, partitions: int) -> None:

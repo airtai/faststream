@@ -43,9 +43,11 @@ search:
         - [Django](getting-started/integrations/django/index.md)
     - [CLI](getting-started/cli/index.md)
     - [ASGI](getting-started/asgi.md)
-    - [OpenTelemetry](getting-started/opentelemetry/index.md)
-    - [Prometheus](getting-started/prometheus/index.md)
-    - [Logging](getting-started/logging.md)
+    - Observability
+        - [Healthcheks](getting-started/observability/healthcheks.md)
+        - [Prometheus](getting-started/observability/prometheus.md)
+        - [OpenTelemetry](getting-started/observability/opentelemetry.md)
+        - [Logging](getting-started/observability/logging.md)
     - [Config Management](getting-started/config/index.md)
     - [Task Scheduling](scheduling.md)
     - [FastStream Project Template](getting-started/template/index.md)
@@ -369,6 +371,8 @@ search:
                     - get_dependant
                         - [get_fastapi_dependant](api/faststream/broker/fastapi/get_dependant/get_fastapi_dependant.md)
                         - [get_fastapi_native_dependant](api/faststream/broker/fastapi/get_dependant/get_fastapi_native_dependant.md)
+                        - [is_faststream_decorated](api/faststream/broker/fastapi/get_dependant/is_faststream_decorated.md)
+                        - [mark_faststream_decorated](api/faststream/broker/fastapi/get_dependant/mark_faststream_decorated.md)
                     - route
                         - [StreamMessage](api/faststream/broker/fastapi/route/StreamMessage.md)
                         - [build_faststream_to_fastapi_parser](api/faststream/broker/fastapi/route/build_faststream_to_fastapi_parser.md)
@@ -564,6 +568,7 @@ search:
                     - [TopicPartition](api/faststream/confluent/schemas/TopicPartition.md)
                     - params
                         - [ConsumerConnectionParams](api/faststream/confluent/schemas/params/ConsumerConnectionParams.md)
+                        - [SecurityOptions](api/faststream/confluent/schemas/params/SecurityOptions.md)
                     - partition
                         - [TopicPartition](api/faststream/confluent/schemas/partition/TopicPartition.md)
                 - security
@@ -951,15 +956,15 @@ search:
                         - [BaseRMQInformation](api/faststream/rabbit/schemas/proto/BaseRMQInformation.md)
                     - queue
                         - [ClassicQueueArgs](api/faststream/rabbit/schemas/queue/ClassicQueueArgs.md)
+                        - [ClassicQueueSpecificArgs](api/faststream/rabbit/schemas/queue/ClassicQueueSpecificArgs.md)
                         - [CommonQueueArgs](api/faststream/rabbit/schemas/queue/CommonQueueArgs.md)
-                        - [QueueClassicTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueClassicTypeSpecificArgs.md)
-                        - [QueueQuorumTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueQuorumTypeSpecificArgs.md)
-                        - [QueueStreamTypeSpecificArgs](api/faststream/rabbit/schemas/queue/QueueStreamTypeSpecificArgs.md)
                         - [QueueType](api/faststream/rabbit/schemas/queue/QueueType.md)
                         - [QuorumQueueArgs](api/faststream/rabbit/schemas/queue/QuorumQueueArgs.md)
+                        - [QuorumQueueSpecificArgs](api/faststream/rabbit/schemas/queue/QuorumQueueSpecificArgs.md)
                         - [RabbitQueue](api/faststream/rabbit/schemas/queue/RabbitQueue.md)
-                        - [SharedQueueClassicAndQuorumArgs](api/faststream/rabbit/schemas/queue/SharedQueueClassicAndQuorumArgs.md)
+                        - [SharedClassicAndQuorumQueueArgs](api/faststream/rabbit/schemas/queue/SharedClassicAndQuorumQueueArgs.md)
                         - [StreamQueueArgs](api/faststream/rabbit/schemas/queue/StreamQueueArgs.md)
+                        - [StreamQueueSpecificArgs](api/faststream/rabbit/schemas/queue/StreamQueueSpecificArgs.md)
                     - reply
                         - [ReplyConfig](api/faststream/rabbit/schemas/reply/ReplyConfig.md)
                 - security

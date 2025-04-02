@@ -15,9 +15,6 @@ from typing import (
 from fastapi.routing import run_endpoint_function, serialize_response
 from starlette.requests import Request
 
-from faststream._internal.fastapi.get_dependant import (
-    get_fastapi_native_dependant,
-)
 from faststream._internal.types import P_HandlerParams, T_HandlerReturn
 from faststream.response import Response, ensure_response
 
@@ -26,6 +23,11 @@ from ._compat import (
     create_response_field,
     raise_fastapi_validation_error,
     solve_faststream_dependency,
+)
+from .get_dependant import (
+    get_fastapi_native_dependant,
+    is_faststream_decorated,
+    mark_faststream_decorated,
 )
 
 if TYPE_CHECKING:
@@ -78,9 +80,7 @@ def wrap_callable_to_fastapi_compatible(
     response_model_exclude_none: bool,
     state: "DIState",
 ) -> Callable[["NativeMessage[Any]"], Awaitable[Any]]:
-    magic_attr = "__faststream_consumer__"
-
-    if getattr(user_callable, magic_attr, False):
+    if is_faststream_decorated(user_callable):
         return user_callable  # type: ignore[return-value]
 
     if response_model:
@@ -105,7 +105,7 @@ def wrap_callable_to_fastapi_compatible(
         state=state,
     )
 
-    setattr(parsed_callable, magic_attr, True)
+    mark_faststream_decorated(parsed_callable)
     return wraps(user_callable)(parsed_callable)
 
 
