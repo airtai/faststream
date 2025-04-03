@@ -5,7 +5,7 @@ broker = RabbitBroker(max_consumers=10)
 app = FastStream(broker)
 
 queue = RabbitQueue(
-    name="test",
+    name="stream-test",
     durable=True,
     arguments={
         "x-queue-type": "stream",
