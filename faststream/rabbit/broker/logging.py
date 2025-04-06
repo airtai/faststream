@@ -1,7 +1,5 @@
-import logging
 from functools import partial
 from typing import TYPE_CHECKING, Optional
-from weakref import WeakSet
 
 from faststream._internal.log.logging import get_broker_logger
 from faststream._internal.state.logger import (

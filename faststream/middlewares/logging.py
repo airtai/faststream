@@ -1,4 +1,3 @@
-import logging
 from typing import TYPE_CHECKING, Any, Optional
 
 from faststream._internal.middlewares import BaseMiddleware
