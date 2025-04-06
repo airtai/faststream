@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import Any, Callable, Type, TypeVar
+from typing import Annotated, Any, Callable, Type, TypeVar
 from unittest.mock import Mock
 
 import pytest
@@ -335,16 +335,37 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
 
         mock.assert_called_once_with("hi")
 
-    async def test_depends_from_fastdepends(self, queue: str):
+    async def test_depends_from_fastdepends_default(self, queue: str):
         router = self.router_class()
 
         args, kwargs = self.get_subscriber_params(queue)
 
         subscriber = router.subscriber(*args, **kwargs)
 
-        with pytest.raises(SetupError),
-            @subscriber
-            def sub(d: Any = FSDepends(lambda: 1)) -> None: ...
+        @subscriber
+        def sub(d: Any = FSDepends(lambda: 1)) -> None: ...
+
+        app = FastAPI()
+        app.include_router(router)
+
+        with pytest.raises(SetupError), TestClient(app):
+            ...
+
+    async def test_depends_from_fastdepends_annotated(self, queue: str):
+        router = self.router_class()
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        subscriber = router.subscriber(*args, **kwargs)
+
+        @subscriber
+        def sub(d: Annotated[Any, FSDepends(lambda: 1)]) -> None: ...
+
+        app = FastAPI()
+        app.include_router(router)
+
+        with pytest.raises(SetupError), TestClient(app):
+            ...
 
     async def test_yield_depends(self, mock: Mock, queue: str):
         router = self.router_class()
