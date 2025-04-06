@@ -1,12 +1,13 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import Annotated, Any, Callable, Type, TypeVar
+from typing import Callable, Type
 from unittest.mock import Mock
 
 import pytest
 from fastapi import BackgroundTasks, Depends, FastAPI, Header
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
+from typing_extensions import Annotated, Any, TypeVar
 
 from faststream import Depends as FSDepends
 from faststream import Response, context
