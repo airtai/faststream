@@ -8,11 +8,13 @@ from fastapi import BackgroundTasks, Depends, FastAPI, Header
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
+from faststream import Depends as FSDepends
 from faststream import Response, context
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi.context import Context
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.router import BrokerRouter
+from faststream.exceptions import SetupError
 from faststream.types import AnyCallable
 
 from .basic import BaseTestcaseConfig
@@ -332,6 +334,26 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             assert r == "hi"
 
         mock.assert_called_once_with("hi")
+
+    async def test_depends_from_fastdepends(self, queue: str):
+        router = self.router_class()
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        class MockDep: ...
+
+        def dep() -> MockDep:
+            return MockDep
+
+        @router.subscriber(*args, **kwargs)
+        def sub(d: MockDep = FSDepends(dep)) -> None: ...
+
+        app = FastAPI()
+
+        app.include_router(router)
+
+        with pytest.raises(SetupError), TestClient(app):
+            ...
 
     async def test_yield_depends(self, mock: Mock, queue: str):
         router = self.router_class()
