@@ -12,23 +12,6 @@ hide:
 ---
 
 # Release Notes
-## 0.5.38
-
-### What's Changed
-
-* Update Release Notes for 0.5.37 by @airt-release-notes-updater in [#2140](https://github.com/ag2ai/faststream/pull/2140){.external-link target="_blank"}
-* chore(deps): bump the pip group with 6 updates by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#2144](https://github.com/ag2ai/faststream/pull/2144){.external-link target="_blank"}
-* fix: pydantic211 compat by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#2150](https://github.com/ag2ai/faststream/pull/2150){.external-link target="_blank"}
-* Tweak RabbitMQ queue argument lists by @Arseniy-Popov in [#2148](https://github.com/ag2ai/faststream/pull/2148){.external-link target="_blank"}
-* fix: prevent duplicate logging handler registration when calling broker.start() by [@banksemi](https://github.com/banksemi){.external-link target="_blank"} in [#2153](https://github.com/ag2ai/faststream/pull/2153){.external-link target="_blank"}
-* chore(deps): bump the pip group with 5 updates by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#2154](https://github.com/ag2ai/faststream/pull/2154){.external-link target="_blank"}
-* Move to ag2ai organization by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#2156](https://github.com/ag2ai/faststream/pull/2156){.external-link target="_blank"}
-
-### New Contributors
-* [@banksemi](https://github.com/banksemi){.external-link target="_blank"} made their first contribution in [#2153](https://github.com/ag2ai/faststream/pull/2153){.external-link target="_blank"}
-
-**Full Changelog**: [#0.5.37...0.5.38](https://github.com/ag2ai/faststream/compare/0.5.37...0.5.38){.external-link target="_blank"}
-
 ## 0.5.37
 
 ### What's Changed
