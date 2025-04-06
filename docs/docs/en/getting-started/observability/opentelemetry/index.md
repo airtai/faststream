@@ -30,7 +30,7 @@ Basically, to use **OpenTelemetry** in **FastStream** you just need to:
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    
+
     resource = Resource.create(attributes={"service.name": "faststream"})
     tracer_provider = TracerProvider(resource=resource)
     trace.set_tracer_provider(tracer_provider)

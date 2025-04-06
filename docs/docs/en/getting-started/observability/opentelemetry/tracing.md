@@ -113,7 +113,7 @@ Configuring the export of traces via `opentelemetry-exporter-otlp`:
     ```python linenums="1"
     from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    
+
     exporter = OTLPSpanExporter(endpoint="http://127.0.0.1:4317")
     processor = BatchSpanProcessor(exporter)
     tracer_provider.add_span_processor(processor)

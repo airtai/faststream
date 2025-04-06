@@ -30,7 +30,7 @@ Fortunately, there is a workaround for exporting flights to **Sentry**. You just
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    
+
     resource = Resource.create(attributes={"service.name": "faststream"})
     tracer_provider = TracerProvider(resource=resource)
     trace.set_tracer_provider(tracer_provider)
@@ -47,11 +47,11 @@ Fortunately, there is a workaround for exporting flights to **Sentry**. You just
         protocols:
           grpc:
             endpoint: 0.0.0.0:4317
-    
+
     exporters:
       sentry:
         dsn: "https://your-secret-dsn.com"
-    
+
     service:
       pipelines:
         traces:
@@ -71,7 +71,7 @@ Fortunately, there is a workaround for exporting flights to **Sentry**. You just
         ports:
           - "4317:4317"
     ```
-   
+
 !!! note
     Despite the fact that this use case is somewhat curtailed due to the lack of `sentry-sdk`, your code remains independent of the tracing backend and you can switch to **Tempo** or **Jaeger** at any time by simply changing `otel.yaml`.
 
