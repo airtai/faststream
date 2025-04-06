@@ -340,20 +340,11 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
 
         args, kwargs = self.get_subscriber_params(queue)
 
-        class MockDep: ...
+        subscriber = router.subscriber(*args, **kwargs)
 
-        def dep() -> MockDep:
-            return MockDep
-
-        @router.subscriber(*args, **kwargs)
-        def sub(d: MockDep = FSDepends(dep)) -> None: ...
-
-        app = FastAPI()
-
-        app.include_router(router)
-
-        with pytest.raises(SetupError), TestClient(app):
-            ...
+        with pytest.raises(SetupError),
+            @subscriber
+            def sub(d: Any = FSDepends(lambda: 1)) -> None: ...
 
     async def test_yield_depends(self, mock: Mock, queue: str):
         router = self.router_class()
