@@ -12,12 +12,12 @@ search:
 
 ## Concept
 
-Tracing is a form of observability that tracks the flow of requests as they move through various services in a distributed system. It provides insights into the interactions between services, highlighting performance bottlenecks and errors. The result of implementing tracing is a detailed map of the service interactions, often visualized as a trace diagram. This helps developers understand the behavior and performance of their applications. For an in-depth explanation, refer to the [OpenTelemetry tracing specification](https://opentelemetry.io/docs/concepts/signals/traces/){.external-link target="_blank"}.
+Tracing is a form of observability that tracks the flow of requests as they move through various services in a distributed system. It provides insights into the interactions between services, highlighting performance bottlenecks and errors. The result of implementing tracing is a detailed map of the service interactions, often visualized as a trace diagram. This helps developers understand the behavior and performance of their applications. For an in-depth explanation, please refer to the [OpenTelemetry tracing specification](https://opentelemetry.io/docs/concepts/signals/traces/){.external-link target="_blank"}.
 
 ![HTML-page](../../../assets/img/simple-trace.png){ .on-glb loading=lazy }
 `Visualized via Grafana and Tempo`
 
-This trace is derived from this relationship between handlers:
+This trace is derived from the relationship between the following handlers:
 
 ```python linenums="1"
 @broker.subscriber("first")
@@ -43,15 +43,15 @@ async def third_handler(msg: str):
 
 **OpenTelemetry** tracing support in **FastStream** adheres to the [semantic conventions for messaging systems](https://opentelemetry.io/docs/specs/semconv/messaging/){.external-link target="_blank"}.
 
-To add a trace to your broker, you need to:
+To enable tracing your broker:
 
-1. Install `FastStream` with `opentelemetry-sdk`
+1. Install `FastStream` with the `opentelemetry-sdk`:
 
     ```shell
     pip install faststream[otel]
     ```
 
-2. Configure `TracerProvider`
+2. Configure `TracerProvider`:
 
     ```python linenums="1" hl_lines="6"
     from opentelemetry import trace
@@ -63,7 +63,7 @@ To add a trace to your broker, you need to:
     trace.set_tracer_provider(tracer_provider)
     ```
 
-3. Add `TelemetryMiddleware` to your broker
+3. Add `TelemetryMiddleware` to your broker:
 
 === "AIOKafka"
     ```python linenums="1" hl_lines="3 7"
@@ -92,23 +92,23 @@ To add a trace to your broker, you need to:
 
 ## Exporting
 
-To export traces, you must select and configure an exporter yourself:
+To export traces, you must configure an exporter. Options include:
 
-* [opentelemetry-exporter-jaeger](https://pypi.org/project/opentelemetry-exporter-jaeger/){.external-link target="_blank"} to export to **Jaeger**
-* [opentelemetry-exporter-otlp](https://pypi.org/project/opentelemetry-exporter-otlp/){.external-link target="_blank"} for export via **gRPC** or **HTTP**
-* ``InMemorySpanExporter`` from ``opentelemetry.sdk.trace.export.in_memory_span_exporter`` for local tests
+* [opentelemetry-exporter-jaeger](https://pypi.org/project/opentelemetry-exporter-jaeger/){.external-link target="_blank"} - for exporting to **Jaeger**
+* [opentelemetry-exporter-otlp](https://pypi.org/project/opentelemetry-exporter-otlp/){.external-link target="_blank"} - for exporting via **gRPC** or **HTTP**
+* `InMemorySpanExporter` from `opentelemetry.sdk.trace.export.in_memory_span_exporter` -  for local testing
 
-There are other exporters.
+There are other exporters also.
 
-Configuring the export of traces via `opentelemetry-exporter-otlp`:
+To configure the export of traces via `opentelemetry-exporter-otlp`:
 
-1. Install `opentelemetry-exporter-otlp`
+1. Install the OTLP exporter `opentelemetry-exporter-otlp`:
 
     ```shell
     pip install opentelemetry-exporter-otlp
     ```
 
-2. Configure `OTLPSpanExporter`
+2. Configure the `OTLPSpanExporter`:
 
     ```python linenums="1"
     from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -121,15 +121,15 @@ Configuring the export of traces via `opentelemetry-exporter-otlp`:
 
 ## Visualization
 
-To visualize traces, you can send them to a backend system that supports distributed tracing, such as **Jaeger**, **Zipkin**, or **Grafana Tempo**. These systems provide a user interface to visualize and analyze traces.
+To visualize traces, send them to a backend system that supports distributed tracing, such as **Jaeger**, **Zipkin**, or **Grafana Tempo**. These systems provide user interfaces to visualize and analyze traces.
 
-* **Jaeger**: You can run **Jaeger** using Docker and configure your **OpenTelemetry** middleware to send traces to **Jaeger**. For more details, see the [Jaeger documentation](https://www.jaegertracing.io/){.external-link target="_blank"}.
-* **Zipkin**: Similar to **Jaeger**, you can run **Zipkin** using **Docker** and configure the **OpenTelemetry** middleware accordingly. For more details, see the [Zipkin documentation](https://zipkin.io/){.external-link target="_blank"}.
-* **Grafana Tempo**: **Grafana Tempo** is a high-scale distributed tracing backend. You can configure **OpenTelemetry** to export traces to **Tempo**, which can then be visualized using **Grafana**. For more details, see the [Grafana Tempo documentation](https://grafana.com/docs/tempo/latest/){.external-link target="_blank"}.
+* **Jaeger**: Run **Jaeger** using Docker and configure your **OpenTelemetry** middleware to send traces to **Jaeger**. For more details, see the [Jaeger documentation](https://www.jaegertracing.io/){.external-link target="_blank"}.
+* **Zipkin**: Like **Jaeger**, **Zipkin** can be run using **Docker** and configured with **OpenTelemetry** middleware. For more details, see the [Zipkin documentation](https://zipkin.io/){.external-link target="_blank"}.
+* **Grafana Tempo**: **Grafana Tempo** is a high-scale, distributed tracing backend. Configure **OpenTelemetry** to export traces to **Tempo**, which can then be visualized using **Grafana**. For more details, see the [Grafana Tempo documentation](https://grafana.com/docs/tempo/latest/){.external-link target="_blank"}.
 
-## Context propagation
+## Context Propagation
 
-Quite often it is necessary to communicate with **other** services and to propagate the trace context, you can use the **CurrentSpan** object and follow the example:
+Quite often it is necessary to communicate with **other** services by propagating the trace context. To propagate the trace context, use the **CurrentSpan** object:
 
 ```python linenums="1" hl_lines="1-2 7 9-10 13"
 from opentelemetry import trace, propagate

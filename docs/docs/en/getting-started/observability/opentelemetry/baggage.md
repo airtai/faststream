@@ -32,7 +32,7 @@ headers = Baggage({"hello": "world"}).to_headers()
 await broker.publish("hello", "first", headers=headers)
 ```
 
-All interaction with baggage at the **consumption level** occurs through the **CurrentBaggage** object, which is automatically substituted from the context:
+All interactions with baggage at the **consumption level** occurs through the **CurrentBaggage** object, which is automatically injected from the context:
 
 ```python linenums="1" hl_lines="6-10 17-18 24"
 from faststream.opentelemetry import CurrentBaggage
@@ -62,5 +62,4 @@ async def response_handler_third(msg: str, baggage: CurrentBaggage):
 ```
 
 !!! note
-    If you consume messages in **batches**, then the baggage from each message will be merged into the **common baggage** available
-    through the `get_all` method, but you can still get a list of all the baggage from the batch using the `get_all_batch` method.
+    If you consume messages in **batches**, then the baggage from each message will be merged into the **common baggage** available through the `get_all` method. However, you can still retrieve a list of all the baggage from the batch using the `get_all_batch` method.

@@ -12,17 +12,17 @@ search:
 
 **OpenTelemetry** is an open-source observability framework designed to provide a unified standard for collecting and exporting telemetry data such as traces, metrics, and logs. It aims to make observability a built-in feature of software development, simplifying the integration and standardization of telemetry data across various services. For more details, you can read the official [OpenTelemetry documentation](https://opentelemetry.io/){.external-link target="_blank"}.
 
-## Quick start
+## Quick Start
 
-Basically, to use **OpenTelemetry** in **FastStream** you just need to:
+To use **OpenTelemetry** in **FastStream**, you just need to:
 
-1. Install `FastStream` with `opentelemetry-sdk` and `opentelemetry-exporter-otlp`
+1. Install `FastStream` along with `opentelemetry-sdk` and `opentelemetry-exporter-otlp`
 
     ```shell
     pip install "faststream[otel]" opentelemetry-exporter-otlp
     ```
 
-2. Configure `TracerProvider` with **gRPC** exporter
+2. Configure `TracerProvider` with the **gRPC** exporter:
 
     ```python linenums="1" hl_lines="8 10"
     from opentelemetry import trace
@@ -39,7 +39,7 @@ Basically, to use **OpenTelemetry** in **FastStream** you just need to:
     tracer_provider.add_span_processor(processor)
     ```
 
-3. Add `TelemetryMiddleware` to your broker
+3. Add `TelemetryMiddleware` to your broker:
 
 === "AIOKafka"
     ```python linenums="1" hl_lines="3 7"
@@ -66,23 +66,23 @@ Basically, to use **OpenTelemetry** in **FastStream** you just need to:
     {!> docs_src/getting_started/opentelemetry/redis_telemetry.py!}
     ```
 
-In the following documentation sections you can find details information about all **OpenTelemetry** features available in **FastStream**.
+In the following documentation sections, you can find detailed information about all **OpenTelemetry** features available in **FastStream**.
 
-## OpenTelemetry FastStream example
+## OpenTelemetry FastStream Example
 
-Also, you can take a look at already configured project and use it as a reference for you services and infrastructure.
+You can also take a look at a pre-configured project and use it as a reference for your services and infrastructure.
 
-To see how to set up, visualize, and configure tracing for **FastStream** services, go to [example](https://github.com/draincoder/faststream-monitoring){.external-link target="_blank"}.
+To see how to set up, visualize, and configure tracing for **FastStream** services, checkout the [example project](https://github.com/draincoder/faststream-monitoring){.external-link target="_blank"}.
 
-An example includes:
+The example includes:
 
 * Three `FastStream` services
 * Exporting traces to `Grafana Tempo` via `gRPC`
-* Visualization of traces via `Grafana`
-* Collecting metrics and exporting using `Prometheus`
-* `Grafana dashboard` for metrics
+* Visualization of traces using `Grafana`
+* Collecting metrics and exporting them with `Prometheus`
+* A `Grafana dashboard` for metrics
 * Examples with custom spans
-* Configured `docker-compose` with the entire infrastructure
+* A pre-configured `docker-compose` with the entire infrastructure
 
 ![HTML-page](../../../assets/img/distributed-trace.png){ .on-glb loading=lazy }
 `Visualized via Grafana and Tempo`
