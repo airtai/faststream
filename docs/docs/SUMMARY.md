@@ -46,7 +46,10 @@ search:
     - Observability
         - [Healthcheks](getting-started/observability/healthcheks.md)
         - [Prometheus](getting-started/observability/prometheus.md)
-        - [OpenTelemetry](getting-started/observability/opentelemetry.md)
+        - [OpenTelemetry](getting-started/observability/opentelemetry/index.md)
+            - [Tracing](getting-started/observability/opentelemetry/tracing.md)
+            - [Baggage](getting-started/observability/opentelemetry/baggage.md)
+            - [Sentry support](getting-started/observability/opentelemetry/sentry.md)
         - [Logging](getting-started/observability/logging.md)
     - [Config Management](getting-started/config/index.md)
     - [Task Scheduling](scheduling.md)
@@ -984,6 +987,7 @@ search:
                     - [apply_pattern](api/faststream/rabbit/testing/apply_pattern.md)
                     - [build_message](api/faststream/rabbit/testing/build_message.md)
                 - utils
+                    - [RabbitClientProperties](api/faststream/rabbit/utils/RabbitClientProperties.md)
                     - [build_url](api/faststream/rabbit/utils/build_url.md)
                     - [build_virtual_host](api/faststream/rabbit/utils/build_virtual_host.md)
                     - [is_routing_exchange](api/faststream/rabbit/utils/is_routing_exchange.md)
