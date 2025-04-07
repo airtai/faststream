@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import Any, TypeVar
+from typing import Annotated, Any, TypeVar
 from unittest.mock import Mock
 
 import pytest
@@ -8,11 +8,15 @@ from fastapi import BackgroundTasks, Depends, FastAPI, Header
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
-from faststream import Response
+from faststream import (
+    Depends as FSDepends,
+    Response,
+)
 from faststream._internal.broker.broker import BrokerUsecase
 from faststream._internal.broker.router import BrokerRouter
 from faststream._internal.fastapi.context import Context
 from faststream._internal.fastapi.router import StreamRouter
+from faststream.exceptions import SetupError
 
 from .basic import BaseTestcaseConfig
 
@@ -348,6 +352,68 @@ class FastAPILocalTestcase(BaseTestcaseConfig):
             assert await r.decode() == "hi", r
 
         mock.assert_called_once_with("hi")
+
+    async def test_mixed_depends(self, mock: Mock, queue: str) -> None:
+        router = self.router_class()
+
+        def dep(a: str) -> str:
+            mock(a)
+            return a
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        @router.subscriber(*args, **kwargs)
+        async def hello(
+            a: str,
+            w: Annotated[
+                str,
+                Depends(dep),
+                FSDepends(dep),  # will be ignored
+            ],
+        ) -> str:
+            return w
+
+        async with self.patch_broker(router.broker) as br:
+            r = await br.request(
+                {"a": "hi"},
+                queue,
+                timeout=0.5,
+            )
+            assert await r.decode() == "hi", r
+
+        mock.assert_called_once_with("hi")
+
+    async def test_depends_from_fastdepends_default(self, queue: str) -> None:
+        router = self.router_class()
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        subscriber = router.subscriber(*args, **kwargs)
+
+        @subscriber
+        def sub(d: Any = FSDepends(lambda: 1)) -> None: ...
+
+        app = FastAPI()
+        app.include_router(router)
+
+        with pytest.raises(SetupError), TestClient(app):
+            ...
+
+    async def test_depends_from_fastdepends_annotated(self, queue: str) -> None:
+        router = self.router_class()
+
+        args, kwargs = self.get_subscriber_params(queue)
+
+        subscriber = router.subscriber(*args, **kwargs)
+
+        @subscriber
+        def sub(d: Annotated[Any, FSDepends(lambda: 1)]) -> None: ...
+
+        app = FastAPI()
+        app.include_router(router)
+
+        with pytest.raises(SetupError), TestClient(app):
+            ...
 
     async def test_yield_depends(self, mock: Mock, queue: str) -> None:
         router = self.router_class()

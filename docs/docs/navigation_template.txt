@@ -46,7 +46,10 @@ search:
     - Observability
         - [Healthcheks](getting-started/observability/healthcheks.md)
         - [Prometheus](getting-started/observability/prometheus.md)
-        - [OpenTelemetry](getting-started/observability/opentelemetry.md)
+        - [OpenTelemetry](getting-started/observability/opentelemetry/index.md)
+            - [Tracing](getting-started/observability/opentelemetry/tracing.md)
+            - [Baggage](getting-started/observability/opentelemetry/baggage.md)
+            - [Sentry support](getting-started/observability/opentelemetry/sentry.md)
         - [Logging](getting-started/observability/logging.md)
     - [Config Management](getting-started/config/index.md)
     - [Task Scheduling](scheduling.md)

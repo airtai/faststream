@@ -1,15 +1,18 @@
+import inspect
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import Annotated, Any, Callable, cast
 
 from fast_depends.library.serializer import OptionItem
 from fast_depends.utils import get_typed_annotation
-from fastapi.dependencies.utils import get_dependant, get_parameterless_sub_dependant
+from fastapi import params
+from fastapi.dependencies.utils import (
+    get_dependant,
+    get_parameterless_sub_dependant,
+    get_typed_signature,
+)
+from typing_extensions import get_args, get_origin
 
 from faststream._internal._compat import PYDANTIC_V2
-
-if TYPE_CHECKING:
-    from fastapi import params
-    from fastapi.dependencies.models import Dependant
 
 
 def get_fastapi_dependant(
@@ -134,6 +137,47 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
     ]
 
     return dependant
+
+
+def has_forbidden_types(
+    orig_call: Callable[..., Any],
+    forbidden_types: tuple[Any, ...],
+) -> set[Any]:
+    """Check if faststream.Depends is used in the handler."""
+    endpoint_signature = get_typed_signature(orig_call)
+    signature_params = endpoint_signature.parameters
+
+    founded_types = set()
+
+    for param in signature_params.values():
+        ann = param.annotation
+
+        founded_buffer = set()
+        has_fastapi_depends = False
+        if ann is not inspect.Signature.empty and get_origin(ann) is Annotated:
+            annotated_args = get_args(ann)
+
+            for arg in annotated_args[1:]:
+                if isinstance(arg, params.Depends):
+                    has_fastapi_depends = True
+                    continue
+
+                for t in forbidden_types:
+                    if isinstance(arg, t):
+                        founded_buffer.add(t)
+
+        if isinstance(param.default, params.Depends):
+            has_fastapi_depends = True
+            continue
+
+        for t in forbidden_types:
+            if isinstance(param.default, t):
+                founded_buffer.add(t)
+
+        if not has_fastapi_depends:
+            founded_types |= founded_buffer
+
+    return founded_types
 
 
 FASTSTREAM_FASTAPI_PLUGIN_DECORATOR_MARKER = "__faststream_consumer__"

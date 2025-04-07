@@ -48,7 +48,6 @@ if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, SSLOptions, TimeoutType
     from fast_depends.dependencies import Dependant
     from fast_depends.library.serializer import SerializerProto
-    from pamqp.common import FieldTable
     from yarl import URL
 
     from faststream._internal.basic_types import AnyDict, Decorator, LoggerProto
@@ -58,6 +57,7 @@ if TYPE_CHECKING:
     )
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage
+    from faststream.rabbit.utils import RabbitClientProperties
     from faststream.security import BaseSecurity
     from faststream.specification.schema.extra import Tag, TagDict
 
@@ -100,7 +100,7 @@ class RabbitBroker(
             Doc("Extra ssl options to establish connection."),
         ] = None,
         client_properties: Annotated[
-            Optional["FieldTable"],
+            Optional["RabbitClientProperties"],
             Doc("Add custom client capability."),
         ] = None,
         timeout: Annotated[
@@ -357,7 +357,7 @@ class RabbitBroker(
             Doc("Extra ssl options to establish connection."),
         ] = None,
         client_properties: Annotated[
-            Optional["FieldTable"],
+            Optional["RabbitClientProperties"],
             Doc("Add custom client capability."),
         ] = None,
         security: Annotated[
