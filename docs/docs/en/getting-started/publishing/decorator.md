@@ -21,7 +21,7 @@ It creates a structured DataPipeline unit with an input and output. The order of
 
     :material-checkbox-marked:{.checked_mark} **Easy to use** - Publishing messages in **FastStream** is intuitive and requires minimal effort.
 
-    :material-checkbox-marked:{.checked_mark} **AsyncAPI support** - [```AsyncAPI```](../asyncapi/export.md#section{.css-styles}) is a specification for describing asynchronous APIs used in messaging applications. This method currently does not support this standard.
+    :material-checkbox-marked:{.checked_mark} **AsyncAPI support** - [```AsyncAPI```](../asyncapi/export.md#section{.css-styles}) is a specification for describing asynchronous APIs used in messaging applications.
 
     :fontawesome-solid-square-xmark:{.x_mark} **No testing support** - This method lacks full [```Testing```](./test.md#section{.css-styles}) support.
 
