@@ -117,7 +117,7 @@ for handler in subscriber.handlers:
 raise HandlerNotFoundError
 ```
 
-This code selects the first suitable handler to process the message. This means the **default handler should be placed last** in the list. If no logical handlers match, the message must still be processed — for this, we need a special trash handler that defines the system's default behavior for such cases.
+This code selects the first suitable handler to process the message. This means the **default handler should be placed last** in the list. If no logical handlers match, the message must still be processed. For this, we need a special trash handler that defines the system's default behavior for such cases.
 
 ### Implementing the Default Handler
 
@@ -138,8 +138,8 @@ Here, `@subscriber()` is equivalent to `@subscriber(filter=lambda _: True)`, mea
 ### Summary
 
 - Handlers are checked in order, and the first matching one processes the message.
-- The default handler must be **last** to ensure all messages are handled.
+- The default handler must be **placed last** to ensure all messages are handled.
 - `@subscriber()` without parameters acts as a universal handler, accepting everything.
-- A trash handler must properly finalize the subscription and inform the broker about unneeded data.
+- A trash handler must properly finalize the subscription and inform the broker about unnecessary data.
 
-Properly managing subscribers allows precise message processing control and prevents data loss.
+Properly managing subscribers allows for precise message processing control and prevents data loss.
