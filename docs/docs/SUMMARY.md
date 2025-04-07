@@ -986,6 +986,7 @@ search:
                     - [apply_pattern](api/faststream/rabbit/testing/apply_pattern.md)
                     - [build_message](api/faststream/rabbit/testing/build_message.md)
                 - utils
+                    - [RabbitClientProperties](api/faststream/rabbit/utils/RabbitClientProperties.md)
                     - [build_url](api/faststream/rabbit/utils/build_url.md)
                     - [build_virtual_host](api/faststream/rabbit/utils/build_virtual_host.md)
                     - [is_routing_exchange](api/faststream/rabbit/utils/is_routing_exchange.md)
