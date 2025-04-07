@@ -1,4 +1,10 @@
-from typing import TYPE_CHECKING, Dict, cast
+from typing import TYPE_CHECKING, Annotated, cast
+
+from typing_extensions import deprecated
+
+from faststream._internal.constants import EMPTY
+
+from .state import ConnectedState, ConnectionState, EmptyConnectionState
 
 if TYPE_CHECKING:
     import aio_pika
@@ -9,29 +15,48 @@ if TYPE_CHECKING:
 class RabbitDeclarer:
     """An utility class to declare RabbitMQ queues and exchanges."""
 
-    __channel: "aio_pika.RobustChannel"
-    __queues: Dict["RabbitQueue", "aio_pika.RobustQueue"]
-    __exchanges: Dict["RabbitExchange", "aio_pika.RobustExchange"]
+    def __init__(self) -> None:
+        self.__queues: dict[RabbitQueue, aio_pika.RobustQueue] = {}
+        self.__exchanges: dict[RabbitExchange, aio_pika.RobustExchange] = {}
 
-    def __init__(self, channel: "aio_pika.RobustChannel") -> None:
-        self.__channel = channel
+        self.__connection: ConnectionState = EmptyConnectionState()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(<{self.__connection.__class__.__name__}>, queues={list(self.__queues.keys())}, exchanges={list(self.__exchanges.keys())})"
+
+    def connect(
+        self, connection: "aio_pika.RobustConnection", channel: "aio_pika.RobustChannel"
+    ) -> None:
+        self.__connection = ConnectedState(connection=connection, channel=channel)
+
+    def disconnect(self) -> None:
+        self.__connection = EmptyConnectionState()
         self.__queues = {}
         self.__exchanges = {}
 
     async def declare_queue(
         self,
         queue: "RabbitQueue",
-        passive: bool = False,
+        declare: bool = EMPTY,
+        passive: Annotated[
+            bool,
+            deprecated("Use `declare` instead. Will be removed in the 0.7.0 release."),
+        ] = False,
     ) -> "aio_pika.RobustQueue":
         """Declare a queue."""
         if (q := self.__queues.get(queue)) is None:
+            if declare is not EMPTY:
+                passive = not declare
+            if not passive:
+                passive = not queue.declare
+
             self.__queues[queue] = q = cast(
                 "aio_pika.RobustQueue",
-                await self.__channel.declare_queue(
+                await self.__connection.channel.declare_queue(
                     name=queue.name,
                     durable=queue.durable,
                     exclusive=queue.exclusive,
-                    passive=passive or queue.passive,
+                    passive=passive,
                     auto_delete=queue.auto_delete,
                     arguments=queue.arguments,
                     timeout=queue.timeout,
@@ -44,21 +69,30 @@ class RabbitDeclarer:
     async def declare_exchange(
         self,
         exchange: "RabbitExchange",
-        passive: bool = False,
+        declare: bool = EMPTY,
+        passive: Annotated[
+            bool,
+            deprecated("Use `declare` instead. Will be removed in the 0.7.0 release."),
+        ] = False,
     ) -> "aio_pika.RobustExchange":
         """Declare an exchange, parent exchanges and bind them each other."""
         if not exchange.name:
-            return self.__channel.default_exchange
+            return self.__connection.channel.default_exchange
 
         if (exch := self.__exchanges.get(exchange)) is None:
+            if declare is not EMPTY:
+                passive = not declare
+            if not passive:
+                passive = not exchange.declare
+
             self.__exchanges[exchange] = exch = cast(
                 "aio_pika.RobustExchange",
-                await self.__channel.declare_exchange(
+                await self.__connection.channel.declare_exchange(
                     name=exchange.name,
                     type=exchange.type.value,
                     durable=exchange.durable,
                     auto_delete=exchange.auto_delete,
-                    passive=passive or exchange.passive,
+                    passive=passive,
                     arguments=exchange.arguments,
                     timeout=exchange.timeout,
                     robust=exchange.robust,

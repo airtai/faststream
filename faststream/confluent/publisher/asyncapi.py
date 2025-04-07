@@ -1,10 +1,10 @@
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
     Literal,
     Optional,
-    Sequence,
     Tuple,
     Union,
     cast,
@@ -171,23 +171,22 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
                 description_=description_,
                 include_in_schema=include_in_schema,
             )
-        else:
-            return AsyncAPIDefaultPublisher(
-                key=key,
-                # basic args
-                topic=topic,
-                partition=partition,
-                headers=headers,
-                reply_to=reply_to,
-                broker_middlewares=cast(
-                    "Sequence[BrokerMiddleware[ConfluentMsg]]", broker_middlewares
-                ),
-                middlewares=middlewares,
-                schema_=schema_,
-                title_=title_,
-                description_=description_,
-                include_in_schema=include_in_schema,
-            )
+        return AsyncAPIDefaultPublisher(
+            key=key,
+            # basic args
+            topic=topic,
+            partition=partition,
+            headers=headers,
+            reply_to=reply_to,
+            broker_middlewares=cast(
+                "Sequence[BrokerMiddleware[ConfluentMsg]]", broker_middlewares
+            ),
+            middlewares=middlewares,
+            schema_=schema_,
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
 
 
 class AsyncAPIBatchPublisher(

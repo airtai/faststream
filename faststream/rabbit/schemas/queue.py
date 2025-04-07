@@ -1,16 +1,26 @@
 from copy import deepcopy
 from enum import Enum
-from typing import TYPE_CHECKING, Literal, Optional, TypedDict, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Annotated,
+    Literal,
+    Optional,
+    TypedDict,
+    Union,
+    overload,
+)
 
-from faststream.broker.schemas import NameRequired
+from typing_extensions import deprecated
+
+from faststream._internal.constants import EMPTY
+from faststream._internal.proto import NameRequired
+from faststream._internal.utils.path import compile_path
 from faststream.exceptions import SetupError
-from faststream.types import EMPTY
-from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
     from aio_pika.abc import TimeoutType
 
-    from faststream.types import AnyDict
+    from faststream._internal.basic_types import AnyDict
 
 
 class QueueType(str, Enum):
@@ -46,14 +56,23 @@ class RabbitQueue(NameRequired):
         "timeout",
     )
 
+    def __repr__(self) -> str:
+        if self.declare:
+            body = f", robust={self.robust}, durable={self.durable}, exclusive={self.exclusive}, auto_delete={self.auto_delete})"
+        else:
+            body = ""
+
+        return f"{self.__class__.__name__}({self.name}, routing_key='{self.routing}'{body})"
+
     def __hash__(self) -> int:
+        """Supports hash to store real objects in declarer."""
         return sum(
             (
                 hash(self.name),
                 int(self.durable),
                 int(self.exclusive),
                 int(self.auto_delete),
-            )
+            ),
         )
 
     @property
@@ -68,6 +87,7 @@ class RabbitQueue(NameRequired):
         queue_type: Literal[QueueType.CLASSIC] = QueueType.CLASSIC,
         durable: bool = EMPTY,
         exclusive: bool = False,
+        declare: bool = EMPTY,
         passive: bool = False,
         auto_delete: bool = False,
         arguments: Optional["ClassicQueueArgs"] = None,
@@ -84,6 +104,7 @@ class RabbitQueue(NameRequired):
         queue_type: Literal[QueueType.QUORUM],
         durable: Literal[True],
         exclusive: bool = False,
+        declare: bool = EMPTY,
         passive: bool = False,
         auto_delete: bool = False,
         arguments: Optional["QuorumQueueArgs"] = None,
@@ -100,6 +121,7 @@ class RabbitQueue(NameRequired):
         queue_type: Literal[QueueType.STREAM],
         durable: Literal[True],
         exclusive: bool = False,
+        declare: bool = EMPTY,
         passive: bool = False,
         auto_delete: bool = False,
         arguments: Optional["StreamQueueArgs"] = None,
@@ -115,7 +137,11 @@ class RabbitQueue(NameRequired):
         queue_type: QueueType = QueueType.CLASSIC,
         durable: bool = EMPTY,
         exclusive: bool = False,
-        passive: bool = False,
+        declare: bool = EMPTY,
+        passive: Annotated[
+            bool,
+            deprecated("Use `declare` instead. Will be removed in the 0.7.0 release."),
+        ] = False,
         auto_delete: bool = False,
         arguments: Union[
             "QuorumQueueArgs",
@@ -134,6 +160,9 @@ class RabbitQueue(NameRequired):
         :param name: RabbitMQ queue name.
         :param durable: Whether the object is durable.
         :param exclusive: The queue can be used only in the current connection and will be deleted after connection closed.
+        :param declare: Whether to queue automatically or just connect to it.
+                        If you want to connect to an existing queue, set this to `False`.
+                        Copy of `passive` aio-pike option.
         :param passive: Do not create queue automatically.
         :param auto_delete: The queue will be deleted after connection closed.
         :param arguments: Queue declaration arguments.
@@ -154,7 +183,8 @@ class RabbitQueue(NameRequired):
             if durable is EMPTY:
                 durable = True
             elif not durable:
-                raise SetupError("Quorum and Stream queues must be durable")
+                error_msg = "Quorum and Stream queues must be durable"
+                raise SetupError(error_msg)
         elif durable is EMPTY:
             durable = False
 
@@ -166,18 +196,22 @@ class RabbitQueue(NameRequired):
         self.bind_arguments = bind_arguments
         self.routing_key = routing_key
         self.robust = robust
-        self.passive = passive
         self.auto_delete = auto_delete
         self.arguments = {"x-queue-type": queue_type.value, **(arguments or {})}
         self.timeout = timeout
 
+        if declare is EMPTY:
+            self.declare = not passive
+        else:
+            self.declare = declare
+
     def add_prefix(self, prefix: str) -> "RabbitQueue":
         new_q: RabbitQueue = deepcopy(self)
 
-        new_q.name = "".join((prefix, new_q.name))
+        new_q.name = f"{prefix}{new_q.name}"
 
         if new_q.routing_key:
-            new_q.routing_key = "".join((prefix, new_q.routing_key))
+            new_q.routing_key = f"{prefix}{new_q.routing_key}"
 
         return new_q
 
@@ -251,18 +285,12 @@ class ClassicQueueArgs(
 ):
     """rabbitmq-server/deps/rabbit/src/rabbit_classic_queue.erl."""
 
-    pass
-
 
 class QuorumQueueArgs(
     CommonQueueArgs, SharedClassicAndQuorumQueueArgs, QuorumQueueSpecificArgs
 ):
     """rabbitmq-server/deps/rabbit/src/rabbit_quorum_queue.erl."""
 
-    pass
-
 
 class StreamQueueArgs(CommonQueueArgs, StreamQueueSpecificArgs):
     """rabbitmq-server/deps/rabbit/src/rabbit_stream_queue.erl."""
-
-    pass
