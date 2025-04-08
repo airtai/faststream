@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 
 class ChannelManager:
-    """An utility class to declare RabbitMQ queues and exchanges."""
+    __slots__ = ("__channels", "__connection")
 
     def __init__(self, connection: "aio_pika.RobustConnection") -> None:
         self.__connection = connection
