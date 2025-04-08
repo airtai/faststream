@@ -2079,7 +2079,7 @@ class KafkaRegistrator(
         )
 
         if autoflush:
-            default_publish = publisher._publish
+            default_publish = publisher.publish
 
             @wraps(default_publish)
             def autoflush_wrapper(*args, **kwargs):
@@ -2088,6 +2088,7 @@ class KafkaRegistrator(
                 return result
 
             publisher.publish = autoflush_wrapper
+
         if batch:
             return cast("AsyncAPIBatchPublisher", super().publisher(publisher))
         else:
