@@ -389,7 +389,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         ] = (),
     ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
-        
+
         return await self._publish(
             message=message,
             topic=topic,
