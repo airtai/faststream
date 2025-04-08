@@ -2080,6 +2080,7 @@ class KafkaRegistrator(
 
         if autoflush:
             default_publish = publisher._publish
+
             @wraps(default_publish)
             def autoflush_wrapper(*args, **kwargs):
                 result = default_publish(*args, **kwargs)
