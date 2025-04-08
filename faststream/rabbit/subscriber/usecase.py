@@ -16,7 +16,6 @@ from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.utils import process_msg
 from faststream.exceptions import SetupError
-from faststream.rabbit.helpers.declarer import RabbitDeclarer
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.schemas import BaseRMQInformation
 
@@ -26,7 +25,7 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import BrokerMiddleware, CustomCallable
-    from faststream.rabbit.helpers.declarer import RabbitDeclarer
+    from faststream.rabbit.helpers import RabbitDeclarer
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas import (

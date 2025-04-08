@@ -21,7 +21,7 @@ from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.broker.logging import RabbitLoggingBroker
 from faststream.rabbit.broker.registrator import RabbitRegistrator
-from faststream.rabbit.helpers.declarer import RabbitDeclarer
+from faststream.rabbit.helpers import ChannelManager, RabbitDeclarer
 from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from faststream.rabbit.schemas import (
     RABBIT_REPLY,
@@ -405,18 +405,10 @@ class RabbitBroker(
             ),
         )
 
+        ch_manager = self._channel_manager = ChannelManager(connection)
+
         if self._channel is None:  # pragma: no branch
-            max_consumers = channel_settings.prefetch_count
-
-            channel = self._channel = cast(
-                "RobustChannel",
-                await connection.channel(
-                    channel_number=channel_settings.channel_number,
-                    publisher_confirms=channel_settings.publisher_confirms,
-                    on_return_raises=channel_settings.on_return_raises,
-                ),
-            )
-
+            channel = self._channel = await ch_manager.get_channel(channel_settings)
             declarer = self.declarer = RabbitDeclarer(channel)
             await declarer.declare_queue(RABBIT_REPLY)
 
@@ -426,14 +418,13 @@ class RabbitBroker(
                 parser=self._parser,
             )
 
-            if max_consumers:
+            if qos := channel_settings.prefetch_count:
                 c = AsyncAPISubscriber.build_log_context(
                     None,
                     RabbitQueue(""),
                     RabbitExchange(""),
                 )
-                self._log(f"Set max consumers to {max_consumers}", extra=c)
-                await channel.set_qos(prefetch_count=int(max_consumers))
+                self._log(f"Set max consumers to {qos}", extra=c)
 
         return connection
 
