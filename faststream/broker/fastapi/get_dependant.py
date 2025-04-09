@@ -1,7 +1,14 @@
+import inspect
 from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
 
+from fast_depends.dependencies import model
 from fast_depends.utils import get_typed_annotation
-from fastapi.dependencies.utils import get_dependant, get_parameterless_sub_dependant
+from fastapi.dependencies.utils import (
+    get_dependant,
+    get_parameterless_sub_dependant,
+    get_typed_signature,
+)
+from typing_extensions import Annotated, get_args, get_origin
 
 from faststream._compat import PYDANTIC_V2
 
@@ -131,6 +138,22 @@ def _patch_fastapi_dependent(dependant: "Dependant") -> "Dependant":
     dependant.flat_params = params_unique  # type: ignore[attr-defined]
 
     return dependant
+
+
+def has_faststream_depends(orig_call: Callable[..., Any]) -> bool:
+    """Check if faststream.Depends is used in the handler."""
+    endpoint_signature = get_typed_signature(orig_call)
+    signature_params = endpoint_signature.parameters
+    for param in signature_params.values():
+        ann = param.annotation
+        if ann is not inspect.Signature.empty and get_origin(ann) is Annotated:
+            annotated_args = get_args(ann)
+            for arg in annotated_args:
+                if isinstance(arg, model.Depends):
+                    return True
+        if isinstance(param.default, model.Depends):
+            return True
+    return False
 
 
 FASTSTREAM_FASTAPI_PLUGIN_DECORATOR_MARKER = "__faststream_consumer__"
