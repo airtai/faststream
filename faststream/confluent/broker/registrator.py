@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import (
+        BrokerMiddleware,
         CustomCallable,
         Filter,
         PublisherMiddleware,
@@ -1607,3 +1608,30 @@ class KafkaRegistrator(
             publisher = cast("AsyncAPIDefaultPublisher", publisher)
 
         return super().publisher(publisher)  # type: ignore[return-value,arg-type]
+
+    @override
+    def include_router(
+        self,
+        router: "ABCBroker[Any]",
+        *,
+        prefix: str = "",
+        dependencies: Iterable["Depends"] = (),
+        middlewares: Iterable[
+            "BrokerMiddleware[Union[Message, Tuple[Message, ...]]]"
+        ] = (),
+        include_in_schema: Optional[bool] = None,
+    ) -> None:
+        if not isinstance(router, KafkaRegistrator):
+            msg = (
+                f"Router must be an instance of KafkaRegistrator, "
+                f"got {type(router).__name__} instead"
+            )
+            raise SetupError(msg)
+
+        super().include_router(
+            router,
+            prefix=prefix,
+            dependencies=dependencies,
+            middlewares=middlewares,
+            include_in_schema=include_in_schema,
+        )
