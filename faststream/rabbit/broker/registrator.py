@@ -25,7 +25,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
-    from faststream.rabbit.schemas import ReplyConfig
+    from faststream.rabbit.schemas import Channel, ReplyConfig
     from faststream.types import AnyDict
 
 
@@ -46,6 +46,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         middlewares: Sequence["SubscriberMiddleware[RabbitMessage]"] = (),
+        channel: Optional["Channel"] = None,
         reply_config: Annotated[
             "ReplyConfig",
             deprecated(
@@ -80,6 +81,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             if not presented. **FastStream** declares exchange object automatically
             if it is not passive (by default).
             consume_args: Extra consumer arguments to use in `queue.consume(...)` method.
+            channel: Channel to use for consuming messages. If not specified, a default channel will be used.
             reply_config: Extra options to use at replies publishing.
             dependencies: Dependencies list (`[Depends(),]`) to apply to the subscriber.
             parser: Parser to map original **IncomingMessage** Msg to FastStream one.
@@ -101,6 +103,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
                     exchange=RabbitExchange.validate(exchange),
                     consume_args=consume_args,
                     reply_config=reply_config,
+                    channel=channel,
                     # subscriber args
                     no_ack=no_ack,
                     no_reply=no_reply,
