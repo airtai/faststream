@@ -2088,7 +2088,7 @@ class KafkaRegistrator(
                 await publisher.flush()
                 return result
 
-            setattr(publisher, "publish", autoflush_wrapper)
+            publisher.publish = autoflush_wrapper
 
         if batch:
             return cast("AsyncAPIBatchPublisher", super().publisher(publisher))
