@@ -183,6 +183,9 @@ class LogicPublisher(PublisherUsecase[MsgType]):
 
         raise AssertionError("unreachable")
 
+    async def flush(self) -> None:
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        await self._producer.flush()
 
 class DefaultPublisher(LogicPublisher[ConsumerRecord]):
     def __init__(

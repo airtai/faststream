@@ -2082,9 +2082,9 @@ class KafkaRegistrator(
             default_publish = publisher.publish
 
             @wraps(default_publish)
-            def autoflush_wrapper(*args, **kwargs):
-                result = default_publish(*args, **kwargs)
-                publisher._producer.flush()
+            async def autoflush_wrapper(*args, **kwargs):
+                result = await default_publish(*args, **kwargs)
+                await publisher.flush()
                 return result
 
             publisher.publish = autoflush_wrapper
