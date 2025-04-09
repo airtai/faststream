@@ -187,6 +187,7 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return await self._producer.flush()
 
+
 class DefaultPublisher(LogicPublisher[ConsumerRecord]):
     def __init__(
         self,
