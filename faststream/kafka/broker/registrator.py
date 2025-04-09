@@ -2,6 +2,7 @@ from functools import wraps
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
     Callable,
     Collection,
     Dict,
@@ -2079,15 +2080,15 @@ class KafkaRegistrator(
         )
 
         if autoflush:
-            default_publish = publisher.publish
+            default_publish: Callable[..., Awaitable[Optional[Any]]] = publisher.publish
 
             @wraps(default_publish)
-            async def autoflush_wrapper(*args, **kwargs):
+            async def autoflush_wrapper(*args: Any, **kwargs: Any) -> Optional[Any]:
                 result = await default_publish(*args, **kwargs)
                 await publisher.flush()
                 return result
 
-            publisher.publish = autoflush_wrapper
+            setattr(publisher, "publish", autoflush_wrapper)
 
         if batch:
             return cast("AsyncAPIBatchPublisher", super().publisher(publisher))
