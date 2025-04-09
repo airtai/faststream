@@ -17,7 +17,7 @@ class ChannelManager:
     ) -> None:
         self.__connection = connection
         self.__default_channel = default_channel
-        self.__channels: Dict[int, aio_pika.RobustChannel] = {}
+        self.__channels: Dict[Channel, aio_pika.RobustChannel] = {}
 
     async def get_channel(
         self,
@@ -27,10 +27,8 @@ class ChannelManager:
         if channel is None:
             channel = self.__default_channel
 
-        hash_key = id(channel)
-
-        if (ch := self.__channels.get(hash_key)) is None:
-            self.__channels[hash_key] = ch = cast(
+        if (ch := self.__channels.get(channel)) is None:
+            self.__channels[channel] = ch = cast(
                 "aio_pika.RobustChannel",
                 await self.__connection.channel(
                     channel_number=channel.channel_number,

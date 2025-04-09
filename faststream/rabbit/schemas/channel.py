@@ -20,3 +20,6 @@ class Channel:
     on_return_raises: bool = False
     """raise an :class:`aio_pika.exceptions.DeliveryError`
     when mandatory message will be returned"""
+
+    def __hash__(self) -> int:
+        return id(self)
