@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Sequence, Union, cast
 
-from typing_extensions import override
+from typing_extensions import Annotated, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
-    from faststream.rabbit.schemas.reply import ReplyConfig
+    from faststream.rabbit.schemas import ReplyConfig
     from faststream.types import AnyDict
 
 
@@ -42,12 +42,25 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         exchange: Union[str, "RabbitExchange", None] = None,
         *,
         consume_args: Optional["AnyDict"] = None,
-        reply_config: Optional["ReplyConfig"] = None,
         dependencies: Iterable["Depends"] = (),
         parser: Optional["CustomCallable"] = None,
         decoder: Optional["CustomCallable"] = None,
         middlewares: Sequence["SubscriberMiddleware[RabbitMessage]"] = (),
-        filter: "Filter[RabbitMessage]" = default_filter,
+        reply_config: Annotated[
+            "ReplyConfig",
+            deprecated(
+                "Deprecated in **FastStream 0.5.16**. "
+                "Please, use `RabbitResponse` object as a handler return instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = None,
+        filter: Annotated[
+            "Filter[RabbitMessage]",
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. Please, create `subscriber` object "
+                "and use it explicitly instead. Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = default_filter,
         retry: Union[bool, int] = False,
         no_ack: bool = False,
         no_reply: bool = False,
@@ -68,15 +81,11 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             if it is not passive (by default).
             consume_args: Extra consumer arguments to use in `queue.consume(...)` method.
             reply_config: Extra options to use at replies publishing.
-            Deprecated in **FastStream 0.5.16**. Please, use `RabbitResponse` object
-            as a handler return instead. Argument will be removed in **FastStream 0.6.0**.
             dependencies: Dependencies list (`[Depends(),]`) to apply to the subscriber.
             parser: Parser to map original **IncomingMessage** Msg to FastStream one.
             decoder: Function to decode FastStream msg bytes body to python objects.
             middlewares: Subscriber middlewares to wrap incoming message processing.
             filter: Overload subscriber to consume various messages from the same source.
-            Deprecated in **FastStream 0.5.0**. Please, create `subscriber` object
-            and use it explicitly instead. Argument will be removed in **FastStream 0.6.0**.
             retry: Whether to `nack` message at processing exception.
             no_ack: Whether to disable **FastStream** autoacknowledgement logic or not.
             no_reply: Whether to disable **FastStream** RPC and Reply To auto responses or not.
@@ -152,9 +161,9 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             routing_key: Default message routing key to publish with.
             Overrides `queue` option if presented.
             mandatory: Client waits for confirmation that the message is placed
-            to some queue. RabbitMQ returns message to client if there is no suitable queue.
+                to some queue. RabbitMQ returns message to client if there is no suitable queue.
             immediate: Client expects that there is a consumer ready to take the message to work.
-            RabbitMQ returns message to client if there is no suitable consumer.
+                RabbitMQ returns message to client if there is no suitable consumer.
             timeout: Send confirmation time from RabbitMQ.
             persist: Restore the message on RabbitMQ reboot.
             reply_to: Reply message routing key to send with (always sending to default exchange).
@@ -163,12 +172,12 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             title: AsyncAPI publisher object title.
             description: AsyncAPI publisher object description.
             schema: AsyncAPI publishing message type. Should be any python-native
-            object annotation or `pydantic.BaseModel`.
+                object annotation or `pydantic.BaseModel`.
             include_in_schema: Whether to include operation in AsyncAPI schema or not.
             headers: Message headers to store meta-information. Can be overridden
-            by `publish.headers` if specified.
+                by `publish.headers` if specified.
             content_type: Message **content-type** header. Used by application, not core RabbitMQ.
-            Will be set automatically if not specified.
+                Will be set automatically if not specified.
             content_encoding: Message body content encoding, e.g. **gzip**.
             expiration: Message expiration (lifetime) in seconds (or datetime or timedelta).
             message_type: Application-specific message type, e.g. **orders.created**.
