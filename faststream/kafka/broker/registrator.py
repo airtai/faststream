@@ -20,6 +20,7 @@ from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
+from faststream.exceptions import SetupError
 from faststream.kafka.publisher.asyncapi import AsyncAPIPublisher
 from faststream.kafka.subscriber.factory import create_subscriber
 
@@ -30,6 +31,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import (
+        BrokerMiddleware,
         CustomCallable,
         Filter,
         PublisherMiddleware,
@@ -2065,3 +2067,30 @@ class KafkaRegistrator(
             return cast("AsyncAPIBatchPublisher", super().publisher(publisher))
         else:
             return cast("AsyncAPIDefaultPublisher", super().publisher(publisher))
+
+    @override
+    def include_router(
+        self,
+        router: "KafkaRegistrator",  # type: ignore[override]
+        *,
+        prefix: str = "",
+        dependencies: Iterable["Depends"] = (),
+        middlewares: Iterable[
+            "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
+        ] = (),
+        include_in_schema: Optional[bool] = None,
+    ) -> None:
+        if not isinstance(router, KafkaRegistrator):
+            msg = (
+                f"Router must be an instance of KafkaRegistrator, "
+                f"got {type(router).__name__} instead"
+            )
+            raise SetupError(msg)
+
+        super().include_router(
+            router,
+            prefix=prefix,
+            dependencies=dependencies,
+            middlewares=middlewares,
+            include_in_schema=include_in_schema,
+        )
