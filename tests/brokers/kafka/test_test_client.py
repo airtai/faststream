@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -180,7 +180,7 @@ class TestTestclient(BrokerTestclientTestcase):
             await br.publish("hello", queue)
             m.mock.assert_called_once_with("hello")
             publisher.mock.assert_called_once_with([1, 2, 3])
-    
+
     async def test_batch_publisher_autoflush_mock(
         self,
         queue: str,
