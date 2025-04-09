@@ -914,6 +914,10 @@ search:
                     - router
                         - [RabbitRouter](api/faststream/rabbit/fastapi/router/RabbitRouter.md)
                 - helpers
+                    - [ChannelManager](api/faststream/rabbit/helpers/ChannelManager.md)
+                    - [RabbitDeclarer](api/faststream/rabbit/helpers/RabbitDeclarer.md)
+                    - channel_manager
+                        - [ChannelManager](api/faststream/rabbit/helpers/channel_manager/ChannelManager.md)
                     - declarer
                         - [RabbitDeclarer](api/faststream/rabbit/helpers/declarer/RabbitDeclarer.md)
                 - message
