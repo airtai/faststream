@@ -48,7 +48,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         middlewares: Sequence["SubscriberMiddleware[RabbitMessage]"] = (),
         channel: Optional["Channel"] = None,
         reply_config: Annotated[
-            "ReplyConfig",
+            Optional["ReplyConfig"],
             deprecated(
                 "Deprecated in **FastStream 0.5.16**. "
                 "Please, use `RabbitResponse` object as a handler return instead. "
