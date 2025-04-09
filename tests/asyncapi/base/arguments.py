@@ -664,7 +664,9 @@ class FastAPICompatible:
 
         name, message = next(iter(schema["components"]["messages"].items()))
 
-        assert name == IsStr(regex=r"test.one[\w:]*:Handle:Message"), name
+        assert name == IsStr(
+            regex=r"test.one[\w:]*:\[Handle,HandleDefault\]:Message"
+        ), name
 
         assert len(message["payload"]["oneOf"]) == 2
 
