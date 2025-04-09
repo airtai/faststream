@@ -1612,7 +1612,7 @@ class KafkaRegistrator(
     @override
     def include_router(
         self,
-        router: "ABCBroker[Any]",
+        router: "KafkaRegistrator",  # type: ignore[override]
         *,
         prefix: str = "",
         dependencies: Iterable["Depends"] = (),

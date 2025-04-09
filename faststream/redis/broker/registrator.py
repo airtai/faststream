@@ -221,7 +221,7 @@ class RedisRegistrator(ABCBroker[UnifyRedisDict]):
     @override
     def include_router(
         self,
-        router: "ABCBroker[Any]",
+        router: "RedisRegistrator",  # type: ignore[override]
         *,
         prefix: str = "",
         dependencies: Iterable["Depends"] = (),

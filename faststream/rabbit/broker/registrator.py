@@ -314,7 +314,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
     @override
     def include_router(
         self,
-        router: "ABCBroker[Any]",
+        router: "RabbitRegistrator",  # type: ignore[override]
         *,
         prefix: str = "",
         dependencies: Iterable["Depends"] = (),

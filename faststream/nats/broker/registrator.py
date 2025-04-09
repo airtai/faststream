@@ -357,9 +357,9 @@ class NatsRegistrator(ABCBroker["Msg"]):
         return publisher
 
     @override
-    def include_router(  # type: ignore[override]
+    def include_router(
         self,
-        router: "NatsRegistrator",
+        router: "NatsRegistrator",  # type: ignore[override]
         *,
         prefix: str = "",
         dependencies: Iterable["Depends"] = (),
