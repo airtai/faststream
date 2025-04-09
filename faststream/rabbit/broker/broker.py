@@ -70,7 +70,7 @@ class RabbitBroker(
     url: str
     _producer: Optional["AioPikaFastProducer"]
 
-    declarer: Optional[RabbitDeclarer]
+    declarer: Optional["RabbitDeclarer"]
     _channel: Optional["RobustChannel"]
 
     def __init__(
@@ -405,11 +405,15 @@ class RabbitBroker(
             ),
         )
 
-        ch_manager = self._channel_manager = ChannelManager(connection)
+        ch_manager = self._channel_manager = ChannelManager(
+            connection,
+            default_channel=channel_settings,
+        )
+        declarer = self.declarer = RabbitDeclarer(ch_manager)
 
         if self._channel is None:  # pragma: no branch
-            channel = self._channel = await ch_manager.get_channel(channel_settings)
-            declarer = self.declarer = RabbitDeclarer(channel)
+            self._channel = await ch_manager.get_channel(channel_settings)
+
             await declarer.declare_queue(RABBIT_REPLY)
 
             self._producer = AioPikaFastProducer(

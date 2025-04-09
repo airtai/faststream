@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, cast
+from typing import TYPE_CHECKING, Dict, Optional, cast
 
 if TYPE_CHECKING:
     import aio_pika
@@ -7,17 +7,26 @@ if TYPE_CHECKING:
 
 
 class ChannelManager:
-    __slots__ = ("__channels", "__connection")
+    __slots__ = ("__channels", "__connection", "__default_channel")
 
-    def __init__(self, connection: "aio_pika.RobustConnection") -> None:
+    def __init__(
+        self,
+        connection: "aio_pika.RobustConnection",
+        *,
+        default_channel: "Channel",
+    ) -> None:
         self.__connection = connection
+        self.__default_channel = default_channel
         self.__channels: Dict[int, aio_pika.RobustChannel] = {}
 
     async def get_channel(
         self,
-        channel: "Channel",
+        channel: Optional["Channel"] = None,
     ) -> "aio_pika.RobustChannel":
         """Declare a queue."""
+        if channel is None:
+            channel = self.__default_channel
+
         hash_key = id(channel)
 
         if (ch := self.__channels.get(hash_key)) is None:
