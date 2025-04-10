@@ -4,6 +4,7 @@ from typing_extensions import Annotated, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
+from faststream.exceptions import SetupError
 from faststream.rabbit.publisher.asyncapi import AsyncAPIPublisher
 from faststream.rabbit.publisher.usecase import PublishKwargs
 from faststream.rabbit.schemas import (
@@ -14,11 +15,12 @@ from faststream.rabbit.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.rabbit.subscriber.factory import create_subscriber
 
 if TYPE_CHECKING:
-    from aio_pika import IncomingMessage  # noqa: F401
+    from aio_pika import IncomingMessage
     from aio_pika.abc import DateType, HeadersType, TimeoutType
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import (
+        BrokerMiddleware,
         CustomCallable,
         Filter,
         PublisherMiddleware,
@@ -222,3 +224,28 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         )
 
         return publisher
+
+    @override
+    def include_router(
+        self,
+        router: "RabbitRegistrator",  # type: ignore[override]
+        *,
+        prefix: str = "",
+        dependencies: Iterable["Depends"] = (),
+        middlewares: Iterable["BrokerMiddleware[IncomingMessage]"] = (),
+        include_in_schema: Optional[bool] = None,
+    ) -> None:
+        if not isinstance(router, RabbitRegistrator):
+            msg = (
+                f"Router must be an instance of RabbitRegistrator, "
+                f"got {type(router).__name__} instead"
+            )
+            raise SetupError(msg)
+
+        super().include_router(
+            router,
+            prefix=prefix,
+            dependencies=dependencies,
+            middlewares=middlewares,
+            include_in_schema=include_in_schema,
+        )
